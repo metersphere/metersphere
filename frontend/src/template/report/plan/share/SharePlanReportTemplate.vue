@@ -1,5 +1,5 @@
 <template>
-  <test-plan-report-content :share-id="shareId" :is-share="true" :plan-id="planId"/>
+  <test-plan-report-content :share-id="shareId" :report-id="reportId" :is-share="true" :is-db="isDb" :plan-id="planId"/>
 </template>
 
 <script>
@@ -12,14 +12,25 @@ export default {
   data() {
     return {
       planId: '',
+      reportId: '',
       visible: false,
-      shareId: ''
+      shareId: '',
+      isDb: false
     }
   },
   created() {
     this.shareId = getShareId();
     getShareInfo(this.shareId, (data) => {
-      this.planId = data.customData;
+      if (!data) {
+        this.$error('连接已失效，请重新获取!');
+        return;
+      }
+      if (data.shareType === 'PLAN_REPORT') {
+        this.planId = data.customData;
+      } else if (data.shareType === 'PLAN_DB_REPORT') {
+        this.reportId = data.customData;
+        this.isDb = true;
+      }
       this.visible = true;
     });
   },

@@ -9,6 +9,9 @@
 
       <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable" class="search-input" size="small"
                 @keyup.enter.native="initTable" v-model="condition.name"/>
+      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                               v-if="condition.components !== undefined && condition.components.length > 0"
+                               @search="initTable"/>
 
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total" enableSelection
@@ -117,8 +120,11 @@
   import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
   import TableSelectCountBar from "./TableSelectCountBar";
   import {_filter, _sort, buildBatchParam, getLabel,} from "@/common/js/tableUtils";
-  import {WORKSPACE_ID} from "@/common/js/constants";
   import {getCurrentProjectID} from "@/common/js/utils";
+  import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+  import {
+    TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS,
+  } from "@/business/components/common/components/search/search-components";
 
   export default {
     name: "RelevanceApiList",
@@ -135,11 +141,14 @@
       ShowMoreBtn,
       MsBatchEdit,
       MsTable,
-      MsTableColumn
+      MsTableColumn,
+      MsTableAdvSearchBar
     },
     data() {
       return {
-        condition: {},
+        condition: {
+          components: TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS
+        },
         selectCase: {},
         result: {},
         moduleId: "",
@@ -278,6 +287,7 @@
             if (this.$refs.apitable) {
               this.$refs.apitable.doLayout();
               this.$refs.apitable.checkTableRowIsSelect();
+              this.$refs.apitable.clear();
             }
           });
         });
@@ -406,6 +416,12 @@
     width: 30%;
     margin-bottom: 20px;
     margin-right: 20px;
+  }
+
+  .adv-search-bar {
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px;
   }
 
 </style>

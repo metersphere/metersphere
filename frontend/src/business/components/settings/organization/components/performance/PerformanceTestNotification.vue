@@ -1,28 +1,28 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="10">
-        <h5>测试</h5>
+      <el-col :span="24">
+        <h5>{{ $t('commons.performance') }}</h5>
         <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel"
                    v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
         <el-popover
-          placement="right-end"
-          title="示例"
-          width="600"
-          trigger="click">
+            placement="right-end"
+            title="示例"
+            width="600"
+            trigger="click">
           <ms-code-edit :read-only="true" height="400px" :data.sync="title" :modes="modes" :mode="'html'"/>
           <el-button icon="el-icon-warning" plain size="mini" slot="reference">
             {{ $t('organization.message.mail_template_example') }}
           </el-button>
         </el-popover>
         <el-popover
-          placement="right-end"
-          title="示例"
-          width="400"
-          trigger="click"
-          :content="robotTitle">
+            placement="right-end"
+            title="示例"
+            width="400"
+            trigger="click"
+            :content="robotTitle">
           <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
           <el-button icon="el-icon-warning" plain size="mini" slot="reference">
             {{ $t('organization.message.robot_template') }}
@@ -33,11 +33,11 @@
     <el-row>
       <el-col :span="24">
         <el-table
-          :data="defectTask"
-          class="tb-edit"
-          border
-          :cell-style="rowClass"
-          :header-cell-style="headClass"
+            :data="defectTask"
+            class="tb-edit"
+            border
+            :cell-style="rowClass"
+            :header-cell-style="headClass"
         >
           <el-table-column :label="$t('schedule.event')" min-width="15%" prop="events">
             <template slot-scope="scope">
@@ -45,10 +45,10 @@
                          @change="handleReceivers(scope.row)"
                          prop="event" :disabled="!scope.row.isSet">
                 <el-option
-                  v-for="item in eventOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
+                    v-for="item in eventOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
                 </el-option>
               </el-select>
             </template>
@@ -59,10 +59,10 @@
                          :placeholder="$t('commons.please_select')"
                          style="width: 100%;" :disabled="!row.isSet">
                 <el-option
-                  v-for="item in row.receiverOptions"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
+                    v-for="item in row.receiverOptions"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
                 </el-option>
               </el-select>
             </template>
@@ -73,10 +73,10 @@
                          size="mini"
                          :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)">
                 <el-option
-                  v-for="item in receiveTypeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
+                    v-for="item in receiveTypeOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
                 </el-option>
               </el-select>
             </template>
@@ -90,48 +90,48 @@
           <el-table-column :label="$t('commons.operating')" min-width="25%" prop="result">
             <template v-slot:default="scope">
               <ms-tip-button
-                circle
-                type="success"
-                size="mini"
-                v-if="scope.row.isSet"
-                v-xpack
-                @click="handleTemplate(scope.$index,scope.row)"
-                :tip="$t('organization.message.template')"
-                icon="el-icon-tickets"/>
+                  circle
+                  type="success"
+                  size="mini"
+                  v-if="scope.row.isSet"
+                  v-xpack
+                  @click="handleTemplate(scope.$index,scope.row)"
+                  :tip="$t('organization.message.template')"
+                  icon="el-icon-tickets"/>
               <ms-tip-button
-                circle
-                type="primary"
-                size="mini"
-                v-show="scope.row.isSet"
-                @click="handleAddTask(scope.$index,scope.row)"
-                :tip="$t('commons.add')"
-                icon="el-icon-check"/>
+                  circle
+                  type="primary"
+                  size="mini"
+                  v-show="scope.row.isSet"
+                  @click="handleAddTask(scope.$index,scope.row)"
+                  :tip="$t('commons.add')"
+                  icon="el-icon-check"/>
               <ms-tip-button
-                circle
-                size="mini"
-                v-show="scope.row.isSet"
-                @click="removeRowTask(scope.$index,defectTask)"
-                :tip="$t('commons.cancel')"
-                icon="el-icon-refresh-left"/>
+                  circle
+                  size="mini"
+                  v-show="scope.row.isSet"
+                  @click="removeRowTask(scope.$index,defectTask)"
+                  :tip="$t('commons.cancel')"
+                  icon="el-icon-refresh-left"/>
               <ms-tip-button
-                el-button
-                circle
-                type="primary"
-                size="mini"
-                icon="el-icon-edit"
-                v-show="!scope.row.isSet"
-                :tip="$t('commons.edit')"
-                @click="handleEditTask(scope.$index,scope.row)"
-                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
+                  el-button
+                  circle
+                  type="primary"
+                  size="mini"
+                  icon="el-icon-edit"
+                  v-show="!scope.row.isSet"
+                  :tip="$t('commons.edit')"
+                  @click="handleEditTask(scope.$index,scope.row)"
+                  v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
               <ms-tip-button
-                circle
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-                v-show="!scope.row.isSet"
-                @click="deleteRowTask(scope.$index,scope.row)"
-                :tip="$t('commons.delete')"
-                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
+                  circle
+                  type="danger"
+                  icon="el-icon-delete"
+                  size="mini"
+                  v-show="!scope.row.isSet"
+                  @click="deleteRowTask(scope.$index,scope.row)"
+                  :tip="$t('commons.delete')"
+                  v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
             </template>
           </el-table-column>
         </el-table>
@@ -169,17 +169,17 @@ export default {
     return {
       modes: ['text', 'html'],
       title: "<!DOCTYPE html>\n" +
-        "<html lang=\"en\">\n" +
-        "<head>\n" +
-        "    <meta charset=\"UTF-8\">\n" +
-        "    <title>MeterSphere</title>\n" +
-        "</head>\n" +
-        "<body>\n" +
-        "<div>\n" +
-        "    <p>${creator}创建了测试用例</p>\n" +
-        "</div>\n" +
-        "</body>\n" +
-        "</html>",
+          "<html lang=\"en\">\n" +
+          "<head>\n" +
+          "    <meta charset=\"UTF-8\">\n" +
+          "    <title>MeterSphere</title>\n" +
+          "</head>\n" +
+          "<body>\n" +
+          "<div>\n" +
+          "    <p>${creator}创建了测试用例</p>\n" +
+          "</div>\n" +
+          "</body>\n" +
+          "</html>",
       robotTitle: "【任务通知】:${creator}创建了测试用例",
       defectTask: [{
         taskType: "defectTask",
@@ -212,14 +212,14 @@ export default {
     },
     handleEdit(index, data) {
       data.isReadOnly = true;
-      if (data.type === 'EMAIL') {
+      if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = !data.isReadOnly;
         data.webhook = '';
       }
     },
     handleEditTask(index, data) {
       data.isSet = true;
-      if (data.type === 'EMAIL') {
+      if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = false;
         data.webhook = '';
       } else {
@@ -236,7 +236,7 @@ export default {
       task.isSet = true;
       task.identification = '';
       task.taskType = TASK_TYPE;
-      this.defectTask.push(task);
+      this.defectTask.unshift(task);
     },
     handleAddTask(index, data) {
 
@@ -256,8 +256,8 @@ export default {
       }
     },
     addTask(data) {
-      data.isSet = false;
       this.result = this.$post("/notice/save/message/task", data, () => {
+        data.isSet = false;
         this.initForm();
         this.$success(this.$t('commons.save_success'));
       });

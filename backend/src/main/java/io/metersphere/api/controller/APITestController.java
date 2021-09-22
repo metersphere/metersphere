@@ -272,6 +272,27 @@ public class APITestController {
         return apiCountResult;
     }
 
+    @GetMapping("/countApiCoverage/{projectId}")
+    public String countApiCoverage(@PathVariable String projectId) {
+        String returnStr = "100%";
+        /**
+         * 接口覆盖率
+         * 接口有案例/被场景引用 ： 所有的接口
+         */
+        long effectiveApiCount = apiDefinitionService.countEffectiveByProjectId(projectId);
+        long sourceIdCount = apiDefinitionService.countQuotedApiByProjectId(projectId);
+        try {
+            if(sourceIdCount != 0){
+                float coverageRageNumber = (float) sourceIdCount * 100 / effectiveApiCount;
+                DecimalFormat df = new DecimalFormat("0.0");
+                returnStr = df.format(coverageRageNumber) + "%";
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return  returnStr;
+    }
+
     @GetMapping("/countInterfaceCoverage/{projectId}")
     public String countInterfaceCoverage(@PathVariable String projectId) {
         String returnStr = "100%";
@@ -365,10 +386,18 @@ public class APITestController {
     }
 
     @PostMapping(value = "/schedule/updateEnableByPrimyKey")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_HOME_TASK, event = NoticeConstants.Event.CLOSE_SCHEDULE, mailTemplate = "api/ScheduleClose", subject = "接口测试通知")
     public Schedule updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoRequest request) {
         Schedule schedule = scheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(request.isEnable());
+        apiAutomationService.updateSchedule(schedule);
+        return schedule;
+    }
+
+    @PostMapping(value = "/schedule/updateEnableByPrimyKey/disable")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_HOME_TASK, event = NoticeConstants.Event.CLOSE_SCHEDULE, mailTemplate = "api/ScheduleClose", subject = "接口测试通知")
+    public Schedule disableSchedule(@RequestBody ScheduleInfoRequest request) {
+        Schedule schedule = scheduleService.getSchedule(request.getTaskID());
+        schedule.setEnable(false);
         apiAutomationService.updateSchedule(schedule);
         return schedule;
     }

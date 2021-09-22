@@ -1,11 +1,12 @@
 <template>
   <div>
     <el-row >
-      <el-col :span="12">
+      <el-col :span="12" v-if="caseCharData && caseCharData.length > 0">
         <ms-doughnut-pie-chart :name="$t('单接口用例')" :data="caseCharData" ref="functionChar"/>
       </el-col>
-      <el-col :span="12">
-        <api-scenario-char-result :data="scenarioCharData"/>
+      <el-col :span="12" v-if="scenarioCharData && scenarioCharData.length > 0">
+        <api-scenario-char-result :name="'场景用例数'" :data="scenarioCharData"/>
+        <api-scenario-char-result style="margin-top: -50px;" :name="'步骤用例数'" :data="stepCharData"/>
       </el-col>
     </el-row>
   </div>
@@ -25,12 +26,16 @@ export default {
       caseDataMap: new Map([
         ["success", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
         ["Success", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
+        ["Pass", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
         ["error", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
         ["Fail", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
+        ["Failure", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
         ["Prepare", {name: this.$t('api_test.home_page.detail_card.unexecute'), itemStyle: {color: '#909399'}}],
+        ["Underway", {name: this.$t('api_test.home_page.detail_card.unexecute'), itemStyle: {color: '#909399'}}],
       ]),
       caseCharData: [],
       scenarioCharData: [],
+      stepCharData: [],
       isShow: true
     }
   },
@@ -66,32 +71,20 @@ export default {
       let apiScenarioData = [];
       this.apiResult.apiScenarioData.forEach(item => {
         let data = this.getDataByStatus(item.status);
-        data.data = [item.count];
-        for (let i = 0; i < this.apiResult.apiScenarioStepData.length; i++) {
-          let stepItem = this.apiResult.apiScenarioStepData[i];
-          if (item.status) {
-            if (item.status === 'Fail' && stepItem.status === 'Failure') {
-              data.data.push(stepItem.count);
-              break;
-            }
-            if (item.status === 'Success' && stepItem.status === 'Pass') {
-              data.data.push(stepItem.count);
-              break;
-            }
-            if (item.status === 'Prepare' && stepItem.status === 'Underway') {
-              data.data.push(stepItem.count);
-              break;
-            }
-          } else {
-            if (stepItem.status === 'Underway') {
-              data.data.push(stepItem.count);
-              break;
-            }
-          }
-        }
+        data.value = item.count;
         apiScenarioData.push(data);
       });
+
+      let stepCharData = [];
+      for (let i = 0; i < this.apiResult.apiScenarioStepData.length; i++) {
+        let stepItem = this.apiResult.apiScenarioStepData[i];
+        let data = this.getDataByStatus(stepItem.status);
+        data.value = stepItem.count;
+        stepCharData.push(data);
+      }
+
       this.scenarioCharData = apiScenarioData;
+      this.stepCharData = stepCharData;
     },
     getDataByStatus(status) {
       let tmp = this.caseDataMap.get(status);

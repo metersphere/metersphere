@@ -9,6 +9,8 @@ public class TestCase implements Serializable {
 
     private String nodeId;
 
+    private String testId;
+
     private String nodePath;
 
     private String projectId;
@@ -26,8 +28,6 @@ public class TestCase implements Serializable {
     private Long createTime;
 
     private Long updateTime;
-
-    private String testId;
 
     private Integer sort;
 
@@ -47,9 +47,9 @@ public class TestCase implements Serializable {
 
     private String status;
 
-    private String customNum;
-
     private String stepModel;
+
+    private String customNum;
 
     private String createUser;
 
@@ -58,6 +58,8 @@ public class TestCase implements Serializable {
     private Long deleteTime;
 
     private String deleteUserId;
+
+    private Long order;
 
     private static final long serialVersionUID = 1L;
 }

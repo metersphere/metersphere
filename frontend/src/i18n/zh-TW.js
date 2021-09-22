@@ -170,6 +170,10 @@ export default {
     scenario_case: "場景用例",
     task_center: "任务中心",
     notice_center: "消息中心",
+    notice_count: '條消息',
+    notice_tips: '僅顯示最近3個月的站內消息',
+    system_notice: '系統通知',
+    mentioned_me_notice: '@提到我的',
     all_module_title: "全部模塊",
     create_user: "創建人",
     run_message: "任務執行中，請到任務中心查看詳情",
@@ -181,6 +185,7 @@ export default {
     run_success: "執行成功",
     run_completed: "執行完成",
     run_fail: "執行失敗",
+    generate_test_data: "生成測試數據",
     selector: {
       required: "必填",
       not_required: "非必填",
@@ -255,6 +260,8 @@ export default {
       title: "報表統計",
       test_case_analysis: "測試用例分析",
       test_case_activity: "測試用例活動情況",
+      test_case_count: "測試用例統計",
+      test_case_count_activity: "測試用例統計情況",
       name: "報表",
       excel: "表格",
       add_case: "新增用例",
@@ -263,9 +270,39 @@ export default {
       options: "選項",
       chart: "圖表",
       line: "折線圖",
+      pie: "餅圖",
       bar: "柱狀圖",
       desc: "總數從高到低",
       asc: "總數從低到高",
+      report_data: {
+        all_report: "全部報表",
+        my_report: "我的報表",
+      },
+      report_filter: {
+        xaxis: "水平軸系列",
+        yaxis: "縱向軸系列",
+        recently: "最近",
+        more_options: "更多選項",
+        belone: "屬於",
+        select_options: {
+          case_type: "用例類型",
+          creator: "創建人",
+          maintainer: "維護人",
+          case_status: "用例狀態",
+          case_level: "用例等級",
+        },
+        time_options: {
+          fixed_time: "固定時間",
+          dynamic_time: "動態時間",
+          day: "天",
+          month: "月",
+          year: "年",
+        }
+      },
+      alert: {
+        cannot_add_more_options: "無法添加更多條件",
+        end_time_cannot_over_than_start_time: "結束時間不能超過當前時間",
+      },
     }
   },
   license: {
@@ -395,7 +432,11 @@ export default {
         '       3.選擇接收人時必須是你所建的群裏包含的人,接收人手機號為必填項且為釘釘企業所使用的手機號',
       message: '事件，接收人，接收方式為必填項',
       message_webhook: '接收方式為釘釘和企業機器人,飛書時，webhook為必填項',
-      template: "模版"
+      template: "模版",
+      track: '測試跟踪任務通知',
+      api: '接口測試任務通知',
+      performance: '性能測試任務通知',
+      notice_count: '通知數',
     },
     integration: {
       select_defect_platform: '請選擇要集成的缺陷管理平臺：',
@@ -411,7 +452,7 @@ export default {
       jira_storytype: '需求類型',
       input_api_account: '請輸入賬號',
       input_api_password: '請輸入密碼',
-      input_api_pat:'請输入 Personal Access Token',
+      input_api_pat: '請输入 Personal Access Token',
       input_jira_url: '請輸入Jira地址，例：https://metersphere.atlassian.net/',
       input_jira_issuetype: '請輸入問題類型',
       input_jira_storytype: '請輸入需求類型',
@@ -438,12 +479,12 @@ export default {
       azure_storytype: '需求類型',
       input_azure_issuetype: '請輸入問題類型',
       input_azure_storytype: '請輸入需求類型',
-      azure_pat:'PersonalAccessTokens',
-      azure_devops_url:'Azure Devops 地址',
-      azure_organization_id:'Azure 組織ID',
-      input_azure_pat:'請輸入 Personal Access Token',
-      input_azure_url:'請輸入 Azure Devops 地址',
-      input_azure_id:'請輸入 Azure 組織ID',
+      azure_pat: 'PersonalAccessTokens',
+      azure_devops_url: 'Azure Devops 地址',
+      azure_organization_id: 'Azure 組織ID',
+      input_azure_pat: '請輸入 Personal Access Token',
+      input_azure_url: '請輸入 Azure Devops 地址',
+      input_azure_id: '請輸入 Azure 組織ID',
       use_tip_azure: 'Azure Devops 地址+令牌(賬戶設置-個人訪問令牌-創建令牌)',
     }
   },
@@ -470,7 +511,31 @@ export default {
     no_data: '無數據',
     select: '選擇項目',
     repeatable: '接口定義URL可重復',
-    upload_file_again: '重新上傳'
+    upload_file_again: '重新上傳',
+    code_segment: {
+      code_segment: "自定義代碼片段",
+      search: "根據 名稱/標籤 搜索",
+      create: "創建代碼片段",
+      update: "更新代碼片段",
+      delete: "刪除自定義代碼片段",
+      language: "腳本語言",
+      relate_tip: "在 系統設置->項目->自定義代碼片段 菜單中創建",
+      select_tip: "請選擇自定義代碼片段!",
+      none_content: "自定義代碼片段為空！",
+      segment: "代碼片段",
+      result: "執行結果",
+      test: "測試",
+      no_result: "無執行結果",
+      api_test: "API測試",
+      import_api_test: "从API定义导入",
+      new_api_test: "新API測試[JSON]",
+      custom_value: "新API測試",
+      project_env: "項目環境",
+      insert_segment: "插入自定義代碼片段",
+      exception_handle: "異常處理",
+      stop_test: "終止測試",
+      report_handle: "報文處理"
+    }
   },
   member: {
     create: '添加成員',
@@ -518,7 +583,7 @@ export default {
     select_project: '請選擇項目',
     select_group: '請選擇用戶組',
     add_user_group_batch: '批量添加用戶組',
-    add_project_batch : '批量添加到項目',
+    add_project_batch: '批量添加到項目',
     add_project_batch_tip: '默認為成員添加只讀用戶組(系統)',
   },
   group: {
@@ -600,6 +665,7 @@ export default {
     stop_tips: '<strong>停止</strong>測試會結束當前測試並保留報告數據',
     force_stop_btn: '強制停止',
     stop_btn: '停止',
+    stop_btn_all: '全部停止',
     not_exist: "測試報告不存在",
     batch_delete: "批量刪除報告",
     delete_batch_confirm: '確認批量刪除報告',
@@ -747,7 +813,7 @@ export default {
     export_config: "導出",
     enable_validate_tip: "沒有可用請求",
     copy: "復制測試",
-    batch_add_parameter: "格式：參數名,必填,參數值,備註 <br/> 如：Accept-Encoding,必填,utf-8,編碼",
+    batch_add_parameter: "格式：參數名:參數值 <br/> 如：Accept-Encoding:utf-8",
     jar_config: {
       title: "jar包管理",
       jar_file: "jar包",
@@ -829,6 +895,7 @@ export default {
         body_json: "json",
         body_xml: "xml",
         auth_config: "認證配置",
+        all_auth_config: "全局認證配置",
         rest_param: "REST參數",
         query_param: "QUERY參數",
         verification_method: "認證方式",
@@ -853,7 +920,9 @@ export default {
         rest_info: "地址欄中被斜杠/分隔的參數，如updateapi/{id}",
         auth_config_info: "請求需要進行權限校驗",
         pre_script: "前置腳本",
+        all_pre_script: "全局前置腳本",
         post_script: "後置腳本",
+        all_post_script: "全局後置腳本",
         pre_sql: "前置SQL",
         post_sql: "後置SQL",
         extract_param: "提取參數",
@@ -1212,7 +1281,10 @@ export default {
       next_synchronization_time: "下次同步時間",
       ms_env_import_file_limit: "僅支持通過MeterSphere導出的json格式文件",
       file_exceed_limit: "文件數量超出限制",
-
+      import_cover_tip: "导入模式: 覆盖模式说明",
+      cover_tip_1: "1. 接口路徑不存在則新增",
+      cover_tip_2: "2. 接口路徑與原接口一致，內容不一致則覆蓋原接口",
+      cover_tip_3: "3. 接口路徑、內容與原接口一致則不做變更",
 
     },
     home_page: {
@@ -1225,6 +1297,7 @@ export default {
         pass: "最後一次執行成功的場景/場景總數*100%",
         success: "執行成功的次數/執行總次數*100%",
         interface_coverage: "被場景步驟包含的接口/接口總數*100%",
+        api_coverage: "存在用例或被場景步驟包含的接口/接口總數*100%",
         review: "已評審的功能案例/所有功能案例 * 100%",
         testplan_coverage: "關聯的功能案例/所有功能案例 * 100%",
       },
@@ -1420,7 +1493,7 @@ export default {
       input_test_case: '請輸入關聯用例名稱',
       test_name: '測試名稱',
       other: "--其他--",
-      test_case: "測試用例",
+      test_case: "功能用例",
       move: "移動用例",
       case_list: "用例列表",
       create_case: "創建用例",
@@ -1487,6 +1560,7 @@ export default {
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
+        case_export: "導出測試用例",
         download_template: "下載模版",
         click_upload: "點擊上傳",
         upload_limit: "只能上傳xls/xlsx文件，且不超過100M",
@@ -1512,7 +1586,8 @@ export default {
       export: {
         export: "導出用例",
         export_tip: "請切換成接口列表勾選用例導出！"
-      }
+      },
+      case_desc: "用例描述"
     },
     plan: {
       test_plan: "測試計劃",
@@ -1770,6 +1845,7 @@ export default {
     pod_thread_limit: '單POD最大線程數',
     usage: '用途',
     backend_listener: '後置監聽器',
+    batch_add_resource_tips: '格式：IP,Port,Monitor,最大並發數<br/>如：192.168.1.52,8082,9100,500',
   },
   system_parameter_setting: {
     mailbox_service_settings: '郵件設置',
@@ -1999,5 +2075,11 @@ export default {
     share: "分享",
     change_history: "變更歷史",
     change_content: "變更内容"
+  },
+  plugin: {
+    title: "插件管理",
+    script_entry: "脚本执行入口",
+    plugin_id: "插件ID",
+    script_view: "查看腳本",
   }
 };

@@ -19,33 +19,33 @@
             {{ $t('report.stop_btn') }}
           </el-button>
           <div v-else>
-            <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+            <el-dropdown split-button type="primary" class="ms-api-button" @click="handleCommand"
                          @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
               {{ $t('commons.test') }}
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
+            <el-button v-if="scenario" size="small" type="primary" @click="handleCommand">
+              {{ $t('commons.test') }}
+            </el-button>
           </div>
 
-          <el-button v-if="scenario" size="small" type="primary" @click="handleCommand">
-            {{ $t('commons.test') }}
-          </el-button>
         </el-form-item>
       </el-form>
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :headers="request.headers" :request="request" :response="responseData"/>
+        <ms-api-request-form :isShowEnable="true" :definition-test="true"  :headers="request.headers" :request="request" :response="responseData"/>
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <ms-request-result-tail :response="responseData" ref="debugResult"/>
+        <ms-request-result-tail v-if="!loading" :response="responseData" ref="debugResult"/>
 
         <ms-jmx-step :request="request" :response="responseData"/>
 
         <!-- 执行组件 -->
-        <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
+        <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
       </div>
     </el-card>
 
@@ -70,6 +70,7 @@ import MsRequestResultTail from "../response/RequestResultTail";
 import MsJmxStep from "../step/JmxStep";
 import {KeyValue} from "../../model/ApiTestModel";
 import MsApiCaseList from "../case/ApiCaseList";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiConfig",
@@ -210,6 +211,18 @@ export default {
         }
       })
     },
+    compatibleHistory(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.compatibleHistory(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     saveAs() {
       this.$refs['debugForm'].validate((valid) => {
         if (valid) {
@@ -223,6 +236,11 @@ export default {
           this.debugForm.status = "Underway";
           this.debugForm.protocol = this.currentProtocol;
           this.debugForm.saved = true;
+          // 历史数据兼容处理
+          if (this.debugForm.request) {
+            this.debugForm.request.clazzName = TYPE_TO_C.get(this.debugForm.request.type);
+            this.compatibleHistory(this.debugForm.request.hashTree);
+          }
           this.$refs.caseList.saveApiAndCase(this.debugForm);
         } else {
           return false;

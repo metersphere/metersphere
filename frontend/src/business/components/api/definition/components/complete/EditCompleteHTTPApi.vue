@@ -8,7 +8,7 @@
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="httpForm.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
-          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
+          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">{{ $t('commons.save') }}</el-button>
         </div>
         <br/>
         <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
@@ -57,7 +57,7 @@
             <el-col :span="8">
               <el-form-item :label="$t('commons.status')" prop="status">
                 <el-select class="ms-http-select" size="small" v-model="httpForm.status">
-                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
+                  <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -135,7 +135,6 @@
 
   import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
   import MsResponseText from "../response/ResponseText";
-  import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
   import {KeyValue} from "../../model/ApiTestModel";
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
@@ -326,7 +325,7 @@
         this.httpForm.modulePath = data.path;
       },
       initMockEnvironment() {
-        var protocol = document.location.protocol;
+        let protocol = document.location.protocol;
         protocol = protocol.substring(0, protocol.indexOf(":"));
         let url = "/api/definition/getMockEnvironment/";
         this.$get(url + this.projectId + "/" + protocol, response => {

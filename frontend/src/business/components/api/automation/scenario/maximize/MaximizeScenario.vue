@@ -56,7 +56,7 @@
             <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
                      :click-auto-close="false" ref="refFab">
               <fab-item
-                v-for="(item, index) in buttons"
+                v-for="(item, index) in buttonData"
                 :key="index"
                 :idx="getIdx(index)"
                 :title="item.title"
@@ -129,7 +129,7 @@
     <!--执行组件-->
     <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId"
             :run-data="debugData"
-            @runRefresh="runRefresh" ref="runTest"/>
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
     <!-- 调试结果 -->
     <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                :withHeader="true" :modal="false" size="90%">
@@ -149,27 +149,16 @@
 <script>
 import {API_STATUS, PRIORITY} from "../../../definition/model/JsonData";
 import {parseEnvironment} from "../../../definition/model/EnvironmentModel";
-import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
-import MsApiCustomize from "../ApiCustomize";
-import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
-import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
-import MsInputTag from "../MsInputTag";
-import MsRun from "../DebugRun";
-import MsApiReportDetail from "../../report/ApiReportDetail";
-import MsVariableList from "../variable/VariableList";
-import ApiImport from "../../../definition/components/import/ApiImport";
+import {ELEMENT_TYPE, STEP} from "../Setting";
+import {getCurrentProjectID, getUUID, hasLicense, strMapToObj} from "@/common/js/utils";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
-import ScenarioApiRelevance from "../api/ApiRelevance";
-import ScenarioRelevance from "../api/ScenarioRelevance";
-import MsComponentConfig from "../component/ComponentConfig";
 import {handleCtrlSEvent} from "../../../../../../common/js/utils";
-import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+import {saveScenario} from "@/business/components/api/automation/api-automation";
+import {buttons, setComponent} from '../menu/Menu';
 import MsContainer from "../../../../common/components/MsContainer";
 import MsMainContainer from "../../../../common/components/MsMainContainer";
 import MsAsideContainer from "./MsLeftContainer";
-import {saveScenario} from "@/business/components/api/automation/api-automation";
-import {buttons, setComponent} from '../menu/Menu';
 
 let jsonPath = require('jsonpath');
 export default {
@@ -190,19 +179,20 @@ export default {
     message: String,
   },
   components: {
-    MsVariableList,
-    ScenarioRelevance,
-    ScenarioApiRelevance,
-    ApiEnvironmentConfig,
-    MsApiReportDetail,
-    MsInputTag, MsRun,
-    MsApiCustomize,
-    ApiImport,
-    MsComponentConfig,
-    EnvPopover,
     MsContainer,
     MsMainContainer,
-    MsAsideContainer
+    MsAsideContainer,
+    MsVariableList: () => import("../variable/VariableList"),
+    ScenarioRelevance: () => import("../api/ScenarioRelevance"),
+    ScenarioApiRelevance: () => import("../api/ApiRelevance"),
+    ApiEnvironmentConfig: () => import("@/business/components/api/test/components/ApiEnvironmentConfig"),
+    MsApiReportDetail: () => import("../../report/ApiReportDetail"),
+    MsInputTag: () => import("../MsInputTag"),
+    MsRun: () => import("../DebugRun"),
+    MsApiCustomize: () => import("../ApiCustomize"),
+    ApiImport: () => import("../../../definition/components/import/ApiImport"),
+    MsComponentConfig: () => import("../component/ComponentConfig"),
+    EnvPopover: () => import("@/business/components/api/automation/scenario/EnvPopover"),
   },
   data() {
     return {
@@ -253,15 +243,19 @@ export default {
       expandedStatus: false,
       stepEnable: true,
       debugLoading: false,
+      buttonData: [],
+      stepFilter: new STEP,
     }
   },
   created() {
     if (!this.currentScenario.apiScenarioModuleId) {
       this.currentScenario.apiScenarioModuleId = "";
     }
-    this.operatingElements = ELEMENTS.get("ALL");
+    this.operatingElements = this.stepFilter.get("ALL");
     this.projectEnvMap = this.envMap;
     this.stepEnable = this.stepReEnable;
+    this.initPlugins();
+    this.buttonData = buttons(this);
   },
   mounted() {
     this.$refs.refFab.openMenu();
@@ -283,6 +277,37 @@ export default {
     },
   },
   methods: {
+    initPlugins() {
+      let url = "/plugin/list";
+      this.$get(url, response => {
+        let data = response.data;
+        if (data) {
+          data.forEach(item => {
+            let plugin = {
+              title: item.name,
+              show: this.showButton(item.jmeterClazz),
+              titleColor: "#555855",
+              titleBgColor: "#F4F4FF",
+              icon: "colorize",
+              click: () => {
+                this.addComponent(item.name, item)
+              }
+            }
+            if (item.license) {
+              if (hasLicense()) {
+                if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
+                  this.buttonData.push(plugin);
+                }
+              }
+            } else {
+              if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
+                this.buttonData.push(plugin);
+              }
+            }
+          });
+        }
+      });
+    },
     // 打开引用的场景
     openScenario(data) {
       this.$emit('openScenario', data);
@@ -324,7 +349,7 @@ export default {
     },
     showNode(node) {
       node.active = true;
-      if (node && ELEMENTS.get("AllSamplerProxy").indexOf(node.type) != -1) {
+      if (node && this.stepFilter.get("AllSamplerProxy").indexOf(node.type) != -1) {
         return true;
       }
       return false;
@@ -334,37 +359,33 @@ export default {
     },
     nodeClick(data, node) {
       if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
-        this.operatingElements = ELEMENTS.get(data.type);
+        this.operatingElements = this.stepFilter.get(data.type);
       } else {
         this.operatingElements = [];
       }
-      if (data) {
-        data.active = true;
-        if (data.hashTree) {
-          data.hashTree.forEach(item => {
-            if (item) {
-              item.active = true;
-            }
-          })
-        }
-      } else {
-        data.active = false;
+      if (!this.operatingElements) {
+        this.operatingElements = this.stepFilter.get("ALL");
       }
       this.selectedTreeNode = data;
       this.selectedNode = node;
       this.$store.state.selectStep = data;
+      this.buttonData = buttons(this);
+      this.reload();
+      this.initPlugins();
     },
     suggestClick(node) {
       this.response = {};
       if (node && node.parent && node.parent.data.requestResult) {
-        this.response = node.parent.data.requestResult;
+        this.response = node.parent.data.requestResult[0];
       } else if (this.selectedNode) {
-        this.response = this.selectedNode.data.requestResult;
+        this.response = this.selectedNode.data.requestResult[0];
       }
     },
     showAll() {
       if (!this.customizeVisible) {
-        this.operatingElements = ELEMENTS.get("ALL");
+        this.operatingElements = this.stepFilter.get("ALL");
+        this.buttonData = buttons(this);
+        this.initPlugins();
         this.selectedTreeNode = undefined;
         this.$store.state.selectStep = undefined;
       }
@@ -542,6 +563,7 @@ export default {
       /*触发执行操作*/
       let sign = this.$refs.envPopover.checkEnv();
       if (!sign) {
+        this.errorRefresh();
         return;
       }
       this.$refs['currentScenario'].validate((valid) => {
@@ -563,6 +585,8 @@ export default {
               this.reportId = getUUID().substring(0, 8);
             }
           });
+        }else{
+          this.errorRefresh();
         }
       })
     },
@@ -610,7 +634,7 @@ export default {
       if (dropType != "inner") {
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
         return true;
       }
       return false;
@@ -692,7 +716,7 @@ export default {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
-            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, (response) => {
+            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
               if (response.data) {
@@ -738,6 +762,10 @@ export default {
     },
     runRefresh() {
       this.debugVisible = true;
+      this.loading = false;
+    },
+    errorRefresh(){
+      this.debugVisible = false;
       this.loading = false;
     },
     showScenarioParameters() {
@@ -920,7 +948,7 @@ export default {
 }
 
 #fab {
-  right: 80px;
+  right: 90px;
   z-index: 5;
 }
 

@@ -21,6 +21,7 @@ import io.metersphere.service.ResourceService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import io.metersphere.track.service.TestCaseIssueService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -44,12 +45,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     private static RestTemplate restTemplate;
 
     protected IntegrationService integrationService;
+    protected TestCaseIssueService testCaseIssueService;
     protected TestCaseIssuesMapper testCaseIssuesMapper;
     protected ProjectService projectService;
     protected TestCaseService testCaseService;
@@ -91,6 +94,14 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     public AbstractIssuePlatform(IssuesRequest issuesRequest) {
+        this();
+        this.testCaseId = issuesRequest.getTestCaseId();
+        this.projectId = issuesRequest.getProjectId();
+        this.orgId = issuesRequest.getOrganizationId();
+        this.userId = issuesRequest.getUserId();
+    }
+
+    public AbstractIssuePlatform() {
         this.integrationService = CommonBeanFactory.getBean(IntegrationService.class);
         this.testCaseIssuesMapper = CommonBeanFactory.getBean(TestCaseIssuesMapper.class);
         this.projectService = CommonBeanFactory.getBean(ProjectService.class);
@@ -99,10 +110,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.issuesMapper = CommonBeanFactory.getBean(IssuesMapper.class);
         this.extIssuesMapper = CommonBeanFactory.getBean(ExtIssuesMapper.class);
         this.resourceService = CommonBeanFactory.getBean(ResourceService.class);
-        this.testCaseId = issuesRequest.getTestCaseId();
-        this.projectId = issuesRequest.getProjectId();
-        this.orgId = issuesRequest.getOrganizationId();
-        this.userId = issuesRequest.getUserId();
+        this.testCaseIssueService = CommonBeanFactory.getBean(TestCaseIssueService.class);
         this.restTemplateIgnoreSSL = restTemplate;
     }
 
@@ -147,6 +155,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             testCaseIssues.setIssuesId(issuesId);
             testCaseIssues.setTestCaseId(caseId);
             testCaseIssuesMapper.insert(testCaseIssues);
+            testCaseIssueService.updateIssuesCount(caseId);
         }
     }
 
@@ -160,17 +169,23 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         String issuesId = issuesRequest.getId();
         if (StringUtils.isNotBlank(issuesRequest.getTestCaseId())) {
           insertTestCaseIssues(issuesId, issuesRequest.getTestCaseId());
-      } else {
+        } else {
           List<String> testCaseIds = issuesRequest.getTestCaseIds();
           TestCaseIssuesExample example = new TestCaseIssuesExample();
           example.createCriteria().andIssuesIdEqualTo(issuesId);
-          testCaseIssuesMapper.deleteByExample(example);
+            List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
+            List<String> deleteCaseIds = testCaseIssues.stream().map(TestCaseIssues::getTestCaseId).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(testCaseIds)) {
+                deleteCaseIds.removeAll(testCaseIds);
+            }
+            testCaseIssuesMapper.deleteByExample(example);
+            deleteCaseIds.forEach(testCaseIssueService::updateIssuesCount);
           if (!CollectionUtils.isEmpty(testCaseIds)) {
               testCaseIds.forEach(caseId -> {
                   insertTestCaseIssues(issuesId, caseId);
               });
           }
-      }
+        }
     }
 
     protected void insertIssuesWithoutContext(String id, IssuesUpdateRequest issuesRequest) {
@@ -264,6 +279,19 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         return input;
     }
 
+    protected String getImages(String input) {
+        String result = "";
+        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        if (StringUtils.isBlank(input)) {
+            return result;
+        }
+        Matcher matcher = Pattern.compile(regex).matcher(input);
+        while (matcher.find()) {
+            result += matcher.group();
+        }
+        return result;
+    }
+
     protected String htmlImg2MsImg(String input) {
         // <img src="xxx/resource/md/get/a0b19136_中心主题.png"/> ->  ![中心主题.png](/resource/md/get/a0b19136_中心主题.png)
         String regex = "(<img\\s*src=\\\"(.*?)\\\".*?>)";
@@ -310,5 +338,14 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected UserDTO.PlatformInfo getUserPlatInfo(String orgId) {
         return userService.getCurrentPlatformInfo(orgId);
+    }
+
+    @Override
+    public void deleteIssue(String id) {
+        issuesMapper.deleteByPrimaryKey(id);
+        TestCaseIssuesExample example = new TestCaseIssuesExample();
+        example.createCriteria()
+                .andIssuesIdEqualTo(id);
+        testCaseIssuesMapper.deleteByExample(example);
     }
 }

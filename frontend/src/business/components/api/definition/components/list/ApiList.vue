@@ -9,15 +9,17 @@
 
       <ms-table
         :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
-                :total="total" enableSelection
-                :batch-operators="trashEnable ? trashButtons : buttons" :screen-height="screenHeight"
-                :operators="tableOperatorButtons" operator-width="200px"
-                @refresh="initTable"
-                :fields.sync="fields"
-                :table-is-loading="this.result.loading"
-                :field-key="tableHeaderKey"
-                @saveSortField="saveSortField"
-                ref="table">
+        :total="total" enableSelection
+        :batch-operators="trashEnable ? trashButtons : buttons" :screen-height="screenHeight"
+        :operators="tableOperatorButtons" operator-width="200px"
+        :remember-order="true"
+        @refresh="initTable"
+        :fields.sync="fields"
+        :table-is-loading="this.result.loading"
+        :field-key="tableHeaderKey"
+        :enable-order-drag="enableOrderDrag"
+        row-key="id"
+        ref="table">
         <ms-table-column
           prop="deleteTime"
           sortable
@@ -118,6 +120,7 @@
             <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                     :show-tooltip="true" :content="itemName"
                     style="margin-left: 0px; margin-right: 2px"/>
+            <span/>
           </template>
         </ms-table-column>
 
@@ -206,11 +209,12 @@ import CaseBatchMove from "@/business/components/api/definition/components/basis
 import {
   initCondition,
   getCustomTableHeader, getCustomTableWidth, buildBatchParam, checkTableRowIsSelected,
-  saveLastTableSortField, getLastTableSortField
+  saveLastTableSortField, getLastTableSortField, handleRowDrop
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
+import {editApiDefinitionOrder} from "@/network/api";
 
 
 export default {
@@ -247,6 +251,7 @@ export default {
       selectApi: {},
       result: {},
       moduleId: "",
+      enableOrderDrag: true,
       selectDataRange: "all",
       deletePath: "/test/case/delete",
       buttons: [
@@ -296,7 +301,7 @@ export default {
           exec: this.handleTestCase,
           isDivButton: true,
           type: "primary",
-          permissions: ['PROJECT_API_DEFINITION:READ+CREATE_CASE']
+          permissions: ['PROJECT_API_DEFINITION:READ']
         },
         {
           tip: this.$t('commons.delete'),
@@ -428,12 +433,17 @@ export default {
       this.tableOperatorButtons = this.tableUsualOperatorButtons;
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
     }
-    let orderArr = this.getSortField();
-    if (orderArr) {
-      this.condition.orders = orderArr;
-    }
+    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+
     this.initTable();
     this.getMaintainerOptions();
+
+    // 通知过来的数据跳转到编辑
+    if (this.$route.query.resourceId) {
+      this.$get('/api/definition/get/' + this.$route.query.resourceId, (response) => {
+        this.editApi(response.data);
+      });
+    }
   },
   watch: {
     selectNodeIds() {
@@ -499,6 +509,8 @@ export default {
         this.condition.protocol = this.currentProtocol;
       }
 
+      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+
       //检查是否只查询本周数据
       this.getSelectDataRange();
       this.condition.selectThisWeedData = false;
@@ -538,6 +550,16 @@ export default {
           });
 
           checkTableRowIsSelected(this, this.$refs.table);
+
+          this.$nextTick(() => {
+            if (this.$refs.table) {
+              this.$refs.table.clear();
+            }
+            handleRowDrop(this.tableData, (param) => {
+              param.groupId = this.condition.projectId;
+              editApiDefinitionOrder(param);
+            });
+          })
         });
       }
       if (this.needRefreshModule()) {
@@ -823,21 +845,6 @@ export default {
         return false;
       }
     },
-    saveSortField(key, orders) {
-      saveLastTableSortField(key, JSON.stringify(orders));
-    },
-    getSortField() {
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if (orderJsonStr) {
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        } catch (e) {
-          return null;
-        }
-      }
-      return returnObj;
-    }
   },
 };
 </script>

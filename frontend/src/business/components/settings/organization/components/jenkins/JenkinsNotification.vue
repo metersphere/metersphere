@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="10">
+      <el-col :span="24">
         <h3>{{ $t('organization.message.jenkins_task_notification') }}</h3>
         <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel"
                    v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
@@ -234,7 +234,7 @@ export default {
     },
     handleEdit(index, data) {
       data.isReadOnly = true;
-      if (data.type === 'EMAIL') {
+      if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = !data.isReadOnly;
         data.webhook = '';
       }
@@ -248,7 +248,7 @@ export default {
       Task.isSet = true;
       Task.identification = '';
       Task.taskType = TASK_TYPE;
-      this.jenkinsTask.push(Task);
+      this.jenkinsTask.unshift(Task);
     },
     handleAddTask(index, data) {
       if (data.event && data.userIds.length > 0 && data.type) {
@@ -268,7 +268,7 @@ export default {
     },
     handleEditTask(index, data) {
       data.isSet = true;
-      if (data.type === 'EMAIL') {
+      if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = false;
         data.webhook = '';
       } else {

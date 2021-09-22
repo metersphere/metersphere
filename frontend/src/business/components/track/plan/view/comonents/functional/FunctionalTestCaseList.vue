@@ -21,7 +21,7 @@
 
     <ms-table
       v-loading="result.loading"
-      field-key="TEST_PLAN_FUNCTION_TEST_CASE"
+      :field-key="tableHeaderKey"
       :data="tableData"
       :condition="condition"
       :total="total"
@@ -32,7 +32,10 @@
       @handlePageChange="initTableData"
       @handleRowClick="handleEdit"
       :fields.sync="fields"
+      :remember-order="true"
       @refresh="initTableData"
+      :enable-order-drag="enableOrderDrag"
+      row-key="id"
       ref="table">
 
       <span v-for="item in fields" :key="item.key">
@@ -46,6 +49,7 @@
 
         <ms-table-column
           prop="name"
+          sortable="custom"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.name')"
@@ -266,14 +270,15 @@ import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
   buildBatchParam, checkTableRowIsSelected,
-  getCustomFieldValue, getCustomTableWidth,
-  getTableHeaderWithCustomFields,
+  getCustomFieldValue, getCustomTableWidth, getLastTableSortField,
+  getTableHeaderWithCustomFields, handleRowDrop,
   initCondition,
 } from "@/common/js/tableUtils";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getProjectMember} from "@/network/user";
 import {getTestTemplate} from "@/network/custom-field-template";
+import {editTestPlanTestCaseOrder} from "@/network/test-plan";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -303,6 +308,7 @@ export default {
       condition: {
         components: TEST_CASE_CONFIGS
       },
+      enableOrderDrag: true,
       showMyTestCase: false,
       tableData: [],
       currentPage: 1,
@@ -312,6 +318,7 @@ export default {
       testPlan: {},
       isReadOnly: false,
       hasEditPermission: false,
+      tableHeaderKey: 'TEST_PLAN_FUNCTION_TEST_CASE',
       priorityFilters: [
         {text: 'P0', value: 'P0'},
         {text: 'P1', value: 'P1'},
@@ -400,9 +407,16 @@ export default {
         this.updata = !this.updata;
       },
       deep: true
-    }
+    },
+    condition() {
+      this.$emit('setCondition', this.condition);
+    },
+  },
+  created() {
+    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
   },
   mounted() {
+    this.$emit('setCondition', this.condition);
     hub.$on("openFailureTestCase", row => {
       this.isReadOnly = true;
       this.condition.status = 'Failure';
@@ -427,7 +441,7 @@ export default {
         let template = data[1];
         this.result.loading = true;
         this.testCaseTemplate = template;
-        this.fields = getTableHeaderWithCustomFields('TEST_PLAN_FUNCTION_TEST_CASE', this.testCaseTemplate.customFields);
+        this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields);
         this.result.loading = false;
         this.$refs.table.reloadTable();
       });
@@ -437,6 +451,8 @@ export default {
     },
     initTableData() {
       initCondition(this.condition, this.condition.selectAll);
+      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+
       this.autoCheckStatus();
       if (this.planId) {
         // param.planId = this.planId;
@@ -470,7 +486,16 @@ export default {
               this.$set(this.tableData[i], "issuesContent", JSON.parse(this.tableData[i].issues));
             }
           }
-          this.$refs.table.clear();
+
+          this.$nextTick(() => {
+            handleRowDrop(this.tableData, (param) => {
+              param.groupId = this.planId;
+              editTestPlanTestCaseOrder(param);
+            });
+          });
+          if (this.$refs.table) {
+            this.$refs.table.clear();
+          }
           checkTableRowIsSelected(this, this.$refs.table);
         });
       }

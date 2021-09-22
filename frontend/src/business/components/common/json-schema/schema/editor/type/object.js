@@ -1,7 +1,5 @@
 const value = {
-    description: null,
-    maxProperties: null,
-    minProperties: null
+    description: null
 }
 const attr = {
     description: {

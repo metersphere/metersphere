@@ -143,7 +143,7 @@ export function hasPermission(permission) {
 
 export function hasLicense() {
   let v = localStorage.getItem(LicenseKey);
-  return v === 'valid';
+  return v && v === 'valid';
 }
 
 export function hasRolePermissions(...roles) {
@@ -252,6 +252,22 @@ export function mapToJson(strMap) {
 // 驼峰转换下划线
 export function humpToLine(name) {
   return name.replace(/([A-Z])/g, "_$1").toLowerCase();
+}
+
+// 下划线转换驼峰
+export function lineToHump(name) {
+  return name.replace(/\_(\w)/g, function (all, letter) {
+    return letter.toUpperCase();
+  });
+}
+
+// 查找字符出现的次数
+export function getCharCountInStr(str, char) {
+  if (!str) return 0;
+  let regex = new RegExp(char, 'g'); // 使用g表示整个字符串都要匹配
+  let result = str.match(regex);
+  let count = !result ? 0 : result.length;
+  return count;
 }
 
 export function downloadFile(name, content) {
@@ -376,6 +392,7 @@ export function windowPrint(id, zoom) {
   window.document.body.innerHTML = jubuData;
   //调用打印功能
   window.print();
+  document.getElementsByTagName('body')[0].style.zoom = 1;
   window.document.body.innerHTML = bdhtml;//重新给页面内容赋值；
   return false;
 }
@@ -527,15 +544,26 @@ export function stopFullScreenLoading(loading, timeout) {
 }
 
 export function getShareId() {
+  //let herfUrl = 'http://localhost:8080/sharePlanReport?shareId=bf9496ac-8577-46b4-adf9-9c7e93dd06a8';
   let herfUrl = window.location.href;
-  if(herfUrl.indexOf("?") > 0){
-    let paramArr = herfUrl.split("?");
-    if(paramArr.length > 1){
-      let shareId = paramArr[1];
-      if(shareId.indexOf("#") > 0){
-        shareId = shareId.split("#")[0];
+  if (herfUrl.indexOf('shareId=') > -1) {
+    let shareId = '';
+    new URL(herfUrl).searchParams.forEach((value, key) => {
+      if (key === 'shareId') {
+        shareId = value;
       }
-      return shareId;
+    });
+    return shareId;
+  } else {
+    if (herfUrl.indexOf("?") > 0) {
+      let paramArr = herfUrl.split("?");
+      if (paramArr.length > 1) {
+        let shareId = paramArr[1];
+        if (shareId.indexOf("#") > 0) {
+          shareId = shareId.split("#")[0];
+        }
+        return shareId;
+      }
     }
   }
   return "";

@@ -8,7 +8,15 @@ import io.github.ningyu.jmeter.plugin.util.Constants;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ImportPoolsDTO;
 import io.metersphere.api.dto.automation.parse.MsJmeterParser;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.MsScenario;
+import io.metersphere.api.dto.definition.request.assertions.*;
+import io.metersphere.api.dto.definition.request.extract.MsExtract;
+import io.metersphere.api.dto.definition.request.extract.MsExtractJSONPath;
+import io.metersphere.api.dto.definition.request.extract.MsExtractRegex;
+import io.metersphere.api.dto.definition.request.extract.MsExtractXPath;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
@@ -16,6 +24,8 @@ import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConfigCenter;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConsumerAndService;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsRegistryCenter;
+import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
+import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -31,7 +41,13 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.extractor.JSR223PostProcessor;
+import org.apache.jmeter.extractor.RegexExtractor;
+import org.apache.jmeter.extractor.XPath2Extractor;
+import org.apache.jmeter.extractor.json.jsonpath.JSONPostProcessor;
+import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
@@ -39,7 +55,9 @@ import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
 import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
 import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
+import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -65,11 +83,11 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             HashTree testPlan = this.getHashTree(scriptWrapper);
             // 优先初始化数据源及部分参数
             preInitPool(request.getProjectId(), testPlan);
-            List<MsTestElement> elements = new ArrayList<>();
+            MsScenario scenario = new MsScenario();
             List<ApiDefinitionWithBLOBs> definitions = new ArrayList<>();
             List<ApiTestCaseWithBLOBs> definitionCases = new ArrayList<>();
 
-            jmeterHashTree(testPlan, elements);
+            jmeterHashTree(testPlan, scenario);
 
             this.selectModule = ApiDefinitionImportUtil.getSelectModule(request.getModuleId());
             if (this.selectModule != null) {
@@ -77,7 +95,11 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             }
             this.apiModule = ApiDefinitionImportUtil.buildModule(this.selectModule, this.planName, this.projectId);
 
-            for (MsTestElement element : elements) {
+            LinkedList<MsTestElement> elements = scenario.getHashTree();
+            LinkedList<MsTestElement> results = new LinkedList<>();
+            getAllApiCase(elements, results);
+
+            for (MsTestElement element : results) {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = buildApiDefinition(element);
                 if (apiDefinitionWithBLOBs != null) {
                     definitions.add(apiDefinitionWithBLOBs);
@@ -97,6 +119,21 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             MSException.throwException("当前JMX版本不兼容");
         }
         return null;
+    }
+
+    private void getAllApiCase(LinkedList<MsTestElement> elements, LinkedList<MsTestElement> results) {
+        for (MsTestElement element : elements) {
+            if (element instanceof MsHTTPSamplerProxy || element instanceof MsTCPSampler
+                    || element instanceof MsJDBCSampler || element instanceof MsDubboSampler) {
+                // todo 合并buildApiDefinition方法
+                results.add(element);
+            } else {
+                LinkedList<MsTestElement> hashTree = element.getHashTree();
+                if (hashTree != null) {
+                    getAllApiCase(hashTree, results);
+                }
+            }
+        }
     }
 
     private void preCreate(HashTree tree) {
@@ -258,12 +295,22 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         return (HashTree) field.get(scriptWrapper);
     }
 
-    private void jmeterHashTree(HashTree tree, List<MsTestElement> elements) {
+    private void jmeterHashTree(HashTree tree, MsTestElement scenario) {
         for (Object key : tree.keySet()) {
             MsTestElement elementNode = null;
+            if (CollectionUtils.isEmpty(scenario.getHashTree())) {
+                scenario.setHashTree(new LinkedList<>());
+            }
             // 测试计划
             if (key instanceof org.apache.jmeter.testelement.TestPlan) {
                 this.planName = ((TestPlan) key).getName();
+                elementNode = new MsJmeterElement();
+                ((MsJmeterElement) elementNode).setJmeterElement(MsJmeterParser.objToXml(key));
+                ((MsJmeterElement) elementNode).setElementType(key.getClass().getSimpleName());
+            }
+            // 线程组
+            else if (key instanceof ThreadGroup) {
+                elementNode = new MsScenario(((ThreadGroup) key).getName());
             }
             // HTTP请求
             else if (key instanceof HTTPSamplerProxy) {
@@ -289,14 +336,184 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 JDBCSampler jdbcSampler = (JDBCSampler) key;
                 convertJDBCSampler((MsJDBCSampler) elementNode, jdbcSampler);
             }
-
-            if (elementNode != null) {
-                elements.add(elementNode);
+            // 后置脚本
+            else if (key instanceof JSR223PostProcessor) {
+                JSR223PostProcessor jsr223Sampler = (JSR223PostProcessor) key;
+                elementNode = new MsJSR223PostProcessor();
+                BeanUtils.copyBean(elementNode, jsr223Sampler);
+                ((MsJSR223PostProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
+                ((MsJSR223PostProcessor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             }
+            // 前置脚本
+            else if (key instanceof JSR223PreProcessor) {
+                JSR223PreProcessor jsr223Sampler = (JSR223PreProcessor) key;
+                elementNode = new MsJSR223PreProcessor();
+                BeanUtils.copyBean(elementNode, jsr223Sampler);
+                ((MsJSR223PreProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
+                ((MsJSR223PreProcessor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
+            }
+            // 断言规则
+            else if (key instanceof ResponseAssertion || key instanceof JSONPathAssertion || key instanceof XPath2Assertion || key instanceof JSR223Assertion || key instanceof DurationAssertion) {
+                elementNode = new MsAssertions();
+                convertMsAssertions((MsAssertions) elementNode, key);
+            }
+            // 提取参数
+            else if (key instanceof RegexExtractor || key instanceof XPath2Extractor || key instanceof JSONPostProcessor) {
+                elementNode = new MsExtract();
+                convertMsExtract((MsExtract) elementNode, key);
+            }
+            // 定时器
+            else if (key instanceof ConstantTimer) {
+                elementNode = new MsConstantTimer();
+                BeanUtils.copyBean(elementNode, key);
+                elementNode.setType("ConstantTimer");
+            }
+            // 平台不能识别的Jmeter步骤
+            else {
+                // HTTP 请求下的所有HeaderManager已经加到请求中
+                if (scenario instanceof MsHTTPSamplerProxy && key instanceof HeaderManager) {
+                    continue;
+                }
+                elementNode = new MsJmeterElement();
+            }
+
+            elementNode.setEnable(((TestElement) key).isEnabled());
+            elementNode.setResourceId(UUID.randomUUID().toString());
+
+            // 提取参数
+            if (elementNode instanceof MsExtract) {
+                if (CollectionUtils.isNotEmpty(((MsExtract) elementNode).getJson()) || CollectionUtils.isNotEmpty(((MsExtract) elementNode).getRegex()) || CollectionUtils.isNotEmpty(((MsExtract) elementNode).getXpath())) {
+                    scenario.getHashTree().add(elementNode);
+                }
+            }
+            //断言规则
+            else if (elementNode instanceof MsAssertions) {
+                if (CollectionUtils.isNotEmpty(((MsAssertions) elementNode).getRegex()) || CollectionUtils.isNotEmpty(((MsAssertions) elementNode).getJsonPath())
+                        || CollectionUtils.isNotEmpty(((MsAssertions) elementNode).getJsr223()) || CollectionUtils.isNotEmpty(((MsAssertions) elementNode).getXpath2()) || ((MsAssertions) elementNode).getDuration() != null) {
+                    scenario.getHashTree().add(elementNode);
+                }
+            }
+            // 争取其他请求
+            else {
+                scenario.getHashTree().add(elementNode);
+            }
+
             // 递归子项
             HashTree node = tree.get(key);
             if (node != null) {
-                jmeterHashTree(node, elements);
+                jmeterHashTree(node, elementNode);
+            }
+
+        }
+    }
+
+    private void convertMsAssertions(MsAssertions assertions, Object key) {
+        assertions.setJsonPath(new LinkedList<>());
+        assertions.setJsr223(new LinkedList<>());
+        assertions.setXpath2(new LinkedList<>());
+        assertions.setRegex(new LinkedList<>());
+        assertions.setDuration(new MsAssertionDuration());
+        assertions.setType("Assertions");
+        if (key instanceof ResponseAssertion) {
+            MsAssertionRegex assertionRegex = new MsAssertionRegex();
+            ResponseAssertion assertion = (ResponseAssertion) key;
+            assertionRegex.setDescription(assertion.getName());
+            assertionRegex.setAssumeSuccess(assertion.getAssumeSuccess());
+            if (assertion.getTestStrings() != null && !assertion.getTestStrings().isEmpty()) {
+                assertionRegex.setExpression(assertion.getTestStrings().get(0).getStringValue());
+            }
+            if (assertion.isTestFieldResponseData()) {
+                assertionRegex.setSubject("Response Data");
+            }
+            if (assertion.isTestFieldResponseCode()) {
+                assertionRegex.setSubject("Response Code");
+            }
+            if (assertion.isTestFieldResponseHeaders()) {
+                assertionRegex.setSubject("Response Headers");
+            }
+            assertions.setName(assertion.getName());
+            assertions.getRegex().add(assertionRegex);
+        } else if (key instanceof JSONPathAssertion) {
+            MsAssertionJsonPath assertionJsonPath = new MsAssertionJsonPath();
+            JSONPathAssertion jsonPathAssertion = (JSONPathAssertion) key;
+            assertionJsonPath.setDescription(jsonPathAssertion.getName());
+            assertionJsonPath.setExpression(jsonPathAssertion.getJsonPath());
+            assertionJsonPath.setExpect(jsonPathAssertion.getExpectedValue());
+            assertionJsonPath.setOption(jsonPathAssertion.getPropertyAsString("ASS_OPTION"));
+            assertions.setName(jsonPathAssertion.getName());
+            assertions.getJsonPath().add(assertionJsonPath);
+        } else if (key instanceof XPath2Assertion) {
+            MsAssertionXPath2 assertionXPath2 = new MsAssertionXPath2();
+            XPath2Assertion xPath2Assertion = (XPath2Assertion) key;
+            assertionXPath2.setExpression(xPath2Assertion.getXPathString());
+            assertions.setName(xPath2Assertion.getName());
+            assertions.getXpath2().add(assertionXPath2);
+        } else if (key instanceof JSR223Assertion) {
+            MsAssertionJSR223 msAssertionJSR223 = new MsAssertionJSR223();
+            JSR223Assertion jsr223Assertion = (JSR223Assertion) key;
+            msAssertionJSR223.setName(jsr223Assertion.getName());
+            msAssertionJSR223.setDesc(jsr223Assertion.getName());
+            msAssertionJSR223.setScript(jsr223Assertion.getPropertyAsString("script"));
+            msAssertionJSR223.setScriptLanguage(jsr223Assertion.getPropertyAsString("scriptLanguage"));
+            assertions.setName(jsr223Assertion.getName());
+
+            assertions.getJsr223().add(msAssertionJSR223);
+        } else if (key instanceof DurationAssertion) {
+            MsAssertionDuration assertionDuration = new MsAssertionDuration();
+            DurationAssertion durationAssertion = (DurationAssertion) key;
+            assertionDuration.setValue(durationAssertion.getProperty("DurationAssertion.duration").getIntValue());
+            assertions.setName(durationAssertion.getName());
+            assertions.setDuration(assertionDuration);
+        }
+    }
+
+    private void convertMsExtract(MsExtract extract, Object key) {
+        // 提取数据单独处理
+        extract.setType("Extract");
+        extract.setJson(new LinkedList<>());
+        extract.setRegex(new LinkedList<>());
+        extract.setXpath(new LinkedList<>());
+        if (key instanceof RegexExtractor) {
+            MsExtractRegex regex = new MsExtractRegex();
+            RegexExtractor regexExtractor = (RegexExtractor) key;
+            if (regexExtractor.useRequestHeaders()) {
+                regex.setUseHeaders("request_headers");
+            } else if (regexExtractor.useBody()) {
+                regex.setUseHeaders("false");
+            } else if (regexExtractor.useUnescapedBody()) {
+                regex.setUseHeaders("unescaped");
+            } else if (regexExtractor.useBodyAsDocument()) {
+                regex.setUseHeaders("as_document");
+            } else if (regexExtractor.useUrl()) {
+                regex.setUseHeaders("URL");
+            }
+            regex.setExpression(regexExtractor.getRegex());
+            regex.setVariable(regexExtractor.getRefName());
+            extract.setName(regexExtractor.getName());
+            extract.getRegex().add(regex);
+        } else if (key instanceof XPath2Extractor) {
+            XPath2Extractor xPath2Extractor = (XPath2Extractor) key;
+            MsExtractXPath xPath = new MsExtractXPath();
+            xPath.setVariable(xPath2Extractor.getRefName());
+            xPath.setExpression(xPath2Extractor.getXPathQuery());
+
+            extract.setName(xPath2Extractor.getName());
+            extract.getXpath().add(xPath);
+        } else if (key instanceof JSONPostProcessor) {
+            JSONPostProcessor jsonPostProcessor = (JSONPostProcessor) key;
+            String[] names = StringUtils.isNotEmpty(jsonPostProcessor.getRefNames()) ? jsonPostProcessor.getRefNames().split(";") : null;
+            String[] values = StringUtils.isNotEmpty(jsonPostProcessor.getJsonPathExpressions()) ? jsonPostProcessor.getJsonPathExpressions().split(";") : null;
+            if (names != null) {
+                for (int i = 0; i < names.length; i++) {
+                    MsExtractJSONPath jsonPath = new MsExtractJSONPath();
+                    jsonPath.setVariable(names[i]);
+                    if (values != null && values.length > i) {
+                        jsonPath.setExpression(values[i]);
+                    }
+                    jsonPath.setMultipleMatching(jsonPostProcessor.getComputeConcatenation());
+                    extract.setName(jsonPostProcessor.getName());
+                    extract.getJson().add(jsonPath);
+                }
             }
         }
     }

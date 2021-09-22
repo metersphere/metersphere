@@ -85,9 +85,11 @@
         }
       },
       jsonData(data) {
-        let obj = {"root": data}
-        this.schema = obj;
-        this.body.jsonSchema = this.schema.root
+        this.schema.root = {};
+        this.$nextTick(() => {
+          this.schema.root = data;
+          this.body.jsonSchema = this.schema.root;
+        })
       }
     }
   }

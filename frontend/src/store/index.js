@@ -25,6 +25,8 @@ const state = {
   testPlanViewSelectNode: {},
   selectStep: {},
   currentApiCase: {},
+  pluginFiles: [],
+  isTestCaseMinderChanged: false
 }
 
 const store = new Vuex.Store({

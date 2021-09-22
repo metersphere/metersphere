@@ -25,6 +25,8 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
+    List<ApiComputeResult> selectByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
+
 //    int removeToGc(@Param("ids") List<String> ids);
 
     int removeToGcByExample(ApiDefinitionExampleWithOperation example);
@@ -56,4 +58,14 @@ public interface ExtApiDefinitionMapper {
     ApiDefinition selectUrlAndMethodById(String id);
 
     int checkOriginalStatusByIds(@Param("ids")List<String> ids);
+
+    List<String> selectProjectIds();
+
+    List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);
+
+    Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    long countQuotedApiByProjectId(String projectId);
 }

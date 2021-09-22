@@ -1,6 +1,7 @@
 <template>
   <el-form-item class="result-item" :label-width="labelWidth">
     <el-table
+      v-if="visible"
       :data="testCase.steptResults"
       class="tb-edit"
       size="mini"
@@ -15,7 +16,7 @@
             size="mini"
             class="border-hidden"
             type="textarea"
-            :autosize="{ minRows: 1, maxRows: 4}"
+            :autosize="{ minRows: scope.row.minRows, maxRows: 4}"
             :disabled="true"
             v-model="scope.row.desc"/>
         </template>
@@ -26,7 +27,7 @@
             size="mini"
             class="border-hidden"
             type="textarea"
-            :autosize="{ minRows: 1, maxRows: 4}"
+            :autosize="{ minRows: scope.row.minRows, maxRows: 4}"
             :disabled="true"
             v-model="scope.row.result"/>
         </template>
@@ -37,9 +38,9 @@
             class="table-edit-input"
             size="mini"
             type="textarea"
-            :autosize="{ minRows: 1, maxRows: 4}"
-            :rows="2"
+            :autosize="{ minRows: scope.row.minRows, maxRows: 4}"
             :disabled="isReadOnly"
+            @blur="actualResultChange(scope.row)"
             v-model="scope.row.actualResult"
             :placeholder="$t('commons.input_content')"
             clearable/>
@@ -69,10 +70,42 @@
 </template>
 
 <script>
+import {getCharCountInStr} from "@/common/js/utils";
+
 export default {
   name: "TestPlanCaseStepResultsItem",
   props: ['testCase', 'isReadOnly', 'labelWidth'],
+  data() {
+    return {
+      visible: true
+    }
+  },
+  mounted() {
+    let step = this.testCase.steptResults;
+    if (step) {
+      step.forEach(item => {
+        let maxCount = Math.max(
+          getCharCountInStr(item.desc, '\n'),
+          getCharCountInStr(item.result, '\n'),
+          getCharCountInStr(item.actualResult, '\n')
+        );
+        let minRows = maxCount + 1;
+        minRows = minRows > 4 ? 4 : minRows;
+        this.$set(item, 'minRows', minRows);
+      });
+    }
+  },
   methods: {
+    actualResultChange(item) {
+      let minRows = getCharCountInStr(item.actualResult, '\n') + 1;
+      if (minRows > item.minRows) {
+        this.$set(item, 'minRows', Math.min(minRows, 4));
+        this.visible = false;
+        this.$nextTick(() => {
+          this.visible = true;
+        });
+      }
+    },
     stepResultChange() {
       if (this.testCase.method === 'manual' || !this.testCase.method) {
         this.isFailure = this.testCase.steptResults.filter(s => {

@@ -281,7 +281,7 @@ export default {
       }
     },
     getLoadConfig() {
-      if (!this.report.id) {
+      if (!this.report.id && !this.planReportTemplate) {
         return;
       }
       if (this.planReportTemplate) {
@@ -303,9 +303,8 @@ export default {
           this.calculateLoadConfiguration(d);
         } else {
           if (this.planReportTemplate) {
-            //todo
             if (this.planReportTemplate.loadConfig) {
-              let data = JSON.parse(this.planReportTemplate.loadConfig);
+              let data = JSON.parse(this.planReportTemplate.fixLoadConfiguration);
               this.calculateLoadConfiguration(data);
             }
           } else if (this.isShare){
@@ -330,13 +329,12 @@ export default {
     },
     getJmxContent() {
       // console.log(this.report.testId);
-      if (!this.report.testId) {
+      if (!this.report.testId && !this.planReportTemplate) {
         return;
       }
       if (this.planReportTemplate) {
-        //todo
         if (this.planReportTemplate.jmxContent) {
-          this.calculateLoadConfiguration(this.planReportTemplate.jmxContent);
+          this.handleGetJmxContent(JSON.parse(this.planReportTemplate.jmxContent));
         }
       } else if (this.isShare){
         this.result = getSharePerformanceJmxContent(this.shareId, this.report.id, data => {
@@ -349,6 +347,9 @@ export default {
       }
     },
     handleGetJmxContent(d) {
+      if (!d) {
+        return;
+      }
       let threadGroups = [];
       threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
       threadGroups.forEach(tg => {
@@ -360,10 +361,7 @@ export default {
       // 兼容数据
       if (!threadGroups || threadGroups.length === 0) {
         if (this.planReportTemplate) {
-          //todo
-          if (this.planReportTemplate.oldJmxContent) {
-            this.calculateLoadConfiguration(this.planReportTemplate.oldJmxContent);
-          }
+          this.planReportTemplate.fixJmxContent.forEach(d => this.handleGetOldJmxContent(d, threadGroups));
         } else if (this.isShare){
           this.result = getShareOldPerformanceJmxContent(this.shareId, this.report.testId, data => {
             data.forEach(d => this.handleGetOldJmxContent(d, threadGroups));
@@ -647,6 +645,14 @@ export default {
       },
       deep: true
     },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.getJmxContent();
+        }
+      },
+      deep: true
+    }
   }
 };
 </script>

@@ -221,6 +221,8 @@
 							//如果指定了是星期几
 							//获取当前日期是属于星期几
 							let thisWeek = this.formatDate(new Date(YY + '-' + MM + '-' + DD + ' 00:00:00'), 'week');
+              thisWeek++ // 星期日是第一天
+
 							//校验当前星期是否在星期池（dayRuleSup）中
 							if (this.dayRuleSup.indexOf(thisWeek) < 0) {
 								// 如果到达最大值时
@@ -234,8 +236,10 @@
 								}
 								continue;
 							}
-						} else if (this.dayRule == 'assWeek') {
-							//如果指定了是第几周的星期几
+            } else if (this.dayRule == 'assWeek') {
+              this.dayRuleSup[1]--;// 星期日是第一天
+
+              //如果指定了是第几周的星期几
 							//获取每月1号是属于星期几
 							let thisWeek = this.formatDate(new Date(YY + '-' + MM + '-' + DD + ' 00:00:00'), 'week');
 							if (this.dayRuleSup[1] >= thisWeek) {
@@ -243,7 +247,9 @@
 							} else {
 								DD = this.dayRuleSup[0] * 7 + this.dayRuleSup[1] - thisWeek + 1;
 							}
-						} else if (this.dayRule == 'lastWeek') {
+            } else if (this.dayRule == 'lastWeek') {
+              this.dayRuleSup--;// 星期日是第一天
+
 							//如果指定了每月最后一个星期几
 							//校验并调整如果是2月30号这种日期传进来时需调整至正常月底
 							if (this.checkDate(YY + '-' + MM + '-' + thisDD + ' 00:00:00') !== true) {
@@ -258,11 +264,11 @@
 							if (this.dayRuleSup < thisWeek) {
 								DD -= thisWeek - this.dayRuleSup;
 							} else if (this.dayRuleSup > thisWeek) {
-								DD -= 7 - (this.dayRuleSup - thisWeek)
+								DD -= 7 - (this.dayRuleSup  - thisWeek)
 							}
-						}
-						// 判断时间值是否小于10置换成“05”这种格式
-						DD = DD < 10 ? '0' + DD : DD;
+            }
+            // 判断时间值是否小于10置换成“05”这种格式
+            DD = DD < 10 ? '0' + DD : DD;
 
 						// 循环“时”数组
 						goHour: for (let hi = hIdx; hi < hDate.length; hi++) {
@@ -423,14 +429,6 @@
 				} else if (rule !== '*' && rule !== '?') {
 					this.dayRule = 'weekDay';
 					this.dayRuleSup = this.getAssignArr(rule)
-				}
-				//如果weekDay时将7调整为0【week值0即是星期日】
-				if (this.dayRule == 'weekDay') {
-					for (let i = 0; i < this.dayRuleSup.length; i++) {
-						if (this.dayRuleSup[i] == 7) {
-							this.dayRuleSup[i] = 0;
-						}
-					}
 				}
 			}
 		},

@@ -9,12 +9,14 @@
       :delete-permission="['PROJECT_TRACK_CASE:READ+DELETE']"
       :add-permission="['PROJECT_TRACK_CASE:READ+CREATE']"
       :update-permission="['PROJECT_TRACK_CASE:READ+EDIT']"
+      :default-label="'未规划用例'"
       @add="add"
       @edit="edit"
       @drag="drag"
       @remove="remove"
       @nodeSelectEvent="nodeChange"
       @refresh="list"
+      @filter="filter"
       ref="nodeTree">
       <template v-slot:header>
         <ms-search-bar
@@ -94,8 +96,8 @@ export default {
     treeNodes() {
       this.$emit('setTreeNodes', this.treeNodes);
     },
-    'condition.filterText'(val) {
-      this.$refs.nodeTree.filter(val);
+    'condition.filterText'() {
+      this.filter();
     },
   },
   mounted() {
@@ -113,6 +115,9 @@ export default {
         return;
       }
      this.$refs.testCaseCreate.open(this.currentModule)
+    },
+    filter() {
+      this.$refs.nodeTree.filter(this.condition.filterText);
     },
     saveAsEdit(data) {
       this.$emit('saveAsEdit', data);
@@ -139,7 +144,7 @@ export default {
           });
           this.setModuleOptions();
           if (this.$refs.nodeTree) {
-            this.$refs.nodeTree.filter();
+            this.$refs.nodeTree.filter(this.condition.filterText);
           }
         });
       }

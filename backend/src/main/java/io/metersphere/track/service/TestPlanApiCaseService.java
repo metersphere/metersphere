@@ -7,13 +7,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.JvmInfoDTO;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
@@ -22,23 +23,33 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.MessageCache;
+import io.metersphere.api.jmeter.ResourcePoolCalculation;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.api.service.NodeKafkaService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.RunModeConstants;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.SystemParameterService;
-import io.metersphere.track.dto.*;
+import io.metersphere.track.dto.PlanReportCaseDTO;
+import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
+import io.metersphere.track.dto.TestPlanApiResultReportDTO;
+import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
-import io.metersphere.track.service.task.ParallelApiExecTask;
 import io.metersphere.track.service.task.SerialApiExecTask;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -82,6 +93,10 @@ public class TestPlanApiCaseService {
     private ApiDefinitionExecResultMapper mapper;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ResourcePoolCalculation resourcePoolCalculation;
+    @Resource
+    private NodeKafkaService nodeKafkaService;
 
     public TestPlanApiCase getInfo(String caseId, String testPlanId) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -91,7 +106,7 @@ public class TestPlanApiCaseService {
 
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
         request.setProjectId(null);
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<TestPlanApiCaseDTO> apiTestCases = extTestPlanApiCaseMapper.list(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
@@ -117,7 +132,7 @@ public class TestPlanApiCaseService {
 
     public List<String> selectIds(ApiTestCaseRequest request) {
         request.setProjectId(null);
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<String> idList = extTestPlanApiCaseMapper.selectIds(request);
         return idList;
     }
@@ -279,6 +294,8 @@ public class TestPlanApiCaseService {
         try {
             String api = caseWithBLOBs.getRequest();
             JSONObject element = JSON.parseObject(api);
+            ElementUtil.dataFormatting(element);
+
             LinkedList<MsTestElement> list = new LinkedList<>();
             if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                 LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
@@ -379,6 +396,15 @@ public class TestPlanApiCaseService {
         List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
+        // 资源池
+        if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
+            List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
+            request.getConfig().setTestResources(testResources);
+            String status = nodeKafkaService.createKafkaProducer(request.getConfig());
+            if ("ERROR".equals(status)) {
+                MSException.throwException("执行节点的kafka 启动失败，无法执行");
+            }
+        }
         // 开始选择执行模式
         ExecutorService executorService = Executors.newFixedThreadPool(planApiCases.size());
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
@@ -395,6 +421,10 @@ public class TestPlanApiCaseService {
                 public void run() {
                     for (TestPlanApiCase testPlanApiCase : executeQueue.keySet()) {
                         try {
+                            if (executeQueue.get(testPlanApiCase)!=null && MessageCache.terminationOrderDeque.contains(executeQueue.get(testPlanApiCase).getId())) {
+                                MessageCache.terminationOrderDeque.remove(executeQueue.get(testPlanApiCase).getId());
+                                break;
+                            }
                             ApiDefinitionExecResult execResult = executeQueue.get(testPlanApiCase);
                             execResult.setId(executeQueue.get(testPlanApiCase).getId());
                             execResult.setStatus(APITestStatus.Running.name());
@@ -449,7 +479,11 @@ public class TestPlanApiCaseService {
                 }
                 ApiDefinitionExecResult report = addResult(request, key, APITestStatus.Running.name(), batchMapper);
                 modeDataDTO.setApiCaseId(report.getId());
-                executorService.submit(new ParallelApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), ApiRunMode.API_PLAN.name()));
+                if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
+                    jMeterService.runTest(report.getId(), modeDataDTO.getApiCaseId(), ApiRunMode.API_PLAN.name(), null, request.getConfig());
+                } else {
+                    jMeterService.runLocal(report.getId(), modeDataDTO.getHashTree(),  TriggerMode.BATCH.name() , ApiRunMode.API_PLAN.name());
+                }
             }
             sqlSession.flushStatements();
         }
@@ -574,4 +608,23 @@ public class TestPlanApiCaseService {
         buildUserInfo(apiTestCases);
         return apiTestCases;
     }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(TestPlanApiCase.class, TestPlanApiCaseMapper.class,
+                extTestPlanApiCaseMapper::selectPlanIds,
+                extTestPlanApiCaseMapper::getIdsOrderByUpdateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, TestPlanApiCase.class,
+                testPlanApiCaseMapper::selectByPrimaryKey,
+                extTestPlanApiCaseMapper::getPreOrder,
+                extTestPlanApiCaseMapper::getLastOrder,
+                testPlanApiCaseMapper::updateByPrimaryKeySelective);
+    }
+
 }

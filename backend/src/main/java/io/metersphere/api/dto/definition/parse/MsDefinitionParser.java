@@ -12,6 +12,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ApiImportPlatform;
+import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -104,8 +105,6 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
     private void parseApiDefinition(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest importRequest,
                                     Map<String, List<ApiTestCaseWithBLOBs>> caseMap, Map<String, NodeTree> nodeMap) {
         String originId = apiDefinition.getId();
-        String id = UUID.randomUUID().toString();
-
         if (nodeMap != null && nodeMap.get(apiDefinition.getModuleId()) != null) {
             NodeTree nodeTree = nodeMap.get(apiDefinition.getModuleId());
             apiDefinition.setModuleId(nodeTree.getNewId());
@@ -118,12 +117,14 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             parseModule(apiDefinition.getModulePath(), importRequest, apiDefinition);
         }
 
-        apiDefinition.setId(id);
         apiDefinition.setProjectId(this.projectId);
         String request = apiDefinition.getRequest();
         JSONObject requestObj = JSONObject.parseObject(request);
-        requestObj.put("id", id);
+//        requestObj.put("id", id);
         apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
+        apiDefinition.setCreateUser(SessionUtils.getUserId());
+        apiDefinition.setUserId(SessionUtils.getUserId());
+        apiDefinition.setDeleteUserId(null);
         parseCase(caseMap, apiDefinition, importRequest, originId);
     }
 
@@ -161,7 +162,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
                 if (StringUtils.isNotBlank(this.selectModulePath)) {
                     apiDefinition.setModulePath(this.selectModulePath + path);
                 } else if (StringUtils.isBlank(importRequest.getModuleId())){
-                    apiDefinition.setModulePath("/默认模块" + path);
+                    apiDefinition.setModulePath("/未规划接口" + path);
                 }
             }
         }

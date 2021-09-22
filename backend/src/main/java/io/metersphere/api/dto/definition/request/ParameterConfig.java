@@ -5,6 +5,7 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.ssl.MsKeyStore;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
+import io.metersphere.plugin.core.MsParameter;
 import lombok.Data;
 import org.apache.jmeter.config.Arguments;
 
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class ParameterConfig {
+public class ParameterConfig extends MsParameter {
     /**
      * 环境配置
      */

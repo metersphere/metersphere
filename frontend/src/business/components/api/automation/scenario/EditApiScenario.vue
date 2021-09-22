@@ -8,7 +8,7 @@
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
 
           <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario"
-                     title="ctrl + s">
+                     title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT']">
             {{ $t('commons.save') }}
           </el-button>
         </div>
@@ -31,7 +31,7 @@
             <el-col :span="7">
               <el-form-item :label="$t('commons.status')" prop="status">
                 <el-select class="ms-scenario-input" size="small" v-model="currentScenario.status">
-                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
+                  <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -196,7 +196,7 @@
                        highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable ref="stepTree">
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -225,7 +225,7 @@
               <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
                        :click-auto-close="false" v-outside-click="outsideClick" ref="refFab">
                 <fab-item
-                  v-for="(item, index) in buttons"
+                  v-for="(item, index) in buttonData"
                   :key="index"
                   :idx="getIdx(index)"
                   :title="item.title"
@@ -258,7 +258,7 @@
       <!--执行组件-->
       <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId" :saved="!debug"
               :run-data="debugData"
-              @runRefresh="runRefresh" ref="runTest"/>
+              @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
@@ -284,6 +284,7 @@
             :onSampleError="onSampleError"
             :execDebug="stopDebug"
             :isFullUrl.sync="isFullUrl"
+            :clearMessage="clearMessage"
             @closePage="close"
             @unFullScreen="unFullScreen"
             @showAllBtn="showAllBtn"
@@ -325,35 +326,19 @@
 import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
 import {buttons, setComponent} from './menu/Menu';
 import {parseEnvironment} from "../../definition/model/EnvironmentModel";
-import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
-import MsApiCustomize from "./ApiCustomize";
+import {ELEMENT_TYPE, STEP, TYPE_TO_C, PLUGIN_ELEMENTS} from "./Setting";
 import {
   getUUID,
   objToStrMap,
   strMapToObj,
   handleCtrlSEvent,
   getCurrentProjectID,
-  handleCtrlREvent
+  handleCtrlREvent, hasLicense
 } from "@/common/js/utils";
-import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
-import MsInputTag from "./MsInputTag";
-import MsRun from "./DebugRun";
-import MsApiReportDetail from "../report/SysnApiReportDetail";
-import MsVariableList from "./variable/VariableList";
-import ApiImport from "../../definition/components/import/ApiImport";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
-import ScenarioApiRelevance from "./api/ApiRelevance";
-import ScenarioRelevance from "./api/ScenarioRelevance";
-import MsComponentConfig from "./component/ComponentConfig";
-import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
-import MaximizeScenario from "./maximize/MaximizeScenario";
-import ScenarioHeader from "./maximize/ScenarioHeader";
-import MsDrawer from "../../../common/components/MsDrawer";
-import MsSelectTree from "../../../common/select-tree/SelectTree";
 import {saveScenario} from "@/business/components/api/automation/api-automation";
-import MsChangeHistory from "../../../history/ChangeHistory";
-import MsTaskCenter from "../../../task/TaskCenter";
+import MsComponentConfig from "./component/ComponentConfig";
 
 let jsonPath = require('jsonpath');
 export default {
@@ -368,22 +353,23 @@ export default {
     }
   },
   components: {
-    MsVariableList,
-    ScenarioRelevance,
-    ScenarioApiRelevance,
-    ApiEnvironmentConfig,
-    MsApiReportDetail,
-    MsInputTag, MsRun,
-    MsApiCustomize,
-    ApiImport,
     MsComponentConfig,
-    EnvPopover,
-    MaximizeScenario,
-    ScenarioHeader,
-    MsDrawer,
-    MsSelectTree,
-    MsChangeHistory,
-    MsTaskCenter
+    MsVariableList: () => import("./variable/VariableList"),
+    ScenarioRelevance: () => import("./api/ScenarioRelevance"),
+    ScenarioApiRelevance: () => import("./api/ApiRelevance"),
+    ApiEnvironmentConfig: () => import("@/business/components/api/test/components/ApiEnvironmentConfig"),
+    MsApiReportDetail: () => import("../report/SysnApiReportDetail"),
+    MsInputTag: () => import("./MsInputTag"),
+    MsRun: () => import("./DebugRun"),
+    MsApiCustomize: () => import("./ApiCustomize"),
+    ApiImport: () => import("../../definition/components/import/ApiImport"),
+    EnvPopover: () => import("@/business/components/api/automation/scenario/EnvPopover"),
+    MaximizeScenario: () => import("./maximize/MaximizeScenario"),
+    ScenarioHeader: () => import("./maximize/ScenarioHeader"),
+    MsDrawer: () => import("../../../common/components/MsDrawer"),
+    MsSelectTree: () => import("../../../common/select-tree/SelectTree"),
+    MsChangeHistory: () => import("../../../history/ChangeHistory"),
+    MsTaskCenter: () => import("../../../task/TaskCenter")
   },
   data() {
     return {
@@ -463,6 +449,10 @@ export default {
       message: "",
       websocket: {},
       messageWebSocket: {},
+      buttonData: [],
+      stepFilter: new STEP,
+      plugins: [],
+      clearMessage: "",
     }
   },
   created() {
@@ -471,10 +461,16 @@ export default {
     }
     this.debug = false;
     this.debugLoading = false;
-    this.operatingElements = ELEMENTS.get("ALL");
+    if (this.stepFilter) {
+      this.operatingElements = this.stepFilter.get("ALL");
+    }
     this.getWsProjects();
     this.getMaintainerOptions();
     this.getApiScenario();
+    this.buttonData = buttons(this);
+    this.getPlugins().then(() => {
+      this.initPlugins();
+    });
   },
   mounted() {
     this.$nextTick(() => {
@@ -486,26 +482,93 @@ export default {
   },
   directives: {OutsideClick},
   computed: {
-    buttons,
     projectId() {
       return getCurrentProjectID();
     },
   },
   methods: {
+    setDomain() {
+      if (this.projectEnvMap && this.projectEnvMap.size > 0) {
+        let scenario = {
+          id: this.currentScenario.id,
+          enableCookieShare: this.enableCookieShare,
+          name: this.currentScenario.name,
+          type: "scenario",
+          clazzName: TYPE_TO_C.get("scenario"),
+          variables: this.currentScenario.variables,
+          headers: this.currentScenario.headers,
+          referenced: 'Created',
+          environmentMap: strMapToObj(this.projectEnvMap),
+          hashTree: this.scenarioDefinition,
+          onSampleError: this.onSampleError,
+          projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
+        };
+        this.$post("/api/automation/setDomain", {definition: JSON.stringify(scenario)}, res => {
+          if (res.data) {
+            let data = JSON.parse(res.data);
+            this.scenarioDefinition = data.hashTree;
+          }
+        })
+      }
+    },
+    initPlugins() {
+      if (this.plugins) {
+        this.plugins.forEach(item => {
+          let plugin = {
+            title: item.name,
+            show: this.showButton(item.jmeterClazz),
+            titleColor: "#555855",
+            titleBgColor: "#F4F4FF",
+            icon: "colorize",
+            click: () => {
+              this.addComponent(item.name, item)
+            }
+          }
+          if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
+            this.buttonData.push(plugin);
+          }
+        });
+      }
+    },
+    getPlugins() {
+      return new Promise((resolve) => {
+        let url = "/plugin/list";
+        this.plugins = [];
+        this.$get(url, response => {
+          let data = response.data;
+          if (data) {
+            data.forEach(item => {
+              if (item.license) {
+                if (hasLicense()) {
+                  this.plugins.push(item);
+                }
+              } else {
+                this.plugins.push(item);
+              }
+            })
+          }
+          resolve();
+        });
+      });
+    },
     stop() {
       let url = "/api/automation/stop/" + this.reportId;
       this.$get(url, response => {
         this.debugLoading = false;
-        if (this.websocket) {
-          this.websocket.close();
+        try {
+          if (this.websocket) {
+            this.websocket.close();
+          }
+          if (this.messageWebSocket) {
+            this.messageWebSocket.close();
+          }
+          this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+          this.clearDebug();
+          this.$success(this.$t('report.test_stop_success'));
+          this.reload();
+        } catch (e) {
+          this.debugLoading = false;
         }
-        if (this.messageWebSocket) {
-          this.messageWebSocket.close();
-        }
-        this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
-        this.clearDebug();
-        this.$success(this.$t('report.test_stop_success'));
-        this.reload();
       });
     },
     clearDebug() {
@@ -827,24 +890,35 @@ export default {
     outsideClick(e) {
       e.stopPropagation();
       this.showAll();
+      this.buttonData = buttons(this);
+      this.initPlugins();
     },
     fabClick() {
-      if (this.operatingElements.length < 1) {
-        this.$info("引用的场景或接口无法添加配置");
+      if (this.operatingElements && this.operatingElements.length < 1) {
+        if (this.selectedTreeNode && this.selectedTreeNode.referenced === 'REF' || this.selectedTreeNode.disabled) {
+          this.$warning("引用的场景步骤及子步骤都无法添加其他步骤");
+        } else {
+          this.$warning("当前步骤下不能添加其他步骤");
+        }
       }
     },
-    addComponent(type) {
-      setComponent(type, this);
+    addComponent(type, plugin) {
+      setComponent(type, this, plugin);
     },
     nodeClick(data, node) {
-      if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
-        this.operatingElements = ELEMENTS.get(data.type);
+      if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled && this.stepFilter) {
+        this.operatingElements = this.stepFilter.get(data.type);
       } else {
         this.operatingElements = [];
+      }
+      if (!this.operatingElements && this.stepFilter) {
+        this.operatingElements = this.stepFilter.get("ALL");
       }
       this.selectedTreeNode = data;
       this.selectedNode = node;
       this.$store.state.selectStep = data;
+      this.buttonData = buttons(this);
+      this.initPlugins();
     },
     suggestClick(node) {
       this.response = {};
@@ -855,7 +929,7 @@ export default {
     showAll() {
       // 控制当有弹出页面操作时禁止刷新按钮列表
       if (!this.customizeVisible && !this.isBtnHide) {
-        this.operatingElements = ELEMENTS.get("ALL");
+        this.operatingElements = this.stepFilter.get("ALL");
         this.selectedTreeNode = undefined;
         this.$store.state.selectStep = undefined;
       }
@@ -878,6 +952,9 @@ export default {
           && stepArray[i].hashTree
           && stepArray[i].hashTree.length > 1) {
           stepArray[i].countController.proceed = true;
+        }
+        if (!stepArray[i].clazzName) {
+          stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
         }
         if (!stepArray[i].projectId) {
           // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
@@ -1005,7 +1082,6 @@ export default {
             const index = hashTree.findIndex(d => d.resourceId !== undefined && row.resourceId !== undefined && d.resourceId === row.resourceId)
             hashTree.splice(index, 1);
             this.sort();
-            this.reload();
           }
         }
       });
@@ -1037,7 +1113,6 @@ export default {
         hashTree.push(obj);
       }
       this.sort();
-      this.reload();
     },
     reload() {
       this.loading = true
@@ -1064,6 +1139,7 @@ export default {
               let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
               if (!sign) {
                 this.buttonIsLoading = false;
+                this.clearMessage = getUUID().substring(0, 8);
                 return;
               }
               //调试时不再保存
@@ -1084,6 +1160,8 @@ export default {
               this.debugLoading = true;
             })
           })
+        } else {
+          this.clearMessage = getUUID().substring(0, 8);
         }
       })
     },
@@ -1127,10 +1205,15 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
+      // 增加插件权限控制
       if (dropType != "inner") {
+        if (draggingNode.data.disabled && draggingNode.parent && draggingNode.parent.data && draggingNode.parent.data.disabled) {
+          return false;
+        }
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1 && !draggingNode.data.disabled) {
+        && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)
+        && !draggingNode.data.disabled) {
         return true;
       }
       return false;
@@ -1160,9 +1243,10 @@ export default {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
-            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, (response) => {
+            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
+              this.$store.state.pluginFiles = [];
               if (response.data) {
                 this.currentScenario.id = response.data.id;
               }
@@ -1255,12 +1339,23 @@ export default {
             }
           }
           this.loading = false;
+          this.setDomain();
           this.sort();
           // 初始化resourceId
           if (this.scenarioDefinition) {
             this.resetResourceId(this.scenarioDefinition);
           }
         })
+      }
+    },
+    formatData(hashTree) {
+      for (let i in hashTree) {
+        if (!hashTree[i].clazzName) {
+          hashTree[i].clazzName = TYPE_TO_C.get(hashTree[i].type);
+        }
+        if (hashTree[i].hashTree && hashTree[i].hashTree.length > 0) {
+          this.formatData(hashTree[i].hashTree);
+        }
       }
     },
     setParameter() {
@@ -1274,6 +1369,7 @@ export default {
         enableCookieShare: this.enableCookieShare,
         name: this.currentScenario.name,
         type: "scenario",
+        clazzName: TYPE_TO_C.get("scenario"),
         variables: this.currentScenario.variables,
         headers: this.currentScenario.headers,
         referenced: 'Created',
@@ -1282,6 +1378,10 @@ export default {
         onSampleError: this.onSampleError,
         projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
       };
+      // 历史数据处理
+      if (scenario.hashTree) {
+        this.formatData(scenario.hashTree);
+      }
       this.currentScenario.scenarioDefinition = scenario;
       if (this.currentScenario.tags instanceof Array) {
         this.currentScenario.tags = JSON.stringify(this.currentScenario.tags);
@@ -1299,6 +1399,14 @@ export default {
         this.initWebSocket();
         this.initMessageSocket();
       }
+    },
+    errorRefresh() {
+      this.debug = false;
+      this.isTop = false;
+      this.debugLoading = false;
+      this.debugVisible = false;
+      this.loading = false;
+      this.clearMessage = getUUID().substring(0, 8);
     },
     showScenarioParameters() {
       this.$refs.scenarioParameters.open(this.currentScenario.variables, this.currentScenario.headers);
@@ -1327,6 +1435,7 @@ export default {
     },
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
+      this.setDomain();
     },
     getWsProjects() {
       this.$get("/project/listAll", res => {

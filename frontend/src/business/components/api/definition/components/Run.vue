@@ -5,6 +5,7 @@
 import {getBodyUploadFiles, getCurrentProjectID, strMapToObj} from "@/common/js/utils";
 import ThreadGroup from "./jmeter/components/thread-group";
 import TestPlan from "./jmeter/components/test-plan";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: 'MsRun',
@@ -15,7 +16,8 @@ export default {
     reportId: String,
     runData: Array,
     type: String,
-    envMap: Map
+    envMap: Map,
+    isStop: Boolean,
   },
   data() {
     return {
@@ -31,6 +33,11 @@ export default {
     // 初始化
     reportId() {
       this.run()
+    },
+    isStop() {
+      if (!this.isStop && this.websocket && this.websocket.close instanceof Function) {
+        this.websocket.close();
+      }
     }
   },
   methods: {
@@ -51,6 +58,18 @@ export default {
         this.$emit('runRefresh', data);
       }
     },
+    sort(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sort(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     run() {
       let projectId = getCurrentProjectID();
       // 如果envMap不存在，是单接口调用
@@ -64,14 +83,20 @@ export default {
       }
 
       let testPlan = new TestPlan();
+      testPlan.clazzName = TYPE_TO_C.get(testPlan.type);
       let threadGroup = new ThreadGroup();
+      threadGroup.clazzName = TYPE_TO_C.get(threadGroup.type);
       threadGroup.hashTree = [];
       testPlan.hashTree = [threadGroup];
       this.runData.forEach(item => {
         item.projectId = projectId;
+        if (!item.clazzName) {
+          item.clazzName = TYPE_TO_C.get(item.type);
+        }
         threadGroup.hashTree.push(item);
       })
-      let reqObj = {id: this.reportId, testElement: testPlan, type: this.type, projectId: projectId, environmentMap: strMapToObj(this.envMap)};
+      this.sort(testPlan.hashTree);
+      let reqObj = {id: this.reportId, testElement: testPlan, type: this.type, clazzName: this.clazzName ? this.clazzName : TYPE_TO_C.get(this.type), projectId: projectId, environmentMap: strMapToObj(this.envMap)};
       let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
       if (this.runData[0].url) {
         reqObj.name = this.runData[0].url;

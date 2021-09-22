@@ -14,11 +14,13 @@
         :total="total"
         :fields.sync="fields"
         :field-key=tableHeaderKey
+        :remember-order="true"
         operator-width="200"
+        :enable-order-drag="enableOrderDrag"
+        row-key="id"
         @refresh="search(projectId)"
         @callBackSelectAll="callBackSelectAll"
         @callBackSelect="callBackSelect"
-        @saveSortField="saveSortField"
         ref="scenarioTable">
         <ms-table-column
           prop="deleteTime"
@@ -178,8 +180,27 @@
                            min-width="120px"/>
         </span>
 
+        <template v-slot:opt-before="scope">
+          <ms-table-operator-button v-permission=" ['PROJECT_API_SCENARIO:READ+RUN']"
+                                    :tip="$t('api_test.automation.execute')" icon="el-icon-video-play"
+                                    class="run-button"
+                                    @exec="run(scope.row)" v-if="!scope.row.isStop && !trashEnable"
+                                    style="margin-right: 10px;"/>
+          <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
+            <el-button v-if="!trashEnable" @click.once="stop(scope.row)" size="mini"
+                       style="color:white;padding: 0;width: 28px;height: 28px;margin-right: 10px;" class="stop-btn"
+                       circle>
+              <div style="transform: scale(0.72)">
+                <span style="margin-left: -3.5px;font-weight: bold">STOP</span>
+              </div>
+            </el-button>
+          </el-tooltip>
+
+        </template>
+
         <template v-slot:opt-behind="scope">
-          <ms-scenario-extend-buttons v-if="!trashEnable" style="display: contents" @openScenario="openScenario" :row="scope.row"/>
+          <ms-scenario-extend-buttons v-if="!trashEnable" style="display: contents" @openScenario="openScenario"
+                                      :row="scope.row"/>
         </template>
 
       </ms-table>
@@ -190,12 +211,14 @@
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
-          <sysn-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+          <sysn-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId"
+                                  :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!-- 执行结果 -->
-        <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
+        <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true"
+                   :modal="false"
                    size="90%">
-          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="showReportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
@@ -210,41 +233,26 @@
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+    <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
+            :run-data="debugData" ref="runTest"/>
     <ms-task-center ref="taskCenter"/>
   </div>
 </template>
 
 <script>
-import MsTableHeader from "@/business/components/common/components/MsTableHeader";
-import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
-import MsTag from "../../../common/components/MsTag";
-import {downloadFile, getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
-import SysnApiReportDetail from "../report/SysnApiReportDetail";
-import MsApiReportDetail from "../report/ApiReportDetail";
-import MsTableMoreBtn from "./TableMoreBtn";
-import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
-import MsTestPlanList from "./testplan/TestPlanList";
-import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import {downloadFile, getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
-import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
-import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
-import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
-import BatchEdit from "../../../track/case/components/BatchEdit";
-import {API_SCENARIO_LIST, PROJECT_NAME, WORKSPACE_ID} from "../../../../../common/js/constants";
-import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
-import BatchMove from "../../../track/case/components/BatchMove";
-import MsRunMode from "./common/RunMode";
-import MsTaskCenter from "../../../task/TaskCenter";
+import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
-import {
-  getCustomTableHeader, getCustomTableWidth, getLastTableSortField, saveLastTableSortField
-} from "@/common/js/tableUtils";
-import HeaderCustom from "@/business/components/common/head/HeaderCustom";
-import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import {getCustomTableHeader, getCustomTableWidth, getLastTableSortField, handleRowDrop} from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
-import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
+import {scenario} from "@/business/components/track/plan/event-bus";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import {editApiScenarioCaseOrder} from "@/business/components/api/automation/api-automation";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import axios from "axios";
 
 export default {
   name: "MsApiScenarioList",
@@ -252,25 +260,26 @@ export default {
     MsTable,
     MsTableColumn,
     HeaderLabelOperate,
-    HeaderCustom,
-    BatchMove,
-    EnvironmentSelect,
-    BatchEdit,
-    PlanStatusTableItem,
-    PriorityTableItem,
-    MsTableHeaderSelectPopover,
-    MsTablePagination,
-    MsTableMoreBtn,
-    ShowMoreBtn,
-    MsTableHeader,
-    MsTag,
-    MsApiReportDetail,
-    SysnApiReportDetail,
-    MsScenarioExtendButtons,
-    MsTestPlanList,
-    MsTableOperatorButton,
-    MsRunMode,
-    MsTaskCenter
+    HeaderCustom: () => import("@/business/components/common/head/HeaderCustom"),
+    BatchMove: () => import("../../../track/case/components/BatchMove"),
+    EnvironmentSelect: () => import("../../definition/components/environment/EnvironmentSelect"),
+    BatchEdit: () => import("../../../track/case/components/BatchEdit"),
+    PlanStatusTableItem: () => import("../../../track/common/tableItems/plan/PlanStatusTableItem"),
+    PriorityTableItem: () => import("../../../track/common/tableItems/planview/PriorityTableItem"),
+    MsTableHeaderSelectPopover: () => import("@/business/components/common/components/table/MsTableHeaderSelectPopover"),
+    MsTablePagination: () => import("@/business/components/common/pagination/TablePagination"),
+    MsTableMoreBtn: () => import("./TableMoreBtn"),
+    ShowMoreBtn: () => import("@/business/components/track/case/components/ShowMoreBtn"),
+    MsTableHeader: () => import("@/business/components/common/components/MsTableHeader"),
+    MsTag: () => import("../../../common/components/MsTag"),
+    MsApiReportDetail: () => import("../report/ApiReportDetail"),
+    SysnApiReportDetail: () => import("../report/SysnApiReportDetail"),
+    MsScenarioExtendButtons: () => import("@/business/components/api/automation/scenario/ScenarioExtendBtns"),
+    MsTestPlanList: () => import("./testplan/TestPlanList"),
+    MsTableOperatorButton: () => import("@/business/components/common/components/MsTableOperatorButton"),
+    MsRunMode: () => import("./common/RunMode"),
+    MsTaskCenter: () => import("../../../task/TaskCenter"),
+    MsRun: () => import("./DebugRun")
   },
   props: {
     referenced: {
@@ -335,6 +344,8 @@ export default {
       pageSize: 10,
       total: 0,
       reportId: "",
+      showReportId: "",
+      projectEnvMap: new Map(),
       batchReportId: "",
       content: {},
       infoDb: false,
@@ -348,6 +359,9 @@ export default {
       userFilters: [],
       operators: [],
       selectRows: new Set(),
+      isStop: false,
+      enableOrderDrag: true,
+      debugData: {},
       trashOperators: [
         {
           tip: this.$t('commons.reduction'),
@@ -364,13 +378,6 @@ export default {
         },
       ],
       unTrashOperators: [
-        {
-          tip: this.$t('api_test.automation.execute'),
-          icon: "el-icon-video-play",
-          exec: this.execute,
-          class: "run-button",
-          permissions: ['PROJECT_API_SCENARIO:READ+RUN']
-        },
         {
           tip: this.$t('commons.edit'),
           icon: "el-icon-edit",
@@ -471,6 +478,9 @@ export default {
     };
   },
   created() {
+    scenario.$on('hide', id => {
+      this.hideStopBtn(id);
+    });
     this.projectId = getCurrentProjectID();
     if (!this.projectName || this.projectName === "") {
       this.getProjectName();
@@ -493,18 +503,24 @@ export default {
     }
 
 
-    if(this.trashEnable){
-      this.condition.orders = [{"name":"delete_time","type":"desc"}];
-    }else {
-      let orderArr = this.getSortField();
-      if (orderArr) {
-        this.condition.orders = orderArr;
-      }
+    if (this.trashEnable) {
+      this.condition.orders = [{"name": "delete_time", "type": "desc"}];
+    } else {
+      this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     }
 
     this.search();
     this.getPrincipalOptions([]);
 
+    // 通知过来的数据跳转到编辑
+    if (this.$route.query.resourceId) {
+      this.$get('/api/automation/get/' + this.$route.query.resourceId, (response) => {
+        this.edit(response.data);
+      });
+    }
+  },
+  beforeDestroy() {
+    scenario.$off("hide");
   },
   watch: {
     selectNodeIds() {
@@ -570,6 +586,8 @@ export default {
         this.condition.projectId = this.projectId;
       }
 
+      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+
       //检查是否只查询本周数据
       this.condition.selectThisWeedData = false;
       this.condition.executeStatus = null;
@@ -599,12 +617,20 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
-          if (this.$refs.scenarioTable) {
-            this.$refs.scenarioTable.clear();
-            this.$nextTick(() => {
-              this.$refs.scenarioTable.doLayout();
+
+          this.$nextTick(() => {
+            handleRowDrop(this.tableData, (param) => {
+              param.groupId = this.condition.projectId;
+              editApiScenarioCaseOrder(param);
             });
-          }
+
+            if (this.$refs.scenarioTable) {
+              this.$refs.scenarioTable.clear();
+              this.$refs.scenarioTable.doLayout();
+            }
+
+          });
+
           this.$emit('getTrashCase');
         });
       }
@@ -797,19 +823,19 @@ export default {
           this.search();
         });
         return;
-      }else {
+      } else {
         let param = {};
         this.buildBatchParam(param);
         this.$post('/api/automation/checkBeforeDelete/', param, response => {
 
           let checkResult = response.data;
           let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
-          if(!checkResult.deleteFlag){
+          if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
-              alertMsg+=item+";";
+              alertMsg += item + ";";
             });
-            if(alertMsg === ""){
+            if (alertMsg === "") {
               alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
             } else {
               alertMsg += this.$t('api_test.is_continue') + " ？";
@@ -831,7 +857,39 @@ export default {
         });
       }
     },
-
+    getApiScenario(scenarioId) {
+      return new Promise((resolve) => {
+        this.result = this.$get("/api/automation/getApiScenario/" + scenarioId, response => {
+          if (response.data) {
+            this.currentScenario = response.data;
+            this.currentScenario.clazzName = TYPE_TO_C.get("scenario");
+            if (response.data.scenarioDefinition != null) {
+              let obj = JSON.parse(response.data.scenarioDefinition);
+              this.currentScenario.scenarioDefinition = obj;
+              this.currentScenario.name = response.data.name;
+              if (this.currentScenario.scenarioDefinition && this.currentScenario.scenarioDefinition.hashTree) {
+                this.sort(this.currentScenario.scenarioDefinition.hashTree);
+              }
+              resolve();
+            }
+          }
+        })
+      })
+    },
+    sort(stepArray) {
+      for (let i in stepArray) {
+        stepArray[i].index = Number(i) + 1;
+        if (!stepArray[i].resourceId) {
+          stepArray[i].resourceId = getUUID();
+        }
+        if (!stepArray[i].clazzName) {
+          stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+        }
+        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+          this.sort(stepArray[i].hashTree);
+        }
+      }
+    },
     execute(row) {
       this.infoDb = false;
       this.scenarioId = row.id;
@@ -845,7 +903,39 @@ export default {
       run.executeType = "Saved";
       this.$post(url, run, response => {
         this.runVisible = true;
+        this.$set(row, "isStop", true);
         this.reportId = run.id;
+      }, () => {
+        this.$set(row, "isStop", false);
+      });
+    },
+    runRefresh(row) {
+      this.$set(row, "isStop", false);
+    },
+    run(row) {
+      this.scenarioId = row.id;
+      this.getApiScenario(row.id).then(() => {
+        let scenarioStep = this.currentScenario.scenarioDefinition;
+        if (scenarioStep) {
+          this.debugData = {
+            id: this.currentScenario.id,
+            name: this.currentScenario.name,
+            type: "scenario",
+            variables: scenarioStep.variables,
+            referenced: 'Created',
+            onSampleError: scenarioStep.onSampleError,
+            enableCookieShare: scenarioStep.enableCookieShare,
+            headers: scenarioStep.headers,
+            environmentMap: scenarioStep.environmentMap ? new Map(Object.entries(scenarioStep.environmentMap)) : new Map,
+            hashTree: scenarioStep.hashTree
+          };
+          if (scenarioStep.environmentMap) {
+            this.projectEnvMap = new Map(Object.entries(scenarioStep.environmentMap));
+          }
+          this.reportId = getUUID().substring(0, 8);
+          this.runVisible = true;
+          this.$set(row, "isStop", true);
+        }
       });
     },
     copy(row) {
@@ -858,7 +948,7 @@ export default {
     showReport(row) {
       this.showReportVisible = true;
       this.infoDb = true;
-      this.reportId = row.reportId;
+      this.showReportId = row.reportId;
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
     isSelectThissWeekData() {
@@ -875,20 +965,20 @@ export default {
           this.search();
         });
         return;
-      }else {
+      } else {
         let param = {};
         this.buildBatchParam(param);
         param.ids = [row.id];
         this.$post('/api/automation/checkBeforeDelete/', param, response => {
           let checkResult = response.data;
-          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') +" ？";
-          if(!checkResult.deleteFlag){
+          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
+          if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
-              alertMsg+=item+";";
+              alertMsg += item + ";";
             });
-            if(alertMsg === ""){
-              alertMsg = this.$t('load_test.delete_threadgroup_confirm') +" ？";
+            if (alertMsg === "") {
+              alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
             } else {
               alertMsg += this.$t('api_test.is_continue') + " ？";
             }
@@ -933,6 +1023,17 @@ export default {
         }
       });
     },
+    fileDownload(url, param) {
+      axios.post(url, param, {responseType: 'blob'})
+        .then(response => {
+          let link = document.createElement("a");
+          link.href = window.URL.createObjectURL(new Blob([response.data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"}));
+          link.download = "场景JMX文件集.zip";
+          this.result.loading = false;
+          link.click();
+        });
+    },
+
     exportJmx() {
       let param = {};
       this.buildBatchParam(param);
@@ -941,15 +1042,7 @@ export default {
         return;
       }
       this.result.loading = true;
-      this.result = this.$post("/api/automation/export/jmx", param, response => {
-        this.result.loading = false;
-        let obj = response.data;
-        if (obj && obj.length > 0) {
-          obj.forEach(item => {
-            downloadFile(item.name + ".jmx", item.jmx);
-          });
-        }
-      });
+      this.fileDownload("/api/automation/export/jmx", param);
     },
     getConditions() {
       return this.condition;
@@ -1011,10 +1104,10 @@ export default {
             this.buildBatchParam(param);
             this.$post('/api/automation/batchCopy', param, response => {
               let copyResult = response.data;
-              if(copyResult.result){
+              if (copyResult.result) {
                 this.$success(this.$t('api_test.definition.request.batch_copy_end'));
-              }else {
-                this.$error(this.$t('commons.already_exists')+":"+copyResult.errorMsg);
+              } else {
+                this.$error(this.$t('commons.already_exists') + ":" + copyResult.errorMsg);
               }
 
               this.search();
@@ -1023,20 +1116,18 @@ export default {
         }
       });
     },
-    saveSortField(key, orders) {
-      saveLastTableSortField(key, JSON.stringify(orders));
+    stop(row) {
+      let url = "/api/automation/stop/" + this.reportId;
+      this.$get(url, () => {
+        this.$set(row, "isStop", false);
+      });
     },
-    getSortField() {
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if (orderJsonStr) {
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        } catch (e) {
-          return null;
+    hideStopBtn(scenarioId) {
+      for (let data of this.tableData) {
+        if (scenarioId && scenarioId === data.id) {
+          this.$set(data, "isStop", false);
         }
       }
-      return returnObj;
     }
   }
 };
@@ -1057,5 +1148,11 @@ export default {
 
 /deep/ .el-card__header {
   padding: 10px;
+}
+
+.stop-btn {
+  background-color: #E62424;
+  border-color: #dd3636;
+  color: white;
 }
 </style>

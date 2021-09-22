@@ -13,6 +13,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.consul.CacheNode;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
@@ -106,6 +107,12 @@ public class PerformanceTestController {
     ) {
         checkPermissionService.checkPerformanceTestOwner(request.getId());
         return performanceTestService.edit(request, files);
+    }
+
+
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        performanceTestService.updateOrder(request);
     }
 
     @GetMapping("/get/{testId}")

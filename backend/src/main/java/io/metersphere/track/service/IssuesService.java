@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
@@ -21,7 +22,6 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.PlanReportIssueDTO;
 import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.track.dto.TestPlanFunctionResultReportDTO;
@@ -32,16 +32,15 @@ import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -76,7 +75,7 @@ public class IssuesService {
     @Resource
     private TestCaseMapper testCaseMapper;
     @Resource
-    private SystemParameterService systemParameterService;
+    private TestCaseIssueService testCaseIssueService;
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
 
@@ -94,16 +93,7 @@ public class IssuesService {
             platform.addIssue(issuesRequest);
         });
         issuesRequest.getTestCaseIds().forEach(l -> {
-            try {
-                List<IssuesDao> issues = this.getIssues(l);
-                if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
-                    LogUtil.error(l + "下的缺陷为空");
-                }
-                int issuesCount = issues.size();
-                testPlanTestCaseService.updateIssues(issuesCount, "", l, JSON.toJSONString(issues));
-            } catch (Exception e) {
-                LogUtil.error("处理bug数量报错caseId: {}, message: {}", l, ExceptionUtils.getStackTrace(e));
-            }
+            testCaseIssueService.updateIssuesCount(l);
         });
     }
 
@@ -152,10 +142,10 @@ public class IssuesService {
         String userId = testCase.getMaintainer();
         issueRequest.setOrganizationId(orgId);
         issueRequest.setUserId(userId);
-        return getIssuesByProject(issueRequest, project);
+        return getIssuesByProjectIdOrCaseId(issueRequest);
     }
 
-    public List<IssuesDao> getIssuesByProject(IssuesRequest issueRequest, Project project) {
+    public List<IssuesDao> getIssuesByProjectIdOrCaseId(IssuesRequest issueRequest) {
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issueRequest.getProjectId())) {
             issues = extIssuesMapper.getIssues(issueRequest);
@@ -290,14 +280,20 @@ public class IssuesService {
         TestCaseIssuesExample example = new TestCaseIssuesExample();
         example.createCriteria().andTestCaseIdEqualTo(caseId).andIssuesIdEqualTo(id);
         testCaseIssuesMapper.deleteByExample(example);
+        testCaseIssueService.updateIssuesCount(caseId);
     }
 
     public void delete(String id) {
-        issuesMapper.deleteByPrimaryKey(id);
-        TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria()
-                .andIssuesIdEqualTo(id);
-        testCaseIssuesMapper.deleteByExample(example);
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
+        List platforms = new ArrayList<>();
+        platforms.add(issuesWithBLOBs.getPlatform());
+        String projectId = issuesWithBLOBs.getProjectId();
+        Project project = projectService.getProjectById(projectId);
+        Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
+        IssuesRequest issuesRequest = new IssuesRequest();
+        issuesRequest.setOrganizationId(workspace.getOrganizationId());
+        AbstractIssuePlatform platform = IssueFactory.createPlatform(issuesWithBLOBs.getPlatform(), issuesRequest);
+        platform.deleteIssue(id);
     }
 
     public IssuesWithBLOBs get(String id) {
@@ -398,16 +394,7 @@ public class IssuesService {
             List<TestPlanTestCaseWithBLOBs> list = testPlanTestCaseService.listAll();
             pages = page.getPages();// 替换成真实的值
             list.forEach(l -> {
-                try {
-                    List<IssuesDao> issues = this.getIssues(l.getCaseId());
-                    if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
-                        return;
-                    }
-                    int issuesCount = issues.size();
-                    testPlanTestCaseService.updateIssues(issuesCount, l.getPlanId(), l.getCaseId(), JSON.toJSONString(issues));
-                } catch (Exception e) {
-                    LogUtil.error("定时任务处理bug数量报错planId: {}, message: {}", l.getPlanId(), ExceptionUtils.getStackTrace(e));
-                }
+                testCaseIssueService.updateIssuesCount(l.getCaseId());
             });
         }
         LogUtil.info("测试计划-测试用例同步缺陷信息结束");
@@ -459,16 +446,8 @@ public class IssuesService {
                     Constructor cons = clazz.getDeclaredConstructor(new Class[]{IssuesRequest.class});
                     AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(issuesRequest);
                     syncThirdPartyIssues(azureDevopsPlatform::syncIssues, project, azureDevopsIssues);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                } catch (Throwable e) {
+                    LogUtil.error(e);
                 }
             }
         }
@@ -556,5 +535,30 @@ public class IssuesService {
         IssuesRequest issueRequest = new IssuesRequest();
         issueRequest.setResourceId(planId);
         return extIssuesMapper.getIssues(issueRequest);
+    }
+
+    public void changeStatus(IssuesRequest request) {
+        String issuesId = request.getId();
+        String status = request.getStatus();
+        if (StringUtils.isBlank(issuesId) || StringUtils.isBlank(status)) {
+            return;
+        }
+
+        IssuesWithBLOBs issues = issuesMapper.selectByPrimaryKey(issuesId);
+        String customFields = issues.getCustomFields();
+        if (StringUtils.isBlank(customFields)) {
+            return;
+        }
+
+        List<TestCaseBatchRequest.CustomFiledRequest> fields = JSONObject.parseArray(customFields, TestCaseBatchRequest.CustomFiledRequest.class);
+        for (TestCaseBatchRequest.CustomFiledRequest field : fields) {
+            if (StringUtils.equals("状态", field.getName())) {
+                field.setValue(status);
+                break;
+            }
+        }
+
+        issues.setCustomFields(JSONObject.toJSONString(fields));
+        issuesMapper.updateByPrimaryKeySelective(issues);
     }
 }

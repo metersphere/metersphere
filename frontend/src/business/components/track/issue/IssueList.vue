@@ -25,10 +25,10 @@
           :operators="operators"
           :show-select-all="false"
           :screen-height="screenHeight"
+          :remember-order="true"
           @handlePageChange="getIssues"
           :fields.sync="fields"
           :field-key="tableHeaderKey"
-          @saveSortField="saveSortField"
           @refresh="getIssues"
           :custom-fields="issueTemplate.customFields"
           ref="table"
@@ -48,6 +48,7 @@
             prop="num"
             :field="item"
             sortable
+            min-width="100"
             :fields-width="fieldsWidth">
           </ms-table-column>
 
@@ -56,6 +57,7 @@
             :fields-width="fieldsWidth"
             :label="$t('test_track.issue.title')"
             sortable
+            min-width="110"
             prop="title">
           </ms-table-column>
 
@@ -64,6 +66,7 @@
             :fields-width="fieldsWidth"
             :filters="platformFilters"
             :label="$t('test_track.issue.platform')"
+            min-width="80"
             prop="platform">
           </ms-table-column>
 
@@ -71,6 +74,7 @@
                   :field="item"
                   :fields-width="fieldsWidth"
                   sortable
+                  min-width="110"
                   :label="$t('test_track.issue.platform_status') "
                   prop="platformStatus">
             <template v-slot="scope">
@@ -83,6 +87,7 @@
             :fields-width="fieldsWidth"
             column-key="creator"
             sortable
+            min-width="100"
             :label="$t('custom_field.issue_creator')"
             prop="creatorName">
           </ms-table-column>
@@ -203,7 +208,6 @@ export default {
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
-          isDisable: this.btnDisable,
           permissions: ['PROJECT_TRACK_ISSUE:READ+EDIT']
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
@@ -212,7 +216,6 @@ export default {
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
-          isDisable: this.btnDisable,
           permissions: ['PROJECT_TRACK_ISSUE:READ+DELETE']
         }
       ],
@@ -221,7 +224,14 @@ export default {
       isThirdPart: false
     };
   },
+  watch: {
+    '$route'(to, from) {
+      window.removeEventListener("resize", this.tableDoLayout);
+    },
+  },
   activated() {
+    // 解决错位问题
+    window.addEventListener('resize', this.tableDoLayout);
     getProjectMember((data) => {
       this.members = data;
     });
@@ -270,15 +280,16 @@ export default {
     }
   },
   methods: {
+    tableDoLayout() {
+      this.$refs.table.doLayout();
+    },
     getCustomFieldValue(row, field) {
       return getCustomFieldValue(row, field, this.members);
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
-      let orderArr = this.getSortField();
-      if(orderArr){
-        this.page.condition.orders = orderArr;
-      }
+      this.page.condition.orders = getLastTableSortField(this.tableHeaderKey);
+
       this.page.result = getIssues(this.page);
     },
     handleEdit(data) {
@@ -301,30 +312,15 @@ export default {
       });
     },
     btnDisable(row) {
-      if (row.platform === 'Local') {
-        return false;
+      if (this.issueTemplate.platform !== row.platform) {
+        return true;
       }
-      return true;
-    },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
+      return false;
     },
     syncIssues() {
       this.page.result = syncIssues(() => {
         this.getIssues();
       });
-    },
-    getSortField(){
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if(orderJsonStr){
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
-          return null;
-        }
-      }
-      return returnObj;
     }
   }
 };

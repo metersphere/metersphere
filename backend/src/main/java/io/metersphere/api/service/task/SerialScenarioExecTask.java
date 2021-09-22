@@ -6,9 +6,11 @@ package io.metersphere.api.service.task;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -32,10 +34,14 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
+            if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
+                return null;
+            }
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
             } else {
-                jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), request.getReportId(), request.getRunMode());
+                jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
             }
             // 轮询查看报告状态，最多200次，防止死循环
             int index = 1;
@@ -44,6 +50,10 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                 index++;
                 report = apiScenarioReportMapper.selectByPrimaryKey(runModeDataDTO.getReport().getId());
                 if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
+                    break;
+                }
+                if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                    MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                     break;
                 }
             }

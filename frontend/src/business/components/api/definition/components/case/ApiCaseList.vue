@@ -65,7 +65,6 @@ import MsDrawer from "../../../../common/components/MsDrawer";
 import {CASE_ORDER, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsBatchEdit from "../basis/BatchEdit";
-import MsTaskCenter from "../../../../task/TaskCenter";
 
 export default {
   name: 'ApiCaseList',
@@ -75,7 +74,7 @@ export default {
     ApiCaseHeader,
     ApiCaseItem,
     MsBatchEdit,
-    MsTaskCenter,
+    MsTaskCenter: () => import("../../../../task/TaskCenter"),
   },
   props: {
     createCase: String,
@@ -191,6 +190,17 @@ export default {
     },
     copy(apiCase) {
       this.api.id = apiCase.apiDefinitionId;
+      if (apiCase && apiCase.request) {
+        if (apiCase.request.type === "HTTPSamplerProxy") {
+          this.api.protocol = "HTTP";
+          this.api.source = "editCase";
+        }
+        this.api.method = apiCase.request.method
+        this.api.name = apiCase.request.name;
+      }
+      if (apiCase.tags) {
+        apiCase.tags = JSON.parse(apiCase.tags);
+      }
       this.condition = {components: API_CASE_CONFIGS};
       this.sysAddition(apiCase);
       this.visible = true;
@@ -221,27 +231,6 @@ export default {
       } else {
         this.addCase();
       }
-      // this.$post("/api/testcase/list", this.condition, response => {
-      //   let data = response.data;
-      //   data.forEach(apiCase => {
-      //     if (apiCase.tags && apiCase.tags.length > 0) {
-      //       apiCase.tags = JSON.parse(apiCase.tags);
-      //       this.$set(apiCase, 'selected', false);
-      //     }
-      //     if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
-      //       apiCase.request = JSON.parse(apiCase.request);
-      //     }
-      //     if (!apiCase.request.hashTree) {
-      //       apiCase.request.hashTree = [];
-      //     }
-      //   });
-      //   this.apiCaseList = data;
-      //   if (apiCase) {
-      //     this.copyCase(apiCase);
-      //   } else {
-      //     this.addCase();
-      //   }
-      // });
     },
 
     apiCaseClose() {
@@ -269,7 +258,7 @@ export default {
       this.runResult = {testId: getUUID()};
       this.$refs.apiCaseItem.runLoading = false;
       this.$success(this.$t('organization.integration.successful_operation'));
-      //this.$emit("refresh");
+      this.getApiTest();
     },
     errorRefresh() {
       this.batchLoadingIds = [];
@@ -279,7 +268,6 @@ export default {
       //this.$emit("refresh");
     },
     refresh() {
-      this.getApiTest();
       this.$emit('refresh');
     },
     selectAll(isSelectAll) {
@@ -421,15 +409,14 @@ export default {
       this.runData.push(row.request);
       /*触发执行操作*/
       this.reportId = getUUID().substring(0, 8);
-      this.$emit("refreshCase", row.id);
+      this.testCaseId = row.id ? row.id : row.request.id;
+      this.$emit("refreshCase", this.testCaseId);
     },
 
-    stop(callback) {
-      let url = "/api/automation/stop/" + this.reportId;
-      this.$get(url, () => {
-        if (callback) {
-          callback();
-        }
+    stop(id) {
+      let obj = {type: "API", reportId: this.reportId};
+      this.$post('/api/automation/stop/batch', [obj], response => {
+        this.$emit("stop", id);
         this.singleLoading = false;
         this.$success(this.$t('report.test_stop_success'));
       });

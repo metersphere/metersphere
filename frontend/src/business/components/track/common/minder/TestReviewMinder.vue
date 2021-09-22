@@ -44,7 +44,8 @@ name: "TestReviewMinder",
     reviewId: {
       type: String
     },
-    projectId: String
+    projectId: String,
+    condition: Object
   },
   mounted() {
     if (this.selectNode && this.selectNode.data) {
@@ -76,6 +77,7 @@ name: "TestReviewMinder",
         let param = {
           request: {
             reviewId: this.reviewId,
+            orders: this.condition.orders
           },
           result: this.result,
           isDisable: true
@@ -111,7 +113,7 @@ name: "TestReviewMinder",
     save(data) {
       let saveCases = [];
       this.buildSaveCase(data.root, saveCases);
-      this.result = this.$post('/test/review/case/minder/edit', saveCases, () => {
+      this.result = this.$post('/test/review/case/minder/edit/' + this.reviewId, saveCases, () => {
         this.$success(this.$t('commons.save_success'));
       });
     },

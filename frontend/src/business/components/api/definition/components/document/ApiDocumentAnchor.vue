@@ -665,7 +665,7 @@ export default {
       this.$message.error(this.$t('api_report.error'));
     },
     handleScroll(){
-      if(!this.clickStepFlag){
+      if(!this.clickStepFlag && this.$refs.apiDocInfoDiv){
         //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
         let apiDocDivScrollTop = 0;
         if(this.$refs.apiDocInfoDiv&&this.$refs.apiDocInfoDiv.scrollTop){
@@ -758,6 +758,9 @@ export default {
       this.clickStepFlag = false;
     },
     redirectScroll(){
+      if(!this.$refs.apiDocInfoDiv){
+        return;
+      }
       //滚动条跳转：将滚动条下拉到显示对应对api接口的位置
       let apiDocDivClientTop = 0;
       let itemHeightCount = 0;

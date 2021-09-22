@@ -31,7 +31,7 @@
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
               <el-button :disabled="report.status !== 'Completed'" type="default" plain
-                         size="mini"
+                         size="mini" v-permission="['PROJECT_PERFORMANCE_REPORT:READ+COMPARE']"
                          @click="compareReports()">
                 {{ $t('report.compare') }}
               </el-button>
@@ -154,6 +154,9 @@ export default {
     MsMainContainer,
     MsReportTestDetails,
     MsPerformancePressureConfig
+  },
+  props: {
+    perReportId: String
   },
   data() {
     return {
@@ -414,6 +417,9 @@ export default {
   created() {
     this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_REPORT:READ+DELETE');
     this.reportId = this.$route.path.split('/')[4];
+    if (!this.reportId && this.perReportId) {
+      this.reportId = this.perReportId;
+    }
     this.getReport(this.reportId);
   },
   watch: {
@@ -428,6 +434,9 @@ export default {
         // console.log("close socket.");
         this.websocket.close(); //离开路由之后断开websocket连接
       }
+    },
+    perReportId() {
+      this.getReport(this.perReportId);
     }
   }
 };

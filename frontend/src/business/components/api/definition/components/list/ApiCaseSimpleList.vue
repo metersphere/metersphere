@@ -7,7 +7,9 @@
       <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" @keyup.enter.native="search"
                 class="search-input" size="small"
                 v-model="condition.name"/>
-      <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small" @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}</el-button>
+      <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small"
+                 @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}
+      </el-button>
       <ms-table
         :data="tableData"
         :select-node-ids="selectNodeIds"
@@ -19,7 +21,9 @@
         :screenHeight="screenHeight"
         :fields.sync="fields"
         :field-key="tableHeaderKey"
-        @saveSortField="saveSortField"
+        :remember-order="true"
+        :enable-order-drag="enableOrderDrag"
+        row-key="id"
         operator-width="190px"
         @refresh="initTable"
         ref="caseTable"
@@ -54,7 +58,7 @@
             <template slot-scope="scope">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
-              <el-tooltip v-else content="编辑">
+              <el-tooltip v-else :content="$t('commons.edit')">
                 <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
@@ -64,6 +68,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             prop="name"
+            sortable
             min-width="160px"
             :label="$t('test_track.case.name')"/>
 
@@ -88,7 +93,8 @@
             :label="$t('test_track.plan_view.execute_result')">
             <template v-slot:default="scope">
               <i class="el-icon-loading ms-running" v-if="scope.row.status === 'Running'"/>
-              <el-link @click="getExecResult(scope.row)" :class="getStatusClass(scope.row.status)">{{ getStatusTitle(scope.row.status) }}</el-link>
+              <el-link @click="getExecResult(scope.row)"
+                       :class="getStatusClass(scope.row.status)">{{ getStatusTitle(scope.row.status) }}</el-link>
             </template>
           </ms-table-column>
 
@@ -112,6 +118,7 @@
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+              <span/>
             </template>
           </ms-table-column>
 
@@ -162,9 +169,11 @@
         :total="total"/>
     </div>
 
-    <api-case-list @showExecResult="showExecResult" @refreshCase="initTable" :currentApi="selectCase" ref="caseList"/>
+    <api-case-list @showExecResult="showExecResult" @refreshCase="initTable" :currentApi="selectCase" ref="caseList"
+                   @stop="stop"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0"
+                   @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--选择环境(当创建性能测试的时候)-->
     <ms-set-environment ref="setEnvironment" :testCase="clickRow" @createPerformance="createPerformance"/>
     <!--查看引用-->
@@ -198,7 +207,7 @@ import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
-import {getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getBodyUploadFiles, getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -213,12 +222,16 @@ import {
   _filter,
   _sort,
   getCustomTableHeader,
-  getCustomTableWidth, saveLastTableSortField, getLastTableSortField
+  getCustomTableWidth,
+  getLastTableSortField,
+  handleRowDrop
 } from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import ApiCaseBatchRun from "@/business/components/api/definition/components/list/ApiCaseBatchRun";
 import MsRequestResultTail from "../../../../api/definition/components/response/RequestResultTail";
+import {editApiTestCaseOrder} from "@/network/api";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiCaseSimpleList",
@@ -260,14 +273,15 @@ export default {
       selectDataRange: "all",
       clickRow: {},
       buttons: [],
+      enableOrderDrag: true,
       simpleButtons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch},
-        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
-        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch},
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch, permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']},
+        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch, permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']},
+        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch, permissions: ['PROJECT_API_DEFINITION:READ+RUN']},
       ],
       trashButtons: [
-        {name: this.$t('commons.reduction'), handleClick: this.handleBatchRestore},
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+        {name: this.$t('commons.reduction'), handleClick: this.handleBatchRestore, permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']},
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']},
       ],
       operators: [],
       simpleOperators: [
@@ -341,7 +355,7 @@ export default {
       environments: [],
       resVisible: false,
       response: {},
-    }
+    };
   },
   props: {
     currentProtocol: String,
@@ -368,17 +382,12 @@ export default {
     model: {
       type: String,
       default() {
-        'api'
+        'api';
       }
     },
     planId: String
   },
   created: function () {
-    let orderArr = this.getSortField();
-    if (orderArr) {
-      this.condition.orders = orderArr;
-    }
-
     if (this.trashEnable) {
       this.operators = this.trashOperators;
       this.buttons = this.trashButtons;
@@ -388,6 +397,12 @@ export default {
     }
 
     this.initTable();
+    // 通知过来的数据跳转到编辑
+    if (this.$route.query.caseId) {
+      this.$get('/api/testcase/findById/' + this.$route.query.caseId, (response) => {
+        this.handleTestCase(response.data);
+      });
+    }
   },
   watch: {
     selectNodeIds() {
@@ -496,12 +511,16 @@ export default {
       if (this.$refs.caseTable) {
         this.$refs.caseTable.clearSelectRows();
       }
+      this.condition.orders = getLastTableSortField(this.tableHeaderKey);
       if (this.condition.orders) {
         const index = this.condition.orders.findIndex(d => d.name && d.name === 'case_path');
         if (index !== -1) {
           this.condition.orders.splice(index, 1);
         }
       }
+
+      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+
       if (this.apiDefinitionId) {
         this.condition.apiDefinitionId = this.apiDefinitionId;
       }
@@ -521,7 +540,7 @@ export default {
         }
       }
       if (this.condition.filters && !this.condition.filters.status) {
-        this.$delete(this.condition.filters, 'status')
+        this.$delete(this.condition.filters, 'status');
       }
       if (!this.selectAll) {
         this.selectAll = false;
@@ -565,13 +584,19 @@ export default {
             if (item.status === 'Running') {
               isNext = true;
             }
-          })
+          });
           this.$nextTick(function () {
+
+            handleRowDrop(this.tableData, (param) => {
+              param.groupId = this.condition.projectId;
+              editApiTestCaseOrder(param);
+            });
+
             if (this.$refs.caseTable) {
               this.$refs.caseTable.doLayout();
               this.$refs.caseTable.checkTableRowIsSelect();
             }
-          })
+          });
           if (isNext) {
             setTimeout(() => {
               this.initTable();
@@ -637,7 +662,9 @@ export default {
           request.hashTree = [];
         }
         selectApi.url = request.path;
-        this.$refs.caseList.open(selectApi, testCase.id);
+        if (this.$refs.caseList) {
+          this.$refs.caseList.open(selectApi, testCase.id);
+        }
       });
     },
     addTestCase() {
@@ -663,7 +690,16 @@ export default {
         let uuid = getUUID();
         let apiCaseRequest = JSON.parse(data.request);
         apiCaseRequest.id = uuid;
-        let obj = {name: "copy_" + data.name, apiDefinitionId: row.apiDefinitionId, priority: data.priority, active: true, tags: data.tags, request: apiCaseRequest, uuid: uuid};
+        let obj = {
+          name: "copy_" + data.name,
+          apiDefinitionId: row.apiDefinitionId,
+          priority: data.priority,
+          active: true,
+          tags: data.tags,
+          request: apiCaseRequest,
+          url: apiCaseRequest.path,
+          uuid: uuid
+        };
         this.$refs.caseList.copy(obj);
       });
     },
@@ -719,6 +755,7 @@ export default {
                 this.$refs.caseTable.clearSelectRows();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
+                this.$emit('refreshTable');
               });
             }
           }
@@ -771,7 +808,7 @@ export default {
       let obj = {};
       obj.projectId = this.projectId;
       obj.selectAllDate = false;
-      obj.ids = [apiCase.id]
+      obj.ids = [apiCase.id];
       obj = Object.assign(obj, this.condition);
       this.$post('/api/testcase/checkDeleteDatas/', obj, response => {
         let checkResult = response.data;
@@ -795,7 +832,8 @@ export default {
               this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
                 this.$success(this.$t('commons.delete_success'));
                 this.initTable();
-
+                this.$emit("refreshTree");
+                this.$emit('refreshTable');
               });
             }
           }
@@ -811,7 +849,7 @@ export default {
           let apiNames = "";
           cannotReductionApiNameArr.forEach(item => {
             if (apiNames === "") {
-              apiNames += item
+              apiNames += item;
             } else {
               apiNames += ";" + item;
             }
@@ -837,7 +875,7 @@ export default {
           let apiNames = "";
           cannotReductionApiNameArr.forEach(item => {
             if (apiNames === "") {
-              apiNames += item
+              apiNames += item;
             } else {
               apiNames += ";" + item;
             }
@@ -857,7 +895,7 @@ export default {
       let selectedIDs = this.getIds(selection);
       let allIDs = this.tableData.map(s => s.id);
       this.unSelection = allIDs.filter(function (val) {
-        return selectedIDs.indexOf(val) === -1
+        return selectedIDs.indexOf(val) === -1;
       });
       if (this.selectAll) {
         this.selectDataCounts = this.total - this.unSelection.length;
@@ -878,7 +916,7 @@ export default {
       this.$emit("changeSelectDataRangeAll", "testCase");
     },
     getIds(rowSets) {
-      let rowArray = Array.from(rowSets)
+      let rowArray = Array.from(rowSets);
       let ids = rowArray.map(s => s.id);
       return ids;
     },
@@ -912,20 +950,30 @@ export default {
       column.width = finalWidth;
       column.realWidth = finalWidth;
     },
-    saveSortField(key, orders) {
-      saveLastTableSortField(key, JSON.stringify(orders));
-    },
-    getSortField() {
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if (orderJsonStr) {
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        } catch (e) {
-          return null;
+    stop(id) {
+      for (let item of this.tableData) {
+        if (id && id === item.id) {
+          // 获取执行前结果
+          this.$get('/api/testcase/get/' + id, res => {
+            if (res) {
+              item.status = res.data.status;
+            }
+          });
+          break;
         }
       }
-      return returnObj;
+    },
+    sortHashTree(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sortHashTree(stepArray[i].hashTree);
+          }
+        }
+      }
     },
     createPerformance(row, environment) {
       /**
@@ -939,6 +987,7 @@ export default {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
+      let projectId = getCurrentProjectID();
       let runData = [];
       let singleLoading = true;
       row.request = JSON.parse(row.request);
@@ -950,17 +999,28 @@ export default {
       runData.push(row.request);
       /*触发执行操作*/
       let testPlan = new TestPlan();
+      testPlan.clazzName = TYPE_TO_C.get(testPlan.type);
       let threadGroup = new ThreadGroup();
+      threadGroup.clazzName = TYPE_TO_C.get(threadGroup.type);
       threadGroup.hashTree = [];
       testPlan.hashTree = [threadGroup];
       runData.forEach(item => {
+        item.projectId = projectId;
+        if (!item.clazzName) {
+          item.clazzName = TYPE_TO_C.get(item.type);
+        }
         threadGroup.hashTree.push(item);
-      })
+      });
+      this.sortHashTree(testPlan.hashTree);
       let reqObj = {
         id: row.id,
         testElement: testPlan,
+        clazzName: this.clazzName ? this.clazzName : TYPE_TO_C.get(this.type),
         name: row.name,
         projectId: this.projectId,
+        environmentMap: new Map([
+          [projectId, environment.id]
+        ]),
       };
       let bodyFiles = getBodyUploadFiles(reqObj, runData);
       reqObj.reportId = "run";
@@ -979,10 +1039,10 @@ export default {
         this.$store.commit('setTest', {
           name: row.name,
           jmx: jmxObj
-        })
+        });
         this.$router.push({
           path: "/performance/test/create"
-        })
+        });
         // let performanceId = response.data;
         // if(performanceId!=null){
         //   this.$router.push({
@@ -994,7 +1054,7 @@ export default {
       });
     },
   },
-}
+};
 </script>
 
 <style scoped>

@@ -32,13 +32,29 @@
     </sql>
 
     <select id="getProjectWithWorkspace" resultType="io.metersphere.dto.ProjectDTO">
-        select p.id, p.workspace_id, p.name, p.description, p.update_time, p.issue_template_id, p.case_template_id,
-        p.create_time, w.id as workspaceId, w.name as workspaceName, p.tapd_id, p.jira_key, p.zentao_id,p.azure_devops_id,p.repeatable, p.custom_num,
-        user.name as createUserName,p.mock_tcp_port AS mockTcpPort,p.is_mock_tcp_open AS isMockTcpOpen,
-        p.scenario_custom_num
-        from project p
-        join workspace w on p.workspace_id = w.id
-        left join user on user.id = p.create_user
+        SELECT p.id,
+               p.workspace_id,
+               p.name,
+               p.description,
+               p.update_time,
+               p.issue_template_id,
+               p.case_template_id,
+               p.create_time,
+               w.id               AS workspaceId,
+               w.name             AS workspaceName,
+               p.tapd_id,
+               p.jira_key,
+               p.zentao_id,
+               p.azure_devops_id,
+               p.repeatable,
+               p.custom_num,
+               user.name          AS createUserName,
+               p.mock_tcp_port    AS mockTcpPort,
+               p.is_mock_tcp_open AS isMockTcpOpen,
+               p.scenario_custom_num
+        FROM project p
+                     JOIN workspace w ON p.workspace_id = w.id
+                     LEFT JOIN user ON user.id = p.create_user
         <where>
             <if test="proRequest.combine != null">
                 <include refid="combine">
@@ -73,54 +89,61 @@
                 </foreach>
             </if>
             <if test="proRequest.name != null and proRequest.name != ''">
-                and p.name like #{proRequest.name, jdbcType=VARCHAR}
+                AND p.name LIKE #{proRequest.name, jdbcType=VARCHAR}
             </if>
             <if test="proRequest.workspaceId != null">
-                and w.id = #{proRequest.workspaceId}
+                AND w.id = #{proRequest.workspaceId}
             </if>
             <if test="proRequest.projectId != null">
-                and p.id = #{proRequest.projectId}
+                AND p.id = #{proRequest.projectId}
             </if>
         </where>
         <if test="proRequest.orders != null and proRequest.orders.size() > 0">
-            order by
+            ORDER BY
             <foreach collection="proRequest.orders" separator="," item="order">
                 p.${order.name} ${order.type}
             </foreach>
         </if>
     </select>
     <select id="getProjectIdByWorkspaceId" resultType="java.lang.String">
-        select id
-          from project
-          where workspace_id = #{workspaceId}
+        SELECT id
+        FROM project
+        WHERE workspace_id = #{workspaceId}
     </select>
     <select id="getUserProject" resultType="io.metersphere.dto.ProjectDTO">
-        select distinct p.* from `group` g join user_group ug on g.id = ug.group_id
-        join project p on p.id = ug.source_id
+        SELECT DISTINCT p.*
+        FROM `group` g
+                     JOIN user_group ug ON g.id = ug.group_id
+                     JOIN project p ON p.id = ug.source_id
         <where>
-            g.type = 'PROJECT' and ug.user_id = #{proRequest.userId}
+            g.type = 'PROJECT'
+                    AND ug.user_id = #{proRequest.userId}
             <if test="proRequest.workspaceId != null and proRequest.workspaceId != ''">
-                and p.workspace_id = #{proRequest.workspaceId}
+                AND p.workspace_id = #{proRequest.workspaceId}
             </if>
             <if test="proRequest.name != null and proRequest.name != ''">
-                and p.name like #{proRequest.name, jdbcType=VARCHAR}
+                AND p.name LIKE #{proRequest.name, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
     <select id="getSystemIdByProjectId" resultType="java.lang.String">
-        SELECT system_id FROM project WHERE id = #{0}
+        SELECT system_id
+        FROM project
+        WHERE id = #{0}
     </select>
     <select id="getProjectIds" resultType="java.lang.String">
-        select id from project;
+        SELECT id
+        FROM project;
     </select>
 
     <select id="getMaxSystemId" resultType="java.lang.String">
-        SELECT max(system_id) FROM project
+        SELECT MAX(system_id)
+        FROM project
     </select>
     <select id="queryNameByIds" resultType="io.metersphere.base.domain.Project">
-        select id, name, custom_num
-        from project
-        WHERE id IN
+        SELECT id, name, custom_num
+        FROM project
+                WHERE id IN
         <foreach collection="ids" item="id" index="index"
                  open="(" close=")" separator=",">
             #{id}
@@ -128,30 +151,34 @@
     </select>
 
     <update id="removeIssuePlatform">
-        update project
+        UPDATE project
         <set>
             <if test="platform == 'Jira'">
-                jira_key = null
+                jira_key = NULL
             </if>
             <if test="platform == 'Tapd'">
-                tapd_id = null
+                tapd_id = NULL
+
             </if>
             <if test="platform == 'Zentao'">
-                zentao_id = null
+
+                zentao_id = NULL
+
             </if>
             <if test="platform == 'AzureDevops'">
-                azure_devops_id = null
+
+                azure_devops_id = NULL
             </if>
         </set>
-        where project.id in (select id from (select id
-        from project
-        where workspace_id in
-        (select workspace.id
-        from workspace
-        where organization_id = #{orgId})) as a)
+        WHERE project.id IN (SELECT id FROM (SELECT id
+                FROM project
+                WHERE workspace_id IN
+                (SELECT workspace.id
+                FROM workspace
+                WHERE organization_id = #{orgId})) AS a)
     </update>
 
-    <select id="getOrganizationByProjectId">
+    <select id="getOrganizationByProjectId" resultType="io.metersphere.base.domain.Organization">
         SELECT organization.*
         FROM organization
                      JOIN workspace ON organization.id = organization_id
@@ -162,7 +189,62 @@
     <select id="selectTcpPorts" resultType="java.lang.Integer">
         SELECT mock_tcp_port
         FROM project
-        WHERE mock_tcp_port is not null and mock_tcp_port != 0
+        WHERE mock_tcp_port IS NOT NULL
+          AND mock_tcp_port != 0
     </select>
 
+    <select id="selectProjectByResourceId" resultType="io.metersphere.base.domain.Project">
+        SELECT *
+        FROM project
+        WHERE id IN (
+                SELECT project_id
+                FROM test_plan
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM test_case_review
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM issues
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM test_plan_report
+                             JOIN test_plan tp ON tp.id = test_plan_report.test_plan_id
+                WHERE test_plan_report.id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM test_case
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM swagger_url_project
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM api_scenario
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM api_definition
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM api_test_case
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM api_scenario_report
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM load_test
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM load_test_report
+                WHERE id = #{resourceId})
+        LIMIT 1
+    </select>
 </mapper>

@@ -3,7 +3,7 @@
   <test-case-relevance-base
     @setProject="setProject"
     @save="saveCaseRelevance"
-    width="50%"
+    width="60%"
     ref="baseRelevance">
 
     <template v-slot:aside>

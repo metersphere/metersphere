@@ -172,7 +172,9 @@ export default {
             this.basisData.backScript = JSON.stringify(this.request.backScript);
           }
         }else{
-          this.$refs.tcpFormatParameter.validateXmlDataStruct();
+          if(this.$refs.tcpFormatParameter){
+            this.$refs.tcpFormatParameter.validateXmlDataStruct();
+          }
         }
         this.$emit('saveApi', this.basisData);
       }
@@ -200,7 +202,9 @@ export default {
             this.basisData.backScript = JSON.stringify(this.request.backScript);
           }
         }else{
-          this.$refs.tcpFormatParameter.validateXmlDataStruct();
+          if(this.$refs.tcpFormatParameter){
+            this.$refs.tcpFormatParameter.validateXmlDataStruct();
+          }
         }
         this.$emit('runTest', this.basisData);
       }

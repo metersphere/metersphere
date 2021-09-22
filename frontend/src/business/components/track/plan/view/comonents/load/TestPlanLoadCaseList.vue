@@ -21,6 +21,8 @@
         @handlePageChange="initTable"
         :fields.sync="fields"
         :field-key="tableHeaderKey"
+        :enable-order-drag="enableOrderDrag"
+        row-key="id"
         @refresh="initTable"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
@@ -111,6 +113,7 @@
     <ms-plan-run-mode @handleRunBatch="runBatch" ref="runMode"/>
 
     <load-case-report :report-id="reportId" ref="loadCaseReport" @refresh="initTable"/>
+    <load-case-config ref="loadCaseConfig"/>
   </div>
 </template>
 
@@ -122,7 +125,7 @@ import MsPerformanceTestStatus from "@/business/components/performance/test/Perf
 import LoadCaseReport from "@/business/components/track/plan/view/comonents/load/LoadCaseReport";
 import {
   buildBatchParam,
-  checkTableRowIsSelect, getCustomTableHeader, getCustomTableWidth
+  checkTableRowIsSelect, getCustomTableHeader, getCustomTableWidth, handleRowDrop
 } from "@/common/js/tableUtils";
 import {TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
 import {getCurrentUser} from "@/common/js/utils";
@@ -132,6 +135,8 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
+import LoadCaseConfig from "@/business/components/track/plan/view/comonents/load/LoadCaseConfig";
+import {editTestPlanLoadCaseOrder} from "@/network/test-plan";
 
 export default {
   name: "TestPlanLoadCaseList",
@@ -145,7 +150,8 @@ export default {
     TestPlanLoadCaseListHeader,
     MsTablePagination,
     MsPerformanceTestStatus,
-    MsPlanRunMode
+    MsPlanRunMode,
+    LoadCaseConfig
   },
   data() {
     return {
@@ -160,6 +166,7 @@ export default {
       status: 'default',
       screenHeight: 'calc(100vh - 250px)',//屏幕高度
       tableHeaderKey:"TEST_PLAN_LOAD_CASE",
+      enableOrderDrag: true,
       fields: getCustomTableHeader('TEST_PLAN_LOAD_CASE'),
       fieldsWidth: getCustomTableWidth('TEST_PLAN_LOAD_CASE'),
       operators: [
@@ -171,12 +178,19 @@ export default {
           permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
         },
         {
+          tip: '修改压力配置',
+          icon: "el-icon-setting",
+          exec: this.changeLoadConfig,
+          type: 'danger',
+          isDisable: this.isReadOnly,
+        },
+        {
           tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock",
           exec: this.handleDelete,
           type: 'danger',
           isDisable: this.isReadOnly,
           permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
-        }
+        },
       ],
       buttons: [
         {
@@ -289,6 +303,8 @@ export default {
         }
         this.status = 'all';
       }
+      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+
       if (this.planId) {
         this.condition.testPlanId = this.planId;
         this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
@@ -296,6 +312,13 @@ export default {
           let {itemCount, listObject} = data;
           this.total = itemCount;
           this.tableData = listObject;
+
+          this.$nextTick(() => {
+            handleRowDrop(this.tableData, (param) => {
+              param.groupId = this.planId;
+              editTestPlanLoadCaseOrder(param);
+            });
+          });
           if (this.$refs.table) {
             setTimeout(this.$refs.table.doLayout, 200);
             this.$nextTick(() => {
@@ -404,6 +427,10 @@ export default {
         this.$emit('refresh');
         this.initTable();
       });
+    },
+    changeLoadConfig(loadCase) {
+      const {loadCaseId, id} = loadCase;
+      this.$refs.loadCaseConfig.open(loadCaseId, id);
     },
     getReport(data) {
       const {loadReportId} = data;

@@ -17,6 +17,9 @@
         select load_test.id
         from load_test
         where load_test.project_id = #{request.projectId}
+        and load_test.id not in (
+        select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
+        )
         <if test="request.name != null and request.name != ''">
             and load_test.name like CONCAT('%', #{request.name},'%')
         </if>
@@ -34,10 +37,90 @@
                 </if>
             </foreach>
         </if>
-        and load_test.id not in (
-        select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
-        )
+        <if test="request.combine != null">
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+                <property name="objectKey" value="request.combine.tags"/>
+            </include>
+        </if>
     </select>
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and load_test.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            and load_test.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and load_test.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and load_test.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and load_test.create_user
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </sql>
     <select id="selectTestPlanLoadCaseList" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
         select tplc.id,
         u.name as userName,
@@ -176,7 +259,9 @@
         select status from test_plan_load_case tplc where tplc.test_plan_id = #{planId}
     </select>
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
-        select id,status from test_plan_load_case where test_plan_id = #{planId};
+        select tplc.id,tplc.status from test_plan_load_case tplc
+        inner join load_test lt on tplc.load_case_id = lt.id
+        where tplc.test_plan_id = #{planId};
     </select>
     <select id="getCases" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
         select tplc.id, lt.id as caseId, lt.name, lt.num, lt.project_id,
@@ -204,4 +289,36 @@
         </foreach>
     </select>
 
+    <select id="selectPlanIds" resultType="java.lang.String">
+        select DISTINCT test_plan_id from test_plan_load_case;
+    </select>
+    <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
+        select id from test_plan_load_case where test_plan_id = #{planId} order by update_time ASC;
+    </select>
+
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from test_plan_load_case where test_plan_id = #{planId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+
+    <select id="getPreOrder" resultType="java.lang.Long">
+        select `order` from test_plan_load_case where test_plan_id = #{planId}
+        <if test="baseOrder != null">
+            and `order` &lt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+
+    <select id="selectIdByLoadCaseReportIdAndStatusIsRun" resultType="java.lang.String">
+        select `id` from test_plan_load_case where load_report_id = #{planId}
+        and `status` = 'run'
+    </select>
+    <update id="updateStatusNullById">
+        update test_plan_load_case tplc
+        set status = null
+        where id = #{0}
+    </update>
 </mapper>

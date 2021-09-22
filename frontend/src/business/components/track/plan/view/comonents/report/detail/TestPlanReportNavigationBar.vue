@@ -1,15 +1,15 @@
 <template>
   <div>
-    <ms-drawer :class="{'hidden': asideHidden}" :visible="true" :size="10" direction="left" :show-full-screen="false" :is-show-close="false">
-      <div class="title-item" v-for="item in data" :key="item.title">
-        <i class="el-icon-paperclip"></i>
-        <a :href="'#' + item.link">{{ item.title }}</a>
+    <ms-drawer class="drawer-content" :visible="true" :size="10" direction="left" :show-full-screen="false" :is-show-close="false">
+      <div class="title-item" >
+         <span class="title-name">目录</span>
+        <el-tabs tab-position="right" v-model="activeName">
+          <el-tab-pane v-for="item in data" :key="item.title" :label="item.title" :name="item.link"></el-tab-pane>
+        </el-tabs>
       </div>
-
-      <div class="hiddenBottom" @click.stop="asideHidden = !asideHidden">
-        <i v-if="!asideHidden" class="el-icon-arrow-left"/>
-        <i v-if="asideHidden" class="el-icon-arrow-right"/>
-      </div>
+        <div class="hiddenBottom">
+          <span>目录</span>
+        </div>
     </ms-drawer>
   </div>
 </template>
@@ -19,9 +19,12 @@ import MsDrawer from "@/business/components/common/components/MsDrawer";
 export default {
   name: "TestPlanReportNavigationBar",
   components: {MsDrawer},
+  props: {
+    isTemplate: Boolean,
+  },
   data() {
     return {
-      asideHidden: true,
+      activeName: "1",
       data: [
         {
           link: 'overview',
@@ -45,6 +48,16 @@ export default {
         }
       ]
     }
+  },
+  watch: {
+    activeName() {
+      let url = new URL(window.location.href);
+      if (this.isTemplate) {
+        window.location.href = window.location.href.split('#')[0] + '#' + this.activeName;
+      } else {
+        window.location.href = url.origin + '#' + this.activeName;
+      }
+    }
   }
 }
 </script>
@@ -52,20 +65,24 @@ export default {
 <style scoped>
 
 .hiddenBottom {
-  width: 8px;
-  height: 50px;
+  width: 20px;
+  height: 60px;
   /*top: calc((100vh - 80px)/3);*/
-  right: -10px;
+  right: -27px;
+  padding: 3px;
   /*top: 0;*/
   top: 40%;
-  line-height: 50px;
+  line-height: 30px;
   border-radius: 0 15px 15px 0;
-  background-color: #acb7c1;
+  /*background-color: #acb7c1;*/
+  background-color: #783887;
+  color: white;
   display: inline-block;
   position: absolute;
   cursor: pointer;
-  opacity: 0.6;
-  font-size: 2px;
+  opacity: 0.5;
+  font-size: 10px;
+  font-weight: bold;
   margin-left: 1px;
 }
 
@@ -74,9 +91,9 @@ export default {
 }
 
 .hiddenBottom:hover {
-  background-color: #783887;
+  /*background-color: #777979;*/
   opacity: 0.8;
-  width: 12px;
+  /*width: 12px;*/
 }
 
 .hiddenBottom:hover i {
@@ -84,30 +101,40 @@ export default {
   color: white;
 }
 
-.hidden {
-  width: 0px !important;
-  padding: 0px !important;
-}
 
 .ms-drawer {
   padding: 15px;
-  height: 230px !important;
-  /*min-width: 200px !important;*/
+  height: 300px !important;
+  width: 230px !important;
   top: calc((100vh - 200px)/3) !important;
   border: 1px solid #E6E6E6;
-  padding: 10px;
   border-radius: 10px;
   box-sizing: border-box;
   background-color: #FFF;
   overflow: visible !important;
 }
 
+.drawer-content {
+    width: 0px !important;
+    padding: 0px !important;
+}
+
+.drawer-content:hover{
+  padding: 15px !important;
+  height: 300px !important;
+  width: 230px !important;
+}
+
 .title-item {
-  margin: 15px;
+  padding: 5px
 }
 
 .el-icon-paperclip {
   margin-right: 5px;
 }
 
+.title-name {
+  font-size: 18px;
+  margin-left: 15px;
+}
 </style>

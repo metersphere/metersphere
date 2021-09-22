@@ -16,17 +16,15 @@ public class JSONSchemaGenerator {
     }
 
     private static void analyzeSchema(String json, JSONObject rootObj) {
-        // Let's start with the root element of the file
-        JsonObject rootElement = null;
         try {
-            JsonParser jsonParser = new JsonParser();
-            JsonElement inputElement = jsonParser.parse(json);
-            rootElement = inputElement.getAsJsonObject();
+            Gson gson = new Gson();
+            JsonElement element = gson.fromJson(json, JsonElement.class);
+            JsonObject rootElement = element.getAsJsonObject();
+            analyzeRootSchemaElement(rootElement, rootObj);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        analyzeRootSchemaElement(rootElement, rootObj);
     }
 
     private static void analyzeRootSchemaElement(JsonObject rootElement, JSONObject rootObj) {
@@ -105,11 +103,13 @@ public class JSONSchemaGenerator {
                 }
             }
 
-            if (object.has("enum")) {
+            if(object.has("default")){
+                concept.put(propertyName, object.get("default"));
+            }else if (object.has("enum")) {
                 concept.put(propertyName, analyzeEnumProperty(object));
             } else if (propertyObjType.equals("string")) {
                 // 先设置空值
-                concept.put(propertyName, null);
+                concept.put(propertyName, "");
                 if (object.has("format")) {
                     String propertyFormat = object.get("format").getAsString();
                     if (propertyFormat.equals("date-time")) {
@@ -211,56 +211,73 @@ public class JSONSchemaGenerator {
                 // 先设置空值
                 List<Object> array = new LinkedList<>();
 
-                JsonObject itemsObject = null;
+                JsonArray jsonArray = new JsonArray();
                 if (object.has("items") && object.get("items").isJsonArray()) {
-                    itemsObject = object.get("items").getAsJsonArray().get(0).getAsJsonObject();
+                    jsonArray = object.get("items").getAsJsonArray();
                 } else {
-                    itemsObject = object.get("items").getAsJsonObject();
+                    JsonObject itemsObject = itemsObject = object.get("items").getAsJsonObject();
+                    array.add(itemsObject);
                 }
 
-                if (object.has("items")) {
-                    if (itemsObject.has("enum")) {
-                        array.add(analyzeEnumProperty(itemsObject));
-                    } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("string")) {
-                        if (itemsObject.has("default")) {
-                            array.add(itemsObject.get("default"));
-                        } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                            String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
-                            array.add(value);
-                        } else {
-                            array.add(null);
-                        }
-                    } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("number")) {
-                        if (itemsObject.has("default")) {
-                            array.add(itemsObject.get("default"));
-                        } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                            String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
-                            array.add(value);
-                        } else {
-                            array.add(0);
-                        }
-                    } else if (itemsObject.has("oneOf")) {
+                for(int i = 0; i < jsonArray.size(); i ++){
+                    JsonObject itemsObject = jsonArray.get(i).getAsJsonObject();
 
-                    } else if (itemsObject.has("anyOf")) {
+                    if (object.has("items")) {
+                        if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                            try {
+                                int value = itemsObject.get("mock").getAsJsonObject().get("mock").getAsInt();
+                                array.add(value);
+                            } catch (Exception e) {
+                                String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                                array.add(value);
+                            }
+                        }else if (itemsObject.has("enum")) {
+//                            array.add(analyzeEnumProperty(itemsObject));
+                        } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("string")) {
+                            if (itemsObject.has("default")) {
+                                array.add(itemsObject.get("default"));
+                            } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                                String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                                array.add(value);
+                            } else {
+                                array.add("");
+                            }
+                        } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("number")) {
+                            if (itemsObject.has("default")) {
+                                array.add(itemsObject.get("default"));
+                            } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                                String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                                array.add(value);
+                            } else {
+                                array.add(0);
+                            }
+                        } else if (itemsObject.has("oneOf")) {
 
-                    } else if (itemsObject.has("allOf")) {
-                        // TODO
-                    } else if (itemsObject.has("properties")) {
-                        JSONObject propertyConcept = new JSONObject();
-                        JsonObject propertiesObj = itemsObject.get("properties").getAsJsonObject();
-                        for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
-                            String propertyKey = entry.getKey();
-                            JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
-                            analyzeProperty(propertyConcept, propertyKey, propertyObj);
+                        } else if (itemsObject.has("anyOf")) {
+
+                        } else if (itemsObject.has("allOf")) {
+                            // TODO
+                        } else if (itemsObject.has("properties")) {
+                            JSONObject propertyConcept = new JSONObject();
+                            JsonObject propertiesObj = itemsObject.get("properties").getAsJsonObject();
+                            for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
+                                String propertyKey = entry.getKey();
+                                JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
+                                analyzeProperty(propertyConcept, propertyKey, propertyObj);
+                            }
+                            array.add(propertyConcept);
+
+                        } else if (itemsObject.has("$ref")) {
+                            analyzeRef(concept, propertyName, itemsObject);
+                        }else if(itemsObject.has("type") && itemsObject.get("type") instanceof JsonPrimitive){
+                            JSONObject newJsonObj = new JSONObject();
+                            analyzeProperty(newJsonObj,propertyName+"_item",itemsObject);
+                            array.add(newJsonObj.get(propertyName+"_item"));
                         }
-                        array.add(propertyConcept);
-
-                    } else if (itemsObject.has("$ref")) {
-                        analyzeRef(concept, propertyName, itemsObject);
+                    } else if (object.has("items") && object.get("items").isJsonArray()) {
+                        JsonArray itemsObjectArray = object.get("items").getAsJsonArray();
+                        array.add(itemsObjectArray);
                     }
-                } else if (object.has("items") && object.get("items").isJsonArray()) {
-                    JsonArray itemsObjectArray = object.get("items").getAsJsonArray();
-                    array.add(itemsObjectArray);
                 }
 
                 concept.put(propertyName, array);
@@ -282,12 +299,26 @@ public class JSONSchemaGenerator {
     }
 
     private static List<Object> analyzeEnumProperty(JsonObject object) {
-        JsonArray enumValues = object.get("enum").getAsJsonArray();
         List<Object> list = new LinkedList<>();
-        for (JsonElement enumValueElem : enumValues) {
-            String enumValue = enumValueElem.getAsString();
-            list.add(enumValue);
+        String jsonStr = null;
+        JsonArray enumValues = null;
+        try {
+            enumValues = object.get("enum").getAsJsonArray();
+            for (JsonElement enumValueElem : enumValues) {
+                String enumValue = enumValueElem.getAsString();
+                list.add(enumValue);
+            }
+        }catch (Exception e){
+            jsonStr = object.get("enum").getAsString();
         }
+
+        if(jsonStr != null && list.isEmpty()){
+            String [] arrs = jsonStr.split("\n");
+            for (String str: arrs) {
+                list.add(str);
+            }
+        }
+
         return list;
     }
 

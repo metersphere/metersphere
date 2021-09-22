@@ -14,14 +14,11 @@
     </template>
 
     <el-card>
-      <template v-slot:header>
-        <el-row>
-          <el-col :span="8" :offset="16">
-            <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="getTestCases"
-                      @keyup.enter.native="getTestCases" class="search-input" size="small" v-model="condition.name"/>
-          </el-col>
-        </el-row>
-      </template>
+      <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="getTestCases"
+                @keyup.enter.native="getTestCases" class="search-input" size="small" v-model="condition.name"/>
+      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                               v-if="condition.components !== undefined && condition.components.length > 0"
+                               @search="getTestCases"/>
 
       <el-table
         v-loading="result.loading"
@@ -84,6 +81,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {_filter} from "@/common/js/tableUtils";
+import {TEST_PLAN_RELEVANCE_LOAD_CASE} from "@/business/components/common/components/search/search-components";
 
 export default {
   name: "TestCaseLoadRelevance",
@@ -112,7 +110,9 @@ export default {
       pageSize: 10,
       currentPage: 1,
       total: 0,
-      condition: {},
+      condition: {
+        components: TEST_PLAN_RELEVANCE_LOAD_CASE
+      },
       statusFilters: [
         {text: 'Saved', value: 'Saved'},
         {text: 'Starting', value: 'Starting'},
@@ -196,6 +196,11 @@ export default {
           let data = response.data;
           this.total = data.itemCount;
           this.testCases = data.listObject;
+
+          this.selectIds.clear();
+          if (this.$refs.table) {
+            this.$refs.table.clearSelection();
+          }
         });
       }
       if (this.reviewId) {
@@ -270,5 +275,17 @@ export default {
 </script>
 
 <style scoped>
+.search-input {
+  float: right;
+  width: 250px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  margin-right: 20px;
+}
 
+.adv-search-bar {
+  float: right;
+  margin-top: 15px;
+  margin-right: 10px;
+}
 </style>

@@ -189,7 +189,7 @@
                                @editClick="handleEdit(scope.row)">
               <template v-slot:front>
                 <ms-table-operator-button :tip="$t('api_test.run')" icon="el-icon-video-play" class="run-button"
-                                          @exec="handleRun(scope.row)"/>
+                                          @exec="handleRun(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+RUN']"/>
               </template>
               <template v-slot:middle>
                 <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
@@ -199,7 +199,7 @@
                                           @exec="openReport(scope.row)"/>
               </template>
             </ms-table-operator>
-            <el-dropdown @command="handleCommand($event, scope.row)" class="scenario-ext-btn">
+            <el-dropdown @command="handleCommand($event, scope.row)" class="scenario-ext-btn" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE','PROJECT_TRACK_PLAN:READ+SCHEDULE']">
               <el-link type="primary" :underline="false">
                 <el-icon class="el-icon-more"></el-icon>
               </el-link>
@@ -229,6 +229,7 @@
     <ms-test-plan-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData"/>
     <plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'" :plan-id="currentPlanId"/>
     <test-plan-report-review ref="testCaseReportView"/>
+    <ms-task-center ref="taskCenter"/>
   </el-card>
 </template>
 
@@ -260,6 +261,7 @@ import MsTestPlanScheduleMaintain from "@/business/components/track/plan/compone
 import {getCurrentProjectID, getCurrentUserId, hasPermission} from "@/common/js/utils";
 import PlanRunModeWithEnv from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import TestPlanReportReview from "@/business/components/track/report/components/TestPlanReportReview";
+import MsTaskCenter from "@/business/components/task/TaskCenter";
 
 export default {
   name: "TestPlanList",
@@ -272,7 +274,9 @@ export default {
     PlanStageTableItem,
     PlanStatusTableItem,
     MsTestPlanScheduleMaintain,
-    MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination, PlanRunModeWithEnv
+    MsTableOperator, MsTableOperatorButton,
+    MsDialogFooter, MsTableHeader, MsCreateBox,
+    MsTablePagination, PlanRunModeWithEnv, MsTaskCenter
   },
   data() {
     return {
@@ -322,10 +326,8 @@ export default {
       this.projectId = getCurrentProjectID();
     }
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
-    let orderArr = this.getSortField();
-    if(orderArr){
-      this.condition.orders = orderArr;
-    }
+    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+
     this.initTableData();
   },
   methods: {
@@ -422,8 +424,10 @@ export default {
         this.$success(this.$t('commons.delete_success'));
       });
     },
-    intoPlan(row, event, column) {
-      this.$router.push('/track/plan/view/' + row.id);
+    intoPlan(row, column, event) {
+      if (column.label !== this.$t('commons.operating')) {
+        this.$router.push('/track/plan/view/' + row.id);
+      }
     },
     filter(filters) {
       _filter(filters, this.condition);
@@ -448,18 +452,6 @@ export default {
     saveSortField(key,orders){
       saveLastTableSortField(key,JSON.stringify(orders));
     },
-    getSortField(){
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if(orderJsonStr){
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
-          return null;
-        }
-      }
-      return returnObj;
-    },
     handleCommand(cmd, row) {
       switch (cmd) {
         case  "delete":
@@ -478,7 +470,14 @@ export default {
     },
     handleRun(row) {
       this.currentPlanId = row.id;
-      this.$refs.runMode.open('API');
+      this.$get("/test/plan/have/exec/case/" + row.id, res => {
+        const haveExecCase = res.data;
+        if (haveExecCase) {
+          this.$refs.runMode.open('API');
+        } else {
+          this.$router.push('/track/plan/view/' + row.id);
+        }
+      })
     },
     _handleRun(config) {
       let {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap} = config;
@@ -487,6 +486,7 @@ export default {
       param.projectId = getCurrentProjectID();
       param.userId = getCurrentUserId();
       param.triggerMode = 'MANUAL';
+      this.$refs.taskCenter.open();
       this.result = this.$post('test/plan/run/', param,() => {
         this.$success(this.$t('commons.run_success'));
       }, () => {

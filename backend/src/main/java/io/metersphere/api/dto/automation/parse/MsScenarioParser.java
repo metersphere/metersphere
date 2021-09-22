@@ -7,7 +7,7 @@ import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.MsScenario;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.parse.MsAbstractParser;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestCaseService;
@@ -124,7 +124,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                     parseModule(item.getModulePath(), importRequest, item);
                 }
 
-                item.setId(UUID.randomUUID().toString());
+//                item.setId(UUID.randomUUID().toString());
                 item.setProjectId(this.projectId);
             });
         }
@@ -194,7 +194,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                 if (StringUtils.isNotBlank(this.selectModulePath)) {
                     apiScenarioWithBLOBs.setModulePath(this.selectModulePath + path);
                 } else if (StringUtils.isBlank(importRequest.getModuleId())) {
-                    apiScenarioWithBLOBs.setModulePath("/默认模块" + path);
+                    apiScenarioWithBLOBs.setModulePath("/未规划场景" + path);
                 }
             }
         }

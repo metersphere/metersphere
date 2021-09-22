@@ -35,7 +35,7 @@
         </span>
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
-            v-if="data.id !== 'root' && data.name !=='默认模块'"
+            v-if="data.id !== 'root' && data.name !== defaultLabel"
             class="item"
             effect="dark"
             v-permission="updatePermission"
@@ -45,7 +45,7 @@
             <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
           </el-tooltip>
           <el-tooltip
-            v-if="data.name ==='默认模块' && data.level !==1"
+            v-if="data.name === defaultLabel && data.level !==1"
             v-permission="updatePermission"
             class="item"
             effect="dark"
@@ -59,13 +59,14 @@
             effect="dark"
             :open-delay="200"
             v-permission="addPermission"
+            v-if="!(data.name === defaultLabel && data.level ===1)"
             :content="$t('test_track.module.add_submodule')"
             placement="top">
             <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
           </el-tooltip>
 
           <el-tooltip
-            v-if="data.name ==='默认模块' && data.level !==1"
+            v-if="data.name === defaultLabel && data.level !==1"
             class="item" effect="dark"
             :open-delay="200"
             v-permission="deletePermission"
@@ -75,7 +76,7 @@
           </el-tooltip>
 
           <el-tooltip
-            v-if="data.id !== 'root' && data.name !=='默认模块'"
+            v-if="data.id !== 'root' && data.name !== defaultLabel"
             class="item" effect="dark"
             :open-delay="200"
             :content="$t('commons.delete')"
@@ -100,6 +101,7 @@ export default {
       result: {},
       filterText: "",
       expandedNode: [],
+      reloaded: false,
       defaultProps: {
         children: "children",
         label: "label"
@@ -122,6 +124,12 @@ export default {
       type: String,
       default() {
         return this.$t("commons.all_label.case");
+      }
+    },
+    defaultLabel: {
+      type: String,
+      default() {
+        return '默认模块';
       }
     },
     nameLimit: {
@@ -193,14 +201,48 @@ export default {
       if (data.id) {
         this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
       }
+      // this.reloaded = false;
+      this.$nextTick(() => {
+        let node = this.$refs.tree.getNode(data);
+        if(node){
+          node.expanded = false;
+        }
+
+        if (data.children && data.children.length > 0) {
+          this.changeTreeNodeStatus(data);
+        }
+      });
+    },
+    // 改变节点的状态
+    changeTreeNodeStatus (parentData) {
+      for (let i = 0; i < parentData.children.length; i++) {
+        let data = parentData.children[i];
+        if (data.id) {
+          this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
+        }
+        let node = this.$refs.tree.getNode(data);
+        if(node){
+          node.expanded = false;
+        }
+
+        // 遍历子节点
+        if (data.children && data.children.length > 0) {
+          this.changeTreeNodeStatus(data)
+        }
+      }
     },
     edit(node, data, isAppend) {
       this.$set(data, 'isEdit', true);
       this.$nextTick(() => {
         this.$refs.nameInput.focus();
+
+        // 不知为何，执行this.$set(data, 'isEdit', true);进入编辑状态之后过滤会失效，重新执行下过滤
         if (!isAppend) {
           this.$nextTick(() => {
             this.filter(this.filterText);
+          });
+          this.$nextTick(() => {
+            this.$emit('filter');
           });
         }
       });
@@ -285,6 +327,7 @@ export default {
       if (param.type === 'edit') {
         this.$emit('edit', param);
       } else {
+        this.expandedNode.push(param.parentId);
         this.$emit('add', param);
       }
       this.$set(data, 'isEdit', false);
@@ -312,7 +355,7 @@ export default {
       if (dropType === "none" || dropType === undefined) {
         return;
       }
-      if (dropNode.data.id === 'root' && dropType === 'before' || draggingNode.data.name==='默认模块') {
+      if (dropNode.data.id === 'root' && dropType === 'before' || draggingNode.data.name === this.defaultLabel) {
         this.$emit('refresh');
         return false;
       }

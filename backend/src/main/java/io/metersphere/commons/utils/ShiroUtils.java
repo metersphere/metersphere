@@ -38,6 +38,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/sso/callback", "anon");
         filterChainDefinitionMap.put("/license/valid", "anon");
         filterChainDefinitionMap.put("/api/jmeter/download", "anon");
+        filterChainDefinitionMap.put("/api/jmeter/download/files", "anon");
         filterChainDefinitionMap.put("/api/jmeter/download/jar", "anon");
 
         // for swagger
@@ -49,7 +50,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/anonymous/**", "anon");
 
         //分享相关接口
-        filterChainDefinitionMap.put("/share/info/generateShareInfo", "anon");
+        filterChainDefinitionMap.put("/share/info/generateShareInfoWithExpired", "anon");
         filterChainDefinitionMap.put("/share/info/selectApiInfoByParam", "anon");
         filterChainDefinitionMap.put("/share/get/**", "anon");
         filterChainDefinitionMap.put("/share/info", "apikey, csrf, authc"); // 需要认证
@@ -67,6 +68,8 @@ public class ShiroUtils {
         //mock接口
         filterChainDefinitionMap.put("/mock/**", "anon");
         filterChainDefinitionMap.put("/ws/**", "anon");
+
+        filterChainDefinitionMap.put("/plugin/**", "anon");
 
     }
 

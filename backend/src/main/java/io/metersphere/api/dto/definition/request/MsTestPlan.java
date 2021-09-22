@@ -2,6 +2,8 @@ package io.metersphere.api.dto.definition.request;
 
 import com.alibaba.excel.util.StringUtils;
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,10 +20,13 @@ import java.util.List;
 @JSONType(typeName = "TestPlan")
 public class MsTestPlan extends MsTestElement {
     private String type = "TestPlan";
+    private String clazzName = "io.metersphere.api.dto.definition.request.MsTestPlan";
+
     private boolean serializeThreadgroups = false;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         final HashTree testPlanTree = tree.add(getPlan());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {

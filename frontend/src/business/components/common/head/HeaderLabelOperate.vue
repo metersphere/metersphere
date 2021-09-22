@@ -2,7 +2,7 @@
   <div>
     <template>
             <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting operator-color' @click="customHeader"> </i>
+             <i v-if="!disableHeaderConfig" class='el-icon-setting operator-color' @click="customHeader"> </i>
             </span>
     </template>
   </div>
@@ -12,6 +12,7 @@
 <script>
 export default {
   name: "HeaderLabelOperate",
+  props:['disableHeaderConfig'],
   methods: {
     customHeader() {
       this.$emit('exec')

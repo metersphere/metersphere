@@ -5,6 +5,7 @@
     @save="saveCaseRelevance"
     :plan-id="planId"
     :flag="true"
+    :is-saving="isSaving"
     ref="baseRelevance">
 
     <template v-slot:aside>
@@ -101,6 +102,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "@/business/components/common/components/MsTag";
+import {TEST_PLAN_RELEVANCE_FUNC_CONFIGS} from "@/business/components/common/components/search/search-components";
 
 
 export default {
@@ -122,13 +124,16 @@ export default {
     return {
       openType: 'relevance',
       result: {},
+      isSaving:false,
       treeNodes: [],
       selectNodeIds: [],
       selectNodeNames: [],
       projectId: '',
       projectName: '',
       projects: [],
-      page: getPageInfo(),
+      page: getPageInfo({
+        components: TEST_PLAN_RELEVANCE_FUNC_CONFIGS
+      }),
       customNum: false,
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -159,9 +164,13 @@ export default {
   },
   methods: {
     open() {
+      this.isSaving = false;
       this.$refs.baseRelevance.open();
       if (this.$refs.table) {
         this.$refs.table.clear();
+      }
+      if (this.projectId) {
+        this.getProjectNode(this.projectId);
       }
     },
     setProject(projectId) {
@@ -176,15 +185,19 @@ export default {
       })
     },
     saveCaseRelevance(item) {
+      this.isSaving = true;
       let param = {};
       param.planId = this.planId;
       param.ids = this.$refs.table.selectIds;
       param.request = this.page.condition;
       param.checked = item
       this.result = this.$post('/test/plan/relevance', param, () => {
+        this.isSaving = false;
         this.$success(this.$t('commons.save_success'));
         this.$refs.baseRelevance.close();
         this.$emit('refresh');
+      },(error) => {
+        this.isSaving = false;
       });
     },
     search() {
@@ -209,6 +222,9 @@ export default {
             item.checked = false;
             item.tags = JSON.parse(item.tags);
           });
+          if (this.$refs.table) {
+            this.$refs.table.clear();
+          }
         });
       }
     },

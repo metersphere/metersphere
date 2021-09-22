@@ -4,7 +4,6 @@ package io.metersphere.performance.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.nacos.client.utils.StringUtils;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.mapper.LoadTestReportMapper;
@@ -21,9 +20,11 @@ import io.metersphere.performance.controller.request.MetricQuery;
 import io.metersphere.performance.controller.request.MetricRequest;
 import io.metersphere.performance.dto.MetricData;
 import io.metersphere.performance.dto.Monitor;
+import io.metersphere.performance.dto.MonitorItem;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.TestResourceService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -156,7 +157,7 @@ public class MetricQueryService {
     }
 
     public List<MetricData> queryMetric(String reportId) {
-        List<String> instances = new ArrayList<>();
+        List<Monitor> instances = new ArrayList<>();
         LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
         String poolId = report.getTestResourcePoolId();
         List<TestResource> resourceList = testResourceService.getTestResourceList(poolId);
@@ -166,7 +167,10 @@ public class MetricQueryService {
                 NodeDTO dto = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
                 if (StringUtils.isNotBlank(dto.getIp())) {
                     int port = dto.getMonitorPort() == null ? 9100 : dto.getMonitorPort();
-                    instances.add(dto.getIp() + ":" + port);
+                    Monitor e = new Monitor();
+                    e.setIp(dto.getIp());
+                    e.setPort(port);
+                    instances.add(e);
                 }
             });
         }
@@ -179,11 +183,14 @@ public class MetricQueryService {
         List<MetricDataRequest> list = new ArrayList<>();
         // 加入高级设置中的监控配置
         for (int i = 0; i < monitorParams.size(); i++) {
-            Monitor monitor = monitorParams.getObject(i, Monitor.class);
-            String instance = monitor.getIp() + ":" + monitor.getPort();
-            if (!instances.contains(instance)) {
-                instances.add(instance);
-            }
+            JSONObject o = monitorParams.getJSONObject(i);
+            Monitor monitor = new Monitor();
+            monitor.setIp(o.getString("ip"));
+            monitor.setName(o.getString("name"));
+            monitor.setPort(o.getInteger("port"));
+            monitor.setDescription(o.getString("description"));
+            monitor.setMonitorConfig(JSONObject.parseArray(o.getString("monitorConfig"), MonitorItem.class));
+            instances.add(monitor);
         }
 
         instances.forEach(instance -> {
@@ -191,6 +198,10 @@ public class MetricQueryService {
         });
 
         ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
+        // 处理reportTime 空指针报错
+        if (reportTimeInfo == null) {
+            return new ArrayList<>();
+        }
         MetricRequest metricRequest = new MetricRequest();
         metricRequest.setMetricDataQueries(list);
         try {
@@ -203,38 +214,55 @@ public class MetricQueryService {
         return queryMetricData(metricRequest);
     }
 
-    private void getRequest(String instance, List<MetricDataRequest> list) {
-        Map<String, String> map = MetricQuery.getMetricQueryMap();
-        Set<String> set = map.keySet();
-        set.forEach(s -> {
-            MetricDataRequest request = new MetricDataRequest();
-            String promQL = map.get(s);
-            request.setPromQL(promQL);
-            request.setSeriesName(s);
-            request.setInstance(instance);
-            list.add(request);
-        });
+    private void getRequest(Monitor monitor, List<MetricDataRequest> list) {
+        if (CollectionUtils.isNotEmpty(monitor.getMonitorConfig())) {
+            monitor.getMonitorConfig().forEach(c -> {
+                if (StringUtils.isBlank(c.getValue())) {
+                    return;
+                }
+                MetricDataRequest request = new MetricDataRequest();
+                String promQL = c.getValue();
+                request.setPromQL(promQL);
+                request.setSeriesName(c.getName());
+                request.setInstance(monitor.getIp() + ":" + monitor.getPort());
+                list.add(request);
+            });
+        } else {
+            Map<String, String> map = MetricQuery.getMetricQueryMap();
+            Set<String> set = map.keySet();
+            set.forEach(s -> {
+                MetricDataRequest request = new MetricDataRequest();
+                String promQL = map.get(s);
+                request.setPromQL(promQL);
+                request.setSeriesName(s);
+                request.setInstance(monitor.getIp() + ":" + monitor.getPort());
+                list.add(request);
+            });
+        }
     }
 
-    public List<String> queryReportResource(String reportId) {
-        List<String> result = new ArrayList<>();
+    public List<Monitor> queryReportResource(String reportId) {
+        List<Monitor> result = new ArrayList<>();
         List<String> resourceIdAndIndexes = extLoadTestReportMapper.selectResourceId(reportId);
         resourceIdAndIndexes.forEach(resourceIdAndIndex -> {
-            String[] split = org.apache.commons.lang3.StringUtils.split(resourceIdAndIndex, "_");
+            String[] split = StringUtils.split(resourceIdAndIndex, "_");
             String resourceId = split[0];
             TestResource testResource = testResourceService.getTestResource(resourceId);
             if (testResource == null) {
                 return;
             }
             String configuration = testResource.getConfiguration();
-            if (org.apache.commons.lang3.StringUtils.isBlank(configuration)) {
+            if (StringUtils.isBlank(configuration)) {
                 return;
             }
             NodeDTO dto = JSON.parseObject(configuration, NodeDTO.class);
             if (StringUtils.isNotBlank(dto.getIp())) {
                 Integer monitorPort = dto.getMonitorPort();
                 int port = monitorPort == null ? 9100 : monitorPort;
-                result.add(dto.getIp() + ":" + port);
+                Monitor monitor = new Monitor();
+                monitor.setIp(dto.getIp());
+                monitor.setPort(port);
+                result.add(monitor);
             }
         });
 
@@ -247,11 +275,14 @@ public class MetricQueryService {
         }
 
         for (int i = 0; i < monitorParams.size(); i++) {
-            Monitor monitor = monitorParams.getObject(i, Monitor.class);
-            String instance = monitor.getIp() + ":" + monitor.getPort();
-            if (!result.contains(instance)) {
-                result.add(instance);
-            }
+            JSONObject o = monitorParams.getJSONObject(i);
+            Monitor monitor = new Monitor();
+            monitor.setIp(o.getString("ip"));
+            monitor.setName(o.getString("name"));
+            monitor.setPort(o.getInteger("port"));
+            monitor.setDescription(o.getString("description"));
+            monitor.setMonitorConfig(JSONObject.parseArray(o.getString("monitorConfig"), MonitorItem.class));
+            result.add(monitor);
         }
 
         return result;
@@ -266,7 +297,7 @@ public class MetricQueryService {
                     .findFirst();
             if (dataOptional.isPresent()) {
                 GranularityData.Data data = dataOptional.get();
-                granularity = data.getGranularity();
+                granularity = data.getGranularity() / 1000;
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);

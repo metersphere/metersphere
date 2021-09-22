@@ -24,10 +24,13 @@
           <span @click.stop>
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
-                      class="ms-api-header-select" style="width: 180px"
+                      class="ms-api-header-select" style="width: 180px" readonly="hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
                       @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
-                <span>{{ apiCase.id ? apiCase.name : '' }}</span>
+              <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
+                <span>{{ apiCase.id ? apiCase.name : '' | ellipsis }}</span>
+              </el-tooltip>
+
               <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)"/>
             </span>
 
@@ -79,18 +82,18 @@
 
         <el-col :span="3">
           <span @click.stop>
-            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
                            class="run-button" size="mini" :disabled="!apiCase.id" circle v-if="!loading"/>
             <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-              <el-button :disabled="!apiCase.id" @click.once="stop" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;" class="stop-btn" circle>
+              <el-button :disabled="!apiCase.id" @click.once="stop(apiCase)" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;" class="stop-btn" circle>
                 <div style="transform: scale(0.72)">
                   <span style="margin-left: -3.5px;font-weight: bold">STOP</span>
                 </div>
               </el-button>
             </el-tooltip>
-            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
+            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy" v-permission="['PROJECT_API_DEFINITION:READ+COPY_CASE']"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
-            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
+            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete" v-permission="['PROJECT_API_SCENARIO:READ+DELETE_CASE']"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase"/>
           </span>
@@ -140,7 +143,8 @@
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
-                   v-if="type!=='detail'">
+                   v-if="type!=='detail'"
+                   v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
           {{ $t('commons.save') }}
         </el-button>
       </div>
@@ -173,9 +177,21 @@ const esbDefinition = (requireComponent != null && requireComponent.keys().lengt
 const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 import {API_METHOD_COLOUR} from "../../model/JsonData";
 import MsChangeHistory from "../../../../history/ChangeHistory";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiCaseItem",
+  filters: {
+    ellipsis(value) {
+      if (!value) {
+        return '';
+      }
+      if (value.length > 20) {
+        return value.slice(0, 20) + '...'
+      }
+      return value
+    }
+  },
   components: {
     ApiResponseComponent,
     MsInputTag,
@@ -303,8 +319,8 @@ export default {
       this.saveTestCase(data);
       this.$emit('singleRun', data);
     },
-    stop() {
-      this.$emit('stop');
+    stop(data) {
+      this.$emit('stop', data.id);
     },
     copyCase(data) {
       if (data && data.request) {
@@ -373,6 +389,18 @@ export default {
         this.saveLoading = false
       });
     },
+    sort(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sort(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     saveCase(row, hideAlert) {
       let tmp = JSON.parse(JSON.stringify(row));
       this.isShowInput = false;
@@ -405,6 +433,10 @@ export default {
       if (tmp.tags instanceof Array) {
         tmp.tags = JSON.stringify(tmp.tags);
       }
+      if (tmp.request) {
+        tmp.request.clazzName = TYPE_TO_C.get(tmp.request.type);
+        this.sort(tmp.request.hashTree);
+      }
       this.result = this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
         let data = response.data;
         row.id = data.id;
@@ -413,12 +445,12 @@ export default {
         if (!row.message) {
           this.$success(this.$t('commons.save_success'));
           this.reload();
-          if (!hideAlert) {
-            this.$emit('refresh');
-          }
           // 刷新编辑后用例列表
           if (this.api.source === "editCase") {
             this.$store.state.currentApiCase = {refresh: "true"};
+          }
+          if (!hideAlert) {
+            this.$emit('refresh');
           }
         }
       });

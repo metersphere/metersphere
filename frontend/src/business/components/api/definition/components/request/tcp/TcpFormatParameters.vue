@@ -155,7 +155,7 @@
   import JSR223PreProcessor from "../../jmeter/components/pre-processors/jsr223-pre-processor";
   import ApiDefinitionStepButton from "../components/ApiDefinitionStepButton";
   import TcpXmlTable from "@/business/components/api/definition/components/complete/table/TcpXmlTable";
-
+  import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
   export default {
     name: "MsTcpFormatParameters",
@@ -231,6 +231,9 @@
       }
       if (!this.request.tcpPreProcessor) {
         this.$set(this.request, 'tcpPreProcessor', new JSR223PreProcessor())
+      }
+      if(this.request.tcpPreProcessor){
+        this.request.tcpPreProcessor.clazzName = TYPE_TO_C.get(this.request.tcpPreProcessor.type);
       }
       if(!this.request.connectEncoding){
         this.request.connectEncoding = "UTF-8";
@@ -402,19 +405,21 @@
       },
       checkXmlTableDataStructData(dataStruct){
         let allCheckResult = true;
-        if(dataStruct && dataStruct.length > 0){
-          for(let i = 0;i<dataStruct.length;i++){
-            let row = dataStruct[i];
-            allCheckResult = this.$refs.treeTable.validateRowData(row);
-            if(allCheckResult){
-              if(row.children != null && row.children.length > 0){
-                allCheckResult = this.checkXmlTableDataStructData(row.children);
-                if(!allCheckResult){
-                  return false;
+        if(this.$refs.treeTable){
+          if(dataStruct && dataStruct.length > 0){
+            for(let i = 0;i<dataStruct.length;i++){
+              let row = dataStruct[i];
+              allCheckResult = this.$refs.treeTable.validateRowData(row);
+              if(allCheckResult){
+                if(row.children != null && row.children.length > 0){
+                  allCheckResult = this.checkXmlTableDataStructData(row.children);
+                  if(!allCheckResult){
+                    return false;
+                  }
                 }
+              }else{
+                return false;
               }
-            }else{
-              return false;
             }
           }
         }

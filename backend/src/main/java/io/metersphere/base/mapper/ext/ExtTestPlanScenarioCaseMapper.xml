@@ -5,8 +5,8 @@
 
   <insert id="insertIfNotExists" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
     -- 查询没有数据再插入
-    INSERT INTO test_plan_api_scenario(id, test_plan_id, api_scenario_id, create_time, update_time, environment)
-    SELECT #{request.id}, #{request.testPlanId}, #{request.apiScenarioId}, #{request.createTime}, #{request.updateTime}, #{request.environment}
+    INSERT INTO test_plan_api_scenario(id, test_plan_id, api_scenario_id, create_time, update_time, environment, `order`)
+    SELECT #{request.id}, #{request.testPlanId}, #{request.apiScenarioId}, #{request.createTime}, #{request.updateTime}, #{request.environment}, #{request.order}
       FROM DUAL
       WHERE NOT EXISTS(
         SELECT id FROM
@@ -76,7 +76,7 @@
       order by
       <foreach collection="request.orders" separator="," item="order">
         <choose>
-          <when test="order.name == 'update_time'">
+          <when test="order.name == 'update_time' or order.name == 'order'">
             t.${order.name} ${order.type}
           </when>
           <otherwise>
@@ -136,7 +136,7 @@
       order by
       <foreach collection="request.orders" separator="," item="order">
         <choose>
-          <when test="order.name == 'update_time'">
+          <when test="order.name == 'update_time' or order.name == 'order'">
             t.${order.name} ${order.type}
           </when>
           <otherwise>
@@ -210,7 +210,7 @@
       test_plan_api_scenario t
       inner join
       api_scenario c
-      on t.api_scenario_id = c.id and c.status != 'Trash'
+      on t.api_scenario_id = c.id and (c.status != 'Trash' or c.status is null)
       and t.test_plan_id = #{planId}
       <if test="status != null">
         and t.last_result = 'Fail'
@@ -247,4 +247,32 @@
     </foreach>
   </select>
 
+  <select id="getProjectIdById" resultType="java.lang.String">
+    SELECT project_id FROM test_plan WHERE id in (
+      SELECT test_plan_id FROM test_plan_api_scenario WHERE id = #{0}
+    )
+  </select>
+
+  <select id="selectPlanIds" resultType="java.lang.String">
+    select DISTINCT test_plan_id from test_plan_api_scenario;
+  </select>
+  <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
+    select id from test_plan_api_scenario where test_plan_id = #{planId} order by update_time ASC;
+  </select>
+
+  <select id="getLastOrder" resultType="java.lang.Long">
+    select `order` from test_plan_api_scenario where test_plan_id = #{planId}
+    <if test="baseOrder != null">
+      and `order` &gt; #{baseOrder}
+    </if>
+    order by `order` desc limit 1;
+  </select>
+
+  <select id="getPreOrder" resultType="java.lang.Long">
+    select `order` from test_plan_api_scenario where test_plan_id = #{planId}
+    <if test="baseOrder != null">
+      and `order` &lt; #{baseOrder}
+    </if>
+    order by `order` desc limit 1;
+  </select>
 </mapper>

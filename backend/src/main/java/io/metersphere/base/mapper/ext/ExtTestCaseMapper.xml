@@ -81,7 +81,7 @@
         left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
         <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
-        ORDER BY test_case.update_time DESC
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
     <sql id="notInQueryWhereCondition">
@@ -252,7 +252,7 @@
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                ${order.name} ${order.type}
+               `${order.name}` ${order.type}
             </foreach>
         </if>
     </select>
@@ -526,6 +526,31 @@
                 #{id}
             </foreach>
         </where>
+    </select>
+    <select id="getTestCaseStep" resultType="io.metersphere.base.domain.TestCaseWithBLOBs">
+        select id, prerequisite, steps, step_description, expected_result, step_model from test_case where id = #{id}
+    </select>
+    <select id="selectProjectIds" resultType="java.lang.String">
+        select DISTINCT project_id from test_case;
+    </select>
+    <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
+        select id from test_case where project_id = #{projectId} order by update_time ASC;
+    </select>
+
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from test_case where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+
+    <select id="getPreOrder" resultType="java.lang.Long">
+        select `order` from test_case where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &lt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
     </select>
 
     <update id="deleteToGc">

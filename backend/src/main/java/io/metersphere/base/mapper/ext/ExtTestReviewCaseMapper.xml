@@ -120,6 +120,9 @@
                     <when test="order.name == 'priority'">
                         test_case.priority ${order.type}
                     </when>
+                    <when test="order.name == 'name'">
+                        test_case.name ${order.type}
+                    </when>
                     <otherwise>
                         test_case_review_test_case.${order.name} ${order.type}
                     </otherwise>
@@ -189,6 +192,12 @@
                             </foreach>
                         </when>
                         <when test="key=='status'">
+                            and test_case.review_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='review_status'">
                             and test_case.review_status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
@@ -416,6 +425,6 @@
             tcrtc.review_id = #{request.reviewId}
             and test_case.node_id = #{request.nodeId}
         </where>
-        order by tcrtc.update_time desc;
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 </mapper>

@@ -26,7 +26,7 @@ public class CustomFieldController {
     private CustomFieldService customFieldService;
 
     @PostMapping("/add")
-    @MsAuditLog(module = "workspace_template_settings", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#customField.id)", msClass = CustomFieldService.class)
+    @MsAuditLog(module = "workspace_template_settings_field", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#customField.id)", msClass = CustomFieldService.class)
     public String add(@RequestBody CustomField customField) {
         return customFieldService.add(customField);
     }
@@ -43,13 +43,13 @@ public class CustomFieldController {
     }
 
     @GetMapping("/delete/{id}")
-    @MsAuditLog(module = "workspace_template_settings", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = CustomFieldService.class)
+    @MsAuditLog(module = "workspace_template_settings_field", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = CustomFieldService.class)
     public void delete(@PathVariable(value = "id") String id) {
         customFieldService.delete(id);
     }
 
     @PostMapping("/update")
-    @MsAuditLog(module = "workspace_template_settings", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#customField.id)", content = "#msClass.getLogDetails(#customField.id)", msClass = CustomFieldService.class)
+    @MsAuditLog(module = "workspace_template_settings_field", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#customField.id)", content = "#msClass.getLogDetails(#customField.id)", msClass = CustomFieldService.class)
     public void update(@RequestBody CustomField customField) {
         customFieldService.update(customField);
     }

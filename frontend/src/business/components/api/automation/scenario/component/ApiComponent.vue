@@ -26,13 +26,13 @@
            <i class="el-icon-loading" style="font-size: 16px"/>
            {{ $t('commons.testing') }}
          </span>
-        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
-          {{ request.requestResult[0].success ? 'success' : 'error' }}
+        <span class="ms-step-debug-code" :class="request.requestResult[0].success && reqSuccess?'ms-req-success':'ms-req-error'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+          {{ request.requestResult[0].success && reqSuccess ? 'success' : 'error' }}
         </span>
       </template>
       <template v-slot:button>
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle />
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button :disabled="!request.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
@@ -187,6 +187,7 @@ export default {
       environment: {},
       result: {},
       apiActive: false,
+      reqSuccess: true
     }
   },
   created() {
@@ -227,6 +228,7 @@ export default {
       this.getEnvironments();
     },
     message() {
+      this.forStatus();
       this.reload();
     },
   },
@@ -300,6 +302,26 @@ export default {
     },
   },
   methods: {
+    forStatus() {
+      if (this.request.result && this.request.result.length > 0) {
+        this.request.result.forEach(item => {
+          item.requestResult.forEach(req => {
+            if (!req.success) {
+              this.reqSuccess = req.success;
+            }
+          })
+        })
+      } else if (this.request.requestResult && this.request.requestResult.length > 1) {
+        this.request.requestResult.forEach(item => {
+          if (!item.success) {
+            this.reqSuccess = item.success;
+            if (this.node && this.node.parent && this.node.parent.data) {
+              this.node.parent.data.code = 'error';
+            }
+          }
+        })
+      }
+    },
     initDataSource() {
       let databaseConfigsOptions = [];
       if (this.request.protocol === 'SQL' || this.request.type === 'JDBCSampler') {
@@ -430,7 +452,6 @@ export default {
       this.request.active = true;
       this.loading = true;
       this.runData = [];
-      this.runData.projectId = this.request.projectId;
       this.request.useEnvironment = this.currentEnvironmentId;
       this.request.customizeReq = this.isCustomizeReq;
       let debugData = {
@@ -447,7 +468,6 @@ export default {
     stop() {
       let url = "/api/automation/stop/" + this.reportId;
       this.$get(url, () => {
-        this.runLoading = false;
         this.loading = false;
         this.$success(this.$t('report.test_stop_success'));
       });

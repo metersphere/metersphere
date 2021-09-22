@@ -1,40 +1,114 @@
 <template>
   <div v-loading="result.loading">
-    <el-tabs @tab-click="clickTabs">
-      <el-tab-pane v-for="(item, index) in instances" :key="item + index" :label="item" class="logging-content">
+    <el-row>
+      <el-col :span="4">
+        <div>
+          <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
+                     @change="handleChecked(currentInstance)">
+            <el-option
+              v-for="item in instances"
+              :key="item.ip+item.port"
+              :value="item.ip+':'+item.port">
+              {{ item.ip }} {{ item.name }}
+            </el-option>
+          </el-select>
+        </div>
+
+        <div style="padding-top: 10px">
+          <el-checkbox-group v-model="checkList"
+                             @change="handleCheckListChange(currentInstance)">
+            <div v-for="op in checkOptions"
+                 :key="op.key"
+                 :content="op.label">
+              <el-checkbox :label="op.label"/>
+            </div>
+          </el-checkbox-group>
+        </div>
+      </el-col>
+      <el-col :span="20">
         <el-row>
-          <el-col :span="6">
-            <el-collapse v-model="activeNames" class="monitor-detail">
-              <el-collapse-item :title="$t('Monitor')" name="0">
-                <el-checkbox-group v-model="checkList"
-                                   @change="handleChecked(item)">
-                  <div v-for="op in checkOptions"
-                       :key="op.key"
-                       :content="op.label">
-                    <el-checkbox :label="op.label"/>
-                  </div>
-                </el-checkbox-group>
-              </el-collapse-item>
-            </el-collapse>
-          </el-col>
-          <el-col :span="18">
-            <ms-chart ref="chart2" class="chart-config" :options="totalOption" :autoresize="true"></ms-chart>
+          <el-col :span="24">
+            <ms-chart ref="chart2" class="chart-config" @datazoom="changeDataZoom" :options="totalOption"
+                      :autoresize="true"></ms-chart>
           </el-col>
         </el-row>
-      </el-tab-pane>
-    </el-tabs>
+        <el-row>
+          <el-col :offset="2" :span="20">
+            <el-table
+              :data="tableData"
+              stripe
+              border
+              style="width: 100%">
+              <el-table-column label="Label" align="center">
+                <el-table-column
+                  prop="label"
+                  label="Label"
+                  sortable>
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="Aggregate" align="center">
+                <el-table-column
+                  prop="avg"
+                  label="Avg."
+                  width="100"
+                  sortable
+                />
+                <el-table-column
+                  prop="min"
+                  label="Min."
+                  width="100"
+                  sortable
+                />
+                <el-table-column
+                  prop="max"
+                  label="Max."
+                  width="100"
+                  sortable
+                />
+              </el-table-column>
+              <el-table-column label="Range" align="center">
+                <el-table-column
+                  prop="startTime"
+                  label="Start"
+                  width="160"
+                />
+                <el-table-column
+                  prop="endTime"
+                  label="End"
+                  width="160"
+                />
+              </el-table-column>
+            </el-table>
+          </el-col>
+        </el-row>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
 
 import MsChart from "@/business/components/common/chart/MsChart";
+import {
+  getPerformanceMetricQuery,
+  getPerformanceMetricQueryResource,
+  getSharePerformanceMetricQuery,
+  getSharePerformanceMetricQueryResource,
+} from "@/network/load-test";
 
 const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
+const checkList = ['CPU', 'Memory', 'Disk', 'Network In', 'Network Out'];
+const checkOptions = [
+  {key: 'cpu', label: 'CPU'},
+  {key: 'memory', label: 'Memory'},
+  {key: 'disk', label: 'Disk'},
+  {key: 'netIn', label: 'Network In'},
+  {key: 'netOut', label: 'Network Out'}
+];
 
 export default {
   name: "MonitorCard",
-  props: ['report'],
+  props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
   components: {MsChart},
   data() {
     return {
@@ -43,16 +117,12 @@ export default {
       id: '',
       init: false,
       loading: false,
+      currentInstance: '',
       instances: [],
       data: [],
-      checkList: ['CPU', 'Memory', 'Disk', 'Network In', 'Network Out'],
-      checkOptions: [
-        {key: 'cpu', label: 'CPU'},
-        {key: 'memory', label: 'Memory'},
-        {key: 'disk', label: 'Disk'},
-        {key: 'netIn', label: 'Network In'},
-        {key: 'netOut', label: 'Network Out'}
-      ],
+      tableData: [],
+      checkList: checkList,
+      checkOptions: checkOptions,
       baseOption: {
         color: color,
         grid: {
@@ -92,7 +162,8 @@ export default {
         ],
         series: []
       },
-      totalOption: {}
+      totalOption: {},
+      seriesData: [],
     };
   },
   created() {
@@ -104,33 +175,69 @@ export default {
   methods: {
     getResource() {
       // this.init = true;
-      this.result = this.$get("/metric/query/resource/" + this.id)
-        .then(response => {
+      if (this.planReportTemplate) {
+        this.instances = this.planReportTemplate.reportResource;
+        this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
+        this.data = this.planReportTemplate.metricData;
+        this.totalOption = this.getOption(this.currentInstance);
+      } else if (this.isShare) {
+        getSharePerformanceMetricQueryResource(this.shareId, this.id).then(response => {
           this.instances = response.data.data;
-          this.$get("/metric/query/" + this.id)
-            .then(result => {
-              if (result) {
-                this.data = result.data.data;
-                this.totalOption = this.getOption(this.instances[0]);
-              }
-            })
-            .catch(() => {
-            });
-        })
-        .catch(() => {
+          if (!this.currentInstance) {
+            this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
+            this.handleChecked(this.currentInstance);
+          }
+          getSharePerformanceMetricQuery(this.shareId, this.id).then(result => {
+            if (result) {
+              this.data = result.data.data;
+              this.totalOption = this.getOption(this.currentInstance);
+              this.changeDataZoom({start: 0, end: 100});
+            }
+          });
         });
-
+      } else {
+        getPerformanceMetricQueryResource(this.id).then(response => {
+          this.instances = response.data.data;
+          if (!this.currentInstance) {
+            this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
+            this.handleChecked(this.currentInstance);
+          }
+          getPerformanceMetricQuery(this.id).then(result => {
+            if (result) {
+              this.data = result.data.data;
+              this.$nextTick(() => {
+                this.totalOption = this.getOption(this.currentInstance);
+                this.changeDataZoom({start: 0, end: 100});
+              });
+            }
+          });
+        });
+      }
     },
     handleChecked(id) {
+      let curr = this.instances.filter(instance => id === instance.ip + ":" + instance.port)[0];
+      if (curr.monitorConfig) {
+        this.checkList = [];
+        this.checkOptions = curr.monitorConfig.filter(mc => mc.value && mc.name)
+          .map(mc => {
+            this.checkList.push(mc.name);
+            return {key: mc.name, label: mc.name,};
+          });
+      } else {
+        this.checkOptions = checkOptions;
+        this.checkList = checkList;
+      }
       this.totalOption = {};
       this.$nextTick(() => {
         this.totalOption = this.getOption(id);
+        this.changeDataZoom({start: 0, end: 100});
       });
     },
-    clickTabs(tab) {
+    handleCheckListChange(id) {
       this.totalOption = {};
       this.$nextTick(() => {
-        this.totalOption = this.getOption(tab.label);
+        this.totalOption = this.getOption(id);
+        this.changeDataZoom({start: 0, end: 100});
       });
     },
     getOption(id) {
@@ -152,21 +259,77 @@ export default {
             this.baseOption.xAxis.data = d.timestamps;
 
             let yAxis = d.values.map(v => v.toFixed(2));
+            let data = [];
+            for (let i = 0; i < d.timestamps.length; i++) {
+              data.push([d.timestamps[i], yAxis[i]]);
+            }
+
             legend.push(name);
             series.push({
               name: name,
-              data: yAxis,
+              data: data,
               type: 'line',
               yAxisIndex: yAxisIndex,
               smooth: true,
               sampling: 'lttb',
             });
+
+            this.seriesData = series;
           }
         });
       }
       this.baseOption.legend.data = legend;
       this.baseOption.series = series;
       return this.baseOption;
+    },
+    changeDataZoom(params) {
+      let start = params.start / 100;
+      let end = params.end / 100;
+      if (params.batch) {
+        start = params.batch[0].start / 100;
+        end = params.batch[0].end / 100;
+      }
+
+      let tableData = [];
+      for (let i = 0; i < this.seriesData.length; i++) {
+        let sub = this.seriesData[i].data, label = this.seriesData[i].name;
+        let len = 0;
+        let min, avg, max, sum = 0, startTime, endTime;
+        for (let j = 0; j < sub.length; j++) {
+          let time = sub[j][0];
+          let value = Number.parseFloat(sub[j][1]);
+          let index = (j / (sub.length - 1)).toFixed(2);
+          if (index < start) {
+            continue;
+          }
+          if (index >= end) {
+            endTime = time;
+            break;
+          }
+
+          if (!startTime) {
+            startTime = time;
+          }
+
+          if (!min && !max) {
+            min = max = value;
+          }
+
+          if (min > value) {
+            min = value;
+          }
+          if (max < value) {
+            max = value;
+          }
+          sum += value;
+
+          len++; // 实际 len
+        }
+
+        avg = (sum / len).toFixed(2);
+        tableData.push({label, min, max, avg, startTime, endTime});
+      }
+      this.tableData = tableData;
     },
   },
   watch: {
@@ -188,9 +351,17 @@ export default {
           return;
         }
         if (status === "Completed" || status === "Running") {
-          // this.getResource();
+          this.getResource();
         } else {
           this.instances = [];
+        }
+      },
+      deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.getResource();
         }
       },
       deep: true

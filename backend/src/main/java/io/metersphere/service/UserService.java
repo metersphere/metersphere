@@ -5,10 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
-import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
-import io.metersphere.base.mapper.ext.ExtUserMapper;
-import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -97,6 +94,8 @@ public class UserService {
     private ExtUserGroupMapper extUserGroupMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ExtProjectMapper extProjectMapper;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -1451,7 +1450,7 @@ public class UserService {
         User user = userMapper.selectByPrimaryKey(SessionUtils.getUserId());
         String platformInfoStr = user.getPlatformInfo();
         if (StringUtils.isBlank(orgId) || StringUtils.isBlank(platformInfoStr)) {
-           return null;
+            return null;
         }
         JSONObject platformInfos = JSONObject.parseObject(platformInfoStr);
         JSONObject platformInfo = platformInfos.getJSONObject(orgId);
@@ -1459,5 +1458,18 @@ public class UserService {
             return null;
         }
         return JSONObject.parseObject(JSONObject.toJSONString(platformInfo), UserDTO.PlatformInfo.class);
+    }
+
+    public void updateCurrentUserByResourceId(String resourceId) {
+        Project project = extProjectMapper.selectProjectByResourceId(resourceId);
+        if (project == null) {
+            return;
+        }
+        Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
+        SessionUser user = SessionUtils.getUser();
+        user.setLastProjectId(project.getId());
+        user.setLastWorkspaceId(project.getWorkspaceId());
+        user.setLastOrganizationId(workspace.getOrganizationId());
+        userMapper.updateByPrimaryKeySelective(user);
     }
 }

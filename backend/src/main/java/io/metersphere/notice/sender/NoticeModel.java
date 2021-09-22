@@ -57,4 +57,8 @@ public class NoticeModel {
      * 接收人
      */
     private List<Receiver> receivers;
+    /**
+     *
+     */
+    private boolean excludeSelf;
 }

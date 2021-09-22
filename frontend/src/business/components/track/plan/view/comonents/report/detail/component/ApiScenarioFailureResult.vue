@@ -1,9 +1,8 @@
 <template>
-  <div>
-    <el-row class="scenario-info">
-      <el-col :span="8">
-
-        <ms-table v-loading="result.loading"
+  <el-row class="scenario-info">
+      <el-col class="padding-col" :span="8">
+        <el-card>
+          <ms-table v-loading="result.loading"
                   :show-select-all="false"
                   :screen-height="null"
                   :enable-selection="false"
@@ -43,16 +42,17 @@
             <template v-slot:default="{row}">
               <status-table-item v-if="row.lastResult === 'Success'" :value="'Pass'"/>
               <status-table-item v-if="row.lastResult === 'Fail'" :value="'Failure'"/>
+              <status-table-item v-if="row.lastResult != 'Fail' && row.lastResult != 'Success'" :value="'Prepare'"/>
             </template>
           </ms-table-column>
         </ms-table>
+        </el-card>
       </el-col>
       <el-col :span="16" v-if="scenarioCases && scenarioCases.length > 0">
-        <ms-api-report v-if="showResponse" :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
+        <ms-api-report v-if="showResponse" :is-plan="true" :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
         <div class="empty" v-else>内容为空</div>
       </el-col>
     </el-row>
-  </div>
 </template>
 
 <script>
@@ -106,9 +106,9 @@ export default {
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isAll) {
-          this.scenarioCases = this.report.scenarioAllCases;
+          this.scenarioCases = this.report.scenarioAllCases ? this.report.scenarioAllCases : [];
         } else {
-          this.scenarioCases = this.report.scenarioFailureCases;
+          this.scenarioCases = this.report.scenarioFailureCases ? this.report.scenarioFailureCases : [];
         }
       } else if (this.isShare) {
         if (this.isAll) {
@@ -151,4 +151,17 @@ export default {
 </script>
 
 <style scoped>
+
+.padding-col {
+  padding-right: 0px;
+}
+
+
+.scenario-info {
+  height: 625px;
+}
+
+.ms-main-container {
+  height: 612px;
+}
 </style>

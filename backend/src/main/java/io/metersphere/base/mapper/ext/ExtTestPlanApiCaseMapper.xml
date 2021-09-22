@@ -4,8 +4,8 @@
 
 
   <insert id="insertIfNotExists" parameterType="io.metersphere.base.domain.TestPlanApiCase">
-    INSERT INTO test_plan_api_case(id, test_plan_id, api_case_id, environment_id, create_time, update_time, create_user)
-    SELECT #{request.id}, #{request.testPlanId}, #{request.apiCaseId}, #{request.environmentId}, #{request.createTime}, #{request.updateTime}, #{request.createUser}
+    INSERT INTO test_plan_api_case(id, test_plan_id, api_case_id, environment_id, create_time, update_time, create_user, `order`)
+    SELECT #{request.id}, #{request.testPlanId}, #{request.apiCaseId}, #{request.environmentId}, #{request.createTime}, #{request.updateTime}, #{request.createUser}, #{request.order}
       FROM DUAL
       WHERE NOT EXISTS(
         SELECT id FROM
@@ -112,7 +112,7 @@
       order by
       <foreach collection="request.orders" separator="," item="order">
         <choose>
-          <when test="order.name == 'update_time'">
+          <when test="order.name == 'update_time' or order.name == 'order'">
             t.${order.name} ${order.type}
           </when>
           <when test="order.name == 'create_user'">
@@ -203,7 +203,7 @@
       order by
       <foreach collection="request.orders" separator="," item="order">
         <choose>
-          <when test="order.name == 'update_time'">
+          <when test="order.name == 'update_time' or order.name == 'order'" >
             t.${order.name} ${order.type}
           </when>
           <when test="order.name == 'create_user'">
@@ -262,9 +262,10 @@
         api_test_case c
         on t.api_case_id = c.id
       and t.test_plan_id = #{planId}
-         <if test="status != null">
-           and t.status = 'error'
-         </if>
+       <if test="status != null">
+         and t.status = 'error'
+       </if>
+      and (c.status != 'Trash' or c.status is null)
       where t.test_plan_id = #{planId};
     </select>
 
@@ -289,4 +290,27 @@
     </foreach>
   </select>
 
+
+  <select id="selectPlanIds" resultType="java.lang.String">
+    select DISTINCT test_plan_id from test_plan_api_case;
+  </select>
+  <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
+    select id from test_plan_api_case where test_plan_id = #{planId} order by update_time ASC;
+  </select>
+
+  <select id="getLastOrder" resultType="java.lang.Long">
+    select `order` from test_plan_api_case where test_plan_id = #{planId}
+    <if test="baseOrder != null">
+      and `order` &gt; #{baseOrder}
+    </if>
+    order by `order` desc limit 1;
+  </select>
+
+  <select id="getPreOrder" resultType="java.lang.Long">
+    select `order` from test_plan_api_case where test_plan_id = #{planId}
+    <if test="baseOrder != null">
+      and `order` &lt; #{baseOrder}
+    </if>
+    order by `order` desc limit 1;
+  </select>
 </mapper>

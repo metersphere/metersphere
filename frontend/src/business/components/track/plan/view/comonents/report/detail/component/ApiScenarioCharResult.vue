@@ -1,5 +1,5 @@
 <template>
-  <ms-chart v-if="visible" :options="options"/>
+  <ms-chart style="height: 250px" v-if="visible" :options="options"/>
 </template>
 
 <script>
@@ -26,24 +26,16 @@ export default {
         },
         legend: {
           data: [],
-          // orient: 'vertical',
-          // right: 0,
-          // bottom: '40%',
         },
         grid: {
           left: 100
         },
         xAxis: {
-          // type: 'value',
-          // // name: 'Days',
-          // axisLabel: {
-          //     formatter: '{value}'
-          // }
+          type: 'value',
         },
         yAxis: {
           type: 'category',
-          inverse: true,
-          data: ['场景用例数',  '步骤用例数'],
+          data: [],
           axisLabel: {
             formatter: function (value) {
             },
@@ -64,30 +56,12 @@ export default {
         },
         series: [
           {
-            name: '未执行',
+            data: [],
             type: 'bar',
-            data: [165, 170],
-            label: seriesLabel,
-            itemStyle: {
-              color: '#909399'
-            }
-          },
-          {
-            name: '成功',
-            type: 'bar',
-            label: seriesLabel,
-            data: [150, 105],
-            itemStyle: {
-              color: '#F56C6C'
-            }
-          },
-          {
-            name: '失败',
-            type: 'bar',
-            label: seriesLabel,
-            data: [220, 82],
-            itemStyle: {
-              color: '#67C23A'
+            barWidth: 20,
+            label: {
+              show: true,
+              formatter: {}
             }
           }
         ]
@@ -123,45 +97,26 @@ export default {
       });
     },
     setFormatterFunc() {
-      let data = this.data;
-      let caseCount = 0;
-      let stepCount = 0;
+
+      let dataCount = 0;
       this.data.forEach(item => {
-        caseCount += item.data[0];
-        if (item.data[1]) {
-          stepCount += item.data[1];
-        }
+        dataCount += item.value;
       });
 
-      let formatterFuc = function (value) {
-        let total = 0;
-        if (value.dataIndex == 0) {
-          total = caseCount;
-        } else {
-          total = stepCount;
-        }
-        return value.data + '/' + ((value.data / total) * 100).toFixed(0) + '%';
+      let formatterFuc = function (item) {
+        return item.data.value + '/' + ((item.data.value / dataCount) * 100).toFixed(0) + '%';
       };
 
-      this.data.forEach(item => {
-        item.type = 'bar';
-        item.label = {
-          show: true,
-          formatter: formatterFuc
-        };
-      });
+      this.options.series[0].data = this.data;
+      this.options.series[0].label.formatter = formatterFuc;
 
-      this.options.series = data;
-
+      let name = this.name;
       this.options.yAxis.axisLabel.formatter =  function (value) {
-        if (value === '场景用例数') {
-          return '{name|场景用例数}\n' + '{count| ' + caseCount + '}';
-        } else {
-          return '{name|步骤用例数}\n' + '{count|' + stepCount + '}';
-        }
+          return '{name|' + name + '}\n' + '{count| ' + dataCount + '}';
       };
 
-      this.options.legend.data = data.map(i => i.name);
+      this.options.legend.data = this.data.map(i => i.name);
+      this.options.yAxis.data = this.data.map(i => i.name);
     },
   }
 }

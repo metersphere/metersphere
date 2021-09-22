@@ -102,6 +102,7 @@ import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
 import {getIntegrationService} from "@/network/organization";
 import ZentaoUserInfo from "@/business/components/settings/personal/ZentaoUserInfo";
 import AzureDevopsUserInfo from "@/business/components/settings/personal/AzureDevopsUserInfo";
+import {logout} from "@/network/user";
 
 export default {
   name: "MsPersonSetting",
@@ -267,9 +268,7 @@ export default {
           }
           this.result = this.$post(this.updatePasswordPath, this.ruleForm, response => {
             this.$success(this.$t('commons.modify_success'));
-            this.editPasswordVisible = false;
-            this.initTableData();
-            this.reload();
+            logout();
           });
         } else {
           return false;

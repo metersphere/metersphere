@@ -41,6 +41,12 @@
             return 10;
           }
         },
+        selectType: {
+          type: Boolean,
+          default() {
+            return false;
+          }
+        },
         tableDataCountInPage: {
           type: Number,
           default() {
@@ -53,6 +59,11 @@
             return 0;
           }
         },
+      },
+      watch:{
+        total(){
+          this.reload();
+        }
       },
       created() {
         if(this.keyIndex === 0){
@@ -93,6 +104,10 @@
           this.$emit(even);
         },
         reload() {
+            if(!this.selectType){
+              this.selectAllFontColor.color = "gray";
+              this.selectPageFontColor.color = "gray";
+            }
             this.isShow = false;
             this.$nextTick(() => {
               this.isShow = true;

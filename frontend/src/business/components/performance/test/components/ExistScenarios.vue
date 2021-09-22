@@ -150,7 +150,12 @@ export default {
           // csv 处理
           d.fileMetadataList?.forEach(f => {
             this.fileList.push(f);
-            this.tableData.push(f);
+            this.tableData.push({
+              name: f.name,
+              size: (f.size / 1024).toFixed(2) + ' KB',
+              type: f.type,
+              updateTime: f.updateTime,
+            });
           });
         });
 

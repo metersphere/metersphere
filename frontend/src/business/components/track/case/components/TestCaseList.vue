@@ -14,12 +14,14 @@
       :operators="operators"
       :screen-height="screenHeight"
       :batch-operators="batchButtons"
+      :remember-order="true"
+      :enable-order-drag="enableOrderDrag"
+      row-key="id"
       @handlePageChange="initTableData"
       @handleRowClick="handleEdit"
       :fields.sync="fields"
       :field-key="tableHeaderKey"
       @refresh="initTableData"
-      @saveSortField="saveSortField"
       :custom-fields="testCaseTemplate.customFields"
       ref="table">
 
@@ -68,6 +70,12 @@
           :label="$t('commons.name')"
           min-width="120"
         />
+
+        <ms-table-column :label="$t('test_track.case.case_desc')" prop="desc" :field="item">
+          <template v-slot:default="scope">
+            <el-link @click.stop="getCase(scope.row.id)" style="color:#783887;">{{$t('commons.preview')}}</el-link>
+          </template>
+        </ms-table-column>
 
         <ms-table-column
           prop="createUser"
@@ -164,6 +172,8 @@
                 :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
 
     <batch-move @refresh="refresh" @moveSave="moveSave" ref="testBatchMove"/>
+
+    <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
   </div>
 
 </template>
@@ -198,8 +208,8 @@ import {
   getCustomFieldValue,
   getCustomTableWidth, getLastTableSortField,
   getPageInfo,
-  getTableHeaderWithCustomFields,
-  initCondition, saveLastTableSortField,
+  getTableHeaderWithCustomFields, handleRowDrop,
+  initCondition,
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
@@ -210,10 +220,13 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import BatchMove from "@/business/components/track/case/components/BatchMove";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
+import {editTestCaseOrder} from "@/network/testCase";
 
 export default {
   name: "TestCaseList",
   components: {
+    TestCasePreview,
     BatchMove,
     MsTableColumn,
     MsTable,
@@ -246,6 +259,7 @@ export default {
       screenHeight: 'calc(100vh - 258px)',
       tableLabel: [],
       deletePath: "/test/case/delete",
+      enableOrderDrag: true,
       condition: {
         components: TEST_CASE_CONFIGS
       },
@@ -294,7 +308,7 @@ export default {
         {
           name: this.$t('commons.reduction'),
           handleClick: this.batchReduction,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+          permissions: ['PROJECT_TRACK_CASE:READ+RECOVER']
         }, {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatch,
@@ -323,7 +337,9 @@ export default {
         {
           tip: this.$t('commons.reduction'),
           icon: "el-icon-refresh-left",
-          exec: this.reduction},
+          exec: this.reduction,
+          permissions: ['PROJECT_TRACK_CASE:READ+RECOVER']
+        },
         {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
@@ -338,7 +354,9 @@ export default {
       page: getPageInfo(),
       fields: [],
       fieldsWidth: getCustomTableWidth('TRACK_TEST_CASE'),
-      memberMap: new Map()
+      memberMap: new Map(),
+      rowCase: {},
+      rowCaseResult: {}
     };
   },
   props: {
@@ -376,10 +394,6 @@ export default {
     }else {
       this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
     }
-    let orderArr = this.getSortField();
-    if(orderArr){
-      this.condition.orders = orderArr;
-    }
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
@@ -392,6 +406,15 @@ export default {
     }
     if(!this.projectName || this.projectName === ""){
       this.getProjectName();
+    }
+
+    // 通知过来的数据跳转到编辑
+    if (this.$route.query.resourceId) {
+      this.$get('test/case/get/' + this.$route.query.resourceId, response => {
+        let testCase = response.data;
+        testCase.label = 'redirect';
+        this.$emit('testCaseEdit', testCase);
+      });
     }
   },
   activated() {
@@ -453,6 +476,7 @@ export default {
         if (this.$refs.table) {
           this.$refs.table.reloadTable();
         }
+        this.typeArr = [];
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
       });
     },
@@ -502,6 +526,10 @@ export default {
       this.condition.nodeIds = [];
       //initCondition(this.condition);
       initCondition(this.condition, this.condition.selectAll);
+      this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+
+      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -563,11 +591,27 @@ export default {
             }
           });
           this.page.data.forEach((item) => {
-            item.tags = JSON.parse(item.tags);
+            try {
+              item.tags = JSON.parse(item.tags);
+            } catch (e) {
+              item.tags = [];
+            }
+
           });
           checkTableRowIsSelected(this, this.$refs.table);
+
+          this.handleRowDrop();
+
         });
       }
+    },
+    handleRowDrop() {
+      this.$nextTick(() => {
+        handleRowDrop(this.page.data, (param) => {
+          param.groupId = this.projectId;
+          editTestCaseOrder(param);
+        });
+      });
     },
     search() {
       this.initTableData();
@@ -578,10 +622,41 @@ export default {
     testCaseCreate() {
       this.$emit('testCaseEdit');
     },
-    handleEdit(testCase) {
-      this.$get('test/case/get/' + testCase.id, response => {
-        let testCase = response.data;
-        this.$emit('testCaseEdit', testCase);
+    handleEdit(testCase, column) {
+      if (column.label !== this.$t('test_track.case.case_desc')) {
+        this.$get('test/case/get/' + testCase.id, response => {
+          let testCase = response.data;
+          this.$emit('testCaseEdit', testCase);
+        });
+      }
+
+    },
+    getCase(id) {
+      this.$refs.testCasePreview.open();
+      this.rowCaseResult.loading = true;
+      if (this.rowCase && this.rowCase.id === id) {
+        this.$refs.testCasePreview.setData(this.rowCase);
+        this.rowCaseResult.loading = false;
+        return;
+      } else {
+        this.rowCase = {};
+        this.$refs.testCasePreview.setData({});
+      }
+
+      this.rowCaseResult = this.$get('test/case/get/step/' + id, response => {
+        this.rowCase = response.data;
+        this.rowCase.steps = JSON.parse(this.rowCase.steps);
+        if (!this.rowCase.steps || this.rowCase.length < 1) {
+          this.rowCase.steps = [{
+            num: 1,
+            desc: '',
+            result: ''
+          }];
+        }
+        if (!this.rowCase.stepModel) {
+          this.rowCase.stepModel = "STEP";
+        }
+        this.$refs.testCasePreview.setData(this.rowCase);
       });
     },
     handleCopy(testCase) {
@@ -771,7 +846,7 @@ export default {
     },
     handleBatchEdit() {
       this.getMaintainerOptions();
-      this.$refs.batchEdit.open();
+      this.$refs.batchEdit.open(this.$refs.table.selectRows.size);
     },
     handleBatchMove() {
       this.$refs.testBatchMove.open(this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
@@ -788,21 +863,6 @@ export default {
         this.$refs.testBatchMove.close();
         this.refresh();
       });
-    },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
-    },
-    getSortField(){
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if(orderJsonStr){
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
-          return null;
-        }
-      }
-      return returnObj;
     }
   }
 };
@@ -837,8 +897,4 @@ export default {
 .el-tag {
   margin-left: 10px;
 }
-
-/*/deep/ .el-table__fixed-body-wrapper {*/
-/*  top: 60px !important;*/
-/*}*/
 </style>

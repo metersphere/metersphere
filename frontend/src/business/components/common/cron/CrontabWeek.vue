@@ -58,13 +58,14 @@ export default {
 			average01: 1,
 			average02: 1,
 			checkboxList: [],
-			weekList: [this.$t('commons.weeks_1'),
+			weekList: [
+        this.$t('commons.weeks_0'),
+        this.$t('commons.weeks_1'),
         this.$t('commons.weeks_2'),
         this.$t('commons.weeks_3'),
         this.$t('commons.weeks_4'),
         this.$t('commons.weeks_5'),
         this.$t('commons.weeks_6'),
-        this.$t('commons.weeks_0'),
       ],
 			checkNum: this.$options.propsData.check
 		}
@@ -76,31 +77,33 @@ export default {
 		radioChange() {
 			if (this.radioValue === 1) {
 				this.$emit('update', 'week', '*');
-				this.$emit('update', 'year', '*');
+				this.$emit('update', 'day', '?', 'week');
+				// this.$emit('update', 'year', '*');
 			} else {
         if (this.radioValue !== 2) {
           this.$emit('update', 'day', '?', 'week');
         }
-				if (this.cron.mouth === '*') {
-					this.$emit('update', 'mouth', '1', 'week');
-				}
-				if (this.cron.day === '*') {
-					this.$emit('update', 'day', '1', 'week');
-				}
-				if (this.cron.hour === '*') {
-					this.$emit('update', 'hour', '0', 'week');
-				}
-				if (this.cron.min === '*') {
-					this.$emit('update', 'min', '0', 'week');
-				}
-				if (this.cron.second === '*') {
-					this.$emit('update', 'second', '0', 'week');
-				}
+				// if (this.cron.mouth === '*') {
+				// 	this.$emit('update', 'mouth', '1', 'week');
+				// }
+				// if (this.cron.day === '*') {
+				// 	this.$emit('update', 'day', '1', 'week');
+				// }
+				// if (this.cron.hour === '*') {
+				// 	this.$emit('update', 'hour', '0', 'week');
+				// }
+				// if (this.cron.min === '*') {
+				// 	this.$emit('update', 'min', '0', 'week');
+				// }
+				// if (this.cron.second === '*') {
+				// 	this.$emit('update', 'second', '0', 'week');
+				// }
 			}
 			switch (this.radioValue) {
 				case 2:
-					this.$emit('update', 'week', '?');
-					break;
+					// this.$emit('update', 'day', '*');
+          this.$emit('update', 'week', '?');
+          break;
 				case 3:
 					this.$emit('update', 'week', this.cycle01 + '-' + this.cycle02);
 					break;

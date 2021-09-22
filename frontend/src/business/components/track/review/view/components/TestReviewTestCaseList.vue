@@ -18,7 +18,7 @@
 
     <ms-table
       v-loading="result.loading"
-      field-key="TEST_CASE_REVIEW_FUNCTION_TEST_CASE"
+      :field-key="tableHeaderKey"
       :data="tableData"
       :condition="condition"
       :total="total"
@@ -29,6 +29,7 @@
       @handlePageChange="initTableData"
       @handleRowClick="showDetail"
       :fields.sync="fields"
+      :remember-order="true"
       @refresh="initTableData"
       ref="table"
     >
@@ -44,6 +45,7 @@
         <ms-table-column
           prop="name"
           :field="item"
+          sortable="custom"
           :fields-width="fieldsWidth"
           :label="$t('commons.name')"
           min-width="120px"/>
@@ -66,7 +68,6 @@
           :field="item"
           :fields-width="fieldsWidth"
           :filters="typeFilters"
-          sortable="custom"
           min-width="120px"
           :label="$t('test_track.case.type')">
           <template v-slot:default="scope">
@@ -106,8 +107,7 @@
           prop="reviewStatus"
           :field="item"
           :fields-width="fieldsWidth"
-          :filters="typeFilters"
-          sortable="custom"
+          :filters="statusFilters"
           min-width="120px"
           :label="$t('test_track.review_view.execute_result')">
             <template v-slot:default="scope">
@@ -170,7 +170,7 @@ import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import {
   _handleSelectAll,
-  buildBatchParam, checkTableRowIsSelected, deepClone, getCustomTableWidth,
+  buildBatchParam, checkTableRowIsSelected, deepClone, getCustomTableWidth, getLastTableSortField,
   getSelectDataCounts, getTableHeaderWithCustomFields,
   initCondition,
   toggleAllSelection
@@ -213,6 +213,7 @@ export default {
       isReadOnly: false,
       isTestManagerOrTestUser: false,
       selectDataCounts: 0,
+      tableHeaderKey: 'TEST_CASE_REVIEW_FUNCTION_TEST_CASE',
       priorityFilters: [
         {text: 'P0', value: 'P0'},
         {text: 'P1', value: 'P1'},
@@ -277,14 +278,21 @@ export default {
     },
     selectNodeIds() {
       this.search();
-    }
+    },
+    condition() {
+      this.$emit('setCondition', this.condition);
+    },
   },
   computed: {
     selectNodeIds() {
       return this.$store.state.testReviewSelectNodeIds;
     }
   },
+  created() {
+    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+  },
   mounted() {
+    this.$emit('setCondition', this.condition);
     this.refreshTableAndReview();
     this.isTestManagerOrTestUser = true;
     this.initTableHeader();
@@ -292,7 +300,7 @@ export default {
   methods: {
     initTableHeader() {
       this.result.loading = true;
-      this.fields = getTableHeaderWithCustomFields('TEST_CASE_REVIEW_FUNCTION_TEST_CASE', []);
+      this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, []);
       this.result.loading = false;
       this.$refs.table.reloadTable();
     },

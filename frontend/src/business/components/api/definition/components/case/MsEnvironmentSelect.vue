@@ -22,11 +22,12 @@
 </template>
 
 <script>
-    import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
     import {parseEnvironment} from "../../../test/model/EnvironmentModel";
     export default {
       name: "MsEnvironmentSelect",
-      components: {ApiEnvironmentConfig},
+      components: {
+        ApiEnvironmentConfig: () => import('@/business/components/api/test/components/ApiEnvironmentConfig')
+      },
       data() {
         return {
           environments: [],

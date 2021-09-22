@@ -6,6 +6,8 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="method" jdbcType="VARCHAR" property="method" />
+    <result column="protocol" jdbcType="VARCHAR" property="protocol" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="schedule" jdbcType="VARCHAR" property="schedule" />
@@ -14,8 +16,6 @@
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="protocol" jdbcType="VARCHAR" property="protocol" />
-    <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="original_state" jdbcType="VARCHAR" property="originalState" />
@@ -26,6 +26,7 @@
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="delete_user_id" jdbcType="VARCHAR" property="deleteUserId" />
     <result column="follow_people" jdbcType="VARCHAR" property="followPeople" />
+    <result column="order" jdbcType="BIGINT" property="order" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -91,10 +92,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, `method`, module_path, environment_id, schedule, `status`, 
-    module_id, user_id, create_time, update_time, protocol, `path`, num, tags, original_state, 
+    id, project_id, `name`, `method`, protocol, `path`, module_path, environment_id, 
+    schedule, `status`, module_id, user_id, create_time, update_time, num, tags, original_state, 
     create_user, case_total, case_status, case_passing_rate, delete_time, delete_user_id, 
-    follow_people
+    follow_people, `order`
   </sql>
   <sql id="Blob_Column_List">
     description, request, response
@@ -149,25 +150,25 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     insert into api_definition (id, project_id, `name`, 
-      `method`, module_path, environment_id, 
-      schedule, `status`, module_id, 
-      user_id, create_time, update_time, 
-      protocol, `path`, num, 
+      `method`, protocol, `path`, 
+      module_path, environment_id, schedule, 
+      `status`, module_id, user_id, 
+      create_time, update_time, num, 
       tags, original_state, create_user, 
       case_total, case_status, case_passing_rate, 
       delete_time, delete_user_id, follow_people, 
-      description, request, response
-      )
+      `order`, description, request, 
+      response)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{method,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
-      #{schedule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
-      #{userId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
+      #{method,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
+      #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{schedule,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{num,jdbcType=INTEGER}, 
       #{tags,jdbcType=VARCHAR}, #{originalState,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{caseTotal,jdbcType=VARCHAR}, #{caseStatus,jdbcType=VARCHAR}, #{casePassingRate,jdbcType=VARCHAR}, 
       #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR}
-      )
+      #{order,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, 
+      #{response,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     insert into api_definition
@@ -183,6 +184,12 @@
       </if>
       <if test="method != null">
         `method`,
+      </if>
+      <if test="protocol != null">
+        protocol,
+      </if>
+      <if test="path != null">
+        `path`,
       </if>
       <if test="modulePath != null">
         module_path,
@@ -207,12 +214,6 @@
       </if>
       <if test="updateTime != null">
         update_time,
-      </if>
-      <if test="protocol != null">
-        protocol,
-      </if>
-      <if test="path != null">
-        `path`,
       </if>
       <if test="num != null">
         num,
@@ -244,6 +245,9 @@
       <if test="followPeople != null">
         follow_people,
       </if>
+      <if test="order != null">
+        `order`,
+      </if>
       <if test="description != null">
         description,
       </if>
@@ -266,6 +270,12 @@
       </if>
       <if test="method != null">
         #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="protocol != null">
+        #{protocol,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null">
+        #{path,jdbcType=VARCHAR},
       </if>
       <if test="modulePath != null">
         #{modulePath,jdbcType=VARCHAR},
@@ -290,12 +300,6 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="protocol != null">
-        #{protocol,jdbcType=VARCHAR},
-      </if>
-      <if test="path != null">
-        #{path,jdbcType=VARCHAR},
       </if>
       <if test="num != null">
         #{num,jdbcType=INTEGER},
@@ -326,6 +330,9 @@
       </if>
       <if test="followPeople != null">
         #{followPeople,jdbcType=VARCHAR},
+      </if>
+      <if test="order != null">
+        #{order,jdbcType=BIGINT},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -359,6 +366,12 @@
       <if test="record.method != null">
         `method` = #{record.method,jdbcType=VARCHAR},
       </if>
+      <if test="record.protocol != null">
+        protocol = #{record.protocol,jdbcType=VARCHAR},
+      </if>
+      <if test="record.path != null">
+        `path` = #{record.path,jdbcType=VARCHAR},
+      </if>
       <if test="record.modulePath != null">
         module_path = #{record.modulePath,jdbcType=VARCHAR},
       </if>
@@ -382,12 +395,6 @@
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.protocol != null">
-        protocol = #{record.protocol,jdbcType=VARCHAR},
-      </if>
-      <if test="record.path != null">
-        `path` = #{record.path,jdbcType=VARCHAR},
       </if>
       <if test="record.num != null">
         num = #{record.num,jdbcType=INTEGER},
@@ -419,6 +426,9 @@
       <if test="record.followPeople != null">
         follow_people = #{record.followPeople,jdbcType=VARCHAR},
       </if>
+      <if test="record.order != null">
+        `order` = #{record.order,jdbcType=BIGINT},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -439,6 +449,8 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `method` = #{record.method,jdbcType=VARCHAR},
+      protocol = #{record.protocol,jdbcType=VARCHAR},
+      `path` = #{record.path,jdbcType=VARCHAR},
       module_path = #{record.modulePath,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       schedule = #{record.schedule,jdbcType=VARCHAR},
@@ -447,8 +459,6 @@
       user_id = #{record.userId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      protocol = #{record.protocol,jdbcType=VARCHAR},
-      `path` = #{record.path,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       tags = #{record.tags,jdbcType=VARCHAR},
       original_state = #{record.originalState,jdbcType=VARCHAR},
@@ -459,6 +469,7 @@
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      `order` = #{record.order,jdbcType=BIGINT},
       description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR},
       response = #{record.response,jdbcType=LONGVARCHAR}
@@ -472,6 +483,8 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `method` = #{record.method,jdbcType=VARCHAR},
+      protocol = #{record.protocol,jdbcType=VARCHAR},
+      `path` = #{record.path,jdbcType=VARCHAR},
       module_path = #{record.modulePath,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       schedule = #{record.schedule,jdbcType=VARCHAR},
@@ -480,8 +493,6 @@
       user_id = #{record.userId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      protocol = #{record.protocol,jdbcType=VARCHAR},
-      `path` = #{record.path,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       tags = #{record.tags,jdbcType=VARCHAR},
       original_state = #{record.originalState,jdbcType=VARCHAR},
@@ -491,7 +502,8 @@
       case_passing_rate = #{record.casePassingRate,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
-      follow_people = #{record.followPeople,jdbcType=VARCHAR}
+      follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      `order` = #{record.order,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -507,6 +519,12 @@
       </if>
       <if test="method != null">
         `method` = #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="protocol != null">
+        protocol = #{protocol,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null">
+        `path` = #{path,jdbcType=VARCHAR},
       </if>
       <if test="modulePath != null">
         module_path = #{modulePath,jdbcType=VARCHAR},
@@ -531,12 +549,6 @@
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="protocol != null">
-        protocol = #{protocol,jdbcType=VARCHAR},
-      </if>
-      <if test="path != null">
-        `path` = #{path,jdbcType=VARCHAR},
       </if>
       <if test="num != null">
         num = #{num,jdbcType=INTEGER},
@@ -568,6 +580,9 @@
       <if test="followPeople != null">
         follow_people = #{followPeople,jdbcType=VARCHAR},
       </if>
+      <if test="order != null">
+        `order` = #{order,jdbcType=BIGINT},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -585,6 +600,8 @@
     set project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       `method` = #{method,jdbcType=VARCHAR},
+      protocol = #{protocol,jdbcType=VARCHAR},
+      `path` = #{path,jdbcType=VARCHAR},
       module_path = #{modulePath,jdbcType=VARCHAR},
       environment_id = #{environmentId,jdbcType=VARCHAR},
       schedule = #{schedule,jdbcType=VARCHAR},
@@ -593,8 +610,6 @@
       user_id = #{userId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      protocol = #{protocol,jdbcType=VARCHAR},
-      `path` = #{path,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
       tags = #{tags,jdbcType=VARCHAR},
       original_state = #{originalState,jdbcType=VARCHAR},
@@ -605,6 +620,7 @@
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       follow_people = #{followPeople,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT},
       description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR},
       response = #{response,jdbcType=LONGVARCHAR}
@@ -615,6 +631,8 @@
     set project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       `method` = #{method,jdbcType=VARCHAR},
+      protocol = #{protocol,jdbcType=VARCHAR},
+      `path` = #{path,jdbcType=VARCHAR},
       module_path = #{modulePath,jdbcType=VARCHAR},
       environment_id = #{environmentId,jdbcType=VARCHAR},
       schedule = #{schedule,jdbcType=VARCHAR},
@@ -623,8 +641,6 @@
       user_id = #{userId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      protocol = #{protocol,jdbcType=VARCHAR},
-      `path` = #{path,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
       tags = #{tags,jdbcType=VARCHAR},
       original_state = #{originalState,jdbcType=VARCHAR},
@@ -634,7 +650,8 @@
       case_passing_rate = #{casePassingRate,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
-      follow_people = #{followPeople,jdbcType=VARCHAR}
+      follow_people = #{followPeople,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

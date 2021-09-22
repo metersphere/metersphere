@@ -162,6 +162,13 @@
         #{nodeId}
       </foreach>
     </if>
+    <if test="request.combine != null">
+      <include refid="combine">
+        <property name="condition" value="request.combine"/>
+        <property name="name" value="request.name"/>
+        <property name="objectKey" value="request.combine.tags"/>
+      </include>
+    </if>
     <if test="request.filters != null and request.filters.size() > 0">
       <foreach collection="request.filters.entrySet()" index="key" item="values">
         <if test="values != null and values.size() > 0">
@@ -184,9 +191,184 @@
     </if>
     <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
   </select>
+  <sql id="condition">
+    <choose>
+      <when test='${object}.operator == "like"'>
+        like CONCAT('%', #{${object}.value},'%')
+      </when>
+      <when test='${object}.operator == "not like"'>
+        not like CONCAT('%', #{${object}.value},'%')
+      </when>
+      <when test='${object}.operator == "in"'>
+        in
+        <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+          #{v}
+        </foreach>
+      </when>
+      <when test='${object}.operator == "not in"'>
+        not in
+        <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+          #{v}
+        </foreach>
+      </when>
+      <when test='${object}.operator == "between"'>
+        between #{${object}.value[0]} and #{${object}.value[1]}
+      </when>
+      <when test='${object}.operator == "gt"'>
+        &gt; #{${object}.value}
+      </when>
+      <when test='${object}.operator == "lt"'>
+        &lt; #{${object}.value}
+      </when>
+      <when test='${object}.operator == "ge"'>
+        &gt;= #{${object}.value}
+      </when>
+      <when test='${object}.operator == "le"'>
+        &lt;= #{${object}.value}
+      </when>
+      <when test='${object}.operator == "current user"'>
+        = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+      </when>
+      <otherwise>
+        = #{${object}.value}
+      </otherwise>
+    </choose>
+  </sql>
+  <sql id="combine">
+    <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+      and atc.name
+      <include refid="condition">
+        <property name="object" value="${condition}.name"/>
+      </include>
+    </if>
+    <if test="${condition}.updateTime != null">
+      and atc.update_time
+      <include refid="condition">
+        <property name="object" value="${condition}.updateTime"/>
+      </include>
+    </if>
+    <if test="${condition}.createTime != null">
+      and atc.create_time
+      <include refid="condition">
+        <property name="object" value="${condition}.createTime"/>
+      </include>
+    </if>
+    <if test="${condition}.priority != null">
+      and atc.priority
+      <include refid="condition">
+        <property name="object" value="${condition}.priority"/>
+      </include>
+    </if>
+    <if test="${condition}.status != null">
+      and atc.status
+      <include refid="condition">
+        <property name="object" value="${condition}.status"/>
+      </include>
+    </if>
+    <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+      and atc.tags
+      <include refid="condition">
+        <property name="object" value="${condition}.tags"/>
+      </include>
+    </if>
+    <if test="${condition}.creator != null">
+      and atc.create_user_id
+      <include refid="condition">
+        <property name="object" value="${condition}.creator"/>
+      </include>
+    </if>
+  </sql>
+  <sql id="loadCaseCombine">
+    <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+      and atc.name
+      <include refid="condition">
+        <property name="object" value="${condition}.name"/>
+      </include>
+    </if>
+    <if test="${condition}.updateTime != null">
+      and atc.update_time
+      <include refid="condition">
+        <property name="object" value="${condition}.updateTime"/>
+      </include>
+    </if>
+    <if test="${condition}.createTime != null">
+      and atc.create_time
+      <include refid="condition">
+        <property name="object" value="${condition}.createTime"/>
+      </include>
+    </if>
+    <if test="${condition}.priority != null">
+      and atc.priority
+      <include refid="condition">
+        <property name="object" value="${condition}.priority"/>
+      </include>
+    </if>
+    <if test="${condition}.status != null">
+      and atc.status
+      <include refid="condition">
+        <property name="object" value="${condition}.status"/>
+      </include>
+    </if>
+    <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+      and atc.tags
+      <include refid="condition">
+        <property name="object" value="${condition}.tags"/>
+      </include>
+    </if>
+    <if test="${condition}.creator != null">
+      and atc.create_user
+      <include refid="condition">
+        <property name="object" value="${condition}.creator"/>
+      </include>
+    </if>
+  </sql>
+  <sql id="scenarioCombine">
+    <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+      and atc.name
+      <include refid="condition">
+        <property name="object" value="${condition}.name"/>
+      </include>
+    </if>
+    <if test="${condition}.updateTime != null">
+      and atc.update_time
+      <include refid="condition">
+        <property name="object" value="${condition}.updateTime"/>
+      </include>
+    </if>
+    <if test="${condition}.createTime != null">
+      and atc.create_time
+      <include refid="condition">
+        <property name="object" value="${condition}.createTime"/>
+      </include>
+    </if>
+    <if test="${condition}.priority != null">
+      and atc.level
+      <include refid="condition">
+        <property name="object" value="${condition}.priority"/>
+      </include>
+    </if>
+    <if test="${condition}.status != null">
+      and atc.status
+      <include refid="condition">
+        <property name="object" value="${condition}.status"/>
+      </include>
+    </if>
+    <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+      and atc.tags
+      <include refid="condition">
+        <property name="object" value="${condition}.tags"/>
+      </include>
+    </if>
+    <if test='${condition}.creator != null'>
+      and atc.create_user
+      <include refid="condition">
+        <property name="object" value="${condition}.creator"/>
+      </include>
+    </if>
+  </sql>
   <select id="relevanceScenarioList" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
     SELECT
-    atc.id, atc.project_id , atc.name , atc.num , atc.`level`, atc.step_total, atc.status
+    atc.id, atc.project_id , atc.name , atc.num , atc.`level`, atc.step_total, atc.status, atc.tags
     from api_scenario atc
     left join test_case_test tct on atc.id = tct.test_id
     where tct.test_id is NULL and atc.status != 'Trash'
@@ -204,11 +386,18 @@
         #{nodeId}
       </foreach>
     </if>
+    <if test="request.combine != null">
+      <include refid="scenarioCombine">
+        <property name="condition" value="request.combine"/>
+        <property name="name" value="request.name"/>
+        <property name="objectKey" value="request.combine.tags"/>
+      </include>
+    </if>
     <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
   </select>
   <select id="relevanceLoadList" resultType="io.metersphere.dto.LoadTestDTO">
     SELECT
-    atc.id, atc.project_id , atc.name , atc.num , atc.status
+    atc.id, atc.project_id , atc.name , atc.num , atc.status, atc.create_time, atc.update_time
     from load_test atc
     left join test_case_test tct on atc.id = tct.test_id
     where tct.test_id is NULL and atc.status != 'Trash'
@@ -218,6 +407,13 @@
     <if test="request.name != null and request.name!=''">
       and (atc.name like CONCAT('%', #{request.name},'%')
       or atc.num like CONCAT('%', #{request.name},'%'))
+    </if>
+    <if test="request.combine != null">
+      <include refid="loadCaseCombine">
+        <property name="condition" value="request.combine"/>
+        <property name="name" value="request.name"/>
+        <property name="objectKey" value="request.combine.tags"/>
+      </include>
     </if>
     <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
   </select>

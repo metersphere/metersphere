@@ -22,7 +22,7 @@
         <div style="margin-bottom: 15px" v-if="flag">
           <el-checkbox v-model="checked">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
         </div>
-        <ms-dialog-footer @cancel="close" @confirm="save"/>
+        <ms-dialog-footer @cancel="close" v-loading="isSaving" @confirm="save"/>
       </div>
     </template>
 
@@ -67,7 +67,13 @@
       flag:{
         type:Boolean,
       },
-      width: String
+      width: String,
+      isSaving:{
+        type:Boolean,
+        default() {
+          return false;
+        }
+      }
     },
     watch: {
 

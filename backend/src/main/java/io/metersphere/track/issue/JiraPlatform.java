@@ -9,7 +9,6 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
@@ -197,6 +196,30 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void addIssue(IssuesUpdateRequest issuesRequest) {
+
+        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest);
+
+        JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
+        JiraIssue issues = jiraClientV2.getIssues(result.getId());
+
+        List<File> imageFiles = getImageFiles(issuesRequest.getDescription());
+
+        imageFiles.forEach(img -> {
+            jiraClientV2.uploadAttachment(result.getKey(), img);
+        });
+        String status = getStatus(issues.getFields());
+        issuesRequest.setPlatformStatus(status);
+
+        issuesRequest.setId(result.getKey());
+        // 用例与第三方缺陷平台中的缺陷关联
+        handleTestCaseIssues(issuesRequest);
+
+        // 插入缺陷表
+        insertIssues(result.getKey(), issuesRequest);
+    }
+
+    private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest) {
+
         issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
 
         JiraConfig config = getUserConfig();
@@ -208,7 +231,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject project = new JSONObject();
 
         String desc = issuesRequest.getDescription();
-        List<File> imageFiles = getImageFiles(desc);
         desc = removeImage(desc);
 
         fields.put("project", project);
@@ -229,45 +251,52 @@ public class JiraPlatform extends AbstractIssuePlatform {
         jiraClientV2.setConfig(config);
 
         customFields.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getCustomData())) {
+            String fieldName = item.getCustomData();
+            if (StringUtils.isNotBlank(fieldName)) {
                 if (StringUtils.isNotBlank(item.getValue())) {
                     if (StringUtils.isNotBlank(item.getType()) &&
-                            StringUtils.equalsAny(item.getType(), "select", "multipleSelect", "checkbox", "radio", "member", "multipleMember")) {
+                            StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
                         JSONObject param = new JSONObject();
-                        param.put("id", item.getValue());
-                        fields.put(item.getCustomData(), param);
+                        if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
+                            param.put("name", item.getValue());
+                        } else {
+                            param.put("id", item.getValue());
+                        }
+                        fields.put(fieldName, param);
+                    } else if (StringUtils.isNotBlank(item.getType()) &&
+                            StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
+                        JSONArray attrs = new JSONArray();
+                        if (StringUtils.isNotBlank(item.getValue())) {
+                            JSONArray values = JSONObject.parseArray(item.getValue());
+                            values.forEach(v -> {
+                                JSONObject param = new JSONObject();
+                                param.put("id", v);
+                                attrs.add(param);
+                            });
+                        }
+                        fields.put(fieldName, attrs);
                     } else {
-                        fields.put(item.getCustomData(), item.getValue());
+                        fields.put(fieldName, item.getValue());
                     }
                 }
             }
         });
-        JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
-        JiraIssue issues = jiraClientV2.getIssues(result.getId());
 
-        imageFiles.forEach(img -> {
-            jiraClientV2.uploadAttachment(result.getKey(), img);
-        });
-        String status = getStatus(issues.getFields());
-        issuesRequest.setPlatformStatus(status);
-
-        issuesRequest.setId(result.getKey());
-        // 用例与第三方缺陷平台中的缺陷关联
-        handleTestCaseIssues(issuesRequest);
-
-        // 插入缺陷表
-        insertIssues(result.getKey(), issuesRequest);
+        return addJiraIssueParam;
     }
 
     @Override
     public void updateIssue(IssuesUpdateRequest request) {
-        // todo 调用接口
-        request.setDescription(null);
+        JSONObject param = buildUpdateParam(request);
         handleIssueUpdate(request);
+        jiraClientV2.updateIssue(request.getId(), JSONObject.toJSONString(param));
     }
 
     @Override
     public void deleteIssue(String id) {
+        super.deleteIssue(id);
+        setConfig();
+        jiraClientV2.deleteIssue(id);
     }
 
     @Override
@@ -297,8 +326,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issues.forEach(item -> {
             setConfig();
             try {
+                IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
                 parseIssue(item, jiraClientV2.getIssues(item.getId()));
-                item.setDescription(htmlDesc2MsDesc(item.getDescription()));
+                String desc = htmlDesc2MsDesc(item.getDescription());
+                // 保留之前上传的图片
+                String images = getImages(issuesWithBLOBs.getDescription());
+                item.setDescription(desc + "\n" + images);
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {

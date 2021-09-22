@@ -384,6 +384,146 @@ public class ApiDefinitionExample {
             return (Criteria) this;
         }
 
+        public Criteria andProtocolIsNull() {
+            addCriterion("protocol is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolIsNotNull() {
+            addCriterion("protocol is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolEqualTo(String value) {
+            addCriterion("protocol =", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolNotEqualTo(String value) {
+            addCriterion("protocol <>", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolGreaterThan(String value) {
+            addCriterion("protocol >", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolGreaterThanOrEqualTo(String value) {
+            addCriterion("protocol >=", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolLessThan(String value) {
+            addCriterion("protocol <", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolLessThanOrEqualTo(String value) {
+            addCriterion("protocol <=", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolLike(String value) {
+            addCriterion("protocol like", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolNotLike(String value) {
+            addCriterion("protocol not like", value, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolIn(List<String> values) {
+            addCriterion("protocol in", values, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolNotIn(List<String> values) {
+            addCriterion("protocol not in", values, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolBetween(String value1, String value2) {
+            addCriterion("protocol between", value1, value2, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andProtocolNotBetween(String value1, String value2) {
+            addCriterion("protocol not between", value1, value2, "protocol");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathIsNull() {
+            addCriterion("`path` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathIsNotNull() {
+            addCriterion("`path` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathEqualTo(String value) {
+            addCriterion("`path` =", value, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathNotEqualTo(String value) {
+            addCriterion("`path` <>", value, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathGreaterThan(String value) {
+            addCriterion("`path` >", value, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathGreaterThanOrEqualTo(String value) {
+            addCriterion("`path` >=", value, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathLessThan(String value) {
+            addCriterion("`path` <", value, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathLessThanOrEqualTo(String value) {
+            addCriterion("`path` <=", value, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathLike(String value) {
+            addCriterion("`path` like", value, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathNotLike(String value) {
+            addCriterion("`path` not like", value, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathIn(List<String> values) {
+            addCriterion("`path` in", values, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathNotIn(List<String> values) {
+            addCriterion("`path` not in", values, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathBetween(String value1, String value2) {
+            addCriterion("`path` between", value1, value2, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andPathNotBetween(String value1, String value2) {
+            addCriterion("`path` not between", value1, value2, "path");
+            return (Criteria) this;
+        }
+
         public Criteria andModulePathIsNull() {
             addCriterion("module_path is null");
             return (Criteria) this;
@@ -921,146 +1061,6 @@ public class ApiDefinitionExample {
 
         public Criteria andUpdateTimeNotBetween(Long value1, Long value2) {
             addCriterion("update_time not between", value1, value2, "updateTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolIsNull() {
-            addCriterion("protocol is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolIsNotNull() {
-            addCriterion("protocol is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolEqualTo(String value) {
-            addCriterion("protocol =", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolNotEqualTo(String value) {
-            addCriterion("protocol <>", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolGreaterThan(String value) {
-            addCriterion("protocol >", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolGreaterThanOrEqualTo(String value) {
-            addCriterion("protocol >=", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolLessThan(String value) {
-            addCriterion("protocol <", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolLessThanOrEqualTo(String value) {
-            addCriterion("protocol <=", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolLike(String value) {
-            addCriterion("protocol like", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolNotLike(String value) {
-            addCriterion("protocol not like", value, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolIn(List<String> values) {
-            addCriterion("protocol in", values, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolNotIn(List<String> values) {
-            addCriterion("protocol not in", values, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolBetween(String value1, String value2) {
-            addCriterion("protocol between", value1, value2, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andProtocolNotBetween(String value1, String value2) {
-            addCriterion("protocol not between", value1, value2, "protocol");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathIsNull() {
-            addCriterion("`path` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathIsNotNull() {
-            addCriterion("`path` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathEqualTo(String value) {
-            addCriterion("`path` =", value, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathNotEqualTo(String value) {
-            addCriterion("`path` <>", value, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathGreaterThan(String value) {
-            addCriterion("`path` >", value, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathGreaterThanOrEqualTo(String value) {
-            addCriterion("`path` >=", value, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathLessThan(String value) {
-            addCriterion("`path` <", value, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathLessThanOrEqualTo(String value) {
-            addCriterion("`path` <=", value, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathLike(String value) {
-            addCriterion("`path` like", value, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathNotLike(String value) {
-            addCriterion("`path` not like", value, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathIn(List<String> values) {
-            addCriterion("`path` in", values, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathNotIn(List<String> values) {
-            addCriterion("`path` not in", values, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathBetween(String value1, String value2) {
-            addCriterion("`path` between", value1, value2, "path");
-            return (Criteria) this;
-        }
-
-        public Criteria andPathNotBetween(String value1, String value2) {
-            addCriterion("`path` not between", value1, value2, "path");
             return (Criteria) this;
         }
 
@@ -1741,6 +1741,66 @@ public class ApiDefinitionExample {
 
         public Criteria andFollowPeopleNotBetween(String value1, String value2) {
             addCriterion("follow_people not between", value1, value2, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderIsNull() {
+            addCriterion("`order` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderIsNotNull() {
+            addCriterion("`order` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderEqualTo(Long value) {
+            addCriterion("`order` =", value, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderNotEqualTo(Long value) {
+            addCriterion("`order` <>", value, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderGreaterThan(Long value) {
+            addCriterion("`order` >", value, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderGreaterThanOrEqualTo(Long value) {
+            addCriterion("`order` >=", value, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderLessThan(Long value) {
+            addCriterion("`order` <", value, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderLessThanOrEqualTo(Long value) {
+            addCriterion("`order` <=", value, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderIn(List<Long> values) {
+            addCriterion("`order` in", values, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderNotIn(List<Long> values) {
+            addCriterion("`order` not in", values, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderBetween(Long value1, Long value2) {
+            addCriterion("`order` between", value1, value2, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderNotBetween(Long value1, Long value2) {
+            addCriterion("`order` not between", value1, value2, "order");
             return (Criteria) this;
         }
     }

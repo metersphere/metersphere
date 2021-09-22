@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -110,21 +109,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return template;
     }
 
-    protected List<String> getUserPhones(NoticeModel noticeModel, List<String> userIds) {
-        List<UserDetail> list = userService.queryTypeByIds(userIds);
-        List<String> phoneList = new ArrayList<>();
-        list.forEach(u -> phoneList.add(u.getPhone()));
-        return phoneList.stream().distinct().collect(Collectors.toList());
-    }
-
-    protected List<String> getUserEmails(NoticeModel noticeModel, List<String> userIds) {
-        List<UserDetail> list = userService.queryTypeByIds(userIds);
-        List<String> phoneList = new ArrayList<>();
-        list.forEach(u -> phoneList.add(u.getEmail()));
-        return phoneList.stream().distinct().collect(Collectors.toList());
-    }
-
-    protected List<UserDetail> getUserDetails(NoticeModel noticeModel, List<String> userIds) {
+    protected List<UserDetail> getUserDetails(List<String> userIds) {
         return userService.queryTypeByIds(userIds);
     }
 
@@ -194,10 +179,9 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     break;
             }
         }
-        // 排除自己
-        toUsers.removeIf(u -> StringUtils.equals(u.getUserId(), noticeModel.getOperator()));
         // 去重复
-        HashSet<Receiver> receivers = new HashSet<>(toUsers);
-        return new ArrayList<>(receivers);
+        return toUsers.stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

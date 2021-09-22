@@ -1,11 +1,11 @@
 package io.metersphere.track.issue;
 
 import io.metersphere.commons.constants.IssuesManagePlatform;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class IssueFactory {
@@ -23,16 +23,8 @@ public class IssueFactory {
                 Constructor cons = clazz.getDeclaredConstructor(new Class[] { IssuesRequest.class });
                 AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(addIssueRequest);
                 return azureDevopsPlatform;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+            } catch (Throwable e) {
+                LogUtil.error(e);
             }
         } else if (StringUtils.equalsIgnoreCase(IssuesManagePlatform.Local.toString(), platform)) {
             return new LocalPlatform(addIssueRequest);

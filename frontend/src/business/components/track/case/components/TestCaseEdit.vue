@@ -151,7 +151,7 @@
   import CaseComment from "@/business/components/track/case/components/CaseComment";
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
   import MsPreviousNextButton from "../../../common/components/MsPreviousNextButton";
-  import {ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
+  import {STEP} from "@/business/components/api/automation/scenario/Setting";
   import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
   import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
   import {API_STATUS, REVIEW_STATUS, TEST, TEST_CASE} from "@/business/components/api/definition/model/JsonData";
@@ -203,7 +203,7 @@
         form: {
           name: '',
           module: 'default-module',
-          nodePath: '/默认模块',
+          nodePath: '/未规划用例',
           maintainer: getCurrentUser().id,
           priority: 'P0',
           type: '',
@@ -267,6 +267,7 @@
         index: 0,
         showInputTag: true,
         tableType: "",
+        stepFilter: new STEP,
         moduleObj: {
           id: 'id',
           label: 'name',
@@ -440,7 +441,7 @@
       },
       showAll() {
         if (!this.customizeVisible) {
-          this.operatingElements = ELEMENTS.get("ALL");
+          this.operatingElements = this.stepFilter.get("ALL");
           this.selectedTreeNode = undefined;
         }
         //this.reload();

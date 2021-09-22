@@ -91,7 +91,7 @@
       <el-table-column
         :label="$t('load_test.last_modify_time')">
         <template v-slot:default="scope">
-          <i class="el-icon-time"/>
+          <i v-if="scope.row.updateTime > 0" class="el-icon-time"/>
           <span class="last-modified">{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>

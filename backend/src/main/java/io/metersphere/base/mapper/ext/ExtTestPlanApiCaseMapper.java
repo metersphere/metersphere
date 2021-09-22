@@ -36,5 +36,13 @@ public interface ExtTestPlanApiCaseMapper {
     List<TestPlanFailureApiDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);
 
     List<TestPlanFailureApiDTO> getFailureListByIds(@Param("caseIdList") Collection<String> caseIdList, @Param("planId") String planId, @Param("status") String status);
+
+    List<String> selectPlanIds();
+
+    List<String> getIdsOrderByUpdateTime(@Param("planId") String planId);
+
+    Long getPreOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
+
+    Long getLastOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
 }
 

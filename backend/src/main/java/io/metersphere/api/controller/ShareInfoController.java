@@ -81,9 +81,9 @@ public class ShareInfoController {
         return returnDTO;
     }
 
-    @PostMapping("/generateShareInfo")
+    @PostMapping("/generateShareInfoWithExpired")
     public ShareInfoDTO generateShareInfo(@RequestBody ShareInfo request) {
-        ShareInfo apiShare = shareInfoService.generateShareInfo(request);
+        ShareInfo apiShare = shareInfoService.createShareInfo(request);
         ShareInfoDTO returnDTO = shareInfoService.conversionShareInfoToDTO(apiShare);
         return returnDTO;
     }

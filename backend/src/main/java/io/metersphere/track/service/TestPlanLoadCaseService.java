@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.commons.utils.TestPlanUtils;
 import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
@@ -58,6 +59,9 @@ public class TestPlanLoadCaseService {
     private LoadTestMapper loadTestMapper;
 
     public List<LoadTest> relevanceList(LoadCaseRequest request) {
+        List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
+        orders.forEach(i -> i.setPrefix("load_test"));
+        request.setOrders(orders);
         List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request);
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
@@ -66,28 +70,12 @@ public class TestPlanLoadCaseService {
     }
 
     public List<TestPlanLoadCaseDTO> list(LoadCaseRequest request) {
-        List<OrderRequest> orders = request.getOrders();
-        if (orders == null || orders.size() < 1) {
-            OrderRequest orderRequest = new OrderRequest();
-            orderRequest.setName("create_time");
-            orderRequest.setType("desc");
-            orders = new ArrayList<>();
-            orders.add(orderRequest);
-        }
-        request.setOrders(orders);
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         return extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(request);
     }
 
     public List<String> selectTestPlanLoadCaseIds(LoadCaseRequest request) {
-        List<OrderRequest> orders = request.getOrders();
-        if (orders == null || orders.size() < 1) {
-            OrderRequest orderRequest = new OrderRequest();
-            orderRequest.setName("create_time");
-            orderRequest.setType("desc");
-            orders = new ArrayList<>();
-            orders.add(orderRequest);
-        }
-        request.setOrders(orders);
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         return extTestPlanLoadCaseMapper.selectTestPlanLoadCaseId(request);
     }
 
@@ -97,7 +85,9 @@ public class TestPlanLoadCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
 
         TestPlanLoadCaseMapper testPlanLoadCaseMapper = sqlSession.getMapper(TestPlanLoadCaseMapper.class);
-        caseIds.forEach(id -> {
+        Long nextOrder = ServiceUtils.getNextOrder(request.getTestPlanId(), extTestPlanLoadCaseMapper::getLastOrder);
+
+        for (String id : caseIds) {
             TestPlanLoadCase t = new TestPlanLoadCase();
             t.setId(UUID.randomUUID().toString());
             t.setCreateUser(SessionUtils.getUserId());
@@ -105,8 +95,11 @@ public class TestPlanLoadCaseService {
             t.setLoadCaseId(id);
             t.setCreateTime(System.currentTimeMillis());
             t.setUpdateTime(System.currentTimeMillis());
+            t.setOrder(nextOrder);
+            nextOrder += 5000;
             testPlanLoadCaseMapper.insert(t);
-        });
+        }
+
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
         if (org.apache.commons.lang3.StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
                 || org.apache.commons.lang3.StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
@@ -121,6 +114,12 @@ public class TestPlanLoadCaseService {
     public void delete(String id) {
         TestPlanLoadCaseExample testPlanLoadCaseExample = new TestPlanLoadCaseExample();
         testPlanLoadCaseExample.createCriteria().andIdEqualTo(id);
+        testPlanLoadCaseMapper.deleteByExample(testPlanLoadCaseExample);
+    }
+
+    public void deleteByTestId(String testId) {
+        TestPlanLoadCaseExample testPlanLoadCaseExample = new TestPlanLoadCaseExample();
+        testPlanLoadCaseExample.createCriteria().andLoadCaseIdEqualTo(testId);
         testPlanLoadCaseMapper.deleteByExample(testPlanLoadCaseExample);
     }
 
@@ -254,18 +253,10 @@ public class TestPlanLoadCaseService {
             return new ArrayList<>();
         }
 
-        List<OrderRequest> orders = request.getCondition().getOrders();
-        if (orders == null || orders.size() < 1) {
-            OrderRequest orderRequest = new OrderRequest();
-            orderRequest.setName("create_time");
-            orderRequest.setType("desc");
-            orders = new ArrayList<>();
-            orders.add(orderRequest);
-        }
-
         LoadCaseRequest tableReq = new LoadCaseRequest();
         tableReq.setIds(ids);
-        tableReq.setOrders(orders);
+        tableReq.setOrders(ServiceUtils.getDefaultSortOrder(tableReq.getOrders()));
+
         List<TestPlanLoadCaseDTO> list = extTestPlanLoadCaseMapper.selectByIdIn(tableReq);
         return list;
     }
@@ -389,5 +380,50 @@ public class TestPlanLoadCaseService {
             item.setUserName(userNameMap.get(item.getCreateUser()));
         });
         return cases;
+    }
+
+    public String getPlanLoadCaseConfig(String loadCaseId) {
+        if (StringUtils.isBlank(loadCaseId)) {
+            return "";
+        }
+        TestPlanLoadCase testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
+        if (testPlanLoadCase != null) {
+            return testPlanLoadCase.getLoadConfiguration();
+        }
+        return "";
+    }
+
+    public TestPlanLoadCase getTestPlanLoadCase(String loadCaseId) {
+        if (StringUtils.isBlank(loadCaseId)) {
+            return new TestPlanLoadCase();
+        }
+        return testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
+    }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(TestPlanLoadCase.class, TestPlanLoadCaseMapper.class,
+                extTestPlanLoadCaseMapper::selectPlanIds,
+                extTestPlanLoadCaseMapper::getIdsOrderByUpdateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, TestPlanLoadCase.class,
+                testPlanLoadCaseMapper::selectByPrimaryKey,
+                extTestPlanLoadCaseMapper::getPreOrder,
+                extTestPlanLoadCaseMapper::getLastOrder,
+                testPlanLoadCaseMapper::updateByPrimaryKeySelective);
+    }
+
+    public void checkStatusByDeleteLoadCaseReportId(String reportId) {
+        List<String> updatedId = extTestPlanLoadCaseMapper.selectIdByLoadCaseReportIdAndStatusIsRun(reportId);
+        if(CollectionUtils.isNotEmpty(updatedId)){
+            for (String id : updatedId) {
+                extTestPlanLoadCaseMapper.updateStatusNullById(id);
+            }
+        }
     }
 }

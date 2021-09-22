@@ -170,6 +170,10 @@ export default {
     scenario_case: "场景用例",
     task_center: "任务中心",
     notice_center: "消息中心",
+    notice_count: '条消息',
+    notice_tips: '仅显示最近3个月的站内消息',
+    system_notice: '系统通知',
+    mentioned_me_notice: '@提到我的',
     all_module_title: "全部模块",
     create_user: '创建人',
     run_message: "任务执行中，请到任务中心查看详情",
@@ -181,6 +185,7 @@ export default {
     run_success: "执行成功",
     run_completed: "执行完成",
     run_fail: "执行失败",
+    generate_test_data: "生成测试数据",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -253,8 +258,10 @@ export default {
     },
     report_statistics: {
       title: "报表统计",
-      test_case_analysis: "测试用例分析",
+      test_case_analysis: "测试用例趋势",
       test_case_activity: "测试用例活动情况",
+      test_case_count: "测试用例统计",
+      test_case_count_activity: "测试用例统计情况",
       name: "报表",
       excel: "表格",
       add_case: "新增用例",
@@ -263,9 +270,39 @@ export default {
       options: "选项",
       chart: "图表",
       line: "折线图",
+      pie: "饼图",
       bar: "柱状图",
       desc: "总数从高到低",
       asc: "总数从低到高",
+      report_data: {
+        all_report: "全部报表",
+        my_report: "我的报表",
+      },
+      report_filter: {
+        xaxis: "水平轴系列",
+        yaxis: "纵向轴系列",
+        recently: "最近",
+        more_options: "更多选项",
+        belone: "属于",
+        select_options: {
+          case_type: "用例类型",
+          creator: "创建人",
+          maintainer: "维护人",
+          case_status: "用例状态",
+          case_level: "用例等级",
+        },
+        time_options: {
+          fixed_time: "固定时间",
+          dynamic_time: "动态时间",
+          day: "天",
+          month: "月",
+          year: "年",
+        }
+      },
+      alert: {
+        cannot_add_more_options: "无法添加更多条件",
+        end_time_cannot_over_than_start_time: "结束时间不能超过当前时间",
+      },
     }
   },
   license: {
@@ -396,7 +433,11 @@ export default {
         '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号',
       message: '事件，接收人，接收方式为必填项',
       message_webhook: '接收方式为钉钉和企业机器人,飞书时，webhook为必填项',
-      template: "模版"
+      template: "模版",
+      track: '测试跟踪任务通知',
+      api: '接口测试任务通知',
+      performance: '性能测试任务通知',
+      notice_count: '通知数',
     },
     integration: {
       select_defect_platform: '请选择要集成的缺陷管理平台：',
@@ -470,7 +511,31 @@ export default {
     no_data: '无数据',
     select: '选择项目',
     repeatable: '接口定义URL可重复',
-    upload_file_again: '重新上传'
+    upload_file_again: '重新上传',
+    code_segment: {
+      code_segment: "自定义代码片段",
+      search: "根据 名称/标签 搜索",
+      create: "创建代码片段",
+      update: "更新代码片段",
+      delete: "删除自定义代码片段",
+      language: "脚本语言",
+      relate_tip: "在 系统设置->项目->自定义代码片段 菜单中创建",
+      select_tip: "请选择自定义代码片段!",
+      none_content: "自定义代码片段为空！",
+      segment: "代码片段",
+      result: "执行结果",
+      test: "测试",
+      no_result: "无执行结果",
+      api_test: "API测试",
+      import_api_test: "从API定义导入",
+      new_api_test: "新API测试[JSON]",
+      custom_value: "自定义变量",
+      project_env: "项目环境",
+      insert_segment: "插入自定义代码片段",
+      exception_handle: "异常处理",
+      stop_test: "终止测试",
+      report_handle: "报文处理"
+    }
   },
   member: {
     create: '添加成员',
@@ -600,6 +665,7 @@ export default {
     stop_tips: '<strong>停止</strong>测试会结束当前测试并保留报告数据',
     force_stop_btn: '强制停止',
     stop_btn: '停止',
+    stop_btn_all: '全部停止',
     not_exist: "测试报告不存在",
     batch_delete: "批量删除报告",
     delete_batch_confirm: '确认批量删除报告',
@@ -747,7 +813,7 @@ export default {
     export_config: "导出",
     enable_validate_tip: "没有可用请求",
     copy: "复制测试",
-    batch_add_parameter: "格式：参数名,必填,参数值,备注 <br/> 如：Accept-Encoding,必填,utf-8,编码",
+    batch_add_parameter: "格式：参数名:参数值 <br/> 如：Accept-Encoding:utf-8",
     jar_config: {
       title: "jar包管理",
       jar_file: "jar包",
@@ -829,6 +895,7 @@ export default {
         body_json: "json",
         body_xml: "xml",
         auth_config: "认证配置",
+        all_auth_config: "全局认证配置",
         rest_param: "REST参数",
         query_param: "QUERY参数",
         verification_method: "认证方式",
@@ -853,7 +920,9 @@ export default {
         rest_info: "地址栏中被斜杠/分隔的参数，如updateapi/{id}",
         auth_config_info: "请求需要进行权限校验",
         pre_script: "前置脚本",
+        all_pre_script: "全局前置脚本",
         post_script: "后置脚本",
+        all_post_script: "全局后置脚本",
         pre_sql: "前置SQL",
         post_sql: "后置SQL",
         extract_param: "提取参数",
@@ -1212,8 +1281,10 @@ export default {
       next_synchronization_time: "下次同步时间",
       ms_env_import_file_limit: "仅支持通过MeterSphere导出的json格式文件",
       file_exceed_limit: "文件数量超出限制",
-
-
+      import_cover_tip: "导入模式: 覆盖模式说明",
+      cover_tip_1: "1. 接口路径不存在则新增",
+      cover_tip_2: "2. 接口路径与原接口一致，内容不一致则覆盖原接口",
+      cover_tip_3: "3. 接口路径、内容与原接口一致则不做变更",
     },
     home_page: {
       unit_of_measurement: "个",
@@ -1225,6 +1296,7 @@ export default {
         pass: "最后一次执行成功的场景/场景总数*100%",
         success: "执行成功的次数/执行总次数*100%",
         interface_coverage: "被场景步骤包含的接口/接口总数*100%",
+        api_coverage: "存在用例或被场景步骤包含的接口/接口总数*100%",
         review: "已评审的功能案例/所有功能案例 * 100%",
         testplan_coverage: "关联的功能案例/所有功能案例 * 100%",
       },
@@ -1420,7 +1492,7 @@ export default {
       input_test_case: '请输入关联用例名称',
       test_name: '测试名称',
       other: "--其他--",
-      test_case: "测试用例",
+      test_case: "功能用例",
       move: "移动用例",
       case_list: "用例列表",
       create_case: "创建用例",
@@ -1487,6 +1559,7 @@ export default {
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
+        case_export: "导出测试用例",
         download_template: "下载模版",
         click_upload: "点击上传",
         upload_limit: "只能上传xls/xlsx文件，且不超过100M",
@@ -1512,7 +1585,8 @@ export default {
       export: {
         export: "导出用例",
         export_tip: "请切换成接口列表勾选用例导出！"
-      }
+      },
+      case_desc: "用例描述"
     },
     plan: {
       test_plan: "测试计划",
@@ -1770,6 +1844,7 @@ export default {
     pod_thread_limit: '单POD最大线程数',
     usage: '用途',
     backend_listener: '后置监听器',
+    batch_add_resource_tips: '格式：IP,Port,Monitor,最大并发数<br/>如：192.168.1.52,8082,9100,500',
   },
   system_parameter_setting: {
     mailbox_service_settings: '邮件设置',
@@ -1917,9 +1992,9 @@ export default {
     cancel: "取消",
     minLength: "最小长度",
     maxLength: "最大长度",
-    pattern: "用正则表达式约束字符串",
-    exclusiveMinimum: "开启后，数据必须大于最小值",
-    exclusiveMaximum: "开启后，数据必须小于最大值",
+    pattern: "正则表达式",
+    exclusiveMinimum: "数据必须大于最小值",
+    exclusiveMaximum: "数据必须小于最大值",
     minimum: "最小值",
     maximum: "最大值",
     uniqueItems: "开启后，每个元素都不相同",
@@ -1999,5 +2074,11 @@ export default {
     share: "分享",
     change_history: "变更历史",
     change_content: "变更内容"
+  },
+  plugin: {
+    title: "插件管理",
+    script_entry: "脚本执行入口",
+    plugin_id: "插件ID",
+    script_view: "查看脚本",
   }
 };

@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.controller.request.OrderRequest;
@@ -28,6 +29,7 @@ import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.service.FileService;
 import io.metersphere.service.TestResourceService;
+import io.metersphere.track.service.TestPlanLoadCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -145,6 +147,9 @@ public class PerformanceReportService {
         // delete jtl file
         fileService.deleteFileById(loadTestReport.getFileId());
 
+        //check test_plan_load_case 的 status
+        TestPlanLoadCaseService testPlanLoadCaseService = CommonBeanFactory.getBean(TestPlanLoadCaseService.class);
+        testPlanLoadCaseService.checkStatusByDeleteLoadCaseReportId(reportId);
         loadTestReportMapper.deleteByPrimaryKey(reportId);
     }
 
@@ -407,6 +412,15 @@ public class PerformanceReportService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public List<LoadTestReport> getReportList(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andIdIn(ids);
+        return loadTestReportMapper.selectByExample(example);
     }
 
     public List<ChartsData> getReportChart(String reportKey, String reportId) {

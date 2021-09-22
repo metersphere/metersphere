@@ -1,6 +1,6 @@
 <template>
-  <el-table-column
-      v-if="!field || field.id === prop"
+  <el-table-column class-name="msTableColumn"
+      v-if="active && (!field || field.id === prop)"
       :min-width="minWidth"
       :width="fieldsWidth ? fieldsWidth[prop] : width"
       :fixed="fixed"
@@ -9,6 +9,7 @@
       :column-key="columnKey ? columnKey : prop"
       :label="label"
       :sortable="sortable"
+      :filter-method="filterMethod"
       :show-overflow-tooltip="showOverflowTooltip">
     <template v-slot:default="scope">
       <slot :row="scope.row" :$index="scope.$index">
@@ -21,11 +22,17 @@
 <script>
 export default {
   name: "Ms-table-column",
+  data() {
+    return {
+      active: false
+    }
+  },
   props: {
     prop: String,
     label: String,
     width: [String, Number],
     minWidth: [String, Number],
+    filterMethod: Function,
     fixed: String,
     // 排序列， 后端mapper处理filters
     filters: Array,
@@ -57,6 +64,9 @@ export default {
         return null;
       }
     }
+  },
+  mounted() {
+    this.active = true;
   }
 };
 </script>

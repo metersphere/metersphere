@@ -1,7 +1,8 @@
-import {getCurrentProjectID, getCurrentUser, humpToLine} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getUUID, humpToLine} from "@/common/js/utils";
 import {CUSTOM_TABLE_HEADER} from "@/common/js/default-table-header";
 import {updateCustomFieldTemplate} from "@/network/custom-field-template";
 import i18n from "@/i18n/i18n";
+import Sortable from 'sortablejs'
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -385,8 +386,15 @@ export function saveLastTableSortField(key, field) {
 }
 
 export function getLastTableSortField(key) {
-  let fieldStr = localStorage.getItem(key+"_SORT");
-  return fieldStr;
+  let orderJsonStr = localStorage.getItem(key+"_SORT");
+  if(orderJsonStr){
+    try {
+      return JSON.parse(orderJsonStr);
+    }catch (e){
+      return [];
+    }
+  }
+  return [];
 }
 
 
@@ -428,19 +436,50 @@ export function getCustomFieldValue(row, field, members) {
     for (let i = 0; i < row.customFields.length; i++) {
       let item = row.customFields[i];
       if (item.name === field.name) {
-        if (field.type === 'member' || field.type === 'multipleMember') {
+        if (field.type === 'member') {
           for (let j = 0; j < members.length; j++) {
             let member = members[j];
             if (member.id === item.value) {
               return member.name;
             }
           }
-        } else if (['radio', 'select', 'multipleSelect', 'checkbox'].indexOf(field.type) > -1) {
+        } else if (field.type === 'multipleMember') {
+          if (item.value) {
+            let values = '';
+            item.value.forEach(v => {
+              for (let j = 0; j < members.length; j++) {
+                let member = members[j];
+                if (member.id === v) {
+                  values += member.name;
+                  values += " ";
+                  break;
+                }
+              }
+            });
+            return values;
+          }
+        } else if (['radio', 'select'].indexOf(field.type) > -1) {
           for (let j = 0; j < field.options.length; j++) {
             let option = field.options[j];
             if (option.value === item.value) {
               return field.system ? i18n.t(option.text) : option.text;
             }
+          }
+        }
+        else if (['multipleSelect', 'checkbox'].indexOf(field.type) > -1) {
+          if (item.value) {
+            let values = '';
+            item.value.forEach(v => {
+              for (let j = 0; j < field.options.length; j++) {
+                let option = field.options[j];
+                if (option.value === v) {
+                  values += (field.system ? i18n.t(option.text) : option.text);
+                  values += " ";
+                  break;
+                }
+              }
+            });
+            return values;
           }
         }
         return item.value;
@@ -485,4 +524,49 @@ export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, m
       valueArr[item.name] = options;
     }
   });
+}
+
+export function handleRowDrop(data, callback) {
+  setTimeout(() => {
+    const tbody = document.querySelector('.el-table__body-wrapper tbody');
+    const dropBars = tbody.getElementsByClassName('table-row-drop-bar');
+
+    // 每次调用生成一个class
+    // 避免增删列表数据时，回调函数中的 data 与实际 data 不一致
+    let dropClass = 'table-row-drop-bar-random' + '_' + getUUID();
+
+    dropBars.forEach(dropBar => {
+      dropBar.classList.add(dropClass);
+    });
+
+    Sortable.create(tbody, {
+      handle: "." + dropClass,
+      animation: 100,
+      onEnd({ newIndex, oldIndex}) {
+        let param = {};
+        param.moveId = data[oldIndex].id;
+        if (newIndex === 0) {
+          param.moveMode = 'BEFORE';
+          param.targetId = data[0].id;
+        } else {
+          // 默认从后面添加
+          param.moveMode = 'AFTER';
+          if (newIndex < oldIndex) {
+            // 如果往前拖拽，则添加到当前下标的前一个元素后面
+            param.targetId = data[newIndex - 1].id;
+          } else {
+            // 如果往后拖拽，则添加到当前下标的元素后面
+            param.targetId = data[newIndex].id;
+          }
+        }
+        if (data && data.length > 1 && newIndex != oldIndex) {
+          const currRow = data.splice(oldIndex, 1)[0];
+          data.splice(newIndex, 0, currRow);
+          if (callback) {
+            callback(param);
+          }
+        }
+      }
+    });
+  }, 100);
 }

@@ -57,7 +57,7 @@
     </select>
     <select id="queryTypeByIds" parameterType="java.lang.String" resultType="io.metersphere.notice.domain.UserDetail">
         SELECT
-        email,phone,name
+        id, email, phone, name
         from user
         WHERE id IN
         <foreach collection="list" item="id" index="index"

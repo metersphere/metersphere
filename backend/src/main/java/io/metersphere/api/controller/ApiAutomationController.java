@@ -14,9 +14,11 @@ import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
+import io.metersphere.task.service.TaskService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +37,9 @@ import java.util.List;
 public class ApiAutomationController {
 
     @Resource
-    ApiAutomationService apiAutomationService;
+    private ApiAutomationService apiAutomationService;
+    @Resource
+    private TaskService taskService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
@@ -50,6 +54,12 @@ public class ApiAutomationController {
     public List<ApiScenarioDTO> listAll(@RequestBody ApiScenarioRequest request) {
 
         return apiAutomationService.list(request);
+    }
+
+    @GetMapping("/get/{id}")
+    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    public ApiScenarioDTO getById(@PathVariable String id) {
+        return apiAutomationService.getDto(id);
     }
 
     @PostMapping("/list/all")
@@ -102,6 +112,12 @@ public class ApiAutomationController {
         return apiAutomationService.update(request, bodyFiles, scenarioFiles);
     }
 
+
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        apiAutomationService.updateOrder(request);
+    }
+
     @GetMapping("/delete/{id}")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiAutomationService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
@@ -111,6 +127,8 @@ public class ApiAutomationController {
 
     @PostMapping("/deleteBatch")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiAutomationService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getScenarioCaseByIds(#ids)", targetClass = ApiAutomationService.class,
+            mailTemplate = "api/AutomationUpdate", subject = "接口自动化通知")
     public void deleteBatch(@RequestBody List<String> ids) {
         apiAutomationService.deleteBatch(ids);
     }
@@ -175,7 +193,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/run/debug")
-    @MsAuditLog(module = "api_automation", type = OperLogConstants.DEBUG, title = "#request.scenarioName", project = "#request.projectId")
+    @MsAuditLog(module = "api_automation", type = OperLogConstants.DEBUG, title = "#request.scenarioName", sourceId = "#request.scenarioId", project = "#request.projectId")
     public void runDebug(@RequestPart("request") RunDefinitionRequest request,
                          @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         request.setExecuteType(ExecuteType.Debug.name());
@@ -201,7 +219,7 @@ public class ApiAutomationController {
     public String runByJenkins(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(TriggerMode.API.name());
-        request.setRunMode(ApiRunMode.SCENARIO.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name()); // 回退
         return apiAutomationService.run(request);
     }
 
@@ -217,6 +235,8 @@ public class ApiAutomationController {
     @PostMapping("/batch/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
     @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScenarioCaseByIds(#request.ids)", targetClass = ApiAutomationService.class,
+            mailTemplate = "api/AutomationUpdate", subject = "接口自动化通知")
     public void bathEdit(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.bathEdit(request);
     }
@@ -300,16 +320,30 @@ public class ApiAutomationController {
         return apiAutomationService.export(request);
     }
 
-    @PostMapping(value = "/export/jmx")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
-    @MsAuditLog(module = "api_automation", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
-    public List<ApiScenrioExportJmx> exportJmx(@RequestBody ApiScenarioBatchRequest request) {
-        return apiAutomationService.exportJmx(request);
-    }
-
     @GetMapping(value = "/stop/{reportId}")
     public void stop(@PathVariable String reportId) {
         new LocalRunner().stop(reportId);
+    }
+
+    @PostMapping(value = "/stop/batch")
+    public String stopBatch(@RequestBody List<TaskRequest> reportIds) {
+        return taskService.stop(reportIds);
+    }
+
+    @PostMapping("/setDomain")
+    public String setDomain(@RequestBody ApiScenarioEnvRequest request) {
+        return apiAutomationService.setDomain(request.getDefinition());
+    }
+
+    @PostMapping(value = "/export/jmx")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
+    @MsAuditLog(module = "api_automation", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
+    public ResponseEntity<byte[]> downloadBodyFiles(@RequestBody ApiScenarioBatchRequest request) {
+        byte[] bytes = apiAutomationService.exportZip(request);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "场景JMX文件集.zip")
+                .body(bytes);
     }
 }
 

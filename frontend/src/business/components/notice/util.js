@@ -110,3 +110,58 @@ export function getResource(d) {
   }
   return resourceType;
 }
+
+export function getUrl(d) {
+  let url = "/#";
+  switch (d.resourceType) {
+    case "JENKINS_TASK" :
+      url += "/track/plan/all";
+      break;
+    case "TEST_PLAN_TASK" :
+      url += "/track/plan/view/" + d.resourceId;
+      break;
+    case "REVIEW_TASK" :
+      url += "/track/review/view/" + d.resourceId;
+      break;
+    case "DEFECT_TASK" :
+      url += "/track/issue";
+      break;
+    case "SWAGGER_TASK" :
+      url += "/api/definition";
+      break;
+    case "API_AUTOMATION_TASK" :
+      url += "/api/automation?resourceId=" + d.resourceId;
+      break;
+    case "API_DEFINITION_TASK" :
+      if (d.operation.startsWith('CASE_') || d.operation.startsWith('EXECUTE_') ) {
+        url += "/api/definition?caseId=" + d.resourceId;
+      } else {
+        url += "/api/definition?resourceId=" + d.resourceId;
+      }
+      break;
+    case "API_HOME_TASK" :
+      url += "/api/home";
+      break;
+    case "API_REPORT_TASK" :
+      url += "/api/automation/report";
+      break;
+    case "PERFORMANCE_REPORT_TASK" :
+      url += "/performance/report/all";
+      break;
+    case "PERFORMANCE_TEST_TASK" :
+      url += "/performance/test/edit/" + d.resourceId;
+      break;
+    case "TRACK_TEST_CASE_TASK" :
+      url += "/track/case/all?resourceId=" + d.resourceId;
+      break;
+    case "TRACK_HOME_TASK" :
+      url += "/track/home";
+      break;
+    case "TRACK_REPORT_TASK" :
+      url += "/track/testPlan/reportList";
+      break;
+    default:
+      break;
+  }
+  return url;
+}

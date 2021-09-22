@@ -22,4 +22,11 @@ public interface ExtLoadTestMapper {
     List<FileMetadata> getProjectFiles(@Param("projectId") String projectId, @Param("loadTypes") List<String> loadType,
                                        @Param("request") QueryProjectFileRequest request);
 
+    List<String> selectProjectIds();
+
+    List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);
+
+    Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 }

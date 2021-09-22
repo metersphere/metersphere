@@ -12,25 +12,32 @@
       v-loading="page.result.loading"
       :show-select-all="false"
       :data="page.data"
+      :fields.sync="fields"
+      :operators="operators"
       :enable-selection="false"
+      ref="table"
       @refresh="getIssues">
+      <span v-for="(item) in fields" :key="item.key">
+        <ms-table-column
+          :label="$t('test_track.issue.id')"
+          :field="item"
+          prop="id" v-if="false">
+        </ms-table-column>
+        <ms-table-column
+          :field="item"
+          :label="$t('test_track.issue.id')"
+          prop="num">
+        </ms-table-column>
 
-      <ms-table-column
-        :label="$t('test_track.issue.id')"
-        prop="id" v-if="false">
-      </ms-table-column>
-      <ms-table-column
-        :label="$t('test_track.issue.id')"
-        prop="num">
-      </ms-table-column>
-
-      <ms-table-column
-        :label="$t('test_track.issue.title')"
-        prop="title">
-      </ms-table-column>
+        <ms-table-column
+          :field="item"
+          :label="$t('test_track.issue.title')"
+          prop="title">
+        </ms-table-column>
 
       <ms-table-column
         :label="$t('test_track.issue.platform_status')"
+        :field="item"
         v-if="isThirdPart"
         prop="platformStatus">
         <template v-slot="scope">
@@ -40,6 +47,7 @@
 
       <ms-table-column
         v-else
+        :field="item"
         :label="$t('test_track.issue.status')"
         prop="status">
         <template v-slot="scope">
@@ -47,32 +55,38 @@
         </template>
       </ms-table-column>
 
-      <ms-table-column
-        :label="$t('test_track.issue.platform')"
-        prop="platform">
-      </ms-table-column>
+        <span v-for="field in issueTemplate.customFields" :key="field.id">
+          <ms-table-column :field="item" :label="field.name" :prop="field.name" v-if="field.name === '状态'">
+            <template v-slot="scope">
+              <el-dropdown class="test-case-status" @command="statusChange" v-if="scope.row.platform === 'Local'" placement="bottom" trigger="click">
+                <span class="el-dropdown-link">
+                  {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status]}}
+                </span>
+                <el-dropdown-menu slot="dropdown" chang>
+                  <span v-for="(item, index) in status" :key="index">
+                      <el-dropdown-item :command="{id: scope.row.id, status: item.value}">
+                        {{item.system ? $t(item.text) : item.text}}
+                      </el-dropdown-item>
+                    </span>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <span v-else>
+                {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status]}}
+              </span>
 
-      <issue-description-table-item/>
+            </template>
 
-      <el-table-column :label="$t('test_track.issue.operate')">
-        <template v-slot:default="scope">
-          <el-tooltip :content="$t('test_track.issue.close')"
-                      placement="top" :enterable="false">
-            <el-button type="danger" icon="el-icon-circle-close" size="mini"
-                       circle :disabled="scope.row.platform !== 'Local'"
-                       @click="closeIssue(scope.row)"
-            />
-          </el-tooltip>
-          <el-tooltip :content="$t('test_track.case.unlink')"
-                      placement="top" :enterable="false">
-            <el-button type="danger" icon="el-icon-unlock" size="mini"
-                       circle :disabled="scope.row.platform !== 'Local'"
-                       @click="deleteIssue(scope.row)"
-            />
-          </el-tooltip>
-        </template>
-      </el-table-column>
+          </ms-table-column>
+        </span>
 
+        <ms-table-column
+          :field="item"
+          :label="$t('test_track.issue.platform')"
+          prop="platform">
+        </ms-table-column>
+
+        <issue-description-table-item :field="item"/>
+      </span>
     </ms-table>
 
     <test-plan-issue-edit :plan-id="planId" :case-id="caseId" @refresh="getIssues" ref="issueEdit"/>
@@ -89,6 +103,7 @@ import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
 import {getIssuesByCaseId} from "@/network/Issue";
 import {getIssueTemplate} from "@/network/custom-field-template";
+import {getCustomFieldValue, getTableHeaderWithCustomFields} from "@/common/js/tableUtils";
 export default {
   name: "TestCaseIssueRelate",
   components: {IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
@@ -98,7 +113,18 @@ export default {
         data: [],
         result: {},
       },
-      isThirdPart: false
+      isThirdPart: false,
+      issueTemplate: {},
+      fields: [],
+      operators:[
+        {
+          tip: this.$t('test_track.case.unlink'),
+          icon: "el-icon-unlock",
+          type: "danger",
+          exec: this.deleteIssue
+        }
+      ],
+      status: []
     }
   },
   props: ['caseId', 'readOnly','planId'],
@@ -110,14 +136,43 @@ export default {
   created() {
     getIssueTemplate()
       .then((template) => {
-        if (template.platform === 'metersphere') {
+        this.issueTemplate = template;
+        if (this.issueTemplate.platform === 'metersphere') {
           this.isThirdPart = false;
         } else {
           this.isThirdPart = true;
         }
+        if (template) {
+          let customFields = template.customFields;
+          for (let fields of customFields) {
+            if (fields.name === '状态') {
+              this.status = fields.options;
+              break;
+            }
+          }
+        }
+        this.fields = getTableHeaderWithCustomFields('ISSUE_LIST', this.issueTemplate.customFields);
+        if (!this.isThirdPart) {
+          for (let i = 0; i < this.fields.length; i++) {
+            if (this.fields[i].id === 'platformStatus') {
+              this.fields.splice(i, 1);
+              break;
+            }
+          }
+        }
+        this.$refs.table.reloadTable();
       });
   },
   methods: {
+    statusChange(param) {
+      this.$post("/issues/change/status/", param, () => {
+        this.getIssues();
+        this.$success(this.$t('commons.modify_success'));
+      });
+    },
+    getCustomFieldValue(row, field) {
+      return getCustomFieldValue(row, field, this.members);
+    },
     getIssues() {
       let result = getIssuesByCaseId(this.caseId, this.page);
       if (result) {
@@ -162,5 +217,9 @@ export default {
 .add-btn {
   display: inline-block;
   margin-right: 5px;
+}
+.el-dropdown-link {
+  cursor: pointer;
+  color: #783887;
 }
 </style>

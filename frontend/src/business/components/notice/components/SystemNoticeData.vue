@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="padding-left: 320px; padding-bottom: 5px; width: 100%">
-      <span style="color: gray; padding-right: 10px">({{ totalCount }} 条消息)</span>
+      <span style="color: gray; padding-right: 10px">({{ totalCount }} {{ $t('commons.notice_count') }})</span>
       <el-dropdown @command="handleCommand" style="padding-right: 10px">
                 <span class="el-dropdown-link">
                   {{ goPage }}/{{ totalPage }}<i class="el-icon-arrow-down el-icon--right"></i>
@@ -30,20 +30,23 @@
             </div>
             <span class="username">{{ item.user.name }}</span>
             <span class="operation">
-             {{ getOperation(item.operation) }}{{ getResource(item) }}: {{ item.resourceName }}
+             {{ getOperation(item.operation) }}{{ getResource(item) }}:
+              <span v-if="item.resourceId && item.operation.indexOf('DELETE') < 0"
+                    @click="clickResource(item)" style="color: #783887; cursor: pointer;">{{ item.resourceName }}</span>
+              <span v-else>{{ item.resourceName }}</span>
             </span>
           </el-row>
         </el-card>
       </div>
     </div>
     <div style="color: gray; padding-top: 20px; text-align: center">
-      - 仅显示最近3个月的站内消息 -
+      - {{ $t('commons.notice_tips') }} -
     </div>
   </div>
 </template>
 
 <script>
-import {getOperation, getResource} from "@/business/components/notice/util";
+import {getOperation, getResource, getUrl} from "@/business/components/notice/util";
 
 export default {
   name: "SystemNoticeData",
@@ -81,7 +84,7 @@ export default {
         this.totalPage = response.data.pageCount;
         this.totalCount = response.data.itemCount;
         this.systemNoticeData.forEach(n => {
-          n.user = this.userMap[n.operator];
+          n.user = this.userMap[n.operator] || {name: "MS"};
         });
       });
     },
@@ -100,6 +103,29 @@ export default {
         this.goPage++;
       }
       this.init();
+    },
+    clickResource(resource) {
+      let resourceId = resource.resourceId;
+      if (!resourceId) {
+        return;
+      }
+      let uri = getUrl(resource);
+
+      this.$get('/user/update/currentByResourceId/' + resourceId, () => {
+        this.toPage(uri);
+      });
+    },
+    toPage(uri) {
+      let id = "new_a";
+      let a = document.createElement("a");
+      a.setAttribute("href", uri);
+      a.setAttribute("target", "_blank");
+      a.setAttribute("id", id);
+      document.body.appendChild(a);
+      a.click();
+
+      let element = document.getElementById(id);
+      element.parentNode.removeChild(element);
     }
   }
 };

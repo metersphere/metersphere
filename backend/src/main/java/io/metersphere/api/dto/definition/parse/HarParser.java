@@ -17,6 +17,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
 import io.swagger.models.Model;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,11 +47,9 @@ public class HarParser extends HarAbstractParser {
             MSException.throwException(e.getMessage());
             LogUtil.error(e.getMessage(), e);
         }
-
         if (ObjectUtils.isEmpty(har)) {
             MSException.throwException("解析失败，请确认选择的是 Har 格式！");
         }
-
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
         this.projectId = request.getProjectId();
         definitionImport.setData(parseRequests(har, request));
@@ -123,7 +122,7 @@ public class HarParser extends HarAbstractParser {
                 if (StringUtils.isNotBlank(selectModulePath)) {
                     apiDefinition.setModulePath(selectModulePath);
                 } else {
-                    apiDefinition.setModulePath("/默认模块");
+                    apiDefinition.setModulePath("/未规划接口");
                 }
                 results.add(apiDefinition);
             }
@@ -213,9 +212,11 @@ public class HarParser extends HarAbstractParser {
             } else if (contentType.startsWith(org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
                 contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
                 List<HarPostParam> postParams = content.params;
-                for (HarPostParam postParam : postParams) {
-                    KeyValue kv = new KeyValue(postParam.name,postParam.value);
-                    body.getKvs().add(kv);
+                if(CollectionUtils.isNotEmpty(postParams)){
+                    for (HarPostParam postParam : postParams) {
+                        KeyValue kv = new KeyValue(postParam.name,postParam.value);
+                        body.getKvs().add(kv);
+                    }
                 }
             } else if (contentType.startsWith(org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
                 contentType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;

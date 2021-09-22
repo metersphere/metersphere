@@ -20,6 +20,7 @@ import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
@@ -40,12 +41,14 @@ import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
+import io.metersphere.track.service.TestPlanLoadCaseService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.util.FileUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -104,9 +107,14 @@ public class PerformanceTestService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiPerformanceService apiPerformanceService;
+    @Lazy
+    @Resource
+    private TestPlanLoadCaseService testPlanLoadCaseService;
+    @Resource
+    private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         return extLoadTestMapper.list(request);
     }
 
@@ -129,11 +137,13 @@ public class PerformanceTestService {
             record.setJmxContent(new String(bytes, StandardCharsets.UTF_8));
             extLoadTestReportMapper.updateJmxContentIfAbsent(record);
         });
-        //delete schedule
+        //delete scheduleFunctionalCases
         scheduleService.deleteByResourceId(testId, ScheduleGroup.PERFORMANCE_TEST.name());
 
         // delete load_test
         loadTestMapper.deleteByPrimaryKey(request.getId());
+
+        testPlanLoadCaseService.deleteByTestId(testId);
 
         detachFileByTestId(request.getId());
     }
@@ -209,13 +219,23 @@ public class PerformanceTestService {
         }
     }
 
-    private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
-
-        LoadTestExample example = new LoadTestExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
-        if (loadTestMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("load_test_already_exists"));
+    private void checkExist(TestPlanRequest request) {
+        if (request.getName() != null) {
+            LoadTestExample example = new LoadTestExample();
+            LoadTestExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(request.getName())
+                    .andProjectIdEqualTo(request.getProjectId());
+            if (StringUtils.isNotBlank(request.getId())) {
+                criteria.andIdNotEqualTo(request.getId());
+            }
+            if (loadTestMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("plan_name_already_exists"));
+            }
         }
+    }
+
+    private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
+        checkExist(request);
 
         final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
         loadTest.setUserId(SessionUtils.getUser().getId());
@@ -231,6 +251,7 @@ public class PerformanceTestService {
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTest.setNum(getNextNum(request.getProjectId()));
         loadTest.setFollowPeople(request.getFollowPeople());
+        loadTest.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extLoadTestMapper::getLastOrder));
         List<ApiLoadTest> apiList = request.getApiList();
         apiPerformanceService.add(apiList, loadTest.getId());
         loadTestMapper.insert(loadTest);
@@ -239,7 +260,7 @@ public class PerformanceTestService {
 
     public LoadTest edit(EditTestPlanRequest request, List<MultipartFile> files) {
         checkQuota(request, false);
-        //
+        checkExist(request);
         String testId = request.getId();
         LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
         if (loadTest == null) {
@@ -311,8 +332,21 @@ public class PerformanceTestService {
         checkKafka();
 
         LogUtil.info("Load test started " + loadTest.getName());
+        LoadTestWithBLOBs copyTest = new LoadTestWithBLOBs();
+        BeanUtils.copyBean(copyTest, loadTest);
+        // 如果是执行测试计划用例，把EngineFactory.createEngine参数对象的id 设置为测试计划用例id
+        // 设置用例id目的是当 JmeterFileService 下载zip，拼装 jmx 文件时，如果用例自身带有压力配置，使用用例自身压力配置拼装 jmx
+        String testPlanLoadId = request.getTestPlanLoadId();
+        if (StringUtils.isNotBlank(testPlanLoadId)) {
+            copyTest.setId(testPlanLoadId);
+            // 设置本次报告中的压力配置信息
+            TestPlanLoadCase testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(testPlanLoadId);
+            if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getLoadConfiguration())) {
+                loadTest.setLoadConfiguration(testPlanLoadCase.getLoadConfiguration());
+            }
+        }
         // engine type (NODE)
-        final Engine engine = EngineFactory.createEngine(loadTest);
+        final Engine engine = EngineFactory.createEngine(copyTest);
         if (engine == null) {
             MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));
         }
@@ -356,6 +390,9 @@ public class PerformanceTestService {
         } else {
             testReport.setUserId(SessionUtils.getUser().getId());
         }
+        // 只更新已设置的属性，其它未设置属性不更新
+        LoadTestWithBLOBs updateTest = new LoadTestWithBLOBs();
+        updateTest.setId(loadTest.getId());
         // 启动测试
         try {
             // 启动插入 report
@@ -369,8 +406,8 @@ public class PerformanceTestService {
 
             engine.start();
             // 启动正常修改状态 starting
-            loadTest.setStatus(PerformanceTestStatus.Starting.name());
-            loadTestMapper.updateByPrimaryKeySelective(loadTest);
+            updateTest.setStatus(PerformanceTestStatus.Starting.name());
+            loadTestMapper.updateByPrimaryKeySelective(updateTest);
 
             LoadTestReportDetail reportDetail = new LoadTestReportDetail();
             reportDetail.setContent(HEADERS);
@@ -390,9 +427,9 @@ public class PerformanceTestService {
             // 启动失败之后清理任务
             engine.stop();
             LogUtil.error(e.getMessage(), e);
-            loadTest.setStatus(PerformanceTestStatus.Error.name());
-            loadTest.setDescription(e.getMessage());
-            loadTestMapper.updateByPrimaryKeySelective(loadTest);
+            updateTest.setStatus(PerformanceTestStatus.Error.name());
+            updateTest.setDescription(e.getMessage());
+            loadTestMapper.updateByPrimaryKeySelective(updateTest);
             loadTestReportMapper.deleteByPrimaryKey(testReport.getId());
             throw e;
         }
@@ -837,5 +874,23 @@ public class PerformanceTestService {
             return loadTestMapper.selectByExample(example);
         }
         return new ArrayList<>();
+    }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(LoadTestWithBLOBs.class, LoadTestMapper.class,
+                extLoadTestMapper::selectProjectIds,
+                extLoadTestMapper::getIdsOrderByUpdateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, LoadTestWithBLOBs.class,
+                loadTestMapper::selectByPrimaryKey,
+                extLoadTestMapper::getPreOrder,
+                extLoadTestMapper::getLastOrder,
+                loadTestMapper::updateByPrimaryKeySelective);
     }
 }

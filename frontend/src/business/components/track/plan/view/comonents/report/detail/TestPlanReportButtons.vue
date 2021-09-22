@@ -5,6 +5,7 @@
         placement="right"
         width="300">
         <p>{{shareUrl}}</p>
+        <span style="color: red;float: left;margin-left: 10px;">24小时有效</span>
         <div style="text-align: right; margin: 0">
           <el-button type="primary" size="mini" :disabled="!shareUrl"
                      v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
@@ -16,7 +17,7 @@
       </el-popover>
     </el-row>
     <el-row>
-      <el-button icon="el-icon-receiving" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
+      <el-button icon="el-icon-receiving" v-if="!isDb" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
         {{'保存'}}
       </el-button>
     </el-row>
@@ -26,7 +27,7 @@
       </el-button>
     </el-row>
     <el-row>
-      <el-button icon="el-icon-setting" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
+      <el-button icon="el-icon-setting" v-if="!isDb"  :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
         {{'配置'}}
       </el-button>
     </el-row>
@@ -37,7 +38,7 @@
 <script>
 
 import TestPlanApiReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanApiReport";
-import {generateShareInfo} from "@/network/share";
+import {generateShareInfoWithExpired} from "@/network/share";
 import TestPlanReportEdit
   from "@/business/components/track/plan/view/comonents/report/detail/component/TestPlanReportEdit";
 export default {
@@ -49,7 +50,8 @@ export default {
   props: {
     planId:String,
     isShare: Boolean,
-    report: Object
+    report: Object,
+    isDb: Boolean
   },
   data() {
     return {
@@ -66,7 +68,11 @@ export default {
       let pram = {};
       pram.customData = this.planId;
       pram.shareType = 'PLAN_REPORT';
-      generateShareInfo(pram, (data) => {
+      if (this.isDb) {
+        pram.customData = this.report.id;
+        pram.shareType = 'PLAN_DB_REPORT';
+      }
+      generateShareInfoWithExpired(pram, (data) => {
         let thisHost = window.location.host;
         this.shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
       });
@@ -91,6 +97,9 @@ export default {
         method: 'get',
         responseType: 'blob'
       };
+      if (this.isDb) {
+        config.url = '/test/plan/report/db/export/' + this.report.id;
+      }
       if (this.isShare) {
         config.url = '/share' + config.url;
       }

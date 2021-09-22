@@ -8,12 +8,14 @@
       v-loading="result.loading"
       :tree-nodes="data"
       :type="isReadOnly ? 'view' : 'edit'"
-      :allLabel="$t('commons.all_module_title')"
+      :allLabel="$t('全部接口')"
+      :default-label="'未规划接口'"
       @add="add"
       @edit="edit"
       @drag="drag"
       @remove="remove"
       @refresh="list"
+      @filter="filter"
       :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
       :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
       :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
@@ -27,6 +29,7 @@
           :current-module="currentModule"
           :is-read-only="isReadOnly"
           :moduleOptions="data"
+          :options="options"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
@@ -85,6 +88,12 @@
       relevanceProjectId: String,
       reviewId: String,
       pageSource:String,
+      options: {
+        type: Array,
+        default() {
+          return OPTIONS;
+        }
+      }
     },
     computed: {
       isPlanModel() {
@@ -112,8 +121,8 @@
     },
 
     watch: {
-      'condition.filterText'(val) {
-        this.$refs.nodeTree.filter(val);
+      'condition.filterText'() {
+        this.filter();
       },
       'condition.protocol'() {
         this.$emit('protocolChange', this.condition.protocol);
@@ -139,6 +148,9 @@
           this.$emit('protocolChange', this.condition.protocol);
           this.list();
         });
+      },
+      filter() {
+        this.$refs.nodeTree.filter(this.condition.filterText);
       },
       list(projectId) {
         let url = undefined;

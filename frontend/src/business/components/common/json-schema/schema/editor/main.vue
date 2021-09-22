@@ -21,7 +21,7 @@
         </el-select>
       </el-col>
       <el-col :span="4">
-        <ms-mock :disabled="pickValue.type==='object'" :schema="pickValue"/>
+        <ms-mock :disabled="pickValue.type==='object' || pickValue.type==='array'" :schema="pickValue"/>
       </el-col>
       <el-col :span="4">
         <el-input v-model="pickValue.description" class="ms-col-title" :placeholder="$t('schema.description')" size="small"/>
@@ -30,7 +30,7 @@
         <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
           <i class="el-icon-setting" @click="onSetting"/>
         </el-tooltip>
-        <el-tooltip v-if="isObject" :content="$t('schema.add_child_node')" placement="top">
+        <el-tooltip v-if="isObject || isArray" :content="$t('schema.add_child_node')" placement="top">
           <i class="el-icon-plus" @click="addChild" style="margin-left: 10px"/>
         </el-tooltip>
         <el-tooltip v-if="!root && !isItem" :content="$t('schema.remove_node')" placement="top">
@@ -40,20 +40,20 @@
     </el-row>
 
     <template v-if="!hidden&&pickValue.properties && !isArray">
-      <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom"/>
+      <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
     <template v-if="isArray">
-      <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>
+<!--      <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>-->
+      <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
     <!-- 高级设置-->
-    <el-dialog append-to-body :close-on-click-modal="false" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
+    <el-dialog append-to-body :close-on-click-modal="true" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
                @close="handleClose">
       <p class="tip">基础设置 </p>
-      <el-form :inline="true" v-model="advancedValue" class="ms-advanced-search-form">
-        <el-row :gutter="6">
-          <el-col :span="8" v-for="(item,key) in advancedValue" :key="key" style="float: right">
-            <el-form-item>
-              <div>{{ $t('schema.'+key)}}</div>
+
+      <el-form label-position="left" label-width="100px" v-model="advancedValue" class="ms-advanced-search-form">
+           <div :span="8" v-for="(item,key) in advancedValue" :key="key">
+            <el-form-item :label="$t('schema.'+key)">
               <el-input-number v-model="advancedValue[key]" v-if="advancedAttr[key].type === 'integer'" style="width:100%" :placeholder="key" size="small"/>
               <el-input-number v-model="advancedValue[key]" v-else-if="advancedAttr[key].type === 'number'" style="width:100%" :placeholder="key" size="small"/>
               <span v-else-if="advancedAttr[key].type === 'boolean'" style="display:inline-block;width:100%">
@@ -63,10 +63,14 @@
                 <el-option value="" :label="$t('schema.nothing')"></el-option>
                 <el-option :key="t" :value="t" :label="t" v-for="t in advancedAttr[key].enums"/>
               </el-select>
+              <el-input  v-else-if="advancedAttr[key].type === 'textarea'" :placeholder="advancedAttr[key].description" v-model="advancedValue[key]"
+                         type="textarea"
+                        :autosize="{ minRows: 2, maxRows: 10}"
+                        :rows="2"></el-input>
               <el-input v-model="advancedValue[key]" v-else style="width:100%;" :placeholder="key" size="small"/>
+
             </el-form-item>
-          </el-col>
-        </el-row>
+          </div>
       </el-form>
       <!--<h3 v-text="$t('schema.add_custom')" v-show="custom">添加自定义属性</h3>
       <el-form class="ms-advanced-search-form" v-show="custom">
@@ -216,12 +220,30 @@
         this.$set(this.parent, 'properties', p)
       },
       onChangeType() {
-        this.$delete(this.pickValue, 'properties')
-        this.$delete(this.pickValue, 'items')
-        this.$delete(this.pickValue, 'required')
-        this.$delete(this.pickValue, 'mock')
-        if (this.isArray) {
-          this.$set(this.pickValue, 'items', {type: 'string', mock: {mock: ""}})
+        if(this.parent && this.parent.type === 'array'){
+          this.$emit('changeAllItemsType',this.pickValue.type);
+        }else{
+          this.$delete(this.pickValue, 'properties')
+          this.$delete(this.pickValue, 'items')
+          this.$delete(this.pickValue, 'required')
+          this.$delete(this.pickValue, 'mock')
+          if (this.isArray) {
+            this.$set(this.pickValue, 'items', [{type: 'string', mock: {mock: ""}}]);
+          }
+        }
+      },
+      changeAllItemsType(changeType){
+        if(this.isArray && this.pickValue.items && this.pickValue.items.length > 0){
+          this.pickValue.items.forEach(item => {
+            item.type = changeType;
+            this.$delete(item, 'properties')
+            this.$delete(item, 'items')
+            this.$delete(item, 'required')
+            this.$delete(item, 'mock')
+            if (changeType === 'array') {
+              this.$set(item, 'items', [{type: 'string', mock: {mock: ""}}]);
+            }
+          });
         }
       },
       onCheck(e) {
@@ -254,12 +276,23 @@
         required.length === 0 && this.$delete(parent, 'required')
       },
       addChild() {
-        const name = this._joinName()
-        const type = 'string'
-        const node = this.pickValue
-        node.properties || this.$set(node, 'properties', {})
-        const props = node.properties
-        this.$set(props, name, {type: type, mock: {mock: ""}})
+        const node = this.pickValue;
+        if (this.isArray) {
+          let childObj = {type: 'string', mock: {mock: ""}}
+          if(node.items && node.items.length > 0){
+            childObj.type = node.items[0].type;
+            node.items.push(childObj);
+          }else {
+            this.$set(this.pickValue, 'items', [childObj]);
+          }
+
+        }else {
+          const name = this._joinName()
+          const type = 'string'
+          node.properties || this.$set(node, 'properties', {})
+          const props = node.properties
+          this.$set(props, name, {type: type, mock: {mock: ""}})
+        }
       },
       addCustomNode() {
         this.$set(this.addProp, 'key', this._joinName())
@@ -272,12 +305,22 @@
         this.customing = false
       },
       removeNode() {
-        const {properties, required} = this.parent
-        this.$delete(properties, this.pickKey)
-        if (required) {
-          const pos = required.indexOf(this.pickKey)
-          pos >= 0 && required.splice(pos, 1)
-          required.length === 0 && this.$delete(this.parent, 'required')
+        if(this.parent.type && this.parent.type === 'object'){
+          const {properties, required} = this.parent
+          this.$delete(properties, this.pickKey)
+          if (required) {
+            const pos = required.indexOf(this.pickKey)
+            pos >= 0 && required.splice(pos, 1)
+            required.length === 0 && this.$delete(this.parent, 'required')
+          }
+        }else if(this.parent.type && this.parent.type === 'array'){
+          const {items, required} = this.parent
+          this.$delete(items, this.pickKey)
+          if (required) {
+            const pos = required.indexOf(this.pickKey)
+            pos >= 0 && required.splice(pos, 1)
+            required.length === 0 && this.$delete(this.parent, 'required')
+          }
         }
       },
       _joinName() {
@@ -285,9 +328,10 @@
       },
       onSetting() {
         this.modalVisible = true;
+        this.advancedValue = {};
         this.advancedValue = this.advanced.value
         for (const k in this.advancedValue) {
-          if (this.pickValue[k]) this.advancedValue[k] = this.pickValue[k]
+         this.advancedValue[k] = this.pickValue[k]
         }
       },
       handleClose() {

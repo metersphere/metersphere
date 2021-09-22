@@ -1,13 +1,14 @@
 package io.metersphere.api.dto.definition.request.unknown;
 
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,12 +34,15 @@ import java.util.stream.Collectors;
 @JSONType(typeName = "JmeterElement")
 public class MsJmeterElement extends MsTestElement {
     private String type = "JmeterElement";
+    private String clazzName = "io.metersphere.api.dto.definition.request.unknown.MsJmeterElement";
+
     private String elementType;
     private String jmeterElement;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         try {
+            ParameterConfig config = (ParameterConfig) msParameter;
             // 非导出操作，且不是启用状态则跳过执行
             if (!config.isOperating() && !this.isEnable()) {
                 return;

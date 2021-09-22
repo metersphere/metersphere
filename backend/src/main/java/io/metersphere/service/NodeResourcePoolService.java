@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -80,9 +81,12 @@ public class NodeResourcePoolService {
     }
 
     private void deleteTestResources(Collection<String> ids) {
-        for (String deletedResourceId : ids) {
-            testResourceMapper.deleteByPrimaryKey(deletedResourceId);
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
         }
+        TestResourceExample example = new TestResourceExample();
+        example.createCriteria().andIdIn(new ArrayList<>(ids));
+        testResourceMapper.deleteByExample(example);
     }
 
     private List<TestResource> getResourcesFromDB(TestResourcePoolDTO testResourcePool) {

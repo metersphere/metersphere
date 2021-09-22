@@ -38,8 +38,16 @@ export function editPlanReportConfig(param, callback) {
   });
 }
 
+export function getExportReport(planId, callback) {
+  return planId ? baseGet('/test/plan/get/report/export/' + planId, callback) : {};
+}
+
 export function getTestPlanReportContent(reportId, callback) {
   return reportId ? baseGet('/test/plan/report/db/' + reportId, callback) : {};
+}
+
+export function getShareTestPlanReportContent(shareId, reportId, callback) {
+  return reportId ? baseGet('/share/test/plan/report/db/' + shareId + '/' + reportId, callback) : {};
 }
 
 export function getPlanFunctionFailureCase(planId, callback) {
@@ -114,4 +122,20 @@ export function checkoutLoadReport(param, callback) {
 
 export function shareCheckoutLoadReport(shareId, param, callback) {
   return basePost('/share/test/plan/load/case/report/exist/' + shareId, param, callback);
+}
+
+export function editTestPlanTestCaseOrder(request, callback) {
+  return basePost('/test/plan/case/edit/order', request, callback);
+}
+
+export function editTestPlanApiCaseOrder(request, callback) {
+  return basePost('/test/plan/api/case/edit/order', request, callback);
+}
+
+export function editTestPlanScenarioCaseOrder(request, callback) {
+  return basePost('/test/plan/scenario/case/edit/order', request, callback);
+}
+
+export function editTestPlanLoadCaseOrder(request, callback) {
+  return basePost('/test/plan/load/case/edit/order', request, callback);
 }

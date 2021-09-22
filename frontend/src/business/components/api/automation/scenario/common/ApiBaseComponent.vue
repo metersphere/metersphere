@@ -6,7 +6,7 @@
           <div class="el-step__icon-inner">{{ data.index }}</div>
         </div>
         <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
-        <el-tag size="mini" v-if="data.method">{{ getMethod() }}</el-tag>
+        <el-tag size="mini" v-if="data.method && !data.pluginId">{{ getMethod() }}</el-tag>
       </slot>
       <slot name="behindHeaderLeft" v-if="!isMax"></slot>
 
@@ -64,7 +64,7 @@
 
 <script>
 import StepExtendBtns from "../component/StepExtendBtns";
-import {ELEMENTS} from "../Setting";
+import {STEP} from "../Setting";
 
 export default {
   name: "ApiBaseComponent",
@@ -73,6 +73,7 @@ export default {
     return {
       isShowInput: false,
       colorStyle: "",
+      stepFilter: new STEP,
     }
   },
   props: {
@@ -135,7 +136,7 @@ export default {
         this.$refs.nameEdit.focus();
       });
     }
-    if (this.data && ELEMENTS.get("AllSamplerProxy").indexOf(this.data.type) != -1) {
+    if (this.data && this.stepFilter.get("AllSamplerProxy").indexOf(this.data.type) != -1) {
       if (!this.data.method) {
         this.data.method = this.data.protocol;
       }

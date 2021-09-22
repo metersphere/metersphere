@@ -7,16 +7,18 @@
       :is-display="getIsRelevance"
       v-loading="result.loading"
       :tree-nodes="data"
-      :allLabel="$t('commons.all_module_title')"
+      :allLabel="$t('全部场景')"
       :type="isReadOnly ? 'view' : 'edit'"
       :delete-permission="['PROJECT_API_SCENARIO:READ+DELETE']"
       :add-permission="['PROJECT_API_SCENARIO:READ+CREATE']"
       :update-permission="['PROJECT_API_SCENARIO:READ+EDIT']"
+      :default-label="'未规划场景'"
       @add="add"
       @edit="edit"
       @drag="drag"
       @remove="remove"
       @refresh="list"
+      @filter="filter"
       @nodeSelectEvent="nodeChange"
       ref="nodeTree">
 
@@ -138,8 +140,8 @@
       this.list();
     },
     watch: {
-      'condition.filterText'(val) {
-        this.$refs.nodeTree.filter(val);
+      'condition.filterText'() {
+        this.filter();
       },
       'condition.trashEnable'() {
         this.$emit('enableTrash', this.condition.trashEnable);
@@ -164,6 +166,9 @@
           });
           this.$refs.apiImport.open(this.currentModule);
         }
+      },
+      filter() {
+        this.$refs.nodeTree.filter(this.condition.filterText);
       },
       list(projectId) {
         let url = undefined;

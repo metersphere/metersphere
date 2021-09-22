@@ -72,4 +72,12 @@ public interface ExtApiScenarioMapper {
     List<String> selectIdsByExecuteTimeIsNull();
 
     Long countExecuteTimesByProjectID(String projectId);
+
+    List<String> selectProjectIds();
+
+    List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);
+
+    Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 }

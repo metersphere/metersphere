@@ -6,7 +6,7 @@ import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
 import io.metersphere.api.dto.automation.parse.EsbDataParser;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.scenario.KeyValue;

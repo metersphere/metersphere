@@ -137,6 +137,8 @@ public class PerformanceReportController {
     @PostMapping("/batch/delete")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ_DELETE)
     @MsAuditLog(module = "performance_test_report", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#reportRequest.ids)", msClass = PerformanceReportService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_REPORT_TASK, event = NoticeConstants.Event.DELETE,
+            target = "#targetClass.getReportList(#reportRequest.ids)", targetClass = PerformanceReportService.class, mailTemplate = "performance/ReportDelete", subject = "性能测试报告通知")
     public void deleteReportBatch(@RequestBody DeleteReportRequest reportRequest) {
         performanceReportService.deleteReportBatch(reportRequest);
     }

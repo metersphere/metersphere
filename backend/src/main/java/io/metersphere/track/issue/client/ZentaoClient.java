@@ -82,6 +82,30 @@ public abstract class ZentaoClient extends BaseClient {
         return JSONObject.parseObject(addIssueResponse.getData(), AddIssueResponse.Issue.class);
     }
 
+    public void updateIssue(String id, MultiValueMap<String, Object> paramMap) {
+        String sessionId = login();
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            restTemplate.exchange(requestUrl.getBugUpdate(),
+                    HttpMethod.POST, requestEntity, String.class, id, sessionId);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+    }
+
+    public void deleteIssue(String id) {
+        String sessionId = login();
+        try {
+            restTemplate.exchange(requestUrl.getBugDelete(),
+                    HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), String.class, id, sessionId);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+    }
+
     public GetIssueResponse.Issue getBugById(String id) {
         String sessionId = login();
         String bugGet = requestUrl.getBugGet();

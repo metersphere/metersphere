@@ -67,7 +67,8 @@ import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
-import {ELEMENTS} from "../scenario/Setting";
+import {STEP} from "../scenario/Setting";
+import {scenario} from "@/business/components/track/plan/event-bus";
 
 export default {
   name: "SysnApiReportDetail",
@@ -99,29 +100,20 @@ export default {
       scenarioMap: new Map,
       exportFlag: false,
       messageWebSocket: {},
-      websocket: {}
+      websocket: {},
+      stepFilter: new STEP,
     }
   },
   activated() {
     this.isRequestResult = false;
   },
   created() {
-    if (this.scenarioId) {
-      this.getApiScenario().then(() => {
-        this.initTree();
-        this.initWebSocket();
-        this.initMessageSocket();
-        this.clearDebug();
-        this.loading = false;
-      });
-    } else {
-      if (this.scenario && this.scenario.scenarioDefinition) {
-        this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
-        this.initTree();
-        this.initWebSocket();
-        this.initMessageSocket();
-        this.clearDebug();
-      }
+    if (this.scenario && this.scenario.scenarioDefinition) {
+      this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
+      this.initTree();
+      this.initWebSocket();
+      this.initMessageSocket();
+      this.clearDebug();
     }
   },
   props: {
@@ -133,36 +125,6 @@ export default {
     scenarioId: String
   },
   methods: {
-    getApiScenario() {
-      this.loading = true;
-      return new Promise((resolve) => {
-        this.result = this.$get("/api/automation/getApiScenario/" + this.scenarioId, response => {
-          if (response.data) {
-            if (response.data.scenarioDefinition != null) {
-              let obj = JSON.parse(response.data.scenarioDefinition);
-              this.scenario.scenarioDefinition = obj;
-              this.scenario.name = response.data.name;
-              this.content.scenarioStepTotal = obj.hashTree.length;
-              if (this.scenario.scenarioDefinition && this.scenario.scenarioDefinition.hashTree) {
-                this.sort(this.scenario.scenarioDefinition.hashTree);
-              }
-              resolve();
-            }
-          }
-        })
-      })
-    },
-    sort(stepArray) {
-      for (let i in stepArray) {
-        stepArray[i].index = Number(i) + 1;
-        if (!stepArray[i].resourceId) {
-          stepArray[i].resourceId = getUUID();
-        }
-        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
-          this.sort(stepArray[i].hashTree);
-        }
-      }
-    },
     initTree() {
       this.fullTreeNodes = [];
       let obj = {index: 1, label: this.scenario.name, value: {responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
@@ -199,21 +161,34 @@ export default {
         }
       })
     },
+    getType(type) {
+      switch (type) {
+        case "LoopController":
+          return "循环控制器";
+        case "TransactionController":
+          return "事物控制器";
+        case "ConstantTimer":
+          return "等待控制器";
+        case "IfController":
+          return "条件控制器";
+      }
+      return type;
+    },
     formatContent(hashTree, tree, fullPath) {
       if (hashTree) {
         hashTree.forEach(item => {
           if (item.enable) {
             item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
-            let name = item.name ? item.name : item.type;
+            let name = item.name ? item.name : this.getType(item.type);
             let obj = {resId: item.resourceId + "_" + item.parentIndex, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
             tree.children.push(obj);
-            if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
+            if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
               obj.unsolicited = false;
               obj.type = item.type;
             } else if (item.type === 'scenario') {
               this.content.scenarioTotal += 1;
             }
-            if (item.hashTree && item.hashTree.length > 0 && ELEMENTS.get("AllSamplerProxy").indexOf(item.type) === -1) {
+            if (item.hashTree && item.hashTree.length > 0 && this.stepFilter && this.stepFilter.get("AllSamplerProxy").indexOf(item.type) === -1) {
               this.formatContent(item.hashTree, obj, item.parentIndex);
             }
           }
@@ -281,6 +256,7 @@ export default {
     removeReport() {
       let url = "/api/scenario/report/remove/real/" + this.reportId;
       this.$get(url, response => {
+        scenario.$emit('hide', this.scenarioId);
         this.$success(this.$t('schedule.event_success'));
         this.websocket.close();
         this.messageWebSocket.close();
@@ -326,7 +302,7 @@ export default {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              if (req.method === 'Request') {
+              if (req.method === 'Request' && req.subRequestResults && req.subRequestResults.length > 0) {
                 this.getTransaction(req.subRequestResults, resMap);
               } else {
                 this.reqTotal++;

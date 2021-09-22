@@ -3,15 +3,18 @@ package io.metersphere.listener;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RunInterface;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.service.PluginService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
-import io.metersphere.track.service.IssuesService;
+import io.metersphere.track.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
@@ -42,6 +45,23 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private ProjectService projectService;
     @Resource
     private PerformanceTestService performanceTestService;
+    @Resource
+    private PluginService pluginService;
+    @Resource
+    private TestCaseService testCaseService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private TestPlanTestCaseService testPlanTestCaseService;
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private TestPlanScenarioCaseService testPlanScenarioCaseService;
+    @Resource
+    private TestPlanLoadCaseService testPlanLoadCaseService;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
+
     @Value("${jmeter.home}")
     private String jmeterHome;
 
@@ -56,20 +76,12 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         initPythonEnv();
 
-        try {
-            //检查状态为开启的TCP-Mock服务端口
-            projectService.initMockTcpService();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        //检查状态为开启的TCP-Mock服务端口
+        projectService.initMockTcpService();
 
+        initOnceOperate();
 
-        initOperate(apiAutomationService::checkApiScenarioUseUrl, "init.scenario.url");
-        initOperate(apiAutomationService::checkApiScenarioReferenceId, "init.scenario.referenceId");
-        initOperate(apiAutomationService::initExecuteTimes, "init.scenario.executeTimes");
-        initOperate(issuesService::syncThirdPartyIssues, "init.issue");
-        initOperate(issuesService::issuesCount, "init.issueCount");
-        initOperate(performanceTestService::initScenarioLoadTest, "init.scenario.load.test");
+        pluginService.loadPlugins();
 
         try {
             Thread.sleep(1 * 60 * 1000);
@@ -88,16 +100,34 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
      * @param initFuc
      * @param key
      */
-    private void initOperate(RunInterface initFuc, final String key) {
+    private void initOnceOperate(RunInterface initFuc, final String key) {
         try {
             String value = systemParameterService.getValue(key);
             if (StringUtils.isBlank(value)) {
                 initFuc.run();
                 systemParameterService.saveInitParam(key);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LogUtil.error(e.getMessage(), e);
         }
+    }
+
+    private void initOnceOperate() {
+        initOnceOperate(apiAutomationService::checkApiScenarioUseUrl, "init.scenario.url");
+        initOnceOperate(apiAutomationService::checkApiScenarioReferenceId, "init.scenario.referenceId");
+        initOnceOperate(apiAutomationService::initExecuteTimes, "init.scenario.executeTimes");
+        initOnceOperate(issuesService::syncThirdPartyIssues, "init.issue");
+        initOnceOperate(issuesService::issuesCount, "init.issueCount");
+        initOnceOperate(performanceTestService::initScenarioLoadTest, "init.scenario.load.test");
+        initOnceOperate(testCaseService::initOrderField, "init.sort.test.case");
+        initOnceOperate(apiDefinitionService::initOrderField, "init.sort.api.test.definition");
+        initOnceOperate(apiTestCaseService::initOrderField, "init.sort.api.test.case");
+        initOnceOperate(apiAutomationService::initOrderField, "init.sort.api.scenario");
+        initOnceOperate(performanceTestService::initOrderField, "init.sort.load.case");
+        initOnceOperate(testPlanTestCaseService::initOrderField, "init.sort.plan.test.case");
+        initOnceOperate(testPlanApiCaseService::initOrderField, "init.sort.plan.api.case");
+        initOnceOperate(testPlanScenarioCaseService::initOrderField, "init.sort.plan.api.scenario");
+        initOnceOperate(testPlanLoadCaseService::initOrderField, "init.sort.plan.api.load");
     }
 
     /**

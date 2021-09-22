@@ -561,7 +561,9 @@ export default {
       this.$message.error(this.$t('api_report.error'));
     },
     handleScroll(){
-
+      if(!this.$refs.apiDocInfoDiv){
+        return;
+      }
       //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
       let apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
       let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
@@ -591,7 +593,9 @@ export default {
         let itemHeight = this.$refs.apiDocInfoDivItem[i].offsetHeight+20;
         itemHeightCount+=itemHeight;
       }
-      this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivClientTop+itemHeightCount);
+      if(this.$refs.apiDocInfoDiv){
+        this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivClientTop+itemHeightCount);
+      }
     },
     checkApiInfoNode(itemIndex){
       //检查要展示的api信息节点，和上下个3个及以内的范围内数据有没有查询过

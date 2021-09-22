@@ -8,10 +8,10 @@
         <template v-slot:label>
           <tab-pane-count :title="'失败用例'" :count="failureSize"/>
         </template>
-        <load-failure-result :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
+        <load-failure-result class="container" :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
                              :report="report" :plan-id="planId" @setSize="setFailureSize"/>
       </el-tab-pane>
-      <el-tab-pane name="third" v-if="allEnable">
+      <el-tab-pane name="third" v-if="allEnable" style="min-height: 550px">
         <template v-slot:label>
           <tab-pane-count title="所有用例" :count="allSize"/>
         </template>

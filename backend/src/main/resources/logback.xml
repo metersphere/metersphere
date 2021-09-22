@@ -196,6 +196,9 @@
 	<logger name="io.metersphere.base.mapper" level="${logger.sql.level}">
 		<appender-ref ref="console"/>
 	</logger>
+<!--	<logger name="io.metersphere.xpack.mapper" level="${logger.sql.level}">-->
+<!--		<appender-ref ref="console"/>-->
+<!--	</logger>-->
 
 	<logger name="io.metersphere.Application" additivity="false" level="${logger.level:INFO}">
 		<appender-ref ref="infoAsyncAppender"/>

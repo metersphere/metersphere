@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -20,7 +19,6 @@ import io.metersphere.dto.*;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
-import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
@@ -46,8 +44,6 @@ public class UserController {
     private OrganizationService organizationService;
     @Resource
     private WorkspaceService workspaceService;
-    @Resource
-    private CheckPermissionService checkPermissionService;
 
     @PostMapping("/special/add")
     @MsAuditLog(module = "system_user", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#user)", msClass = UserService.class)
@@ -146,6 +142,11 @@ public class UserController {
     @MsAuditLog(module = "personal_information_personal_settings", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
     public UserDTO updateCurrentUser(@RequestBody User user) {
         return userService.updateCurrentUser(user);
+    }
+
+    @GetMapping("/update/currentByResourceId/{resourceId}")
+    public void updateCurrentUserByResourceId(@PathVariable String resourceId) {
+        userService.updateCurrentUserByResourceId(resourceId);
     }
 
     @PostMapping("/switch/source/org/{sourceId}")

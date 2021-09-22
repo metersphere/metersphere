@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="10">
-        <h5>测试报告</h5>
+      <el-col :span="24">
+        <h5>{{ $t('i18n.report') }}</h5>
         <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel"
                    v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
           {{ $t('organization.message.create_new_notification') }}
@@ -209,14 +209,14 @@ export default {
     },
     handleEdit(index, data) {
       data.isReadOnly = true;
-      if (data.type === 'EMAIL') {
+      if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = !data.isReadOnly;
         data.webhook = '';
       }
     },
     handleEditTask(index, data) {
       data.isSet = true;
-      if (data.type === 'EMAIL') {
+      if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = false;
         data.webhook = '';
       } else {
@@ -233,7 +233,7 @@ export default {
       task.isSet = true;
       task.identification = '';
       task.taskType = TASK_TYPE;
-      this.defectTask.push(task);
+      this.defectTask.unshift(task);
     },
     handleAddTask(index, data) {
 
@@ -253,8 +253,8 @@ export default {
       }
     },
     addTask(data) {
-      data.isSet = false;
       this.result = this.$post("/notice/save/message/task", data, () => {
+        data.isSet = false;
         this.initForm();
         this.$success(this.$t('commons.save_success'));
       });

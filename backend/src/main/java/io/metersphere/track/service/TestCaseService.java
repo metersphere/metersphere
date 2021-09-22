@@ -22,11 +22,9 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
-import io.metersphere.dto.CustomFieldDao;
-import io.metersphere.dto.LoadTestDTO;
-import io.metersphere.dto.TestCaseTemplateDao;
-import io.metersphere.dto.TestCaseTestDao;
+import io.metersphere.dto.*;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
 import io.metersphere.excel.listener.TestCaseNoModelDataListener;
@@ -143,7 +141,7 @@ public class TestCaseService {
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
             TestCaseNodeExample example = new TestCaseNodeExample();
-            example.createCriteria().andProjectIdEqualTo(testCase.getProjectId()).andNameEqualTo("默认模块");
+            example.createCriteria().andProjectIdEqualTo(testCase.getProjectId()).andNameEqualTo("未规划用例");
             List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(nodes)) {
                 testCase.setNodeId(nodes.get(0).getId());
@@ -168,6 +166,7 @@ public class TestCaseService {
         testCase.setDemandName(testCase.getDemandName());
         testCase.setCreateUser(SessionUtils.getUserId());
         this.setNode(testCase);
+        testCase.setOrder(ServiceUtils.getNextOrder(testCase.getProjectId(), extTestCaseMapper::getLastOrder));
         testCaseMapper.insert(testCase);
         return testCase;
     }
@@ -339,20 +338,22 @@ public class TestCaseService {
 
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request) {
         this.initRequest(request, true);
-        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
-        OrderRequest order = new OrderRequest();
-        // 对模板导入的测试用例排序
-        order.setName("sort");
-        order.setType("desc");
-        orderList.add(order);
-        request.setOrders(orderList);
-
+        setDefaultOrder(request);
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
             request.getFilters().put("status", new ArrayList<>(0));
         }
         List<TestCaseDTO> returnList = extTestCaseMapper.list(request);
         returnList = this.parseStatus(returnList);
         return returnList;
+    }
+    public void setDefaultOrder(QueryTestCaseRequest request) {
+        List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
+        OrderRequest order = new OrderRequest();
+        // 对模板导入的测试用例排序
+        order.setName("sort");
+        order.setType("desc");
+        orders.add(order);
+        request.setOrders(orders);
     }
 
     private List<TestCaseDTO> parseStatus(List<TestCaseDTO> returnList) {
@@ -423,12 +424,7 @@ public class TestCaseService {
      * @return
      */
     public List<TestCase> getTestCaseRelateList(QueryTestCaseRequest request) {
-        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
-        OrderRequest order = new OrderRequest();
-        order.setName("sort");
-        order.setType("desc");
-        orderList.add(order);
-        request.setOrders(orderList);
+        setDefaultOrder(request);
         return getTestCaseByNotInPlan(request);
     }
 
@@ -458,13 +454,10 @@ public class TestCaseService {
     }
 
     public List<TestCase> getReviewCase(QueryTestCaseRequest request) {
-        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
-        OrderRequest order = new OrderRequest();
-        // 对模板导入的测试用例排序
-        order.setName("sort");
-        order.setType("desc");
-        orderList.add(order);
-        request.setOrders(orderList);
+        setDefaultOrder(request);
+        request.getOrders().forEach(order -> {
+            order.setPrefix("test_case");
+        });
         return extTestCaseMapper.getTestCaseByNotInReview(request);
     }
 
@@ -476,7 +469,7 @@ public class TestCaseService {
         criteria.andMaintainerEqualTo(request.getUserId());
         if (StringUtils.isNotBlank(request.getProjectId())) {
             criteria.andProjectIdEqualTo(request.getProjectId());
-            testCaseExample.setOrderByClause("update_time desc, sort desc");
+            testCaseExample.setOrderByClause("order desc, sort desc");
             return testCaseMapper.selectByExample(testCaseExample);
         }
         return new ArrayList<>();
@@ -536,7 +529,7 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getTestCase())) {
-                        Collections.reverse(xmindParser.getTestCase());
+//                        Collections.reverse(xmindParser.getTestCase());
                         this.saveImportData(xmindParser.getTestCase(), projectId);
                         names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
                         ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
@@ -605,11 +598,12 @@ public class TestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         Project project = projectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        Long nextOrder = ServiceUtils.getNextOrder(projectId, extTestCaseMapper::getLastOrder);
         if (!testCases.isEmpty()) {
             AtomicInteger sort = new AtomicInteger();
             AtomicInteger num = new AtomicInteger();
             num.set(getNextNum(projectId) + testCases.size());
-            testCases.forEach(testcase -> {
+            for (TestCaseWithBLOBs testcase: testCases) {
                 testcase.setId(UUID.randomUUID().toString());
                 testcase.setCreateUser(SessionUtils.getUserId());
                 testcase.setCreateTime(System.currentTimeMillis());
@@ -622,8 +616,10 @@ public class TestCaseService {
                     testcase.setCustomNum(String.valueOf(number));
                 }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                testcase.setOrder(nextOrder);
                 mapper.insert(testcase);
-            });
+                nextOrder += 5000;
+            }
         }
         sqlSession.flushStatements();
     }
@@ -637,6 +633,8 @@ public class TestCaseService {
             AtomicInteger num = new AtomicInteger();
             num.set(getNextNum(projectId) + testCases.size());
             testCases.forEach(testcase -> {
+                TestCaseWithBLOBs oldCase = testCaseMapper.selectByPrimaryKey(testcase.getId());
+                String customFieldStr = this.updateCustomField(oldCase.getCustomFields(),testcase.getPriority());
                 testcase.setUpdateTime(System.currentTimeMillis());
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
@@ -644,10 +642,29 @@ public class TestCaseService {
                     testcase.setNum(num.decrementAndGet());
                 }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                testcase.setCustomFields(customFieldStr);
                 mapper.updateByPrimaryKeySelective(testcase);
             });
         }
         sqlSession.flushStatements();
+    }
+
+    private String updateCustomField(String customFields, String priority) {
+        try {
+            JSONArray newArr = new JSONArray();
+            JSONArray customArr = JSONArray.parseArray(customFields);
+            for(int i = 0; i < customArr.size();i++){
+                JSONObject obj = customArr.getJSONObject(i);
+                if(obj.containsKey("name") && StringUtils.equalsIgnoreCase(obj.getString("name"),"用例等级")){
+                    obj.put("value",priority);
+                }
+                newArr.add(obj);
+            }
+            customFields = newArr.toJSONString();
+        }catch (Exception e){
+
+        }
+        return customFields;
     }
 
     /**
@@ -980,8 +997,8 @@ public class TestCaseService {
                     list.add(model.getStepModel());
                 }else if(StringUtils.equalsAnyIgnoreCase(head,"Priority","用例等級","用例等级")){
                     list.add(model.getPriority());
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Case status","用例状态","用例狀態")){
-                    list.add(model.getStatus());
+//                }else if(StringUtils.equalsAnyIgnoreCase(head,"Case status","用例状态","用例狀態")){
+//                    list.add(model.getStatus());
                 } else if (StringUtils.equalsAnyIgnoreCase(head, "Maintainer(ID)", "责任人(ID)", "維護人(ID)")) {
                     String value = customDataMaps.get("责任人");
                     value = value == null ? "" : value;
@@ -996,6 +1013,7 @@ public class TestCaseService {
             }
             returnDatas.add(list);
         }
+
         return returnDatas;
     }
 
@@ -1005,7 +1023,7 @@ public class TestCaseService {
         QueryTestCaseRequest condition = request.getCondition();
         List<OrderRequest> orderList = new ArrayList<>();
         if (condition != null) {
-            orderList = ServiceUtils.getDefaultOrder(condition.getOrders());
+            orderList = ServiceUtils.getDefaultSortOrder(request.getOrders());
         }
         OrderRequest order = new OrderRequest();
         order.setName("sort");
@@ -1023,6 +1041,45 @@ public class TestCaseService {
         List<TestCaseExcelData> list = new ArrayList<>();
         StringBuilder step = new StringBuilder("");
         StringBuilder result = new StringBuilder("");
+
+        Map<String,Map<String,String>> customSelectValueMap = new HashMap<>();
+        TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
+        TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(request.getProjectId());
+
+        List<CustomFieldDao> customFieldList = null;
+        if (testCaseTemplate == null) {
+            customFieldList = new ArrayList<>();
+        } else {
+            customFieldList = testCaseTemplate.getCustomFields();
+        }
+        for (CustomFieldDao dto :customFieldList) {
+            Map<String,String> map = new HashMap<>();
+            if(StringUtils.equals("select",dto.getType())){
+                try {
+                    JSONArray optionsArr = JSONArray.parseArray(dto.getOptions());
+                    for (int i = 0; i < optionsArr.size();i++) {
+                        JSONObject obj = optionsArr.getJSONObject(i);
+                        if(obj.containsKey("text") && obj.containsKey("value")){
+                            String value = obj.getString("value");
+                            String text = obj.getString("text");
+                            if(StringUtils.equals(text,"test_track.case.status_finished")){
+                                text = Translator.get("test_case_status_finished");
+                            }else if(StringUtils.equals(text,"test_track.case.status_prepare")){
+                                text = Translator.get("test_case_status_prepare");
+                            }else if(StringUtils.equals(text,"test_track.case.status_running")){
+                                text = Translator.get("test_case_status_running");
+                            }
+                            if(StringUtils.isNotEmpty(value)){
+                                map.put(value,text);
+                            }
+                        }
+                    }
+                }catch (Exception e){}
+            }
+            customSelectValueMap.put(dto.getName(),map);
+        }
+
+
         testCaseList.forEach(t -> {
             TestCaseExcelData data = new TestCaseExcelData();
             data.setNum(t.getNum());
@@ -1039,7 +1096,6 @@ public class TestCaseService {
             } else {
                 data.setStepModel(t.getStepModel());
             }
-//            data.setMethod(t.getMethod());
             data.setPrerequisite(t.getPrerequisite());
             data.setTags(t.getTags());
             if (StringUtils.equals(t.getMethod(), "manual") || StringUtils.isBlank(t.getMethod())) {
@@ -1106,7 +1162,15 @@ public class TestCaseService {
                 for(int index = 0; index < customFieldsArr.size(); index ++){
                     JSONObject obj = customFieldsArr.getJSONObject(index);
                     if(obj.containsKey("name") && obj.containsKey("value")){
-                        map.put(obj.getString("name"),obj.getString("value"));
+                        //进行key value对换
+                        String name = obj.getString("name");
+                        String value = obj.getString("value");
+                        if(customSelectValueMap.containsKey(name)){
+                            if(customSelectValueMap.get(name).containsKey(value)){
+                                value = customSelectValueMap.get(name).get(value);
+                            }
+                        }
+                        map.put(name,value);
                     }
                 }
                 data.setCustomDatas(map);
@@ -1354,13 +1418,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> listTestCaseIds(QueryTestCaseRequest request) {
-        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
-        OrderRequest order = new OrderRequest();
-        // 对模板导入的测试用例排序
-        order.setName("sort");
-        order.setType("desc");
-        orderList.add(order);
-        request.setOrders(orderList);
+        setDefaultOrder(request);
         List<String> selectFields = new ArrayList<>();
         selectFields.add("id");
         selectFields.add("name");
@@ -1440,7 +1498,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseWithBLOBs> listTestCaseForMinder(QueryTestCaseRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        setDefaultOrder(request);
         return extTestCaseMapper.listForMinder(request);
     }
 
@@ -1519,7 +1577,7 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(nodePathList, projectId);
                     }
                     if (CollectionUtils.isNotEmpty(continueCaseList)) {
-                        Collections.reverse(continueCaseList);
+//                        Collections.reverse(continueCaseList);
                         this.saveImportData(continueCaseList, projectId);
                         names.addAll(continueCaseList.stream().map(TestCase::getName).collect(Collectors.toList()));
                         ids.addAll(continueCaseList.stream().map(TestCase::getId).collect(Collectors.toList()));
@@ -1851,5 +1909,27 @@ public class TestCaseService {
 
     public List<LoadTestDTO> getTestCaseLoadCaseRelateList(LoadCaseRequest request) {
         return testCaseTestMapper.relevanceLoadList(request);
+    }
+
+    public TestCaseWithBLOBs getTestCaseStep(String testCaseId) {
+        return extTestCaseMapper.getTestCaseStep(testCaseId);
+    }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(TestCaseWithBLOBs.class, TestCaseMapper.class,
+                extTestCaseMapper::selectProjectIds,
+                extTestCaseMapper::getIdsOrderByUpdateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, TestCaseWithBLOBs.class,
+                testCaseMapper::selectByPrimaryKey,
+                extTestCaseMapper::getPreOrder,
+                extTestCaseMapper::getLastOrder,
+                testCaseMapper::updateByPrimaryKeySelective);
     }
 }

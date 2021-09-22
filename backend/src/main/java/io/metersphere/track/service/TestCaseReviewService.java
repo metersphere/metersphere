@@ -231,7 +231,8 @@ public class TestCaseReviewService {
             TestCaseReviewExample example = new TestCaseReviewExample();
             TestCaseReviewExample.Criteria criteria = example
                     .createCriteria()
-                    .andNameEqualTo(testCaseReview.getName());
+                    .andNameEqualTo(testCaseReview.getName())
+                    .andProjectIdEqualTo(testCaseReview.getProjectId());
 
             if (StringUtils.isNotBlank(testCaseReview.getId())) {
                 criteria.andIdNotEqualTo(testCaseReview.getId());
@@ -414,6 +415,7 @@ public class TestCaseReviewService {
                 BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
                 String context = getReviewContext(testCaseReviewRequest, NoticeConstants.Event.UPDATE);
                 Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReviewRequest));
+                paramMap.put("operator", SessionUtils.getUser().getName());
                 NoticeModel noticeModel = NoticeModel.builder()
                         .operator(SessionUtils.getUserId())
                         .context(context)

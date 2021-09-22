@@ -1,18 +1,14 @@
 <template>
   <div>
-    <el-card class="table-card" v-loading="result.loading">
-
-      <template v-slot:header>
-        <el-row>
-          <el-col :span="8" :offset="11">
-            <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
-                      @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
-          </el-col>
-          <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                       :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                       :project-list="projectList" ref="envPopover" class="env-popover"/>
-        </el-row>
-      </template>
+    <el-card v-loading="result.loading">
+      <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                   :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
+                   :project-list="projectList" ref="envPopover" class="env-popover"/>
+      <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
+                @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
+      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                               v-if="condition.components !== undefined && condition.components.length > 0"
+                               @search="search"/>
 
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="handleSelectAll" @select="handleSelect">
         <el-table-column type="selection"/>
@@ -71,6 +67,8 @@
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
   import EnvPopover from "@/business/components/track/common/EnvPopover";
   import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
+  import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+  import {TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 
   export default {
     name: "RelevanceScenarioList",
@@ -78,7 +76,15 @@
       PriorityTableItem,
       EnvPopover,
       TestPlanScenarioListHeader,
-      MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsTestPlanList},
+      MsTablePagination,
+      MsTableMoreBtn,
+      ShowMoreBtn,
+      MsTableHeader,
+      MsTag,
+      MsApiReportDetail,
+      MsTestPlanList,
+      MsTableAdvSearchBar
+    },
     props: {
       referenced: {
         type: Boolean,
@@ -92,7 +98,9 @@
       return {
         result: {},
         showConfigButtonWithOutPermission:false,
-        condition: {},
+        condition: {
+          components: TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS
+        },
         currentScenario: {},
         schedule: {},
         selectAll: false,
@@ -154,6 +162,7 @@
               item.tags = JSON.parse(item.tags);
             }
           });
+          this.clear();
         });
       },
       clear() {
@@ -210,6 +219,20 @@
 
   .env-popover {
     float: right;
-    margin-top: 4px;
+    margin-top: 10px;
+  }
+
+  .search-input {
+    float: right;
+    width: 250px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+  }
+
+  .adv-search-bar {
+    float: right;
+    margin-top: 15px;
+    margin-right: 10px;
   }
 </style>

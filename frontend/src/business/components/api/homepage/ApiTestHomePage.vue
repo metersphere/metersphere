@@ -3,7 +3,7 @@
     <ms-main-container v-loading="result.loading">
       <el-row :gutter="10">
         <el-col :span="6">
-          <ms-api-info-card @redirectPage="redirectPage" :api-count-data="apiCountData"/>
+          <ms-api-info-card @redirectPage="redirectPage" :api-count-data="apiCountData" :interface-coverage="apiCoverage"/>
         </el-col>
         <el-col :span="6">
           <ms-test-case-info-card @redirectPage="redirectPage" :test-case-count-data="testCaseCountData"/>
@@ -58,6 +58,7 @@ export default {
       testCaseCountData: {},
       scheduleTaskCountData: {},
       interfaceCoverage: "waitting...",
+      apiCoverage: "waitting...",
       result: {},
     }
   },
@@ -77,9 +78,14 @@ export default {
       this.$get("/api/testSceneInfoCount/" + selectProjectId, response => {
         this.sceneCountData = response.data;
       });
+      this.apiCoverage = "waitting...",
       this.interfaceCoverage = "waitting...";
       this.$get("/api/countInterfaceCoverage/" + selectProjectId, response => {
         this.interfaceCoverage = response.data;
+      });
+
+      this.$get("/api/countApiCoverage/" + selectProjectId, response => {
+        this.apiCoverage = response.data;
       });
 
       this.$get("/api/testCaseInfoCount/" + selectProjectId, response => {

@@ -48,7 +48,7 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :headers="api.request.headers" :request="api.request"/>
+        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers" :request="api.request"/>
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
@@ -84,6 +84,7 @@ import MsRun from "../Run";
 import {REQ_METHOD} from "../../model/JsonData";
 import EnvironmentSelect from "../environment/EnvironmentSelect";
 import MsJmxStep from "../step/JmxStep";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "RunTestHTTPPage",
@@ -218,6 +219,18 @@ export default {
       data.description = this.api.description;
       this.$emit('saveAsApi', data);
     },
+    compatibleHistory(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.compatibleHistory(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     updateApi() {
       let url = "/api/definition/update";
       let bodyFiles = this.getBodyUploadFiles();
@@ -228,6 +241,11 @@ export default {
       }
       if (this.api.tags instanceof Array) {
         this.api.tags = JSON.stringify(this.api.tags);
+      }
+      // 历史数据兼容处理
+      if (this.api.request) {
+        this.api.request.clazzName = TYPE_TO_C.get(this.api.request.type);
+        this.compatibleHistory(this.api.request.hashTree);
       }
       this.$fileUpload(url, null, bodyFiles, this.api, () => {
         this.$success(this.$t('commons.save_success'));

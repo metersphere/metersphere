@@ -57,6 +57,7 @@ import MsRun from "../Run";
 import MsBasisParameters from "../request/database/BasisParameters";
 import {REQ_METHOD} from "../../model/JsonData";
 import MsJmxStep from "../step/JmxStep";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "RunTestSQLPage",
@@ -177,6 +178,18 @@ export default {
         this.$emit('saveAsApi', data);
         this.$emit('refresh');
       },
+      compatibleHistory(stepArray) {
+        if (stepArray) {
+          for (let i in stepArray) {
+            if (!stepArray[i].clazzName) {
+              stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+            }
+            if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+              this.compatibleHistory(stepArray[i].hashTree);
+            }
+          }
+        }
+      },
       updateApi() {
         let url = "/api/definition/update";
         let bodyFiles = this.getBodyUploadFiles();
@@ -185,6 +198,11 @@ export default {
         }
         if (this.api.tags instanceof  Array) {
           this.api.tags = JSON.stringify(this.api.tags);
+        }
+        // 历史数据兼容处理
+        if (this.api.request) {
+          this.api.request.clazzName = TYPE_TO_C.get(this.api.request.type);
+          this.compatibleHistory(this.api.request.hashTree);
         }
         this.$fileUpload(url, null, bodyFiles, this.api, () => {
           this.$success(this.$t('commons.save_success'));

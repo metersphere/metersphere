@@ -4,6 +4,7 @@ import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.UserGroup;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.UserGroupType;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
@@ -39,7 +40,7 @@ public class CheckPermissionService {
             return;
         }
         if (!projectIds.contains(projectId)) {
-            throw new RuntimeException(Translator.get("check_owner_project"));
+            MSException.throwException(Translator.get("check_owner_project"));
         }
     }
 
@@ -69,7 +70,7 @@ public class CheckPermissionService {
         int result = extApiTestMapper.checkApiTestOwner(testId, projectIds);
 
         if (result == 0) {
-            throw new RuntimeException(Translator.get("check_owner_test"));
+            MSException.throwException(Translator.get("check_owner_test"));
         }
     }
 
@@ -85,7 +86,7 @@ public class CheckPermissionService {
         int result = extLoadTestMapper.checkLoadTestOwner(testId, projectIds);
 
         if (result == 0) {
-            throw new RuntimeException(Translator.get("check_owner_test"));
+            MSException.throwException(Translator.get("check_owner_test"));
         }
     }
 
@@ -97,7 +98,7 @@ public class CheckPermissionService {
 
         int result = extTestCaseMapper.checkIsHave(caseId, projectIds);
         if (result == 0) {
-            throw new RuntimeException(Translator.get("check_owner_case"));
+            MSException.throwException(Translator.get("check_owner_case"));
         }
     }
 
@@ -108,7 +109,7 @@ public class CheckPermissionService {
         }
         int result = extTestPlanMapper.checkIsHave(planId, projectIds);
         if (result == 0) {
-            throw new RuntimeException(Translator.get("check_owner_plan"));
+            MSException.throwException(Translator.get("check_owner_plan"));
         }
     }
 
@@ -119,7 +120,7 @@ public class CheckPermissionService {
         }
         int result = extTestCaseReviewMapper.checkIsHave(reviewId, projectIds);
         if (result == 0) {
-            throw new RuntimeException(Translator.get("check_owner_review"));
+            MSException.throwException(Translator.get("check_owner_review"));
         }
     }
 }

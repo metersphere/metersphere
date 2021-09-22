@@ -1,7 +1,7 @@
 <template>
-  <el-form-item :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
-    <mavon-editor v-if="active" :editable="!disabled" @imgAdd="imgAdd" :default-open="disabled ? 'preview' : null" class="mavon-editor"
-                  :subfield="disabled ? false : true" :toolbars="toolbars" :language="language" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
+  <el-form-item v-loading="result.loading" :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
+    <mavon-editor :id="id" v-if="active" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpen" class="mavon-editor"
+                  :subfield="false" :toolbars="toolbars" :language="language" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
   </el-form-item>
 </template>
 
@@ -13,6 +13,9 @@ export default {
   props: ['data', 'title', 'prop', 'disabled', 'labelWidth'],
   data() {
     return {
+      result: {loading: false},
+      id: getUUID(),
+      defaultOpen: 'preview',
       toolbars: {
         bold: true, // 粗体
         italic: true, // 斜体
@@ -72,15 +75,30 @@ export default {
       }
     }
   },
+  mounted() {
+    // 点击编辑，失去焦点展示
+    let el = document.getElementById(this.id);
+    if (el) {
+      el.addEventListener('click', () => {
+        this.defaultOpen = null;
+      });
+      let input = el.getElementsByClassName('auto-textarea-input');
+      input[0].addEventListener('blur', () => {
+        this.defaultOpen = 'preview';
+      });
+    }
+  },
   methods: {
     imgAdd(pos, file){
       let param = {
         id: getUUID().substring(0, 8)
       };
       file.prefix = param.id;
-      this.result = this.$fileUpload('/resource/md/upload', file, null, param, () => {
+      this.result.loading = true;
+      this.$fileUpload('/resource/md/upload', file, null, param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.md.$img2Url(pos, '/resource/md/get/'  + param.id + '_' + file.name);
+        this.result.loading = false;
       });
       this.$emit('imgAdd', file);
     },

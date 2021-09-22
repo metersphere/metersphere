@@ -21,7 +21,7 @@
           <el-radio label="PATH">{{ $t('api_test.definition.api_path') }}</el-radio>
         </el-radio-group>
         <div v-if="condition.type === 'MODULE'" style="margin-top: 6px">
-          <ms-select-tree size="small" :data="moduleOptions" :default-key="condition.ids" @getValue="setModule" :obj="moduleObj" clearable checkStrictly multiple v-if="!loading"/>
+          <ms-select-tree size="small" :data="moduleOptions" :default-key="condition.ids" @getValue="setModule" :obj="moduleObj" clearable :checkStrictly="true" multiple v-if="!loading"/>
         </div>
         <div v-if="condition.type === 'PATH'" style="margin-top: 6px">
           <el-input v-model="pathDetails.name" :placeholder="$t('api_test.value')" clearable size="small">

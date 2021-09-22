@@ -7,23 +7,23 @@
       ref="drawer"
       v-loading="result.loading">
       <template v-slot:default="scope">
-        <el-row type="flex" class="head-bar">
-          <el-col :span="12">
-            <div class="name-edit">
-              <el-button plain size="mini" icon="el-icon-back" @click="handleClose">{{$t('test_track.return')}}
-              </el-button>&nbsp;
-              <span class="title">{{plan.name}}</span>
-            </div>
-          </el-col>
-          <el-col :span="12" class="head-right">
-<!--            <el-button v-permission="['PROJECT_TRACK_REPORT:READ+EXPORT']" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">-->
-<!--              {{$t('test_track.plan_view.export_report')}}-->
-<!--            </el-button>-->
-          </el-col>
-        </el-row>
         <el-scrollbar>
+          <el-row type="flex" class="head-bar">
+            <el-col :span="12">
+              <div class="name-edit">
+                <el-button plain size="mini" icon="el-icon-back" @click="handleClose">{{$t('test_track.return')}}
+                </el-button>&nbsp;
+                <span class="title">{{plan.name}}</span>
+              </div>
+            </el-col>
+            <el-col :span="12" class="head-right">
+              <!--            <el-button v-permission="['PROJECT_TRACK_REPORT:READ+EXPORT']" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">-->
+              <!--              {{$t('test_track.plan_view.export_report')}}-->
+              <!--            </el-button>-->
+            </el-col>
+          </el-row>
           <div class="container">
-            <test-plan-report-content :plan-id="plan.id"/>
+            <test-plan-report-content v-if="showReport" :plan-id="plan.id"/>
           </div>
         </el-scrollbar>
       </template>
@@ -43,30 +43,45 @@ export default {
       result: {},
       showDialog: false,
       plan: {},
-      isTestManagerOrTestUser: false
+      isTestManagerOrTestUser: false,
+      showReport: false,
+      originUlr: ''
     }
   },
   mounted() {
     this.isTestManagerOrTestUser = true;
   },
   methods: {
-    // listenGoBack() {
-    //   //监听浏览器返回操作，关闭该对话框
-    //   if (window.history && window.history.pushState) {
-    //     history.pushState(null, null, document.URL);
-    //     window.addEventListener('popstate', this.goBack, false);
-    //   }
-    // },
-    // goBack() {
-    //   this.handleClose();
-    // },
+    listenGoBack() {
+      //监听浏览器返回操作，关闭该对话框
+      if (window.history && window.history.pushState) {
+        this.originUlr = document.URL;
+        history.pushState(null, null, document.URL);
+        window.addEventListener('popstate', this.goBack, false);
+      }
+    },
+    goBack() {
+      let newUlr = document.URL;
+      // 将上一次url设置成列表的url，回退时关闭
+      history.pushState(null, null, this.originUlr);
+      history.pushState(null, null, newUlr);
+      if (document.URL.split("#").indexOf('/track/plan/all') > -1) {
+        history.pushState(null, null, this.originUlr);
+        this.handleClose();
+      }
+    },
     open(plan) {
-      this.plan = plan;
+      this.showReport = false;
+      // 每次都重新获取
+      this.$nextTick(() => {
+        this.showReport = true;
+        this.plan = plan;
+      });
       this.showDialog = true;
-      // this.listenGoBack();
+      this.listenGoBack();
     },
     handleClose() {
-      // window.removeEventListener('popstate', this.goBack, false);
+      window.removeEventListener('popstate', this.goBack, false);
       this.$emit('refresh');
       this.showDialog = false;
     },

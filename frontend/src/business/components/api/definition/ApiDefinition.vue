@@ -132,6 +132,7 @@
                 :is-read-only="isReadOnly"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
+                @refreshTable="refresh"
                 @showExecResult="showExecResult"
                 ref="caseList"/>
               <api-documents-page
@@ -388,6 +389,13 @@ export default {
   },
   created() {
     this.getEnv();
+    // 通知过来的数据跳转到编辑
+    if (this.$route.query.caseId) {
+      this.activeDom = 'middle';
+      // this.$get('/api/testcase/findById/' + this.$route.query.caseId, (response) => {
+      //   this.edit(response.data);
+      // });
+    }
   },
   methods: {
     setEnvironment(data) {
@@ -559,6 +567,9 @@ export default {
         type: action,
         api: api,
       });
+      if(action === "ADD") {
+        this.activeTab = "api";
+      }
       this.apiDefaultTab = newTabName;
     },
     debug(id) {
@@ -649,7 +660,7 @@ export default {
           row.tags = JSON.parse(row.tags);
         }
       }
-      this.handleTabsEdit(name, "ADD", row);
+      this.handleTabsEdit(name, "TEST", row);
     },
     mockConfig(data) {
       let targetName = this.$t("commons.mock") + "-" + data.apiName;

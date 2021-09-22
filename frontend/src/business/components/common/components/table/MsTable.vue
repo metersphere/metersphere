@@ -9,10 +9,13 @@
       @select="handleSelect"
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
+      :default-sort="defaultSort"
       class="test-content adjust-table ms-table"
       :class="{'ms-select-all-fixed': showSelectAll}"
       :height="screenHeight"
       v-loading="tableIsLoading"
+      :row-key="rowKey"
+      :cell-class-name="addPaddingColClass"
       :highlight-current-row="highlightCurrentRow"
       ref="table" @row-click="handleRowClick">
 
@@ -22,11 +25,13 @@
                                       :page-size="pageSize > total ? total : pageSize"
                                       :table-data-count-in-page="data.length"
                                       :total="total"
+                                      :select-type="condition.selectAll"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
-      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0" width="30"
+      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0" width="15"
                        fixed="left"
+                       column-key="batchBtnCol"
                        :resizable="false" align="center">
         <template v-slot:default="scope">
           <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
@@ -40,6 +45,17 @@
           <span class="table-column-mark">&nbsp;</span>
         </template>
       </el-table-column>
+
+      <el-table-column v-if="enableOrderDrag" width="20" column-key="tableRowDropCol">
+        <template v-slot:default="scope">
+<!--          <span class="table-row-drop-bar">-->
+          <div class="table-row-drop-bar">
+             <i class="el-icon-more ms-icon-more"/>
+             <i class="el-icon-more ms-icon-more"/>
+          </div>
+        </template>
+      </el-table-column>
+
       <slot></slot>
 
       <el-table-column
@@ -48,7 +64,7 @@
         fixed="right"
         :label="$t('commons.operating')">
         <template slot="header">
-          <header-label-operate v-if="fieldKey" @exec="openCustomHeader"/>
+          <header-label-operate :disable-header-config="disableHeaderConfig" v-if="fieldKey" @exec="openCustomHeader"/>
         </template>
         <template v-slot:default="scope">
           <div>
@@ -74,14 +90,13 @@
 import {
   _filter,
   _handleSelect,
-  _handleSelectAll, _sort, getLabel,
+  _handleSelectAll, _sort,
   getSelectDataCounts,
   setUnSelectIds,
   toggleAllSelection,
-  checkTableRowIsSelect, getCustomTableHeader, saveCustomTableWidth,
+  checkTableRowIsSelect, getCustomTableHeader, saveCustomTableWidth, saveLastTableSortField,
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
-import {TEST_CASE_LIST} from "@/common/js/constants";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -89,6 +104,7 @@ import MsTableOperators from "@/business/components/common/components/MsTableOpe
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import MsCustomTableHeader from "@/business/components/common/components/table/MsCustomTableHeader";
+import {lineToHump} from "@/common/js/utils";
 
 /**
  * 参考 ApiList
@@ -115,7 +131,8 @@ export default {
       selectRows: new Set(),
       selectIds: [],
       tableActive: true,
-      hasBatchTipShow: false
+      hasBatchTipShow: false,
+      defaultSort: {}
     };
   },
   props: {
@@ -193,18 +210,23 @@ export default {
         return false;
       }
     },
+    disableHeaderConfig: Boolean,
     fields: Array,
     fieldKey: String,
     customFields: Array,
     highlightCurrentRow: Boolean,
+    // 是否记住排序
+    rememberOrder: Boolean,
+    enableOrderDrag: Boolean,
+    rowKey: [String, Function],
   },
   mounted() {
-    getLabel(this, TEST_CASE_LIST);
+    this.setDefaultOrders();
   },
   watch: {
     selectNodeIds() {
       this.selectDataCounts = 0;
-    },
+    }
   },
   methods: {
     // 批量操作提示, 第一次勾选提示, 之后不提示
@@ -236,6 +258,22 @@ export default {
     isScrollShow(column, tableTop){  //判断元素是否因为超过表头
       let columnTop = column.getBoundingClientRect().top;
       return columnTop - tableTop > 30;
+    },
+    // 访问页面默认高亮当前的排序
+    setDefaultOrders() {
+      let orders = this.condition.orders;
+      if (orders) {
+        orders.forEach(item => {
+          this.defaultSort = {
+            prop: lineToHump(item.name),
+            order: 'descending'
+          };
+          if (item.type === 'asc') {
+            this.defaultSort.order = 'ascending';
+          }
+          return;
+        });
+      }
     },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.data, this.selectRows, this.condition);
@@ -290,7 +328,9 @@ export default {
       }
     },
     doLayout() {
-      setTimeout(this.$refs.table.doLayout(), 200);
+      if (this.$refs.table) {
+        setTimeout(this.$refs.table.doLayout(), 200);
+      }
     },
     filter(filters) {
       _filter(filters, this.condition);
@@ -302,7 +342,9 @@ export default {
         this.condition.orders = [];
       }
       _sort(column, this.condition);
-      this.$emit("saveSortField", this.fieldKey,this.condition.orders);
+      if (this.rememberOrder) {
+        saveLastTableSortField(this.fieldKey, JSON.stringify(this.condition.orders));
+      }
       this.handleRefresh();
     },
     handleBatchEdit() {
@@ -312,8 +354,8 @@ export default {
     handleBatchMove() {
       this.$refs.testBatchMove.open(this.treeNodes, Array.from(this.selectRows).map(row => row.id), this.moduleOptions);
     },
-    handleRowClick(row) {
-      this.$emit("handleRowClick", row);
+    handleRowClick(row, column) {
+      this.$emit("handleRowClick", row, column);
     },
     handleRefresh() {
       this.clear();
@@ -359,6 +401,13 @@ export default {
       this.$nextTick(() => {
         this.tableActive = true;
       });
+    },
+    addPaddingColClass({column}) {
+      if (column.columnKey === 'tableRowDropCol'
+        || column.columnKey === 'selectionCol'
+        || column.columnKey ==='batchBtnCol') {
+        return 'padding-col';
+      }
     }
   }
 };
@@ -368,5 +417,34 @@ export default {
 .batch-popper {
   top: 300px;
   color: #1FDD02;
+}
+
+.el-table >>> .padding-col .cell {
+  padding: 0px !important;
+}
+
+.table-row-drop-bar {
+  /*visibility: hidden;*/
+  text-align: center;
+  height: 28px;
+}
+
+.table-row-drop-bar:hover {
+  /*visibility: visible;*/
+  /*font-size: 15px;*/
+}
+
+/*.el-table >>> .hover-row .table-row-drop-bar {*/
+/*  visibility: initial !important;*/
+/*}*/
+
+.ms-icon-more {
+  transform: rotate(90deg);
+  width: 9px;
+  color: #cccccc;
+}
+
+.ms-icon-more:first-child {
+  margin-right: -5px;
 }
 </style>

@@ -244,8 +244,11 @@
                     <when test="order.name == 'custom_num'">
                      customNum ${order.type}
                     </when>
+                     <when test="order.name == 'name'">
+                        test_case.name ${order.type}
+                     </when>
                     <otherwise>
-                     ${order.name} ${order.type}
+                        test_plan_test_case.${order.name} ${order.type}
                     </otherwise>
                 </choose>
             </foreach>
@@ -451,7 +454,7 @@
             pc.plan_id = #{request.planId}
             and t.node_id = #{request.nodeId}
         </where>
-        order by pc.update_time desc;
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="listTestCaseTest" resultType="io.metersphere.track.dto.TestCaseTestDTO">
         select * from test_case_test where test_case_id = #{caseId};
@@ -477,6 +480,7 @@
        <if test="status != null">
            and tptc.status = 'Failure'
        </if>
+        and (tc.status != 'Trash' or tc.status is null)
         where tptc.plan_id = #{planId} order by tptc.update_time desc
     </select>
     <update id="updateTestCaseStates" parameterType="java.lang.String">
@@ -511,4 +515,27 @@
         from test_plan_api_case
         where api_case_id = #{id,jdbcType=VARCHAR}
     </delete>
+
+    <select id="selectPlanIds" resultType="java.lang.String">
+        select DISTINCT plan_id from test_plan_test_case;
+    </select>
+    <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
+        select id from test_plan_test_case where plan_id = #{planId} order by update_time ASC;
+    </select>
+
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from test_plan_test_case where plan_id = #{planId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+
+    <select id="getPreOrder" resultType="java.lang.Long">
+        select `order` from test_plan_test_case where plan_id = #{planId}
+        <if test="baseOrder != null">
+            and `order` &lt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
 </mapper>

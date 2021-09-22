@@ -2,31 +2,33 @@
 
   <div class="card-container">
     <el-card class="card-content">
-      <el-button v-if="scenario" style="float: right;margin-right: 20px" size="small" type="primary"
-                 @click="handleCommand"> {{ $t('commons.test') }}
-      </el-button>
-      <el-button size="small" type="primary" class="ms-api-buttion" style="float: right;margin-right: 20px" @click="stop" v-if="isStop">
+      <el-button size="small" type="primary" class="ms-api-button" style="float: right;margin-right: 20px" @click="stop" v-if="isStop">
         {{ $t('report.stop_btn') }}
       </el-button>
-      <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                   @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-        {{ $t('commons.test') }}
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+      <div v-else>
+        <el-button v-if="scenario" style="float: right;margin-right: 20px" size="small" type="primary"
+                   @click="handleCommand"> {{ $t('commons.test') }}
+        </el-button>
+        <el-dropdown v-else split-button type="primary" class="ms-api-button" @click="handleCommand"
+                     @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+          {{ $t('commons.test') }}
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <div v-loading="loading">
         <!-- JDBC 请求参数 -->
         <ms-basis-parameters :request="request" @callback="runDebug" ref="requestForm"/>
         <!-- JDBC 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
+        <ms-request-result-tail v-if="!loading" :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
       </div>
       <ms-jmx-step :request="request" :response="responseData"/>
 
       <!-- 执行组件 -->
-      <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
+      <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
     </el-card>
     <div v-if="scenario">
       <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{ $t('commons.save') }}</el-button>
@@ -50,6 +52,7 @@ import MsRequestResultTail from "../response/RequestResultTail";
 import MsBasisParameters from "../request/database/BasisParameters";
 import MsJmxStep from "../step/JmxStep";
 import MsApiCaseList from "../case/ApiCaseList";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiConfig",
@@ -158,6 +161,18 @@ export default {
       obj.request.id = getUUID();
       this.$emit('saveAs', obj);
     },
+    compatibleHistory(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.compatibleHistory(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     saveAs() {
       let obj = {request: this.request};
       obj.request.id = getUUID();
@@ -165,6 +180,11 @@ export default {
       obj.protocol = this.currentProtocol;
       obj.status = "Underway";
       obj.method = this.currentProtocol;
+      // 历史数据兼容处理
+      if (obj.request) {
+        obj.request.clazzName = TYPE_TO_C.get(obj.request.type);
+        this.compatibleHistory(obj.request.hashTree);
+      }
       this.$refs.caseList.saveApiAndCase(obj);
     }
   }

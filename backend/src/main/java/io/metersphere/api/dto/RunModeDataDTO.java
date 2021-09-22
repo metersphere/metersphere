@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.Map;
+
 @Getter
 @Setter
 public class RunModeDataDTO {
@@ -17,6 +19,10 @@ public class RunModeDataDTO {
     //
     private String apiCaseId;
 
+    private Map<String, String> planEnvMap;
+    public RunModeDataDTO(){
+
+    }
     public RunModeDataDTO(String testId, String apiCaseId) {
         this.testId = testId;
         this.apiCaseId = apiCaseId;

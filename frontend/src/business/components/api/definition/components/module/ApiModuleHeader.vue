@@ -46,7 +46,6 @@ export default {
   components: {MsSearchBar, TemplateComponent, ModuleTrashButton, ApiImport, MsAddBasisApi},
   data() {
     return {
-      options: OPTIONS,
       operators: [
         {
           label: this.$t('api_test.definition.request.title'),
@@ -65,7 +64,7 @@ export default {
           callback: () => {
             this.$emit('schedule');
           },
-          permissions: ['PROJECT_API_DEFINITION:READ+IMPORT_API']
+          permissions: ['PROJECT_API_DEFINITION:READ+TIMING_SYNC']
         },
         {
           label: this.$t('api_test.api_import.label'),
@@ -123,6 +122,12 @@ export default {
         return false;
       }
     },
+    options: {
+      type: Array,
+      default() {
+        return OPTIONS;
+      }
+    }
   },
   computed: {
     projectId() {

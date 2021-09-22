@@ -94,7 +94,7 @@
                                          :disabled="true" :title="$t('test_track.case.expected_results')"
                                          :data="testCase" prop="expectedResult"/>
                     <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
-                                         :disabled="true" :title="$t('test_track.plan_view.actual_result')"
+                                         :title="$t('test_track.plan_view.actual_result')"
                                          :data="testCase" prop="actualResult"/>
 
                     <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
@@ -545,18 +545,6 @@ p {
 .head-bar {
   z-index: 999;
 }
-
-/*/deep/ .el-textarea.is-disabled .el-textarea__inner {
-  background-color: #FBFBFB !important;
-  color: #606266 !important;
-  height: 48px !important;
-}*/
-
-/*/deep/ .table-edit-input .el-textarea__inner, .table-edit-input .el-input__inner {
-  border-style: solid;
-  height: 30px !important;
-  min-height: 30px !important;
-}*/
 </style>
 
 <style>

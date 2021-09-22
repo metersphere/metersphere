@@ -60,9 +60,4 @@ public class LocalPlatform extends LocalAbstractPlatform {
     public void updateIssue(IssuesUpdateRequest request) {
         handleIssueUpdate(request);
     }
-
-    @Override
-    public void deleteIssue(String id) {
-        issuesMapper.deleteByPrimaryKey(id);
-    }
 }

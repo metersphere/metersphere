@@ -155,7 +155,7 @@ export default {
   },
   created() {
     this.refreshButtonActiveClass(this.activeDom);
-    if (this.currentApi.id !== null && (this.currentProtocol === "HTTP" || this.currentProtocol === "TCP")) {
+    if (this.currentApi.id && (this.currentProtocol === "HTTP" || this.currentProtocol === "TCP")) {
       this.mockSetting();
     }
   },

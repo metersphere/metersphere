@@ -3,10 +3,11 @@
     <el-card class="table-card">
       <template v-slot:header>
         <div style="font-size: 16px;margin-bottom: 20px;margin-left: 10px">
-          {{$t('operating_log.title')}}
+          {{ $t('operating_log.title') }}
         </div>
         <div>
-          <el-form :model="condition" label-position="right" label-width="75px" size="small" ref="basicForm" style="margin-right: 20px">
+          <el-form :model="condition" label-position="right" label-width="75px" size="small" ref="basicForm"
+                   style="margin-right: 20px">
             <el-row>
               <el-col :span="5">
                 <el-form-item :label="$t('operating_log.time')" prop="times">
@@ -34,8 +35,8 @@
                     value-key="email"
                     @select="handleSelect">
                     <template v-slot:default="scope">
-                      <span class="ws-member-name">{{scope.item.name}}</span>
-                      <span class="ws-member-email">{{scope.item.email}}</span>
+                      <span class="ws-member-name">{{ scope.item.name }}</span>
+                      <span class="ws-member-email">{{ scope.item.email }}</span>
                     </template>
                   </el-autocomplete>
                 </el-form-item>
@@ -75,7 +76,7 @@
                     {{ $t('commons.adv_search.search') }}
                   </el-button>
                   <el-button size="small" @click="reset">
-                    {{$t('commons.adv_search.reset')}}
+                    {{ $t('commons.adv_search.reset') }}
                   </el-button>
                 </div>
               </el-col>
@@ -93,20 +94,28 @@
         </el-table-column>
         <el-table-column prop="userName" :label="$t('operating_log.user')"/>
         <el-table-column prop="projectName" :label="$t('commons.project')"/>
-        <el-table-column prop="operType" :label="$t('operating_log.type')">
+        <el-table-column prop="operType" :label="$t('operating_log.type')" width="100px">
           <template v-slot:default="scope">
             <span>{{ getType(scope.row.operType) }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="operModule" :label="$t('operating_log.object')" show-overflow-tooltip width="120px"/>
-        <el-table-column prop="operTitle" :label="$t('operating_log.name')" show-overflow-tooltip width="150px"/>
-        <el-table-column :label="$t('report.test_log_details')">
+        <el-table-column prop="operTitle" :label="$t('operating_log.name')" :show-overflow-tooltip="true" width="180px">
           <template v-slot:default="scope">
-            <el-link style="color: #409EFF" @click="openDetail(scope.row)">{{$t('operating_log.info')}}</el-link>
+            <el-link v-if="isLink(scope.row)" style="color: #409EFF" @click="clickResource(scope.row)">
+              {{ scope.row.operTitle }}
+            </el-link>
+            <span v-else>{{ scope.row.operTitle }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="$t('report.test_log_details')" width="100px">
+          <template v-slot:default="scope">
+            <el-link style="color: #409EFF" @click="openDetail(scope.row)">{{ $t('operating_log.info') }}</el-link>
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"/>
+      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
     </el-card>
 
     <ms-log-detail ref="logDetail" :title="$t('report.test_log_details')"/>
@@ -116,8 +125,8 @@
 <script>
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableOperator from "../../common/components/MsTableOperator";
-  import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId, hasRoles} from "@/common/js/utils";
-  import {PROJECT_ID, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, WORKSPACE_ID} from "@/common/js/constants";
+  import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasRoles} from "@/common/js/utils";
+  import {LOG_TYPE, LOG_TYPE_MAP, sysList, getUrl} from "./config";
   import MsLogDetail from "./LogDetail";
 
   export default {
@@ -140,103 +149,9 @@
         tableData: [],
         userList: [],
         screenHeight: 'calc(100vh - 215px)',
-        LOG_TYPE: [
-          {id: 'CREATE', label: this.$t('api_test.definition.request.create_info')},
-          {id: 'DELETE', label: this.$t('commons.delete')},
-          {id: 'UPDATE', label: this.$t('commons.update')},
-          {id: 'IMPORT', label: this.$t('api_test.api_import.label')},
-          {id: 'EXPORT', label: this.$t('commons.export')},
-          {id: 'ASSOCIATE_CASE', label: this.$t('test_track.review_view.relevance_case')},
-          {id: 'ASSOCIATE_ISSUE', label: this.$t('test_track.case.relate_issue')},
-          {id: 'UN_ASSOCIATE_CASE', label: this.$t('test_track.case.unlink')},
-          {id: 'REVIEW', label: this.$t('test_track.review_view.start_review')},
-          {id: 'COPY', label: this.$t('commons.copy')},
-          {id: 'EXECUTE', label: this.$t('api_test.automation.execute')},
-          {id: 'CREATE_PRE_TEST', label: this.$t('api_test.create_performance_test')},
-          {id: 'SHARE', label: this.$t('operating_log.share')},
-          {id: 'LOGIN', label: this.$t('commons.login')},
-          {id: 'RESTORE', label: this.$t('commons.reduction')},
-          {id: 'DEBUG', label: this.$t('api_test.request.debug')},
-          {id: 'GC', label: this.$t('api_test.automation.trash')},
-          {id: 'BATCH_DEL', label: this.$t('api_test.definition.request.batch_delete')},
-          {id: 'BATCH_UPDATE', label: this.$t('api_test.definition.request.batch_edit')},
-          {id: 'BATCH_ADD', label: this.$t('commons.batch_add')},
-          {id: 'BATCH_RESTORE', label: "批量恢复"},
-          {id: 'BATCH_GC', label: "批量回收"}
-        ],
-        LOG_TYPE_MAP: new Map([
-          ['CREATE', this.$t('api_test.definition.request.create_info')],
-          ['DELETE', this.$t('commons.delete')],
-          ['UPDATE', this.$t('commons.update')],
-          ['IMPORT', this.$t('api_test.api_import.label')],
-          ['EXPORT', this.$t('commons.export')],
-          ['ASSOCIATE_CASE', this.$t('test_track.review_view.relevance_case')],
-          ['ASSOCIATE_ISSUE', this.$t('test_track.case.relate_issue')],
-          ['UN_ASSOCIATE_CASE', this.$t('test_track.case.unlink')],
-          ['REVIEW', this.$t('test_track.review_view.start_review')],
-          ['COPY', this.$t('commons.copy')],
-          ['EXECUTE', this.$t('api_test.automation.execute')],
-          ['CREATE_PRE_TEST', this.$t('api_test.create_performance_test')],
-          ['SHARE', this.$t('operating_log.share')],
-          ['LOGIN', this.$t('commons.login')],
-          ['RESTORE', this.$t('commons.reduction')],
-          ['DEBUG', this.$t('api_test.request.debug')],
-          ['GC', this.$t('api_test.automation.trash')],
-          ['BATCH_DEL', this.$t('api_test.definition.request.batch_delete')],
-          ['BATCH_UPDATE', this.$t('api_test.definition.request.batch_edit')],
-          ['BATCH_ADD', this.$t('commons.batch_add')],
-          ['BATCH_RESTORE', "批量恢复"],
-          ['BATCH_GC', "批量回收"],
-        ]),
-        sysList: [
-          {
-            label: "测试跟踪", value: "测试跟踪", children: [
-              {label: "测试用例", value: "测试用例", leaf: true},
-              {label: "用例评审", value: "用例评审", leaf: true},
-              {label: "测试计划", value: "测试计划", leaf: true},
-              {label: "缺陷管理", value: "缺陷管理", leaf: true},
-              {label: "报告", value: "报告", leaf: true}]
-          },
-          {
-            label: "接口测试", value: "api", children: [
-              {label: "接口定义", value: "接口定义", leaf: true},
-              {label: "接口自动化", value: "接口自动化", leaf: true},
-              {label: "测试报告", value: "测试报告", leaf: true}]
-          },
-          {
-            label: "性能测试", value: "性能测试", children: [
-              {label: "性能测试", value: "性能测试", leaf: true},
-              {label: "性能测试报告", value: "性能测试报告", leaf: true}]
-          },
-          {
-            label: "系统设置", value: "系统设置", children: [
-              {label: "系统-用户", value: "系统-用户", leaf: true},
-              {label: "系统-组织", value: "系统-组织", leaf: true},
-              {label: "工作空间", value: "工作空间", leaf: true},
-              {label: "系统-测试资源池", value: "系统-测试资源池", leaf: true},
-              {label: "系统-系统参数设置", value: "系统-系统参数设置", leaf: true},
-              {label: "系统-配额管理", value: "系统-配额管理", leaf: true},
-              {label: "系统-授权管理", value: "系统-授权管理", leaf: true},
-              {label: "组织-成员", value: "组织-成员", leaf: true},
-              {label: "组织-服务集成", value: "组织-服务集成", leaf: true},
-              {label: "组织-消息设置", value: "组织-消息设置", leaf: true},
-
-              {label: "工作空间-成员", value: "工作空间-成员", leaf: true},
-              {label: "项目-项目管理", value: "项目-项目管理", leaf: true},
-              {label: "工作空间-模版设置", value: "工作空间-模版设置", leaf: true},
-              {label: "工作空间-项目管理", value: "工作空间-项目管理", leaf: true},
-              {label: "项目-项目管理", value: "项目-项目管理", leaf: true},
-              {label: "项目-成员", value: "项目-成员", leaf: true},
-              {label: "工作空间-成员", value: "工作空间-成员", leaf: true},
-
-              {label: "項目-JAR包管理", value: "項目-JAR包管理", leaf: true},
-              {label: "项目-环境设置", value: "项目-环境设置", leaf: true},
-              {label: "项目-文件管理", value: "项目-文件管理", leaf: true},
-              {label: "个人信息-个人设置", value: "个人信息-个人设置", leaf: true},
-              {label: "个人信息-API Keys", value: "个人信息-API Keys", leaf: true}
-            ]
-          },
-        ],
+        LOG_TYPE: new LOG_TYPE(this),
+        LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
+        sysList: sysList,
       }
     },
     mounted() {
@@ -282,6 +197,46 @@
       }
     },
     methods: {
+      isLink(row) {
+        let uri = getUrl(row);
+        if ((row.operType === 'UPDATE' || row.operType === 'CREATE' || row.operType === 'EXECUTE' || row.operType === 'DEBUG') && uri !== "/#") {
+          return true;
+        }
+        return false;
+      },
+      clickResource(resource) {
+        let uri = getUrl(resource);
+        if (!resource.sourceId) {
+            this.toPage(uri);
+        }
+        let operModule = resource.operModule;
+        if (operModule === "系统-系统参数设置" || operModule === "系统-系統參數設置" || operModule === "System parameter setting") {
+          this.toPage(uri);
+        } else {
+          let resourceId = resource.sourceId;
+          if (resourceId && resourceId.startsWith("\"" || resourceId.startsWith("["))) {
+            resourceId = JSON.parse(resource.sourceId);
+          }
+          if (resourceId instanceof Array) {
+            resourceId = resourceId[0];
+          }
+          this.$get('/user/update/currentByResourceId/' + resourceId, () => {
+            this.toPage(uri);
+          });
+        }
+      },
+      toPage(uri) {
+        let id = "new_a";
+        let a = document.createElement("a");
+        a.setAttribute("href", uri);
+        a.setAttribute("target", "_blank");
+        a.setAttribute("id", id);
+        document.body.appendChild(a);
+        a.click();
+
+        let element = document.getElementById(id);
+        element.parentNode.removeChild(element);
+      },
       handleSelect(item) {
         this.$set(this.condition, "operUser", item.id);
       },
@@ -314,7 +269,6 @@
         })
 
       },
-
       reset() {
         let projectIds = this.condition.projectIds;
         this.condition = {projectIds: projectIds};

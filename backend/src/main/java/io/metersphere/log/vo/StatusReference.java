@@ -36,8 +36,26 @@ public class StatusReference {
         statusMap.put("float", "浮点型");
 
         statusMap.put("EMAIL", "邮件");
+        statusMap.put("NAIL_ROBOT", "钉钉机器人");
+        statusMap.put("WECHAT_ROBOT", "企业微信机器人");
+        statusMap.put("LARK", "飞书机器人");
+        statusMap.put("IN_SITE", "站内通知");
+
         statusMap.put("EXECUTE_SUCCESSFUL", "执行成功");
         statusMap.put("EXECUTE_FAILED", "执行失败");
+        statusMap.put("EXECUTE_COMPLETED", "执行完成");
+        statusMap.put("CASE_CREATE", "创建接口用例");
+        statusMap.put("CASE_UPDATE", "修改接口用例");
+        statusMap.put("CASE_DELETE", "删除接口用例");
+        statusMap.put("CLOSE_SCHEDULE", "关闭定时任务");
+        statusMap.put("COMMENT", "评论");
+        statusMap.put("IMPORT", "导入");
+        statusMap.put("CREATOR", "创建人");
+        statusMap.put("EXECUTOR", "负责人");
+        statusMap.put("MAINTAINER", "维护人");
+        statusMap.put("PROCESSOR", "处理人");
+        statusMap.put("FOLLOW_PEOPLE", "关注人");
+
         statusMap.put("JENKINS_TASK", "Jenkins接口调用任务通知");
         statusMap.put("DEFECT_TASK", "缺陷任务通知");
         statusMap.put("CREATE", "创建");
@@ -51,6 +69,8 @@ public class StatusReference {
         statusMap.put("TEST_PLAN_TASK", "测试计划任务");
         statusMap.put("REVIEW_TASK", "评审任务");
         statusMap.put("SWAGGER_TASK", "SWAGGER 任务");
+        statusMap.put("SWAGGER_URL", "SWAGGER 地址");
+        statusMap.put("SCHEDULE_TASK", "定时任务");
         statusMap.put("API_AUTOMATION_TASK", "接口自动化任务");
         statusMap.put("API_DEFINITION_TASK", "接口定义任务");
         statusMap.put("API_HOME_TASK", "接口主页任务");

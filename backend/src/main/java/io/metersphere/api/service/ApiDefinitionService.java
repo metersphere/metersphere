@@ -29,6 +29,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
@@ -113,8 +114,13 @@ public class ApiDefinitionService {
     private TestPlanMapper testPlanMapper;
     @Resource
     private NoticeSendService noticeSendService;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
+
+    private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
+    private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -145,7 +151,7 @@ public class ApiDefinitionService {
      */
     private ApiDefinitionRequest initRequest(ApiDefinitionRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
         if (setDefultOrders) {
-            request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+            request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         }
         if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
@@ -245,34 +251,34 @@ public class ApiDefinitionService {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(request.getIds());
             List<ApiDefinition> reductionCaseList = apiDefinitionMapper.selectByExample(example);
-            Map<String,List<ApiDefinition>> nodeMap = new HashMap<>();
-            for (ApiDefinition api:reductionCaseList) {
+            Map<String, List<ApiDefinition>> nodeMap = new HashMap<>();
+            for (ApiDefinition api : reductionCaseList) {
                 String moduleId = api.getModuleId();
-                if(StringUtils.isEmpty(moduleId)){
+                if (StringUtils.isEmpty(moduleId)) {
                     moduleId = "";
                 }
-                if(nodeMap.containsKey(moduleId)){
+                if (nodeMap.containsKey(moduleId)) {
                     nodeMap.get(moduleId).add(api);
-                }else {
+                } else {
                     List<ApiDefinition> list = new ArrayList<>();
                     list.add(api);
-                    nodeMap.put(moduleId,list);
+                    nodeMap.put(moduleId, list);
                 }
             }
 //            Map<String,List<ApiDefinition>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(ApiDefinition :: getModuleId));
             ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-            for(Map.Entry<String,List<ApiDefinition>> entry : nodeMap.entrySet()){
+            for (Map.Entry<String, List<ApiDefinition>> entry : nodeMap.entrySet()) {
                 String nodeId = entry.getKey();
                 long nodeCount = apiModuleService.countById(nodeId);
-                if(nodeCount <= 0){
+                if (nodeCount <= 0) {
                     String projectId = request.getProjectId();
-                    ApiModule node = apiModuleService.getDefaultNode(projectId,request.getProtocol());
+                    ApiModule node = apiModuleService.getDefaultNode(projectId, request.getProtocol());
                     List<ApiDefinition> testCaseList = entry.getValue();
-                    for (ApiDefinition apiDefinition: testCaseList) {
+                    for (ApiDefinition apiDefinition : testCaseList) {
                         ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
                         updateCase.setId(apiDefinition.getId());
                         updateCase.setModuleId(node.getId());
-                        updateCase.setModulePath("/"+node.getName());
+                        updateCase.setModulePath("/" + node.getName());
 
                         apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
                     }
@@ -293,7 +299,7 @@ public class ApiDefinitionService {
 
     private void checkNameExist(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
-        if (request.getProtocol().equals(RequestType.HTTP)) {
+        if (StringUtils.isNotEmpty(request.getProtocol()) && request.getProtocol().equals(RequestType.HTTP)) {
             ApiDefinitionExample.Criteria criteria = example.createCriteria();
             criteria.andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
@@ -330,15 +336,32 @@ public class ApiDefinitionService {
         }
     }
 
+    private List<ApiDefinition> getSameRequestById(String id, String projectId) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andStatusNotEqualTo("Trash")
+                .andProjectIdEqualTo(projectId)
+                .andIdEqualTo(id);
+        return apiDefinitionMapper.selectByExample(example);
+    }
+
     private List<ApiDefinition> getSameRequestWithName(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria()
-                .andMethodEqualTo(request.getMethod())
-                .andStatusNotEqualTo("Trash")
-                .andPathEqualTo(request.getPath())
-                .andNameEqualTo(request.getName())
-                .andProjectIdEqualTo(request.getProjectId())
-                .andIdNotEqualTo(request.getId());
+        if (request.getProtocol().equals(RequestType.HTTP)) {
+            example.createCriteria()
+                    .andMethodEqualTo(request.getMethod())
+                    .andStatusNotEqualTo("Trash")
+                    .andPathEqualTo(request.getPath())
+                    .andNameEqualTo(request.getName())
+                    .andProjectIdEqualTo(request.getProjectId())
+                    .andIdNotEqualTo(request.getId());
+        } else {
+            example.createCriteria()
+                    .andStatusNotEqualTo("Trash")
+                    .andNameEqualTo(request.getName())
+                    .andProjectIdEqualTo(request.getProjectId())
+                    .andIdNotEqualTo(request.getId());
+        }
+
         return apiDefinitionMapper.selectByExample(example);
 
     }
@@ -406,13 +429,14 @@ public class ApiDefinitionService {
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
         test.setFollowPeople(request.getFollowPeople());
+        test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiDefinitionMapper::getLastOrder));
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
-            example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("默认模块");
+            example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
             List<ApiModule> modules = apiModuleMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(modules)) {
                 test.setModuleId(modules.get(0).getId());
-                test.setModulePath("/默认模块");
+                test.setModulePath("/未规划接口");
             }
         }
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
@@ -466,13 +490,20 @@ public class ApiDefinitionService {
             // 如果勾选了允许重复，则判断更新要加上name字段
             sameRequest = getSameRequestWithName(saveReq);
         }
+        if (CollectionUtils.isEmpty(sameRequest)) {
+            sameRequest = getSameRequestById(apiDefinition.getId(), apiTestImportRequest.getProjectId());
+        }
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 //postman 可能含有前置脚本，接口定义去掉脚本
-                String requestStr = setImportHashTree(apiDefinition);
+                apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
                 batchMapper.insert(apiDefinition);
+                String originId = apiDefinition.getId();
+                apiDefinition.setId(UUID.randomUUID().toString());
+                String requestStr = setImportHashTree(apiDefinition);
+                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 apiDefinition.setRequest(requestStr);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
             }
@@ -483,23 +514,46 @@ public class ApiDefinitionService {
         return apiDefinition;
     }
 
+    private Long getImportNextOrder(String projectId) {
+        Long order = currentApiOrder.get();
+        if (order == null) {
+            order = ServiceUtils.getNextOrder(projectId, extApiDefinitionMapper::getLastOrder);
+        }
+        order = (order == null ? 0 : order) + 5000;
+        currentApiOrder.set(order);
+        return order;
+    }
+
+    private Long getImportNextCaseOrder(String projectId) {
+        Long order = currentApiCaseOrder.get();
+        if (order == null) {
+            order = ServiceUtils.getNextOrder(projectId, extApiTestCaseMapper::getLastOrder);
+        }
+        order = (order == null ? 0 : order) + 5000;
+        currentApiCaseOrder.set(order);
+        return order;
+    }
+
     private void _importCreate(List<ApiDefinition> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
                                ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases) {
+        String originId = apiDefinition.getId();
         if (CollectionUtils.isEmpty(sameRequest)) {
+            apiDefinition.setId(UUID.randomUUID().toString());
+            apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
+            reSetImportCasesApiId(cases, originId, apiDefinition.getId());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
-                String request = setImportHashTree(apiDefinition);
                 batchMapper.insert(apiDefinition);
+                String request = setImportHashTree(apiDefinition);
                 apiDefinition.setRequest(request);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
-                    String request = setImportTCPHashTree(apiDefinition);
+                    setImportTCPHashTree(apiDefinition);
                 }
                 batchMapper.insert(apiDefinition);
             }
 
         } else {
-            String originId = apiDefinition.getId();
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 //如果存在则修改
                 apiDefinition.setId(sameRequest.get(0).getId());
@@ -507,25 +561,38 @@ public class ApiDefinitionService {
                 apiDefinition.setModuleId(sameRequest.get(0).getModuleId());
                 apiDefinition.setModulePath(sameRequest.get(0).getModulePath());
                 apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
+                apiDefinition.setOrder(sameRequest.get(0).getOrder());
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 apiDefinition.setRequest(request);
+                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, false);
-                // 如果是带用例导出，重新设置接口id
-                if (CollectionUtils.isNotEmpty(cases)) {
-                    cases.forEach(item -> {
-                        if (StringUtils.equals(item.getApiDefinitionId(), originId)) {
-                            item.setApiDefinitionId(apiDefinition.getId());
-                        }
-                    });
-                }
             } else {
                 apiDefinition.setId(sameRequest.get(0).getId());
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
-                    String request = setImportTCPHashTree(apiDefinition);
+                    setImportTCPHashTree(apiDefinition);
                 }
+                apiDefinition.setOrder(sameRequest.get(0).getOrder());
+                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
             }
 
+        }
+    }
+
+    /**
+     * 如果是MS格式，带用例导出，最后创建用例，重新设置接口id
+     *
+     * @param cases
+     * @param originId
+     * @param newId
+     */
+    private void reSetImportCasesApiId(List<ApiTestCaseWithBLOBs> cases, String originId, String newId) {
+        if (CollectionUtils.isNotEmpty(cases)) {
+            cases.forEach(item -> {
+                if (StringUtils.equals(item.getApiDefinitionId(), originId)) {
+                    item.setApiDefinitionId(newId);
+                }
+            });
         }
     }
 
@@ -592,15 +659,20 @@ public class ApiDefinitionService {
         SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
         checkRequest.setName(apiTestCase.getName());
         checkRequest.setApiDefinitionId(apiTestCase.getApiDefinitionId());
+        checkRequest.setId(apiTestCase.getId());
         ApiTestCase sameCase = apiTestCaseService.getSameCase(checkRequest);
+        if (sameCase == null) {
+            sameCase = apiTestCaseService.getSameCaseById(checkRequest);
+        }
         apiTestCase.setUpdateUserId(SessionUtils.getUserId());
         if (sameCase == null) {
             apiTestCase.setId(UUID.randomUUID().toString());
-            apiTestCase.setNum(getNextNum(apiTestCase.getApiDefinitionId()));
+            apiTestCase.setNum(apiTestCaseService.getNextNum(apiTestCase.getApiDefinitionId()));
             apiTestCase.setCreateTime(System.currentTimeMillis());
             apiTestCase.setUpdateTime(System.currentTimeMillis());
             apiTestCase.setCreateUserId(SessionUtils.getUserId());
             apiTestCase.setProjectId(SessionUtils.getCurrentProjectId());
+            apiTestCase.setOrder(getImportNextCaseOrder(apiTestImportRequest.getProjectId()));
             apiTestCaseMapper.insert(apiTestCase);
         } else if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             apiTestCase.setId(sameCase.getId());
@@ -609,6 +681,7 @@ public class ApiDefinitionService {
             apiTestCase.setPriority(sameCase.getPriority());
             apiTestCase.setCreateUserId(sameCase.getCreateUserId());
             apiTestCase.setNum(sameCase.getNum());
+            apiTestCase.setOrder(sameCase.getOrder());
             apiTestCase.setProjectId(sameCase.getProjectId());
             apiTestCase.setVersion((sameCase.getVersion() == null ? 0 : sameCase.getVersion()) + 1);
             apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
@@ -672,10 +745,10 @@ public class ApiDefinitionService {
         }
 
 
-        try{
+        try {
             //检查TCP数据结构，等其他进行处理
             tcpApiParamService.checkTestElement(request.getTestElement());
-        }catch (Exception e){
+        } catch (Exception e) {
         }
 
         HashTree hashTree = request.getTestElement().generateHashTree(config);
@@ -702,7 +775,10 @@ public class ApiDefinitionService {
             result.getResponseResult().setConsole(res.getConsole());
             cache.put(res.getTestId(), result);
         } else {
-            MSException.throwException(Translator.get("test_not_found"));
+            RequestResult result = new RequestResult();
+            result.getResponseResult().setConsole(res.getConsole());
+            cache.put(res.getTestId(), result);
+            //MSException.throwException(Translator.get("test_not_found"));
         }
     }
 
@@ -770,7 +846,7 @@ public class ApiDefinitionService {
     private void setModule(ApiDefinitionWithBLOBs item) {
         if (item != null && StringUtils.isEmpty(item.getModuleId()) || "default-module".equals(item.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
-            example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo("默认模块");
+            example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo("未规划接口");
             List<ApiModule> modules = apiModuleMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(modules)) {
                 item.setModuleId(modules.get(0).getId());
@@ -780,7 +856,7 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
-
+        //通过platform，获取对应的导入解析类型。
         ApiImportParser apiImportParser = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         try {
@@ -828,13 +904,15 @@ public class ApiDefinitionService {
                     .paramMap(paramMap)
                     .event(NoticeConstants.Event.EXECUTE_SUCCESSFUL)
                     .build();
-            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, noticeModel);
+            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
         }
         return apiImport;
     }
 
     private void importApi(ApiTestImportRequest request, ApiDefinitionImport apiImport) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        currentApiCaseOrder.remove();
+        currentApiOrder.remove();
         List<ApiDefinitionWithBLOBs> data = apiImport.getData();
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
@@ -1017,14 +1095,14 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
         calculateResult(resList, request.getProjectId());
         return resList;
     }
 
     public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
         calculateResult(resList, request.getProjectId());
         resList = extApiDefinitionMapper.list(request);
@@ -1034,7 +1112,7 @@ public class ApiDefinitionService {
     public void calculateResult(List<ApiDefinitionResult> resList, String projectId) {
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids, projectId);
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
             Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
@@ -1110,6 +1188,7 @@ public class ApiDefinitionService {
 
     /**
      * 列表开关切换
+     *
      * @param request
      */
     public void switchSchedule(Schedule request) {
@@ -1349,7 +1428,7 @@ public class ApiDefinitionService {
         List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(apiDefinitionExample);
         List<String> apiIdList = new ArrayList<>();
         apiList.forEach(item -> {
-         apiIdList.add(item.getId());
+            apiIdList.add(item.getId());
         });
         this.removeToGc(apiIdList);
     }
@@ -1357,5 +1436,48 @@ public class ApiDefinitionService {
     public APIReportResult getTestPlanApiCaseReport(String testId, String type) {
         ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(testId, type);
         return buildAPIReportResult(result);
+    }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(ApiDefinitionWithBLOBs.class, ApiDefinitionMapper.class,
+                extApiDefinitionMapper::selectProjectIds,
+                extApiDefinitionMapper::getIdsOrderByUpdateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     *
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, ApiDefinitionWithBLOBs.class,
+                apiDefinitionMapper::selectByPrimaryKey,
+                extApiDefinitionMapper::getPreOrder,
+                extApiDefinitionMapper::getLastOrder,
+                apiDefinitionMapper::updateByPrimaryKeySelective);
+    }
+
+    public ApiDefinitionResult getById(String id) {
+        ApiDefinitionRequest request = new ApiDefinitionRequest();
+        request.setId(id);
+        List<ApiDefinitionResult> list = list(request);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0);
+        }
+        return null;
+    }
+
+    public long countEffectiveByProjectId(String projectId) {
+        if (StringUtils.isEmpty(projectId)) {
+            return 0;
+        } else {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
+            return apiDefinitionMapper.countByExample(example);
+        }
+    }
+
+    public long countQuotedApiByProjectId(String projectId) {
+        return extApiDefinitionMapper.countQuotedApiByProjectId(projectId);
     }
 }

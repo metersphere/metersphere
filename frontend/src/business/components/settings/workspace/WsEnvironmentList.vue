@@ -56,10 +56,10 @@
     <!-- 创建、编辑、复制环境时的对话框 -->
     <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :title="dialogTitle" width="66%">
       <div class="project-item">
-        <div>
+        <span>
           {{$t('project.select')}}
-        </div>
-        <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
+        </span>
+        <el-select style="width: 50%" @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
           <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </div>
@@ -401,7 +401,7 @@
   }
 
   .project-item {
-    padding-left: 20px;
+    padding-left: 10px;
     padding-right: 20px;
   }
 

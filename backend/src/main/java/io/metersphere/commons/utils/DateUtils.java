@@ -59,6 +59,14 @@ public class DateUtils {
         return calendar.getTime();
     }
 
+    public static Date dateSum (Date date,int countUnit,int calendarType){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(calendarType,countUnit);
+
+        return calendar.getTime();
+    }
+
     /**
      * 获取入参日期所在周的周一周末日期。 日期对应的时间为当日的零点
      *
@@ -100,19 +108,14 @@ public class DateUtils {
 
 
     public static void main(String[] args) throws Exception {
-        System.out.println("start:");
-        Date paramTime = getTime(getTimeString(new Long("1607672440731")));
-
-        Map<String, Date> weekDate = getWeedFirstTimeAndLastTime(paramTime);
-
-        for (Map.Entry<String, Date> entry :
-                weekDate.entrySet()) {
-            System.out.println(entry.getKey() + ":" + getTimeString(entry.getValue())+":"+entry.getValue().getTime());
-        }
-
-        long countTimeLong = new Long("1607672440731");
-
-        System.out.println(getTimeString(--countTimeLong));
+        Date now = new Date();
+        System.out.println(getTimeString(now));
+        Date afterDate = dateSum(now,-30,Calendar.DAY_OF_MONTH);
+        System.out.println(getTimeString(afterDate));
+        afterDate = dateSum(now,-17,Calendar.MONTH);
+        System.out.println(getTimeString(afterDate));
+        afterDate = dateSum(now,-20,Calendar.YEAR);
+        System.out.println(getTimeString(afterDate));
 
     }
 

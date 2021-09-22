@@ -153,6 +153,11 @@
 </template>
 
 <script>
+import {
+  getPerformanceReportErrorsContent, getPerformanceReportErrorsTop5,
+  getSharePerformanceReportErrorsContent, getSharePerformanceReportErrorsTop5
+} from "@/network/load-test";
+
 export default {
   name: "ErrorLog",
   data() {
@@ -167,40 +172,61 @@ export default {
       id: ''
     };
   },
+  props: ['report', 'isShare', 'shareId', 'planReportTemplate'],
   methods: {
     initTableData() {
-      this.$get("/performance/report/content/errors/" + this.id).then(res => {
-        this.tableData = res.data.data;
-      }).catch(() => {
-        this.tableData = [];
+      if (this.planReportTemplate) {
+        this.tableData = this.planReportTemplate.reportErrors;
+        this.handleGetTop5(this.planReportTemplate.reportErrorsTop5);
+      } else if (this.isShare){
+        getSharePerformanceReportErrorsContent(this.shareId, this.id).then(res => {
+          this.tableData = res.data.data;
+        });
+
+        getSharePerformanceReportErrorsTop5(this.shareId, this.id).then(res => {
+          this.handleGetTop5(res.data.data);
+        });
+      } else {
+        getPerformanceReportErrorsContent(this.id).then(res => {
+          this.tableData = res.data.data;
+        });
+
+        getPerformanceReportErrorsTop5(this.id).then(res => {
+          this.handleGetTop5(res.data.data);
+        });
+      }
+    },
+    handleGetTop5(data) {
+      if (!data) {
+        return;
+      }
+      this.errorTop1 = data.map(e => {
+        return {error1: e.error1, error1Size: e.error1Size};
       });
-      this.$get("/performance/report/content/errors_top5/" + this.id).then(res => {
-        this.errorTop1 = res.data.data.map(e => {
-          return {error1: e.error1, error1Size: e.error1Size};
-        });
-        this.errorTop2 = res.data.data.map(e => {
-          return {error2: e.error2, error2Size: e.error2Size};
-        });
-        this.errorTop3 = res.data.data.map(e => {
-          return {error3: e.error3, error3Size: e.error3Size};
-        });
-        this.errorTop4 = res.data.data.map(e => {
-          return {error4: e.error4, error4Size: e.error4Size};
-        });
-        this.errorTop5 = res.data.data.map(e => {
-          return {error5: e.error5, error5Size: e.error5Size};
-        });
-        this.errorSummary = res.data.data.map(e => {
-          return {sample: e.sample, samples: e.samples, errorsAllSize: e.errorsAllSize};
-        });
-      }).catch(() => {
-        this.errorTop1 = [];
-        this.errorTop2 = [];
-        this.errorTop3 = [];
-        this.errorTop4 = [];
-        this.errorTop5 = [];
-        this.errorSummary = [];
+      this.errorTop2 = data.map(e => {
+        return {error2: e.error2, error2Size: e.error2Size};
       });
+      this.errorTop3 = data.map(e => {
+        return {error3: e.error3, error3Size: e.error3Size};
+      });
+      this.errorTop4 = data.map(e => {
+        return {error4: e.error4, error4Size: e.error4Size};
+      });
+      this.errorTop5 = data.map(e => {
+        return {error5: e.error5, error5Size: e.error5Size};
+      });
+      this.errorSummary = data.map(e => {
+        return {sample: e.sample, samples: e.samples, errorsAllSize: e.errorsAllSize};
+      });
+    },
+    initData() {
+      this.tableData = [];
+      this.errorTop1 = [];
+      this.errorTop2 = [];
+      this.errorTop3 = [];
+      this.errorTop4 = [];
+      this.errorTop5 = [];
+      this.errorSummary = [];
     }
   },
   watch: {
@@ -224,9 +250,16 @@ export default {
         }
       },
       deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.initTableData();
+        }
+      },
+      deep: true
     }
   },
-  props: ['report']
 };
 </script>
 

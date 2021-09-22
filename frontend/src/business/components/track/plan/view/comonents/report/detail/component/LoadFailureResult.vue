@@ -1,50 +1,47 @@
 <template>
-    <div class="container">
-      <el-table
-        row-key="id"
-        @row-click="rowClick"
-        :highlight-current-row="true"
-        :data="loadTestCases">
-        <el-table-column
-          prop="num"
-          :label="$t('commons.id')"
-          show-overflow-tooltip>
-          <template v-slot:default="{row}">
-            {{row.isCustomNum ? row.customNum : row.num }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          :label="$t('commons.name')"
-          show-overflow-tooltip>
-        </el-table-column>
+  <el-table
+      row-key="id"
+      @row-click="rowClick"
+      :highlight-current-row="true"
+      :data="loadTestCases">
+      <el-table-column
+        prop="num"
+        :label="$t('commons.id')"
+        show-overflow-tooltip>
+        <template v-slot:default="{row}">
+          {{row.isCustomNum ? row.customNum : row.num }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="name"
+        :label="$t('commons.name')"
+        show-overflow-tooltip>
+      </el-table-column>
 
-        <el-table-column
-          prop="userName"
-          :label="$t('commons.create_user')">
-        </el-table-column>
+      <el-table-column
+        prop="userName"
+        :label="$t('commons.create_user')">
+      </el-table-column>
 
-        <el-table-column
-          prop="status"
-          column-key="status"
-          :label="$t('test_track.plan_view.execute_result')">
-            <template v-slot:default="{row}">
-              <el-tag size="mini" type="danger" v-if="row.status === 'error'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" type="success" v-else-if="row.status === 'success'">
-                {{ row.status }}
-              </el-tag>
-              <el-tag size="mini" v-else-if="row.status === 'run'">
-                {{ row.status }}
-              </el-tag>
-              <span v-else>-</span>
-            </template>
-        </el-table-column>
+      <el-table-column
+        prop="status"
+        column-key="status"
+        :label="$t('test_track.plan_view.execute_result')">
+        <template v-slot:default="{row}">
+          <el-tag size="mini" type="danger" v-if="row.status === 'error'">
+            {{ row.status }}
+          </el-tag>
+          <el-tag size="mini" type="success" v-else-if="row.status === 'success'">
+            {{ row.status }}
+          </el-tag>
+          <el-tag size="mini" v-else-if="row.status === 'run'">
+            {{ row.status }}
+          </el-tag>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
 
-      </el-table>
-    </div>
-
+    </el-table>
 </template>
 
 <script>
@@ -88,9 +85,9 @@ export default {
     getFailureTestCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isAll) {
-          this.loadTestCases = this.report.loadAllCases;
+          this.loadTestCases = this.report.loadAllCases ? this.report.loadAllCases : [];
         } else {
-          this.loadTestCases = this.report.loadFailureCases;
+          this.loadTestCases = this.report.loadFailureCases ? this.report.loadFailureCases : [];
         }
       } else if (this.isShare) {
         if (this.isAll) {

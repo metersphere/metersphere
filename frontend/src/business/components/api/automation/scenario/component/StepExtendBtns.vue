@@ -23,22 +23,26 @@
 </template>
 
 <script>
-import {ELEMENTS} from "../Setting";
+import {STEP} from "../Setting";
 import MsVariableList from "../variable/VariableList";
 import MsAddBasisApi from "../api/AddBasisApi";
 import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 
 export default {
   name: "StepExtendBtns",
-  components: {ELEMENTS, MsVariableList, MsAddBasisApi},
+  components: {STEP, MsVariableList, MsAddBasisApi},
   props: {
     data: Object,
   },
   data() {
     return {
-      allSamplers: ELEMENTS.get('AllSamplerProxy'),
+      allSamplers: [],
       currentProtocol: "HTTP",
+      filter: new STEP,
     }
+  },
+  mounted() {
+    this.allSamplers = this.filter.get('DEFINITION');
   },
   methods: {
     handleCommand(cmd) {
@@ -63,9 +67,9 @@ export default {
     getScenario() {
       this.result = this.$get("/api/automation/getApiScenario/" + this.data.id, response => {
         if (response.data) {
-          if(response.data.projectId === getCurrentProjectID()) {
+          if (response.data.projectId === getCurrentProjectID()) {
             this.$emit('openScenario', response.data);
-          }else{
+          } else {
             let automationData = this.$router.resolve({
               name: 'ApiAutomation',
               params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + response.data.id}

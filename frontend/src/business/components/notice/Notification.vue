@@ -25,10 +25,10 @@
                custom-class="ms-drawer-task">
       <div style="margin: 0px 20px 0px">
         <el-tabs :active-name="activeName">
-          <el-tab-pane label="@提到我的" name="mentionedMe">
+          <el-tab-pane :label="$t('commons.mentioned_me_notice')" name="mentionedMe">
             <mentioned-me-data ref="mentionedMe" :user-list="userList"/>
           </el-tab-pane>
-          <el-tab-pane label="系统通知" name="systemNotice">
+          <el-tab-pane :label="$t('commons.system_notice')" name="systemNotice">
             <system-notice-data ref="systemNotice" :user-list="userList"/>
           </el-tab-pane>
         </el-tabs>
@@ -163,7 +163,7 @@ export default {
           }
           d.user = this.userMap[d.operator];
           let message = d.user.name + getOperation(d.operation) + getResource(d) + ": " + d.resourceName;
-          let title = d.type === 'MENTIONED_ME' ? '@提到我的' : '系统通知';
+          let title = d.type === 'MENTIONED_ME' ? this.$t('commons.mentioned_me_notice') : this.$t('commons.system_notice');
           setTimeout(() => {
             this.$notify({
               title: title,

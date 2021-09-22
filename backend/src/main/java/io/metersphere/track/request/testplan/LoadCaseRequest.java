@@ -18,5 +18,5 @@ public class LoadCaseRequest extends TestPlanLoadCase {
     private String status;
     private Map<String, List<String>> filters;
     private List<OrderRequest> orders;
-
+    private Map<String, Object> combine;
 }
