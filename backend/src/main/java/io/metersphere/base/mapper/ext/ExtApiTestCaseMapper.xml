@@ -234,14 +234,7 @@
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                     <choose>
-                         <when test="order.name === 'path'">
-                             a.${order.name} ${order.type}
-                         </when>
-                         <otherwise>
-                             t1.${order.name} ${order.type}
-                         </otherwise>
-                     </choose>
+                t1.${order.name} ${order.type}
             </foreach>
         </if>
 
