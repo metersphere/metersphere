@@ -246,7 +246,6 @@ export default {
       return '';
     },
     addParameters(v) {
-      console.log(v);
       v.id = getUUID();
       if (v.type === 'CSV') {
         v.delimiter = ",";
