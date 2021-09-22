@@ -94,13 +94,13 @@
         </el-table-column>
         <el-table-column prop="userName" :label="$t('operating_log.user')"/>
         <el-table-column prop="projectName" :label="$t('commons.project')"/>
-        <el-table-column prop="operType" :label="$t('operating_log.type')">
+        <el-table-column prop="operType" :label="$t('operating_log.type')" width="100px">
           <template v-slot:default="scope">
             <span>{{ getType(scope.row.operType) }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="operModule" :label="$t('operating_log.object')" show-overflow-tooltip width="120px"/>
-        <el-table-column prop="operTitle" :label="$t('operating_log.name')" show-overflow-tooltip width="150px">
+        <el-table-column prop="operTitle" :label="$t('operating_log.name')" :show-overflow-tooltip="true" width="180px">
           <template v-slot:default="scope">
             <el-link v-if="isLink(scope.row)" style="color: #409EFF" @click="clickResource(scope.row)">
               {{ scope.row.operTitle }}
@@ -108,7 +108,7 @@
             <span v-else>{{ scope.row.operTitle }}</span>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('report.test_log_details')">
+        <el-table-column :label="$t('report.test_log_details')" width="100px">
           <template v-slot:default="scope">
             <el-link style="color: #409EFF" @click="openDetail(scope.row)">{{ $t('operating_log.info') }}</el-link>
           </template>
