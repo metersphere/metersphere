@@ -284,6 +284,7 @@
             :onSampleError="onSampleError"
             :execDebug="stopDebug"
             :isFullUrl.sync="isFullUrl"
+            :clearMessage="clearMessage"
             @closePage="close"
             @unFullScreen="unFullScreen"
             @showAllBtn="showAllBtn"
@@ -451,6 +452,7 @@ export default {
       buttonData: [],
       stepFilter: new STEP,
       plugins: [],
+      clearMessage: "",
     }
   },
   created() {
@@ -1137,6 +1139,7 @@ export default {
               let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
               if (!sign) {
                 this.buttonIsLoading = false;
+                this.clearMessage = getUUID().substring(0, 8);
                 return;
               }
               //调试时不再保存
@@ -1157,6 +1160,8 @@ export default {
               this.debugLoading = true;
             })
           })
+        } else {
+          this.clearMessage = getUUID().substring(0, 8);
         }
       })
     },
@@ -1401,6 +1406,7 @@ export default {
       this.debugLoading = false;
       this.debugVisible = false;
       this.loading = false;
+      this.clearMessage = getUUID().substring(0, 8);
     },
     showScenarioParameters() {
       this.$refs.scenarioParameters.open(this.currentScenario.variables, this.currentScenario.headers);
