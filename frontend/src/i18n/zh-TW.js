@@ -813,7 +813,7 @@ export default {
     export_config: "導出",
     enable_validate_tip: "沒有可用請求",
     copy: "復制測試",
-    batch_add_parameter: "格式：參數名:必填:參數值:備註 <br/> 如：Accept-Encoding:必填:utf-8:編碼",
+    batch_add_parameter: "格式：參數名:參數值 <br/> 如：Accept-Encoding:utf-8",
     jar_config: {
       title: "jar包管理",
       jar_file: "jar包",
