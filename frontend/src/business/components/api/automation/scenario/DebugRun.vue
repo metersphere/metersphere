@@ -33,6 +33,18 @@ export default {
     }
   },
   methods: {
+    sort(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sort(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     run() {
       let testPlan = createComponent('TestPlan');
       testPlan.clazzName = TYPE_TO_C.get(testPlan.type);
@@ -47,6 +59,7 @@ export default {
       this.runData.clazzName = TYPE_TO_C.get(this.runData.type);
       threadGroup.hashTree.push(this.runData);
       testPlan.hashTree.push(threadGroup);
+      this.sort(testPlan.hashTree);
       let reqObj = {
         id: this.reportId, reportId: this.reportId, scenarioName: this.runData.name, saved: this.saved,
         scenarioId: this.runData.id, testElement: testPlan, projectId: getCurrentProjectID(), environmentMap: strMapToObj(map)
