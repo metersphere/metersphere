@@ -205,23 +205,21 @@
         return false;
       },
       clickResource(resource) {
-        if (!resource.sourceId) {
-          this.$get('/user/update/currentByResourceId/' + resourceId, () => {
-            this.toPage(uri);
-          });
-        }
-        let resourceId = resource.sourceId;
-        if (resourceId && resourceId.startsWith("\"" || resourceId.startsWith("["))) {
-          resourceId = JSON.parse(resource.sourceId);
-        }
-        if (resourceId instanceof Array) {
-          resourceId = resourceId[0];
-        }
         let uri = getUrl(resource);
+        if (!resource.sourceId) {
+            this.toPage(uri);
+        }
         let operModule = resource.operModule;
         if (operModule === "系统-系统参数设置" || operModule === "系统-系統參數設置" || operModule === "System parameter setting") {
           this.toPage(uri);
         } else {
+          let resourceId = resource.sourceId;
+          if (resourceId && resourceId.startsWith("\"" || resourceId.startsWith("["))) {
+            resourceId = JSON.parse(resource.sourceId);
+          }
+          if (resourceId instanceof Array) {
+            resourceId = resourceId[0];
+          }
           this.$get('/user/update/currentByResourceId/' + resourceId, () => {
             this.toPage(uri);
           });
