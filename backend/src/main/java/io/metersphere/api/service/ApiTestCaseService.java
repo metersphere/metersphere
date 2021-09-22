@@ -150,7 +150,13 @@ public class ApiTestCaseService {
     private ApiTestCaseRequest initRequest(ApiTestCaseRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
         if (setDefultOrders) {
             List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
-            orders.forEach(i -> i.setPrefix("t1"));
+            orders.forEach(i -> {
+                if (i.getName().equals("path")) {
+                    i.setPrefix("a");
+                } else {
+                    i.setPrefix("t1");
+                }
+            });
             request.setOrders(orders);
         }
         if (checkThisWeekData) {
