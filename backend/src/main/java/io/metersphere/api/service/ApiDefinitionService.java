@@ -648,7 +648,8 @@ public class ApiDefinitionService {
         SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
         checkRequest.setName(apiTestCase.getName());
         checkRequest.setApiDefinitionId(apiTestCase.getApiDefinitionId());
-        ApiTestCase sameCase = apiTestCaseService.getSameCase(checkRequest);
+        checkRequest.setId(apiTestCase.getId());
+        ApiTestCase sameCase = apiTestCaseService.getImportSameCase(checkRequest);
         apiTestCase.setUpdateUserId(SessionUtils.getUserId());
         if (sameCase == null) {
             apiTestCase.setId(UUID.randomUUID().toString());

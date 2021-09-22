@@ -124,7 +124,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                     parseModule(item.getModulePath(), importRequest, item);
                 }
 
-                item.setId(UUID.randomUUID().toString());
+//                item.setId(UUID.randomUUID().toString());
                 item.setProjectId(this.projectId);
             });
         }
