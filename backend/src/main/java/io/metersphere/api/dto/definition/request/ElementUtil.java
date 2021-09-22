@@ -264,7 +264,7 @@ public class ElementUtil {
             put("ThreadGroup", "io.metersphere.api.dto.definition.request.MsThreadGroup");
             put("DNSCacheManager", "io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager");
             put("DebugSampler", "io.metersphere.api.dto.definition.request.sampler.MsDebugSampler");
-
+            put("AuthManager", "io.metersphere.api.dto.definition.request.auth.MsAuthManager");
         }
     };
 
