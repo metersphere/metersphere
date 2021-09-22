@@ -346,13 +346,22 @@ public class ApiDefinitionService {
 
     private List<ApiDefinition> getSameRequestWithName(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria()
-                .andMethodEqualTo(request.getMethod())
-                .andStatusNotEqualTo("Trash")
-                .andPathEqualTo(request.getPath())
-                .andNameEqualTo(request.getName())
-                .andProjectIdEqualTo(request.getProjectId())
-                .andIdNotEqualTo(request.getId());
+        if (request.getProtocol().equals(RequestType.HTTP)) {
+            example.createCriteria()
+                    .andMethodEqualTo(request.getMethod())
+                    .andStatusNotEqualTo("Trash")
+                    .andPathEqualTo(request.getPath())
+                    .andNameEqualTo(request.getName())
+                    .andProjectIdEqualTo(request.getProjectId())
+                    .andIdNotEqualTo(request.getId());
+        } else {
+            example.createCriteria()
+                    .andStatusNotEqualTo("Trash")
+                    .andNameEqualTo(request.getName())
+                    .andProjectIdEqualTo(request.getProjectId())
+                    .andIdNotEqualTo(request.getId());
+        }
+
         return apiDefinitionMapper.selectByExample(example);
 
     }
@@ -489,9 +498,12 @@ public class ApiDefinitionService {
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 //postman 可能含有前置脚本，接口定义去掉脚本
-                String requestStr = setImportHashTree(apiDefinition);
                 apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
                 batchMapper.insert(apiDefinition);
+                String originId = apiDefinition.getId();
+                apiDefinition.setId(UUID.randomUUID().toString());
+                String requestStr = setImportHashTree(apiDefinition);
+                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 apiDefinition.setRequest(requestStr);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
             }
@@ -526,19 +538,18 @@ public class ApiDefinitionService {
                                ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases) {
         String originId = apiDefinition.getId();
         if (CollectionUtils.isEmpty(sameRequest)) {
+            apiDefinition.setId(UUID.randomUUID().toString());
+            apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
+            reSetImportCasesApiId(cases, originId, apiDefinition.getId());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
-                String request = setImportHashTree(apiDefinition);
-                apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
-                apiDefinition.setId(UUID.randomUUID().toString());
-                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 batchMapper.insert(apiDefinition);
+                String request = setImportHashTree(apiDefinition);
                 apiDefinition.setRequest(request);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                     setImportTCPHashTree(apiDefinition);
                 }
-                apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
                 batchMapper.insert(apiDefinition);
             }
 
@@ -649,7 +660,10 @@ public class ApiDefinitionService {
         checkRequest.setName(apiTestCase.getName());
         checkRequest.setApiDefinitionId(apiTestCase.getApiDefinitionId());
         checkRequest.setId(apiTestCase.getId());
-        ApiTestCase sameCase = apiTestCaseService.getImportSameCase(checkRequest);
+        ApiTestCase sameCase = apiTestCaseService.getSameCase(checkRequest);
+        if (sameCase == null) {
+            sameCase = apiTestCaseService.getSameCaseById(checkRequest);
+        }
         apiTestCase.setUpdateUserId(SessionUtils.getUserId());
         if (sameCase == null) {
             apiTestCase.setId(UUID.randomUUID().toString());

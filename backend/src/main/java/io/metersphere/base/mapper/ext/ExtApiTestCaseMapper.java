@@ -57,6 +57,4 @@ public interface ExtApiTestCaseMapper {
     Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
     Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
-
-    ApiTestCase selectSameCase(@Param("request") SaveApiTestCaseRequest request);
 }
