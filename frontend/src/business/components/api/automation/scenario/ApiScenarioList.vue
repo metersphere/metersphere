@@ -252,6 +252,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {editApiScenarioCaseOrder} from "@/business/components/api/automation/api-automation";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import axios from "axios";
 
 export default {
   name: "MsApiScenarioList",
@@ -1022,6 +1023,17 @@ export default {
         }
       });
     },
+    fileDownload(url, param) {
+      axios.post(url, param, {responseType: 'blob'})
+        .then(response => {
+          let link = document.createElement("a");
+          link.href = window.URL.createObjectURL(new Blob([response.data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"}));
+          link.download = "场景JMX文件集.zip";
+          this.result.loading = false;
+          link.click();
+        });
+    },
+
     exportJmx() {
       let param = {};
       this.buildBatchParam(param);
@@ -1030,15 +1042,7 @@ export default {
         return;
       }
       this.result.loading = true;
-      this.result = this.$post("/api/automation/export/jmx", param, response => {
-        this.result.loading = false;
-        let obj = response.data;
-        if (obj && obj.length > 0) {
-          obj.forEach(item => {
-            downloadFile(item.name + ".jmx", item.jmx);
-          });
-        }
-      });
+      this.fileDownload("/api/automation/export/jmx", param);
     },
     getConditions() {
       return this.condition;

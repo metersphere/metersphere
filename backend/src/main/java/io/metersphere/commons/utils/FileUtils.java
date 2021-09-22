@@ -17,14 +17,34 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class FileUtils {
     public static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
     public static final String MD_IMAGE_DIR = "/opt/metersphere/data/image/markdown";
+
+    public static byte[] listBytesToZip(Map<String, byte[]> mapReport) {
+        try {
+            if (!mapReport.isEmpty()) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ZipOutputStream zos = new ZipOutputStream(baos);
+                for (Map.Entry<String, byte[]> report : mapReport.entrySet()) {
+                    ZipEntry entry = new ZipEntry(report.getKey());
+                    entry.setSize(report.getValue().length);
+                    zos.putNextEntry(entry);
+                    zos.write(report.getValue());
+                }
+                zos.closeEntry();
+                zos.close();
+                return baos.toByteArray();
+            }
+        } catch (Exception e) {
+            return new byte[10];
+        }
+        return new byte[10];
+    }
 
     private static void create(List<String> bodyUploadIds, List<MultipartFile> bodyFiles, String path) {
         String filePath = BODY_FILE_DIR;
