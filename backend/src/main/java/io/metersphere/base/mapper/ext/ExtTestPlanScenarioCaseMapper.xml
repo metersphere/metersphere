@@ -5,8 +5,8 @@
 
   <insert id="insertIfNotExists" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
     -- 查询没有数据再插入
-    INSERT INTO test_plan_api_scenario(id, test_plan_id, api_scenario_id, create_time, update_time, environment)
-    SELECT #{request.id}, #{request.testPlanId}, #{request.apiScenarioId}, #{request.createTime}, #{request.updateTime}, #{request.environment}
+    INSERT INTO test_plan_api_scenario(id, test_plan_id, api_scenario_id, create_time, update_time, environment, `order`)
+    SELECT #{request.id}, #{request.testPlanId}, #{request.apiScenarioId}, #{request.createTime}, #{request.updateTime}, #{request.environment}, #{request.order}
       FROM DUAL
       WHERE NOT EXISTS(
         SELECT id FROM
