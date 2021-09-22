@@ -1556,6 +1556,8 @@ public class ApiAutomationService {
                     testPlanApiScenario.setCreateTime(System.currentTimeMillis());
                     testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
                     testPlanApiScenario.setEnvironment(JSON.toJSONString(newEnvMap));
+                    Long nextScenarioOrder = ServiceUtils.getNextOrder(testPlan.getId(), extTestPlanScenarioCaseMapper::getLastOrder);
+                    testPlanApiScenario.setOrder(nextScenarioOrder);
                     scenarioBatchMapper.insertIfNotExists(testPlanApiScenario);
                 });
             }
