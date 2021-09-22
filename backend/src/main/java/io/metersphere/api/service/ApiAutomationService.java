@@ -68,6 +68,7 @@ import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -2016,6 +2017,30 @@ public class ApiAutomationService {
             request.setId(JSON.toJSONString(ids));
         }
         return resList;
+    }
+
+    public byte[] exportZip(ApiScenarioBatchRequest request) {
+        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
+        // 生成jmx
+        Map<String, byte[]> files = new LinkedHashMap<>();
+        apiScenarioWithBLOBs.forEach(item -> {
+            if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
+                String jmx = generateJmx(item);
+                if (StringUtils.isNotEmpty(jmx)) {
+                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true).getXml());
+                    String fileName = item.getName() + ".jmx";
+                    String jmxStr = scenrioExportJmx.getJmx();
+                    files.put(fileName, jmxStr.getBytes(StandardCharsets.UTF_8));
+                }
+            }
+        });
+        if (CollectionUtils.isNotEmpty(apiScenarioWithBLOBs)) {
+            List<String> names = apiScenarioWithBLOBs.stream().map(ApiScenarioWithBLOBs::getName).collect(Collectors.toList());
+            request.setName(String.join(",", names));
+            List<String> ids = apiScenarioWithBLOBs.stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
+            request.setId(JSON.toJSONString(ids));
+        }
+        return FileUtils.listBytesToZip(files);
     }
 
     public void batchUpdateEnv(ApiScenarioBatchRequest request) {
