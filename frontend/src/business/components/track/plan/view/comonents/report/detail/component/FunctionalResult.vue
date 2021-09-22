@@ -76,7 +76,7 @@ export default {
         let data = this.issueDataMap.get(status);
         if (!data) {
           data = {name: status, itemStyle: {color: null}};
-          if (status === 'new' || status === '新' | status === '待办' | status === 'active') {
+          if (status === 'new' || status === '新' || status === '待办' || status === 'active' || status === 'created') {
             data.itemStyle.color = '#F56C6C';
             usedSet.add(data.itemStyle.color);
           }
