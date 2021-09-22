@@ -23,7 +23,7 @@
         <ms-basis-parameters :request="request" @callback="runDebug" ref="requestForm"/>
         <!-- JDBC 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
+        <ms-request-result-tail v-if="!loading" :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
       </div>
       <ms-jmx-step :request="request" :response="responseData"/>
 
