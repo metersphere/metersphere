@@ -34,7 +34,7 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
-            if (MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+            if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
                 MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                 return null;
             }
@@ -52,7 +52,7 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                 if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
                     break;
                 }
-                if (MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
                     MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                     break;
                 }

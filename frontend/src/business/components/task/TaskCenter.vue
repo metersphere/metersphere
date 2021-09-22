@@ -237,7 +237,7 @@ export default {
       let taskTotal = e.data;
       this.runningTotal = taskTotal;
       this.initIndex++;
-      if (this.taskVisible && taskTotal > 0 && this.initEnd) {
+      if (this.taskVisible &&  this.initEnd) {
         setTimeout(() => {
           this.initEnd = false;
           this.init();
