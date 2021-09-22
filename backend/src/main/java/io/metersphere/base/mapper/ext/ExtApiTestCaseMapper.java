@@ -1,10 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.api.dto.definition.ApiTestCaseDTO;
-import io.metersphere.api.dto.definition.ApiTestCaseInfo;
-import io.metersphere.api.dto.definition.ApiTestCaseRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseResult;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.controller.request.BaseQueryRequest;
@@ -60,4 +57,6 @@ public interface ExtApiTestCaseMapper {
     Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
     Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    ApiTestCase selectSameCase(@Param("request") SaveApiTestCaseRequest request);
 }

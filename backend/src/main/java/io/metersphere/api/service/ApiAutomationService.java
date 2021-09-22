@@ -1759,9 +1759,20 @@ public class ApiAutomationService {
         }
     }
 
-    public List<ApiScenarioWithBLOBs> getWithBLOBs(ApiScenarioWithBLOBs request) {
+    public List<ApiScenarioWithBLOBs> getSameScenario(ApiScenarioWithBLOBs request) {
         ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andStatusNotEqualTo("Trash").andIdNotEqualTo(request.getId());
+        ApiScenarioExample.Criteria criteria = example.createCriteria();
+        criteria.andProjectIdEqualTo(request.getProjectId())
+                .andStatusNotEqualTo("Trash")
+                .andNameEqualTo(request.getName());
+        if (StringUtils.isNotBlank(request.getId())) {
+            // id 不为空 则判断，id一样或者名字一样则是同一个用例
+            ApiScenarioExample.Criteria criteria1 = example.createCriteria();
+            criteria1.andProjectIdEqualTo(request.getProjectId())
+                    .andStatusNotEqualTo("Trash")
+                    .andIdEqualTo(request.getId());
+            example.or(criteria1);
+        }
         return apiScenarioMapper.selectByExampleWithBLOBs(example);
     }
 
@@ -1803,7 +1814,7 @@ public class ApiAutomationService {
         }
         scenarioWithBLOBs.setDescription(request.getDescription());
 
-        List<ApiScenarioWithBLOBs> sameRequest = getWithBLOBs(scenarioWithBLOBs);
+        List<ApiScenarioWithBLOBs> sameRequest = getSameScenario(scenarioWithBLOBs);
 
         Boolean openCustomNum = apiTestImportRequest.getOpenCustomNum();
         List<ApiScenario> list = new ArrayList<>();
@@ -1857,8 +1868,8 @@ public class ApiAutomationService {
         int num = 0;
         Project project = new Project();
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
-            num = getNextNum(data.get(0).getProjectId());
             project = projectMapper.selectByPrimaryKey(data.get(0).getProjectId());
+            num = getNextNum(data.get(0).getProjectId());
             request.setOpenCustomNum(project.getScenarioCustomNum());
         }
         for (int i = 0; i < data.size(); i++) {
@@ -1876,6 +1887,9 @@ public class ApiAutomationService {
                 }
             }
             num++;
+            if (StringUtils.isBlank(item.getId())) {
+                item.setId(UUID.randomUUID().toString());
+            }
             importCreate(item, batchMapper, request);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
