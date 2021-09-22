@@ -271,6 +271,15 @@ public class ElementUtil {
     public static void dataFormatting(JSONArray hashTree) {
         for (int i = 0; i < hashTree.size(); i++) {
             JSONObject element = hashTree.getJSONObject(i);
+            if (element != null && element.get("clazzName") == null && element.getString("type").equals("TCPSampler")) {
+                if (element.getString("tcpPreProcessor") != null) {
+                    JSONObject tcpPreProcessor = JSON.parseObject(element.getString("tcpPreProcessor"));
+                    if (tcpPreProcessor != null && tcpPreProcessor.get("clazzName") == null) {
+                        tcpPreProcessor.fluentPut("clazzName", clazzMap.get(tcpPreProcessor.getString("type")));
+                        element.fluentPut("tcpPreProcessor", tcpPreProcessor);
+                    }
+                }
+            }
             if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
                 element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
             }
