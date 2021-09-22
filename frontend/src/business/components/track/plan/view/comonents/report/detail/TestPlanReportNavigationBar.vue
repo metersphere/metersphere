@@ -1,13 +1,13 @@
 <template>
   <div>
-    <ms-drawer :class="{'hidden': asideHidden}" :visible="true" :size="10" direction="left" :show-full-screen="false" :is-show-close="false">
+    <ms-drawer class="drawer-content" :visible="true" :size="10" direction="left" :show-full-screen="false" :is-show-close="false">
       <div class="title-item" >
          <span class="title-name">目录</span>
         <el-tabs tab-position="right" v-model="activeName">
           <el-tab-pane v-for="item in data" :key="item.title" :label="item.title" :name="item.link"></el-tab-pane>
         </el-tabs>
       </div>
-        <div class="hiddenBottom" @click.stop="asideHidden = !asideHidden">
+        <div class="hiddenBottom">
           <span>目录</span>
         </div>
     </ms-drawer>
@@ -24,7 +24,6 @@ export default {
   },
   data() {
     return {
-      asideHidden: true,
       activeName: "1",
       data: [
         {
@@ -115,9 +114,15 @@ export default {
   overflow: visible !important;
 }
 
-.hidden {
-  width: 0px !important;
-  padding: 0px !important;
+.drawer-content {
+    width: 0px !important;
+    padding: 0px !important;
+}
+
+.drawer-content:hover{
+  padding: 15px !important;
+  height: 300px !important;
+  width: 230px !important;
 }
 
 .title-item {
