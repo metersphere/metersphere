@@ -394,7 +394,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         sampler.setPath(url);
                     }
                     if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                        url = url.replaceAll(this.getPort(), "10990");
+                        url = url.replace(this.getPort(), "10990");
                     }
                     try {
                         URL urlObject = new URL(url);
@@ -465,7 +465,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     url = "http://" + url;
                 }
                 if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                    url = url.replaceAll(this.getPort(), "10990");
+                    url = url.replace(this.getPort(), "10990");
                 }
                 if (url == null) {
                     MSException.throwException("请重新选择环境");
