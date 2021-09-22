@@ -29,6 +29,7 @@ import AboutUs from "./AboutUs";
 import axios from "axios";
 import {mapGetters} from "vuex";
 import {ORGANIZATION_ID, PROJECT_ID, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
+import {logout} from "@/network/user";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const auth = requireComponent.keys().length > 0 ? requireComponent("./auth/Auth.vue") : {};
@@ -51,23 +52,7 @@ export default {
   },
   methods: {
     logout: function () {
-      axios.get("/signout").then(response => {
-        if (response.data.success) {
-          localStorage.removeItem(TokenKey);
-
-          sessionStorage.removeItem(ORGANIZATION_ID);
-          sessionStorage.removeItem(WORKSPACE_ID);
-          sessionStorage.removeItem(PROJECT_ID);
-          window.location.href = "/login";
-        }
-      }).catch(error => {
-        localStorage.removeItem(TokenKey);
-
-        sessionStorage.removeItem(ORGANIZATION_ID);
-        sessionStorage.removeItem(WORKSPACE_ID);
-        sessionStorage.removeItem(PROJECT_ID);
-        window.location.href = "/login";
-      });
+      logout();
     },
     handleCommand(command) {
       switch (command) {

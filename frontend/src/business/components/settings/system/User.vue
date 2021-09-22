@@ -129,6 +129,7 @@ import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn
 import EditUser from "@/business/components/settings/system/EditUser";
 import ProjectCascader from "@/business/components/settings/system/components/ProjectCascader";
 import GroupCascader from "@/business/components/settings/system/components/GroupCascader";
+import {logout} from "@/network/user";
 
 export default {
   name: "MsUser",
@@ -189,6 +190,7 @@ export default {
           id: ''
         }]
       },
+      changePasswordUser: '',
       screenHeight: 'calc(100vh - 195px)',
       checkPasswordForm: {},
       ruleForm: {},
@@ -280,6 +282,7 @@ export default {
       this.$refs.editUser.open("Edit", this.$t('user.modify'), row);
     },
     editPassword(row) {
+      this.changePasswordUser = row.id;
       this.editPasswordVisible = true;
       this.ruleForm = Object.assign({}, row);
       listenGoBack(this.handleClose);
@@ -329,9 +332,13 @@ export default {
         if (valid) {
           this.result = this.$post(this.editPasswordPath, this.ruleForm, () => {
             this.$success(this.$t('commons.modify_success'));
-            this.editPasswordVisible = false;
-            this.search();
-            this.reload();
+            if (this.changePasswordUser === getCurrentUser().id) {
+              logout();
+            } else {
+              this.editPasswordVisible = false;
+              this.search();
+              this.reload();
+            }
           });
         } else {
           return false;
