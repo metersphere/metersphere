@@ -591,7 +591,12 @@ export default {
             }
           });
           this.page.data.forEach((item) => {
-            item.tags = JSON.parse(item.tags);
+            try {
+              item.tags = JSON.parse(item.tags);
+            } catch (e) {
+              item.tags = [];
+            }
+
           });
           checkTableRowIsSelected(this, this.$refs.table);
 

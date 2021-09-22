@@ -24,7 +24,7 @@
     <el-drawer :visible.sync="taskVisible" :destroy-on-close="true" direction="rtl"
                :withHeader="true" :modal="false" :title="$t('commons.task_center')" :size="size.toString()"
                custom-class="ms-drawer-task">
-      <el-card style="float: left;width: 800px" v-if="size > 550 ">
+      <el-card style="float: left;width: 850px" v-if="size > 550 ">
 
         <div class="ms-task-opt-btn" @click="packUp">收起</div>
         <!-- 接口用例结果 -->
@@ -304,7 +304,7 @@ export default {
       if (status) {
         status = row.executionStatus.toLowerCase();
         if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
-          this.size = 1350;
+          this.size = 1400;
           this.reportId = row.id;
           this.reportType = row.executionModule;
           switch (row.executionModule) {
@@ -523,7 +523,7 @@ export default {
 
 .ms-task-opt-btn {
   position: fixed;
-  right: 1322px;
+  right: 1372px;
   top: 50%;
   z-index: 1;
   width: 20px;

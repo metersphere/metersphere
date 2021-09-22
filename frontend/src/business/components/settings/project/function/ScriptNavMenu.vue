@@ -55,10 +55,14 @@ export default {
       let condition = env.config.httpConfig.conditions || [];
       let protocol = "";
       let host = "";
+      let domain = "";
+      let port = "";
       if (condition && condition.length > 0) {
         // 如果有多个环境，取第一个
         protocol = condition[0].protocol ? condition[0].protocol : "http";
         host = condition[0].socket;
+        domain = condition[0].domain;
+        port = condition[0].port;
       }
       // todo
       if (data.length > 5) {
@@ -84,6 +88,8 @@ export default {
           }
           let param = this._parseRequestObj(dt);
           param['host'] = host;
+          param['domain'] = domain;
+          param['port'] = port;
           param['protocol'] = protocol;
           code += '\n' + getCodeTemplate(this.language, param);
         }
