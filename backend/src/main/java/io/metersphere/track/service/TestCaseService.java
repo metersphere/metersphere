@@ -633,6 +633,8 @@ public class TestCaseService {
             AtomicInteger num = new AtomicInteger();
             num.set(getNextNum(projectId) + testCases.size());
             testCases.forEach(testcase -> {
+                TestCaseWithBLOBs oldCase = testCaseMapper.selectByPrimaryKey(testcase.getId());
+                String customFieldStr = this.updateCustomField(oldCase.getCustomFields(),testcase.getPriority());
                 testcase.setUpdateTime(System.currentTimeMillis());
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
@@ -640,10 +642,29 @@ public class TestCaseService {
                     testcase.setNum(num.decrementAndGet());
                 }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                testcase.setCustomFields(customFieldStr);
                 mapper.updateByPrimaryKeySelective(testcase);
             });
         }
         sqlSession.flushStatements();
+    }
+
+    private String updateCustomField(String customFields, String priority) {
+        try {
+            JSONArray newArr = new JSONArray();
+            JSONArray customArr = JSONArray.parseArray(customFields);
+            for(int i = 0; i < customArr.size();i++){
+                JSONObject obj = customArr.getJSONObject(i);
+                if(obj.containsKey("name") && StringUtils.equalsIgnoreCase(obj.getString("name"),"用例等级")){
+                    obj.put("value",priority);
+                }
+                newArr.add(obj);
+            }
+            customFields = newArr.toJSONString();
+        }catch (Exception e){
+
+        }
+        return customFields;
     }
 
     /**
