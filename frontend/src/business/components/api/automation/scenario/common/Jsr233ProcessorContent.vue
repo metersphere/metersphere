@@ -229,7 +229,7 @@
 
   .script-content {
     height: calc(100vh - 570px);
-    min-height: 460px;
+    min-height: 440px;
   }
 
   .script-index {
@@ -257,7 +257,7 @@
   .show-menu {
     text-align:center;
     font-weight: bold;
-    color:#BBA3D0;
+    color:#935aa1;
     font-size: 18px;
     cursor: pointer;
   }

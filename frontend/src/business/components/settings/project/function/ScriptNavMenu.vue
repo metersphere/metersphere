@@ -1,16 +1,27 @@
 <template>
   <div style="line-height: 20px;">
-    <div class="template-title">{{ $t('api_test.request.processor.code_template') }}</div>
-    <div v-for="(menu, index) in menus" :key="index">
-      <span class="link-type"><i class="el-icon-arrow-right" style="font-weight: bold;"></i> {{menu.title}}</span>
-      <div v-for="(child, key) in menu.children" :key="key">
-        <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link">{{child.title}}</el-link>
-      </div>
+    <div class="template-title">
+      <span>{{ $t('api_test.request.processor.code_template') }}</span>
+      <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+               target="componentReferenceDoc" style="margin-left: 30px; margin-bottom: 3px;"
+               type="primary">{{ $t('commons.reference_documentation') }}
+      </el-link>
     </div>
-    <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
-             target="componentReferenceDoc" style="margin-top: 10px; margin-left: 20px;"
-             type="primary">{{ $t('commons.reference_documentation') }}
-    </el-link>
+    <div v-for="(menu, index) in menus" :key="index">
+      <span class="link-type">
+        <i class="icon el-icon-arrow-right" style="font-weight: bold; margin-right: 2px;"
+           @click="active(menu)" :class="{'is-active': menu.open}"></i>
+        <span @click="active(menu)" class="nav-menu-title">{{menu.title}}</span>
+      </span>
+
+      <el-collapse-transition>
+        <div v-if="menu.open">
+          <div v-for="(child, key) in menu.children" :key="key">
+            <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link">{{child.title}}</el-link>
+          </div>
+        </div>
+      </el-collapse-transition>
+    </div>
     <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="handleCodeTemplate"/>
     <!--接口列表-->
     <api-func-relevance @save="apiSave" @close="apiClose" ref="apiFuncRelevance"/>
@@ -164,6 +175,13 @@ export default {
         default:
           return "";
       }
+    },
+    active(menu) {
+      if (!menu.open) {
+        this.$set(menu, "open", true);
+      } else {
+        this.$set(menu, "open", !menu.open);
+      }
     }
   }
 }
@@ -186,5 +204,13 @@ export default {
 .link-type {
   font-weight: bold;
   font-size: 14px;
+}
+
+.icon.is-active {
+  transform: rotate(90deg);
+}
+
+.nav-menu-title:hover {
+  cursor: pointer;
 }
 </style>

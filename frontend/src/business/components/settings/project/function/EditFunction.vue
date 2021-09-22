@@ -40,7 +40,7 @@
                         <ms-code-edit
                           v-if="isCodeEditAlive"
                           :mode="codeEditModeMap[form.type]"
-                          height="460px"
+                          height="440px"
                           :data.sync="form.script"
                           theme="eclipse"
                           :modes="modes"
@@ -48,7 +48,7 @@
                       </el-tab-pane>
                       <el-tab-pane :label="$t('project.code_segment.result')" name="result">
                         <div v-loading="runResult.loading">
-                          <ms-code-edit :mode="'text'" :data.sync="console" v-if="isResultAlive" height="330px"
+                          <ms-code-edit :mode="'text'" :data.sync="console" v-if="isResultAlive" height="440px"
                                         ref="funcResult"/>
                         </div>
                       </el-tab-pane>
@@ -338,7 +338,7 @@ export default {
 .show-menu {
   text-align:center;
   font-weight: bold;
-  color:#BBA3D0;
+  color:#935aa1;
   font-size: 18px;
   cursor: pointer;
 }
