@@ -405,19 +405,21 @@
       },
       checkXmlTableDataStructData(dataStruct){
         let allCheckResult = true;
-        if(dataStruct && dataStruct.length > 0){
-          for(let i = 0;i<dataStruct.length;i++){
-            let row = dataStruct[i];
-            allCheckResult = this.$refs.treeTable.validateRowData(row);
-            if(allCheckResult){
-              if(row.children != null && row.children.length > 0){
-                allCheckResult = this.checkXmlTableDataStructData(row.children);
-                if(!allCheckResult){
-                  return false;
+        if(this.$refs.treeTable){
+          if(dataStruct && dataStruct.length > 0){
+            for(let i = 0;i<dataStruct.length;i++){
+              let row = dataStruct[i];
+              allCheckResult = this.$refs.treeTable.validateRowData(row);
+              if(allCheckResult){
+                if(row.children != null && row.children.length > 0){
+                  allCheckResult = this.checkXmlTableDataStructData(row.children);
+                  if(!allCheckResult){
+                    return false;
+                  }
                 }
+              }else{
+                return false;
               }
-            }else{
-              return false;
             }
           }
         }

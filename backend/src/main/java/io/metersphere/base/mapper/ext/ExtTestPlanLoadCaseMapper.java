@@ -35,4 +35,8 @@ public interface ExtTestPlanLoadCaseMapper {
     Long getPreOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
 
     Long getLastOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
+
+    List<String> selectIdByLoadCaseReportIdAndStatusIsRun(String reportId);
+
+    void updateStatusNullById(String id);
 }

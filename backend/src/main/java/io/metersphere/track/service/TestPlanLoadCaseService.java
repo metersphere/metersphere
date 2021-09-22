@@ -418,4 +418,12 @@ public class TestPlanLoadCaseService {
                 testPlanLoadCaseMapper::updateByPrimaryKeySelective);
     }
 
+    public void checkStatusByDeleteLoadCaseReportId(String reportId) {
+        List<String> updatedId = extTestPlanLoadCaseMapper.selectIdByLoadCaseReportIdAndStatusIsRun(reportId);
+        if(CollectionUtils.isNotEmpty(updatedId)){
+            for (String id : updatedId) {
+                extTestPlanLoadCaseMapper.updateStatusNullById(id);
+            }
+        }
+    }
 }
