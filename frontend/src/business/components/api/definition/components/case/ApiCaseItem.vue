@@ -24,7 +24,7 @@
           <span @click.stop>
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
-                      class="ms-api-header-select" style="width: 180px"
+                      class="ms-api-header-select" style="width: 180px" readonly="hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
                       @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
@@ -82,7 +82,7 @@
 
         <el-col :span="3">
           <span @click.stop>
-            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
                            class="run-button" size="mini" :disabled="!apiCase.id" circle v-if="!loading"/>
             <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
               <el-button :disabled="!apiCase.id" @click.once="stop(apiCase)" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;" class="stop-btn" circle>
@@ -91,9 +91,9 @@
                 </div>
               </el-button>
             </el-tooltip>
-            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
+            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy" v-permission="['PROJECT_API_DEFINITION:READ+COPY_CASE']"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
-            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
+            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete" v-permission="['PROJECT_API_SCENARIO:READ+DELETE_CASE']"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase"/>
           </span>
@@ -143,7 +143,8 @@
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
-                   v-if="type!=='detail'">
+                   v-if="type!=='detail'"
+                   v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
           {{ $t('commons.save') }}
         </el-button>
       </div>

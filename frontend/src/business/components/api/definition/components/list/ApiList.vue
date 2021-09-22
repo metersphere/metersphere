@@ -301,7 +301,7 @@ export default {
           exec: this.handleTestCase,
           isDivButton: true,
           type: "primary",
-          permissions: ['PROJECT_API_DEFINITION:READ+CREATE_CASE']
+          permissions: ['PROJECT_API_DEFINITION:READ']
         },
         {
           tip: this.$t('commons.delete'),

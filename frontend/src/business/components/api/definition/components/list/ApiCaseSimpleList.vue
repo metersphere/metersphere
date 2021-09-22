@@ -275,13 +275,13 @@ export default {
       buttons: [],
       enableOrderDrag: true,
       simpleButtons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch},
-        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
-        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch},
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch, permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']},
+        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch, permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']},
+        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch, permissions: ['PROJECT_API_DEFINITION:READ+RUN']},
       ],
       trashButtons: [
-        {name: this.$t('commons.reduction'), handleClick: this.handleBatchRestore},
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+        {name: this.$t('commons.reduction'), handleClick: this.handleBatchRestore, permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']},
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']},
       ],
       operators: [],
       simpleOperators: [

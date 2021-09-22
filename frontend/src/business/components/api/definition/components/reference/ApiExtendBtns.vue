@@ -5,7 +5,7 @@
     </el-link>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
-      <el-dropdown-item command="create_performance">{{ $t('api_test.create_performance_test') }}</el-dropdown-item>
+      <el-dropdown-item command="create_performance" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']">{{ $t('api_test.create_performance_test') }}</el-dropdown-item>
     </el-dropdown-menu>
     <ms-reference-view ref="viewRef"/>
   </el-dropdown>
