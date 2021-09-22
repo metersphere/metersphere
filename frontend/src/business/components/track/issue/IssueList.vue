@@ -208,7 +208,6 @@ export default {
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
-          isDisable: this.btnDisable,
           permissions: ['PROJECT_TRACK_ISSUE:READ+EDIT']
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
@@ -217,7 +216,6 @@ export default {
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
-          isDisable: this.btnDisable,
           permissions: ['PROJECT_TRACK_ISSUE:READ+DELETE']
         }
       ],
@@ -314,10 +312,10 @@ export default {
       });
     },
     btnDisable(row) {
-      // if (row.platform === 'Local' || row.platform === 'Jira') {
-        return false;
-      // }
-      // return true;
+      if (this.issueTemplate.platform !== row.platform) {
+        return true;
+      }
+      return false;
     },
     syncIssues() {
       this.page.result = syncIssues(() => {
