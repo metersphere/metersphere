@@ -206,7 +206,9 @@
       },
       clickResource(resource) {
         if (!resource.sourceId) {
-          return;
+          this.$get('/user/update/currentByResourceId/' + resourceId, () => {
+            this.toPage(uri);
+          });
         }
         let resourceId = resource.sourceId;
         if (resourceId && resourceId.startsWith("\"" || resourceId.startsWith("["))) {
