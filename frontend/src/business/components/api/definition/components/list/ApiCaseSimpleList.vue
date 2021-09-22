@@ -210,8 +210,8 @@ export default {
       deletePath: "/test/case/delete",
       clickRow: {},
       buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
-        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']},
+        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch, permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']}
       ],
       operators: [
         {
