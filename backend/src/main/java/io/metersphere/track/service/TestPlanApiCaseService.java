@@ -421,7 +421,7 @@ public class TestPlanApiCaseService {
                 public void run() {
                     for (TestPlanApiCase testPlanApiCase : executeQueue.keySet()) {
                         try {
-                            if (MessageCache.terminationOrderDeque.contains(executeQueue.get(testPlanApiCase).getId())) {
+                            if (executeQueue.get(testPlanApiCase)!=null && MessageCache.terminationOrderDeque.contains(executeQueue.get(testPlanApiCase).getId())) {
                                 MessageCache.terminationOrderDeque.remove(executeQueue.get(testPlanApiCase).getId());
                                 break;
                             }
