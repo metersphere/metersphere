@@ -56,7 +56,7 @@ function javaCode(requestObj) {
 }
 
 function jsCode(requestObj) {
-  return ``;
+  return _jsTemplate(requestObj);
 }
 
 function getRequestPath(requestArgs, requestPath) {
@@ -145,7 +145,7 @@ function _beanshellTemplate(obj) {
   let uri = `new URIBuilder()
                   .setScheme("${protocol}")
                   .setHost("${domain}")
-                  .setPort(${port})
+                  .setPort(${port}) // int类型端口
                   .setPath("${requestPath}")
                   `;
   // http 请求类型
@@ -181,6 +181,7 @@ import org.apache.http.entity.StringEntity;
 
 // 创建Httpclient对象
 CloseableHttpClient httpclient = HttpClients.createDefault();
+// 参数
 String payload = ${requestBody};
 // 定义请求的参数
 URI uri = ${uri}
@@ -192,11 +193,53 @@ log.info(uri.toString());
 //response 对象
 CloseableHttpResponse response = null;
 
-// 执行http get请求
 response = httpclient.execute(request);
 // 判断返回状态是否为200
 if (response.getStatusLine().getStatusCode() == 200) {
     String content = EntityUtils.toString(response.getEntity(), "UTF-8");
     log.info(content);
 }`
+}
+
+function _jsTemplate(obj) {
+  let {requestHeaders = new Map(), requestBody = "", requestPath = "/",
+    requestMethod = "GET", protocol = "http", requestArguments = new Map(), domain = "", port = ""} = obj;
+  let url = "";
+  if (protocol && domain && port) {
+    url = protocol + "://" + domain + ":" + port + requestPath;
+  }
+  url = getRequestPath(requestArguments, url);
+  try {
+    requestBody = JSON.stringify(requestBody);
+  } catch (e) {
+    requestBody = "";
+  }
+
+  let connStr = "";
+  for (let [k, v] of requestHeaders) {
+    connStr += `conn.setRequestProperty("${k}","${v}");` + '\n';
+  }
+
+  return `var urlStr = "${url}"; // 请求地址
+var requestMethod = "${requestMethod}"; // 请求类型
+var parameterData = ${requestBody}; // 请求参数
+var url = new java.net.URL(urlStr);
+var conn = url.openConnection();
+conn.setRequestMethod(requestMethod);
+conn.setDoOutput(true);
+${connStr}conn.connect();
+var opt = new java.io.DataOutputStream(conn.getOutputStream());
+var t = (new java.lang.String(parameterData)).getBytes("utf-8");
+opt.write(t);
+opt.flush();
+opt.close();
+var ipt = conn.getInputStream();
+var reader = new java.io.BufferedReader(new java.io.InputStreamReader(ipt, "UTF-8"));
+var lines;
+var res = "";
+while((lines = reader.readLine()) !== null) {
+  res += lines;
+}
+log.info(res);
+  `;
 }

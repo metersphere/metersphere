@@ -4,7 +4,7 @@
       <span>{{ $t('api_test.request.processor.code_template') }}</span>
       <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
                target="componentReferenceDoc" style="margin-left: 30px; margin-bottom: 3px;"
-               type="primary">{{ $t('commons.reference_documentation') }}
+               type="primary"><span style="font-size: 13px;">{{ $t('commons.reference_documentation') }}</span>
       </el-link>
     </div>
     <div v-for="(menu, index) in menus" :key="index">
