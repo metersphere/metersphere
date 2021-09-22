@@ -103,7 +103,9 @@ public class JSONSchemaGenerator {
                 }
             }
 
-            if (object.has("enum")) {
+            if(object.has("default")){
+                concept.put(propertyName, object.get("default"));
+            }else if (object.has("enum")) {
                 concept.put(propertyName, analyzeEnumProperty(object));
             } else if (propertyObjType.equals("string")) {
                 // 先设置空值
