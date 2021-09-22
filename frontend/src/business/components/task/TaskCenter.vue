@@ -32,7 +32,7 @@
 
         <ms-api-report-detail :reportId="reportId" v-if="reportType === 'SCENARIO'"/>
 
-        <performance-report-view :reportId="reportId" v-if="reportType === 'PERFORMANCE'"/>
+        <performance-report-view :perReportId="reportId" v-if="reportType === 'PERFORMANCE'"/>
 
       </el-card>
       <el-card style="width: 550px;float: right">
@@ -237,7 +237,7 @@ export default {
       let taskTotal = e.data;
       this.runningTotal = taskTotal;
       this.initIndex++;
-      if (this.taskVisible &&  this.initEnd) {
+      if (this.taskVisible && this.initEnd) {
         setTimeout(() => {
           this.initEnd = false;
           this.init();
@@ -307,14 +307,8 @@ export default {
           this.size = 1400;
           this.reportId = row.id;
           this.reportType = row.executionModule;
-          switch (row.executionModule) {
-            case "SCENARIO":
-              break;
-            case "PERFORMANCE":
-              break;
-            case "API":
-              this.getExecResult(row.id);
-              break;
+          if (row.executionModule === "API") {
+            this.getExecResult(row.id);
           }
         } else if (status === 'stop') {
           this.$warning("当前任务已停止，无法查看报告");
