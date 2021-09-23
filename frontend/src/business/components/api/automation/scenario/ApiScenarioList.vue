@@ -857,6 +857,9 @@ export default {
           link.download = "场景JMX文件集.zip";
           this.result.loading = false;
           link.click();
+        },error => {
+          this.result.loading = false;
+          this.$error("导出JMX文件失败");
         });
     },
 
@@ -868,7 +871,7 @@ export default {
         return;
       }
       this.result.loading = true;
-      this.fileDownload("/api/automation/export/jmx", param);
+      this.fileDownload("/api/automation/export/zip", param);
     },
 
     getConditions() {
