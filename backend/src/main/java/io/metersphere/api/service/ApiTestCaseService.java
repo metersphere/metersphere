@@ -433,6 +433,17 @@ public class ApiTestCaseService {
         apiTestCaseMapper.deleteByExample(example);
     }
 
+    public void deleteBatchByDefinitionId(List<String> definitionIds) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andApiDefinitionIdIn(definitionIds);
+        apiTestCaseMapper.deleteByExample(example);
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        List<String> caseIds = apiTestCases.stream().map(ApiTestCase::getId).collect(Collectors.toList());
+        for (String testId : caseIds) {
+            extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
+        }
+    }
+
     public void relevanceByApi(ApiCaseRelevanceRequest request) {
         if (CollectionUtils.isEmpty(request.getSelectIds())) {
             return;
