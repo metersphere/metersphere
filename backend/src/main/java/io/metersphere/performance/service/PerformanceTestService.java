@@ -826,13 +826,12 @@ public class PerformanceTestService {
         Integer granularity = CommonBeanFactory.getBean(JmeterProperties.class).getReport().getGranularity();
         try {
             LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
-            LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(report.getTestId());
-            JSONObject advancedConfig = JSON.parseObject(loadTest.getAdvancedConfiguration());
+            JSONObject advancedConfig = JSON.parseObject(report.getAdvancedConfiguration());
             if (advancedConfig.getInteger("granularity") != null) {
                 return advancedConfig.getInteger("granularity") * 1000;// 单位是ms
             }
             AtomicReference<Integer> maxDuration = new AtomicReference<>(0);
-            List<List<JSONObject>> pressureConfigLists = JSON.parseObject(loadTest.getLoadConfiguration(), new TypeReference<List<List<JSONObject>>>() {
+            List<List<JSONObject>> pressureConfigLists = JSON.parseObject(report.getLoadConfiguration(), new TypeReference<List<List<JSONObject>>>() {
             });
             // 按照最长的执行时间来确定
             pressureConfigLists.forEach(pcList -> {
