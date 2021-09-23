@@ -39,10 +39,10 @@
       </el-col>
     </el-row>
 
-    <template v-if="!hidden&&pickValue.properties && !isArray">
-      <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
+    <template v-if="!hidden&&pickValue.properties && !isArray && reloadItemOver">
+      <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
     </template>
-    <template v-if="isArray">
+    <template v-if="isArray && reloadItemOver">
 <!--      <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>-->
       <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
@@ -199,6 +199,7 @@
         hidden: false,
         countAdd: 1,
         modalVisible: false,
+        reloadItemOver: true,
         advancedValue: {},
         addProp: {},// 自定义属性
         customProps: [],
@@ -322,6 +323,7 @@
             required.length === 0 && this.$delete(this.parent, 'required')
           }
         }
+        this.parentReloadItems();
       },
       _joinName() {
         return `feild_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`
@@ -349,6 +351,15 @@
         for (const item of this.customProps) {
           this.$set(this.pickValue, item.key, item.value)
         }
+      },
+      parentReloadItems(){
+        this.$emit("reloadItems");
+      },
+      reloadItems(){
+        this.reloadItemOver = false;
+        this.$nextTick(() => {
+          this.reloadItemOver = true;
+        })
       }
     }
   }
