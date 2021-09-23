@@ -6,10 +6,11 @@ import io.metersphere.Application;
 import io.metersphere.api.dto.RunRequest;
 import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.FileMetadata;
-import io.metersphere.base.domain.LoadTestWithBLOBs;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
+import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
@@ -65,8 +66,8 @@ public class EngineFactory {
         }
     }
 
-    public static Engine createEngine(LoadTestWithBLOBs loadTest) {
-        String resourcePoolId = loadTest.getTestResourcePoolId();
+    public static Engine createEngine(LoadTestReportWithBLOBs loadTestReport) {
+        String resourcePoolId = loadTestReport.getTestResourcePoolId();
         if (StringUtils.isBlank(resourcePoolId)) {
             MSException.throwException(Translator.get("test_resource_pool_id_is_null"));
         }
@@ -75,15 +76,18 @@ public class EngineFactory {
         if (resourcePool == null) {
             MSException.throwException(Translator.get("test_resource_pool_id_is_null"));
         }
+        if (ResourceStatusEnum.INVALID.name().equals(resourcePool.getStatus())) {
+            MSException.throwException(Translator.get("test_resource_pool_invalid"));
+        }
 
         final ResourcePoolTypeEnum type = ResourcePoolTypeEnum.valueOf(resourcePool.getType());
 
         if (type == ResourcePoolTypeEnum.NODE) {
-            return new DockerTestEngine(loadTest);
+            return new DockerTestEngine(loadTestReport);
         }
         if (type == ResourcePoolTypeEnum.K8S) {
             try {
-                return (Engine) ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, loadTest);
+                return (Engine) ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, loadTestReport);
             } catch (Exception e) {
                 LogUtil.error(e);
                 return null;
@@ -102,10 +106,10 @@ public class EngineFactory {
         return null;
     }
 
-    public static EngineContext createContext(LoadTestWithBLOBs loadTest, double[] ratios, String reportId, int resourceIndex) {
-        final List<FileMetadata> fileMetadataList = performanceTestService.getFileMetadataByTestId(loadTest.getId());
+    public static EngineContext createContext(LoadTestReportWithBLOBs loadTestReport, double[] ratios, String reportId, int resourceIndex) {
+        final List<FileMetadata> fileMetadataList = performanceTestService.getFileMetadataByTestId(loadTestReport.getTestId());
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
-            MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
+            MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTestReport.getTestId());
         }
 
         List<FileMetadata> jmxFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
@@ -113,17 +117,17 @@ public class EngineFactory {
         // 合并上传的jmx
         byte[] jmxBytes = mergeJmx(jmxFiles);
         final EngineContext engineContext = new EngineContext();
-        engineContext.setTestId(loadTest.getId());
-        engineContext.setTestName(loadTest.getName());
-        engineContext.setNamespace(loadTest.getProjectId());
+        engineContext.setTestId(loadTestReport.getTestId());
+        engineContext.setTestName(loadTestReport.getName());
+        engineContext.setNamespace(loadTestReport.getProjectId());
         engineContext.setFileType(FileType.JMX.name());
-        engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
+        engineContext.setResourcePoolId(loadTestReport.getTestResourcePoolId());
         engineContext.setReportId(reportId);
         engineContext.setResourceIndex(resourceIndex);
         engineContext.setRatios(ratios);
 
-        if (StringUtils.isNotEmpty(loadTest.getLoadConfiguration())) {
-            final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
+        if (StringUtils.isNotEmpty(loadTestReport.getLoadConfiguration())) {
+            final JSONArray jsonArray = JSONObject.parseArray(loadTestReport.getLoadConfiguration());
 
             for (int i = 0; i < jsonArray.size(); i++) {
                 if (jsonArray.get(i) instanceof List) {
@@ -160,8 +164,8 @@ public class EngineFactory {
         {"timeout":10,"statusCode":["302","301"],"params":[{"name":"param1","enable":true,"value":"0","edit":false}],"domains":[{"domain":"baidu.com","enable":true,"ip":"127.0.0.1","edit":false}]}
          */
         Map<String, byte[]> testResourceFiles = new HashMap<>();
-        byte[] props = getJMeterProperties(loadTest, engineContext);
-        byte[] hosts = getDNSConfig(loadTest, engineContext);
+        byte[] props = getJMeterProperties(loadTestReport, engineContext);
+        byte[] hosts = getDNSConfig(loadTestReport, engineContext);
         // JMeter Properties
         testResourceFiles.put("ms.properties", props);
         // DNS
@@ -195,10 +199,10 @@ public class EngineFactory {
         return engineContext;
     }
 
-    private static byte[] getDNSConfig(LoadTestWithBLOBs loadTest, EngineContext engineContext) {
+    private static byte[] getDNSConfig(LoadTestReportWithBLOBs loadTestReport, EngineContext engineContext) {
         StringBuilder dns = new StringBuilder("# DNS Config\n");
-        if (StringUtils.isNotEmpty(loadTest.getAdvancedConfiguration())) {
-            JSONObject advancedConfiguration = JSONObject.parseObject(loadTest.getAdvancedConfiguration());
+        if (StringUtils.isNotEmpty(loadTestReport.getAdvancedConfiguration())) {
+            JSONObject advancedConfiguration = JSONObject.parseObject(loadTestReport.getAdvancedConfiguration());
             engineContext.addProperties(advancedConfiguration);
             JSONArray domains = advancedConfiguration.getJSONArray("domains");
             if (domains != null) {
@@ -214,10 +218,10 @@ public class EngineFactory {
         return dns.toString().getBytes(StandardCharsets.UTF_8);
     }
 
-    private static byte[] getJMeterProperties(LoadTestWithBLOBs loadTest, EngineContext engineContext) {
+    private static byte[] getJMeterProperties(LoadTestReportWithBLOBs loadTestReportWithBLOBs, EngineContext engineContext) {
         StringBuilder props = new StringBuilder("# JMeter Properties\n");
-        if (StringUtils.isNotEmpty(loadTest.getAdvancedConfiguration())) {
-            JSONObject advancedConfiguration = JSONObject.parseObject(loadTest.getAdvancedConfiguration());
+        if (StringUtils.isNotEmpty(loadTestReportWithBLOBs.getAdvancedConfiguration())) {
+            JSONObject advancedConfiguration = JSONObject.parseObject(loadTestReportWithBLOBs.getAdvancedConfiguration());
             engineContext.addProperties(advancedConfiguration);
             JSONArray properties = advancedConfiguration.getJSONArray("properties");
             if (properties != null) {
