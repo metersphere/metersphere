@@ -335,7 +335,7 @@ public class ApiAutomationController {
         return apiAutomationService.setDomain(request.getDefinition());
     }
 
-    @PostMapping(value = "/export/jmx")
+    @PostMapping(value = "/export/zip")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ResponseEntity<byte[]> downloadBodyFiles(@RequestBody ApiScenarioBatchRequest request) {
@@ -345,5 +345,13 @@ public class ApiAutomationController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "场景JMX文件集.zip")
                 .body(bytes);
     }
+
+    @PostMapping(value = "/export/jmx")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
+    @MsAuditLog(module = "api_automation", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
+    public List<ApiScenrioExportJmx> exportJmx(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.exportJmx(request);
+    }
+
 }
 

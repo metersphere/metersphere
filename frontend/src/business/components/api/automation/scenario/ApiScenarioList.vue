@@ -253,6 +253,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import {editApiScenarioCaseOrder} from "@/business/components/api/automation/api-automation";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import axios from "axios";
+import {error} from "@/common/js/message";
 
 export default {
   name: "MsApiScenarioList",
@@ -1031,6 +1032,9 @@ export default {
           link.download = "场景JMX文件集.zip";
           this.result.loading = false;
           link.click();
+        },error => {
+          this.result.loading = false;
+          this.$error("导出JMX文件失败");
         });
     },
 
@@ -1042,7 +1046,7 @@ export default {
         return;
       }
       this.result.loading = true;
-      this.fileDownload("/api/automation/export/jmx", param);
+      this.fileDownload("/api/automation/export/zip", param);
     },
     getConditions() {
       return this.condition;
