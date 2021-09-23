@@ -585,23 +585,6 @@ export default {
               isNext = true;
             }
           });
-          this.$nextTick(function () {
-
-            handleRowDrop(this.tableData, (param) => {
-              param.groupId = this.condition.projectId;
-              editApiTestCaseOrder(param);
-            });
-
-            if (this.$refs.caseTable) {
-              this.$refs.caseTable.doLayout();
-              this.$refs.caseTable.checkTableRowIsSelect();
-            }
-          });
-          if (isNext) {
-            setTimeout(() => {
-              this.initTable();
-            }, 5000);
-          }
         });
       }
     },
