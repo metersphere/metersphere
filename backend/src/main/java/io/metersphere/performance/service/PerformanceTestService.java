@@ -313,6 +313,9 @@ public class PerformanceTestService {
         if (request.getUserId() != null) {
             loadTest.setUserId(request.getUserId());
         }
+        if(StringUtils.isNotEmpty(request.getProjectId())){
+            loadTest.setProjectId(request.getProjectId());
+        }
         if (loadTest == null) {
             MSException.throwException(Translator.get("run_load_test_not_found") + request.getId());
         }
