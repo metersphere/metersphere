@@ -128,7 +128,7 @@ import {
   checkTableRowIsSelect, getCustomTableHeader, getCustomTableWidth, handleRowDrop
 } from "@/common/js/tableUtils";
 import {TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
-import {getCurrentUser} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId} from "@/common/js/utils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsPlanRunMode from "../../../common/PlanRunMode";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -259,6 +259,8 @@ export default {
             runArr.push({
               id: loadCase.loadCaseId,
               testPlanLoadId: loadCase.id,
+              userId: getCurrentUserId(),
+              projectId: getCurrentProjectID(),
               triggerMode: 'MANUAL'
             });
           });
@@ -273,6 +275,8 @@ export default {
           runArr.push( {
             id: loadCase.loadCaseId,
             testPlanLoadId: loadCase.id,
+            userId: getCurrentUserId(),
+            projectId: getCurrentProjectID(),
             triggerMode: 'MANUAL'
           })
         });
@@ -399,6 +403,8 @@ export default {
       this.$post('/test/plan/load/case/run', {
         id: loadCase.loadCaseId,
         testPlanLoadId: loadCase.id,
+        userId: getCurrentUserId(),
+        projectId: getCurrentProjectID(),
         triggerMode: 'MANUAL'
       }).then(() => {
         this.$notify.success({
