@@ -24,7 +24,7 @@
           <span @click.stop>
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
-                      class="ms-api-header-select" style="width: 180px" readonly="hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
+                      class="ms-api-header-select" style="width: 180px" :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
                       @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
@@ -178,6 +178,7 @@ const esbDefinitionResponse = (requireComponent != null && requireComponent.keys
 import {API_METHOD_COLOUR} from "../../model/JsonData";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {hasPermission} from '@/common/js/utils';
 
 export default {
   name: "ApiCaseItem",
@@ -282,6 +283,7 @@ export default {
     }
   },
   methods: {
+    hasPermission,
     openHis(row) {
       this.$refs.changeHistory.open(row.id);
     },

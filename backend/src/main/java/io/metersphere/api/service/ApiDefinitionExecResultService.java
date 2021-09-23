@@ -205,6 +205,7 @@ public class ApiDefinitionExecResultService {
                     // 更新用例最后执行结果
                     caseWithBLOBs.setLastResultId(resourceId);
                     caseWithBLOBs.setStatus(status);
+                    caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
                     apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
                     return caseWithBLOBs.getName();
                 }
