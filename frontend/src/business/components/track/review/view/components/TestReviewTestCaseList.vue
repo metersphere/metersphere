@@ -170,7 +170,7 @@ import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import {
   _handleSelectAll,
-  buildBatchParam, checkTableRowIsSelected, deepClone, getCustomTableWidth, getLastTableSortField,
+  buildBatchParam, deepClone, getCustomTableWidth, getLastTableSortField,
   getSelectDataCounts, getTableHeaderWithCustomFields,
   initCondition,
   toggleAllSelection
@@ -328,7 +328,6 @@ export default {
           this.total = data.itemCount;
           this.tableData = data.listObject;
           this.tableClear();
-          checkTableRowIsSelected(this, this.$refs.table);
         });
       }
 

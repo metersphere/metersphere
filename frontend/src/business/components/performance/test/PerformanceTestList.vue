@@ -19,6 +19,8 @@
           :remember-order="true"
           :enable-order-drag="enableOrderDrag"
           row-key="id"
+          :row-order-group-id="projectId"
+          :row-order-func="editLoadTestCaseOrder"
           operator-width="190px"
           :screen-height="screenHeight"
           :enable-selection="false"
@@ -104,7 +106,7 @@ import MsTableOperators from "../../common/components/MsTableOperators";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
-import {getLastTableSortField, handleRowDrop} from "@/common/js/tableUtils";
+import {getLastTableSortField} from "@/common/js/tableUtils";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {editLoadTestCaseOrder} from "@/network/load-test";
 
@@ -172,8 +174,13 @@ export default {
       this.initTableData();
     }
   },
+  computed: {
+    editLoadTestCaseOrder() {
+      return editLoadTestCaseOrder;
+    }
+  },
   created: function () {
-    this.projectId = this.$route.params.projectId;
+    this.projectId = getCurrentProjectID();
     this.initTableData();
     this.getMaintainerOptions();
   },
@@ -202,16 +209,6 @@ export default {
           this.result = this.$get('/performance/test/report-count/' + test.id, response => {
             this.$set(test, 'reportCount', response.data);
           });
-        });
-
-        this.$nextTick(() => {
-          handleRowDrop(this.tableData, (param) => {
-            param.groupId = getCurrentProjectID();
-            editLoadTestCaseOrder(param);
-          });
-          if (this.$refs.table) {
-            this.$refs.table.clear();
-          }
         });
       });
     },

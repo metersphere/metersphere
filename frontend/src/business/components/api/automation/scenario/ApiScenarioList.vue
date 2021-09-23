@@ -18,6 +18,8 @@
         operator-width="200"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
+        :row-order-group-id="condition.projectId"
+        :row-order-func="editApiScenarioCaseOrder"
         @refresh="search(projectId)"
         @callBackSelectAll="callBackSelectAll"
         @callBackSelect="callBackSelect"
@@ -244,7 +246,7 @@ import {downloadFile, getCurrentProjectID, getUUID, strMapToObj} from "@/common/
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
-import {getCustomTableHeader, getCustomTableWidth, getLastTableSortField, handleRowDrop} from "@/common/js/tableUtils";
+import {getCustomTableHeader, getCustomTableWidth, getLastTableSortField} from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import {scenario} from "@/business/components/track/plan/event-bus";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -552,6 +554,9 @@ export default {
     isNotRunning() {
       return "Running" !== this.report.status;
     },
+    editApiScenarioCaseOrder() {
+      return editApiScenarioCaseOrder;
+    }
   },
   methods: {
     getProjectName() {
@@ -618,20 +623,6 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
-
-          this.$nextTick(() => {
-            handleRowDrop(this.tableData, (param) => {
-              param.groupId = this.condition.projectId;
-              editApiScenarioCaseOrder(param);
-            });
-
-            if (this.$refs.scenarioTable) {
-              this.$refs.scenarioTable.clear();
-              this.$refs.scenarioTable.doLayout();
-            }
-
-          });
-
           this.$emit('getTrashCase');
         });
       }

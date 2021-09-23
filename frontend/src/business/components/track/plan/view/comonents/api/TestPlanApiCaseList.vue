@@ -25,6 +25,8 @@
         :fields.sync="fields"
         :field-key="tableHeaderKey"
         @refresh="initTable"
+        :row-order-group-id="planId"
+        :row-order-func="editTestPlanApiCaseOrder"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
         ref="table">
@@ -174,7 +176,7 @@ import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
 import {TEST_PLAN_API_CASE} from "@/common/js/constants";
 import {
   buildBatchParam,
-  checkTableRowIsSelect, deepClone, getCustomTableHeader, getCustomTableWidth, handleRowDrop,
+  checkTableRowIsSelect, deepClone, getCustomTableHeader, getCustomTableWidth,
 } from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -341,6 +343,9 @@ export default {
     isApiModel() {
       return this.model === 'api';
     },
+    editTestPlanApiCaseOrder() {
+      return editTestPlanApiCaseOrder;
+    }
   },
   methods: {
     customHeader() {
@@ -386,14 +391,6 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
-
-          if (this.$refs.table) {
-            this.$refs.table.clear();
-            setTimeout(this.$refs.table.doLayout, 200);
-            this.$nextTick(() => {
-              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
-            });
-          }
         });
       }
       if (this.planId) {
@@ -406,24 +403,8 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
-          if (this.$refs.table) {
-            this.$refs.table.clear();
-            setTimeout(this.$refs.table.doLayout, 200);
-            this.$nextTick(() => {
-              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
-            });
-          }
-          this.handleRowDrop();
         });
       }
-    },
-    handleRowDrop() {
-      this.$nextTick(() => {
-        handleRowDrop(this.tableData, (param) => {
-          param.groupId = this.planId;
-          editTestPlanApiCaseOrder(param);
-        });
-      });
     },
     search() {
       this.initTable();

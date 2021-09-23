@@ -221,13 +221,6 @@ export default {
             item.tags = JSON.parse(item.tags);
           }
         });
-        this.$nextTick(function () {
-          if (this.$refs.table) {
-            this.$refs.table.doLayout();
-            this.$refs.table.checkTableRowIsSelect();
-            this.$refs.table.clear();
-          }
-        });
       });
     },
     clear() {

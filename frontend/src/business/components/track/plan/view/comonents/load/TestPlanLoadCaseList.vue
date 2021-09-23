@@ -23,6 +23,8 @@
         :field-key="tableHeaderKey"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
+        :row-order-group-id="planId"
+        :row-order-func="editTestPlanLoadCaseOrder"
         @refresh="initTable"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
@@ -124,8 +126,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 import LoadCaseReport from "@/business/components/track/plan/view/comonents/load/LoadCaseReport";
 import {
-  buildBatchParam,
-  checkTableRowIsSelect, getCustomTableHeader, getCustomTableWidth, handleRowDrop
+  buildBatchParam, getCustomTableHeader, getCustomTableWidth
 } from "@/common/js/tableUtils";
 import {TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
 import {getCurrentProjectID, getCurrentUser, getCurrentUserId} from "@/common/js/utils";
@@ -223,6 +224,11 @@ export default {
     reviewId: String,
     clickType: String,
   },
+  computed: {
+    editTestPlanLoadCaseOrder() {
+      return editTestPlanLoadCaseOrder;
+    }
+  },
   created() {
     this.initTable();
     this.refreshStatus();
@@ -316,19 +322,6 @@ export default {
           let {itemCount, listObject} = data;
           this.total = itemCount;
           this.tableData = listObject;
-
-          this.$nextTick(() => {
-            handleRowDrop(this.tableData, (param) => {
-              param.groupId = this.planId;
-              editTestPlanLoadCaseOrder(param);
-            });
-          });
-          if (this.$refs.table) {
-            setTimeout(this.$refs.table.doLayout, 200);
-            this.$nextTick(() => {
-              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
-            });
-          }
         })
       }
       if (this.reviewId) {
@@ -338,12 +331,6 @@ export default {
           let {itemCount, listObject} = data;
           this.total = itemCount;
           this.tableData = listObject;
-          if (this.$refs.table) {
-            setTimeout(this.$refs.table.doLayout, 200);
-            this.$nextTick(() => {
-              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
-            });
-          }
         })
       }
     },
