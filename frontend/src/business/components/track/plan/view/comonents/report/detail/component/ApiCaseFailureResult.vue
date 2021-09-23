@@ -3,50 +3,52 @@
     <el-row class="scenario-info">
       <el-col class="padding-col" :span="7">
         <el-card>
-          <ms-table v-loading="result.loading"
-                    :show-select-all="false"
-                    :screen-height="null"
-                    :enable-selection="false"
-                    :highlight-current-row="true"
-                    @refresh="getScenarioApiCase"
-                    @handleRowClick="rowClick"
-                    :data="apiCases">
+          <el-scrollbar>
+            <ms-table v-loading="result.loading"
+                      :show-select-all="false"
+                      :screen-height="null"
+                      :enable-selection="false"
+                      :highlight-current-row="true"
+                      @refresh="getScenarioApiCase"
+                      @handleRowClick="rowClick"
+                      :data="apiCases">
 
-            <ms-table-column
-              :width="80"
-              :label="$t('commons.id')"
-              prop="num">
-            </ms-table-column>
+              <ms-table-column
+                :width="80"
+                :label="$t('commons.id')"
+                prop="num">
+              </ms-table-column>
 
-            <ms-table-column
-              :label="$t('commons.name')"
-              prop="name">
-            </ms-table-column>
+              <ms-table-column
+                :label="$t('commons.name')"
+                prop="name">
+              </ms-table-column>
 
-            <ms-table-column
-              :label="'创建人'"
-              prop="creatorName"/>
+              <ms-table-column
+                :label="'创建人'"
+                prop="creatorName"/>
 
-            <ms-table-column
-              :label="$t('test_track.case.priority')"
-              :width="80"
-              prop="priority">
-              <template v-slot:default="scope">
-                <priority-table-item :value="scope.row.priority" ref="priority"/>
-              </template>
-            </ms-table-column>
+              <ms-table-column
+                :label="$t('test_track.case.priority')"
+                :width="80"
+                prop="priority">
+                <template v-slot:default="scope">
+                  <priority-table-item :value="scope.row.priority" ref="priority"/>
+                </template>
+              </ms-table-column>
 
-            <ms-table-column
-              :width="80"
-              :label="'执行结果'"
-              prop="lastResult">
-              <template v-slot:default="scope">
-                <status-table-item v-if="scope.row.execResult === 'success'" :value="'Pass'"/>
-                <status-table-item v-if="scope.row.execResult === 'error'" :value="'Failure'"/>
-                <status-table-item v-if="scope.row.execResult != 'error' && scope.row.execResult != 'success'" :value="'Prepare'"/>
-              </template>
-            </ms-table-column>
-          </ms-table>
+              <ms-table-column
+                :width="80"
+                :label="'执行结果'"
+                prop="lastResult">
+                <template v-slot:default="scope">
+                  <status-table-item v-if="scope.row.execResult === 'success'" :value="'Pass'"/>
+                  <status-table-item v-if="scope.row.execResult === 'error'" :value="'Failure'"/>
+                  <status-table-item v-if="scope.row.execResult != 'error' && scope.row.execResult != 'success'" :value="'Prepare'"/>
+                </template>
+              </ms-table-column>
+            </ms-table>
+          </el-scrollbar>
         </el-card>
       </el-col>
       <el-col class="padding-col" :span="17" v-if="apiCases.length > 0">
@@ -167,4 +169,13 @@ export default {
 </script>
 
 <style scoped>
+
+.el-card >>> .el-card__body {
+  height: 600px;
+}
+
+/deep/ .text-container .pane {
+  height: 550px !important;
+}
+
 </style>

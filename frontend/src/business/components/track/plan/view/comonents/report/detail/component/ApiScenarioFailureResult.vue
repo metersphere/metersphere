@@ -2,50 +2,52 @@
   <el-row class="scenario-info">
       <el-col class="padding-col" :span="8">
         <el-card>
-          <ms-table v-loading="result.loading"
-                  :show-select-all="false"
-                  :screen-height="null"
-                  :enable-selection="false"
-                  :highlight-current-row="true"
-                  @refresh="getScenarioApiCase"
-                  @handleRowClick="rowClick"
-                  :data="scenarioCases">
+          <el-scrollbar>
+            <ms-table v-loading="result.loading"
+                      :show-select-all="false"
+                      :screen-height="null"
+                      :enable-selection="false"
+                      :highlight-current-row="true"
+                      @refresh="getScenarioApiCase"
+                      @handleRowClick="rowClick"
+                      :data="scenarioCases">
 
-          <ms-table-column
-            :width="80"
-            :label="$t('commons.id')"
-            prop="customNum">
-          </ms-table-column>
-          <ms-table-column
-            :label="$t('commons.name')"
-            prop="name">
-          </ms-table-column>
-          <ms-table-column
-            :label="'创建人'"
-            prop="creatorName"/>
-          <ms-table-column
-            :label="$t('test_track.case.priority')"
-            :width="80">
-            <template v-slot:default="scope">
-              <priority-table-item :value="scope.row.level" ref="priority"/>
-            </template>
-          </ms-table-column>
-          <ms-table-column
-            :width="70"
-            :label="'步骤数'"
-            prop="stepTotal">
-          </ms-table-column>
-          <ms-table-column
-            :width="80"
-            :label="'执行结果'"
-            prop="lastResult">
-            <template v-slot:default="{row}">
-              <status-table-item v-if="row.lastResult === 'Success'" :value="'Pass'"/>
-              <status-table-item v-if="row.lastResult === 'Fail'" :value="'Failure'"/>
-              <status-table-item v-if="row.lastResult != 'Fail' && row.lastResult != 'Success'" :value="'Prepare'"/>
-            </template>
-          </ms-table-column>
-        </ms-table>
+              <ms-table-column
+                :width="80"
+                :label="$t('commons.id')"
+                prop="customNum">
+              </ms-table-column>
+              <ms-table-column
+                :label="$t('commons.name')"
+                prop="name">
+              </ms-table-column>
+              <ms-table-column
+                :label="'创建人'"
+                prop="creatorName"/>
+              <ms-table-column
+                :label="$t('test_track.case.priority')"
+                :width="80">
+                <template v-slot:default="scope">
+                  <priority-table-item :value="scope.row.level" ref="priority"/>
+                </template>
+              </ms-table-column>
+              <ms-table-column
+                :width="70"
+                :label="'步骤数'"
+                prop="stepTotal">
+              </ms-table-column>
+              <ms-table-column
+                :width="80"
+                :label="'执行结果'"
+                prop="lastResult">
+                <template v-slot:default="{row}">
+                  <status-table-item v-if="row.lastResult === 'Success'" :value="'Pass'"/>
+                  <status-table-item v-if="row.lastResult === 'Fail'" :value="'Failure'"/>
+                  <status-table-item v-if="row.lastResult != 'Fail' && row.lastResult != 'Success'" :value="'Prepare'"/>
+                </template>
+              </ms-table-column>
+            </ms-table>
+          </el-scrollbar>
         </el-card>
       </el-col>
       <el-col :span="16" v-if="scenarioCases && scenarioCases.length > 0">
@@ -156,12 +158,11 @@ export default {
   padding-right: 0px;
 }
 
-
-.scenario-info {
-  height: 625px;
+.el-card >>> .el-card__body {
+  height: 600px;
 }
 
-.ms-main-container {
-  height: 612px;
+/deep/ .ms-main-container {
+  height: 620px !important;
 }
 </style>

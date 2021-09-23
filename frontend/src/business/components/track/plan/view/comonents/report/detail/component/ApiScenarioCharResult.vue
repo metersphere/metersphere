@@ -28,6 +28,8 @@ export default {
           textStyle: {
             lineHeight: 30,
             fontSize: 16,
+            fontWeight: 500,
+            color: 'gray'
           },
           subtextStyle: {
             height: 30,

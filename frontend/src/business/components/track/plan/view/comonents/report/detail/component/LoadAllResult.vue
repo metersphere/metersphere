@@ -1,16 +1,12 @@
 <template>
   <el-row class="scenario-info">
     <el-col :span="7" class="padding-col">
-      <el-card>
-        <load-failure-result :is-db="isDb" @rowClick="getReport" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
-                           :report="report" :plan-id="planId" @setSize="setAllSize"/>
-      </el-card>
+      <load-failure-result :class="{'init-height': !showResponse}" :is-db="isDb" @rowClick="getReport" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
+                         :report="report" :plan-id="planId" @setSize="setAllSize"/>
     </el-col>
     <el-col :span="17" class="padding-col">
-      <el-card v-show="showResponse">
-        <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare"
+        <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare" v-show="showResponse"
                                :plan-report-template="response" :report-id="reportId" ref="loadCaseReportView"/>
-      </el-card>
       <div class="empty" v-show="!showResponse">内容为空</div>
     </el-col>
   </el-row>
@@ -90,5 +86,7 @@ export default {
 </script>
 
 <style scoped>
-
+.init-height >>> .el-card__body {
+  height: 600px !important;
+}
 </style>
