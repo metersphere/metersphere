@@ -107,11 +107,15 @@ export const sysList = [
 export function getUrl(d) {
   let url = "/#";
   let resourceId = d.sourceId;
-  if (resourceId && resourceId.startsWith("\"" || resourceId.startsWith("["))) {
+  if (resourceId && (resourceId.startsWith("\"") || resourceId.startsWith("["))) {
     resourceId = JSON.parse(d.sourceId);
   }
   if (resourceId instanceof Array) {
-    resourceId = resourceId[0];
+    if (resourceId.length === 1) {
+      resourceId = resourceId[0];
+    } else {
+      return url;
+    }
   }
   switch (d.operModule) {
     case "接口自动化" || "Api automation" || "接口自動化":
