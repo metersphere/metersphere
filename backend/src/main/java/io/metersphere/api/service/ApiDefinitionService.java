@@ -220,6 +220,7 @@ public class ApiDefinitionService {
         example.createCriteria().andIdIn(apiIds);
         esbApiParamService.deleteByResourceIdIn(apiIds);
         apiDefinitionMapper.deleteByExample(example);
+        apiTestCaseService.deleteBatchByDefinitionId(apiIds);
     }
 
     public void removeToGc(List<String> apiIds) {
@@ -1051,6 +1052,7 @@ public class ApiDefinitionService {
 
     public void deleteByParams(ApiBatchRequest request) {
         apiDefinitionMapper.deleteByExample(getBatchExample(request));
+        apiTestCaseService.deleteBatchByDefinitionId(request.getIds());
     }
 
     public ApiDefinitionExample getBatchExample(ApiBatchRequest request) {
