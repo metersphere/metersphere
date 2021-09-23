@@ -34,7 +34,7 @@ public class TCPServer implements Runnable {
     }
 
     public boolean  isSocketOpen(){
-        if (this.serverSocket != null && !this.serverSocket.isClosed() &&this.servicer != null) {
+        if (this.serverSocket != null && !this.serverSocket.isClosed()) {
             return true;
         }else {
             return false;
