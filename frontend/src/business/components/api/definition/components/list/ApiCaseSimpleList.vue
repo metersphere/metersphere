@@ -23,6 +23,8 @@
         :fields.sync="fields"
         :field-key="tableHeaderKey"
         :remember-order="true"
+        :row-order-group-id="condition.projectId"
+        :row-order-func="editApiTestCaseOrder"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
         operator-width="190px"
@@ -225,7 +227,6 @@ import {
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
-  handleRowDrop
 } from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -453,6 +454,9 @@ export default {
     },
     selectRows() {
       return this.$refs.caseTable.getSelectRows();
+    },
+    editApiTestCaseOrder() {
+      return editApiTestCaseOrder;
     }
   },
   methods: {
@@ -586,17 +590,6 @@ export default {
               isNext = true;
             }
           });
-
-          this.$nextTick(() => {
-            if (this.$refs.caseTable) {
-              this.$refs.caseTable.clear();
-            }
-            handleRowDrop(this.tableData, (param) => {
-              param.groupId = this.condition.projectId;
-              editApiTestCaseOrder(param);
-            });
-          })
-
         });
       }
     },

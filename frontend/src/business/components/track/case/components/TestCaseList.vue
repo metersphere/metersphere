@@ -17,6 +17,8 @@
       :remember-order="true"
       :enable-order-drag="enableOrderDrag"
       row-key="id"
+      :row-order-group-id="projectId"
+      :row-order-func="editTestCaseOrder"
       @handlePageChange="initTableData"
       @handleRowClick="handleEdit"
       :fields.sync="fields"
@@ -202,13 +204,12 @@ import ReviewStatus from "@/business/components/track/case/components/ReviewStat
 import MsTag from "@/business/components/common/components/MsTag";
 import {
   buildBatchParam,
-  checkTableRowIsSelected,
   deepClone,
   getCustomFieldBatchEditOption,
   getCustomFieldValue,
   getCustomTableWidth, getLastTableSortField,
   getPageInfo,
-  getTableHeaderWithCustomFields, handleRowDrop,
+  getTableHeaderWithCustomFields,
   initCondition,
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -384,6 +385,9 @@ export default {
     },
     systemFiledMap() {
       return SYSTEM_FIELD_NAME_MAP;
+    },
+    editTestCaseOrder() {
+      return editTestCaseOrder;
     }
   },
   created: function () {
@@ -579,12 +583,6 @@ export default {
           let data = response.data;
           this.page.total = data.itemCount;
           this.page.data = data.listObject;
-          if (this.$refs.table) {
-            this.$refs.table.clear();
-            this.$nextTick(() => {
-              this.$refs.table.doLayout();
-            });
-          }
           this.page.data.forEach(item => {
             if (item.customFields) {
               item.customFields = JSON.parse(item.customFields);
@@ -598,20 +596,8 @@ export default {
             }
 
           });
-          checkTableRowIsSelected(this, this.$refs.table);
-
-          this.handleRowDrop();
-
         });
       }
-    },
-    handleRowDrop() {
-      this.$nextTick(() => {
-        handleRowDrop(this.page.data, (param) => {
-          param.groupId = this.projectId;
-          editTestCaseOrder(param);
-        });
-      });
     },
     search() {
       this.initTableData();

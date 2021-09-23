@@ -34,6 +34,8 @@
       :fields.sync="fields"
       :remember-order="true"
       @refresh="initTableData"
+      :row-order-group-id="planId"
+      :row-order-func="editTestPlanTestCaseOrder"
       :enable-order-drag="enableOrderDrag"
       row-key="id"
       ref="table">
@@ -269,9 +271,9 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
-  buildBatchParam, checkTableRowIsSelected,
+  buildBatchParam,
   getCustomFieldValue, getCustomTableWidth, getLastTableSortField,
-  getTableHeaderWithCustomFields, handleRowDrop,
+  getTableHeaderWithCustomFields,
   initCondition,
 } from "@/common/js/tableUtils";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -394,6 +396,11 @@ export default {
       type: Array
     },
   },
+  computed: {
+    editTestPlanTestCaseOrder() {
+      return editTestPlanTestCaseOrder;
+    }
+  },
   watch: {
     planId() {
       this.refreshTableAndPlan();
@@ -486,17 +493,6 @@ export default {
               this.$set(this.tableData[i], "issuesContent", JSON.parse(this.tableData[i].issues));
             }
           }
-
-          this.$nextTick(() => {
-            handleRowDrop(this.tableData, (param) => {
-              param.groupId = this.planId;
-              editTestPlanTestCaseOrder(param);
-            });
-          });
-          if (this.$refs.table) {
-            this.$refs.table.clear();
-          }
-          checkTableRowIsSelected(this, this.$refs.table);
         });
       }
     },

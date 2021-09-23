@@ -15,6 +15,8 @@
         :remember-order="true"
         @refresh="initTable"
         :fields.sync="fields"
+        :row-order-func="editApiDefinitionOrder"
+        :row-order-group-id="condition.projectId"
         :table-is-loading="this.result.loading"
         :field-key="tableHeaderKey"
         :enable-order-drag="enableOrderDrag"
@@ -208,12 +210,10 @@ import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import {
   initCondition,
-  getCustomTableHeader, getCustomTableWidth, buildBatchParam, checkTableRowIsSelected,
-  saveLastTableSortField, getLastTableSortField, handleRowDrop
+  getCustomTableHeader, getCustomTableWidth, buildBatchParam, getLastTableSortField
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
-import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 import {editApiDefinitionOrder} from "@/network/api";
 
 
@@ -420,6 +420,9 @@ export default {
       } else {
         return this.$t('api_test.definition.api_type');
       }
+    },
+    editApiDefinitionOrder() {
+      return editApiDefinitionOrder;
     }
   },
   created: function () {
@@ -474,7 +477,7 @@ export default {
       initCondition(this.condition, false);
       this.closeCaseModel();
       this.initTable();
-    }
+    },
   },
   methods: {
     getProjectName() {
@@ -548,18 +551,6 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
-
-          checkTableRowIsSelected(this, this.$refs.table);
-
-          this.$nextTick(() => {
-            if (this.$refs.table) {
-              this.$refs.table.clear();
-            }
-            handleRowDrop(this.tableData, (param) => {
-              param.groupId = this.condition.projectId;
-              editApiDefinitionOrder(param);
-            });
-          })
         });
       }
       if (this.needRefreshModule()) {

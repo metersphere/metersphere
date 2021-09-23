@@ -21,6 +21,8 @@
         :field-key="tableHeaderKey"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
+        :row-order-func="editTestPlanScenarioCaseOrder"
+        :row-order-group-id="planId"
         @refresh="search"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
@@ -180,8 +182,7 @@ import MsTestPlanList from "../../../../../api/automation/scenario/testplan/Test
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
 import {
   initCondition,
-  buildBatchParam,
-  checkTableRowIsSelect, getCustomTableHeader, getCustomTableWidth, handleRowDrop
+  buildBatchParam, getCustomTableHeader, getCustomTableWidth
 } from "../../../../../../../common/js/tableUtils";
 import {TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -290,6 +291,9 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+    editTestPlanScenarioCaseOrder() {
+      return editTestPlanScenarioCaseOrder;
+    }
   },
   created() {
     this.search();
@@ -344,20 +348,6 @@ export default {
             }
           })
           this.loading = false;
-
-          handleRowDrop(this.tableData, (param) => {
-            param.groupId = this.planId;
-            editTestPlanScenarioCaseOrder(param);
-          });
-
-
-          if (this.$refs.table) {
-            this.$refs.table.selectRows.clear();
-            setTimeout(this.$refs.table.doLayout, 200);
-            this.$nextTick(() => {
-              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
-            });
-          }
         });
       }
       if (this.reviewId) {
@@ -373,12 +363,6 @@ export default {
             }
           });
           this.loading = false;
-          if (this.$refs.table) {
-            setTimeout(this.$refs.table.doLayout, 200);
-            this.$nextTick(() => {
-              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
-            });
-          }
         });
       }
     },

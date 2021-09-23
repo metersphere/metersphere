@@ -86,7 +86,7 @@ import {
   _filter,
   _handleSelect,
   _handleSelectAll,
-  _sort, checkTableRowIsSelect,
+  _sort,
   getSelectDataCounts,
   initCondition,
   setUnSelectIds, toggleAllSelection,saveLastTableSortField,getLastTableSortField
@@ -173,12 +173,6 @@ export default {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
-        if (this.$refs.testPlanReportTable) {
-          // setTimeout(this.$refs.testPlanReportTable,200);
-        }
-        this.$nextTick(() => {
-          checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.testPlanReportTable,this.selectRows);
-        });
       });
     },
     buildPagePath(path) {
