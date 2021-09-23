@@ -16,7 +16,7 @@
 
       <el-collapse-transition>
         <div v-if="menu.open">
-          <div v-for="(child, key) in menu.children" :key="key">
+          <div v-for="(child, key) in menu.children" :key="key" class="func-div">
             <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link">{{child.title}}</el-link>
           </div>
         </div>
@@ -197,8 +197,15 @@ export default {
 }
 
 .func-link {
-  color: #935aa1;
   margin-left: 18px;
+}
+
+.func-div >>> .func-link {
+  color: #935aa1;
+}
+
+.func-div >>> .func-link:hover {
+  color: #935aa1;
 }
 
 .link-type {
