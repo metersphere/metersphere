@@ -32,12 +32,12 @@ public class FixedTask {
                     MessageCache.cache.remove(key);
                 } else {
                     try {
-                        int number = 0;
                         if (guardTask.containsKey(key)) {
-                            number = guardTask.get(key);
-                            guardTask.put(key, number++);
-                        } else {
+                            int number = guardTask.get(key);
+                            number +=1;
                             guardTask.put(key, number);
+                        } else {
+                            guardTask.put(key, 0);
                         }
                         if (CollectionUtils.isNotEmpty(counter.getPoolUrls()) && counter.getNumber() > 0 && guardTask.get(key) > 200) {
                             // 资源池中已经没有执行的请求了
