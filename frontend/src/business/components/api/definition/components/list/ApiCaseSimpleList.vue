@@ -11,6 +11,7 @@
                  @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}
       </el-button>
       <ms-table
+        v-loading="result.loading"
         :data="tableData"
         :select-node-ids="selectNodeIds"
         :condition="condition"
@@ -585,6 +586,17 @@ export default {
               isNext = true;
             }
           });
+
+          this.$nextTick(() => {
+            if (this.$refs.caseTable) {
+              this.$refs.caseTable.clear();
+            }
+            handleRowDrop(this.tableData, (param) => {
+              param.groupId = this.condition.projectId;
+              editApiTestCaseOrder(param);
+            });
+          })
+
         });
       }
     },
