@@ -1,6 +1,7 @@
 package io.metersphere.performance.engine.docker;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ResourceStatusEnum;
@@ -26,13 +27,13 @@ public class DockerTestEngine extends AbstractEngine {
     private RestTemplate restTemplate;
     private RestTemplate restTemplateWithTimeOut;
 
-    public DockerTestEngine(LoadTestWithBLOBs loadTest) {
-        this.init(loadTest);
+    public DockerTestEngine(LoadTestReportWithBLOBs loadTestReport) {
+        this.init(loadTestReport);
     }
 
     @Override
-    protected void init(LoadTestWithBLOBs loadTest) {
-        super.init(loadTest);
+    protected void init(LoadTestReportWithBLOBs loadTestReport) {
+        super.init(loadTestReport);
         this.restTemplate = (RestTemplate) CommonBeanFactory.getBean("restTemplate");
         this.restTemplateWithTimeOut = (RestTemplate) CommonBeanFactory.getBean("restTemplateWithTimeOut");
     }
@@ -85,9 +86,9 @@ public class DockerTestEngine extends AbstractEngine {
         env.put("RATIO", StringUtils.join(ratios, ","));
         env.put("RESOURCE_INDEX", "" + resourceIndex);
         env.put("METERSPHERE_URL", metersphereUrl);
-        env.put("START_TIME", "" + this.getStartTime());
-        env.put("TEST_ID", this.loadTest.getId());
-        env.put("REPORT_ID", this.getReportId());
+        env.put("START_TIME", "" + System.currentTimeMillis());
+        env.put("TEST_ID", this.loadTestReport.getTestId());
+        env.put("REPORT_ID", this.loadTestReport.getId());
         env.put("BOOTSTRAP_SERVERS", kafkaProperties.getBootstrapServers());
         env.put("LOG_TOPIC", kafkaProperties.getLog().getTopic());
         env.put("JMETER_REPORTS_TOPIC", kafkaProperties.getReport().getTopic());
@@ -95,7 +96,7 @@ public class DockerTestEngine extends AbstractEngine {
         env.put("THREAD_NUM", "0");// 传入0表示不用修改线程数
         env.put("HEAP", HEAP);
         env.put("GC_ALGO", GC_ALGO);
-        env.put("GRANULARITY", performanceTestService.getGranularity(this.getReportId()).toString());
+        env.put("GRANULARITY", performanceTestService.getGranularity(this.loadTestReport.getId()).toString());
         env.put("BACKEND_LISTENER", resourcePool.getBackendListener().toString());
 
 
@@ -121,7 +122,7 @@ public class DockerTestEngine extends AbstractEngine {
 
     @Override
     public void stop() {
-        String testId = loadTest.getId();
+        String testId = loadTestReport.getTestId();
         this.resourceList.forEach(r -> {
             NodeDTO node = JSON.parseObject(r.getConfiguration(), NodeDTO.class);
             String ip = node.getIp();
