@@ -258,6 +258,7 @@ export default {
       this.runResult = {testId: getUUID()};
       this.$refs.apiCaseItem.runLoading = false;
       this.$success(this.$t('organization.integration.successful_operation'));
+      this.$store.state.currentApiCase = {refresh: true};
       this.getApiTest();
     },
     errorRefresh() {
