@@ -117,4 +117,8 @@ export default {
   min-height: 20px;
 }
 
+/deep/ .v-note-wrapper {
+  position: initial;
+}
+
 </style>
