@@ -97,14 +97,14 @@ public class PerformanceReportService {
             MSException.throwException("report id cannot be null");
         }
 
-        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(loadTestReport.getTestId());
 
         LogUtil.info("Delete report started, report ID: %s" + reportId);
 
         if (loadTest != null) {
             try {
-                final Engine engine = EngineFactory.createEngine(loadTest);
+                final Engine engine = EngineFactory.createEngine(loadTestReport);
                 if (engine == null) {
                     MSException.throwException(String.format("Delete report fail. create engine fail，report ID：%s", reportId));
                 }

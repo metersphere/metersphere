@@ -313,7 +313,7 @@ public class PerformanceTestService {
         if (request.getUserId() != null) {
             loadTest.setUserId(request.getUserId());
         }
-        if(StringUtils.isNotEmpty(request.getProjectId())){
+        if (StringUtils.isNotEmpty(request.getProjectId())) {
             loadTest.setProjectId(request.getProjectId());
         }
         if (loadTest == null) {
@@ -323,40 +323,12 @@ public class PerformanceTestService {
         if (StringUtils.equalsAny(loadTest.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Starting.name())) {
             MSException.throwException(Translator.get("load_test_is_running"));
         }
-        String testResourcePoolId = loadTest.getTestResourcePoolId();
-        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
-        if (testResourcePool == null) {
-            MSException.throwException(Translator.get("test_resource_pool_not_exists"));
-        }
-        if (ResourceStatusEnum.INVALID.name().equals(testResourcePool.getStatus())) {
-            MSException.throwException(Translator.get("test_resource_pool_invalid"));
-        }
         // check kafka
         checkKafka();
 
         LogUtil.info("Load test started " + loadTest.getName());
-        LoadTestWithBLOBs copyTest = new LoadTestWithBLOBs();
-        BeanUtils.copyBean(copyTest, loadTest);
-        // 如果是执行测试计划用例，把EngineFactory.createEngine参数对象的id 设置为测试计划用例id
-        // 设置用例id目的是当 JmeterFileService 下载zip，拼装 jmx 文件时，如果用例自身带有压力配置，使用用例自身压力配置拼装 jmx
-        String testPlanLoadId = request.getTestPlanLoadId();
-        if (StringUtils.isNotBlank(testPlanLoadId)) {
-            copyTest.setId(testPlanLoadId);
-            // 设置本次报告中的压力配置信息
-            TestPlanLoadCase testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(testPlanLoadId);
-            if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getLoadConfiguration())) {
-                loadTest.setLoadConfiguration(testPlanLoadCase.getLoadConfiguration());
-            }
-        }
-        // engine type (NODE)
-        final Engine engine = EngineFactory.createEngine(copyTest);
-        if (engine == null) {
-            MSException.throwException(String.format("Test cannot be run，test ID：%s", request.getId()));
-        }
 
-        startEngine(loadTest, engine, request.getTriggerMode());
-
-        return engine.getReportId();
+        return startEngine(loadTest, request);
     }
 
     private void checkKafka() {
@@ -380,14 +352,16 @@ public class PerformanceTestService {
         }
     }
 
-    private void startEngine(LoadTestWithBLOBs loadTest, Engine engine, String triggerMode) {
+    private String startEngine(LoadTestWithBLOBs loadTest, RunTestPlanRequest request) {
+
+
         LoadTestReportWithBLOBs testReport = new LoadTestReportWithBLOBs();
-        testReport.setId(engine.getReportId());
-        testReport.setCreateTime(engine.getStartTime());
-        testReport.setUpdateTime(engine.getStartTime());
+        testReport.setId(UUID.randomUUID().toString());
+        testReport.setCreateTime(System.currentTimeMillis());
+        testReport.setUpdateTime(System.currentTimeMillis());
         testReport.setTestId(loadTest.getId());
         testReport.setName(loadTest.getName());
-        testReport.setTriggerMode(triggerMode);
+        testReport.setTriggerMode(request.getTriggerMode());
         if (SessionUtils.getUser() == null) {
             testReport.setUserId(loadTest.getUserId());
         } else {
@@ -397,18 +371,36 @@ public class PerformanceTestService {
         LoadTestWithBLOBs updateTest = new LoadTestWithBLOBs();
         updateTest.setId(loadTest.getId());
         // 启动测试
+        Engine engine = null;
         try {
-            // 启动插入 report
+            // 保存测试里的配置
+            testReport.setTestResourcePoolId(loadTest.getTestResourcePoolId());
             testReport.setLoadConfiguration(loadTest.getLoadConfiguration());
+
+            String testPlanLoadId = request.getTestPlanLoadId();
+            if (StringUtils.isNotBlank(testPlanLoadId)) {
+                // 设置本次报告中的压力配置信息
+                TestPlanLoadCase testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(testPlanLoadId);
+                if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getLoadConfiguration())) {
+                    testReport.setLoadConfiguration(testPlanLoadCase.getLoadConfiguration());
+                }
+                if (StringUtils.isNotBlank(testPlanLoadCase.getTestResourcePoolId())) {
+                    testReport.setTestResourcePoolId(testPlanLoadCase.getTestResourcePoolId());
+                }
+            }
+            // 启动插入 report
             testReport.setAdvancedConfiguration(loadTest.getAdvancedConfiguration());
             testReport.setStatus(PerformanceTestStatus.Starting.name());
             testReport.setProjectId(loadTest.getProjectId());
-            testReport.setTestResourcePoolId(loadTest.getTestResourcePoolId());
             testReport.setTestName(loadTest.getName());
             loadTestReportMapper.insertSelective(testReport);
 
-            engine.start();
-            // 启动正常修改状态 starting
+            // engine
+            engine = EngineFactory.createEngine(testReport);
+            if (engine == null) {
+                MSException.throwException(String.format("Test cannot be run，test ID：%s", loadTest.getId()));
+            }
+
             updateTest.setStatus(PerformanceTestStatus.Starting.name());
             loadTestMapper.updateByPrimaryKeySelective(updateTest);
 
@@ -426,9 +418,14 @@ public class PerformanceTestService {
             reportResult.setReportKey(ReportKeys.ResultStatus.name());
             reportResult.setReportValue("Ready"); // 初始化一个 result_status, 这个值用在data-streaming中
             loadTestReportResultMapper.insertSelective(reportResult);
+            // 启动测试
+            engine.start();
+            return testReport.getId();
         } catch (MSException e) {
             // 启动失败之后清理任务
-            engine.stop();
+            if (engine != null) {
+                engine.stop();
+            }
             LogUtil.error(e.getMessage(), e);
             updateTest.setStatus(PerformanceTestStatus.Error.name());
             updateTest.setDescription(e.getMessage());
@@ -483,12 +480,6 @@ public class PerformanceTestService {
             }
         }
         return results;
-    }
-
-    public List<LoadTestWithBLOBs> selectByTestResourcePoolId(String resourcePoolId) {
-        LoadTestExample example = new LoadTestExample();
-        example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId);
-        return loadTestMapper.selectByExampleWithBLOBs(example);
     }
 
     public List<DashboardTestDTO> dashboardTests(String workspaceId) {
@@ -575,9 +566,9 @@ public class PerformanceTestService {
     }
 
     private void stopEngine(String reportId) {
-        LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(loadTestReport.getTestId());
-        final Engine engine = EngineFactory.createEngine(loadTest);
+        final Engine engine = EngineFactory.createEngine(loadTestReport);
         if (engine == null) {
             MSException.throwException(String.format("Stop report fail. create engine fail，report ID：%s", reportId));
         }
@@ -887,6 +878,7 @@ public class PerformanceTestService {
 
     /**
      * 用例自定义排序
+     *
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {
@@ -895,5 +887,12 @@ public class PerformanceTestService {
                 extLoadTestMapper::getPreOrder,
                 extLoadTestMapper::getLastOrder,
                 loadTestMapper::updateByPrimaryKeySelective);
+    }
+
+    public List<LoadTestReportWithBLOBs> selectReportsByTestResourcePoolId(String resourcePoolId) {
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId)
+                .andStatusIn(Arrays.asList(PerformanceTestStatus.Running.name(), PerformanceTestStatus.Starting.name()));
+        return loadTestReportMapper.selectByExampleWithBLOBs(example);
     }
 }
