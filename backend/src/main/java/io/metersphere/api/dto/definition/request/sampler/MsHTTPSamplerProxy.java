@@ -305,7 +305,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
             preProcessor.toHashTree(httpSamplerTree, preProcessor.getHashTree(), config);
         }
-        if (postProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
+        if (postProcessor != null && StringUtils.isNotEmpty(postProcessor.getScript())) {
             if (postProcessor.getEnvironmentId() == null) {
                 if (this.getEnvironmentId() == null) {
                     postProcessor.setEnvironmentId(useEnvironment);
