@@ -57,9 +57,9 @@ public class TapdClient extends BaseClient {
         return (TapdGetIssueResponse) getResultForObject(TapdGetIssueResponse.class, response);
     }
 
-    public TapdBug addIssue(MultiValueMap<String, String> paramMap) {
+    public TapdBug addIssue(MultiValueMap<String, Object> paramMap) {
         String url = getBaseUrl() + "/bugs";
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(paramMap, getAuthHeader());
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, getAuthHeader());
         ResponseEntity<String> response = null;
         try {
             response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
@@ -70,7 +70,7 @@ public class TapdClient extends BaseClient {
         return ((AddTapdIssueResponse) getResultForObject(AddTapdIssueResponse.class, response)).getData().getBug();
     }
 
-    public TapdBug updateIssue(MultiValueMap<String, String> paramMap) {
+    public TapdBug updateIssue(MultiValueMap<String, Object> paramMap) {
         // 带id为更新
         return addIssue(paramMap);
     }
