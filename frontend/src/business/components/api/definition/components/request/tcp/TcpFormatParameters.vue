@@ -28,18 +28,18 @@
                     raw
                   </el-radio>
                 </el-radio-group>
-                <div style="min-width: 1200px;" v-if="request.reportType === 'xml'">
+                <div v-if="request.reportType === 'xml'">
                   <tcp-xml-table :table-data="request.xmlDataStruct" :show-options-button="true"
                                  @xmlTablePushRow="xmlTablePushRow"
                                  @initXmlTableData="initXmlTableData"
                                  @saveTableData="saveXmlTableData" ref="treeTable"></tcp-xml-table>
                 </div>
-                <div style="min-width: 1200px;" v-if="request.reportType === 'json'">
+                <div v-if="request.reportType === 'json'">
                   <div class="send-request">
                     <ms-code-edit mode="json" :read-only="isReadOnly" :data.sync="request.jsonDataStruct" :modes="['text', 'json', 'xml', 'html']" theme="eclipse"/>
                   </div>
                 </div>
-                <div style="min-width: 1200px;" v-if="request.reportType === 'raw'">
+                <div v-if="request.reportType === 'raw'">
                   <div class="send-request">
                     <ms-code-edit mode="text" :read-only="isReadOnly" :data.sync="request.rawDataStruct" :modes="['text', 'json', 'xml', 'html']" theme="eclipse"/>
                   </div>
