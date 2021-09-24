@@ -1,5 +1,6 @@
 package io.metersphere.api.dto;
 
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.OrderRequest;
@@ -15,5 +16,5 @@ public class ApiCaseBatchRequest extends ApiTestCaseWithBLOBs {
     private List<OrderRequest> orders;
     private String projectId;
     private String environmentId;
-    private BaseQueryRequest condition;
+    private ApiTestCaseRequest condition;
 }
