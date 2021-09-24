@@ -12,7 +12,8 @@ export const CUSTOM_FIELD_TYPE_OPTION = [
   {value: 'multipleMember',text: '多选成员'},
   {value: 'data',text: '日期'},
   {value: 'int',text: '整型'},
-  {value: 'float',text: '浮点型'}
+  {value: 'float',text: '浮点型'},
+  {value: 'multipleInput',text: '多值输入框'}
 ];
 
 export const CUSTOM_FIELD_SCENE_OPTION = [
@@ -43,7 +44,8 @@ export const FIELD_TYPE_MAP = {
   multipleMember: '多选成员',
   data: '日期',
   int: '整型',
-  float: '浮点型'
+  float: '浮点型',
+  multipleInput: '多值输入框'
 };
 
 export const SCENE_MAP = {

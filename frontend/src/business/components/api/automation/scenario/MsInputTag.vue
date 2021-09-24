@@ -41,22 +41,26 @@
         type: Boolean,
         default: false
       },
-      size: {type: String, default: "small"}
+      size: {type: String, default: "small"},
+      prop: {
+        type: String,
+        default: "tags"
+      }
     },
     created() {
-      if (!this.currentScenario.tags) {
-        this.currentScenario.tags = [];
+      if (!this.currentScenario[this.prop]) {
+        this.currentScenario[this.prop] = [];
       }
     },
     data() {
       return {
         newTag: '',
-        innerTags: this.currentScenario.tags ? [...this.currentScenario.tags] : []
+        innerTags: this.currentScenario[this.prop] ? [...this.currentScenario[this.prop]] : []
       }
     },
     watch: {
       innerTags() {
-        this.currentScenario.tags = this.innerTags;
+        this.currentScenario[this.prop] = this.innerTags;
       }
     },
     methods: {

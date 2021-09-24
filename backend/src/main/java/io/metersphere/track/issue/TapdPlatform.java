@@ -87,7 +87,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public void addIssue(IssuesUpdateRequest issuesRequest) {
 
-        MultiValueMap<String, String> param = buildUpdateParam(issuesRequest);
+        MultiValueMap<String, Object> param = buildUpdateParam(issuesRequest);
         TapdBug bug = tapdClient.addIssue(param);
         Map<String, String> statusMap = tapdClient.getStatusMap(getProjectId(this.projectId));
         issuesRequest.setPlatformStatus(statusMap.get(bug.getStatus()));
@@ -102,17 +102,15 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     @Override
     public void updateIssue(IssuesUpdateRequest request) {
-        MultiValueMap<String, String> param = buildUpdateParam(request);
+        MultiValueMap<String, Object> param = buildUpdateParam(request);
         param.add("id", request.getId());
         handleIssueUpdate(request);
         tapdClient.updateIssue(param);
     }
 
-    private MultiValueMap<String, String> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
+    private MultiValueMap<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
         issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
         setConfig();
-
-        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
 
         String tapdId = getProjectId(issuesRequest.getProjectId());
 
@@ -131,17 +129,14 @@ public class TapdPlatform extends AbstractIssuePlatform {
             reporter = SessionUtils.getUser().getName();
         }
 
-        MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("title", issuesRequest.getTitle());
         paramMap.add("workspace_id", tapdId);
         paramMap.add("description", msDescription2Tapd(issuesRequest.getDescription()));
         paramMap.add("current_owner", usersStr);
 
-        customFields.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getCustomData())) {
-                paramMap.add(item.getCustomData(), item.getValue());
-            }
-        });
+        addCustomFields(issuesRequest, paramMap);
+
         paramMap.add("reporter", reporter);
         return paramMap;
     }
