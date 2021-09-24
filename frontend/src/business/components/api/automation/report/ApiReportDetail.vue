@@ -157,16 +157,17 @@ export default {
             label: nodeArray[i],
             value: item,
           };
-
-          if (i !== nodeArray.length) {
+          if (i !== (nodeArray.length -1)) {
             node.children = [];
-          }
-          if(item.subRequestResults && item.subRequestResults.length > 0){
-            let itemChildren = this.deepFormatTreeNode(item.subRequestResults);
-            node.children = itemChildren;
+          }else {
+            if(item.subRequestResults && item.subRequestResults.length > 0){
+              let itemChildren = this.deepFormatTreeNode(item.subRequestResults);
+              console.info("base:"+nodeArray[i]+";data:"+JSON.stringify(itemChildren));
+              node.children = itemChildren;
 
-            if (node.label.indexOf("UUID=")) {
-              node.label = node.label.split("UUID=")[0];
+              if (node.label.indexOf("UUID=")) {
+                node.label = node.label.split("UUID=")[0];
+              }
             }
           }
           if (children.length === 0) {
@@ -225,10 +226,11 @@ export default {
     },
 
     deepFormatTreeNode(array) {
-      let children = [];
+      let returnChildren = [];
       array.map((item) => {
-        let key = item.name;
-        let nodeArray = key.split('^@~@^');
+        let children = [];
+        let key = item.name.split('^@~@^')[0];
+        let nodeArray = key.split('<->');
         //运行场景中如果连续将1个场景引入多次，会出现运行结果合并的情况。
         //为了解决这种问题，在转hashTree的时候给场景放了个新ID，前台加载解析的时候也要做处理
         let scenarioId = "";
@@ -242,75 +244,22 @@ export default {
           }
         }
         // 循环构建子节点
-        for (let i = 0; i < nodeArray.length; i++) {
-          if (!nodeArray[i]) {
-            continue;
-          }
-          let node = {
-            label: nodeArray[i],
-            value: item,
-          };
-          if (i !== nodeArray.length) {
-            node.children = [];
-          }
-          if(item.subRequestResults && item.subRequestResults.length > 0){
-            let itemChildren = this.deepFormatTreeNode(item.subRequestResults);
-            node.children = itemChildren;
-          }
-          if (children.length === 0) {
-            children.push(node);
-          }
-
-          let isExist = false;
-          for (let j in children) {
-            if (children[j].label === node.label) {
-
-              let idIsPath = true;
-              //判断ID是否匹配  目前发现问题的只有重复场景，而重复场景是在第二个节点开始合并的。所以这里暂时只判断第二个场景问题。
-              //如果出现了其他问题，则需要检查其他问题的数据结构。暂时采用具体问题具体分析的策略
-              if (i === nodeArray.length - 2) {
-                idIsPath = false;
-                let childId = "";
-                let childName = "";
-                if (children[j].value && children[j].value.scenario) {
-                  let scenarioArr = JSON.parse(children[j].value.scenario);
-                  if (scenarioArr.length > 1) {
-                    let childArr = scenarioArr[0].split("_");
-                    childId = childArr[0];
-                    if (childArr.length > 1) {
-                      childName = childArr[1];
-                    }
-                  }
-                }
-                if (scenarioId === "") {
-                  idIsPath = true;
-                } else if (scenarioId === childId) {
-                  idIsPath = true;
-                } else if (scenarioName !== childName) {
-                  //如果两个名字不匹配则默认通过，不匹配ID
-                  idIsPath = true;
-                }
-              }
-              if (idIsPath) {
-                if (i !== nodeArray.length - 1 && !children[j].children) {
-                  children[j].children = [];
-                }
-                children = (i === nodeArray.length - 1 ? children : children[j].children);
-                isExist = true;
-                break;
-              }
-            }
-          }
-          if (!isExist) {
-            children.push(node);
-            if (i !== nodeArray.length - 1 && !children[children.length - 1].children) {
-              children[children.length - 1].children = [];
-            }
-            children = (i === nodeArray.length - 1 ? children : children[children.length - 1].children);
-          }
+        let node = {
+          label: nodeArray[0],
+          value: item,
+          children: []
+        };
+        if(item.subRequestResults && item.subRequestResults.length > 0){
+          let itemChildren = this.deepFormatTreeNode(item.subRequestResults);
+          node.children = itemChildren;
         }
+            children.push(node);
+        children.forEach(itemNode => {
+          returnChildren.push(itemNode);
+        });
+
       });
-      return children;
+      return returnChildren;
     },
     recursiveSorting(arr) {
       for (let i in arr) {

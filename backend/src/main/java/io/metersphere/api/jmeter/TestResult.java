@@ -121,9 +121,9 @@ public class TestResult {
                 if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf(SEPARATOR) != -1) {
                     String array[] = item.getName().split(SEPARATOR);
                     item.setName(array[1] + array[0]);
-                    item.getSubRequestResults().forEach(subItem -> {
-                        subItem.setName(array[0]);
-                    });
+//                    item.getSubRequestResults().forEach(subItem -> {
+//                        subItem.setName(array[0]);
+//                    });
                 } else {
                     this.genScenarioInSubRequestResult(item);
                 }
