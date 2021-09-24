@@ -294,9 +294,9 @@ public class TestCaseReviewService {
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseReviewTestCaseMapper batchMapper = sqlSession.getMapper(TestCaseReviewTestCaseMapper.class);
-
+        Long nextOrder = ServiceUtils.getNextOrder(request.getReviewId(), extTestReviewCaseMapper::getLastOrder);
         if (!testCaseIds.isEmpty()) {
-            testCaseIds.forEach(caseId -> {
+            for (String caseId : testCaseIds) {
                 TestCaseReviewTestCase caseReview = new TestCaseReviewTestCase();
                 caseReview.setId(UUID.randomUUID().toString());
                 caseReview.setReviewer(SessionUtils.getUser().getId());
@@ -306,8 +306,10 @@ public class TestCaseReviewService {
                 caseReview.setUpdateTime(System.currentTimeMillis());
                 caseReview.setReviewId(request.getReviewId());
                 caseReview.setStatus(TestCaseReviewStatus.Prepare.name());
+                caseReview.setOrder(nextOrder);
                 batchMapper.insert(caseReview);
-            });
+                nextOrder += 5000;
+            }
         }
 
         sqlSession.flushStatements();

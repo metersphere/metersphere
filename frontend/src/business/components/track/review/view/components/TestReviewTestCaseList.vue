@@ -30,6 +30,8 @@
       @handleRowClick="showDetail"
       :fields.sync="fields"
       :remember-order="true"
+      :enable-order-drag="enableOrderDrag"
+      row-key="id"
       @refresh="initTableData"
       ref="table"
     >
@@ -171,7 +173,7 @@ import ReviewStatus from "@/business/components/track/case/components/ReviewStat
 import {
   _handleSelectAll,
   buildBatchParam, checkTableRowIsSelected, deepClone, getCustomTableWidth, getLastTableSortField,
-  getSelectDataCounts, getTableHeaderWithCustomFields,
+  getSelectDataCounts, getTableHeaderWithCustomFields, handleRowDrop,
   initCondition,
   toggleAllSelection
 } from "@/common/js/tableUtils";
@@ -181,6 +183,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import {editTestReviewTestCaseOrder} from "@/network/testCase";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -220,6 +223,7 @@ export default {
         {text: 'P2', value: 'P2'},
         {text: 'P3', value: 'P3'}
       ],
+      enableOrderDrag: true,
       methodFilters: [
         {text: this.$t('test_track.case.manual'), value: 'manual'},
         {text: this.$t('test_track.case.auto'), value: 'auto'}
@@ -321,6 +325,8 @@ export default {
         }
         this.status = 'all';
       }
+      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+
       this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
         this.result = this.$post(this.buildPagePath('/test/review/case/list'), this.condition, response => {
@@ -328,6 +334,12 @@ export default {
           this.total = data.itemCount;
           this.tableData = data.listObject;
           this.tableClear();
+
+          handleRowDrop(this.tableData, (param) => {
+            param.groupId = this.reviewId;
+            editTestReviewTestCaseOrder(param);
+          });
+
           checkTableRowIsSelected(this, this.$refs.table);
         });
       }
