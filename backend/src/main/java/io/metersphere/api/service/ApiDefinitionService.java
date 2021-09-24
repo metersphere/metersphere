@@ -506,7 +506,7 @@ public class ApiDefinitionService {
                 String requestStr = setImportHashTree(apiDefinition);
                 reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 apiDefinition.setRequest(requestStr);
-                importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
+                importApiCase(apiDefinition, apiTestImportRequest);
             }
         } else {
             _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases);
@@ -546,7 +546,7 @@ public class ApiDefinitionService {
                 batchMapper.insert(apiDefinition);
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setRequest(request);
-                importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
+                importApiCase(apiDefinition, apiTestImportRequest);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                     setImportTCPHashTree(apiDefinition);
@@ -566,7 +566,7 @@ public class ApiDefinitionService {
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 apiDefinition.setRequest(request);
                 reSetImportCasesApiId(cases, originId, apiDefinition.getId());
-                importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, false);
+                importApiCase(apiDefinition, apiTestImportRequest);
             } else {
                 apiDefinition.setId(sameRequest.get(0).getId());
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
@@ -615,7 +615,7 @@ public class ApiDefinitionService {
         return request;
     }
 
-    private void importMsCase(ApiDefinitionImport apiImport, SqlSession sqlSession, ApiTestCaseMapper apiTestCaseMapper,
+    private void importMsCase(ApiDefinitionImport apiImport, SqlSession sqlSession,
                               ApiTestImportRequest request) {
         List<ApiTestCaseWithBLOBs> cases = apiImport.getCases();
         if (CollectionUtils.isNotEmpty(cases)) {
@@ -626,7 +626,7 @@ public class ApiDefinitionService {
                 if (apiDefinitionWithBLOBs == null) {
                     continue;
                 }
-                insertOrUpdateImportCase(item, request);
+                insertOrUpdateImportCase(item, request, apiDefinitionWithBLOBs);
             }
             if (batchCount % 300 == 0) {
                 sqlSession.flushStatements();
@@ -638,8 +638,7 @@ public class ApiDefinitionService {
      * 导入是插件或者postman时创建用例
      * postman考虑是否有前置脚本
      */
-    private void importApiCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper,
-                               ApiTestImportRequest apiTestImportRequest, Boolean isInsert) {
+    private void importApiCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest apiTestImportRequest) {
         try {
             if (StringUtils.equalsAnyIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Plugin.name(), ApiImportPlatform.Postman.name())) {
                 ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
@@ -649,14 +648,14 @@ public class ApiDefinitionService {
                 if (apiTestCase.getName().length() > 255) {
                     apiTestCase.setName(apiTestCase.getName().substring(0, 255));
                 }
-                insertOrUpdateImportCase(apiTestCase, apiTestImportRequest);
+                insertOrUpdateImportCase(apiTestCase, apiTestImportRequest, apiDefinition);
             }
         } catch (Exception e) {
             LogUtil.error("导入创建用例异常", e);
         }
     }
 
-    private void insertOrUpdateImportCase(ApiTestCaseWithBLOBs apiTestCase, ApiTestImportRequest apiTestImportRequest) {
+    private void insertOrUpdateImportCase(ApiTestCaseWithBLOBs apiTestCase, ApiTestImportRequest apiTestImportRequest, ApiDefinitionWithBLOBs apiDefinition) {
         SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
         checkRequest.setName(apiTestCase.getName());
         checkRequest.setApiDefinitionId(apiTestCase.getApiDefinitionId());
@@ -668,7 +667,7 @@ public class ApiDefinitionService {
         apiTestCase.setUpdateUserId(SessionUtils.getUserId());
         if (sameCase == null) {
             apiTestCase.setId(UUID.randomUUID().toString());
-            apiTestCase.setNum(apiTestCaseService.getNextNum(apiTestCase.getApiDefinitionId()));
+            apiTestCase.setNum(apiTestCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum()));
             apiTestCase.setCreateTime(System.currentTimeMillis());
             apiTestCase.setUpdateTime(System.currentTimeMillis());
             apiTestCase.setCreateUserId(SessionUtils.getUserId());
@@ -965,7 +964,7 @@ public class ApiDefinitionService {
         }
 
         if (!CollectionUtils.isEmpty(apiImport.getCases())) {
-            importMsCase(apiImport, sqlSession, apiTestCaseMapper, request);
+            importMsCase(apiImport, sqlSession, request);
         }
     }
 
