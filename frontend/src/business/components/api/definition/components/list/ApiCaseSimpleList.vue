@@ -508,9 +508,15 @@ export default {
       this.$refs.batchRun.open();
     },
     runBatch(environment) {
-      this.condition.environmentId = environment.id;
-      this.condition.ids = this.$refs.caseTable.selectIds;
-      this.$post('/api/testcase/batch/run', this.condition, () => {
+      let obj = {};
+      obj.projectId = this.projectId;
+      obj.selectAllDate = this.selectAll;
+      obj.unSelectIds = this.unSelection;
+      obj.ids = Array.from(this.selectRows).map(row => row.id);
+      obj.environmentId = environment.id;
+      obj.condition = this.condition;
+
+      this.$post('/api/testcase/batch/run', obj, () => {
         this.condition.ids = [];
         this.$refs.batchRun.close();
         this.search();
