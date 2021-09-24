@@ -6,6 +6,7 @@ import io.metersphere.base.domain.TestCaseReviewTestCase;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
@@ -73,6 +74,11 @@ public class TestReviewTestCaseController {
     @PostMapping("/list/ids")
     public List<TestReviewCaseDTO> getTestReviewCaseList(@RequestBody QueryCaseReviewRequest request) {
         return testReviewTestCaseService.getTestCaseReviewDTOList(request);
+    }
+
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        testReviewTestCaseService.updateOrder(request);
     }
 
 }

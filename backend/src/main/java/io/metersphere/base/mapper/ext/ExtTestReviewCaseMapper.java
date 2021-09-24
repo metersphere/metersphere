@@ -36,4 +36,13 @@ public interface ExtTestReviewCaseMapper {
     List<String> selectTestCaseIds(@Param("request") QueryCaseReviewRequest request);
 
     List<TestReviewCaseDTO> listForMinder(@Param("request") QueryCaseReviewRequest request);
+
+
+    List<String> selectReviewIds();
+
+    List<String> getIdsOrderByUpdateTime(@Param("reviewId") String reviewId);
+
+    Long getPreOrder(@Param("reviewId")String reviewId, @Param("baseOrder") Long baseOrder);
+
+    Long getLastOrder(@Param("reviewId")String reviewId, @Param("baseOrder") Long baseOrder);
 }
