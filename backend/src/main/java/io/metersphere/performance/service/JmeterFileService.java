@@ -1,9 +1,7 @@
 package io.metersphere.performance.service;
 
-
 import com.alibaba.excel.util.CollectionUtils;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
-import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.exception.MSException;
@@ -25,18 +23,17 @@ import java.util.zip.ZipOutputStream;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class JmeterFileService {
-
-    @Resource
-    private LoadTestMapper loadTestMapper;
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
 
-    public byte[] downloadZip(String testId, double[] ratios, String reportId, int resourceIndex) {
+    public byte[] downloadZip(String reportId, double[] ratios, int resourceIndex) {
         try {
             LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
-
+            if (loadTestReport == null) {
+                MSException.throwException("测试报告不存在或还没产生");
+            }
             EngineContext context = EngineFactory.createContext(loadTestReport, ratios, reportId, resourceIndex);
             return zipFilesToByteArray(context);
         } catch (MSException e) {
