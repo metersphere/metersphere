@@ -354,12 +354,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
         customFields.forEach(item -> {
             if (StringUtils.isNotBlank(item.getCustomData())) {
-                if (StringUtils.isNotBlank(item.getType()) &&
-                        StringUtils.equalsAny(item.getType(),  "multipleInput") && StringUtils.isNotBlank(item.getValue())) {
-                    paramMap.put(item.getCustomData(), JSONArray.parseArray(item.getValue()));
-                } else {
-                    paramMap.add(item.getCustomData(), item.getValue());
-                }
+                paramMap.add(item.getCustomData(), item.getValue());
             }
         });
     }
