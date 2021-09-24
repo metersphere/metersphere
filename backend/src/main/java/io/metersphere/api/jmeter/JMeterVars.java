@@ -43,6 +43,7 @@ public class JMeterVars {
                 for (String item : extracts) {
                     String nrKey = item + "_matchNr";
                     Object nr = vars.get(nrKey);
+                    JMeterVariables jMeterVariables = new JMeterVariables();
                     if (nr != null) {
                         int nrv = 0;
                         try {
@@ -55,10 +56,14 @@ public class JMeterVars {
                                 data.add(vars.get(item + "_" + i));
                             }
                             String array = JSON.toJSONString(data);
-                            vars.put(item, array);
+                            jMeterVariables.put(item, array);
                         }
                     }
-                    vs.put(item, vars.get(item) == null ? "" : vars.get(item));
+                    if (jMeterVariables.get(item) != null) {
+                        vs.put(item, jMeterVariables.get(item));
+                    } else {
+                        vs.put(item, vars.get(item) == null ? "" : vars.get(item));
+                    }
                 }
                 vs.remove("TESTSTART.MS"); // 标示变量移除
             }
