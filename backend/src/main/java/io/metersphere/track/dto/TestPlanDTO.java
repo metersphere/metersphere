@@ -12,7 +12,7 @@ public class TestPlanDTO extends TestPlanWithBLOBs {
     private String projectName;
     private String userName;
     private List<String> projectIds;
-
+    private List<String> principals;
     /**
      * 定时任务ID
      */

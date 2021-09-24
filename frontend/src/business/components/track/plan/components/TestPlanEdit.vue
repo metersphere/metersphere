@@ -3,33 +3,36 @@
   <div>
 
     <el-dialog :close-on-click-modal="false"
+               :destroy-on-close="true"
                :title="operationType === 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
                @close="close"
-               width="65%">
+               top="8vh"
+               width="60%">
 
       <el-form :model="form" :rules="rules" ref="planFrom" v-if="isStepTableAlive">
-
-        <el-row>
-          <el-col :span="8" :offset="1">
+        <el-row type="flex" :gutter="20">
+          <el-col :span="12">
             <el-form-item
               :label="$t('test_track.plan.plan_name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input v-model="form.name" :placeholder="$t('test_track.plan.input_plan_name')"></el-input>
+              <el-input v-model="form.name" :placeholder="$t('test_track.plan.input_plan_name')" :size="itemSize"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="10" :offset="1">
+          <el-col :span="12">
             <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
-              <ms-input-tag :currentScenario="form" ref="tag"/>
+              <ms-input-tag :currentScenario="form" ref="tag" :size="itemSize"/>
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-row>
-          <el-col :span="10" :offset="1">
-            <el-form-item :label="$t('test_track.plan.plan_principal')" :label-width="formLabelWidth" prop="principal">
-              <el-select v-model="form.principal" :placeholder="$t('test_track.plan.input_plan_principal')" filterable>
+        <el-row type="flex" :gutter="20">
+          <el-col :span="12">
+            <el-form-item :label="$t('test_track.plan.plan_principal')" :label-width="formLabelWidth" prop="principals">
+              <el-select v-model="form.principals" :placeholder="$t('test_track.plan.input_plan_principal')"
+                         style="width: 100%;"
+                         filterable multiple :size="itemSize">
                 <el-option
                   v-for="(item) in principalOptions"
                   :key="item.id"
@@ -42,7 +45,7 @@
 
           <el-col :span="12">
             <el-form-item :label="$t('test_track.plan.plan_stage')" :label-width="formLabelWidth" prop="stage">
-              <el-select v-model="form.stage" clearable :placeholder="$t('test_track.plan.input_plan_stage')">
+              <el-select v-model="form.stage" clearable :placeholder="$t('test_track.plan.input_plan_stage')" style="width: 100%;" :size="itemSize">
                 <el-option :label="$t('test_track.plan.smoke_test')" value="smoke"></el-option>
                 <el-option :label="$t('test_track.plan.system_test')" value="system"></el-option>
                 <el-option :label="$t('test_track.plan.regression_test')" value="regression"></el-option>
@@ -52,31 +55,31 @@
         </el-row>
 
         <!--start:xuxm增加自定义‘计划开始’，‘计划结束’时间字段-->
-        <el-row>
-          <el-col :span="8" :offset="1">
+        <el-row type="flex" :gutter="20">
+          <el-col :span="12">
             <el-form-item
               :label="$t('test_track.plan.planned_start_time')"
               :label-width="formLabelWidth"
               prop="plannedStartTime">
               <el-date-picker :placeholder="$t('test_track.plan.planned_start_time')" v-model="form.plannedStartTime"
-                              type="datetime" value-format="timestamp"></el-date-picker>
+                              type="datetime" value-format="timestamp" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
 
-          <el-col :span="11" :offset="2">
+          <el-col :span="12">
             <el-form-item
               :label="$t('test_track.plan.planned_end_time')"
               :label-width="formLabelWidth"
               prop="plannedEndTime">
               <el-date-picker :placeholder="$t('test_track.plan.planned_end_time')" v-model="form.plannedEndTime"
-                              type="datetime" value-format="timestamp"></el-date-picker>
+                              type="datetime" value-format="timestamp" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
         </el-row>
         <!--end:xuxm增加自定义‘计划开始’，‘计划结束’时间字段-->
 
-        <el-row>
-          <el-col :span="8" :offset="1">
+        <el-row type="flex" :gutter="20">
+          <el-col :span="12">
             <el-form-item
               :label="$t('自动更新状态')"
               :label-width="formLabelWidth"
@@ -87,8 +90,8 @@
           </el-col>
         </el-row>
 
-        <el-row type="flex" justify="left" style="margin-top: 10px;">
-          <el-col :span="23" :offset="1">
+        <el-row type="flex" justify="left" :gutter="20">
+          <el-col :span="24">
             <el-form-item :label="$t('commons.description')" :label-width="formLabelWidth" prop="description">
               <el-input v-model="form.description"
                         type="textarea"
@@ -99,8 +102,8 @@
           </el-col>
         </el-row>
 
-        <el-row v-if="operationType === 'edit'" type="flex" justify="left" style="margin-top: 10px;">
-          <el-col :span="19" :offset="1">
+        <el-row v-if="operationType === 'edit'" type="flex" justify="left" :gutter="20">
+          <el-col :span="12">
             <el-form-item :label="$t('test_track.plan.plan_status')" :label-width="formLabelWidth" prop="status">
               <test-plan-status-button :status="form.status" @statusChange="statusChange"/>
             </el-form-item>
@@ -147,10 +150,11 @@ export default {
     return {
       isStepTableAlive: true,
       dialogFormVisible: false,
+      itemSize: "medium",
       form: {
         name: '',
         projectIds: [],
-        principal: '',
+        principals: [],
         stage: '',
         description: '',
         plannedStartTime: '',
@@ -162,7 +166,7 @@ export default {
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
           {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
         ],
-        principal: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
+        principals: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
       },
@@ -174,8 +178,6 @@ export default {
   created() {
     //设置“测试阶段”和“负责人”的默认值
     this.form.stage = 'smoke';
-    const adminToken = JSON.parse(localStorage.getItem("Admin-Token"));
-    this.form.principal = adminToken.id;
   },
   methods: {
     reload() {
@@ -280,8 +282,8 @@ export default {
           this.$refs['planFrom'].resetFields();
           this.form.name = '';
           this.form.projectIds = [];
-          const adminToken = JSON.parse(localStorage.getItem("Admin-Token"));
-          this.form.principal = adminToken.id;
+          this.form.principals = [];
+          this.form.automaticStatusUpdate = false;
           this.form.stage = 'smoke';
           this.form.description = '';
           this.form.status = null;
