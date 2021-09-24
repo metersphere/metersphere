@@ -342,7 +342,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionMapper apiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         apiModule.forEach((value) -> {
-            apiDefinitionMapper.updateByPrimaryKey(value);
+            apiDefinitionMapper.updateByPrimaryKeySelective(value);
         });
         sqlSession.flushStatements();
     }
