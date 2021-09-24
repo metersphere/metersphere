@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
@@ -57,7 +58,8 @@ public class ApiDefinitionExecResultService {
     TestCaseReviewApiCaseMapper testCaseReviewApiCaseMapper;
 
     @Resource
-    SqlSessionFactory sqlSessionFactory;
+    private ApiDefinitionService apiDefinitionService;
+
     @Resource
     private NoticeSendService noticeSendService;
 
@@ -67,13 +69,14 @@ public class ApiDefinitionExecResultService {
 
     public void saveApiResult(TestResult result, String type, String triggerMode) {
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            ApiDefinitionExecResultMapper definitionExecResultMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
             final boolean[] isFirst = {true};
             result.getScenarios().forEach(scenarioResult -> {
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                     scenarioResult.getRequestResults().forEach(item -> {
-                        ApiDefinitionExecResult saveResult = definitionExecResultMapper.selectByPrimaryKey(result.getTestId());
+                        ApiDefinitionExecResult saveResult = MessageCache.batchTestCases.get(result.getTestId());
+                        if (saveResult == null) {
+                            saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(result.getTestId());
+                        }
                         item.getResponseResult().setConsole(result.getConsole());
                         boolean saved = true;
                         if (saveResult == null || scenarioResult.getRequestResults().size() > 1) {
@@ -88,6 +91,7 @@ public class ApiDefinitionExecResultService {
                             saveResult.setName(item.getName());
                             saveResult.setTriggerMode(triggerMode);
                             saveResult.setType(type);
+                            saveResult.setCreateTime(item.getStartTime());
                             if (StringUtils.isNotEmpty(result.getUserId())) {
                                 saveResult.setUserId(result.getUserId());
                             } else {
@@ -98,7 +102,6 @@ public class ApiDefinitionExecResultService {
                         String status = item.isSuccess() ? "success" : "error";
                         saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
                         saveResult.setStatus(status);
-                        saveResult.setCreateTime(item.getStartTime());
                         saveResult.setResourceId(item.getName());
                         saveResult.setContent(JSON.toJSONString(item));
                         saveResult.setStartTime(item.getStartTime());
@@ -108,23 +111,23 @@ public class ApiDefinitionExecResultService {
                         ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
                         if (prevResult != null) {
                             prevResult.setContent(null);
-                            definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+                            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
                         }
 
                         if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
                             saveResult.setTriggerMode(TriggerMode.MANUAL.name());
                         }
                         if (!saved) {
-                            definitionExecResultMapper.insert(saveResult);
+                            apiDefinitionExecResultMapper.insert(saveResult);
                         } else {
-                            definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
+                            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
                         }
+                        apiDefinitionService.removeCache(result.getTestId());
                         // 发送通知
                         sendNotice(saveResult);
                     });
                 }
             });
-            sqlSession.flushStatements();
         }
     }
 
@@ -284,7 +287,7 @@ public class ApiDefinitionExecResultService {
 
                         if (StringUtils.equals(type, ApiRunMode.SCHEDULE_API_PLAN.name())) {
                             TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
-                            if(StringUtils.isEmpty(creator)){
+                            if (StringUtils.isEmpty(creator)) {
                                 creator = testPlanService.findScheduleCreateUserById(apiCase.getTestPlanId());
                             }
                             apiCase.setStatus(status);
@@ -299,7 +302,7 @@ public class ApiDefinitionExecResultService {
                             testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
                             testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
                         }
-                        if(creator == null){
+                        if (creator == null) {
                             creator = "";
                         }
                         saveResult.setUserId(creator);

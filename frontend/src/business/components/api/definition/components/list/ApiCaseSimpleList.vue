@@ -360,6 +360,7 @@ export default {
       environments: [],
       resVisible: false,
       response: {},
+      timeoutIndex: 0,
     };
   },
   props: {
@@ -522,6 +523,7 @@ export default {
       this.$refs.caseTable.openCustomHeader();
     },
     initTable(id) {
+      this.timeoutIndex = 0;
       if (this.$refs.caseTable) {
         this.$refs.caseTable.clearSelectRows();
       }
@@ -609,7 +611,63 @@ export default {
               editApiTestCaseOrder(param);
             });
           })
-
+          if (isNext) {
+            this.refreshStatus();
+          }
+        });
+      }
+    },
+    refreshStatus() {
+      if (this.apiDefinitionId) {
+        this.condition.apiDefinitionId = this.apiDefinitionId;
+      }
+      this.condition.status = "";
+      this.condition.moduleIds = this.selectNodeIds;
+      if (this.condition.filters && !this.condition.filters.status) {
+        this.$delete(this.condition.filters, 'status');
+      }
+      if (!this.selectAll) {
+        this.selectAll = false;
+        this.unSelection = [];
+        this.selectDataCounts = 0;
+      }
+      this.condition.projectId = this.projectId;
+      if (this.currentProtocol != null) {
+        this.condition.protocol = this.currentProtocol;
+      }
+      //检查是否只查询本周数据
+      this.isSelectThissWeekData();
+      this.condition.selectThisWeedData = false;
+      this.condition.id = null;
+      if (this.selectDataRange == 'thisWeekCount') {
+        this.condition.selectThisWeedData = true;
+      } else if (this.selectDataRange != null) {
+        let selectParamArr = this.selectDataRange.split("single:");
+        if (selectParamArr.length === 2) {
+          this.condition.id = selectParamArr[1];
+        }
+      }
+      if (this.condition.projectId) {
+        this.result = this.$post('/api/testcase/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          let isNext = false;
+          let tableData = response.data.listObject;
+          this.tableData.forEach(item => {
+            for (let i in tableData) {
+              if (item.id === tableData[i].id) {
+                item.status = tableData[i].status;
+                item.lastResultId = tableData[i].lastResultId;
+              }
+            }
+            if (item.status === 'Running') {
+              isNext = true;
+            }
+          });
+          if (isNext && this.$store.state.currentApiCase && this.$store.state.currentApiCase.case && this.timeoutIndex < 12) {
+            this.timeoutIndex++;
+            setTimeout(() => {
+              this.refreshStatus();
+            }, 12000);
+          }
         });
       }
     },
