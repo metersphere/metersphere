@@ -47,7 +47,7 @@ public class MsDNSCacheManager extends MsTestElement {
     }
 
     public static void addEnvironmentDNS(HashTree samplerHashTree, String name, EnvironmentConfig config, HttpConfig httpConfig) {
-        if (config.getCommonConfig().isEnableHost() && CollectionUtils.isNotEmpty(config.getCommonConfig().getHosts()) && httpConfig != null) {
+        if (config.getCommonConfig().isEnableHost() && CollectionUtils.isNotEmpty(config.getCommonConfig().getHosts()) && httpConfig != null && httpConfig.getDomain() != null) {
             String domain = httpConfig.getDomain().trim();
             List<Host> hosts = new ArrayList<>();
             config.getCommonConfig().getHosts().forEach(host -> {
