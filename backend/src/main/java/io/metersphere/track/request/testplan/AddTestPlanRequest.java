@@ -10,4 +10,5 @@ import java.util.List;
 @Setter
 public class AddTestPlanRequest extends TestPlanWithBLOBs {
     private List<String> projectIds;
+    private List<String> principals;
 }

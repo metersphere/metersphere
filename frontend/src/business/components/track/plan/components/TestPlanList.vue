@@ -26,7 +26,7 @@
         </el-table-column>
         <el-table-column
           v-if="item.id == 'userName'"
-          prop="userName"
+          prop="principalName"
           :label="$t('test_track.plan.plan_principal')"
           show-overflow-tooltip
           :key="index">
@@ -216,7 +216,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <header-custom ref="headerCustom" :initTableData="inite" :optionalFields=headerItems
+    <header-custom ref="headerCustom" :initTableData="init" :optionalFields=headerItems
                    :type=type></header-custom>
 
 
@@ -331,7 +331,7 @@ export default {
     this.initTableData();
   },
   methods: {
-    inite() {
+    init() {
       this.initTableData();
     },
     customHeader() {
@@ -358,12 +358,23 @@ export default {
             item.tags = JSON.parse(item.tags);
           }
           item.passRate = item.passRate + '%';
-          // if (item.creator) {
-          //   this.$get("user/info/" + item.creator, response => {
-          //     let name = response.data.name;
-          //     item.createUser = name;
-          //   });
-          // }
+          this.$get("/test/plan/principal/" + item.id, res => {
+            let data = res.data;
+            let principal = "";
+            let principalIds = data.map(d => d.id);
+            if (data) {
+              data.forEach(d => {
+                if (principal !== "") {
+                  principal = principal + "、" + d.name;
+                } else {
+                  principal = principal + d.name;
+                }
+              })
+            }
+            this.$set(item, "principalName", principal);
+            // 编辑时初始化id
+            this.$set(item, "principals", principalIds);
+          })
         });
       });
       getLabel(this, TEST_PLAN_LIST);
