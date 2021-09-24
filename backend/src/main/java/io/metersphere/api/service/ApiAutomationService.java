@@ -1966,7 +1966,7 @@ public class ApiAutomationService {
                         }
                     }
                 }
-                if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
+                if (object != null && CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
                     setHashTree(object.getJSONArray("hashTree"));
                 }
             }
@@ -1985,8 +1985,10 @@ public class ApiAutomationService {
                 if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                     JSONObject scenario = JSONObject.parseObject(item.getScenarioDefinition());
                     JSONArray hashTree = scenario.getJSONArray("hashTree");
-                    setHashTree(hashTree);
-                    scenario.put("hashTree", hashTree);
+                    if (hashTree != null) {
+                        setHashTree(hashTree);
+                        scenario.put("hashTree", hashTree);
+                    }
                     item.setScenarioDefinition(JSON.toJSONString(scenario));
                 }
             });

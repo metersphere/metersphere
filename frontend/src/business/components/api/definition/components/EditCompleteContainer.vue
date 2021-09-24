@@ -212,7 +212,7 @@ export default {
     mockSetting() {
       let mockParam = {};
       mockParam.projectId = this.projectId;
-      if(this.currentApi.id){
+      if (this.currentApi.id) {
         mockParam.apiId = this.currentApi.id;
         this.$post('/mockConfig/genMockConfig', mockParam, response => {
           let mockConfig = response.data;
@@ -283,6 +283,7 @@ export default {
           this.api = this.$store.state.currentApiCase.api;
           this.$refs.caseList.open();
         }
+        this.$store.state.currentApiCase = {case: true};
       } else if (tabType === "test") {
         this.showApiList = false;
         this.showTestCaseList = false;
