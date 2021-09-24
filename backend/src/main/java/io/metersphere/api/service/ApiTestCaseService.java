@@ -18,6 +18,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -494,7 +495,7 @@ public class ApiTestCaseService {
         ExtTestPlanApiCaseMapper batchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
         Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanApiCaseMapper::getLastOrder);
 
-        for (ApiTestCase apiTestCase: apiTestCases) {
+        for (ApiTestCase apiTestCase : apiTestCases) {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(UUID.randomUUID().toString());
             testPlanApiCase.setCreateUser(SessionUtils.getUserId());
@@ -701,7 +702,7 @@ public class ApiTestCaseService {
 
     public void batchRun(ApiCaseBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiTestCaseMapper.selectIdsByQuery((ApiTestCaseRequest)query));
+                (query) -> extApiTestCaseMapper.selectIdsByQuery((ApiTestCaseRequest) query));
         Map<String, ApiDefinitionExecResult> executeQueue = new HashMap<>();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
@@ -727,6 +728,7 @@ public class ApiTestCaseService {
             runCaseRequest.setReportId(executeQueue.get(caseId).getId());
             runCaseRequest.setEnvironmentId(request.getEnvironmentId());
             run(runCaseRequest);
+            MessageCache.batchTestCases.put(executeQueue.get(caseId).getId(), executeQueue.get(caseId));
         }
     }
 
@@ -1089,6 +1091,7 @@ public class ApiTestCaseService {
 
     /**
      * 用例自定义排序
+     *
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {

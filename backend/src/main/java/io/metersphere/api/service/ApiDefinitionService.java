@@ -97,8 +97,6 @@ public class ApiDefinitionService {
     @Resource
     private ExtSwaggerUrlScheduleMapper extSwaggerUrlScheduleMapper;
     @Resource
-    private ScheduleMapper scheduleMapper;
-    @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private ApiTestEnvironmentService environmentService;
@@ -117,7 +115,7 @@ public class ApiDefinitionService {
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
 
-    private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
+    private static Cache cache = Cache.newHardMemoryCache(0, 3600);
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -798,6 +796,12 @@ public class ApiDefinitionService {
             return reportResult;
         }
         return null;
+    }
+
+    public void removeCache(String testId) {
+        if (StringUtils.isNotEmpty(testId)) {
+            cache.remove(testId);
+        }
     }
 
     /**
