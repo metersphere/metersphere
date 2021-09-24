@@ -204,7 +204,6 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     private MultiValueMap<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
         issuesRequest.setPlatform(IssuesManagePlatform.Zentao.toString());
 
-        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
         zentaoClient.setConfig(getUserConfig());
         String projectId = getProjectId(issuesRequest.getProjectId());
         if (StringUtils.isBlank(projectId)) {
@@ -214,11 +213,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         paramMap.add("product", projectId);
         paramMap.add("title", issuesRequest.getTitle());
 
-        customFields.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getCustomData())) {
-                paramMap.add(item.getCustomData(), item.getValue());
-            }
-        });
+        addCustomFields(issuesRequest, paramMap);
 
         String description = issuesRequest.getDescription();
         String zentaoSteps = description;

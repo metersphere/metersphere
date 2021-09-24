@@ -275,6 +275,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
                             });
                         }
                         fields.put(fieldName, attrs);
+                    } else if (StringUtils.isNotBlank(item.getType()) &&
+                            StringUtils.equalsAny(item.getType(),  "multipleInput") && StringUtils.isNotBlank(item.getValue())) {
+                        fields.put(fieldName, JSONArray.parseArray(item.getValue()));
                     } else {
                         fields.put(fieldName, item.getValue());
                     }
