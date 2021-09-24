@@ -5,9 +5,11 @@
     </el-link>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
+      <el-dropdown-item command="history" v-modules="['history']">
+        {{ $t('commons.execute_history') }}
+      </el-dropdown-item>
       <el-dropdown-item command="create_performance" v-modules="['performance']"
-                        v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']"
-        >
+                        v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']">
         {{ $t('api_test.create_performance_test') }}
       </el-dropdown-item>
     </el-dropdown-menu>
@@ -37,6 +39,9 @@ export default {
             break;
           case "create_performance":
             this.$emit("showEnvironment", this.row);
+            break;
+          case "history":
+            this.$emit("showHistory", this.row);
             break;
         }
       } else {
