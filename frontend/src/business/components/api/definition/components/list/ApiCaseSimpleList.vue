@@ -158,6 +158,7 @@
             @showCaseRef="showCaseRef"
             @showEnvironment="showEnvironment"
             @createPerformance="createPerformance"
+            @showHistory="openHis"
             :row="scope.row"/>
         </template>
 
@@ -183,6 +184,8 @@
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="initTable"/>
 
     <api-case-batch-run :project-id="projectId" @batchRun="runBatch" ref="batchRun"/>
+
+    <ms-task-center ref="taskCenter"/>
 
     <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
                :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">
@@ -257,7 +260,8 @@ export default {
     MsTableAdvSearchBar,
     MsTable,
     MsTableColumn,
-    MsRequestResultTail
+    MsRequestResultTail,
+    MsTaskCenter: () => import("../../../../task/TaskCenter"),
   },
   data() {
     return {
@@ -456,6 +460,9 @@ export default {
     }
   },
   methods: {
+    openHis(row) {
+      this.$refs.taskCenter.openHistory(row.id);
+    },
     getExecResult(apiCase) {
       if (apiCase.lastResultId) {
         let url = "/api/definition/report/get/" + apiCase.lastResultId;
