@@ -418,6 +418,7 @@ export default {
       if (tmp.id) {
         url = "/api/testcase/update";
       } else {
+        tmp.request.id = getUUID();
         tmp.id = tmp.request.id;
         tmp.request.path = this.api.path;
         if (tmp.request.protocol != "dubbo://" && tmp.request.protocol != "DUBBO") {
