@@ -168,7 +168,7 @@ export default {
         '        <p style="margin-left: 60px">您好:\n' +
         '    </div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        <p>${testName} 接口测试运行失败<br/>\n' +
+        '        <p>${name} 接口测试运行失败<br/>\n' +
         '        <p>执行人:${executor}</p>' +
         '        <p>负责人:${principal}</p>' +
         '        <p>执行环境:${executionEnvironment}</p>' +
@@ -183,7 +183,7 @@ export default {
         '</body>\n' +
         '</html>',
       robotTitle:
-        "测试【任务通知】:'${testName} ${type}测试运行${status}\n" +
+        "测试【任务通知】:'${name} ${type}测试运行${status}\n" +
         "执行人:${executor}" + "\n" +
         "负责人:${principal}" + "\n" +
         "测试环境为:${executionEnvironment}\n" +
