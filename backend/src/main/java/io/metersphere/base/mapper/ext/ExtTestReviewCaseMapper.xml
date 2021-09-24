@@ -427,4 +427,28 @@
         </where>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+
+
+    <select id="selectReviewIds" resultType="java.lang.String">
+        select DISTINCT review_id from test_case_review_test_case;
+    </select>
+    <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
+        select id from test_case_review_test_case where review_id = #{reviewId} order by update_time ASC;
+    </select>
+
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from test_case_review_test_case where review_id = #{reviewId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+
+    <select id="getPreOrder" resultType="java.lang.Long">
+        select `order` from test_case_review_test_case where review_id = #{reviewId}
+        <if test="baseOrder != null">
+            and `order` &lt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
 </mapper>
