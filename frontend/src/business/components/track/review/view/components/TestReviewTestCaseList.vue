@@ -30,7 +30,7 @@
       @handleRowClick="showDetail"
       :fields.sync="fields"
       :remember-order="true"
-      :enable-order-drag="true"
+      :enable-order-drag="enableOrderDrag"
       :row-order-func="editTestReviewTestCaseOrder"
       :row-order-group-id="reviewId"
       @refresh="initTableData"
@@ -212,6 +212,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      enableOrderDrag: true,
       selectRows: new Set(),
       testReview: {},
       isReadOnly: false,
@@ -328,6 +329,8 @@ export default {
         }
         this.status = 'all';
       }
+      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+
       this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
         this.result = this.$post(this.buildPagePath('/test/review/case/list'), this.condition, response => {
