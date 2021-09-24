@@ -701,7 +701,7 @@ public class ApiTestCaseService {
 
     public void batchRun(ApiCaseBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiTestCaseMapper.selectIdsByQuery(query));
+                (query) -> extApiTestCaseMapper.selectIdsByQuery((ApiTestCaseRequest)query));
         Map<String, ApiDefinitionExecResult> executeQueue = new HashMap<>();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
