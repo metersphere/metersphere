@@ -35,6 +35,10 @@ public class ServiceUtils {
         return getDefaultOrderByField(null, orders, "order");
     }
 
+    public static List<OrderRequest> getDefaultSortOrder(String prefix, List<OrderRequest> orders) {
+        return getDefaultOrderByField(prefix, orders, "order");
+    }
+
     public static List<OrderRequest> getDefaultOrder(String prefix, List<OrderRequest> orders) {
         return getDefaultOrderByField(prefix, orders, "update_time");
     }

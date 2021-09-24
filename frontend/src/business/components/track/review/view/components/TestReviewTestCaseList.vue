@@ -30,6 +30,9 @@
       @handleRowClick="showDetail"
       :fields.sync="fields"
       :remember-order="true"
+      :enable-order-drag="true"
+      :row-order-func="editTestReviewTestCaseOrder"
+      :row-order-group-id="reviewId"
       @refresh="initTableData"
       ref="table"
     >
@@ -181,6 +184,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import {editTestReviewTestCaseOrder} from "@/network/testCase";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -286,6 +290,9 @@ export default {
   computed: {
     selectNodeIds() {
       return this.$store.state.testReviewSelectNodeIds;
+    },
+    editTestReviewTestCaseOrder() {
+      return editTestReviewTestCaseOrder;
     }
   },
   created() {
