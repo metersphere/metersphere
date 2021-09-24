@@ -396,6 +396,18 @@ public class ApiTestCaseService {
         }
     }
 
+    public int getNextNum(String definitionId, Integer definitionNum) {
+        ApiTestCase apiTestCase = extApiTestCaseMapper.getNextNum(definitionId);
+        if (apiTestCase == null) {
+            if (definitionNum == null) {
+                return apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum() * 1000 + 1;
+            }
+            return definitionNum * 1000 + 1;
+        } else {
+            return Optional.of(apiTestCase.getNum() + 1)
+                    .orElse(apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum() * 1000 + 1);
+        }
+    }
 
     private void deleteFileByTestId(String testId) {
         ApiTestFileExample ApiTestFileExample = new ApiTestFileExample();
