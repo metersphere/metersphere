@@ -5,10 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
 import io.metersphere.api.service.ApiAutomationService;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.Schedule;
-import io.metersphere.base.domain.TestPlan;
-import io.metersphere.base.domain.TestPlanWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -107,8 +104,8 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testPlanDTO.id)", content = "#msClass.getLogDetails(#testPlanDTO.id)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "track/TestPlanEnd", subject = "测试计划通知")
-    public TestPlan editTestPlan(@RequestBody TestPlanDTO testPlanDTO) {
-        return testPlanService.editTestPlan(testPlanDTO);
+    public TestPlan editTestPlan(@RequestBody AddTestPlanRequest testPlanDTO) {
+        return testPlanService.editTestPlanWithRequest(testPlanDTO);
     }
 
     @PostMapping("/edit/status/{planId}")
@@ -258,5 +255,10 @@ public class TestPlanController {
     @GetMapping("/have/exec/case/{id}")
     public boolean haveExecCase(@PathVariable String id) {
         return testPlanService.haveExecCase(id);
+    }
+
+    @GetMapping("/principal/{planId}")
+    public List<User> getPlanPrincipal(@PathVariable String planId) {
+        return testPlanService.getPlanPrincipal(planId);
     }
 }
