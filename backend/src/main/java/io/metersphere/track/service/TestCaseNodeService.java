@@ -576,7 +576,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper testCaseMapper = sqlSession.getMapper(TestCaseMapper.class);
         testCases.forEach((value) -> {
-            testCaseMapper.updateByPrimaryKey(value);
+            testCaseMapper.updateByPrimaryKeySelective(value);
         });
         sqlSession.flushStatements();
     }
