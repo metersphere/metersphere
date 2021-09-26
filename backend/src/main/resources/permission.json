@@ -816,6 +816,18 @@
       "name": "导出",
       "resourceId": "PROJECT_REPORT_ANALYSIS",
       "license": true
+    },
+    {
+      "id": "PROJECT_REPORT_ANALYSIS:READ+UPDATE",
+      "name": "保存",
+      "resourceId": "PROJECT_REPORT_ANALYSIS",
+      "license": true
+    },
+    {
+      "id": "PROJECT_REPORT_ANALYSIS:READ+CREATE",
+      "name": "另存为",
+      "resourceId": "PROJECT_REPORT_ANALYSIS",
+      "license": true
     }
   ],
   "resource": [
