@@ -303,6 +303,10 @@ export default {
             const index = this.runData.findIndex(d => d.name === apiCase.id);
             if (index !== -1) {
               apiCase.active = true;
+            }else {
+              if(this.condition.id && this.condition.id != ""){
+                apiCase.active = true;
+              }
             }
           });
           this.apiCaseList = data;
