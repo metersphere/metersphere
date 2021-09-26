@@ -267,11 +267,11 @@ export default {
         this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", headers: [new KeyValue()]};
         this.reload();
       }
-      this.$refs.envTable.setCurrentRow(-1);
+      this.$refs.envTable.setCurrentRow(0);
     },
     clear() {
       this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", headers: [new KeyValue()]};
-      this.$refs.envTable.setCurrentRow(-1);
+      this.$refs.envTable.setCurrentRow(0);
     },
     reload() {
       this.loading = true
