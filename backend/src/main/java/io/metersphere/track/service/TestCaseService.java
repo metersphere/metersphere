@@ -1493,7 +1493,7 @@ public class TestCaseService {
 
     public List<TestCase> getTestCaseByProjectId(String projectId) {
         TestCaseExample example = new TestCaseExample();
-        example.createCriteria().andProjectIdEqualTo(projectId);
+        example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
         return testCaseMapper.selectByExample(example);
     }
 
