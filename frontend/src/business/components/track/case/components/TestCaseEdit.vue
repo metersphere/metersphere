@@ -383,7 +383,7 @@
         }
         if (this.type === 'add') {
           //设置自定义熟悉默认值
-          parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
+          parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules);
           this.form.name = this.testCaseTemplate.caseName;
           this.form.stepDescription = this.testCaseTemplate.stepDescription;
           this.form.expectedResult = this.testCaseTemplate.expectedResult;
@@ -504,7 +504,7 @@
           this.form.maintainer = user.id;
           this.form.tags = [];
           this.getSelectOptions();
-          parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
+          parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules);
           this.reload();
         }
       },
@@ -580,7 +580,7 @@
         }
         this.form.module = testCase.nodeId;
         //设置自定义熟悉默认值
-        parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
+        parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, testCase ? buildTestCaseOldFields(this.form) : null);
         this.setDefaultValue();
         // 重新渲染，显示自定义字段的必填校验
         this.reloadForm();
