@@ -19,70 +19,48 @@
 </template>
 
 <script>
-  import ApiBaseComponent from "../common/ApiBaseComponent";
+import ApiBaseComponent from "../common/ApiBaseComponent";
 
-  export default {
-    name: "MsConstantTimer",
-    components: {ApiBaseComponent},
-    props: {
-      timer: {},
-      node: {},
-      isMax: {
-        type: Boolean,
-        default: false,
-      },
-      showBtn: {
-        type: Boolean,
-        default: true,
-      },
-      draggable: {
-        type: Boolean,
-        default: false,
-      },
+export default {
+  name: "MsConstantTimer",
+  components: {ApiBaseComponent},
+  props: {
+    timer: {},
+    node: {},
+    isMax: {
+      type: Boolean,
+      default: false,
     },
-    data() {
-      return {}
+    showBtn: {
+      type: Boolean,
+      default: true,
     },
-    created() {
-      this.$nextTick(() => {
-        this.$refs.nameInput.focus();
-      });
+    draggable: {
+      type: Boolean,
+      default: false,
     },
-    methods: {
-      remove() {
-        this.$emit('remove', this.timer, this.node);
-      },
-      copyRow() {
-        this.$emit('copyRow', this.timer, this.node);
-      },
-    }
+  },
+  data() {
+    return {}
+  },
+  created() {
+    this.$nextTick(() => {
+      this.$refs.nameInput.focus();
+    });
+  },
+  methods: {
+    remove() {
+      this.$emit('remove', this.timer, this.node);
+    },
+    copyRow() {
+      this.$emit('copyRow', this.timer, this.node);
+    },
   }
+}
 </script>
 
 <style scoped>
-  .width-100 {
-    width: 40%
-  }
-
-  .ms-api-col {
-    background-color: #F2F9EE;
-    border-color: #67C23A;
-    margin-right: 10px;
-    color: #67C23A;
-  }
-
-  .ms-title-buttion {
-    background-color: #F2F9EE;
-    color: #67C23A;
-    margin-right: 20px;
-  }
-
-  /deep/ .el-card__body {
-    padding: 15px;
-  }
-
-  .time-input {
-    width: 30%;
-    /*margin-left: 20px;*/
-  }
+.time-input {
+  width: 30%;
+}
 </style>

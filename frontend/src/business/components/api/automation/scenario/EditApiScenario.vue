@@ -196,7 +196,7 @@
                        highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree">
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree" v-if="showHideTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -405,6 +405,7 @@ export default {
       levels: PRIORITY,
       scenario: {},
       loading: false,
+      showHideTree: true,
       apiListVisible: false,
       customizeVisible: false,
       isBtnHide: false,
@@ -1120,6 +1121,12 @@ export default {
         this.loading = false
       });
     },
+    showHide() {
+      this.showHideTree = false
+      this.$nextTick(() => {
+        this.showHideTree = true
+      });
+    },
     runDebug() {
       if (this.scenarioDefinition.length < 1) {
         return;
@@ -1221,7 +1228,6 @@ export default {
     allowDrag(draggingNode, dropNode, dropType) {
       if (dropNode && draggingNode && dropType) {
         this.sort();
-        this.reload();
       }
     },
     nodeExpand(data, node) {
@@ -1494,7 +1500,7 @@ export default {
       this.expandedStatus = false;
       this.expandedNode = [];
       this.changeNodeStatus(this.scenarioDefinition);
-      this.reload();
+      this.showHide();
     },
     stepStatus(nodes) {
       for (let i in nodes) {
