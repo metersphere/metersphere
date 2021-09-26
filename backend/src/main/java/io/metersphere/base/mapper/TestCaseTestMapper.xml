@@ -144,7 +144,7 @@
     from api_test_case atc
     left join test_case_test tct on atc.id = tct.test_id
     inner join api_definition ad on ad.id = atc.api_definition_id
-    where tct.test_id is NULL and ad.status != 'Trash'
+    where tct.test_id is NULL and atc.status != 'Trash'
     <if test="request.protocol != null and request.protocol!=''">
       and ad.protocol = #{request.protocol}
     </if>
