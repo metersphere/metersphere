@@ -290,11 +290,14 @@ export default {
       this.$refs.tree.setCheckedKeys(thisKeys);
       this.returnDataKeys = thisKeys;
       let t = [];
+      this.options = [];
       thisKeys.map((item) => {//设置option选项
         let node = this.$refs.tree.getNode(item); // 所有被选中的节点对应的node
-        t.push(node.data);
-        this.options.push({label: node.label, value: node.key});
-        return {label: node.label, value: node.key};
+        if(node){
+          t.push(node.data);
+          this.options.push({label: node.label, value: node.key});
+          return {label: node.label, value: node.key};
+        }
       });
       this.returnDatas = t;
       this.popoverHide()
@@ -397,6 +400,23 @@ export default {
         })
       },
       deep: true
+    },
+    defaultKey:{
+      handler:function(){
+        this.init();
+        if(this.data && this.data.length > 0){
+          this.$refs.tree.setCheckedKeys(this.defaultKey);
+        }
+      },
+      deep:true
+    },
+    data:{
+      handler:function(){
+        if(this.defaultKey && this.defaultKey.length > 0){
+          this.$refs.tree.setCheckedKeys(this.defaultKey);
+        }
+      },
+      deep:true
     },
     filterText(val) {
       this.$nextTick(() => {

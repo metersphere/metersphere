@@ -43,6 +43,7 @@ export default {
     annotation: '註釋',
     clear: '清空',
     save: '保存',
+    save_as: '另存為',
     update: '更新',
     save_success: '保存成功',
     delete_success: '刪除成功',
