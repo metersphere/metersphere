@@ -24,6 +24,7 @@
                          @change="typeChange(item)">
                 <el-option value="text"/>
                 <el-option value="file"/>
+                <el-option value="json"/>
               </el-select>
             </template>
           </el-input>
@@ -90,6 +91,7 @@
     <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario"
                              :parameters="parameters"
                              :current-item="currentItem"/>
+    <ms-api-variable-json ref="variableJson" @callback="callback"/>
 
     <api-variable-setting
       ref="apiVariableSetting"/>
@@ -101,6 +103,7 @@
   import {KeyValue, Scenario} from "../model/ApiTestModel";
   import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
   import MsApiVariableAdvance from "./ApiVariableAdvance";
+  import MsApiVariableJson from "./ApiVariableJson";
   import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
   import {REQUIRED} from "../model/JsonData";
   import Vue from 'vue';
@@ -108,7 +111,7 @@
 
   export default {
     name: "MsApiVariable",
-    components: {ApiVariableSetting, MsApiBodyFileUpload, MsApiVariableAdvance},
+    components: {ApiVariableSetting, MsApiBodyFileUpload, MsApiVariableAdvance , MsApiVariableJson},
     props: {
       keyPlaceholder: String,
       valuePlaceholder: String,
@@ -140,7 +143,7 @@
           {name: this.$t('commons.selector.not_required'), id: false}
         ],
         isSelectAll: true,
-        isActive: true
+        isActive: true,
       }
     },
     watch: {
@@ -237,14 +240,22 @@
         return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
       },
       advanced(item) {
-        this.$refs.variableAdvance.open();
-        this.currentItem = item;
+        if (item.type === 'json'){
+          this.$refs.variableJson.open(item);
+          this.currentItem = item;
+        }else {
+          this.$refs.variableAdvance.open();
+          this.currentItem = item;
+        }
+
       },
       typeChange(item) {
         if (item.type === 'file') {
           item.contentType = 'application/octet-stream';
-        } else {
+        } else if (item.type === 'text'){
           item.contentType = 'text/plain';
+        } else {
+          item.contentType = 'application/json'
         }
         this.reload();
       },
@@ -266,6 +277,10 @@
       },
       openApiVariableSetting(item) {
         this.$refs.apiVariableSetting.open(item);
+      },
+      callback(item){
+        console.log(item);
+        this.currentItem.value=item;
       }
     },
     created() {
