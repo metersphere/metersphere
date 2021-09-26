@@ -72,7 +72,7 @@ import CustomFieldFormList from "@/business/components/settings/workspace/templa
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
-import {buildCustomFields, getTemplate, parseCustomField} from "@/common/js/custom_field";
+import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
@@ -201,7 +201,7 @@ export default {
           this.form.creator = getCurrentUserId();
         }
       }
-      parseCustomField(this.form, this.issueTemplate, this.customFieldForm, this.customFieldRules, null);
+      parseCustomField(this.form, this.issueTemplate, this.customFieldForm, this.customFieldRules);
       this.$nextTick(() => {
         if (this.$refs.testCaseIssueList) {
           this.$refs.testCaseIssueList.initTableData();
