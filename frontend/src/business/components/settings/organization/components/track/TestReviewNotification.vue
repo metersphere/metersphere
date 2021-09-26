@@ -175,18 +175,15 @@ export default {
         "</head>\n" +
         "<body>\n" +
         "<div>\n" +
-        "    <p style=\"text-align: left\">${creator} 创建的:<br>\n" +
-        "        ${reviewName}待开始<br>\n" +
-        "        计划开始时间是:${start}<br>\n" +
-        "        计划结束时间为:${end}<br>\n" +
+        "    <p style=\"text-align: left\">${operator} 创建的:<br>\n" +
+        "        ${name}待开始<br>\n" +
         "        请跟进!/${status}<br>\n" +
         "        点击下面链接进入评审页面进行审核</p>\n" +
         "    <a href=\"${url}/#/track/review/view/${id}\">${url}/#/track/review/view/${id}</a>\n" +
         "</div>\n" +
         "</body>\n" +
         "</html>",
-      robotTitle: "【任务通知】:${creator} 创建的:${reviewName}待开始,计划开始时间是:${start}," +
-        "计划结束时间是：${end}请跟进！/ ${status}！点击下面链接进入测试评审页面${url}/#/track/review/view/${id}",
+      robotTitle: "${operator} 创建的:${name} 请跟进！/ ${status}！点击下面链接进入测试评审页面${url}/#/track/review/view/${id}",
       reviewTask: [{
         taskType: "reviewTask",
         event: "",
