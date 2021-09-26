@@ -208,6 +208,7 @@ export default {
     },
     formatChange() {
       const MsConvert = new Convert();
+
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw && !this.body.jsonSchema) {
           this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
@@ -266,24 +267,48 @@ export default {
     batchAdd() {
       this.$refs.batchAddParameter.open();
     },
+    format(array, obj) {
+      if (array) {
+        let isAdd = true;
+        for (let i in array) {
+          let item = array[i];
+          if (item.name === obj.name) {
+            item.value = obj.value;
+            isAdd = false;
+          }
+        }
+        if (isAdd) {
+          this.body.kvs.unshift(obj);
+        }
+      }
+    },
     batchSave(data) {
       if (data) {
         let params = data.split("\n");
         let keyValues = [];
         params.forEach(item => {
-          let line = item.split(/，|,/);
+          let line = [];
+          line[0] = item.substring(0,item.indexOf(":"));
+          line[1] = item.substring(item.indexOf(":")+1,item.length);
           let required = false;
-          if (line[1] === '必填' || line[1] === 'Required' || line[1] === 'true') {
-            required = true;
-          }
-          keyValues.push(new KeyValue({name: line[0], required: required, value: line[2], description: line[3], type: "text", valid: false, file: false, encode: true, enable: true, contentType: "text/plain"}));
+          keyValues.unshift(new KeyValue({
+            name: line[0],
+            required: required,
+            value: line[1],
+            description: line[2],
+            type: "text",
+            valid: false,
+            file: false,
+            encode: true,
+            enable: true,
+            contentType: "text/plain"
+          }));
         })
         keyValues.forEach(item => {
-          this.body.kvs.unshift(item);
+          this.format(this.body.kvs, item);
         })
       }
     },
-
   },
   created() {
     if (!this.body.type) {
@@ -296,6 +321,7 @@ export default {
         }
       });
     }
+
   }
 }
 </script>
