@@ -176,11 +176,11 @@ export default {
           "</head>\n" +
           "<body>\n" +
           "<div>\n" +
-          "    <p>${creator}创建了测试用例</p>\n" +
+          "    <p>${operator}创建了性能测试${name}</p>\n" +
           "</div>\n" +
           "</body>\n" +
           "</html>",
-      robotTitle: "【任务通知】:${creator}创建了测试用例",
+      robotTitle: "${operator}创建了性能测试${name}",
       defectTask: [{
         taskType: "defectTask",
         event: "",

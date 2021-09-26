@@ -198,7 +198,7 @@ export default {
         '</body>\n' +
         '</html>',
       robotTitle:
-        "测试【任务通知】:'${executor}所执行的 ${name} ${type}测试运行${status}\n" +
+        "测试'${executor}所执行的 ${name} ${type}测试运行${status}\n" +
         "测试环境为:${executionEnvironment}\n" +
         "执行时间：${executionTime}\n" +
         "请点击下面链接进入测试报告页面\n" +
