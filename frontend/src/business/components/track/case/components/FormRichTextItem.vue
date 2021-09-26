@@ -80,7 +80,12 @@ export default {
     let el = document.getElementById(this.id);
     if (el) {
       el.addEventListener('click', () => {
-        this.defaultOpen = null;
+        let imagePreview = el.getElementsByClassName('v-note-img-wrapper');
+        if (imagePreview.length > 0) { // 图片预览的时候不切换到编辑模式
+          this.defaultOpen = 'preview';
+        } else {
+          this.defaultOpen = null;
+        }
       });
       let input = el.getElementsByClassName('auto-textarea-input');
       input[0].addEventListener('blur', () => {
