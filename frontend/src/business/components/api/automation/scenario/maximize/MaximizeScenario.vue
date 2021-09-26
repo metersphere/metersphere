@@ -33,7 +33,7 @@
                    highlight-current
                    @node-expand="nodeExpand"
                    @node-collapse="nodeCollapse"
-                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
+                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable v-if="showHideTree">
               <span class="custom-tree-node father" slot-scope="{ node, data}">
                 <!-- 步骤组件-->
                  <ms-component-config
@@ -218,6 +218,7 @@ export default {
       levels: PRIORITY,
       scenario: {},
       loading: false,
+      showHideTree: true,
       apiListVisible: false,
       customizeVisible: false,
       scenarioVisible: false,
@@ -551,8 +552,13 @@ export default {
       }
       this.sort();
       this.reload();
-    }
-    ,
+    },
+    showHide() {
+      this.showHideTree = false
+      this.$nextTick(() => {
+        this.showHideTree = true
+      });
+    },
     reload() {
       this.loading = true
       this.$nextTick(() => {
@@ -585,7 +591,7 @@ export default {
               this.reportId = getUUID().substring(0, 8);
             }
           });
-        }else{
+        } else {
           this.errorRefresh();
         }
       })
@@ -642,7 +648,6 @@ export default {
     allowDrag(draggingNode, dropNode, dropType) {
       if (dropNode && draggingNode && dropType) {
         this.sort();
-        this.reload();
       }
     },
     nodeExpand(data) {
@@ -764,7 +769,7 @@ export default {
       this.debugVisible = true;
       this.loading = false;
     },
-    errorRefresh(){
+    errorRefresh() {
       this.debugVisible = false;
       this.loading = false;
     },
@@ -818,30 +823,12 @@ export default {
       this.debugResult = result;
       this.sort()
     },
-    shrinkTreeNode() {
-      //改变每个节点的状态
-      for (let i in this.scenarioDefinition) {
-        if (i > 30 && this.expandedStatus) {
-          continue;
-        }
-        if (this.scenarioDefinition[i]) {
-          if (this.expandedStatus) {
-            this.expandedNode.push(this.scenarioDefinition[i].resourceId);
-          }
-          this.scenarioDefinition[i].active = this.expandedStatus;
-          if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
-            this.changeNodeStatus(this.scenarioDefinition[i].hashTree);
-          }
-        }
-      }
-    },
     changeNodeStatus(nodes) {
       for (let i in nodes) {
         if (nodes[i]) {
           if (this.expandedStatus) {
             this.expandedNode.push(nodes[i].resourceId);
           }
-          nodes[i].active = this.expandedStatus;
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
             this.changeNodeStatus(nodes[i].hashTree);
           }
@@ -849,28 +836,15 @@ export default {
       }
     },
     openExpansion() {
-      if (this.scenarioDefinition && this.scenarioDefinition.length > 30) {
-        this.$alert(this.$t('api_test.definition.request.step_message'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.expandedNode = [];
-              this.expandedStatus = true;
-              this.shrinkTreeNode();
-            }
-          }
-        });
-      } else {
-        this.expandedNode = [];
-        this.expandedStatus = true;
-        this.shrinkTreeNode();
-      }
+      this.expandedNode = [];
+      this.expandedStatus = true;
+      this.changeNodeStatus(this.scenarioDefinition);
     },
     closeExpansion() {
       this.expandedStatus = false;
       this.expandedNode = [];
-      this.shrinkTreeNode();
-      this.reload();
+      this.changeNodeStatus(this.scenarioDefinition);
+      this.showHide();
     },
     stepNode() {
       //改变每个节点的状态
