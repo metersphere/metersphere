@@ -182,7 +182,7 @@ export default {
         '</body>\n' +
         '</html>',
       robotTitle:
-        "测试【任务通知】:'${name} ${type}测试运行${status}," + "\n" +
+        "测试'${name} ${type}测试运行${status}," + "\n" +
         "执行人:${executor}" + "\n" +
         "负责人:${principal}" + "\n" +
         "测试环境为:${executionEnvironment}" + "\n" +
