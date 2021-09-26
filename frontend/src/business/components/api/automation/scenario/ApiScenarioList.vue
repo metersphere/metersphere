@@ -1032,7 +1032,7 @@ export default {
           link.download = "场景JMX文件集.zip";
           this.result.loading = false;
           link.click();
-        },error => {
+        },(error) => {
           this.result.loading = false;
           this.$error("导出JMX文件失败");
         });
