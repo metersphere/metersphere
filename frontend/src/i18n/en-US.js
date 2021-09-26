@@ -43,6 +43,7 @@ export default {
     annotation: 'Annotation',
     clear: 'Clear',
     save: 'Save',
+    save_as: 'Save as',
     update: 'Update',
     save_success: 'Saved successfully',
     delete_success: 'Deleted successfully',
