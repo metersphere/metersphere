@@ -175,10 +175,8 @@ export default {
         "</head>\n" +
         "<body>\n" +
         "<div>\n" +
-        "    <p style=\"text-align: left\">${creator} 创建的:<br>\n" +
-        "        ${testPlanName}<br>\n" +
-        "        计划开始时间是:${start}<br>\n" +
-        "        计划结束时间为:${end}<br>\n" +
+        "    <p style=\"text-align: left\">${operator} 创建测试计划: ${name}<br>\n" +
+        "        <br>\n" +
         "        请跟进！<br>\n" +
         "        点击下面链接进入测试计划页面</p>\n" +
         "    <a href=\"${url}/#/track/plan/all\">${url}/#/track/plan/all</a>\n" +
@@ -186,7 +184,7 @@ export default {
         "</body>\n" +
         "</html>",
       robotTitle:
-        "   【任务通知】:${creator} 创建的:${testPlanName}计划开始时间是:${start}计划结束时间是：${end}请跟进！/ ${status}！" +
+        "${operator} 创建的:${name} " +
         "点击下面链接进入测试计划页面${url}/#/track/plan/all",
       testCasePlanTask: [{
         taskType: "testPlanTask",
