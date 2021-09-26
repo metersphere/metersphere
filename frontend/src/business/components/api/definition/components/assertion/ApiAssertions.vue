@@ -58,135 +58,138 @@
 </template>
 
 <script>
-  import MsApiAssertionText from "./ApiAssertionText";
-  import MsApiAssertionRegex from "./ApiAssertionRegex";
-  import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
-  import MsApiAssertionsEdit from "./ApiAssertionsEdit";
-  import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
-  import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
-  import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
-  import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
-  import {getUUID} from "@/common/js/utils";
-  import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
-  import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
-  import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
+import MsApiAssertionText from "./ApiAssertionText";
+import MsApiAssertionRegex from "./ApiAssertionRegex";
+import MsApiAssertionDuration from "./ApiAssertionDuration";
+import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
+import MsApiAssertionsEdit from "./ApiAssertionsEdit";
+import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
+import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
+import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
+import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
+import {getUUID} from "@/common/js/utils";
+import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
+import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
+import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
 
-  export default {
-    name: "MsApiAssertions",
-    components: {
-      ApiBaseComponent,
-      MsApiJsonpathSuggest,
-      ApiJsonPathSuggestButton,
-      MsApiAssertionXPath2,
-      MsApiAssertionJsr223,
-      MsApiJsonpathSuggestList,
-      MsApiAssertionJsonPath,
-      MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
+export default {
+  name: "MsApiAssertions",
+  components: {
+    ApiBaseComponent,
+    MsApiJsonpathSuggest,
+    ApiJsonPathSuggestButton,
+    MsApiAssertionXPath2,
+    MsApiAssertionJsr223,
+    MsApiJsonpathSuggestList,
+    MsApiAssertionJsonPath,
+    MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
+  },
+  props: {
+    draggable: {
+      type: Boolean,
+      default: false,
     },
-    props: {
-      draggable: {
-        type: Boolean,
-        default: false,
-      },
-      isMax: {
-        type: Boolean,
-        default: false,
-      },
-      showBtn: {
-        type: Boolean,
-        default: true,
-      },
-      assertions: {},
-      node: {},
-      request: {},
-      response: {},
-      customizeStyle: {
-        type: String,
-        default: "margin-top: 10px"
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      }
+    isMax: {
+      type: Boolean,
+      default: false,
     },
-    data() {
-      return {
-        options: ASSERTION_TYPE,
-        time: "",
-        type: "",
-        loading: false,
-        reloadData: "",
-      }
+    showBtn: {
+      type: Boolean,
+      default: true,
     },
-    methods: {
-      after() {
-        this.type = "";
-        this.reloadData = getUUID().substring(0, 8);
-        this.reload();
-      },
-      copyRow() {
-        this.$emit('copyRow', this.assertions, this.node);
-      },
-      suggestJsonOpen() {
-        this.$emit('suggestClick');
-        this.$nextTick(() => {
-          if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
-            this.$message(this.$t('api_test.request.assertions.debug_first'));
-            return;
-          }
-          this.$refs.jsonpathSuggest.open(this.response.responseResult.body);
-        })
-      },
-      reload() {
-        this.loading = true
-        this.$nextTick(() => {
-          this.loading = false
-        })
-      },
-      active() {
-        this.assertions.active = !this.assertions.active;
-        this.reload();
-      },
-      remove() {
-        this.$emit('remove', this.assertions, this.node);
-      },
-      addJsonPathSuggest(data) {
-        let jsonItem = new JSONPath();
-        jsonItem.expression = data.path;
-        jsonItem.expect = data.value;
-        jsonItem.setJSONPathDescription();
-        let expect = jsonItem.expect.replaceAll('\\', "\\\\").replaceAll('(', "\\(").replaceAll(')', "\\)")
+    assertions: {},
+    node: {},
+    request: {},
+    response: {},
+    customizeStyle: {
+      type: String,
+      default: "margin-top: 10px"
+    },
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      options: ASSERTION_TYPE,
+      time: "",
+      type: "",
+      loading: false,
+      reloadData: "",
+    }
+  },
+  methods: {
+    after() {
+      this.type = "";
+      this.reloadData = getUUID().substring(0, 8);
+      this.reload();
+    },
+    copyRow() {
+      this.$emit('copyRow', this.assertions, this.node);
+    },
+    suggestJsonOpen() {
+      this.$emit('suggestClick');
+      this.$nextTick(() => {
+        if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
+          this.$message(this.$t('api_test.request.assertions.debug_first'));
+          return;
+        }
+        this.$refs.jsonpathSuggest.open(this.response.responseResult.body);
+      })
+    },
+    reload() {
+      this.loading = true
+      this.$nextTick(() => {
+        this.loading = false
+      })
+    },
+    active() {
+      this.assertions.active = !this.assertions.active;
+      this.reload();
+    },
+    remove() {
+      this.$emit('remove', this.assertions, this.node);
+    },
+    addJsonPathSuggest(data) {
+      let jsonItem = new JSONPath();
+      jsonItem.expression = data.path;
+      jsonItem.expect = data.value;
+      jsonItem.setJSONPathDescription();
+      let expect = jsonItem.expect;
+      if (expect) {
+        expect = expect.replaceAll('\\', "\\\\").replaceAll('(', "\\(").replaceAll(')', "\\)")
           .replaceAll('+', "\\+").replaceAll('.', "\\.").replaceAll('[', "\\[").replaceAll(']', "\\]")
           .replaceAll('?', "\\?").replaceAll('/', "\\/").replaceAll('*', "\\*")
           .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
-        jsonItem.expect = expect;
-        this.assertions.jsonPath.push(jsonItem);
-      },
-      clearJson() {
-        this.assertions.jsonPath = [];
       }
+      jsonItem.expect = expect;
+      this.assertions.jsonPath.push(jsonItem);
+    },
+    clearJson() {
+      this.assertions.jsonPath = [];
     }
   }
+}
 </script>
 
 <style scoped>
-  .assertion-item {
-    width: 100%;
-  }
+.assertion-item {
+  width: 100%;
+}
 
-  .assertion-add {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    border: #DCDFE6 solid 1px;
-  }
+.assertion-add {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border: #DCDFE6 solid 1px;
+}
 
-  .icon.is-active {
-    transform: rotate(90deg);
-  }
+.icon.is-active {
+  transform: rotate(90deg);
+}
 
-  /deep/ .el-card__body {
-    padding: 6px 10px;
-  }
+/deep/ .el-card__body {
+  padding: 6px 10px;
+}
 </style>
