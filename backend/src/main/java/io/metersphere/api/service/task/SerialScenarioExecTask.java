@@ -5,6 +5,7 @@ package io.metersphere.api.service.task;
 
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
@@ -39,20 +40,15 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
             } else {
                 jMeterService.runSerial(id, hashTree, request.getReportId(), request.getRunMode(), request.getConfig());
             }
-            // 轮询查看报告状态，最多200次，防止死循环
-            int index = 1;
-            while (index < 200) {
-                Thread.sleep(3000);
-                index++;
-                report = apiScenarioReportMapper.selectByPrimaryKey(id);
-                if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
+            while (MessageCache.executionQueue.containsKey(id)) {
+                long currentSecond = (System.currentTimeMillis() - MessageCache.executionQueue.get(id)) / 1000 / 60;
+                // 设置五分钟超时
+                if (currentSecond > 5) {
+                    // 执行失败了，恢复报告状态
+                    report.setStatus(APITestStatus.Error.name());
+                    apiScenarioReportMapper.updateByPrimaryKey(report);
                     break;
                 }
-            }
-            // 执行失败了，恢复报告状态
-            if (index == 200 && report != null && report.getStatus().equals(APITestStatus.Running.name())) {
-                report.setStatus(APITestStatus.Error.name());
-                apiScenarioReportMapper.updateByPrimaryKey(report);
             }
             return (T) report;
         } catch (Exception ex) {

@@ -74,10 +74,10 @@ public class APIBackendListenerResultHandler {
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
         queue.forEach(result -> {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
-            if(StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)){
+            if (StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
                 String evnStr = result.getResponseDataAsString();
                 apiEnvironmentRunningParamService.parseEvn(evnStr);
-            }else {
+            } else {
                 String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
                 String index = StringUtils.substringAfterLast(result.getThreadName(), THREAD_SPLIT);
                 String scenarioId = StringUtils.substringBefore(index, ID_SPLIT);
@@ -109,7 +109,7 @@ public class APIBackendListenerResultHandler {
 
                 testResult.addPassAssertions(requestResult.getPassAssertions());
                 testResult.addTotalAssertions(requestResult.getTotalAssertions());
-                testResult.setTotal(testResult.getTotal()+1);
+                testResult.setTotal(testResult.getTotal() + 1);
                 scenarioResult.addPassAssertions(requestResult.getPassAssertions());
                 scenarioResult.addTotalAssertions(requestResult.getTotalAssertions());
             }
@@ -215,9 +215,12 @@ public class APIBackendListenerResultHandler {
             reportTask.setTriggerMode(scenarioReport.getTriggerMode());
             reportTask.setName(scenarioReport.getName());
             //执行人
-            if(apiScenario != null){
-                String userName = apiAutomationService.getUser(apiScenario.getUserId()).getName();
-                reportTask.setExecutor(userName);
+            if (apiScenario != null) {
+                User user = apiAutomationService.getUser(apiScenario.getUserId());
+                if (user != null) {
+                    String userName = user.getName();
+                    reportTask.setExecutor(userName);
+                }
             }
             reportTask.setExecutionTime(executionTime);
             reportTask.setExecutionEnvironment(name);
@@ -233,19 +236,19 @@ public class APIBackendListenerResultHandler {
             apiReportService.complete(testResult, report);
         }
         queue.clear();
+        if (!runMode.equals(ApiRunMode.SCENARIO.name())) {
+            updateTestCaseStates(testResult, planScenarioId, runMode);
+            List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
+            if (ids.size() > 0) {
+                try {
+                    if (StringUtils.equals(APITestStatus.Success.name(), report.getStatus())) {
+                        testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Pass.name());
+                    } else {
+                        testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
+                    }
+                } catch (Exception e) {
 
-        updateTestCaseStates(testResult, planScenarioId, runMode);
-
-        List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
-        if (ids.size() > 0) {
-            try {
-                if (StringUtils.equals(APITestStatus.Success.name(), report.getStatus())) {
-                    testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Pass.name());
-                } else {
-                    testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
                 }
-            } catch (Exception e) {
-
             }
         }
         if (reportTask != null) {
@@ -258,6 +261,7 @@ public class APIBackendListenerResultHandler {
 
     /**
      * 更新测试计划关联接口测试的功能用例的状态
+     *
      * @param testResult
      */
     private void updateTestCaseStates(TestResult testResult, String testPlanScenarioId, String runMode) {
