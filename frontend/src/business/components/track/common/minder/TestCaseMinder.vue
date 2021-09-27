@@ -129,7 +129,7 @@ name: "TestCaseMinder",
     },
     save(data) {
       let saveCases = [];
-      let deleteCases = [];
+      let deleteCases = []; // 包含测试用例和临时节点
       let saveExtraNode = {};
       this.buildSaveCase(data.root, saveCases, deleteCases, saveExtraNode, undefined);
 
@@ -169,7 +169,7 @@ name: "TestCaseMinder",
     buildSaveCase(root, saveCases, deleteCases, saveExtraNode, parent) {
       let data = root.data;
       if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
-        this._buildSaveCase(root, saveCases, parent);
+        this._buildSaveCase(root, saveCases, deleteCases, parent);
       } else {
         let deleteChild = data.deleteChild;
         if (deleteChild && deleteChild.length > 0
@@ -200,11 +200,20 @@ name: "TestCaseMinder",
         }
       }
     },
-    _buildSaveCase(node, saveCases, parent) {
+    _buildSaveCase(node, saveCases, deleteCases, parent) {
       let data = node.data;
       if (!data.text) {
         return;
       }
+
+      if (data.isExtraNode) {
+        // 如果是临时节点，打上了用例标签，则删除临时节点并新建用例节点
+        let deleteData = {};
+        Object.assign(deleteData, data);
+        deleteCases.push(deleteData);
+        data.id = "";
+      }
+
       let isChange = false;
       let testCase = {
         id: data.id,
