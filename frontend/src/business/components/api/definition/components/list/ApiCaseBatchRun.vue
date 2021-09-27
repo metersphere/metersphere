@@ -36,6 +36,7 @@ export default {
     },
     save() {
       this.$emit('batchRun', this.environment);
+      this.close();
     }
   }
 }

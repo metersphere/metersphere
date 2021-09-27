@@ -517,7 +517,7 @@ export default {
       obj.ids = Array.from(this.selectRows).map(row => row.id);
       obj.environmentId = environment.id;
       obj.condition = this.condition;
-
+      obj.condition.status = "";
       this.$post('/api/testcase/batch/run', obj, () => {
         this.condition.ids = [];
         this.$refs.batchRun.close();

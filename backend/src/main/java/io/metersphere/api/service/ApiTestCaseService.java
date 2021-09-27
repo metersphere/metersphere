@@ -703,49 +703,52 @@ public class ApiTestCaseService {
     public void batchRun(ApiCaseBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiTestCaseMapper.selectIdsByQuery((ApiTestCaseRequest) query));
-        Map<String, ApiDefinitionExecResult> executeQueue = new HashMap<>();
+        List<RunCaseRequest> executeQueue = new LinkedList<>();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
 
-        for (String testCaseId : request.getIds()) {
-            ApiDefinitionExecResult report = addResult(testCaseId, APITestStatus.Running.name());
-            ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testCaseId);
-            if (caseWithBLOBs != null) {
-                report.setName(caseWithBLOBs.getName());
-                caseWithBLOBs.setLastResultId(report.getId());
-                caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
-                caseWithBLOBs.setStatus(APITestStatus.Running.name());
-                apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
-            }
-            batchMapper.insert(report);
-            executeQueue.put(testCaseId, report);
-        }
-        sqlSession.flushStatements();
-        for (String caseId : executeQueue.keySet()) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(request.getIds());
+        List<ApiTestCaseWithBLOBs> list = apiTestCaseMapper.selectByExampleWithBLOBs(example);
+
+        ApiTestCaseMapper sqlSessionMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        for (ApiTestCaseWithBLOBs caseWithBLOBs : list) {
+            ApiDefinitionExecResult report = addResult(caseWithBLOBs.getId(), APITestStatus.Running.name());
+            report.setName(caseWithBLOBs.getName());
+            caseWithBLOBs.setLastResultId(report.getId());
+            caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
+            caseWithBLOBs.setStatus(APITestStatus.Running.name());
+            sqlSessionMapper.updateByPrimaryKey(caseWithBLOBs);
+
+            // 执行对象
             RunCaseRequest runCaseRequest = new RunCaseRequest();
             runCaseRequest.setRunMode(ApiRunMode.DEFINITION.name());
-            runCaseRequest.setCaseId(caseId);
-            runCaseRequest.setReportId(executeQueue.get(caseId).getId());
+            runCaseRequest.setCaseId(caseWithBLOBs.getId());
+            runCaseRequest.setReportId(report.getId());
             runCaseRequest.setEnvironmentId(request.getEnvironmentId());
+            runCaseRequest.setBloBs(caseWithBLOBs);
+            runCaseRequest.setReport(report);
+
+            batchMapper.insert(report);
+            executeQueue.add(runCaseRequest);
+        }
+        sqlSession.flushStatements();
+        for (RunCaseRequest runCaseRequest : executeQueue) {
             run(runCaseRequest);
-            MessageCache.batchTestCases.put(executeQueue.get(caseId).getId(), executeQueue.get(caseId));
+            MessageCache.batchTestCases.put(runCaseRequest.getReportId(), runCaseRequest.getReport());
         }
     }
 
     public String run(RunCaseRequest request) {
-        ApiTestCaseWithBLOBs testCaseWithBLOBs = null;
+        ApiTestCaseWithBLOBs testCaseWithBLOBs = request.getBloBs();
         if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
             testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getReportId());
             request.setCaseId(request.getReportId());
-        } else {
-            testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+            //通过测试计划id查询环境
+            request.setReportId(request.getTestPlanId());
         }
         if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS.name())) {
             request.setReportId(request.getEnvironmentId());
-        }
-        if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
-            //通过测试计划id查询环境
-            request.setReportId(request.getTestPlanId());
         }
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
