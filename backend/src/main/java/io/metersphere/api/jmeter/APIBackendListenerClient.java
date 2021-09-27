@@ -62,6 +62,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     public void teardownTest(BackendListenerContext context) throws Exception {
         APIBackendListenerResultHandler apiBackendListenerResultHandler =
                 CommonBeanFactory.getBean(APIBackendListenerResultHandler.class);
+        MessageCache.executionQueue.remove(testId);
         apiBackendListenerResultHandler.handleTeardownTest(queue, runMode, testId, debugReportId, setReportId, getConsole());
         super.teardownTest(context);
     }

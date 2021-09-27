@@ -49,7 +49,9 @@ import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
+import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -930,24 +932,36 @@ public class ApiAutomationService {
      * @return
      */
     public String modeRun(RunScenarioRequest request) {
-        ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        LogUtil.info("接收到执行请求，准备数据生成JMX文件：" + DateUtils.getTimeString(new Date()));
+
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
+            ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                    (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        }
 
         List<String> ids = request.getIds();
         // 生成集成报告
         String serialReportId = null;
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiScenarioWithBLOBs> apiScenarios = apiScenarioMapper.selectByExampleWithBLOBs(example);
+        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+            if (request.getCondition() == null || !request.getCondition().isSelectAll()) {
+                // 按照id指定顺序排序
+                FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(ids);
+                fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
+                BeanComparator beanComparator = new BeanComparator("id", fixedOrderComparator);
+                Collections.sort(apiScenarios, beanComparator);
+            }
+        }
 
-        StringBuilder idStr = new StringBuilder();
-        ids.forEach(item -> {
-            idStr.append("\"").append(item).append("\"").append(",");
-        });
-        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + StringUtils.join(ids, ",") + "\"");
         // 只有一个场景且没有测试步骤，则提示
         if (apiScenarios != null && apiScenarios.size() == 1 && (apiScenarios.get(0).getStepTotal() == null || apiScenarios.get(0).getStepTotal() == 0)) {
             MSException.throwException((apiScenarios.get(0).getName() + "，" + Translator.get("automation_exec_info")));
         }
         // 环境检查
         this.checkEnv(request, apiScenarios);
+
         // 集合报告设置
         if (request.getConfig() != null && StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString()) && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
             if (request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
@@ -995,6 +1009,7 @@ public class ApiAutomationService {
                 report = createScenarioReport(reportId, ExecuteType.Marge.name().equals(request.getExecuteType()) ? serialReportId : item.getId(), item.getName(), request.getTriggerMode(),
                         request.getExecuteType(), item.getProjectId(), request.getReportUserID());
             }
+
             try {
                 // 生成报告和HashTree
                 HashTree hashTree = generateHashTree(item, reportId, planEnvMap);
@@ -1020,8 +1035,7 @@ public class ApiAutomationService {
             apiScenarioReportMapper.insert(report);
             // 增加并行集合报告
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
-                List<String> reportIds = map.keySet().stream()
-                        .collect(Collectors.toList()).stream()
+                List<String> reportIds = map.keySet().stream().collect(Collectors.toList()).stream()
                         .map(ApiScenarioReport::getId).collect(Collectors.toList());
                 ReportCounter counter = new ReportCounter();
                 counter.setNumber(0);
@@ -1029,9 +1043,9 @@ public class ApiAutomationService {
                 MessageCache.cache.put(serialReportId, counter);
             }
         }
+        LogUtil.info("生成JMX文件结束：" + DateUtils.getTimeString(new Date()));
         // 开始执行
         this.run(map, request, serialReportId);
-
         return request.getId();
     }
 
@@ -1048,6 +1062,8 @@ public class ApiAutomationService {
                         apiScenarioReportMapper.insert(key);
                         reportIds.add(key.getId());
                         try {
+                            // 进入执行队列
+                            MessageCache.executionQueue.put(key.getId(), System.currentTimeMillis());
                             Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, key.getId(), map.get(key), request));
                             ApiScenarioReport report = future.get();
                             // 如果开启失败结束执行，则判断返回结果状态
@@ -1057,6 +1073,7 @@ public class ApiAutomationService {
                                 }
                             }
                         } catch (Exception e) {
+                            MessageCache.executionQueue.remove(key.getId());
                             LogUtil.error("执行终止：" + e.getMessage());
                             break;
                         }
@@ -1223,7 +1240,7 @@ public class ApiAutomationService {
                                 isEnv = false;
                                 break;
                             } else {
-                                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(s);
+                                ApiTestEnvironment env = apiTestEnvironmentMapper.selectByPrimaryKey(s);
                                 if (env == null) {
                                     isEnv = false;
                                     break;
@@ -1244,7 +1261,7 @@ public class ApiAutomationService {
         if (!isEnv) {
             String envId = scenario.getEnvironmentId();
             if (StringUtils.isNotBlank(envId)) {
-                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
+                ApiTestEnvironment env = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
                 if (env != null) {
                     isEnv = true;
                 }

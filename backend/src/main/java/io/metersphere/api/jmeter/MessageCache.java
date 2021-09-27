@@ -5,4 +5,7 @@ import java.util.Map;
 
 public class MessageCache {
     public static Map<String, ReportCounter> cache = new HashMap<>();
+    // 串行执行队列 KEY=报告ID VALUE=开始时间
+    public static Map<String, Long> executionQueue = new HashMap<>();
+
 }
