@@ -353,5 +353,11 @@ public class ApiAutomationController {
         return apiAutomationService.exportJmx(request);
     }
 
+    @PostMapping(value = "/checkScenarioEnv")
+    public boolean checkScenarioEnv(@RequestBody ApiScenarioWithBLOBs request) {
+        return apiAutomationService.checkScenarioEnv(request);
+    }
+
+
 }
 
