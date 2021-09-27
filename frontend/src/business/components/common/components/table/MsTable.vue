@@ -473,4 +473,16 @@ export default {
 .ms-icon-more:first-child {
   margin-right: -5px;
 }
+
+.ms-table >>> .el-table__body tr.hover-row.current-row>td,
+.ms-table >>>  .el-table__body tr.hover-row.el-table__row--striped.current-row>td,
+.ms-table >>> .el-table__body tr.hover-row.el-table__row--striped>td,
+.ms-table >>> .el-table__body tr.hover-row>td {
+  background-color: #ffffff;
+}
+/* 解决拖拽排序后hover阴影错乱问题 */
+.ms-table >>> .el-table__body tr:hover>td
+ {
+  background-color: #F5F7FA!important;
+}
 </style>
