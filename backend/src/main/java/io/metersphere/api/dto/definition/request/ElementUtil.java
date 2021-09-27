@@ -302,6 +302,23 @@ public class ElementUtil {
         if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
             element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
         }
+        if (element != null && element.get("clazzName") == null && element.getString("type").equals("TCPSampler")) {
+            if (element.getString("tcpPreProcessor") != null) {
+                JSONObject tcpPreProcessor = JSON.parseObject(element.getString("tcpPreProcessor"));
+                if (tcpPreProcessor != null && tcpPreProcessor.get("clazzName") == null) {
+                    tcpPreProcessor.fluentPut("clazzName", clazzMap.get(tcpPreProcessor.getString("type")));
+                    element.fluentPut("tcpPreProcessor", tcpPreProcessor);
+                }
+            }
+        } else if (element != null && element.getString("type").equals("HTTPSamplerProxy")) {
+            if (element.getString("authManager") != null) {
+                JSONObject authManager = JSON.parseObject(element.getString("authManager"));
+                if (authManager != null && authManager.get("clazzName") == null) {
+                    authManager.fluentPut("clazzName", clazzMap.get(authManager.getString("type")));
+                    element.fluentPut("authManager", authManager);
+                }
+            }
+        }
         if (element != null && element.containsKey("hashTree")) {
             JSONArray elementJSONArray = element.getJSONArray("hashTree");
             dataFormatting(elementJSONArray);
