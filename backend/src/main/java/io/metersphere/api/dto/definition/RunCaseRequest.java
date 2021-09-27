@@ -1,5 +1,7 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.base.domain.ApiDefinitionExecResult;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,4 +18,8 @@ public class RunCaseRequest {
     private String environmentId;
 
     private String testPlanId;
+
+    private ApiTestCaseWithBLOBs bloBs;
+
+    private ApiDefinitionExecResult report;
 }
