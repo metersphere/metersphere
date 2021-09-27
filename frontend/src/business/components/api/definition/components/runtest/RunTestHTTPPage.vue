@@ -225,6 +225,9 @@ export default {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+          }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.compatibleHistory(stepArray[i].hashTree);
           }

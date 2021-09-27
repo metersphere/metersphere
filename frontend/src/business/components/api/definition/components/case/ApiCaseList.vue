@@ -58,22 +58,19 @@
 <script>
 
 import ApiCaseHeader from "./ApiCaseHeader";
-import ApiCaseItem from "./ApiCaseItem";
-import MsRun from "../Run";
 import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import MsDrawer from "../../../../common/components/MsDrawer";
 import {CASE_ORDER, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
-import MsBatchEdit from "../basis/BatchEdit";
 
 export default {
   name: 'ApiCaseList',
   components: {
     MsDrawer,
-    MsRun,
+    MsRun: () => import("../Run"),
     ApiCaseHeader,
-    ApiCaseItem,
-    MsBatchEdit,
+    ApiCaseItem: () => import("./ApiCaseItem"),
+    MsBatchEdit: () => import("../basis/BatchEdit"),
     MsTaskCenter: () => import("../../../../task/TaskCenter"),
   },
   props: {
