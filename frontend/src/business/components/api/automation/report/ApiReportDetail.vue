@@ -288,14 +288,21 @@ export default {
         this.buildReport();
       } else if (this.isShare) {
         getShareScenarioReport(this.shareId, this.reportId, (data) => {
-          this.report = data || {};
-          this.buildReport();
+          this.handleGetScenarioReport(data);
         });
       } else {
         getScenarioReport(this.reportId, (data) => {
-          this.report = data || {};
-          this.buildReport();
+          this.handleGetScenarioReport(data);
         });
+      }
+    },
+    handleGetScenarioReport(data) {
+      if (data) {
+        this.report = data;
+        this.buildReport();
+      } else {
+        this.$emit('invisible');
+        this.$warning('报告已删除');
       }
     },
     buildReport() {
