@@ -64,8 +64,11 @@ public class MsScenario extends MsTestElement {
     @JSONField(ordinal = 27)
     private Map<String, String> environmentMap;
 
-    @JSONField(ordinal = 24)
+    @JSONField(ordinal = 28)
     private Boolean onSampleError;
+
+    @JSONField(ordinal = 29)
+    private boolean environmentEnable;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -152,8 +155,7 @@ public class MsScenario extends MsTestElement {
             }
         } else {
             Map<String, EnvironmentConfig> map = config.getConfig();
-            for (EnvironmentConfig evnConfig :
-                    map.values()) {
+            for (EnvironmentConfig evnConfig : map.values()) {
                 if (evnConfig.getHttpConfig() != null) {
                     this.setMockEnvironment(evnConfig.getHttpConfig().isMock());
                 }
@@ -174,12 +176,32 @@ public class MsScenario extends MsTestElement {
             //setHeader(tree, this.headers);
             config.setHeaders(this.headers);
         }
+        ParameterConfig newConfig = new ParameterConfig();
+        if (this.isEnvironmentEnable() && this.environmentMap != null && !this.environmentMap.isEmpty()) {
+            environmentMap.keySet().forEach(projectId -> {
+                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.environmentMap.get(projectId));
+                if (environment != null && environment.getConfig() != null) {
+                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    env.setApiEnvironmentid(environment.getId());
+                    envConfig.put(projectId, env);
+                    if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
+                        this.setMockEnvironment(true);
+                    }
+                }
+            });
+            newConfig.setConfig(envConfig);
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 // 给所有孩子加一个父亲标志
                 el.setParent(this);
                 el.setMockEnvironment(this.isMockEnvironment());
-                el.toHashTree(tree, el.getHashTree(), config);
+                if (this.isEnvironmentEnable()) {
+                    el.toHashTree(tree, el.getHashTree(), newConfig);
+                } else {
+                    el.toHashTree(tree, el.getHashTree(), config);
+                }
             }
         }
     }

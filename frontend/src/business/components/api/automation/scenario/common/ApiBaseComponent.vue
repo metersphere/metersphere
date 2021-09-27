@@ -26,6 +26,9 @@
             </el-tooltip>
           </span>
         </slot>
+
+        <slot name="scenarioEnable"/>
+
       </span>
 
       <div class="header-right" @click.stop>

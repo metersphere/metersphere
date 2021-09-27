@@ -412,7 +412,7 @@ export default {
     },
     data:{
       handler:function(){
-        if(this.defaultKey && this.defaultKey.length > 0){
+        if(this.defaultKey && this.defaultKey.length > 0 && this.defaultKey instanceof Array){
           this.$refs.tree.setCheckedKeys(this.defaultKey);
         }
       },
