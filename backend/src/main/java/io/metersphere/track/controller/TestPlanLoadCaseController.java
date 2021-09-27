@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.TestPlanLoadCase;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -66,6 +67,11 @@ public class TestPlanLoadCaseController {
     @PostMapping("/run/batch")
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getRunLogDetails(#request.requests)", msClass = TestPlanLoadCaseService.class)
     public void runBatch(@RequestBody RunBatchTestPlanRequest request) {
+        if (request.getRequests() != null) {
+            for (RunTestPlanRequest req : request.getRequests()) {
+                req.setTriggerMode(TriggerMode.BATCH.name());
+            }
+        }
         testPlanLoadCaseService.runBatch(request);
     }
 
@@ -81,13 +87,13 @@ public class TestPlanLoadCaseController {
     }
 
     @PostMapping("/update")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE,  content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
     public void update(@RequestBody TestPlanLoadCase testPlanLoadCase) {
         testPlanLoadCaseService.update(testPlanLoadCase);
     }
 
     @PostMapping("/update/api")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE,  content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
     public void updateByApi(@RequestBody TestPlanLoadCase testPlanLoadCase) {
         testPlanLoadCaseService.updateByApi(testPlanLoadCase);
     }
