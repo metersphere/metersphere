@@ -118,6 +118,12 @@ public class TrackService {
         int totalBugSize = 0;
         int totalCaseSize = 0;
         for (TestPlan plan : plans) {
+            int planBugSize = getPlanBugSize(plan.getId());
+            // bug为0不记录
+            if (planBugSize == 0) {
+                continue;
+            }
+
             TestPlanBugCount testPlanBug = new TestPlanBugCount();
             testPlanBug.setIndex(index++);
             testPlanBug.setPlanName(plan.getName());
@@ -127,7 +133,6 @@ public class TrackService {
             int planCaseSize = getPlanCaseSize(plan.getId());
             testPlanBug.setCaseSize(planCaseSize);
 
-            int planBugSize = getPlanBugSize(plan.getId());
             testPlanBug.setBugSize(planBugSize);
             double planPassRage = getPlanPassRage(plan.getId());
             testPlanBug.setPassRage(planPassRage + "%");
