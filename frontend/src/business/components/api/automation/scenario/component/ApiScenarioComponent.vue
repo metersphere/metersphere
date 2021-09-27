@@ -19,7 +19,6 @@
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-
       <span class="ms-tag">{{ getProjectName(scenario.projectId) }}</span>
     </template>
     <template v-slot:debugStepCode>
@@ -30,6 +29,23 @@
       <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug && !node.data.testing">
         {{ getCode() }}
       </span>
+    </template>
+    <template v-slot:scenarioEnable>
+      <el-tooltip content="启用场景环境：当前步骤使用场景原始环境配置运行" placement="top">
+        <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv">启用场景环境</el-checkbox>
+      </el-tooltip>
+    </template>
+    <template v-slot:button>
+      <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!scenario.run">
+        <el-button :disabled="!scenario.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+      </el-tooltip>
+      <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
+        <el-button :disabled="!scenario.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+          <div style="transform: scale(0.66)">
+            <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
+          </div>
+        </el-button>
+      </el-tooltip>
     </template>
 
   </api-base-component>
@@ -66,6 +82,9 @@ export default {
   },
   watch: {
     message() {
+      if (this.message === "stop") {
+        this.scenario.run = false;
+      }
       this.reload();
     },
   },
@@ -121,6 +140,35 @@ export default {
     },
   },
   methods: {
+    run() {
+      this.scenario.run = true;
+      this.$emit('runScenario', this.scenario);
+    },
+    stop() {
+      this.scenario.run = false;
+      this.$emit('stopScenario');
+      this.reload();
+    },
+    checkEnv() {
+      this.$post("/api/automation/checkScenarioEnv", {scenarioDefinition: JSON.stringify(this.scenario), projectId: this.projectId}, res => {
+        if (this.scenario.environmentEnable && !res.data) {
+          this.scenario.environmentEnable = false;
+          this.$warning("当前场景没有环境，需要先设置自身环境");
+          return;
+        }
+        this.setDomain();
+      });
+    },
+    setDomain() {
+      if (this.scenario.environmentEnable) {
+        this.$post("/api/automation/setDomain", {definition: JSON.stringify(this.scenario)}, res => {
+          if (res.data) {
+            let data = JSON.parse(res.data);
+            this.scenario.hashTree = data.hashTree;
+          }
+        })
+      }
+    },
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
         if (this.node.data.code && this.node.data.code === 'error') {
@@ -210,8 +258,28 @@ export default {
   color: #F56C6C;
 }
 
+.ms-test-running {
+  color: #6D317C;
+}
+
 .ms-req-success {
   color: #67C23A;
+}
+
+.ms-btn {
+  background-color: #409EFF;
+  color: white;
+}
+
+.ms-btn-flot {
+  margin: 20px;
+  float: right;
+}
+
+.stop-btn {
+  background-color: #E62424;
+  border-color: #EE6161;
+  color: white;
 }
 
 .ms-step-debug-code {
@@ -224,6 +292,7 @@ export default {
   white-space: nowrap;
   width: 60px;
 }
+
 .ms-test-running {
   color: #6D317C;
 }

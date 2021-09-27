@@ -714,6 +714,10 @@ public class ApiAutomationService {
             }
 
             if (StringUtils.equals(tr.getType(), "scenario")) {
+                MsScenario scenario = (MsScenario) tr;
+                if (scenario.isEnvironmentEnable()) {
+                    continue;
+                }
                 env.getProjectIds().add(tr.getProjectId());
             }
             if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
@@ -786,6 +790,10 @@ public class ApiAutomationService {
                     }
                 }
                 if (StringUtils.equals(tr.getType(), "scenario")) {
+                    MsScenario scenario = (MsScenario) tr;
+                    if (scenario.isEnvironmentEnable()) {
+                        continue;
+                    }
                     env.getProjectIds().add(tr.getProjectId());
                 }
                 if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
@@ -1952,14 +1960,14 @@ public class ApiAutomationService {
                                 hashTree.set(i, object);
                             }
                         } else {
-                            ApiScenarioWithBLOBs bloBs = this.getDto(object.getString("id"));
+                            ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString("id"));
                             if (bloBs != null) {
                                 object = JSON.parseObject(bloBs.getScenarioDefinition());
                                 hashTree.set(i, object);
                             }
                         }
                     } else if ("scenario".equals(object.getString("type"))) {
-                        ApiScenarioWithBLOBs bloBs = this.getDto(object.getString("id"));
+                        ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString("id"));
                         if (bloBs != null) {
                             object = JSON.parseObject(bloBs.getScenarioDefinition());
                             hashTree.set(i, object);
@@ -2610,4 +2618,9 @@ public class ApiAutomationService {
                 extApiScenarioMapper::getLastOrder,
                 apiScenarioMapper::updateByPrimaryKeySelective);
     }
+
+    public boolean checkScenarioEnv(ApiScenarioWithBLOBs request) {
+        return this.checkScenarioEnv(request, null);
+    }
+
 }

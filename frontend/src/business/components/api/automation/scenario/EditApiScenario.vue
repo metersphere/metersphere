@@ -214,6 +214,8 @@
                          @copyRow="copyRow"
                          @suggestClick="suggestClick"
                          @refReload="refReload"
+                         @runScenario="runDebug"
+                         @stopScenario="stop"
                          @openScenario="openScenario"/>
                     </span>
               </el-tree>
@@ -454,6 +456,7 @@ export default {
       stepFilter: new STEP,
       plugins: [],
       clearMessage: "",
+      runScenario: undefined,
     }
   },
   created() {
@@ -571,6 +574,7 @@ export default {
           this.debugLoading = false;
         }
       });
+      this.runScenario = undefined;
     },
     clearDebug() {
       this.reqError = 0;
@@ -655,7 +659,9 @@ export default {
         this.message = getUUID();
         if (data.end) {
           this.removeReport();
+          this.runScenario = undefined;
           this.debugLoading = false;
+          this.message = "stop";
           this.stopDebug = "stop";
         }
       }
@@ -775,7 +781,11 @@ export default {
         this.reqTotalTime = endTime - startTime + 100;
       }
       this.debugResult = resMap;
-      this.sort();
+      if (this.runScenario && this.runScenario.hashTree) {
+        this.sort(this.runScenario.hashTree);
+      } else {
+        this.sort();
+      }
       this.reloadDebug = getUUID();
     },
     removeReport() {
@@ -1127,7 +1137,7 @@ export default {
         this.showHideTree = true
       });
     },
-    runDebug() {
+    runDebug(runScenario) {
       if (this.scenarioDefinition.length < 1) {
         return;
       }
@@ -1149,22 +1159,32 @@ export default {
                 this.clearMessage = getUUID().substring(0, 8);
                 return;
               }
+              let scenario = undefined;
+              if (runScenario && runScenario.type === 'scenario') {
+                scenario = runScenario;
+                this.runScenario = runScenario;
+              }
               //调试时不再保存
               this.debugData = {
-                id: this.currentScenario.id,
-                name: this.currentScenario.name,
+                id: scenario ? scenario.id : this.currentScenario.id,
+                name: scenario ? scenario.name : this.currentScenario.name,
                 type: "scenario",
-                variables: this.currentScenario.variables,
+                variables: scenario ? scenario.variables : this.currentScenario.variables,
                 referenced: 'Created',
-                enableCookieShare: this.enableCookieShare,
-                headers: this.currentScenario.headers,
-                environmentMap: this.projectEnvMap,
-                hashTree: this.scenarioDefinition,
-                onSampleError: this.onSampleError,
+                enableCookieShare: scenario ? scenario.enableCookieShare : this.enableCookieShare,
+                headers: scenario ? scenario.headers : this.currentScenario.headers,
+                environmentMap: scenario && scenario.environmentEnable ? scenario.environmentMap : this.projectEnvMap,
+                hashTree: scenario ? scenario.hashTree : this.scenarioDefinition,
+                onSampleError: scenario ? scenario.onSampleError : this.onSampleError,
               };
+              if (scenario && scenario.environmentEnable) {
+                this.debugData.environmentEnable = scenario.environmentEnable;
+                this.debugLoading = false;
+              }else{
+                this.debugLoading = true;
+              }
               this.reportId = getUUID().substring(0, 8);
               this.debug = true;
-              this.debugLoading = true;
             })
           })
         } else {
@@ -1219,8 +1239,7 @@ export default {
         }
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)
-        && !draggingNode.data.disabled) {
+        && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)) {
         return true;
       }
       return false;
@@ -1412,6 +1431,8 @@ export default {
       this.debugLoading = false;
       this.debugVisible = false;
       this.loading = false;
+      this.runScenario = undefined;
+      this.message = "stop";
       this.clearMessage = getUUID().substring(0, 8);
     },
     showScenarioParameters() {
