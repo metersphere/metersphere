@@ -71,6 +71,7 @@ export function loadNode(node, param, getCaseFuc, setParamCallback, getExtraNode
     }
   }
   data.loaded = true;
+  window.minder.execCommand('expand');
 }
 
 /**

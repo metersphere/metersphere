@@ -529,6 +529,9 @@ export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, m
 export function handleRowDrop(data, callback) {
   setTimeout(() => {
     const tbody = document.querySelector('.el-table__body-wrapper tbody');
+    if (!tbody) {
+      return;
+    }
     const dropBars = tbody.getElementsByClassName('table-row-drop-bar');
 
     // 每次调用生成一个class
