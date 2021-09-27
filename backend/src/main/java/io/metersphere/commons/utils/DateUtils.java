@@ -31,7 +31,7 @@ public class DateUtils {
         return dateFormat.format(timeStamp);
     }
 
-    public static String getTimeString(Date date) throws Exception {
+    public static String getTimeString(Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_PATTERN);
         return dateFormat.format(date);
     }

@@ -165,4 +165,19 @@ public class FileUtils {
         }
     }
 
+    public static byte[] fileToByte(File tradeFile) {
+        byte[] buffer = null;
+        try (FileInputStream fis = new FileInputStream(tradeFile);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
+            byte[] b = new byte[1024];
+            int n;
+            while ((n = fis.read(b)) != -1) {
+                bos.write(b, 0, n);
+            }
+            buffer = bos.toByteArray();
+        } catch (Exception e) {
+        }
+        return buffer;
+    }
+
 }

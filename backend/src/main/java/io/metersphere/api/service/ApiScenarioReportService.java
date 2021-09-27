@@ -188,8 +188,6 @@ public class ApiScenarioReportService {
         ApiScenarioReport returnReport = null;
         StringBuilder scenarioIds = new StringBuilder();
         StringBuilder scenarioNames = new StringBuilder();
-        String projectId = null;
-        String userId = null;
         TestResult fullResult = createTestResult(result);
         List<String> reportIds = new LinkedList<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
@@ -215,8 +213,6 @@ public class ApiScenarioReportService {
             apiScenarioReportDetailMapper.insert(detail);
 
             fullResult.addScenario(scenarioResult);
-            projectId = report.getProjectId();
-            userId = report.getUserId();
             scenarioIds.append(scenarioResult.getName()).append(",");
             scenarioNames.append(report.getName()).append(",");
 
@@ -250,8 +246,6 @@ public class ApiScenarioReportService {
         List<String> testPlanReportIdList = new ArrayList<>();
 //        StringBuilder scenarioIds = new StringBuilder();
         StringBuilder scenarioNames = new StringBuilder();
-        String projectId = null;
-        String userId = null;
 
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
@@ -308,20 +302,14 @@ public class ApiScenarioReportService {
             testPlanApiScenario.setReportId(report.getId());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-            projectId = report.getProjectId();
-            userId = report.getUserId();
-//            scenarioIds.append(scenarioResult.getName()).append(",");
             scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
             scenarioNames.append(report.getName()).append(",");
 
             lastReport = report;
             reportIds.add(report.getId());
         }
-        // 合并报告
-        // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
-
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode(),scenarioIdList);
+        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode(), scenarioIdList);
 
         return lastReport;
     }
@@ -362,32 +350,6 @@ public class ApiScenarioReportService {
                     sqlSession.flushStatements();
                 }
             }
-        }
-    }
-
-    private void margeReport(TestResult result, StringBuilder scenarioIds, StringBuilder scenarioNames, String runMode, String projectId, String userId, List<String> reportIds) {
-        // 合并生成一份报告
-        if (StringUtils.isNotEmpty(result.getSetReportId())) {
-            // 清理其他报告保留一份合并后的报告
-            this.deleteByIds(reportIds);
-
-            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(result.getSetReportId());
-            report.setStatus(result.getError() > 0 ? "Error" : "Success");
-            if (StringUtils.isNotEmpty(userId)) {
-                report.setUserId(userId);
-            } else {
-                report.setUserId(SessionUtils.getUserId());
-            }
-            report.setExecuteType(ExecuteType.Saved.name());
-            report.setProjectId(projectId);
-            report.setScenarioName(scenarioNames.toString().substring(0, scenarioNames.toString().length() - 1));
-            report.setScenarioId(scenarioIds.toString());
-            apiScenarioReportMapper.updateByPrimaryKey(report);
-            ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-            detail.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
-            detail.setReportId(report.getId());
-            detail.setProjectId(report.getProjectId());
-            apiScenarioReportDetailMapper.insert(detail);
         }
     }
 
@@ -444,7 +406,7 @@ public class ApiScenarioReportService {
     }
 
     private void counter(TestResult result) {
-        if (CollectionUtils.isEmpty(result.getScenarios())) {
+        if (result != null) {
             if (StringUtils.isNotEmpty(result.getTestId())) {
                 List<String> list = new LinkedList<>();
                 try {
@@ -508,7 +470,7 @@ public class ApiScenarioReportService {
                 }
                 lastReport = report;
             }
-            if (report.getExecuteType().equals(ExecuteType.Marge.name())) {
+            if (StringUtils.equals(report.getExecuteType(), ExecuteType.Marge.name())) {
                 Object obj = MessageCache.cache.get(report.getScenarioId());
                 if (obj != null) {
                     ReportCounter counter = (ReportCounter) obj;

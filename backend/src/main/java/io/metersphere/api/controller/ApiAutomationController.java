@@ -36,6 +36,7 @@ public class ApiAutomationController {
     @Resource
     ApiAutomationService apiAutomationService;
 
+
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public Pager<List<ApiScenarioDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {

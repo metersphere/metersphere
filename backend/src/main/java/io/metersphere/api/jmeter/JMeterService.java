@@ -6,7 +6,6 @@ import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiScenarioReportService;
-import io.metersphere.base.domain.JarConfig;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RunModeConstants;
@@ -16,7 +15,6 @@ import io.metersphere.config.JmeterProperties;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
-import io.metersphere.service.JarConfigService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,9 +34,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -215,73 +213,6 @@ public class JMeterService {
         return buffer;
     }
 
-    private List<Object> getZipJar() {
-        List<Object> jarFiles = new LinkedList<>();
-        // jar 包
-        JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
-        List<JarConfig> jars = jarConfigService.list();
-        List<File> files = new ArrayList<>();
-
-        jars.forEach(jarConfig -> {
-            String path = jarConfig.getPath();
-            File file = new File(path);
-            if (file.isDirectory() && !path.endsWith("/")) {
-                file = new File(path + "/");
-            }
-            files.add(file);
-        });
-
-        try {
-            File file = CompressUtils.zipFiles(UUID.randomUUID().toString() + ".zip", files);
-            FileSystemResource resource = new FileSystemResource(file);
-            byte[] fileByte = this.fileToByte(file);
-            if (fileByte != null) {
-                ByteArrayResource byteArrayResource = new ByteArrayResource(fileByte) {
-                    @Override
-                    public String getFilename() throws IllegalStateException {
-                        return resource.getFilename();
-                    }
-                };
-                jarFiles.add(byteArrayResource);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return jarFiles;
-    }
-
-    private List<Object> getJar() {
-        List<Object> jarFiles = new LinkedList<>();
-        // jar 包
-        JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
-        List<JarConfig> jars = jarConfigService.list();
-        jars.forEach(jarConfig -> {
-            try {
-                String path = jarConfig.getPath();
-                File file = new File(path);
-                if (file.isDirectory() && !path.endsWith("/")) {
-                    file = new File(path + "/");
-                }
-                FileSystemResource resource = new FileSystemResource(file);
-                byte[] fileByte = this.fileToByte(file);
-                if (fileByte != null) {
-                    ByteArrayResource byteArrayResource = new ByteArrayResource(fileByte) {
-                        @Override
-                        public String getFilename() throws IllegalStateException {
-                            return resource.getFilename();
-                        }
-                    };
-                    jarFiles.add(byteArrayResource);
-                }
-
-            } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
-            }
-        });
-        return jarFiles;
-    }
-
     private List<Object> getMultipartFiles(HashTree hashTree) {
         List<Object> multipartFiles = new LinkedList<>();
         // 获取附件
@@ -310,9 +241,9 @@ public class JMeterService {
 
     public void runTest(String testId, HashTree hashTree, String runMode, boolean isDebug, String userId, RunModeConfig config) {
         // 获取JMX使用到的附件
+        LogUtil.info("开始打包当前JMX对应的附件：" + DateUtils.getTimeString(new Date()));
         List<Object> multipartFiles = getMultipartFiles(hashTree);
-        // 获取JAR
-        List<Object> jarFiles = getJar();
+        LogUtil.info("完成打包JMX对应的附件：" + DateUtils.getTimeString(new Date()));
 
         // 获取可以执行的资源池
         String resourcePoolId = config.getResourcePoolId();
@@ -323,27 +254,22 @@ public class JMeterService {
         String nodeIp = node.getIp();
         Integer port = node.getPort();
 
-        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
-        // 占位符
-        String metersphereUrl = "http://localhost:8081";
-        if (baseInfo != null) {
-            metersphereUrl = baseInfo.getUrl();
-        }
-        // 检查≈地址是否正确
-        String jmeterPingUrl = metersphereUrl + "/jmeter/ping";
-        // docker 不能从 localhost 中下载文件
-        if (StringUtils.contains(metersphereUrl, "http://localhost")
-                || !UrlTestUtils.testUrlWithTimeOut(jmeterPingUrl, 1000)) {
-            MSException.throwException(Translator.get("run_load_test_file_init_error"));
-        }
-
         String uri = String.format(BASE_URL + "/jmeter/api/run", nodeIp, port);
         try {
+            BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
+            String platformUrl = "";
+            if (baseInfo != null) {
+                platformUrl ="http://127.0.0.1:8081";// baseInfo.getUrl();
+                platformUrl += "/api/jmeter/download/jar";
+            }
+
             RunRequest runRequest = new RunRequest();
             runRequest.setTestId(testId);
             runRequest.setDebug(isDebug);
             runRequest.setRunMode(runMode);
             runRequest.setConfig(config);
+            runRequest.setServerUrl(platformUrl);
+
             if (SessionUtils.getUser() != null) {
                 runRequest.setUserId(SessionUtils.getUser().getId());
             }
@@ -359,14 +285,8 @@ public class JMeterService {
                 }
                 multipartFiles.add(new FileSystemResource(file));
             }
-            if (CollectionUtils.isEmpty(jarFiles)) {
-                if (!file.exists()) {
-                    file.createNewFile();
-                }
-                jarFiles.add(new FileSystemResource(file));
-            }
+
             postParameters.put("files", multipartFiles);
-            postParameters.put("jarFiles", jarFiles);
             postParameters.add("request", JSON.toJSONString(runRequest));
 
             HttpHeaders headers = new HttpHeaders();
@@ -374,6 +294,7 @@ public class JMeterService {
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN));
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(postParameters, headers);
 
+            LogUtil.info("开始发送JMX到NODE节点：" + DateUtils.getTimeString(new Date()));
             ResponseEntity<String> result = restTemplate.postForEntity(uri, request, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
                 // 清理零时报告
@@ -381,6 +302,8 @@ public class JMeterService {
                 apiScenarioReportService.delete(testId);
                 MSException.throwException("执行失败：" + result);
             }
+            LogUtil.info("完成发送JMX到NODE节点：" + DateUtils.getTimeString(new Date()));
+
             if (file.exists()) {
                 file.delete();
             }
