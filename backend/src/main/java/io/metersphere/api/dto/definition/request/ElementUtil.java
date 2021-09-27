@@ -279,6 +279,14 @@ public class ElementUtil {
                         element.fluentPut("tcpPreProcessor", tcpPreProcessor);
                     }
                 }
+            } else if (element != null && element.getString("type").equals("HTTPSamplerProxy")) {
+                if (element.getString("authManager") != null) {
+                    JSONObject authManager = JSON.parseObject(element.getString("authManager"));
+                    if (authManager != null && authManager.get("clazzName") == null) {
+                        authManager.fluentPut("clazzName", clazzMap.get(authManager.getString("type")));
+                        element.fluentPut("authManager", authManager);
+                    }
+                }
             }
             if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
                 element.fluentPut("clazzName", clazzMap.get(element.getString("type")));

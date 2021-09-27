@@ -261,7 +261,7 @@ export default {
               testPlanLoadId: loadCase.id,
               userId: getCurrentUserId(),
               projectId: getCurrentProjectID(),
-              triggerMode: 'MANUAL'
+              triggerMode: 'BATCH'
             });
           });
           let obj = {config: config, requests: runArr, userId: getCurrentUser().id};
