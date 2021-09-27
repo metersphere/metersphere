@@ -967,6 +967,9 @@ export default {
         if (!stepArray[i].clazzName) {
           stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
         }
+        if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+          stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+        }
         if (!stepArray[i].projectId) {
           // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
           stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
@@ -1377,6 +1380,9 @@ export default {
       for (let i in hashTree) {
         if (!hashTree[i].clazzName) {
           hashTree[i].clazzName = TYPE_TO_C.get(hashTree[i].type);
+        }
+        if (hashTree[i] && hashTree[i].authManager && !hashTree[i].authManager.clazzName) {
+          hashTree[i].authManager.clazzName = TYPE_TO_C.get(hashTree[i].authManager.type);
         }
         if (hashTree[i].hashTree && hashTree[i].hashTree.length > 0) {
           this.formatData(hashTree[i].hashTree);
