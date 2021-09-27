@@ -271,6 +271,7 @@ export function appendExtraNodes(parent, nodes) {
 }
 
 function _appendExtraNodes(parent, data) {
+  data.isExtraNode = true;
   let node = appendChildNode(parent, data, true);
   if (data.children && data.children.length > 0) {
     data.children.forEach(child => {
