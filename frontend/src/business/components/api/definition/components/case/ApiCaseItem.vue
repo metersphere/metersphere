@@ -397,6 +397,9 @@ export default {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+          }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sort(stepArray[i].hashTree);
           }
@@ -438,6 +441,9 @@ export default {
       }
       if (tmp.request) {
         tmp.request.clazzName = TYPE_TO_C.get(tmp.request.type);
+        if (tmp.request.authManager) {
+          tmp.request.authManager.clazzName = TYPE_TO_C.get(tmp.request.authManager.type);
+        }
         this.sort(tmp.request.hashTree);
       }
       this.result = this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
