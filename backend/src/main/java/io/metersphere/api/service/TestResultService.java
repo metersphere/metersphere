@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.APITestResult;
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -8,7 +9,6 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
@@ -18,6 +18,7 @@ import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import io.metersphere.track.service.TestPlanTestCaseService;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -193,7 +194,7 @@ public class TestResultService {
         }
     }
 
-    private static void sendTask(ApiTestReportVariable report, String reportUrl, TestResult testResult) {
+    private void sendTask(ApiTestReportVariable report, String reportUrl, TestResult testResult) {
         if (report == null) {
             return;
         }
@@ -231,18 +232,12 @@ public class TestResultService {
         if (StringUtils.equals("error", report.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         }
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("testName", report.getName());
-        paramMap.put("id", report.getId());
+        APITestResult apiTestResult = apiTestService.get(report.getTestId());
+        Map paramMap = new HashMap(new BeanMap(apiTestResult));
         paramMap.put("type", "api");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
-        paramMap.put("status", report.getStatus());
-        paramMap.put("executor", report.getExecutor());
-        paramMap.put("executionTime", report.getExecutionTime());
-        paramMap.put("executionEnvironment", report.getExecutionEnvironment());
-        paramMap.put("principal", report.getPrincipal());
         NoticeModel noticeModel = NoticeModel.builder()
-                .operator(SessionUtils.getUserId())
+                .operator(report.getUserId())
                 .successContext(successContext)
                 .successMailTemplate("ApiSuccessfulNotification")
                 .failedContext(failedContext)
