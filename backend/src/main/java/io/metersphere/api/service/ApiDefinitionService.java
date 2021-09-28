@@ -14,6 +14,7 @@ import io.metersphere.api.dto.definition.parse.Swagger3Parser;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.RequestType;
@@ -210,6 +211,8 @@ public class ApiDefinitionService {
         extApiDefinitionExecResultMapper.deleteByResourceId(apiId);
         apiDefinitionMapper.deleteByPrimaryKey(apiId);
         esbApiParamService.deleteByResourceId(apiId);
+        MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+        mockConfigService.deleteMockConfigByApiId(apiId);
         FileUtils.deleteBodyFiles(apiId);
     }
 
@@ -219,6 +222,10 @@ public class ApiDefinitionService {
         esbApiParamService.deleteByResourceIdIn(apiIds);
         apiDefinitionMapper.deleteByExample(example);
         apiTestCaseService.deleteBatchByDefinitionId(apiIds);
+        MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+        for (String apiId : apiIds) {
+            mockConfigService.deleteMockConfigByApiId(apiId);
+        }
     }
 
     public void removeToGc(List<String> apiIds) {
@@ -466,7 +473,7 @@ public class ApiDefinitionService {
     }
 
     private ApiDefinition importCreate(ApiDefinitionWithBLOBs apiDefinition, ApiDefinitionMapper batchMapper,
-                                       ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases,
+                                       ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases, List<MockConfigImportDTO> mocks,
                                        Boolean repeatable) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
         BeanUtils.copyBean(saveReq, apiDefinition);
@@ -493,7 +500,7 @@ public class ApiDefinitionService {
             sameRequest = getSameRequestById(apiDefinition.getId(), apiTestImportRequest.getProjectId());
         }
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
-            _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases);
+            _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases, mocks);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 //postman 可能含有前置脚本，接口定义去掉脚本
@@ -507,7 +514,7 @@ public class ApiDefinitionService {
                 importApiCase(apiDefinition, apiTestImportRequest);
             }
         } else {
-            _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases);
+            _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases, mocks);
         }
 
         return apiDefinition;
@@ -534,12 +541,13 @@ public class ApiDefinitionService {
     }
 
     private void _importCreate(List<ApiDefinition> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
-                               ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases) {
+                               ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases ,List<MockConfigImportDTO> mocks) {
         String originId = apiDefinition.getId();
         if (CollectionUtils.isEmpty(sameRequest)) {
             apiDefinition.setId(UUID.randomUUID().toString());
             apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
             reSetImportCasesApiId(cases, originId, apiDefinition.getId());
+            reSetImportMocksApiId(mocks, originId, apiDefinition.getId());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 batchMapper.insert(apiDefinition);
                 String request = setImportHashTree(apiDefinition);
@@ -590,6 +598,16 @@ public class ApiDefinitionService {
             cases.forEach(item -> {
                 if (StringUtils.equals(item.getApiDefinitionId(), originId)) {
                     item.setApiDefinitionId(newId);
+                }
+            });
+        }
+    }
+
+    private void reSetImportMocksApiId(List<MockConfigImportDTO> mocks, String originId, String newId) {
+        if (CollectionUtils.isNotEmpty(mocks)) {
+            mocks.forEach(item -> {
+                if (StringUtils.equals(item.getApiId(), originId)) {
+                    item.setApiId(newId);
                 }
             });
         }
@@ -936,14 +954,14 @@ public class ApiDefinitionService {
             if (apiImport.getEsbApiParamsMap() != null) {
                 String apiId = item.getId();
                 EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
-                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), project.getRepeatable());
+                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
                 if (model != null) {
                     apiImport.getEsbApiParamsMap().remove(apiId);
                     model.setResourceId(item.getId());
                     apiImport.getEsbApiParamsMap().put(item.getId(), model);
                 }
             } else {
-                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), project.getRepeatable());
+                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
             }
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
@@ -965,6 +983,11 @@ public class ApiDefinitionService {
                 }
 
             }
+        }
+
+        if (!CollectionUtils.isEmpty(apiImport.getMocks())) {
+            MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+            mockConfigService.importMock(apiImport, sqlSession, request);
         }
 
         if (!CollectionUtils.isEmpty(apiImport.getCases())) {
@@ -1253,9 +1276,11 @@ public class ApiDefinitionService {
         example.createCriteria().andIdIn(request.getIds());
 
         if (StringUtils.equals(type, "MS")) { //  导出为 Metersphere 格式
+            MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
             apiExportResult = new MsApiExportResult();
             ((MsApiExportResult) apiExportResult).setData(apiDefinitionMapper.selectByExampleWithBLOBs(example));
             ((MsApiExportResult) apiExportResult).setCases(apiTestCaseService.selectCasesBydApiIds(request.getIds()));
+            ((MsApiExportResult) apiExportResult).setMocks(mockConfigService.selectMockExpectConfigByApiIdIn(request.getIds()));
             ((MsApiExportResult) apiExportResult).setProjectName(request.getProjectId());
             ((MsApiExportResult) apiExportResult).setProtocol(request.getProtocol());
             ((MsApiExportResult) apiExportResult).setProjectId(request.getProjectId());

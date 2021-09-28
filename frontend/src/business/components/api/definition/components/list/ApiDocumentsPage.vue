@@ -1,6 +1,5 @@
 <template>
   <div>
-<!--      <api-document-item :project-id="projectId" :module-ids="moduleIds"/>-->
     <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable" :project-id="projectId" :module-ids="moduleIds"></api-document-anchor>
   </div>
 </template>
