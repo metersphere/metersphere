@@ -8,7 +8,7 @@
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
 
           <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario"
-                     title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT']">
+                     title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
             {{ $t('commons.save') }}
           </el-button>
         </div>
@@ -146,7 +146,7 @@
                                  :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
                                  :project-list="projectList" ref="envPopover" class="ms-message-right"/>
                     <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
-                      <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand">
+                      <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
                         {{ $t('api_test.request.debug') }}
                         <el-dropdown-menu slot="dropdown">
                           <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
@@ -223,7 +223,7 @@
           </el-col>
           <!-- 按钮列表 -->
           <el-col :span="3">
-            <div @click="fabClick">
+            <div @click="fabClick" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
               <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
                        :click-auto-close="false" v-outside-click="outsideClick" ref="refFab">
                 <fab-item
