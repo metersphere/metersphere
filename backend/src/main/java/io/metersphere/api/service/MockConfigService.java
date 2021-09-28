@@ -4,9 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
+import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
+import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
+import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
 import io.metersphere.api.dto.mockconfig.response.JsonSchemaReturnObj;
@@ -23,6 +26,7 @@ import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.json.XML;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +67,28 @@ public class MockConfigService {
         criteria.andApiIdIn(apiIdList);
         List<MockConfig> configList = mockConfigMapper.selectByExample(example);
         return this.assemblyMockConfingResponse(configList);
+    }
+
+    public List<MockExpectConfigWithBLOBs> selectMockExpectConfigByApiId(String apiId){
+        return extMockExpectConfigMapper.selectByApiId(apiId);
+    }
+
+    public List<MockConfigImportDTO> selectMockExpectConfigByApiIdIn(List<String> apiIds){
+        if(CollectionUtils.isNotEmpty(apiIds)){
+            List<MockConfigImportDTO> returnDTO = new ArrayList<>();
+            for (String apiId : apiIds) {
+                List<MockExpectConfigWithBLOBs> mockExpectConfigWithBLOBsList = extMockExpectConfigMapper.selectByApiId(apiId);
+                for (MockExpectConfigWithBLOBs model : mockExpectConfigWithBLOBsList) {
+                    MockConfigImportDTO dto = new MockConfigImportDTO();
+                    BeanUtils.copyBean(dto, model);
+                    dto.setApiId(apiId);
+                    returnDTO.add(dto);
+                }
+            }
+            return returnDTO;
+        }else {
+            return new ArrayList<>();
+        }
     }
 
     private MockConfigResponse assemblyMockConfingResponse(List<MockConfig> configList) {
@@ -608,6 +634,19 @@ public class MockConfigService {
 
     public void deleteMockExpectConfig(String id) {
         mockExpectConfigMapper.deleteByPrimaryKey(id);
+    }
+
+    public void deleteMockConfigByApiId(String apiId){
+        MockConfigExample configExample = new MockConfigExample();
+        configExample.createCriteria().andApiIdEqualTo(apiId);
+        List<MockConfig> mockConfigList = mockConfigMapper.selectByExample(configExample);
+        MockExpectConfigExample example = new MockExpectConfigExample();
+        for (MockConfig mockConfig : mockConfigList) {
+            example.clear();
+            example.createCriteria().andMockConfigIdEqualTo(mockConfig.getId());
+            mockExpectConfigMapper.deleteByExample(example);
+        }
+        mockConfigMapper.deleteByExample(configExample);
     }
 
     public JSONObject getGetParamMap(String urlParams, ApiDefinitionWithBLOBs api, HttpServletRequest request) {
@@ -1186,5 +1225,52 @@ public class MockConfigService {
         } catch (Exception e) {
         }
         return isJson;
+    }
+
+    public void importMock(ApiDefinitionImport apiImport, SqlSession sqlSession, ApiTestImportRequest request) {
+        if(CollectionUtils.isNotEmpty(apiImport.getMocks())){
+            Map<String,List<MockExpectConfigWithBLOBs>> saveMap = new HashMap<>();
+            for (MockConfigImportDTO dto : apiImport.getMocks()) {
+                String apiId = dto.getApiId();//de33108c-26e2-4d4f-826a-a5f8e017d2f4
+                if(saveMap.containsKey(apiId)){
+                    saveMap.get(apiId).add(dto);
+                }else {
+                    List<MockExpectConfigWithBLOBs> list = new ArrayList<>();
+                    list.add(dto);
+                    saveMap.put(apiId,list);
+                }
+            }
+
+            for (Map.Entry<String,List<MockExpectConfigWithBLOBs>> entry : saveMap.entrySet()) {
+                String apiId = entry.getKey();
+                this.deleteMockConfigByApiId(apiId);
+
+                List<MockExpectConfigWithBLOBs> list = entry.getValue();
+
+                String mockId = UUID.randomUUID().toString();
+                MockConfig config = new MockConfig();
+                config.setProjectId(request.getProjectId());
+                config.setId(mockId);
+                config.setCreateUserId(SessionUtils.getUserId());
+                config.setCreateTime(System.currentTimeMillis());
+                config.setUpdateTime(System.currentTimeMillis());
+                config.setApiId(apiId);
+                mockConfigMapper.insert(config);
+
+                int batchCount = 0;
+                for (MockExpectConfigWithBLOBs mockExpect : list) {
+                    mockExpect.setId(UUID.randomUUID().toString());
+                    mockExpect.setMockConfigId(mockId);
+                    mockExpect.setCreateTime(System.currentTimeMillis());
+                    mockExpect.setUpdateTime(System.currentTimeMillis());
+                    mockExpect.setCreateUserId(SessionUtils.getUserId());
+                    mockExpectConfigMapper.insert(mockExpect);
+                }
+                if (batchCount % 300 == 0) {
+                    sqlSession.flushStatements();
+                }
+            }
+
+        }
     }
 }

@@ -24,7 +24,7 @@
     </el-menu-item>
     <el-menu-item index="/report" onselectstart="return false"
                   v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ']"
-                  v-if="isReport && check('reportStat')">
+    >
       {{ $t('commons.report_statistics.title') }}
     </el-menu-item>
 
@@ -40,9 +40,9 @@ import {mapGetters} from "vuex";
 import {hasLicense} from "@/common/js/utils";
 import {MODULE_CHANGE, ModuleEvent} from "@/business/components/common/head/ListEvent";
 
-const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
-const report = requireContext.keys().map(key => requireContext(key).report);
-const isReport = report && report != null && report.length > 0 && report[0] != undefined ? true : false;
+// const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
+// const report = requireContext.keys().map(key => requireContext(key).report);
+// const isReport = report && report != null && report.length > 0 && report[0] != undefined ? true : false;
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const module = requireComponent.keys().length > 0 ? requireComponent("./module/Module.vue") : {};
@@ -52,7 +52,7 @@ export default {
   data() {
     return {
       activeIndex: '/',
-      isReport: isReport,
+      isReport: true,
       modules: {},
       menuKey: 0,
     };

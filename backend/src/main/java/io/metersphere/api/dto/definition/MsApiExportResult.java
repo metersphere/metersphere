@@ -1,8 +1,11 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 
+import io.metersphere.base.domain.MockExpectConfig;
+import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,4 +20,5 @@ public class MsApiExportResult extends ApiExportResult {
     private String version;
     private List<ApiDefinitionWithBLOBs> data;
     private List<ApiTestCaseWithBLOBs> cases;
+    private List<MockConfigImportDTO> mocks;
 }
