@@ -348,7 +348,7 @@ public class TestPlanService {
             TestPlanExample example = new TestPlanExample();
             example.createCriteria()
                     .andNameEqualTo(testPlan.getName())
-                    .andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
+                    .andProjectIdEqualTo(testPlan.getProjectId())
                     .andIdNotEqualTo(testPlan.getId());
             if (testPlanMapper.selectByExample(example).size() > 0) {
                 MSException.throwException(Translator.get("plan_name_already_exists"));
