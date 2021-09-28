@@ -296,3 +296,7 @@ textarea {
 .ms-full-loading .el-loading-spinner {
   font-size: 16px;
 }
+
+.ace-chrome .ace_print-margin {
+  width: 0px !important;
+}
