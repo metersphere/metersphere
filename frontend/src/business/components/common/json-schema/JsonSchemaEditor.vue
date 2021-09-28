@@ -7,7 +7,7 @@
           <json-schema-editor class="schema" :value="schema" lang="zh_CN" custom/>
         </div>
       </el-tab-pane>
-      <el-tab-pane :label="$t('schema.preview')" name="preview">
+      <el-tab-pane v-if="showPreview" :label="$t('schema.preview')" name="preview">
         <div style="min-height: 200px">
           <pre>{{this.preview}}</pre>
         </div>
@@ -29,6 +29,10 @@
     components: {MsImportJson},
     props: {
       body: {},
+      showPreview: {
+        type: Boolean,
+        default: true
+      },
     },
     created() {
       if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
@@ -43,6 +47,19 @@
     watch: {
       schema: {
         handler(newValue, oldValue) {
+          this.body.jsonSchema = this.schema.root;
+        },
+        deep: true
+      },
+      body: {
+        handler(newValue, oldValue) {
+          if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
+            let obj = {"root": MsConvert.format(JSON.parse(this.body.raw))}
+            this.schema = obj;
+          }
+          else if (this.body.jsonSchema) {
+            this.schema = {"root": this.body.jsonSchema};
+          }
           this.body.jsonSchema = this.schema.root;
         },
         deep: true
