@@ -16,3 +16,18 @@ alter table test_plan modify principal varchar(50) null comment 'Plan principal'
 
 
 ALTER TABLE test_case_review_test_case ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
+
+
+-- 报表默认权限插入
+
+-- 项目管理员
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_REPORT_ANALYSIS:READ+UPDATE', 'PROJECT_REPORT_ANALYSIS');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_REPORT_ANALYSIS:READ+CREATE', 'PROJECT_REPORT_ANALYSIS');
+
+-- 项目成员
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_REPORT_ANALYSIS:READ+UPDATE', 'PROJECT_REPORT_ANALYSIS');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_REPORT_ANALYSIS:READ+CREATE', 'PROJECT_REPORT_ANALYSIS');
