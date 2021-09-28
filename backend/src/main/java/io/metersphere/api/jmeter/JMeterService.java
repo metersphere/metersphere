@@ -259,7 +259,7 @@ public class JMeterService {
             BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
             String platformUrl = "";
             if (baseInfo != null) {
-                platformUrl ="http://127.0.0.1:8081";// baseInfo.getUrl();
+                platformUrl = baseInfo.getUrl();
                 platformUrl += "/api/jmeter/download/jar";
             }
 
