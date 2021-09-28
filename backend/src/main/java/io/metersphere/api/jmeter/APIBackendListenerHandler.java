@@ -56,5 +56,8 @@ public class APIBackendListenerHandler {
         if (!MessageCache.reportCache.containsKey(testId) && resultService.getProcessCache().containsKey(testId)) {
             resultService.getProcessCache().remove(testId);
         }
+        if(StringUtils.isNotEmpty(testId)) {
+            MessageCache.executionQueue.remove(testId);
+        }
     }
 }

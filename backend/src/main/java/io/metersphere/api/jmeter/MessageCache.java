@@ -20,4 +20,7 @@ public class MessageCache {
 
     public static ConcurrentHashMap<String, ApiDefinitionExecResult> batchTestCases = new ConcurrentHashMap<>();
 
+    // 串行执行队列 KEY=报告ID VALUE=开始时间
+    public static Map<String, Long> executionQueue = new HashMap<>();
+
 }
