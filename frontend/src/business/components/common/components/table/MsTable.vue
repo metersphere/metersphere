@@ -457,6 +457,10 @@ export default {
 /* 解决拖拽排序后hover阴影错乱问题 */
 .ms-table >>> .el-table__body tr:hover>td
  {
-  background-color: #F5F7FA!important;
+  background-color: #F5F7FA;
+}
+
+.disable-hover >>> tr:hover>td{
+  background-color: #ffffff !important;
 }
 </style>

@@ -534,6 +534,8 @@ export function handleRowDrop(data, callback) {
     }
     const dropBars = tbody.getElementsByClassName('table-row-drop-bar');
 
+    const msTable = document.getElementsByClassName('ms-table');
+
     // 每次调用生成一个class
     // 避免增删列表数据时，回调函数中的 data 与实际 data 不一致
     let dropClass = 'table-row-drop-bar-random' + '_' + getUUID();
@@ -545,6 +547,14 @@ export function handleRowDrop(data, callback) {
     Sortable.create(tbody, {
       handle: "." + dropClass,
       animation: 100,
+      onStart: function (/**Event*/evt) {
+        // 解决拖拽时高亮阴影停留在原位置的问题
+        if (msTable) {
+          msTable.forEach(table => {
+            table.classList.add('disable-hover');
+          });
+        }
+      },
       onEnd({ newIndex, oldIndex}) {
         let param = {};
         param.moveId = data[oldIndex].id;
@@ -569,6 +579,12 @@ export function handleRowDrop(data, callback) {
             callback(param);
           }
         }
+
+        msTable.forEach(table => {
+          if (msTable) {
+            table.classList.remove('disable-hover');
+          }
+        });
       }
     });
   }, 100);
