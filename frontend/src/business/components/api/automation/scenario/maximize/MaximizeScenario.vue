@@ -48,6 +48,8 @@
                    :env-map="projectEnvMap"
                    :message="message"
                    @remove="remove" @copyRow="copyRow"
+                   @runScenario="runScenario"
+                   @stopScenario="stopScenario"
                    @suggestClick="suggestClick"
                    @refReload="refReload" @openScenario="openScenario"/>
               </span>
@@ -874,6 +876,12 @@ export default {
     disableAll() {
       this.stepEnable = false;
       this.stepNode();
+    },
+    runScenario(scenario) {
+      this.$emit('runScenario', scenario);
+    },
+    stopScenario(){
+      this.$emit('stopScenario');
     }
   }
 }
