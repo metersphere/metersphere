@@ -934,16 +934,6 @@ export default {
   z-index: 5;
 }
 
-/deep/ .el-tree-node__content {
-  height: 100%;
-  margin-top: 8px;
-  vertical-align: center;
-}
-
-/deep/ .el-card__body {
-  padding: 6px 10px;
-}
-
 /deep/ .el-drawer__body {
   overflow: auto;
 }
