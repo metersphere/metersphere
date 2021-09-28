@@ -1860,6 +1860,7 @@ public class ApiAutomationService {
                 List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
                 scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
                 scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
+                scenarioWithBLOBs.setId(UUID.randomUUID().toString());
                 batchMapper.insert(scenarioWithBLOBs);
                 apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
             }
