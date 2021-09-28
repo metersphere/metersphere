@@ -10,6 +10,7 @@ import java.util.Set;
 
 /**
  * JSON数据结构相关的工具类
+ *
  * @author song.tianyang
  * @Date 2021/8/16 3:50 下午
  */
@@ -26,14 +27,18 @@ public class JsonStructUtils {
         if (sourceObj == null && matchObj == null) {
             return true;
         } else if (sourceObj != null && matchObj != null) {
-            boolean isMatch = false;
+            boolean lastMatchResultIsTrue = false;
+            boolean hasNotMatchResult = false;
             try {
                 Set<String> matchKeys = matchObj.keySet();
                 for (String key : matchKeys) {
                     if (sourceObj.containsKey(key)) {
                         Object sourceObjItem = sourceObj.get(key);
                         Object matchObjItem = matchObj.get(key);
-                        isMatch = checkObjCompliance(sourceObjItem, matchObjItem);
+                        lastMatchResultIsTrue = checkObjCompliance(sourceObjItem, matchObjItem);
+                        if (!lastMatchResultIsTrue) {
+                            hasNotMatchResult = true;
+                        }
                     } else {
                         return false;
                     }
@@ -41,7 +46,7 @@ public class JsonStructUtils {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return isMatch;
+            return lastMatchResultIsTrue && !hasNotMatchResult;
         } else {
             return false;
         }
@@ -52,9 +57,9 @@ public class JsonStructUtils {
             return true;
         } else if (sourceArray != null && matchArray != null && sourceArray.size() > matchArray.size()) {
             try {
-                for (int i = 0; i < matchArray.size(); i ++) {
+                for (int i = 0; i < matchArray.size(); i++) {
                     Object obj = matchArray.get(i);
-                    if(!sourceArray.contains(obj)){
+                    if (!sourceArray.contains(obj)) {
                         return false;
                     }
                 }
@@ -70,13 +75,13 @@ public class JsonStructUtils {
     public static boolean checkJsonArrayContainsObj(JSONArray sourceArray, JSONObject matchObj) {
         if (sourceArray == null && matchObj == null) {
             return true;
-        } else if (sourceArray != null && matchObj != null ) {
+        } else if (sourceArray != null && matchObj != null) {
             try {
-                for (int i = 0; i < sourceArray.size(); i ++) {
+                for (int i = 0; i < sourceArray.size(); i++) {
                     Object obj = sourceArray.get(i);
-                    if(obj instanceof  JSONObject){
-                        boolean isMatch = checkJsonObjCompliance((JSONObject)  obj,matchObj);
-                        if(isMatch){
+                    if (obj instanceof JSONObject) {
+                        boolean isMatch = checkJsonObjCompliance((JSONObject) obj, matchObj);
+                        if (isMatch) {
                             return isMatch;
                         }
                     }
@@ -92,6 +97,7 @@ public class JsonStructUtils {
 
     /**
      * 检查一个JSON对象的数据集合是否包含另一个对象（包含）
+     *
      * @param sourceArray
      * @param matchObj
      * @return
@@ -103,14 +109,14 @@ public class JsonStructUtils {
             boolean isMatch = false;
             try {
                 Set<String> matchKeys = matchObj.keySet();
-                for(int sourceIndex = 0;sourceIndex < sourceArray.size();sourceIndex ++){
+                for (int sourceIndex = 0; sourceIndex < sourceArray.size(); sourceIndex++) {
                     JSONObject sourceObj = sourceArray.getJSONObject(sourceIndex);
                     for (String key : matchKeys) {
                         if (sourceObj.containsKey(key)) {
                             Object sourceObjItem = sourceObj.get(key);
                             Object matchObjItem = matchObj.get(key);
                             isMatch = checkObjCompliance(sourceObjItem, matchObjItem);
-                            if(!isMatch){
+                            if (!isMatch) {
                                 break;
                             }
                         } else {
@@ -119,7 +125,7 @@ public class JsonStructUtils {
                         }
                     }
 
-                    if(isMatch){
+                    if (isMatch) {
                         break;
                     }
                 }
@@ -173,12 +179,12 @@ public class JsonStructUtils {
     public static void deepParseKeyByJsonObject(JSONObject jsonObject, List<String> keyList) {
         for (String key : jsonObject.keySet()) {
             Object obj = jsonObject.get(key);
-            if(obj instanceof JSONArray) {
+            if (obj instanceof JSONArray) {
                 deepParseKeyByJsonArray((JSONArray) obj, keyList);
-            }else if(obj instanceof JSONObject){
-                deepParseKeyByJsonObject((JSONObject) obj,keyList);
-            }else {
-                if(!keyList.contains(key)){
+            } else if (obj instanceof JSONObject) {
+                deepParseKeyByJsonObject((JSONObject) obj, keyList);
+            } else {
+                if (!keyList.contains(key)) {
                     keyList.add(key);
                 }
             }
@@ -186,10 +192,10 @@ public class JsonStructUtils {
     }
 
     public static void deepParseKeyByJsonArray(JSONArray jsonArray, List<String> keyList) {
-        for (int i = 0; i < jsonArray.size(); i ++) {
+        for (int i = 0; i < jsonArray.size(); i++) {
             Object itemObj = jsonArray.get(i);
-            if(itemObj instanceof JSONObject){
-                deepParseKeyByJsonObject((JSONObject)itemObj,keyList);
+            if (itemObj instanceof JSONObject) {
+                deepParseKeyByJsonObject((JSONObject) itemObj, keyList);
             }
         }
     }
@@ -204,31 +210,31 @@ public class JsonStructUtils {
             JSONValidator matchValidator = JSONValidator.from(matchJson);
             String sourceType = sourceValidator.getType().name();
             String matchType = matchValidator.getType().name();
-            if(StringUtils.equalsIgnoreCase(sourceType,"array")&&StringUtils.equalsIgnoreCase(matchType,"array")){
+            if (StringUtils.equalsIgnoreCase(sourceType, "array") && StringUtils.equalsIgnoreCase(matchType, "array")) {
                 isSourceJsonIsArray = true;
                 isMatchJsonIsArray = true;
-            }else if(StringUtils.equalsIgnoreCase(sourceType,"array")){
+            } else if (StringUtils.equalsIgnoreCase(sourceType, "array")) {
                 isSourceJsonIsArray = true;
-            }else if(StringUtils.equalsIgnoreCase(matchType,"array")){
+            } else if (StringUtils.equalsIgnoreCase(matchType, "array")) {
                 isMatchJsonIsArray = true;
             }
-            if(isSourceJsonIsArray && isMatchJsonIsArray){
+            if (isSourceJsonIsArray && isMatchJsonIsArray) {
                 JSONArray sourceArr = JSONArray.parseArray(sourceJson);
                 JSONArray compArr = JSONArray.parseArray(matchJson);
-                isMatch = checkJsonArrayCompliance(sourceArr,compArr);
-            }else if(isSourceJsonIsArray && !isMatchJsonIsArray){
+                isMatch = checkJsonArrayCompliance(sourceArr, compArr);
+            } else if (isSourceJsonIsArray && !isMatchJsonIsArray) {
                 JSONArray sourceArr = JSONArray.parseArray(sourceJson);
                 JSONObject compObj = JSONObject.parseObject(matchJson);
-                isMatch = checkJsonArrayContainsObj(sourceArr,compObj);
-            }else if(!isSourceJsonIsArray && !isMatchJsonIsArray){
+                isMatch = checkJsonArrayContainsObj(sourceArr, compObj);
+            } else if (!isSourceJsonIsArray && !isMatchJsonIsArray) {
                 JSONObject sourceObj = JSONObject.parseObject(sourceJson);
                 JSONObject compObj = JSONObject.parseObject(matchJson);
-                isMatch = checkJsonObjCompliance(sourceObj,compObj);
-            }else {
+                isMatch = checkJsonObjCompliance(sourceObj, compObj);
+            } else {
                 isMatch = false;
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return isMatch;

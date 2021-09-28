@@ -405,7 +405,9 @@ export default {
       handler:function(){
         this.init();
         if(this.data && this.data.length > 0){
-          this.$refs.tree.setCheckedKeys(this.defaultKey);
+          if(this.defaultKey instanceof Array){
+            this.$refs.tree.setCheckedKeys(this.defaultKey);
+          }
         }
       },
       deep:true
@@ -413,7 +415,9 @@ export default {
     data:{
       handler:function(){
         if(this.defaultKey && this.defaultKey.length > 0 && this.defaultKey instanceof Array){
-          this.$refs.tree.setCheckedKeys(this.defaultKey);
+          if(this.defaultKey instanceof Array){
+            this.$refs.tree.setCheckedKeys(this.defaultKey);
+          }
         }
       },
       deep:true
