@@ -134,7 +134,7 @@
           <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
                            :field="item"
                            :fields-width="fieldsWidth"
-                           :label="field.name"
+                           :label="field.system ? $t(systemNameMap[field.name]) :field.name"
                            :prop="field.name">
               <template v-slot="scope">
                 <span v-if="field.name === '状态'">
