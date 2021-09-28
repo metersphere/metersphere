@@ -315,6 +315,8 @@
           :stepReEnable="stepEnable"
           :message="message"
           @openScenario="openScenario"
+          @runScenario="runDebug"
+          @stopScenario="stop"
           ref="maximizeScenario"/>
       </ms-drawer>
       <ms-change-history ref="changeHistory"/>
