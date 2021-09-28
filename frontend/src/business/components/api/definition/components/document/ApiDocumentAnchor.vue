@@ -600,7 +600,9 @@ export default {
           }
           this.updateShowArray(itemIndex, afterNodeIndex, beforeNodeIndex);
           if (isRedirectScroll) {
-            this.redirectScroll();
+            this.$nextTick(() => {
+              this.redirectScroll();
+            });
           }
         });
       }
