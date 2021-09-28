@@ -1,7 +1,6 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
@@ -225,16 +224,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         setSamplerPath(config, httpConfig, sampler);
 
-        // 请求体
-        if (!StringUtils.equals(this.getMethod(), "GET")) {
-            if (this.body != null) {
-                List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
-                if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
-                    sampler.setDoMultipart(true);
-                }
-                if (CollectionUtils.isNotEmpty(bodyParams)) {
-                    sampler.setArguments(httpArguments(bodyParams));
-                }
+        // 请求体处理
+        if (this.body != null) {
+            List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
+            if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
+                sampler.setDoMultipart(true);
+            }
+            if (CollectionUtils.isNotEmpty(bodyParams)) {
+                sampler.setArguments(httpArguments(bodyParams));
             }
         }
 
