@@ -809,25 +809,25 @@
       "id": "PROJECT_REPORT_ANALYSIS:READ",
       "name": "查看",
       "resourceId": "PROJECT_REPORT_ANALYSIS",
-      "license": true
+      "license": false
     },
     {
       "id": "PROJECT_REPORT_ANALYSIS:READ+EXPORT",
       "name": "导出",
       "resourceId": "PROJECT_REPORT_ANALYSIS",
-      "license": true
+      "license": false
     },
     {
       "id": "PROJECT_REPORT_ANALYSIS:READ+UPDATE",
       "name": "保存",
       "resourceId": "PROJECT_REPORT_ANALYSIS",
-      "license": true
+      "license": false
     },
     {
       "id": "PROJECT_REPORT_ANALYSIS:READ+CREATE",
       "name": "另存为",
       "resourceId": "PROJECT_REPORT_ANALYSIS",
-      "license": true
+      "license": false
     }
   ],
   "resource": [
@@ -969,8 +969,7 @@
     },
     {
       "id": "PROJECT_REPORT_ANALYSIS",
-      "name": "报表",
-      "license": true
+      "name": "报表"
     }
   ]
 }
