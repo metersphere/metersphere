@@ -631,18 +631,6 @@ public class TestPlanService {
         return testPlanMapper.selectByExample(example);
     }
 
-    public List<TestPlanDTOWithMetric> listRelateAllPlan() {
-        SessionUser user = SessionUtils.getUser();
-        QueryTestPlanRequest request = new QueryTestPlanRequest();
-        request.setPrincipal(user.getId());
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setProjectId(SessionUtils.getCurrentProjectId());
-        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId(), SessionUtils.getCurrentProjectId()));
-        List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.listRelate(request);
-        calcTestPlanRate(testPlans);
-        return testPlans;
-    }
-
     public List<TestPlanCaseDTO> listTestCaseByPlanId(String planId) {
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
