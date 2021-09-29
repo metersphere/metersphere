@@ -75,88 +75,96 @@ public class MsKafkaListener {
 
     private void save(String execResult) {
         TestResult testResult = this.formatResult(execResult);
-        ApiTestReport report = null;
-        String reportUrl = null;
-        String projectId = null;
-        // 这部分后续优化只留 DEFINITION 和 SCENARIO 两部分
-        if (StringUtils.equals(testResult.getRunMode(), ApiRunMode.DEFINITION.name())) {
-            // 调试操作，不需要存储结果
-            apiDefinitionService.addResult(testResult);
-            if (!testResult.isDebug()) {
+        String id = testResult != null ? testResult.getTestId() : "";
+        try {
+            ApiTestReport report = null;
+            String reportUrl = null;
+            String projectId = null;
+            // 这部分后续优化只留 DEFINITION 和 SCENARIO 两部分
+            if (StringUtils.equals(testResult.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                // 调试操作，不需要存储结果
+                apiDefinitionService.addResult(testResult);
+                if (!testResult.isDebug()) {
+                    apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
+                }
+            } else if (StringUtils.equals(testResult.getRunMode(), ApiRunMode.JENKINS.name())) {
+                apiDefinitionService.addResult(testResult);
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
-            }
-        } else if (StringUtils.equals(testResult.getRunMode(), ApiRunMode.JENKINS.name())) {
-            apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
 
-        } else if (StringUtils.equals(testResult.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
-            apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
-            ApiDefinitionExecResult result = apiDefinitionService.getResultByJenkins(testResult.getTestId(), ApiRunMode.API_PLAN.name());
-            if (result != null) {
-                report = new ApiTestReport();
-                report.setStatus(result.getStatus());
-                report.setId(result.getId());
-                report.setTriggerMode(ApiRunMode.API.name());
-                ApiTestCaseWithBLOBs apiCaseInfo = apiDefinitionService.getApiCaseInfo(testResult.getTestId());
-                report.setName(apiCaseInfo.getName());
-                projectId = apiCaseInfo.getProjectId();
-            }
-        } else if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
-            apiDefinitionService.addResult(testResult);
-            //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
-            if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
-                apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.SCHEDULE_API_PLAN.name());
-                List<String> testPlanReportIdList = new ArrayList<>();
-                testPlanReportIdList.add(testResult.getTestId());
-                //  更新每个测试计划的状态
-                for (String testPlanReportId : testPlanReportIdList) {
-                    testPlanReportService.checkTestPlanStatus(testPlanReportId);
-                }
-                testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
-            } else {
+            } else if (StringUtils.equals(testResult.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
+                apiDefinitionService.addResult(testResult);
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
-            }
-        } else if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(),ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-            // 执行报告不需要存储，由用户确认后在存储
-            testResult.setTestId(testResult.getTestId());
-            ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, testResult.getRunMode());
-
-            report = new ApiTestReport();
-            report.setStatus(scenarioReport.getStatus());
-            report.setId(scenarioReport.getId());
-            report.setTriggerMode(scenarioReport.getTriggerMode());
-            report.setName(scenarioReport.getName());
-
-            SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
-            assert systemParameterService != null;
-            BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-            reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
-            projectId = scenarioReport.getProjectId();
-            testResult.setTestId(scenarioReport.getScenarioId());
-        } else {
-            apiTestService.changeStatus(testResult.getTestId(), APITestStatus.Completed);
-            report = apiReportService.getRunningReport(testResult.getTestId());
-            apiReportService.complete(testResult, report);
-        }
-
-        TestPlanTestCaseService testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
-        List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
-        if (ids.size() > 0) {
-            try {
-                if (StringUtils.equals(APITestStatus.Success.name(), report.getStatus())) {
-                    testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Pass.name());
-                } else {
-                    testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
+                ApiDefinitionExecResult result = apiDefinitionService.getResultByJenkins(testResult.getTestId(), ApiRunMode.API_PLAN.name());
+                if (result != null) {
+                    report = new ApiTestReport();
+                    report.setStatus(result.getStatus());
+                    report.setId(result.getId());
+                    report.setTriggerMode(ApiRunMode.API.name());
+                    ApiTestCaseWithBLOBs apiCaseInfo = apiDefinitionService.getApiCaseInfo(testResult.getTestId());
+                    report.setName(apiCaseInfo.getName());
+                    projectId = apiCaseInfo.getProjectId();
                 }
-            } catch (Exception e) {
+            } else if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
+                apiDefinitionService.addResult(testResult);
+                //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
+                if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
+                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.SCHEDULE_API_PLAN.name());
+                    List<String> testPlanReportIdList = new ArrayList<>();
+                    testPlanReportIdList.add(testResult.getTestId());
+                    //  更新每个测试计划的状态
+                    for (String testPlanReportId : testPlanReportIdList) {
+                        testPlanReportService.checkTestPlanStatus(testPlanReportId);
+                    }
+                    testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
+                } else {
+                    apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
+                }
+            } else if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                // 执行报告不需要存储，由用户确认后在存储
+                testResult.setTestId(testResult.getTestId());
+                ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, testResult.getRunMode());
 
+                report = new ApiTestReport();
+                report.setStatus(scenarioReport.getStatus());
+                report.setId(scenarioReport.getId());
+                report.setTriggerMode(scenarioReport.getTriggerMode());
+                report.setName(scenarioReport.getName());
+
+                SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+                assert systemParameterService != null;
+                BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+                reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
+                projectId = scenarioReport.getProjectId();
+                testResult.setTestId(scenarioReport.getScenarioId());
+            } else {
+                apiTestService.changeStatus(testResult.getTestId(), APITestStatus.Completed);
+                report = apiReportService.getRunningReport(testResult.getTestId());
+                apiReportService.complete(testResult, report);
             }
+
+            TestPlanTestCaseService testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
+            List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
+            if (ids.size() > 0) {
+                try {
+                    if (StringUtils.equals(APITestStatus.Success.name(), report.getStatus())) {
+                        testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Pass.name());
+                    } else {
+                        testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
+                    }
+                } catch (Exception e) {
+
+                }
+            }
+            if (report != null) {
+                if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
+                    sendTask(report, reportUrl, testResult, projectId);
+                }
+            }
+        } catch (Exception e) {
+
         }
-        if (report != null) {
-            if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-                sendTask(report, reportUrl, testResult, projectId);
-            }
+        if (StringUtils.isNotEmpty(id)) {
+            MessageCache.executionQueue.remove(id);
         }
     }
 

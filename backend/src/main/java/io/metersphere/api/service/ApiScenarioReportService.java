@@ -406,24 +406,26 @@ public class ApiScenarioReportService {
     }
 
     private void counter(TestResult result) {
-        if (result != null) {
-            if (StringUtils.isNotEmpty(result.getTestId())) {
-                List<String> list = new LinkedList<>();
-                try {
-                    list = JSON.parseObject(result.getTestId(), List.class);
-                } catch (Exception e) {
-                    list.add(result.getTestId());
-                }
-                ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
-                scenarioReportExample.createCriteria().andIdIn(list);
-                List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
-                for (ApiScenarioReport report : reportList) {
-                    if (report.getExecuteType().equals(ExecuteType.Marge.name())) {
-                        Object obj = MessageCache.cache.get(report.getScenarioId());
-                        if (obj != null) {
-                            ReportCounter counter = (ReportCounter) obj;
-                            counter.setNumber(counter.getNumber() + 1);
-                            MessageCache.cache.put(report.getScenarioId(), counter);
+        if (CollectionUtils.isEmpty(result.getScenarios())) {
+            if (result != null) {
+                if (StringUtils.isNotEmpty(result.getTestId())) {
+                    List<String> list = new LinkedList<>();
+                    try {
+                        list = JSON.parseObject(result.getTestId(), List.class);
+                    } catch (Exception e) {
+                        list.add(result.getTestId());
+                    }
+                    ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+                    scenarioReportExample.createCriteria().andIdIn(list);
+                    List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
+                    for (ApiScenarioReport report : reportList) {
+                        if (report.getExecuteType().equals(ExecuteType.Marge.name())) {
+                            Object obj = MessageCache.cache.get(report.getScenarioId());
+                            if (obj != null) {
+                                ReportCounter counter = (ReportCounter) obj;
+                                counter.setNumber(counter.getNumber() + 1);
+                                MessageCache.cache.put(report.getScenarioId(), counter);
+                            }
                         }
                     }
                 }
