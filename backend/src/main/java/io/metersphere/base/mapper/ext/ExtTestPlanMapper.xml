@@ -64,12 +64,6 @@
                 <property name="object" value="${condition}.projectName"/>
             </include>
         </if>
-        <if test="${condition}.principal != null">
-            and test_plan.principal
-            <include refid="condition">
-                <property name="object" value="${condition}.principal"/>
-            </include>
-        </if>
         <if test="${condition}.createTime != null">
             and test_plan.create_time
             <include refid="condition">
@@ -98,11 +92,10 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        select DISTINCT test_plan.*, user.name as user_name, project.name as projectName,schedule.id as scheduleId,
+        select DISTINCT test_plan.*, project.name as projectName,schedule.id as scheduleId,
                         (select name from user where user.id = test_plan.creator) as createUser,
             IF(schedule.enable = true,true,false) as scheduleOpen
         from test_plan
-        LEFT JOIN user ON user.id = test_plan.principal
         LEFT JOIN schedule ON schedule.resource_id = test_plan.id
         JOIN project on project.id = test_plan.project_id
         <where>

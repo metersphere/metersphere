@@ -9,15 +9,14 @@
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="stage" jdbcType="VARCHAR" property="stage" />
-    <result column="principal" jdbcType="VARCHAR" property="principal" />
     <result column="test_case_match_rule" jdbcType="VARCHAR" property="testCaseMatchRule" />
     <result column="executor_match_rule" jdbcType="VARCHAR" property="executorMatchRule" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="actual_end_time" jdbcType="BIGINT" property="actualEndTime" />
     <result column="planned_start_time" jdbcType="BIGINT" property="plannedStartTime" />
     <result column="planned_end_time" jdbcType="BIGINT" property="plannedEndTime" />
     <result column="actual_start_time" jdbcType="BIGINT" property="actualStartTime" />
-    <result column="actual_end_time" jdbcType="BIGINT" property="actualEndTime" />
     <result column="creator" jdbcType="VARCHAR" property="creator" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="execution_times" jdbcType="INTEGER" property="executionTimes" />
@@ -87,9 +86,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, workspace_id, report_id, `name`, description, `status`, stage, principal, test_case_match_rule, 
-    executor_match_rule, create_time, update_time, planned_start_time, planned_end_time, 
-    actual_start_time, actual_end_time, creator, project_id, execution_times, automatic_status_update
+    id, workspace_id, report_id, `name`, description, `status`, stage, test_case_match_rule, 
+    executor_match_rule, create_time, update_time, actual_end_time, planned_start_time, 
+    planned_end_time, actual_start_time, creator, project_id, execution_times, automatic_status_update
   </sql>
   <sql id="Blob_Column_List">
     tags, report_summary, report_config
@@ -145,20 +144,20 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
     insert into test_plan (id, workspace_id, report_id, 
       `name`, description, `status`, 
-      stage, principal, test_case_match_rule, 
-      executor_match_rule, create_time, update_time, 
+      stage, test_case_match_rule, executor_match_rule, 
+      create_time, update_time, actual_end_time, 
       planned_start_time, planned_end_time, actual_start_time, 
-      actual_end_time, creator, project_id, 
-      execution_times, automatic_status_update, tags, 
-      report_summary, report_config)
+      creator, project_id, execution_times, 
+      automatic_status_update, tags, report_summary, 
+      report_config)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{stage,jdbcType=VARCHAR}, #{principal,jdbcType=VARCHAR}, #{testCaseMatchRule,jdbcType=VARCHAR}, 
-      #{executorMatchRule,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{stage,jdbcType=VARCHAR}, #{testCaseMatchRule,jdbcType=VARCHAR}, #{executorMatchRule,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{actualEndTime,jdbcType=BIGINT}, 
       #{plannedStartTime,jdbcType=BIGINT}, #{plannedEndTime,jdbcType=BIGINT}, #{actualStartTime,jdbcType=BIGINT}, 
-      #{actualEndTime,jdbcType=BIGINT}, #{creator,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{executionTimes,jdbcType=INTEGER}, #{automaticStatusUpdate,jdbcType=BIT}, #{tags,jdbcType=LONGVARCHAR}, 
-      #{reportSummary,jdbcType=LONGVARCHAR}, #{reportConfig,jdbcType=LONGVARCHAR})
+      #{creator,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{executionTimes,jdbcType=INTEGER}, 
+      #{automaticStatusUpdate,jdbcType=BIT}, #{tags,jdbcType=LONGVARCHAR}, #{reportSummary,jdbcType=LONGVARCHAR}, 
+      #{reportConfig,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
     insert into test_plan
@@ -184,9 +183,6 @@
       <if test="stage != null">
         stage,
       </if>
-      <if test="principal != null">
-        principal,
-      </if>
       <if test="testCaseMatchRule != null">
         test_case_match_rule,
       </if>
@@ -199,6 +195,9 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="actualEndTime != null">
+        actual_end_time,
+      </if>
       <if test="plannedStartTime != null">
         planned_start_time,
       </if>
@@ -207,9 +206,6 @@
       </if>
       <if test="actualStartTime != null">
         actual_start_time,
-      </if>
-      <if test="actualEndTime != null">
-        actual_end_time,
       </if>
       <if test="creator != null">
         creator,
@@ -255,9 +251,6 @@
       <if test="stage != null">
         #{stage,jdbcType=VARCHAR},
       </if>
-      <if test="principal != null">
-        #{principal,jdbcType=VARCHAR},
-      </if>
       <if test="testCaseMatchRule != null">
         #{testCaseMatchRule,jdbcType=VARCHAR},
       </if>
@@ -270,6 +263,9 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="actualEndTime != null">
+        #{actualEndTime,jdbcType=BIGINT},
+      </if>
       <if test="plannedStartTime != null">
         #{plannedStartTime,jdbcType=BIGINT},
       </if>
@@ -278,9 +274,6 @@
       </if>
       <if test="actualStartTime != null">
         #{actualStartTime,jdbcType=BIGINT},
-      </if>
-      <if test="actualEndTime != null">
-        #{actualEndTime,jdbcType=BIGINT},
       </if>
       <if test="creator != null">
         #{creator,jdbcType=VARCHAR},
@@ -335,9 +328,6 @@
       <if test="record.stage != null">
         stage = #{record.stage,jdbcType=VARCHAR},
       </if>
-      <if test="record.principal != null">
-        principal = #{record.principal,jdbcType=VARCHAR},
-      </if>
       <if test="record.testCaseMatchRule != null">
         test_case_match_rule = #{record.testCaseMatchRule,jdbcType=VARCHAR},
       </if>
@@ -350,6 +340,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.actualEndTime != null">
+        actual_end_time = #{record.actualEndTime,jdbcType=BIGINT},
+      </if>
       <if test="record.plannedStartTime != null">
         planned_start_time = #{record.plannedStartTime,jdbcType=BIGINT},
       </if>
@@ -358,9 +351,6 @@
       </if>
       <if test="record.actualStartTime != null">
         actual_start_time = #{record.actualStartTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.actualEndTime != null">
-        actual_end_time = #{record.actualEndTime,jdbcType=BIGINT},
       </if>
       <if test="record.creator != null">
         creator = #{record.creator,jdbcType=VARCHAR},
@@ -397,15 +387,14 @@
       description = #{record.description,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       stage = #{record.stage,jdbcType=VARCHAR},
-      principal = #{record.principal,jdbcType=VARCHAR},
       test_case_match_rule = #{record.testCaseMatchRule,jdbcType=VARCHAR},
       executor_match_rule = #{record.executorMatchRule,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      actual_end_time = #{record.actualEndTime,jdbcType=BIGINT},
       planned_start_time = #{record.plannedStartTime,jdbcType=BIGINT},
       planned_end_time = #{record.plannedEndTime,jdbcType=BIGINT},
       actual_start_time = #{record.actualStartTime,jdbcType=BIGINT},
-      actual_end_time = #{record.actualEndTime,jdbcType=BIGINT},
       creator = #{record.creator,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       execution_times = #{record.executionTimes,jdbcType=INTEGER},
@@ -426,15 +415,14 @@
       description = #{record.description,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       stage = #{record.stage,jdbcType=VARCHAR},
-      principal = #{record.principal,jdbcType=VARCHAR},
       test_case_match_rule = #{record.testCaseMatchRule,jdbcType=VARCHAR},
       executor_match_rule = #{record.executorMatchRule,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      actual_end_time = #{record.actualEndTime,jdbcType=BIGINT},
       planned_start_time = #{record.plannedStartTime,jdbcType=BIGINT},
       planned_end_time = #{record.plannedEndTime,jdbcType=BIGINT},
       actual_start_time = #{record.actualStartTime,jdbcType=BIGINT},
-      actual_end_time = #{record.actualEndTime,jdbcType=BIGINT},
       creator = #{record.creator,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       execution_times = #{record.executionTimes,jdbcType=INTEGER},
@@ -464,9 +452,6 @@
       <if test="stage != null">
         stage = #{stage,jdbcType=VARCHAR},
       </if>
-      <if test="principal != null">
-        principal = #{principal,jdbcType=VARCHAR},
-      </if>
       <if test="testCaseMatchRule != null">
         test_case_match_rule = #{testCaseMatchRule,jdbcType=VARCHAR},
       </if>
@@ -479,6 +464,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="actualEndTime != null">
+        actual_end_time = #{actualEndTime,jdbcType=BIGINT},
+      </if>
       <if test="plannedStartTime != null">
         planned_start_time = #{plannedStartTime,jdbcType=BIGINT},
       </if>
@@ -487,9 +475,6 @@
       </if>
       <if test="actualStartTime != null">
         actual_start_time = #{actualStartTime,jdbcType=BIGINT},
-      </if>
-      <if test="actualEndTime != null">
-        actual_end_time = #{actualEndTime,jdbcType=BIGINT},
       </if>
       <if test="creator != null">
         creator = #{creator,jdbcType=VARCHAR},
@@ -523,15 +508,14 @@
       description = #{description,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       stage = #{stage,jdbcType=VARCHAR},
-      principal = #{principal,jdbcType=VARCHAR},
       test_case_match_rule = #{testCaseMatchRule,jdbcType=VARCHAR},
       executor_match_rule = #{executorMatchRule,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      actual_end_time = #{actualEndTime,jdbcType=BIGINT},
       planned_start_time = #{plannedStartTime,jdbcType=BIGINT},
       planned_end_time = #{plannedEndTime,jdbcType=BIGINT},
       actual_start_time = #{actualStartTime,jdbcType=BIGINT},
-      actual_end_time = #{actualEndTime,jdbcType=BIGINT},
       creator = #{creator,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       execution_times = #{executionTimes,jdbcType=INTEGER},
@@ -549,15 +533,14 @@
       description = #{description,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       stage = #{stage,jdbcType=VARCHAR},
-      principal = #{principal,jdbcType=VARCHAR},
       test_case_match_rule = #{testCaseMatchRule,jdbcType=VARCHAR},
       executor_match_rule = #{executorMatchRule,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      actual_end_time = #{actualEndTime,jdbcType=BIGINT},
       planned_start_time = #{plannedStartTime,jdbcType=BIGINT},
       planned_end_time = #{plannedEndTime,jdbcType=BIGINT},
       actual_start_time = #{actualStartTime,jdbcType=BIGINT},
-      actual_end_time = #{actualEndTime,jdbcType=BIGINT},
       creator = #{creator,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       execution_times = #{executionTimes,jdbcType=INTEGER},
