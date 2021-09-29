@@ -5,7 +5,6 @@ import io.metersphere.base.domain.TestPlanPrincipalExample;
 import io.metersphere.base.mapper.TestPlanPrincipalMapper;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanDTO;
