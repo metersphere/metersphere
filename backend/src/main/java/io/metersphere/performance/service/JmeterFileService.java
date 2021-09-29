@@ -1,18 +1,13 @@
 package io.metersphere.performance.service;
 
-
 import com.alibaba.excel.util.CollectionUtils;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
-import io.metersphere.base.domain.LoadTestWithBLOBs;
-import io.metersphere.base.domain.TestPlanLoadCase;
-import io.metersphere.base.mapper.LoadTestMapper;
-import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
+import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.engine.EngineFactory;
-import org.codehaus.plexus.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,40 +23,18 @@ import java.util.zip.ZipOutputStream;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class JmeterFileService {
-
-    @Resource
-    private LoadTestMapper loadTestMapper;
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
-    private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
+    private LoadTestReportMapper loadTestReportMapper;
 
-    public byte[] downloadZip(String testId, double[] ratios, String reportId, int resourceIndex) {
+    public byte[] downloadZip(String reportId, double[] ratios, int resourceIndex) {
         try {
-            LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
-            TestPlanLoadCase testPlanLoadCase = null;
-            if (loadTest == null) {
-                // 通过测试计划执行性能用例时，testId为测试计划性能用例表的主键ID，根据ID查询用例自身的压力配置
-                testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(testId);
-                if (testPlanLoadCase != null) {
-                    loadTest = loadTestMapper.selectByPrimaryKey(testPlanLoadCase.getLoadCaseId());
-                    if (loadTest != null) {
-                        // 用例自身设置了资源池ID
-                        if (StringUtils.isNotBlank(testPlanLoadCase.getTestResourcePoolId())) {
-                            loadTest.setTestResourcePoolId(testPlanLoadCase.getTestResourcePoolId());
-                        }
-                        // 用例自身设置了压力配置
-                        if (StringUtils.isNotBlank(testPlanLoadCase.getLoadConfiguration())) {
-                            loadTest.setLoadConfiguration(testPlanLoadCase.getLoadConfiguration());
-                        }
-                    }
-                }
+            LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+            if (loadTestReport == null) {
+                MSException.throwException("测试报告不存在或还没产生");
             }
-            EngineContext context = EngineFactory.createContext(loadTest, ratios, reportId, resourceIndex);
-            if (testPlanLoadCase != null) {
-                // ID
-                context.setTestId(testPlanLoadCase.getId());
-            }
+            EngineContext context = EngineFactory.createContext(loadTestReport, ratios, reportId, resourceIndex);
             return zipFilesToByteArray(context);
         } catch (MSException e) {
             LogUtil.error(e.getMessage(), e);

@@ -1427,7 +1427,7 @@ public class TestCaseService {
     }
 
     public void minderEdit(TestCaseMinderEditRequest request) {
-        List<TestCaseWithBLOBs> data = request.getData();
+        List<TestCaseMinderEditRequest.TestCaseMinderEditItem> data = request.getData();
         if (CollectionUtils.isNotEmpty(data)) {
             List<String> editIds = data.stream()
                     .filter(t -> StringUtils.isNotBlank(t.getId()) && t.getId().length() > 20)
@@ -1451,12 +1451,14 @@ public class TestCaseService {
                     item.setId(UUID.randomUUID().toString());
                     item.setMaintainer(SessionUtils.getUserId());
                     addTestCase(item);
+                    changeOrder(item, request.getProjectId());
                 } else {
                     TestCaseWithBLOBs dbCase = finalTestCaseMap.get(item.getId());
                     if (editCustomFieldsPriority(dbCase, item.getPriority())) {
                         item.setCustomFields(dbCase.getCustomFields());
                     }
                     editTestCase(item);
+                    changeOrder(item, request.getProjectId());
                 }
             });
         }
@@ -1465,6 +1467,17 @@ public class TestCaseService {
             TestCaseBatchRequest deleteRequest = new TestCaseBatchRequest();
             deleteRequest.setIds(ids);
             deleteTestCaseBath(deleteRequest);
+        }
+    }
+
+    private void changeOrder(TestCaseMinderEditRequest.TestCaseMinderEditItem item, String projectId) {
+        if (StringUtils.isNotBlank(item.getTargetId())) {
+            ResetOrderRequest resetOrderRequest = new ResetOrderRequest();
+            resetOrderRequest.setGroupId(projectId);
+            resetOrderRequest.setMoveId(item.getId());
+            resetOrderRequest.setTargetId(item.getTargetId());
+            resetOrderRequest.setMoveMode(item.getMoveMode());
+            updateOrder(resetOrderRequest);
         }
     }
 
@@ -1493,7 +1506,7 @@ public class TestCaseService {
 
     public List<TestCase> getTestCaseByProjectId(String projectId) {
         TestCaseExample example = new TestCaseExample();
-        example.createCriteria().andProjectIdEqualTo(projectId);
+        example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
         return testCaseMapper.selectByExample(example);
     }
 

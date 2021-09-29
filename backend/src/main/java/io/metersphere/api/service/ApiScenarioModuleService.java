@@ -287,7 +287,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     private void batchUpdateApiScenario(List<ApiScenarioDTO> apiScenarios) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioMapper apiScenarioMapper = sqlSession.getMapper(ApiScenarioMapper.class);
-        apiScenarios.forEach(apiScenarioMapper::updateByPrimaryKey);
+        apiScenarios.forEach(apiScenarioMapper::updateByPrimaryKeySelective);
         sqlSession.flushStatements();
     }
 

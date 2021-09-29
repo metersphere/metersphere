@@ -176,11 +176,11 @@ export default {
         "</head>\n" +
         "<body>\n" +
         "<div>\n" +
-        "    <p>${operator}关闭了定时任务</p>\n" +
+        "    <p>${operator}关闭了定时任务: ${name}</p>\n" +
         "</div>\n" +
         "</body>\n" +
         "</html>",
-      robotTitle: "【任务通知】:${operator}发起了一个缺陷:${name}，请跟进",
+      robotTitle: "${operator}关闭了定时任务: ${name}",
       defectTask: [{
         taskType: "defectTask",
         event: "",

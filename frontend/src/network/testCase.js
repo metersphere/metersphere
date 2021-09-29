@@ -59,3 +59,7 @@ export function getMinderExtraNode(groupId, nodeId, callback) {
   return baseGet('/minder/extra/node/list/' + groupId + '/' + nodeId, callback);
 }
 
+export function editTestReviewTestCaseOrder(request, callback) {
+  return basePost('/test/review/case/edit/order', request, callback);
+}
+

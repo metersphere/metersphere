@@ -94,7 +94,7 @@ import {
   getSelectDataCounts,
   setUnSelectIds,
   toggleAllSelection,
-  checkTableRowIsSelect, getCustomTableHeader, saveCustomTableWidth, saveLastTableSortField,
+  checkTableRowIsSelect, getCustomTableHeader, saveCustomTableWidth, saveLastTableSortField, handleRowDrop,
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
@@ -105,6 +105,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import MsCustomTableHeader from "@/business/components/common/components/table/MsCustomTableHeader";
 import {lineToHump} from "@/common/js/utils";
+import {editTestCaseOrder} from "@/network/testCase";
 
 /**
  * 参考 ApiList
@@ -219,6 +220,9 @@ export default {
     rememberOrder: Boolean,
     enableOrderDrag: Boolean,
     rowKey: [String, Function],
+    // 自定义排序，需要传资源所属的项目id或者测试计划id，并且传排序的方法
+    rowOrderGroupId: String,
+    rowOrderFunc: Function
   },
   mounted() {
     this.setDefaultOrders();
@@ -226,6 +230,18 @@ export default {
   watch: {
     selectNodeIds() {
       this.selectDataCounts = 0;
+    },
+    // 刷新列表后做统一处理
+    data(newVar, oldVar) {
+      // 不知为何，勾选选择框也会进到这里，但是这种情况 newVar === oldVar
+      if (newVar !== oldVar) {
+        this.$nextTick(() => {
+          this.clear();
+          this.doLayout();
+          this.checkTableRowIsSelect();
+          this.listenRowDrop();
+        });
+      }
     }
   },
   methods: {
@@ -253,6 +269,16 @@ export default {
             }, 1500);
           }
         }
+      }
+    },
+    listenRowDrop() {
+      if (this.rowOrderGroupId) {
+        handleRowDrop(this.data, (param) => {
+          param.groupId = this.rowOrderGroupId;
+          if (this.rowOrderFunc) {
+            this.rowOrderFunc(param);
+          }
+        });
       }
     },
     isScrollShow(column, tableTop){  //判断元素是否因为超过表头
@@ -446,5 +472,21 @@ export default {
 
 .ms-icon-more:first-child {
   margin-right: -5px;
+}
+
+.ms-table >>> .el-table__body tr.hover-row.current-row>td,
+.ms-table >>>  .el-table__body tr.hover-row.el-table__row--striped.current-row>td,
+.ms-table >>> .el-table__body tr.hover-row.el-table__row--striped>td,
+.ms-table >>> .el-table__body tr.hover-row>td {
+  background-color: #ffffff;
+}
+/* 解决拖拽排序后hover阴影错乱问题 */
+.ms-table >>> .el-table__body tr:hover>td
+ {
+  background-color: #F5F7FA;
+}
+
+.disable-hover >>> tr:hover>td{
+  background-color: #ffffff !important;
 }
 </style>

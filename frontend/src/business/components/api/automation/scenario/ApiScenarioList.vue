@@ -18,6 +18,8 @@
         operator-width="200"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
+        :row-order-group-id="condition.projectId"
+        :row-order-func="editApiScenarioCaseOrder"
         @refresh="search(projectId)"
         @callBackSelectAll="callBackSelectAll"
         @callBackSelect="callBackSelect"
@@ -218,7 +220,7 @@
         <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true"
                    :modal="false"
                    size="90%">
-          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="showReportId" :currentProjectId="projectId"/>
+          <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb" :report-id="showReportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
@@ -244,7 +246,7 @@ import {downloadFile, getCurrentProjectID, getUUID, strMapToObj} from "@/common/
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
-import {getCustomTableHeader, getCustomTableWidth, getLastTableSortField, handleRowDrop} from "@/common/js/tableUtils";
+import {getCustomTableHeader, getCustomTableWidth, getLastTableSortField} from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import {scenario} from "@/business/components/track/plan/event-bus";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -253,6 +255,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import {editApiScenarioCaseOrder} from "@/business/components/api/automation/api-automation";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import axios from "axios";
+import {error} from "@/common/js/message";
 
 export default {
   name: "MsApiScenarioList",
@@ -388,7 +391,7 @@ export default {
           tip: this.$t('api_test.automation.copy'),
           icon: "el-icon-document-copy",
           exec: this.copy,
-          permissions: ['PROJECT_API_SCENARIO:READ+EDIT']
+          permissions: ['PROJECT_API_SCENARIO:READ+COPY']
         },
         {
           tip: this.$t('commons.delete'),
@@ -551,6 +554,9 @@ export default {
     isNotRunning() {
       return "Running" !== this.report.status;
     },
+    editApiScenarioCaseOrder() {
+      return editApiScenarioCaseOrder;
+    }
   },
   methods: {
     getProjectName() {
@@ -617,20 +623,6 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
-
-          this.$nextTick(() => {
-            handleRowDrop(this.tableData, (param) => {
-              param.groupId = this.condition.projectId;
-              editApiScenarioCaseOrder(param);
-            });
-
-            if (this.$refs.scenarioTable) {
-              this.$refs.scenarioTable.clear();
-              this.$refs.scenarioTable.doLayout();
-            }
-
-          });
-
           this.$emit('getTrashCase');
         });
       }
@@ -885,6 +877,9 @@ export default {
         if (!stepArray[i].clazzName) {
           stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
         }
+        if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+          stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+        }
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
           this.sort(stepArray[i].hashTree);
         }
@@ -1031,6 +1026,9 @@ export default {
           link.download = "场景JMX文件集.zip";
           this.result.loading = false;
           link.click();
+        },error => {
+          this.result.loading = false;
+          this.$error("导出JMX文件失败");
         });
     },
 
@@ -1042,7 +1040,7 @@ export default {
         return;
       }
       this.result.loading = true;
-      this.fileDownload("/api/automation/export/jmx", param);
+      this.fileDownload("/api/automation/export/zip", param);
     },
     getConditions() {
       return this.condition;

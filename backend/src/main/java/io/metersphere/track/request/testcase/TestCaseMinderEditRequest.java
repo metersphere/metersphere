@@ -11,5 +11,12 @@ import java.util.List;
 public class TestCaseMinderEditRequest {
     private String projectId;
     private List<String> ids;
-    List<TestCaseWithBLOBs> data;
+    List<TestCaseMinderEditItem> data;
+
+    @Getter
+    @Setter
+    public static class TestCaseMinderEditItem extends TestCaseWithBLOBs {
+        private String targetId;
+        private String moveMode;
+    }
 }

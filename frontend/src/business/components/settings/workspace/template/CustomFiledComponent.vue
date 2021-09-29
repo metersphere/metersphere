@@ -83,6 +83,9 @@
        </el-option>
     </el-select>
 
+    <ms-input-tag v-else-if="data.type === 'multipleInput'"
+                  :read-only="disabled" :currentScenario="data" :prop="prop"/>
+
     <el-input class="custom-with"
               @change="handleChange"
               :disabled="disabled"
@@ -95,9 +98,10 @@
 <script>
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 export default {
   name: "CustomFiledComponent",
-  components: {MsTableColumn},
+  components: {MsInputTag, MsTableColumn},
   props: [
     'data',
     'prop',

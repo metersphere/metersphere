@@ -34,6 +34,7 @@ import org.jsoup.safety.Whitelist;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
@@ -347,5 +348,14 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         example.createCriteria()
                 .andIssuesIdEqualTo(id);
         testCaseIssuesMapper.deleteByExample(example);
+    }
+
+    protected void addCustomFields(IssuesUpdateRequest issuesRequest, MultiValueMap<String, Object> paramMap) {
+        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
+        customFields.forEach(item -> {
+            if (StringUtils.isNotBlank(item.getCustomData())) {
+                paramMap.add(item.getCustomData(), item.getValue());
+            }
+        });
     }
 }

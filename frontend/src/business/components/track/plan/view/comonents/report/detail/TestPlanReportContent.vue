@@ -238,4 +238,12 @@ export default {
 /deep/ .padding-col {
   padding: 5px;
 }
+
+/deep/ .el-scrollbar {
+  height: 100%;
+}
+
+/deep/ .el-card .ms-table {
+  cursor: pointer;
+}
 </style>

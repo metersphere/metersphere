@@ -50,6 +50,7 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.TestPlanPrincipalService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.*;
@@ -183,6 +184,10 @@ public class TestPlanService {
     private PerformanceReportService performanceReportService;
     @Resource
     private MetricQueryService metricQueryService;
+    @Resource
+    private TestPlanPrincipalService testPlanPrincipalService;
+    @Resource
+    private TestPlanPrincipalMapper testPlanPrincipalMapper;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -194,6 +199,16 @@ public class TestPlanService {
         testPlan.setCreateTime(System.currentTimeMillis());
         testPlan.setUpdateTime(System.currentTimeMillis());
         testPlan.setCreator(SessionUtils.getUser().getId());
+
+        String planId = testPlan.getId();
+        List<String> principals = testPlan.getPrincipals();
+        for (String principal : principals) {
+            TestPlanPrincipal testPlanPrincipal = new TestPlanPrincipal();
+            testPlanPrincipal.setTestPlanId(planId);
+            testPlanPrincipal.setPrincipalId(principal);
+            testPlanPrincipalService.insert(testPlanPrincipal);
+        }
+
         if (StringUtils.isBlank(testPlan.getProjectId())) {
             testPlan.setProjectId(SessionUtils.getCurrentProjectId());
         }
@@ -212,6 +227,22 @@ public class TestPlanService {
 
     public TestPlan getTestPlan(String testPlanId) {
         return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlanWithBLOBs());
+    }
+
+    public TestPlan editTestPlanWithRequest(AddTestPlanRequest request) {
+        List<String> principals = request.getPrincipals();
+        if (!CollectionUtils.isEmpty(principals)) {
+            if (StringUtils.isNotBlank(request.getId())) {
+                testPlanPrincipalService.deleteTestPlanPrincipalByPlanId(request.getId());
+                for (String principal : principals) {
+                    TestPlanPrincipal testPlanPrincipal = new TestPlanPrincipal();
+                    testPlanPrincipal.setTestPlanId(request.getId());
+                    testPlanPrincipal.setPrincipalId(principal);
+                    testPlanPrincipalService.insert(testPlanPrincipal);
+                }
+            }
+        }
+        return this.editTestPlan(request);
     }
 
     public TestPlan editTestPlan(TestPlanWithBLOBs testPlan) {
@@ -317,7 +348,7 @@ public class TestPlanService {
             TestPlanExample example = new TestPlanExample();
             example.createCriteria()
                     .andNameEqualTo(testPlan.getName())
-                    .andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
+                    .andProjectIdEqualTo(testPlan.getProjectId())
                     .andIdNotEqualTo(testPlan.getId());
             if (testPlanMapper.selectByExample(example).size() > 0) {
                 MSException.throwException(Translator.get("plan_name_already_exists"));
@@ -326,6 +357,7 @@ public class TestPlanService {
     }
 
     public int deleteTestPlan(String planId) {
+        testPlanPrincipalService.deleteTestPlanPrincipalByPlanId(planId);
         deleteTestCaseByPlanId(planId);
         testPlanApiCaseService.deleteByPlanId(planId);
         testPlanScenarioCaseService.deleteByPlanId(planId);
@@ -1243,7 +1275,6 @@ public class TestPlanService {
         targetPlan.setWorkspaceId(testPlan.getWorkspaceId());
         targetPlan.setDescription(testPlan.getDescription());
         targetPlan.setStage(testPlan.getStage());
-        targetPlan.setPrincipal(testPlan.getPrincipal());
         targetPlan.setTags(testPlan.getTags());
         targetPlan.setProjectId(testPlan.getProjectId());
         testPlan.setAutomaticStatusUpdate(testPlan.getAutomaticStatusUpdate());
@@ -1253,9 +1284,24 @@ public class TestPlanService {
         targetPlan.setUpdateTime(System.currentTimeMillis());
         testPlanMapper.insert(targetPlan);
 
+        copyPlanPrincipal(targetPlanId, planId);
         copyPlanCase(sourcePlanId, targetPlanId);
 
         return targetPlan;
+    }
+
+    private void copyPlanPrincipal(String targetPlanId, String sourcePlanId) {
+        TestPlanPrincipalExample example = new TestPlanPrincipalExample();
+        example.createCriteria().andTestPlanIdEqualTo(sourcePlanId);
+        List<TestPlanPrincipal> testPlanPrincipals = testPlanPrincipalMapper.selectByExample(example);
+        if (!CollectionUtils.isEmpty(testPlanPrincipals)) {
+            for (TestPlanPrincipal tpp : testPlanPrincipals) {
+                TestPlanPrincipal testPlanPrincipal = new TestPlanPrincipal();
+                testPlanPrincipal.setPrincipalId(tpp.getPrincipalId());
+                testPlanPrincipal.setTestPlanId(targetPlanId);
+                testPlanPrincipalMapper.insert(testPlanPrincipal);
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -1991,5 +2037,22 @@ public class TestPlanService {
         loadCaseExample.createCriteria().andTestPlanIdEqualTo(id);
         List<TestPlanLoadCase> testPlanLoadCases = testPlanLoadCaseMapper.selectByExample(loadCaseExample);
         return !CollectionUtils.isEmpty(testPlanLoadCases);
+    }
+
+    public List<User> getPlanPrincipal(String planId) {
+        List<User> result = new ArrayList<>();
+        if (StringUtils.isBlank(planId)) {
+            return result;
+        }
+        TestPlanPrincipalExample example = new TestPlanPrincipalExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanPrincipal> testPlanPrincipals = testPlanPrincipalMapper.selectByExample(example);
+        List<String> userIds = testPlanPrincipals.stream().map(TestPlanPrincipal::getPrincipalId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(userIds)) {
+            return result;
+        }
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(userIds);
+        return userMapper.selectByExample(userExample);
     }
 }

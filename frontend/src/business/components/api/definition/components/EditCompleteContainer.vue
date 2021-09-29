@@ -109,6 +109,8 @@ import TcpMockConfig from "@/business/components/api/definition/components/mock/
 import ApiCaseSimpleList from "./list/ApiCaseSimpleList";
 import MsApiCaseList from "./case/ApiCaseList";
 import {getUUID} from "@/common/js/utils";
+import {Body} from "@/business/components/api/definition/model/ApiTestModel";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "EditCompleteContainer",
@@ -158,6 +160,7 @@ export default {
     if (this.currentApi.id && (this.currentProtocol === "HTTP" || this.currentProtocol === "TCP")) {
       this.mockSetting();
     }
+    this.formatApi();
   },
   watch: {
     showMock() {
@@ -174,10 +177,45 @@ export default {
     }
   },
   methods: {
+    sort(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sort(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
+    formatApi() {
+      if (this.currentApi.response != null && this.currentApi.response != 'null' && this.currentApi.response != undefined) {
+        if (Object.prototype.toString.call(this.currentApi.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+          this.currentApi.response = JSON.parse(this.currentApi.response);
+        }
+      }
+      if (this.currentApi.request != null && this.currentApi.request != 'null' && this.currentApi.request != undefined) {
+        if (Object.prototype.toString.call(this.currentApi.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+          this.currentApi.request = JSON.parse(this.currentApi.request);
+        }
+      }
+      if (!this.currentApi.request.hashTree) {
+        this.currentApi.request.hashTree = [];
+      }
+      if (this.currentApi.request.body && !this.currentApi.request.body.binary) {
+        this.currentApi.request.body.binary = [];
+      }
+      this.currentApi.request.clazzName = TYPE_TO_C.get(this.currentApi.request.type);
+      this.sort(this.currentApi.request.hashTree);
+    },
     mockSetting() {
       let mockParam = {};
       mockParam.projectId = this.projectId;
-      if(this.currentApi.id){
+      if (this.currentApi.id) {
         mockParam.apiId = this.currentApi.id;
         this.$post('/mockConfig/genMockConfig', mockParam, response => {
           let mockConfig = response.data;
@@ -248,6 +286,7 @@ export default {
           this.api = this.$store.state.currentApiCase.api;
           this.$refs.caseList.open();
         }
+        this.$store.state.currentApiCase = {case: true};
       } else if (tabType === "test") {
         this.showApiList = false;
         this.showTestCaseList = false;

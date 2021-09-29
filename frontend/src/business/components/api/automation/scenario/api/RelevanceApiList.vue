@@ -283,13 +283,6 @@
             }
           });
           this.genProtocalFilter(this.condition.protocol);
-          this.$nextTick(function () {
-            if (this.$refs.apitable) {
-              this.$refs.apitable.doLayout();
-              this.$refs.apitable.checkTableRowIsSelect();
-              this.$refs.apitable.clear();
-            }
-          });
         });
       },
 

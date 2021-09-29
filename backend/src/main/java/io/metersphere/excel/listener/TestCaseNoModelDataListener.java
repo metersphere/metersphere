@@ -416,6 +416,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         String customFieldsJson = this.getCustomFieldsJson(data);
         testCase.setCustomFields(customFieldsJson);
+        if (StringUtils.isNotBlank(data.getMaintainer())) {
+            testCase.setMaintainer(data.getMaintainer());
+        }
 
         if (StringUtils.isNotBlank(data.getStepModel())
                 && StringUtils.equals(data.getStepModel(), TestCaseConstants.StepModel.TEXT.name())) {
@@ -466,6 +469,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         String customFieldsJson = this.getCustomFieldsJson(data);
         testCase.setCustomFields(customFieldsJson);
+        if (StringUtils.isNotBlank(data.getMaintainer())) {
+            testCase.setMaintainer(data.getMaintainer());
+        }
 
         //将标签设置为前端可解析的格式
         String modifiedTags = modifyTagPattern(data);

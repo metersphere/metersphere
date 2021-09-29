@@ -559,6 +559,9 @@
                     #{nodeId}
                 </foreach>
             </if>
+            <if test="request.protocol != null and request.protocol !=''">
+                and a.protocol = #{request.protocol}
+            </if>
             <if test="request.combine != null">
                 <include refid="combine">
                     <property name="condition" value="request.combine"/>
@@ -571,7 +574,7 @@
     <select id="selectIdsByQuery" resultType="java.lang.String">
         SELECT t1.id
         FROM api_test_case t1
-        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+        <if test="(request.moduleIds != null and request.moduleIds.size() > 0 ) or (request.protocol!=null and  request.protocol!='' )">
             inner join api_definition a on t1.api_definition_id = a.id
         </if>
         <include refid="queryWhereCondition"/>
@@ -600,7 +603,7 @@
         update api_test_case
         set original_status=status,
         status = 'Trash',delete_time = #{deleteTime},delete_user_id = #{deleteUserId}
-        where id IN
+        where status != 'Trash' AND id IN
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>

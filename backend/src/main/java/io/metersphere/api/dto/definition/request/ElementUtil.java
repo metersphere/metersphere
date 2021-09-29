@@ -268,18 +268,33 @@ public class ElementUtil {
         }
     };
 
+    private static void formatSampler(JSONObject element) {
+        if (element == null || StringUtils.isEmpty(element.getString("type"))) {
+            return;
+        }
+        if (element.get("clazzName") == null && element.getString("type").equals("TCPSampler")) {
+            if (element.getString("tcpPreProcessor") != null) {
+                JSONObject tcpPreProcessor = JSON.parseObject(element.getString("tcpPreProcessor"));
+                if (tcpPreProcessor != null && tcpPreProcessor.get("clazzName") == null) {
+                    tcpPreProcessor.fluentPut("clazzName", clazzMap.get(tcpPreProcessor.getString("type")));
+                    element.fluentPut("tcpPreProcessor", tcpPreProcessor);
+                }
+            }
+        } else if (element.getString("type").equals("HTTPSamplerProxy")) {
+            if (element.getString("authManager") != null) {
+                JSONObject authManager = JSON.parseObject(element.getString("authManager"));
+                if (authManager != null && authManager.get("clazzName") == null) {
+                    authManager.fluentPut("clazzName", clazzMap.get(authManager.getString("type")));
+                    element.fluentPut("authManager", authManager);
+                }
+            }
+        }
+    }
+
     public static void dataFormatting(JSONArray hashTree) {
         for (int i = 0; i < hashTree.size(); i++) {
             JSONObject element = hashTree.getJSONObject(i);
-            if (element != null && element.get("clazzName") == null && element.getString("type").equals("TCPSampler")) {
-                if (element.getString("tcpPreProcessor") != null) {
-                    JSONObject tcpPreProcessor = JSON.parseObject(element.getString("tcpPreProcessor"));
-                    if (tcpPreProcessor != null && tcpPreProcessor.get("clazzName") == null) {
-                        tcpPreProcessor.fluentPut("clazzName", clazzMap.get(tcpPreProcessor.getString("type")));
-                        element.fluentPut("tcpPreProcessor", tcpPreProcessor);
-                    }
-                }
-            }
+            formatSampler(element);
             if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
                 element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
             }
@@ -294,6 +309,7 @@ public class ElementUtil {
         if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
             element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
         }
+        formatSampler(element);
         if (element != null && element.containsKey("hashTree")) {
             JSONArray elementJSONArray = element.getJSONArray("hashTree");
             dataFormatting(elementJSONArray);
@@ -304,7 +320,28 @@ public class ElementUtil {
         try {
             for (int i = 0; i < hashTree.size(); i++) {
                 JSONObject element = hashTree.getJSONObject(i);
-                if (element != null && element.get("type").toString().equals("HTTPSamplerProxy")) {
+                boolean isScenarioEnv = false;
+                ParameterConfig config = new ParameterConfig();
+                if (element != null && element.get("type").toString().equals("scenario")) {
+                    MsScenario scenario = JSONObject.toJavaObject(element, MsScenario.class);
+                    if (scenario.isEnvironmentEnable()) {
+                        isScenarioEnv = true;
+                        Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
+                        Map<String, String> environmentMap = (Map<String, String>) element.get("environmentMap");
+                        if (environmentMap != null && !environmentMap.isEmpty()) {
+                            environmentMap.keySet().forEach(projectId -> {
+                                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                                ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentMap.get(projectId));
+                                if (environment != null && environment.getConfig() != null) {
+                                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                                    env.setApiEnvironmentid(environment.getId());
+                                    envConfig.put(projectId, env);
+                                }
+                            });
+                            config.setConfig(envConfig);
+                        }
+                    }
+                } else if (element != null && element.get("type").toString().equals("HTTPSamplerProxy")) {
                     MsHTTPSamplerProxy httpSamplerProxy = JSON.toJavaObject(element, MsHTTPSamplerProxy.class);
                     if (httpSamplerProxy != null
                             && (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq() && httpSamplerProxy.getIsRefEnvironment()))) {
@@ -320,7 +357,11 @@ public class ElementUtil {
                 }
                 if (element.containsKey("hashTree")) {
                     JSONArray elementJSONArray = element.getJSONArray("hashTree");
-                    dataSetDomain(elementJSONArray, msParameter);
+                    if (isScenarioEnv) {
+                        dataSetDomain(elementJSONArray, config);
+                    } else {
+                        dataSetDomain(elementJSONArray, msParameter);
+                    }
                 }
             }
         } catch (Exception e) {

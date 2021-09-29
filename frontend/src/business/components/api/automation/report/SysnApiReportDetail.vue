@@ -270,7 +270,7 @@ export default {
         this.reqTotal++;
         let key = subItem.resourceId;
         if (resMap.get(key)) {
-          if (resMap.get(key).indexOf(subItem) === -1) {
+          if (resMap.get(key).indexOf(subItem) === -1 && subItem.method !== 'Request') {
             resMap.get(key).push(subItem);
           }
         } else {

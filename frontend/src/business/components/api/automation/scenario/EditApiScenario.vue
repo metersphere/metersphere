@@ -8,7 +8,7 @@
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
 
           <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario"
-                     title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT']">
+                     title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
             {{ $t('commons.save') }}
           </el-button>
         </div>
@@ -132,10 +132,10 @@
                   ：{{ getVariableSize() }}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
-                  <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
+                  <el-checkbox v-model="enableCookieShare"><span style="font-size: 13px;">共享cookie</span></el-checkbox>
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
-                  <el-checkbox v-model="onSampleError">{{ $t('commons.failure_continues') }}</el-checkbox>
+                  <el-checkbox v-model="onSampleError"><span style="font-size: 13px;">{{ $t('commons.failure_continues') }}</span></el-checkbox>
                 </el-col>
 
                 <el-col :span="8">
@@ -146,7 +146,7 @@
                                  :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
                                  :project-list="projectList" ref="envPopover" class="ms-message-right"/>
                     <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
-                      <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand">
+                      <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
                         {{ $t('api_test.request.debug') }}
                         <el-dropdown-menu slot="dropdown">
                           <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
@@ -196,7 +196,7 @@
                        highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree">
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree" v-if="showHideTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -214,6 +214,8 @@
                          @copyRow="copyRow"
                          @suggestClick="suggestClick"
                          @refReload="refReload"
+                         @runScenario="runDebug"
+                         @stopScenario="stop"
                          @openScenario="openScenario"/>
                     </span>
               </el-tree>
@@ -221,7 +223,7 @@
           </el-col>
           <!-- 按钮列表 -->
           <el-col :span="3">
-            <div @click="fabClick">
+            <div @click="fabClick" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
               <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
                        :click-auto-close="false" v-outside-click="outsideClick" ref="refFab">
                 <fab-item
@@ -313,6 +315,8 @@
           :stepReEnable="stepEnable"
           :message="message"
           @openScenario="openScenario"
+          @runScenario="runDebug"
+          @stopScenario="stop"
           ref="maximizeScenario"/>
       </ms-drawer>
       <ms-change-history ref="changeHistory"/>
@@ -405,6 +409,7 @@ export default {
       levels: PRIORITY,
       scenario: {},
       loading: false,
+      showHideTree: true,
       apiListVisible: false,
       customizeVisible: false,
       isBtnHide: false,
@@ -453,6 +458,7 @@ export default {
       stepFilter: new STEP,
       plugins: [],
       clearMessage: "",
+      runScenario: undefined,
     }
   },
   created() {
@@ -570,6 +576,7 @@ export default {
           this.debugLoading = false;
         }
       });
+      this.runScenario = undefined;
     },
     clearDebug() {
       this.reqError = 0;
@@ -654,7 +661,9 @@ export default {
         this.message = getUUID();
         if (data.end) {
           this.removeReport();
+          this.runScenario = undefined;
           this.debugLoading = false;
+          this.message = "stop";
           this.stopDebug = "stop";
         }
       }
@@ -774,7 +783,11 @@ export default {
         this.reqTotalTime = endTime - startTime + 100;
       }
       this.debugResult = resMap;
-      this.sort();
+      if (this.runScenario && this.runScenario.hashTree) {
+        this.sort(this.runScenario.hashTree);
+      } else {
+        this.sort();
+      }
       this.reloadDebug = getUUID();
     },
     removeReport() {
@@ -956,6 +969,9 @@ export default {
         if (!stepArray[i].clazzName) {
           stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
         }
+        if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+          stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+        }
         if (!stepArray[i].projectId) {
           // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
           stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
@@ -1120,7 +1136,13 @@ export default {
         this.loading = false
       });
     },
-    runDebug() {
+    showHide() {
+      this.showHideTree = false
+      this.$nextTick(() => {
+        this.showHideTree = true
+      });
+    },
+    runDebug(runScenario) {
       if (this.scenarioDefinition.length < 1) {
         return;
       }
@@ -1142,22 +1164,32 @@ export default {
                 this.clearMessage = getUUID().substring(0, 8);
                 return;
               }
+              let scenario = undefined;
+              if (runScenario && runScenario.type === 'scenario') {
+                scenario = runScenario;
+                this.runScenario = runScenario;
+              }
               //调试时不再保存
               this.debugData = {
-                id: this.currentScenario.id,
-                name: this.currentScenario.name,
+                id: scenario ? scenario.id : this.currentScenario.id,
+                name: scenario ? scenario.name : this.currentScenario.name,
                 type: "scenario",
-                variables: this.currentScenario.variables,
+                variables: scenario ? scenario.variables : this.currentScenario.variables,
                 referenced: 'Created',
-                enableCookieShare: this.enableCookieShare,
-                headers: this.currentScenario.headers,
-                environmentMap: this.projectEnvMap,
-                hashTree: this.scenarioDefinition,
-                onSampleError: this.onSampleError,
+                enableCookieShare: scenario ? scenario.enableCookieShare : this.enableCookieShare,
+                headers: scenario ? scenario.headers : this.currentScenario.headers,
+                environmentMap: scenario && scenario.environmentEnable ? scenario.environmentMap : this.projectEnvMap,
+                hashTree: scenario ? scenario.hashTree : this.scenarioDefinition,
+                onSampleError: scenario ? scenario.onSampleError : this.onSampleError,
               };
+              if (scenario && scenario.environmentEnable) {
+                this.debugData.environmentEnable = scenario.environmentEnable;
+                this.debugLoading = false;
+              }else{
+                this.debugLoading = true;
+              }
               this.reportId = getUUID().substring(0, 8);
               this.debug = true;
-              this.debugLoading = true;
             })
           })
         } else {
@@ -1212,8 +1244,7 @@ export default {
         }
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)
-        && !draggingNode.data.disabled) {
+        && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)) {
         return true;
       }
       return false;
@@ -1221,7 +1252,6 @@ export default {
     allowDrag(draggingNode, dropNode, dropType) {
       if (dropNode && draggingNode && dropType) {
         this.sort();
-        this.reload();
       }
     },
     nodeExpand(data, node) {
@@ -1353,6 +1383,9 @@ export default {
         if (!hashTree[i].clazzName) {
           hashTree[i].clazzName = TYPE_TO_C.get(hashTree[i].type);
         }
+        if (hashTree[i] && hashTree[i].authManager && !hashTree[i].authManager.clazzName) {
+          hashTree[i].authManager.clazzName = TYPE_TO_C.get(hashTree[i].authManager.type);
+        }
         if (hashTree[i].hashTree && hashTree[i].hashTree.length > 0) {
           this.formatData(hashTree[i].hashTree);
         }
@@ -1406,6 +1439,8 @@ export default {
       this.debugLoading = false;
       this.debugVisible = false;
       this.loading = false;
+      this.runScenario = undefined;
+      this.message = "stop";
       this.clearMessage = getUUID().substring(0, 8);
     },
     showScenarioParameters() {
@@ -1494,7 +1529,7 @@ export default {
       this.expandedStatus = false;
       this.expandedNode = [];
       this.changeNodeStatus(this.scenarioDefinition);
-      this.reload();
+      this.showHide();
     },
     stepStatus(nodes) {
       for (let i in nodes) {

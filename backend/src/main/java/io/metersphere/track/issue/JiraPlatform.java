@@ -79,7 +79,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return issues;
     }
 
-    public void parseIssue(IssuesWithBLOBs item, JiraIssue jiraIssue) {
+    public void parseIssue(IssuesWithBLOBs item, JiraIssue jiraIssue, String customFieldsStr) {
         String lastmodify = "";
         String status = "";
         JSONObject fields = jiraIssue.getFields();
@@ -89,9 +89,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
         String description = fields.getString("description");
 
         Parser parser = Parser.builder().build();
-        Node document = parser.parse(description);
-        HtmlRenderer renderer = HtmlRenderer.builder().build();
-        description = renderer.render(document);
+        if (StringUtils.isNotBlank(description)) {
+            Node document = parser.parse(description);
+            HtmlRenderer renderer = HtmlRenderer.builder().build();
+            description = renderer.render(document);
+        }
 
         if (assignee != null) {
             lastmodify = assignee.getString("displayName");
@@ -103,6 +105,43 @@ public class JiraPlatform extends AbstractIssuePlatform {
         item.setDescription(description);
         item.setPlatformStatus(status);
         item.setPlatform(IssuesManagePlatform.Jira.toString());
+        item.setCustomFields(parseIssueCustomField(customFieldsStr, jiraIssue));
+    }
+
+    public String parseIssueCustomField(String customFieldsStr, JiraIssue jiraIssue) {
+        List<CustomFieldItemDTO> customFields = getCustomFields(customFieldsStr);
+        JSONObject fields = jiraIssue.getFields();
+
+        customFields.forEach(item -> {
+            String fieldName = item.getCustomData();
+            Object value = fields.get(fieldName);
+            if (value != null) {
+                if (value instanceof JSONObject) {
+                    if (!fieldName.equals("assignee") && !fieldName.equals("reporter")) { // 获取不到账号名
+                        item.setValue(((JSONObject)value).getString("id"));
+                    }
+                } else {
+                    if (StringUtils.isNotBlank(item.getType()) &&
+                            StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
+                        List<String> values = new ArrayList<>();
+                        if (item.getValue() != null) {
+                            JSONArray attrs = (JSONArray) item.getValue();
+                            attrs.forEach(attr -> {
+                                if (attr instanceof JSONObject) {
+                                    values.add(((JSONObject)attr).getString("id"));
+                                } else {
+                                    values.add((String) attr);
+                                }
+                            });
+                        }
+                        item.setValue(values);
+                    } else {
+                        item.setValue(value);
+                    }
+                }
+            }
+        });
+        return JSONObject.toJSONString(customFields);
     }
 
     private String getStatus(JSONObject fields) {
@@ -253,7 +292,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
             if (StringUtils.isNotBlank(fieldName)) {
-                if (StringUtils.isNotBlank(item.getValue())) {
+                if (item.getValue() != null) {
                     if (StringUtils.isNotBlank(item.getType()) &&
                             StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
                         JSONObject param = new JSONObject();
@@ -266,8 +305,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
                     } else if (StringUtils.isNotBlank(item.getType()) &&
                             StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
                         JSONArray attrs = new JSONArray();
-                        if (StringUtils.isNotBlank(item.getValue())) {
-                            JSONArray values = JSONObject.parseArray(item.getValue());
+                        if (item.getValue() != null) {
+                            JSONArray values = (JSONArray)item.getValue();
                             values.forEach(v -> {
                                 JSONObject param = new JSONObject();
                                 param.put("id", v);
@@ -327,11 +366,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
             setConfig();
             try {
                 IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
-                parseIssue(item, jiraClientV2.getIssues(item.getId()));
+                parseIssue(item, jiraClientV2.getIssues(item.getId()), issuesWithBLOBs.getCustomFields());
                 String desc = htmlDesc2MsDesc(item.getDescription());
                 // 保留之前上传的图片
                 String images = getImages(issuesWithBLOBs.getDescription());
                 item.setDescription(desc + "\n" + images);
+
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {
@@ -339,6 +379,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
                     item.setPlatformStatus(IssuesStatus.DELETE.toString());
                     issuesMapper.deleteByPrimaryKey(item.getId());
                 }
+            } catch (Exception e) {
+                LogUtil.error(e);
             }
         });
     }

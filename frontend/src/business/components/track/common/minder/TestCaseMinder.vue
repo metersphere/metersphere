@@ -129,9 +129,9 @@ name: "TestCaseMinder",
     },
     save(data) {
       let saveCases = [];
-      let deleteCases = [];
+      let deleteCases = []; // 包含测试用例和临时节点
       let saveExtraNode = {};
-      this.buildSaveCase(data.root, saveCases, deleteCases, saveExtraNode, undefined);
+      this.buildSaveCase(data.root, saveCases, deleteCases, saveExtraNode);
 
       let param = {
         projectId: this.projectId,
@@ -166,10 +166,10 @@ name: "TestCaseMinder",
           this.setIsChange(false);
         });
     },
-    buildSaveCase(root, saveCases, deleteCases, saveExtraNode, parent) {
+    buildSaveCase(root, saveCases, deleteCases, saveExtraNode, parent, preNode, nextNode) {
       let data = root.data;
       if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
-        this._buildSaveCase(root, saveCases, parent);
+        this._buildSaveCase(root, saveCases, deleteCases, parent, preNode, nextNode);
       } else {
         let deleteChild = data.deleteChild;
         if (deleteChild && deleteChild.length > 0
@@ -194,17 +194,35 @@ name: "TestCaseMinder",
           throw new Error(tip);
         }
         if (root.children) {
-          root.children.forEach((childNode) => {
-            this.buildSaveCase(childNode, saveCases, deleteCases, saveExtraNode, root.data);
-          });
+          for (let i = 0; i < root.children.length; i++) {
+            let childNode = root.children[i];
+            let preNode = null;
+            let nextNode = null;
+            if (i != 0) {
+              preNode = root.children[i - 1];
+            }
+            if (i + 1 < root.children.length) {
+              nextNode = root.children[i + 1];
+            }
+            this.buildSaveCase(childNode, saveCases, deleteCases, saveExtraNode, root.data, preNode, nextNode);
+          }
         }
       }
     },
-    _buildSaveCase(node, saveCases, parent) {
+    _buildSaveCase(node, saveCases, deleteCases, parent, preNode, nextNode) {
       let data = node.data;
       if (!data.text) {
         return;
       }
+
+      if (data.isExtraNode) {
+        // 如果是临时节点，打上了用例标签，则删除临时节点并新建用例节点
+        let deleteData = {};
+        Object.assign(deleteData, data);
+        deleteCases.push(deleteData);
+        data.id = "";
+      }
+
       let isChange = false;
       let testCase = {
         id: data.id,
@@ -255,7 +273,24 @@ name: "TestCaseMinder",
         })
       }
       testCase.steps = JSON.stringify(steps);
+
       if (isChange) {
+
+        testCase.targetId = null; // 排序处理
+        if (preNode) {
+          let preId = preNode.data.id;
+          if (preId && preId.length > 15) {
+            testCase.targetId = preId;
+            testCase.moveMode = 'AFTER';
+          }
+        } else if (nextNode) {
+          let nextId = nextNode.data.id;
+          if (nextId && nextId.length > 15) {
+            testCase.targetId = nextId;
+            testCase.moveMode = 'BEFORE';
+          }
+        }
+
         saveCases.push(testCase);
       }
       if (testCase.nodeId !== 'root' && testCase.nodeId.length < 15) {

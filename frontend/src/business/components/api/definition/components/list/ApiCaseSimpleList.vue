@@ -11,6 +11,7 @@
                  @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}
       </el-button>
       <ms-table
+        v-loading="result.loading"
         :data="tableData"
         :select-node-ids="selectNodeIds"
         :condition="condition"
@@ -22,6 +23,8 @@
         :fields.sync="fields"
         :field-key="tableHeaderKey"
         :remember-order="true"
+        :row-order-group-id="condition.projectId"
+        :row-order-func="editApiTestCaseOrder"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
         operator-width="190px"
@@ -157,6 +160,7 @@
             @showCaseRef="showCaseRef"
             @showEnvironment="showEnvironment"
             @createPerformance="createPerformance"
+            @showHistory="openHis"
             :row="scope.row"/>
         </template>
 
@@ -182,6 +186,8 @@
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="initTable"/>
 
     <api-case-batch-run :project-id="projectId" @batchRun="runBatch" ref="batchRun"/>
+
+    <ms-task-center ref="taskCenter"/>
 
     <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
                :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">
@@ -256,7 +262,8 @@ export default {
     MsTableAdvSearchBar,
     MsTable,
     MsTableColumn,
-    MsRequestResultTail
+    MsRequestResultTail,
+    MsTaskCenter: () => import("../../../../task/TaskCenter"),
   },
   data() {
     return {
@@ -355,6 +362,7 @@ export default {
       environments: [],
       resVisible: false,
       response: {},
+      timeoutIndex: 0,
     };
   },
   props: {
@@ -452,9 +460,15 @@ export default {
     },
     selectRows() {
       return this.$refs.caseTable.getSelectRows();
+    },
+    editApiTestCaseOrder() {
+      return editApiTestCaseOrder;
     }
   },
   methods: {
+    openHis(row) {
+      this.$refs.taskCenter.openHistory(row.id);
+    },
     getExecResult(apiCase) {
       if (apiCase.lastResultId) {
         let url = "/api/definition/report/get/" + apiCase.lastResultId;
@@ -496,9 +510,15 @@ export default {
       this.$refs.batchRun.open();
     },
     runBatch(environment) {
-      this.condition.environmentId = environment.id;
-      this.condition.ids = this.$refs.caseTable.selectIds;
-      this.$post('/api/testcase/batch/run', this.condition, () => {
+      let obj = {};
+      obj.projectId = this.projectId;
+      obj.selectAllDate = this.selectAll;
+      obj.unSelectIds = this.unSelection;
+      obj.ids = Array.from(this.selectRows).map(row => row.id);
+      obj.environmentId = environment.id;
+      obj.condition = this.condition;
+      obj.condition.status = "";
+      this.$post('/api/testcase/batch/run', obj, () => {
         this.condition.ids = [];
         this.$refs.batchRun.close();
         this.search();
@@ -508,6 +528,7 @@ export default {
       this.$refs.caseTable.openCustomHeader();
     },
     initTable(id) {
+      this.timeoutIndex = 0;
       if (this.$refs.caseTable) {
         this.$refs.caseTable.clearSelectRows();
       }
@@ -585,22 +606,72 @@ export default {
               isNext = true;
             }
           });
-          this.$nextTick(function () {
 
+          this.$nextTick(() => {
+            if (this.$refs.caseTable) {
+              this.$refs.caseTable.clear();
+            }
             handleRowDrop(this.tableData, (param) => {
               param.groupId = this.condition.projectId;
               editApiTestCaseOrder(param);
             });
-
-            if (this.$refs.caseTable) {
-              this.$refs.caseTable.doLayout();
-              this.$refs.caseTable.checkTableRowIsSelect();
+          })
+          if (isNext) {
+            this.refreshStatus();
+          }
+        });
+      }
+    },
+    refreshStatus() {
+      if (this.apiDefinitionId) {
+        this.condition.apiDefinitionId = this.apiDefinitionId;
+      }
+      this.condition.status = "";
+      this.condition.moduleIds = this.selectNodeIds;
+      if (this.condition.filters && !this.condition.filters.status) {
+        this.$delete(this.condition.filters, 'status');
+      }
+      if (!this.selectAll) {
+        this.selectAll = false;
+        this.unSelection = [];
+        this.selectDataCounts = 0;
+      }
+      this.condition.projectId = this.projectId;
+      if (this.currentProtocol != null) {
+        this.condition.protocol = this.currentProtocol;
+      }
+      //检查是否只查询本周数据
+      this.isSelectThissWeekData();
+      this.condition.selectThisWeedData = false;
+      this.condition.id = null;
+      if (this.selectDataRange == 'thisWeekCount') {
+        this.condition.selectThisWeedData = true;
+      } else if (this.selectDataRange != null) {
+        let selectParamArr = this.selectDataRange.split("single:");
+        if (selectParamArr.length === 2) {
+          this.condition.id = selectParamArr[1];
+        }
+      }
+      if (this.condition.projectId) {
+        this.result = this.$post('/api/testcase/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          let isNext = false;
+          let tableData = response.data.listObject;
+          this.tableData.forEach(item => {
+            for (let i in tableData) {
+              if (item.id === tableData[i].id) {
+                item.status = tableData[i].status;
+                item.lastResultId = tableData[i].lastResultId;
+              }
+            }
+            if (item.status === 'Running') {
+              isNext = true;
             }
           });
-          if (isNext) {
+          if (isNext && this.$store.state.currentApiCase && this.$store.state.currentApiCase.case && this.timeoutIndex < 12) {
+            this.timeoutIndex++;
             setTimeout(() => {
-              this.initTable();
-            }, 5000);
+              this.refreshStatus();
+            }, 12000);
           }
         });
       }
@@ -968,6 +1039,9 @@ export default {
         for (let i in stepArray) {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sortHashTree(stepArray[i].hashTree);

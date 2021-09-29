@@ -18,6 +18,24 @@ export default {
     return {
       visible: false,
       options:  {
+        title: {
+          text: '场景用例数',
+          subtext: '55',
+          textAlign:'center',
+          y: 'center',
+          padding: 40,
+          itemGap: 5,
+          textStyle: {
+            lineHeight: 30,
+            fontSize: 16,
+            fontWeight: 500,
+            color: 'gray'
+          },
+          subtextStyle: {
+            height: 30,
+            fontSize: 18,
+          }
+        },
         tooltip: {
           trigger: 'axis',
           axisPointer: {
@@ -38,20 +56,8 @@ export default {
           data: [],
           axisLabel: {
             formatter: function (value) {
+              return '';
             },
-            margin: 20,
-            rich: {
-              name: {
-                lineHeight: 30,
-                fontSize: 16,
-                align: 'center'
-              },
-              count: {
-                height: 40,
-                fontSize: 20,
-                align: 'center',
-              },
-            }
           }
         },
         series: [
@@ -110,10 +116,8 @@ export default {
       this.options.series[0].data = this.data;
       this.options.series[0].label.formatter = formatterFuc;
 
-      let name = this.name;
-      this.options.yAxis.axisLabel.formatter =  function (value) {
-          return '{name|' + name + '}\n' + '{count| ' + dataCount + '}';
-      };
+      this.options.title.text = this.name;
+      this.options.title.subtext = dataCount;
 
       this.options.legend.data = this.data.map(i => i.name);
       this.options.yAxis.data = this.data.map(i => i.name);

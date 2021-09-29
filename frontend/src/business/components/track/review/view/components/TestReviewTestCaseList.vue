@@ -30,6 +30,9 @@
       @handleRowClick="showDetail"
       :fields.sync="fields"
       :remember-order="true"
+      :enable-order-drag="enableOrderDrag"
+      :row-order-func="editTestReviewTestCaseOrder"
+      :row-order-group-id="reviewId"
       @refresh="initTableData"
       ref="table"
     >
@@ -170,7 +173,7 @@ import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import {
   _handleSelectAll,
-  buildBatchParam, checkTableRowIsSelected, deepClone, getCustomTableWidth, getLastTableSortField,
+  buildBatchParam, deepClone, getCustomTableWidth, getLastTableSortField,
   getSelectDataCounts, getTableHeaderWithCustomFields,
   initCondition,
   toggleAllSelection
@@ -181,6 +184,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import {editTestReviewTestCaseOrder} from "@/network/testCase";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -208,6 +212,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      enableOrderDrag: true,
       selectRows: new Set(),
       testReview: {},
       isReadOnly: false,
@@ -286,6 +291,9 @@ export default {
   computed: {
     selectNodeIds() {
       return this.$store.state.testReviewSelectNodeIds;
+    },
+    editTestReviewTestCaseOrder() {
+      return editTestReviewTestCaseOrder;
     }
   },
   created() {
@@ -321,6 +329,8 @@ export default {
         }
         this.status = 'all';
       }
+      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+
       this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
         this.result = this.$post(this.buildPagePath('/test/review/case/list'), this.condition, response => {
@@ -328,7 +338,6 @@ export default {
           this.total = data.itemCount;
           this.tableData = data.listObject;
           this.tableClear();
-          checkTableRowIsSelected(this, this.$refs.table);
         });
       }
 

@@ -51,7 +51,9 @@ import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
+import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -714,6 +716,10 @@ public class ApiAutomationService {
             }
 
             if (StringUtils.equals(tr.getType(), "scenario")) {
+                MsScenario scenario = (MsScenario) tr;
+                if (scenario.isEnvironmentEnable()) {
+                    continue;
+                }
                 env.getProjectIds().add(tr.getProjectId());
             }
             if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
@@ -786,6 +792,10 @@ public class ApiAutomationService {
                     }
                 }
                 if (StringUtils.equals(tr.getType(), "scenario")) {
+                    MsScenario scenario = (MsScenario) tr;
+                    if (scenario.isEnvironmentEnable()) {
+                        continue;
+                    }
                     env.getProjectIds().add(tr.getProjectId());
                 }
                 if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
@@ -989,11 +999,19 @@ public class ApiAutomationService {
         // 生成集成报告
         String serialReportId = null;
 
-        StringBuilder idStr = new StringBuilder();
-        ids.forEach(item -> {
-            idStr.append("\"").append(item).append("\"").append(",");
-        });
-        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + StringUtils.join(ids, ",") + "\"");
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiScenarioWithBLOBs> apiScenarios = apiScenarioMapper.selectByExampleWithBLOBs(example);
+        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+            if (request.getCondition() == null || !request.getCondition().isSelectAll()) {
+                // 按照id指定顺序排序
+                FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(ids);
+                fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
+                BeanComparator beanComparator = new BeanComparator("id", fixedOrderComparator);
+                Collections.sort(apiScenarios, beanComparator);
+            }
+        }
+
         // 只有一个场景且没有测试步骤，则提示
         if (apiScenarios != null && apiScenarios.size() == 1 && (apiScenarios.get(0).getStepTotal() == null || apiScenarios.get(0).getStepTotal() == 0)) {
             MSException.throwException((apiScenarios.get(0).getName() + "，" + Translator.get("automation_exec_info")));
@@ -1154,6 +1172,7 @@ public class ApiAutomationService {
                         MessageCache.terminationOrderDeque.remove(key);
                         break;
                     }
+                    MessageCache.executionQueue.put(key, System.currentTimeMillis());
                     reportIds.add(key);
                     APIScenarioReportResult report = executeQueue.get(key).getReport();
                     if (StringUtils.isNotEmpty(serialReportId)) {
@@ -1185,6 +1204,7 @@ public class ApiAutomationService {
                         executeEnvParams = hashTreeUtil.mergeParamDataMap(executeEnvParams, envParamsMap);
                     } catch (Exception e) {
                         reportIds.remove(key);
+                        MessageCache.executionQueue.remove(key);
                         LogUtil.error("执行终止：" + e.getMessage());
                         break;
                     }
@@ -1852,6 +1872,7 @@ public class ApiAutomationService {
                 List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
                 scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
                 scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
+                scenarioWithBLOBs.setId(UUID.randomUUID().toString());
                 batchMapper.insert(scenarioWithBLOBs);
                 apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
             }
@@ -1952,21 +1973,21 @@ public class ApiAutomationService {
                                 hashTree.set(i, object);
                             }
                         } else {
-                            ApiScenarioWithBLOBs bloBs = this.getDto(object.getString("id"));
+                            ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString("id"));
                             if (bloBs != null) {
                                 object = JSON.parseObject(bloBs.getScenarioDefinition());
                                 hashTree.set(i, object);
                             }
                         }
                     } else if ("scenario".equals(object.getString("type"))) {
-                        ApiScenarioWithBLOBs bloBs = this.getDto(object.getString("id"));
+                        ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString("id"));
                         if (bloBs != null) {
                             object = JSON.parseObject(bloBs.getScenarioDefinition());
                             hashTree.set(i, object);
                         }
                     }
                 }
-                if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
+                if (object != null && CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
                     setHashTree(object.getJSONArray("hashTree"));
                 }
             }
@@ -1985,8 +2006,10 @@ public class ApiAutomationService {
                 if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                     JSONObject scenario = JSONObject.parseObject(item.getScenarioDefinition());
                     JSONArray hashTree = scenario.getJSONArray("hashTree");
-                    setHashTree(hashTree);
-                    scenario.put("hashTree", hashTree);
+                    if (hashTree != null) {
+                        setHashTree(hashTree);
+                        scenario.put("hashTree", hashTree);
+                    }
                     item.setScenarioDefinition(JSON.toJSONString(scenario));
                 }
             });
@@ -2608,4 +2631,9 @@ public class ApiAutomationService {
                 extApiScenarioMapper::getLastOrder,
                 apiScenarioMapper::updateByPrimaryKeySelective);
     }
+
+    public boolean checkScenarioEnv(ApiScenarioWithBLOBs request) {
+        return this.checkScenarioEnv(request, null);
+    }
+
 }

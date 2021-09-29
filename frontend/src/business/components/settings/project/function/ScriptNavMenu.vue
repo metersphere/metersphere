@@ -1,7 +1,7 @@
 <template>
   <div style="line-height: 20px;">
     <div class="template-title">
-      <span>{{ $t('api_test.request.processor.code_template') }}</span>
+      <span class="nav-font">{{ $t('api_test.request.processor.code_template') }}</span>
       <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
                target="componentReferenceDoc" style="margin-left: 30px; margin-bottom: 3px;"
                type="primary"><span style="font-size: 13px;">{{ $t('commons.reference_documentation') }}</span>
@@ -11,13 +11,13 @@
       <span class="link-type">
         <i class="icon el-icon-arrow-right" style="font-weight: bold; margin-right: 2px;"
            @click="active(menu)" :class="{'is-active': menu.open}"></i>
-        <span @click="active(menu)" class="nav-menu-title">{{menu.title}}</span>
+        <span @click="active(menu)" class="nav-menu-title nav-font">{{menu.title}}</span>
       </span>
 
       <el-collapse-transition>
         <div v-if="menu.open">
-          <div v-for="(child, key) in menu.children" :key="key">
-            <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link">{{child.title}}</el-link>
+          <div v-for="(child, key) in menu.children" :key="key" class="func-div">
+            <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link nav-font">{{child.title}}</el-link>
           </div>
         </div>
       </el-collapse-transition>
@@ -154,6 +154,14 @@ export default {
           return;
         }
       } else {
+        // todo 优化
+        if (this.language !== 'beanshell' && this.language !== 'groovy') {
+          if (obj.title === this.$t('api_test.request.processor.code_add_report_length') ||
+            obj.title === this.$t('api_test.request.processor.code_hide_report_length')) {
+            this.$warning("无对应的 "+ this.language +" 代码模版！");
+            return;
+          }
+        }
         code = obj.value;
       }
       this.handleCodeTemplate(code);
@@ -197,8 +205,15 @@ export default {
 }
 
 .func-link {
-  color: #935aa1;
   margin-left: 18px;
+}
+
+.func-div >>> .func-link {
+  color: #935aa1;
+}
+
+.func-div >>> .func-link:hover {
+  color: #935aa1;
 }
 
 .link-type {
@@ -212,5 +227,9 @@ export default {
 
 .nav-menu-title:hover {
   cursor: pointer;
+}
+
+.nav-font {
+  font-size: 13px;
 }
 </style>

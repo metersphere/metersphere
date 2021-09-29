@@ -109,7 +109,7 @@
     },
     created() {
       if(!this.environment.config.preProcessor){
-        this.environment.config.preProcessor = createComponent("JDBCPreProcessor");
+        this.environment.config.preProcessor = createComponent("JSR223PreProcessor");
       }
       if(!this.environment.config.postProcessor){
         this.environment.config.postProcessor = createComponent("JSR223PostProcessor");
@@ -125,7 +125,7 @@
     watch: {
       environment: function (o) {
         if(!this.environment.config.preProcessor){
-          this.environment.config.preProcessor = createComponent("JDBCPreProcessor");
+          this.environment.config.preProcessor = createComponent("JSR223PreProcessor");
           if(!this.environment.config.preProcessor.script){
             this.environment.config.preProcessor.script = "";
           }
