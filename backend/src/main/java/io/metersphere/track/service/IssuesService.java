@@ -557,7 +557,7 @@ public class IssuesService {
                 break;
             }
         }
-
+        issues.setStatus(status);
         issues.setCustomFields(JSONObject.toJSONString(fields));
         issuesMapper.updateByPrimaryKeySelective(issues);
     }

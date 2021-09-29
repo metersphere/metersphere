@@ -58,7 +58,7 @@
         <span v-for="field in issueTemplate.customFields" :key="field.id">
           <ms-table-column :field="item" :label="field.name" :prop="field.name" v-if="field.name === '状态'">
             <template v-slot="scope">
-              <el-dropdown class="test-case-status" @command="statusChange" v-if="scope.row.platform === 'Local'" placement="bottom" trigger="click">
+              <el-dropdown class="test-case-status" @command="statusChange" placement="bottom" trigger="click">
                 <span class="el-dropdown-link">
                   {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status]}}
                 </span>
@@ -70,10 +70,6 @@
                     </span>
                 </el-dropdown-menu>
               </el-dropdown>
-              <span v-else>
-                {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status]}}
-              </span>
-
             </template>
 
           </ms-table-column>
