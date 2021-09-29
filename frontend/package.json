@@ -54,7 +54,7 @@
     "vue-float-action-button": "^0.6.6",
     "vue-i18n": "^8.15.3",
     "vue-jsonpath-picker": "^1.1.5",
-    "vue-minder-editor-plus": "^1.0.27",
+    "vue-minder-editor-plus": "^1.0.29",
     "vue-papa-parse": "^2.0.0",
     "vue-pdf": "^4.2.0",
     "vue-router": "^3.1.3",
