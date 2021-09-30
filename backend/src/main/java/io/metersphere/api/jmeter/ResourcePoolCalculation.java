@@ -33,7 +33,11 @@ public class ResourcePoolCalculation {
     private static final String BASE_URL = "http://%s:%d";
 
     private JvmInfoDTO getNodeJvmInfo(String uri) {
-        return restTemplate.getForObject(uri, JvmInfoDTO.class);
+        try {
+            return restTemplate.getForObject(uri, JvmInfoDTO.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public TestResource getPool(String resourcePoolId) {
