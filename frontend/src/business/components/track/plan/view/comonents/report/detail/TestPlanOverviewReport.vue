@@ -47,8 +47,8 @@ export default {
   },
   computed: {
     showTime() {
-      let startTime = 'NaN';
-      let endTime = 'NaN';
+      let startTime = '';
+      let endTime = '';
       if (this.report.startTime) {
         startTime = timestampFormatDate(this.report.startTime, false);
       }
