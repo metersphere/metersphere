@@ -1191,9 +1191,10 @@ public class ApiAutomationService {
                             executeQueue.get(key).setHashTree(hashTree);
                         }
                         Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
-                        ApiScenarioReport scenarioReport = future.get();
+                        future.get();
                         // 如果开启失败结束执行，则判断返回结果状态
                         if (request.getConfig().isOnSampleError()) {
+                            ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(key);
                             if (scenarioReport == null || !scenarioReport.getStatus().equals("Success")) {
                                 reportIds.remove(key);
                                 break;
