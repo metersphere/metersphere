@@ -6,10 +6,6 @@ package io.metersphere.api.service.task;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.MessageCache;
-import io.metersphere.base.domain.ApiScenarioReport;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -19,14 +15,11 @@ import java.util.concurrent.Callable;
 public class SerialScenarioExecTask<T> implements Callable<T> {
     private RunScenarioRequest request;
     private JMeterService jMeterService;
-    private ApiScenarioReportMapper apiScenarioReportMapper;
     private HashTree hashTree;
-    ApiScenarioReport report = null;
     private String id;
 
-    public SerialScenarioExecTask(JMeterService jMeterService, ApiScenarioReportMapper apiScenarioReportMapper, String id, HashTree hashTree, RunScenarioRequest request) {
+    public SerialScenarioExecTask(JMeterService jMeterService, String id, HashTree hashTree, RunScenarioRequest request) {
         this.jMeterService = jMeterService;
-        this.apiScenarioReportMapper = apiScenarioReportMapper;
         this.request = request;
         this.hashTree = hashTree;
         this.id = id;
@@ -41,19 +34,19 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                 jMeterService.runSerial(id, hashTree, request.getReportId(), request.getRunMode(), request.getConfig());
             }
             while (MessageCache.executionQueue.containsKey(id)) {
-                long currentSecond = (System.currentTimeMillis() - MessageCache.executionQueue.get(id)) / 1000 / 60;
+                Thread.sleep(1000);
+                long time = MessageCache.executionQueue.get(id);
+                long currentSecond = (System.currentTimeMillis() - time) / 1000 / 60;
                 // 设置五分钟超时
                 if (currentSecond > 5) {
                     // 执行失败了，恢复报告状态
-                    report.setStatus(APITestStatus.Error.name());
-                    apiScenarioReportMapper.updateByPrimaryKey(report);
                     break;
                 }
             }
-            return (T) report;
+            return null;
         } catch (Exception ex) {
             LogUtil.error(ex.getMessage());
-            MSException.throwException(ex.getMessage());
+            ex.printStackTrace();
             return null;
         }
     }

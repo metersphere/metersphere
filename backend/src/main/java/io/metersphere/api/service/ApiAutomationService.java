@@ -1059,13 +1059,14 @@ public class ApiAutomationService {
                 public void run() {
                     List<String> reportIds = new LinkedList<>();
                     for (APIScenarioReportResult key : map.keySet()) {
-                        apiScenarioReportMapper.insert(key);
-                        reportIds.add(key.getId());
                         try {
+                            apiScenarioReportMapper.insert(key);
+                            reportIds.add(key.getId());
                             // 进入执行队列
                             MessageCache.executionQueue.put(key.getId(), System.currentTimeMillis());
-                            Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, key.getId(), map.get(key), request));
-                            ApiScenarioReport report = future.get();
+                            Future<String> future = executorService.submit(new SerialScenarioExecTask(jMeterService, key.getId(), map.get(key), request));
+                            future.get();
+                            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(key.getId());
                             // 如果开启失败结束执行，则判断返回结果状态
                             if (request.getConfig().isOnSampleError()) {
                                 if (report == null || !report.getStatus().equals("Success")) {
