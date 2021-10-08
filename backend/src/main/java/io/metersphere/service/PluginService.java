@@ -4,6 +4,7 @@ import io.metersphere.base.domain.Plugin;
 import io.metersphere.base.domain.PluginExample;
 import io.metersphere.base.domain.PluginWithBLOBs;
 import io.metersphere.base.mapper.PluginMapper;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -88,10 +89,9 @@ public class PluginService {
 
     private List<PluginResourceDTO> getMethod(String path, String fileName) {
         List<PluginResourceDTO> resources = new LinkedList<>();
+        this.loadJar(path);
+        List<Class<?>> classes = CommonUtil.getSubClass(fileName);
         try {
-            // classLoader.unloadJarFile(path);
-            this.loadJar(path);
-            List<Class<?>> classes = CommonUtil.getSubClass(fileName);
             for (Class<?> aClass : classes) {
                 Object instance = aClass.newInstance();
                 Object pluginObj = aClass.getDeclaredMethod("init").invoke(instance);
@@ -104,6 +104,7 @@ public class PluginService {
             }
         } catch (Exception e) {
             LogUtil.error("初始化脚本异常：" + e.getMessage());
+            MSException.throwException("调用插件初始化脚本失败");
         }
         return resources;
     }
