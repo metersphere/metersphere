@@ -56,8 +56,8 @@ public class NodeKafkaService {
                     config.getTestResources().remove(jvmInfoDTO);
                 }
 
-                String cUri = String.format(BASE_URL + "/consumer/create", nodeIp, port);
-                restTemplate.postForEntity(cUri, consumerProps, void.class);
+                //String cUri = String.format(BASE_URL + "/consumer/create", nodeIp, port);
+                //restTemplate.postForEntity(cUri, consumerProps, void.class);
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage());
