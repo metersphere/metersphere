@@ -1238,12 +1238,19 @@ public class ApiAutomationService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
         // 开始并发执行
-        for (String reportId : executeQueue.keySet()) {
-            //存储报告
-            APIScenarioReportResult report = executeQueue.get(reportId).getReport();
-            batchMapper.insert(report);
-        }
-        sqlSession.flushStatements();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (String reportId : executeQueue.keySet()) {
+                    //存储报告
+                    APIScenarioReportResult report = executeQueue.get(reportId).getReport();
+                    batchMapper.insert(report);
+                }
+                sqlSession.flushStatements();
+            }
+        });
+        thread.start();
+
         for (String reportId : executeQueue.keySet()) {
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
                 jMeterService.runTest(executeQueue.get(reportId).getTestId(), reportId, request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
