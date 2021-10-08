@@ -19,7 +19,7 @@
         </el-form-item>
         <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
           <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
-            <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.label">
+            <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="$t(option.label)">
               <div v-if="option.email">
                 <span>{{option.id}}({{option.name}})</span>
               </div>
