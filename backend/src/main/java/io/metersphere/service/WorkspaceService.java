@@ -6,13 +6,15 @@ import io.metersphere.base.mapper.GroupMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.WorkspaceMapper;
-import io.metersphere.base.mapper.ext.*;
+import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
+import io.metersphere.base.mapper.ext.ExtUserMapper;
+import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.RelatedSource;
-import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.i18n.Translator;
@@ -39,8 +41,6 @@ public class WorkspaceService {
     private WorkspaceMapper workspaceMapper;
     @Resource
     private ExtWorkspaceMapper extWorkspaceMapper;
-    @Resource
-    private ExtUserRoleMapper extUserRoleMapper;
     @Resource
     private GroupMapper groupMapper;
     @Resource
@@ -195,15 +195,14 @@ public class WorkspaceService {
     }
 
     public List<Workspace> getWorkspaceListByUserId(String userId) {
-        List<UserRoleHelpDTO> userRoleHelpList = extUserRoleMapper.getUserRoleHelpList(userId);
-        List<String> workspaceIds = new ArrayList<>();
-        userRoleHelpList.forEach(r -> {
-            if (!StringUtils.isEmpty(r.getParentId())) {
-                workspaceIds.add(r.getSourceId());
-            }
-        });
+        List<RelatedSource> relatedSource = extUserGroupMapper.getRelatedSource(userId);
+        List<String> wsIds = relatedSource
+                .stream()
+                .map(RelatedSource::getWorkspaceId)
+                .distinct()
+                .collect(Collectors.toList());
         WorkspaceExample workspaceExample = new WorkspaceExample();
-        workspaceExample.createCriteria().andIdIn(workspaceIds);
+        workspaceExample.createCriteria().andIdIn(wsIds);
         return workspaceMapper.selectByExample(workspaceExample);
     }
 
