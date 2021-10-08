@@ -1,57 +1,19 @@
 <template>
-  <el-menu :unique-opened="true" mode="horizontal"
-           class="header-user-menu align-right"
-           :background-color="color"
-           active-text-color="#fff"
-           default-active="1"
-           text-color="#fff">
-    <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
-    <el-submenu index="1" popper-class="org-ws-submenu"
-                :popper-append-to-body="true"
-                v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
-                'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
-                'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
-                'WORKSPACE_USER:READ']">
-      <template v-slot:title>
-        <div class="org-ws-name" :title="currentOrganizationName + '-' + currentWorkspaceName">
-          {{ currentWorkspaceName || currentOrganizationName }}
-        </div>
-      </template>
-      <el-input :placeholder="$t('project.search_by_name')"
-                prefix-icon="el-icon-search"
-                v-model="searchOrg"
-                clearable
-                class="search-input"
-                size="small"/>
-      <div class="org-ws-menu">
-        <el-submenu :index="1+'-'+index" v-for="(item, index) in organizationList"
-                    :popper-append-to-body="true"
-                    :key="index">
-          <template v-slot:title>
-            <el-menu-item @click="changeOrg(item)">
-              {{ item.name }}
-              <i class="el-icon-check" v-if="item.id === getCurrentOrganizationId()"></i>
-            </el-menu-item>
-          </template>
-          <el-input :placeholder="$t('project.search_by_name')"
-                    prefix-icon="el-icon-search"
-                    v-model="searchWs"
-                    clearable
-                    class="search-input"
-                    size="small"/>
-          <div class="org-ws-menu">
-            <el-menu-item @click="changeWs(ws)"
-                          v-for="(ws,index2) in item.workspaceList" :key="index2">
-              <span class="title">
-                {{ ws.name }}
-              </span>
-              <i class="el-icon-check" v-if="ws.id === getCurrentWorkspaceId()"></i>
-            </el-menu-item>
-          </div>
-        </el-submenu>
-      </div>
-    </el-submenu>
-  </el-menu>
+  <el-dropdown size="medium" @command="changeWs" class="align-right">
+    <span class="dropdown-link">
+        {{ currentWorkspaceName }}<i class="el-icon-caret-bottom el-icon--right"/>
+    </span>
+    <template v-slot:dropdown>
+      <el-dropdown-menu v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
+                  'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
+                  'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
+                  'WORKSPACE_USER:READ']">
+        <el-dropdown-item :command="item" v-for="(item, index) in workspaceList" :key="index">
+          {{ item.name }} <i class="el-icon-check" v-if="getCurrentWorkspaceId === item.id"/>
+        </el-dropdown-item>
+      </el-dropdown-menu>
+    </template>
+  </el-dropdown>
 </template>
 
 <script>
@@ -60,7 +22,8 @@ import {
   getCurrentOrganizationId,
   getCurrentUser,
   getCurrentWorkspaceId,
-  saveLocalStorage, stopFullScreenLoading
+  saveLocalStorage,
+  stopFullScreenLoading
 } from "@/common/js/utils";
 import {ORGANIZATION_ID, PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
@@ -77,12 +40,9 @@ export default {
       organizationList: [
         {name: this.$t('organization.none')},
       ],
-      workspaceList: [
-        {name: this.$t('workspace.none')},
-      ],
+      workspaceList: [],
       currentUserId: getCurrentUser().id,
       workspaceIds: [],
-      currentOrganizationName: '',
       currentWorkspaceName: '',
       searchOrg: '',
       searchWs: '',
@@ -110,48 +70,13 @@ export default {
     getCurrentOrganizationId,
     getCurrentWorkspaceId,
     initMenuData() {
-      this.$get("/organization/list/userorg/" + encodeURIComponent(this.currentUserId), response => {
-        let data = response.data;
-        this.organizationList = data;
-        this.orgListCopy = data;
-        let org = data.filter(r => r.id === getCurrentOrganizationId());
-        if (org.length > 0) {
-          this.currentOrganizationName = org[0].name;
+      this.$get("/workspace/list/userworkspace/" + encodeURIComponent(this.currentUserId), response => {
+        this.workspaceList = response.data;
+        let workspace = response.data.filter(r => r.id === getCurrentWorkspaceId());
+        if (workspace.length > 0) {
+          this.currentWorkspaceName = workspace[0].name;
         }
-        this.organizationList.forEach(org => {
-          this.$get("/workspace/list/orgworkspace/" + encodeURIComponent(this.currentUserId) + "/" + org.id, response => {
-            let d = response.data;
-            if (d.length === 0) {
-              // org.workspaceList = [{name: this.$t('workspace.none')}];
-              // this.$set(org, 'workspaceList', [{name: this.$t('workspace.none')}]);
-            } else {
-              this.$set(org, 'workspaceList', d);
-              // org.workspaceList = d;
-              org.wsListCopy = d;
-              let workspace = d.filter(r => r.id === getCurrentWorkspaceId());
-              if (workspace.length > 0) {
-                this.currentWorkspaceName = workspace[0].name;
-              }
-            }
-          });
-        });
       });
-      if (!this.currentUser.lastOrganizationId) {
-        return false;
-      }
-      /*this.$get("/workspace/list/orgworkspace/" + getCurrentOrganizationId(), response => {
-        let data = response.data;
-        if (data.length === 0) {
-          this.workspaceList = [{name: this.$t('workspace.none')}];
-        } else {
-          this.workspaceList = data;
-          this.wsListCopy = data;
-          let workspace = data.filter(r => r.id === getCurrentWorkspaceId());
-          if (workspace.length > 0) {
-            this.currentWorkspaceName = workspace[0].name;
-          }
-        }
-      });*/
     },
     getRedirectUrl(user) {
       // console.log(user);
@@ -286,6 +211,19 @@ export default {
 
 /deep/ .el-submenu__title {
   padding-left: 5px;
+}
+
+.dropdown-link {
+  cursor: pointer;
+  font-size: 12px;
+  color: rgb(245, 245, 245);
+  line-height: 40px;
+  padding-right: 10px;
+  padding-left: 5px;
+}
+
+.align-right {
+  float: right;
 }
 
 </style>
