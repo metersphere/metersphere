@@ -1,14 +1,14 @@
 package io.metersphere.service.utils;
 
 import com.github.pagehelper.util.StringUtil;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.api.UiScriptApi;
 import org.reflections8.Reflections;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
+
 import java.io.File;
 import java.net.URL;
 import java.util.*;
@@ -51,28 +51,29 @@ public class CommonUtil {
         return classes;
     }
 
-    public static List<Class<?>> getSubClass(String fileName) throws Exception {
+    public static List<Class<?>> getSubClass(String fileName) {
         List<Class<?>> classes = new LinkedList<>();
-        if (StringUtil.isNotEmpty(fileName) && fileName.endsWith(".jar")) {
-            fileName = fileName.substring(0, fileName.length() - 4);
-        }
-        LogUtil.info("获取到文件路径：" + fileName);
-        Resource resource = new ClassPathResource(fileName);
-        Properties inPro = PropertiesLoaderUtils.loadProperties(resource);
-        if (inPro != null) {
-            LogUtil.info("开始读取文件内容进行反射处理");
-            Set<String> entryObj = inPro.stringPropertyNames();
-            if (entryObj != null) {
-                for (String entry : entryObj) {
-                    try {
+        try {
+            if (StringUtil.isNotEmpty(fileName) && fileName.endsWith(".jar")) {
+                fileName = fileName.substring(0, fileName.length() - 4);
+            }
+            LogUtil.info("获取到文件路径：" + fileName);
+            Resource resource = new ClassPathResource(fileName);
+            Properties inPro = PropertiesLoaderUtils.loadProperties(resource);
+            if (inPro != null) {
+                LogUtil.info("开始读取文件内容进行反射处理");
+                Set<String> entryObj = inPro.stringPropertyNames();
+                if (entryObj != null) {
+                    for (String entry : entryObj) {
+
                         Class<?> clazz = Class.forName(entry);
                         classes.add(clazz);
-                    } catch (Exception e) {
-                        LogUtil.error("反射类【" + entry + " 】失败：" + e.getMessage());
-                        e.printStackTrace();
+
                     }
                 }
             }
+        } catch (Exception e) {
+            MSException.throwException("解析插件失败，未找到入口配置");
         }
         return classes;
     }
