@@ -9,7 +9,7 @@
                   'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
                   'WORKSPACE_USER:READ']">
         <el-dropdown-item :command="item" v-for="(item, index) in workspaceList" :key="index">
-          {{ item.name }} <i class="el-icon-check" v-if="getCurrentWorkspaceId === item.id"/>
+          {{ item.name }} <i class="el-icon-check" v-if="getCurrentWorkspaceId() === item.id"/>
         </el-dropdown-item>
       </el-dropdown-menu>
     </template>
@@ -113,7 +113,7 @@ export default {
     changeWs(data) {
       let workspaceId = data.id;
 
-      if (!workspaceId) {
+      if (!workspaceId || getCurrentWorkspaceId() === workspaceId) {
         return false;
       }
       const loading = fullScreenLoading(this);
