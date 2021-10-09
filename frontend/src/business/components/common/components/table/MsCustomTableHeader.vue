@@ -20,6 +20,7 @@
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import treeTransfer from 'el-tree-transfer'
 import {getAllFieldWithCustomFields, saveCustomTableHeader} from "@/common/js/tableUtils";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 
 export default {
   name: "MsCustomTableHeader",
@@ -45,6 +46,12 @@ export default {
     },
     open(items) {
       items = JSON.parse(JSON.stringify(items));
+      items.forEach(it => {
+        if (it.isCustom) {
+          // i18n
+          it.label = SYSTEM_FIELD_NAME_MAP[it.id] ? this.$t(SYSTEM_FIELD_NAME_MAP[it.id]) : it.label;
+        }
+      })
       let fields = getAllFieldWithCustomFields(this.type, this.customFields);
       this.selectedKeys = [];
       this.fromFields = [];
@@ -52,6 +59,9 @@ export default {
       this.selectedFields = items;
       fields.forEach(field => {
         if (this.selectedKeys.indexOf(field.key) < 0) {
+          if (field.isCustom) {
+            field.label = SYSTEM_FIELD_NAME_MAP[field.id] ? this.$t(SYSTEM_FIELD_NAME_MAP[field.id]) : field.label
+          }
           this.fromFields.push(field);
         }
       });

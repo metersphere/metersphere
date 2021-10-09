@@ -1,7 +1,6 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
@@ -225,16 +224,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         setSamplerPath(config, httpConfig, sampler);
 
-        // 请求体
-        if (!StringUtils.equals(this.getMethod(), "GET")) {
-            if (this.body != null) {
-                List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
-                if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
-                    sampler.setDoMultipart(true);
-                }
-                if (CollectionUtils.isNotEmpty(bodyParams)) {
-                    sampler.setArguments(httpArguments(bodyParams));
-                }
+        // 请求体处理
+        if (this.body != null) {
+            List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
+            if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
+                sampler.setDoMultipart(true);
+            }
+            if (CollectionUtils.isNotEmpty(bodyParams)) {
+                sampler.setArguments(httpArguments(bodyParams));
             }
         }
 
@@ -391,7 +388,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (isUrl()) {
                     if (this.isCustomizeReq()) {
                         url = this.getUrl();
-                        sampler.setPath(url);
+                        sampler.setProperty("HTTPSampler.path", url);
                     }
                     if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                         url = url.replace(this.getPort(), "10990");
@@ -406,7 +403,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             sampler.setPort(urlObject.getPort());
                         }
                         sampler.setProtocol(urlObject.getProtocol());
-                        sampler.setPath(URLDecoder.decode(URLEncoder.encode(urlObject.getFile(), "UTF-8"), "UTF-8"));
+                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(urlObject.getFile(), "UTF-8"), "UTF-8"));
                     } catch (Exception e) {
                         LogUtil.error(e.getMessage(), e);
                     }
@@ -436,13 +433,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                             sampler.setProtocol(urlObject.getProtocol());
                         }
-                        sampler.setPath(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8"));
+                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8"));
                     }
                 }
                 String envPath = sampler.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(envPath);
-                    sampler.setPath(envPath);
+                    sampler.setProperty("HTTPSampler.path", envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
                     String path = getPostQueryParameters(envPath);
@@ -480,13 +477,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
                 sampler.setProtocol(urlObject.getProtocol());
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
-                sampler.setPath(envPath);
+                sampler.setProperty("HTTPSampler.path", envPath);
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8"));
-                    sampler.setPath(envPath);
+                    sampler.setProperty("HTTPSampler.path", envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
-                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8")));
+                    sampler.setProperty("HTTPSampler.path", getPostQueryParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8")));
                 }
             }
         } catch (Exception e) {

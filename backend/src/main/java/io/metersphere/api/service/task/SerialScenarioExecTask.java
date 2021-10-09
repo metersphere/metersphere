@@ -11,7 +11,6 @@ import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.TriggerMode;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,7 +33,7 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
-            if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+            if (runModeDataDTO.getReport() != null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
                 MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                 return null;
             }
@@ -43,29 +42,28 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
             } else {
                 jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
             }
-            // 轮询查看报告状态，最多200次，防止死循环
-            int index = 1;
-            while (index < 200) {
-                Thread.sleep(3000);
-                index++;
-                report = apiScenarioReportMapper.selectByPrimaryKey(runModeDataDTO.getReport().getId());
-                if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
+            while (MessageCache.executionQueue.containsKey(runModeDataDTO.getReport().getId())) {
+                long time = MessageCache.executionQueue.get(runModeDataDTO.getReport().getId());
+                long currentSecond = (System.currentTimeMillis() - time) / 1000 / 60;
+                // 设置五分钟超时
+                if (currentSecond > 5) {
+                    // 执行失败了，恢复报告状态
+                    report = apiScenarioReportMapper.selectByPrimaryKey(runModeDataDTO.getReport().getId());
+                    if (report != null) {
+                        report.setStatus(APITestStatus.Error.name());
+                        apiScenarioReportMapper.updateByPrimaryKey(report);
+                    }
                     break;
                 }
-                if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                if (runModeDataDTO.getReport() != null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
                     MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                     break;
                 }
+                Thread.sleep(1000);
             }
-            // 执行失败了，恢复报告状态
-            if (index == 200 && report != null && report.getStatus().equals(APITestStatus.Running.name())) {
-                report.setStatus(APITestStatus.Error.name());
-                apiScenarioReportMapper.updateByPrimaryKey(report);
-            }
-            return (T) report;
+            return null;
         } catch (Exception ex) {
             LogUtil.error(ex);
-            MSException.throwException(ex.getMessage());
             return null;
         }
     }

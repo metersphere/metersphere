@@ -41,7 +41,7 @@ public abstract class ZentaoClient extends BaseClient {
             ResponseEntity<String> response = restTemplate.exchange(loginUrl + sessionId, HttpMethod.POST, requestEntity, String.class);
             getUserResponse = (GetUserResponse) getResultForObject(GetUserResponse.class, response);
         } catch (Exception e) {
-            LogUtil.error("get result for object error," + e.getMessage());
+            LogUtil.error(e);
             MSException.throwException(e.getMessage());
         }
         GetUserResponse.User user = getUserResponse.getUser();

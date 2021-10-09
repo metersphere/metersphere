@@ -51,7 +51,9 @@ import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
+import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -997,11 +999,19 @@ public class ApiAutomationService {
         // 生成集成报告
         String serialReportId = null;
 
-        StringBuilder idStr = new StringBuilder();
-        ids.forEach(item -> {
-            idStr.append("\"").append(item).append("\"").append(",");
-        });
-        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + StringUtils.join(ids, ",") + "\"");
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiScenarioWithBLOBs> apiScenarios = apiScenarioMapper.selectByExampleWithBLOBs(example);
+        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+            if (request.getCondition() == null || !request.getCondition().isSelectAll()) {
+                // 按照id指定顺序排序
+                FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(ids);
+                fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
+                BeanComparator beanComparator = new BeanComparator("id", fixedOrderComparator);
+                Collections.sort(apiScenarios, beanComparator);
+            }
+        }
+
         // 只有一个场景且没有测试步骤，则提示
         if (apiScenarios != null && apiScenarios.size() == 1 && (apiScenarios.get(0).getStepTotal() == null || apiScenarios.get(0).getStepTotal() == 0)) {
             MSException.throwException((apiScenarios.get(0).getName() + "，" + Translator.get("automation_exec_info")));
@@ -1162,6 +1172,7 @@ public class ApiAutomationService {
                         MessageCache.terminationOrderDeque.remove(key);
                         break;
                     }
+                    MessageCache.executionQueue.put(key, System.currentTimeMillis());
                     reportIds.add(key);
                     APIScenarioReportResult report = executeQueue.get(key).getReport();
                     if (StringUtils.isNotEmpty(serialReportId)) {
@@ -1180,9 +1191,10 @@ public class ApiAutomationService {
                             executeQueue.get(key).setHashTree(hashTree);
                         }
                         Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
-                        ApiScenarioReport scenarioReport = future.get();
+                        future.get();
                         // 如果开启失败结束执行，则判断返回结果状态
                         if (request.getConfig().isOnSampleError()) {
+                            ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(key);
                             if (scenarioReport == null || !scenarioReport.getStatus().equals("Success")) {
                                 reportIds.remove(key);
                                 break;
@@ -1193,6 +1205,7 @@ public class ApiAutomationService {
                         executeEnvParams = hashTreeUtil.mergeParamDataMap(executeEnvParams, envParamsMap);
                     } catch (Exception e) {
                         reportIds.remove(key);
+                        MessageCache.executionQueue.remove(key);
                         LogUtil.error("执行终止：" + e.getMessage());
                         break;
                     }
@@ -1225,12 +1238,19 @@ public class ApiAutomationService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
         // 开始并发执行
-        for (String reportId : executeQueue.keySet()) {
-            //存储报告
-            APIScenarioReportResult report = executeQueue.get(reportId).getReport();
-            batchMapper.insert(report);
-        }
-        sqlSession.flushStatements();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (String reportId : executeQueue.keySet()) {
+                    //存储报告
+                    APIScenarioReportResult report = executeQueue.get(reportId).getReport();
+                    batchMapper.insert(report);
+                }
+                sqlSession.flushStatements();
+            }
+        });
+        thread.start();
+
         for (String reportId : executeQueue.keySet()) {
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
                 jMeterService.runTest(executeQueue.get(reportId).getTestId(), reportId, request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
@@ -1860,6 +1880,7 @@ public class ApiAutomationService {
                 List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
                 scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
                 scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
+                scenarioWithBLOBs.setId(UUID.randomUUID().toString());
                 batchMapper.insert(scenarioWithBLOBs);
                 apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
             }

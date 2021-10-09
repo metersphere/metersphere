@@ -389,7 +389,7 @@ export default {
           tip: this.$t('api_test.automation.copy'),
           icon: "el-icon-document-copy",
           exec: this.copy,
-          permissions: ['PROJECT_API_SCENARIO:READ+EDIT']
+          permissions: ['PROJECT_API_SCENARIO:READ+COPY']
         },
         {
           tip: this.$t('commons.delete'),
