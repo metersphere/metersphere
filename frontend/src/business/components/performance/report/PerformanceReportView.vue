@@ -38,7 +38,7 @@
               <el-button type="warning" plain size="mini" @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
-              <el-button type="default" plain size="mini" @click="downloadZipFile()">
+              <el-button type="default" :disabled="testDeleted" plain size="mini" @click="downloadZipFile()">
                 {{ $t('report.downloadZipFile') }}
               </el-button>
             </el-row>
