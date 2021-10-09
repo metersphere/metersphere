@@ -20,6 +20,7 @@ import CKEditor from '@ckeditor/ckeditor5-vue';
 import VueFab from 'vue-float-action-button'
 import {left2RightDrag, bottom2TopDrag, right2LeftDrag} from "../common/js/directive";
 import JsonSchemaEditor from './components/common/json-schema/schema/index';
+import ComparedEditor from './components/history/api/json-view/schema/index';
 import JSONPathPicker from 'vue-jsonpath-picker';
 import VueClipboard from 'vue-clipboard2'
 import vueMinderEditor from 'vue-minder-editor-plus'
@@ -32,6 +33,8 @@ Vue.use(mavonEditor)
 Vue.use(vueMinderEditor)
 
 Vue.use(JsonSchemaEditor);
+Vue.use(ComparedEditor);
+
 import VuePapaParse from 'vue-papa-parse'
 Vue.use(VuePapaParse)
 Vue.use(formCreate);

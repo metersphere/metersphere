@@ -7,6 +7,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.log.utils.dff.ApiDefinitionDiffUtil;
+import io.metersphere.log.utils.json.diff.GsonDiff;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
@@ -76,6 +78,39 @@ public class ReflexObjectUtil {
         return columnList;
     }
 
+    public static List<DetailColumn> getColumns(Object obj) {
+        List<DetailColumn> columnList = new LinkedList<>();
+        if (obj == null) {
+            return columnList;
+        }
+        // 得到类对象
+        Class clazz = obj.getClass();
+        // 得到类中的所有属性集合
+        List<Field[]> fields = new LinkedList<>();
+        // 遍历所有父类字节码对象
+        while (clazz != null) {
+            // 获取字节码对象的属性对象数组
+            Field[] declaredFields = clazz.getDeclaredFields();
+            fields.add(declaredFields);
+            // 获得父类的字节码对象
+            clazz = clazz.getSuperclass();
+        }
+        for (Field[] fs : fields) {
+            for (int i = 0; i < fs.length; i++) {
+                Field f = fs[i];
+                f.setAccessible(true);
+                try {
+                    Object val = f.get(obj);
+                    DetailColumn column = new DetailColumn(f.getName(), f.getName(), val, "");
+                    columnList.add(column);
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
+            }
+        }
+        return columnList;
+    }
+
     public static boolean isJsonArray(String content) {
         try {
             JSONArray array = JSON.parseArray(content);
@@ -96,7 +131,7 @@ public class ReflexObjectUtil {
         }));
     }
 
-    public static List<DetailColumn> compared(OperatingLogDetails obj, OperatingLogDetails newObj) {
+    public static List<DetailColumn> compared(OperatingLogDetails obj, OperatingLogDetails newObj, String module) {
         List<DetailColumn> comparedColumns = new LinkedList<>();
         try {
             if (obj != null && newObj != null) {
@@ -116,10 +151,23 @@ public class ReflexObjectUtil {
                         if (StringUtils.isEmpty(JSON.toJSONString(originalColumns.get(i).getOriginalValue())) && StringUtils.isEmpty(JSON.toJSONString(newColumns.get(i).getOriginalValue()))) {
                             continue;
                         }
-                        // 深度对比
                         DetailColumn column = new DetailColumn();
                         BeanUtils.copyBean(column, originalColumns.get(i));
                         column.setNewValue(newColumns.get(i).getOriginalValue());
+                        if (originalColumns.get(i).getColumnName().equals("tags")) {
+                            GsonDiff diff = new GsonDiff();
+                            String oldTags = "{\"root\":" + originalColumns.get(i).getOriginalValue().toString() + "}";
+                            String newTags = "{\"root\":" + newColumns.get(i).getOriginalValue().toString() + "}";
+                            String diffStr = diff.diff(oldTags, newTags);
+                            String diffValue = diff.apply(newTags, diffStr);
+                            column.setDiffValue(diffValue);
+                        }
+                        // 深度对比
+                        else if (StringUtils.equals(module, "api_definition")) {
+                            String newValue = newColumns.get(i).getOriginalValue().toString();
+                            String oldValue = column.getOriginalValue().toString();
+                            column.setDiffValue(ApiDefinitionDiffUtil.diff(newValue, oldValue));
+                        }
                         comparedColumns.add(column);
                     }
                 }
