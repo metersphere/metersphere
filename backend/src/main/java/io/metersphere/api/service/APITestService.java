@@ -520,6 +520,9 @@ public class APITestService {
                     //HTTPSamplerProxy， 进行附件转化： 1.elementProp里去掉路径； 2。elementProp->filePath获取路径并读出来
                     attachmentFilePathList.addAll(this.parseAttachmentFileInfo(element));
                 }
+
+                //如果存在证书文件，也要匹配出来
+                attachmentFilePathList.addAll(this.parseAttachmentFileInfo(innerHashTreeElement));
             }
             jmxString = root.asXML();
         } catch (Exception e) {
@@ -585,20 +588,40 @@ public class APITestService {
                                     try {
                                         String filePath = elementProp.attributeValue("name");
                                         File file = new File(filePath);
-                                        if(file.exists() && file.isFile()){
+                                        if (file.exists() && file.isFile()) {
                                             attachmentFilePathList.add(filePath);
                                             String fileName = file.getName();
                                             elementProp.attribute("name").setText(fileName);
                                         }
-                                    }catch (Exception e){
+                                    } catch (Exception e) {
                                     }
                                 }
                             }
                         }
                     }
                 }
+            }else if (StringUtils.equals(qname, "KeystoreConfig")) {
+                    List<Element> stringPropList = parentElement.elements("stringProp");
+                    for (Element element : stringPropList) {
+                        if (StringUtils.equals(element.attributeValue("name"), "MS-KEYSTORE-FILE-PATH")) {
+
+                            try {
+                                String filePath = element.getStringValue();
+                                File file = new File(filePath);
+                                if(file.exists() && file.isFile()){
+                                    attachmentFilePathList.add(filePath);
+                                    String fileName = file.getName();
+                                    element.setText(fileName);
+                                }
+                            }catch (Exception e){
+                            }
+                        }
+                    }
+            } else if (StringUtils.equals(qname, "hashTree")) {
+                attachmentFilePathList.addAll(this.parseAttachmentFileInfo(parentElement));
             }
         }
+
         return attachmentFilePathList;
     }
 
