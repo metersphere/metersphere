@@ -33,7 +33,7 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/get/{goPage}/{pageSize}")
-    @RequiresPermissions(value= {PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.ORGANIZATION_GROUP_READ}, logical = Logical.OR)
+    @RequiresPermissions(value= {PermissionConstants.SYSTEM_GROUP_READ}, logical = Logical.OR)
     public Pager<List<GroupDTO>> getGroupList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest request) {
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
@@ -46,13 +46,13 @@ public class GroupController {
     }
 
     @PostMapping("/get")
-    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.ORGANIZATION_GROUP_READ}, logical = Logical.OR)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ}, logical = Logical.OR)
     public List<Group> getGroupByType(@RequestBody EditGroupRequest request) {
         return groupService.getGroupByType(request);
     }
 
     @PostMapping("/add")
-    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_CREATE, PermissionConstants.ORGANIZATION_GROUP_READ_CREATE}, logical = Logical.OR)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_CREATE}, logical = Logical.OR)
     @MsAuditLog(module = "group_permission", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = GroupService.class)
     public Group addGroup(@RequestBody EditGroupRequest request) {
         request.setId(UUID.randomUUID().toString());
@@ -60,14 +60,14 @@ public class GroupController {
     }
 
     @PostMapping("/edit")
-    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_EDIT, PermissionConstants.ORGANIZATION_GROUP_READ_EDIT}, logical = Logical.OR)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_EDIT}, logical = Logical.OR)
     @MsAuditLog(module = "group_permission", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = GroupService.class)
     public void editGroup(@RequestBody EditGroupRequest request) {
         groupService.editGroup(request);
     }
 
     @GetMapping("/delete/{id}")
-    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_DELETE, PermissionConstants.ORGANIZATION_GROUP_READ_DELETE}, logical = Logical.OR)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_DELETE}, logical = Logical.OR)
     @MsAuditLog(module = "group_permission", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = GroupService.class)
     public void deleteGroup(@PathVariable String id) {
         groupService.deleteGroup(id);
@@ -79,7 +79,7 @@ public class GroupController {
     }
 
     @PostMapping("/permission/edit")
-    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_SETTING_PERMISSION, PermissionConstants.ORGANIZATION_GROUP_READ_SETTING_PERMISSION}, logical = Logical.OR)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_SETTING_PERMISSION}, logical = Logical.OR)
     public void editGroupPermission(@RequestBody EditGroupRequest editGroupRequest) {
         groupService.editGroupPermission(editGroupRequest);
     }

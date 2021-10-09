@@ -72,12 +72,12 @@ export default {
     {
       path: 'serviceintegration',
       component: () => import('@/business/components/settings/workspace/ServiceIntegration'),
-      meta: {workspace: true, title: 'organization.service_integration', permissions: ['ORGANIZATION_SERVICE:READ']}
+      meta: {workspace: true, title: 'organization.service_integration', permissions: ['WORKSPACE_SERVICE:READ']}
     },
     {
       path: 'messagesettings',
       component: () => import('@/business/components/settings/workspace/MessageSettings'),
-      meta: {workspace: true, title: 'organization.message_settings', permissions: ['ORGANIZATION_MESSAGE:READ']}
+      meta: {workspace: true, title: 'organization.message_settings', permissions: ['WORKSPACE_MESSAGE:READ']}
     },
     {
       path: 'projectmember',
