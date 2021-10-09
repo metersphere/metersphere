@@ -6,10 +6,12 @@ import java.util.Map;
 public class DefinitionReference {
     public static Map<String, String> definitionColumns = new LinkedHashMap<>();
     public static Map<String, String> caseColumns = new LinkedHashMap<>();
+    public static Map<String, String> jdbcColumns = new LinkedHashMap<>();
 
     static {
         definitionColumns.clear();
         caseColumns.clear();
+        jdbcColumns.clear();
         definitionColumns.put("name", "接口名称");
         definitionColumns.put("createUser", "创建人");
         definitionColumns.put("method", "请求类型");
@@ -38,6 +40,12 @@ public class DefinitionReference {
 
         // 深度对比字段
         caseColumns.put("ms-dff-col", "request,tags");
+
+        jdbcColumns.put("environmentId", "运行环境");
+        jdbcColumns.put("dataSourceId", "数据源名称");
+        jdbcColumns.put("queryTimeout", "超时时间");
+        jdbcColumns.put("resultVariable", "存储结果");
+        jdbcColumns.put("variableNames", "按列存储");
 
     }
 }
