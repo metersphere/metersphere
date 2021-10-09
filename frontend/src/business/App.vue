@@ -74,11 +74,11 @@ export default {
       });
     }
     // OIDC redirect 之后不跳转
-    if (window.location.href.endsWith('/#/') || window.location.href.endsWith('/#')) {
+    if (window.location.href.endsWith('#/refresh')) {
       window.location.replace("/#/setting/personsetting");
       setTimeout(() => {
         window.location.reload();
-      }, 500);
+      }, 200);
     }
     window.addEventListener("beforeunload", () => {
       localStorage.setItem("store", JSON.stringify(this.$store.state));
