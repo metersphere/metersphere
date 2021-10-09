@@ -99,7 +99,7 @@ import Crontab from "@/business/components/common/cron/Crontab";
 import {cronValidate} from "@/common/js/cron";
 import {getCurrentOrganizationId, getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import SelectTree from "@/business/components/common/select-tree/SelectTree";
-import ScheduleTaskNotification from "@/business/components/settings/organization/components/ScheduleTaskNotification";
+import ScheduleTaskNotification from "@/business/components/settings/workspace/components/ScheduleTaskNotification";
 import SwaggerTaskNotification from "@/business/components/api/definition/components/import/SwaggerTaskNotification";
 
 export default {

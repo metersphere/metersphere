@@ -78,30 +78,30 @@
 
 <script>
 import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
-import JenkinsNotification from "@/business/components/settings/organization/components/jenkins/JenkinsNotification";
+import JenkinsNotification from "@/business/components/settings/workspace/components/jenkins/JenkinsNotification";
 import TestPlanTaskNotification
-  from "@/business/components/settings/organization/components/track/TestPlanTaskNotification";
+  from "@/business/components/settings/workspace/components/track/TestPlanTaskNotification";
 import TestReviewNotification
-  from "@/business/components/settings/organization/components/track/TestReviewNotification";
+  from "@/business/components/settings/workspace/components/track/TestReviewNotification";
 import DefectTaskNotification
-  from "@/business/components/settings/organization/components/track/DefectTaskNotification";
+  from "@/business/components/settings/workspace/components/track/DefectTaskNotification";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-import HomeNotification from "@/business/components/settings/organization/components/track/TrackHomeNotification";
-import TrackHomeNotification from "@/business/components/settings/organization/components/track/TrackHomeNotification";
-import TestCaseNotification from "@/business/components/settings/organization/components/track/TestCaseNotification";
+import HomeNotification from "@/business/components/settings/workspace/components/track/TrackHomeNotification";
+import TrackHomeNotification from "@/business/components/settings/workspace/components/track/TrackHomeNotification";
+import TestCaseNotification from "@/business/components/settings/workspace/components/track/TestCaseNotification";
 import TrackReportNotification
-  from "@/business/components/settings/organization/components/track/TrackReportNotification";
+  from "@/business/components/settings/workspace/components/track/TrackReportNotification";
 import ApiDefinitionNotification
-  from "@/business/components/settings/organization/components/api/ApiDefinitionNotification";
+  from "@/business/components/settings/workspace/components/api/ApiDefinitionNotification";
 import ApiAutomationNotification
-  from "@/business/components/settings/organization/components/api/ApiAutomationNotification";
-import ApiReportNotification from "@/business/components/settings/organization/components/api/ApiReportNotification";
+  from "@/business/components/settings/workspace/components/api/ApiAutomationNotification";
+import ApiReportNotification from "@/business/components/settings/workspace/components/api/ApiReportNotification";
 import PerformanceTestNotification
-  from "@/business/components/settings/organization/components/performance/PerformanceTestNotification";
+  from "@/business/components/settings/workspace/components/performance/PerformanceTestNotification";
 import PerformanceReportNotification
-  from "@/business/components/settings/organization/components/performance/PerformanceReportNotification";
-import ApiHomeNotification from "@/business/components/settings/organization/components/api/ApiHomeNotification";
+  from "@/business/components/settings/workspace/components/performance/PerformanceReportNotification";
+import ApiHomeNotification from "@/business/components/settings/workspace/components/api/ApiHomeNotification";
 
 let taskData = {
   jenkins: [],

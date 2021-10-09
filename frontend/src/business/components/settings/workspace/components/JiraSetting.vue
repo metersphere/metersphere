@@ -17,7 +17,7 @@
           <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_jira_issuetype')"/>
           <ms-instructions-icon effect="light">
             <template>
-              <img class="jira-image" src="../../../../../assets/jira-type.png"/>
+              <img class="jira-image" src="src/assets/jira-type.png"/>
             </template>
           </ms-instructions-icon>
         </el-form-item>
@@ -25,7 +25,7 @@
           <el-input v-model="form.storytype" :placeholder="$t('organization.integration.input_jira_storytype')"/>
           <ms-instructions-icon effect="light">
             <template>
-              <img class="jira-image" src="../../../../../assets/jira-type.png"/>
+              <img class="jira-image" src="src/assets/jira-type.png"/>
             </template>
           </ms-instructions-icon>
         </el-form-item>
@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import BugManageBtn from "@/business/components/settings/organization/components/BugManageBtn";
+import BugManageBtn from "@/business/components/settings/workspace/components/BugManageBtn";
 import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
 import {JIRA} from "@/common/js/constants";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";

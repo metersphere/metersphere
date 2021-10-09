@@ -3,12 +3,23 @@
     <div style="width: 500px">
       <div style="margin-top: 20px;margin-bottom: 10px">{{ $t('organization.integration.basic_auth_info') }}</div>
       <el-form :model="form" ref="form" label-width="100px" size="small" :disabled="show" :rules="rules">
-        <el-form-item :label="$t('organization.integration.api_account')" prop="account">
+        <el-form-item :label="$t('organization.integration.account')" prop="account">
           <el-input v-model="form.account" :placeholder="$t('organization.integration.input_api_account')"/>
         </el-form-item>
-        <el-form-item :label="$t('organization.integration.api_password')" prop="password">
+        <el-form-item :label="$t('organization.integration.password')" prop="password">
           <el-input v-model="form.password" auto-complete="new-password" v-if="showInput"
                     :placeholder="$t('organization.integration.input_api_password')" show-password/>
+        </el-form-item>
+        <el-form-item :label="$t('organization.integration.zentao_url')" prop="url">
+          <el-input v-model="form.url" :placeholder="$t('organization.integration.input_zentao_url')"/>
+        </el-form-item>
+        <el-form-item :label="$t('organization.integration.zentao_request')" prop="request">
+          <el-radio v-model="form.request" label="PATH_INFO" size="small" border> PATH_INFO</el-radio>
+          <el-radio v-model="form.request" label="GET" size="small" border>GET</el-radio>
+          <ms-instructions-icon effect="light" style="margin-left: -20px;">
+            参考禅道配置文件中 $config->requestType 的值 <br/><br/>
+            配置文件参考路径：/opt/zbox/app/zentao/config/my.php
+          </ms-instructions-icon>
         </el-form-item>
       </el-form>
     </div>
@@ -26,7 +37,7 @@
     <div class="defect-tip">
       <div>{{ $t('organization.integration.use_tip') }}</div>
       <div>
-        1. {{ $t('organization.integration.use_tip_tapd') }}
+        1. {{ $t('organization.integration.use_tip_zentao') }}
       </div>
       <div>
         2. {{ $t('organization.integration.use_tip_two') }}
@@ -45,13 +56,15 @@
 </template>
 
 <script>
-import BugManageBtn from "@/business/components/settings/organization/components/BugManageBtn";
+import BugManageBtn from "@/business/components/settings/workspace/components/BugManageBtn";
 import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
-import {TAPD} from "@/common/js/constants";
+import {ZEN_TAO} from "@/common/js/constants";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
 export default {
-  name: "TapdSetting.vue",
+  name: "ZentaoSetting",
   components: {
+    MsInstructionsIcon,
     BugManageBtn
   },
   created() {
@@ -72,39 +85,38 @@ export default {
           required: true,
           message: this.$t('organization.integration.input_api_password'),
           trigger: ['change', 'blur']
-        }
+        },
+        url: {
+          required: true,
+          message: this.$t('organization.integration.input_zentao_url'),
+          trigger: ['change', 'blur']
+        },
+        request: {
+          required: true,
+          message: this.$t('organization.integration.input_zentao_request'),
+          trigger: ['change', 'blur']
+        },
       },
     }
   },
   methods: {
-    init() {
-      const {lastOrganizationId} = getCurrentUser();
-      let param = {};
-      param.platform = TAPD;
-      param.orgId = lastOrganizationId;
-      this.$parent.result = this.$post("service/integration/type", param, response => {
-        let data = response.data;
-        if (data.configuration) {
-          let config = JSON.parse(data.configuration);
-          this.$set(this.form, 'account', config.account);
-          this.$set(this.form, 'password', config.password);
-        } else {
-          this.clear();
-        }
-      })
-    },
     save() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-
+          let formatUrl = this.form.url.trim();
+          if (!formatUrl.endsWith('/')) {
+            formatUrl = formatUrl + '/';
+          }
+          const {lastOrganizationId} = getCurrentUser();
           let param = {};
           let auth = {
             account: this.form.account,
             password: this.form.password,
+            url: formatUrl,
+            request: this.form.request
           };
-          const {lastOrganizationId} = getCurrentUser();
           param.organizationId = lastOrganizationId;
-          param.platform = TAPD;
+          param.platform = ZEN_TAO;
           param.configuration = JSON.stringify(auth);
 
           this.$parent.result = this.$post("service/integration/save", param, () => {
@@ -121,9 +133,29 @@ export default {
         }
       })
     },
+    init() {
+      const {lastOrganizationId} = getCurrentUser();
+      let param = {};
+      param.platform = ZEN_TAO;
+      param.orgId = lastOrganizationId;
+      this.$parent.result = this.$post("service/integration/type", param, response => {
+        let data = response.data;
+        if (data.configuration) {
+          let config = JSON.parse(data.configuration);
+          this.$set(this.form, 'account', config.account);
+          this.$set(this.form, 'password', config.password);
+          this.$set(this.form, 'url', config.url);
+          this.$set(this.form, 'request', config.request ? config.request : 'PATH_INFO');
+        } else {
+          this.clear();
+        }
+      })
+    },
     clear() {
       this.$set(this.form, 'account', '');
       this.$set(this.form, 'password', '');
+      this.$set(this.form, 'url', '');
+      this.$set(this.form, 'request', '');
       this.$nextTick(() => {
         if (this.$refs.form) {
           this.$refs.form.clearValidate();
@@ -131,25 +163,31 @@ export default {
       });
     },
     testConnection() {
-      if (this.form.account && this.form.password) {
-        this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + TAPD, () => {
-          this.$success(this.$t('organization.integration.verified'));
-        });
-      } else {
-        this.$warning(this.$t('organization.integration.not_integrated'));
-        return false;
-      }
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          if (this.form.account && this.form.password) {
+            this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + ZEN_TAO, () => {
+              this.$success(this.$t('organization.integration.verified'));
+            });
+          } else {
+            this.$warning(this.$t('organization.integration.not_integrated'));
+            return false;
+          }
+        } else {
+          return false;
+        }
+      })
     },
     cancelIntegration() {
       if (this.form.account && this.form.password) {
-        this.$alert(this.$t('organization.integration.cancel_confirm') + TAPD + "？", '', {
+        this.$alert(this.$t('organization.integration.cancel_confirm') + ZEN_TAO + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
               const {lastOrganizationId} = getCurrentUser();
               let param = {};
               param.orgId = lastOrganizationId;
-              param.platform = TAPD;
+              param.platform = ZEN_TAO;
               this.$parent.result = this.$post("service/integration/delete", param, () => {
                 this.$success(this.$t('organization.integration.successful_operation'));
                 this.init('');
@@ -172,7 +210,6 @@ export default {
 </script>
 
 <style scoped>
-
 .defect-tip {
   background: #EDEDED;
   border: solid #E1E1E1 1px;
@@ -180,5 +217,4 @@ export default {
   padding: 10px;
   border-radius: 3px;
 }
-
 </style>

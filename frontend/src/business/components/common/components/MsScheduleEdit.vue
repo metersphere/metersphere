@@ -45,7 +45,7 @@ import {getCurrentOrganizationId, getCurrentUser, listenGoBack, removeGoBackList
 import Crontab from "../cron/Crontab";
 import CrontabResult from "../cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
-import ScheduleTaskNotification from "../../settings/organization/components/ScheduleTaskNotification";
+import ScheduleTaskNotification from "../../settings/workspace/components/ScheduleTaskNotification";
 
 function defaultCustomValidate() {
   return {pass: true};

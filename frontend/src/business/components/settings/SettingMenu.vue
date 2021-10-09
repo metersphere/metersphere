@@ -11,18 +11,6 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-submenu index="2"
-                v-permission="['ORGANIZATION_USER:READ', 'ORGANIZATION_WORKSPACE:READ','ORGANIZATION_SERVICE:READ','ORGANIZATION_MESSAGE:READ', 'ORGANIZATION_OPERATING_LOG:READ']">
-      <template v-slot:title>
-        <font-awesome-icon class="icon organization" :icon="['far', 'building']" size="lg"/>
-        <span>{{ $t('commons.organization') }}</span>
-      </template>
-      <el-menu-item v-for="menu in organizations" v-permission="menu.permissions" :key="menu.index" :index="menu.index"
-                    class="setting-item">
-        {{ $t(menu.title) }}
-      </el-menu-item>
-    </el-submenu>
-
     <el-submenu index="3"
                 v-permission="['WORKSPACE_USER:READ']">
       <template v-slot:title>

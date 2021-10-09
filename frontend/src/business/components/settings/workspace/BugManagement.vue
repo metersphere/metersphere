@@ -26,10 +26,10 @@
 </template>
 
 <script>
-import TapdSetting from "@/business/components/settings/organization/components/TapdSetting";
-import JiraSetting from "@/business/components/settings/organization/components/JiraSetting";
-import ZentaoSetting from "@/business/components/settings/organization/components/ZentaoSetting";
-import AzuredevopsSetting from "@/business/components/settings/organization/components/AzureDevopsSetting";
+import TapdSetting from "@/business/components/settings/workspace/components/TapdSetting";
+import JiraSetting from "@/business/components/settings/workspace/components/JiraSetting";
+import ZentaoSetting from "@/business/components/settings/workspace/components/ZentaoSetting";
+import AzuredevopsSetting from "@/business/components/settings/workspace/components/AzureDevopsSetting";
 import {JIRA, TAPD, ZEN_TAO, AZURE_DEVOPS} from "@/common/js/constants";
 
 export default {

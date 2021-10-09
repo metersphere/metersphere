@@ -65,29 +65,19 @@ export default {
     ...requireContext.keys().map(key => requireContext(key).system),
     ...requireContext.keys().map(key => requireContext(key).license),
     {
-      path: 'organizationpmnmember',
-      component: () => import('@/business/components/settings/organization/OrganizationMember'),
-      meta: {organization: true, title: 'commons.member', permissions: ['ORGANIZATION_USER:READ']}
-    },
-    {
-      path: 'organizationworkspace',
-      component: () => import('@/business/components/settings/organization/OrganizationWorkspace'),
-      meta: {organization: true, title: 'commons.workspace', permissions: ['ORGANIZATION_WORKSPACE:READ']}
-    },
-    {
-      path: 'serviceintegration',
-      component: () => import('@/business/components/settings/organization/ServiceIntegration'),
-      meta: {organization: true, title: 'organization.service_integration', permissions: ['ORGANIZATION_SERVICE:READ']}
-    },
-    {
-      path: 'messagesettings',
-      component: () => import('@/business/components/settings/organization/MessageSettings'),
-      meta: {organization: true, title: 'organization.message_settings', permissions: ['ORGANIZATION_MESSAGE:READ']}
-    },
-    {
       path: 'member',
       component: () => import('@/business/components/settings/workspace/WorkspaceMember'),
       meta: {workspace: true, title: 'commons.member', permissions: ['WORKSPACE_USER:READ']}
+    },
+    {
+      path: 'serviceintegration',
+      component: () => import('@/business/components/settings/workspace/ServiceIntegration'),
+      meta: {workspace: true, title: 'organization.service_integration', permissions: ['ORGANIZATION_SERVICE:READ']}
+    },
+    {
+      path: 'messagesettings',
+      component: () => import('@/business/components/settings/workspace/MessageSettings'),
+      meta: {workspace: true, title: 'organization.message_settings', permissions: ['ORGANIZATION_MESSAGE:READ']}
     },
     {
       path: 'projectmember',
@@ -134,12 +124,6 @@ export default {
       component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
       name: 'system',
       meta: {system: true, title: 'operating_log.title', permissions: ['SYSTEM_OPERATING_LOG:READ']}
-    },
-    {
-      path: 'operatingLog/organization',
-      component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
-      name: 'organization',
-      meta: {organization: true, title: 'operating_log.title', permissions: ['ORGANIZATION_OPERATING_LOG:READ']}
     },
     {
       path: 'operatingLog/workspace',
