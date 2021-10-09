@@ -651,6 +651,7 @@ export default {
     test_stop_success: '停止成功',
     test_execute_again: '再次执行',
     downloadJtl: '下载JTL',
+    downloadZipFile: '下载执行文件',
     export: '导出',
     export_to_ms_format: '导出 MeterSphere 格式',
     export_to_swagger3_format: '导出 Swagger3.0 格式',
