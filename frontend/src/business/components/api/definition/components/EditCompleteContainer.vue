@@ -203,14 +203,16 @@ export default {
           this.currentApi.request = JSON.parse(this.currentApi.request);
         }
       }
-      if (!this.currentApi.request.hashTree) {
+      if (this.currentApi && this.currentApi.request && !this.currentApi.request.hashTree) {
         this.currentApi.request.hashTree = [];
       }
-      if (this.currentApi.request.body && !this.currentApi.request.body.binary) {
+      if (this.currentApi && this.currentApi.request && this.currentApi.request.body && !this.currentApi.request.body.binary) {
         this.currentApi.request.body.binary = [];
       }
-      this.currentApi.request.clazzName = TYPE_TO_C.get(this.currentApi.request.type);
-      this.sort(this.currentApi.request.hashTree);
+      if (this.currentApi.request) {
+        this.currentApi.request.clazzName = TYPE_TO_C.get(this.currentApi.request.type);
+        this.sort(this.currentApi.request.hashTree);
+      }
     },
     mockSetting() {
       let mockParam = {};

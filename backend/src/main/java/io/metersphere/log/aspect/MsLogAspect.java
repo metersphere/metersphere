@@ -201,7 +201,7 @@ public class MsLogAspect {
                         }
                         if (StringUtils.isNotEmpty(content) && StringUtils.isNotEmpty(msLog.beforeValue())) {
                             OperatingLogDetails details = JSON.parseObject(content, OperatingLogDetails.class);
-                            List<DetailColumn> columns = ReflexObjectUtil.compared(JSON.parseObject(msLog.beforeValue(), OperatingLogDetails.class), details);
+                            List<DetailColumn> columns = ReflexObjectUtil.compared(JSON.parseObject(msLog.beforeValue(), OperatingLogDetails.class), details,msLog.module());
                             details.setColumns(columns);
                             msOperLog.setOperContent(JSON.toJSONString(details));
                             msOperLog.setSourceId(details.getSourceId());
