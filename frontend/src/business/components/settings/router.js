@@ -8,6 +8,12 @@ export default {
   },
   children: [
     {
+      path: '',
+      name: "SettingHome",
+      component: () => import('@/business/components/settings/SettingHome'),
+      meta: {}
+    },
+    {
       path: 'user',
       component: () => import('@/business/components/settings/system/User'),
       meta: {system: true, title: 'commons.user', permissions: ['SYSTEM_USER:READ']}
