@@ -176,11 +176,11 @@ export default {
         "</head>\n" +
         "<body>\n" +
         "<div>\n" +
-        "    <p>${operator}发起了一个缺陷:${name}</p>\n" +
+        "    <p>${operator}创建了缺陷:${name}</p>\n" +
         "</div>\n" +
         "</body>\n" +
         "</html>",
-      robotTitle: "${operator}发起了一个缺陷:${name}",
+      robotTitle: "${operator}创建了缺陷:${name}",
       defectTask: [{
         taskType: "defectTask",
         event: "",

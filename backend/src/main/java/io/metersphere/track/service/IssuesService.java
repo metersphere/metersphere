@@ -300,14 +300,6 @@ public class IssuesService {
         return issuesMapper.selectByPrimaryKey(id);
     }
 
-    private static String getIssuesContext(SessionUser user, IssuesUpdateRequest issuesRequest, String type) {
-        String context = "";
-        if (StringUtils.equals(NoticeConstants.Event.CREATE, type)) {
-            context = "缺陷任务通知：" + user.getName() + "发起了一个缺陷" + "'" + issuesRequest.getTitle() + "'" + "请跟进";
-        }
-        return context;
-    }
-
     public List<ZentaoBuild> getZentaoBuilds(IssuesRequest request) {
         ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), request);
         return platform.getBuilds();
