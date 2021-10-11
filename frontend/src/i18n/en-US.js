@@ -86,6 +86,7 @@ export default {
     test_resource_pool: 'Resource Pool',
     system_setting: 'Settings',
     api: 'API',
+    my_workstation:'MyWorkstation',
     performance: 'Performance',
     functional: 'Functional test',
     input_content: 'Please enter content',
@@ -320,6 +321,12 @@ export default {
     valid: 'valid',
     invalid: 'invalid',
     expired: 'expired',
+  },
+  workstation:{
+    dash_board: 'My DashBoard',
+    upcoming: 'My Upcoming',
+    focus: 'My Focus',
+    creation: 'My Creation',
   },
   display: {
     title: 'Theme',

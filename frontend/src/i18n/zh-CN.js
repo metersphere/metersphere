@@ -89,6 +89,7 @@ export default {
     api: '接口测试',
     performance: '性能测试',
     functional: '功能测试',
+    my_workstation:'我的工作台',
     input_content: '请输入内容',
     create: '新建',
     edit: '编辑',
@@ -321,6 +322,12 @@ export default {
     valid: '有效',
     invalid: '无效',
     expired: '已过期',
+  },
+  workstation:{
+    dash_board: '我的仪表盘',
+    upcoming: '我的待办',
+    focus: '我关注的',
+    creation: '我创建的',
   },
   display: {
     title: '显示设置',

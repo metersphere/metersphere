@@ -7,13 +7,13 @@ import Performance from "@/business/components/performance/router";
 import Track from "@/business/components/track/router";
 import ReportStatistics from "@/business/components/reportstatistics/router";
 import {getCurrentUserId} from "@/common/js/utils";
+import {workstation} from "@/business/components/xpack/router";
 
 // const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 // const Report = requireContext.keys().map(key => requireContext(key).report);
 // const ReportObj = Report && Report != null && Report.length > 0 && Report[0] != undefined ? Report : [{path: "/sidebar"}];
-
 Vue.use(VueRouter);
-
+const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 const router = new VueRouter({
   routes: [
     {path: "/", redirect: '/setting/personsetting'},
@@ -23,6 +23,7 @@ const router = new VueRouter({
         sidebar: RouterSidebar
       }
     },
+    ...requireContext.keys().map(key => requireContext(key).workstation),
     Setting,
     API,
     Performance,

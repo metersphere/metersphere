@@ -90,6 +90,7 @@ export default {
     performance: '性能測試',
     functional: '功能測試',
     input_content: '請輸入內容',
+    my_workstation:'我的工作台',
     create: '新建',
     edit: '編輯',
     copy: '復制',
@@ -321,6 +322,12 @@ export default {
     valid: '有效',
     invalid: '無效',
     expired: '已過期',
+  },
+  workstation:{
+    dash_board: '我的儀錶盤',
+    upcoming: '我的待辦',
+    focus: '我關注的',
+    creation: '我創建的',
   },
   display: {
     title: '顯示設置',
