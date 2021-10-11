@@ -166,6 +166,10 @@ public class ApiTestCaseService {
                     filters.put("status", new ArrayList<>());
                 }
             }
+            if(request.isToUpdate()){
+                Long timestamp = DateUtils.getTimestamp(-3);
+                request.setUpdateTime(timestamp);
+            }
             request.setOrders(orders);
         }
         if (checkThisWeekData) {

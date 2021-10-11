@@ -25,6 +25,11 @@
     <select id="getNextNum" resultType="io.metersphere.base.domain.Issues">
         SELECT * FROM issues WHERE issues.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
+    <select id="getCountByStatus" resultType="io.metersphere.base.domain.IssuesDao">
+        select count(id) as totalIssueCount, ifnull(issues.status,issues.platform_status) as status from issues
+        <include refid="queryWhereCondition"/>
+        group by status;
+    </select>
     <select id="getRelateIssues" resultType="io.metersphere.base.domain.IssuesDao">
         select issues.id, issues.num, issues.title, issues.project_id, issues.create_time, issues.update_time,
         issues.description, issues.status, issues.platform, issues.custom_fields,test_case_issues.test_case_id,issues.platform_status,
@@ -48,7 +53,13 @@
 
     <sql id="queryWhereCondition">
         <where>
-
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
             <if test="request.name != null">
                 and (
                       issues.title LIKE CONCAT('%', #{request.name}, '%')
@@ -85,7 +96,8 @@
                         <choose>
                             <when test="key == 'platform'">
                                 AND issues.platform IN
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                <foreach collection="values" item="
+" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
                             </when>
@@ -102,5 +114,57 @@
 
         </where>
     </sql>
+    <sql id="combine">
 
+        <if test="${condition}.creator != null">
+            and issues.creator
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+
+    </sql>
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
 </mapper>

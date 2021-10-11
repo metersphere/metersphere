@@ -89,6 +89,7 @@ export default {
     api: '接口测试',
     performance: '性能测试',
     functional: '功能测试',
+    my_workstation:'我的工作台',
     input_content: '请输入内容',
     create: '新建',
     edit: '编辑',
@@ -332,6 +333,22 @@ export default {
     valid: '有效',
     invalid: '无效',
     expired: '已过期',
+  },
+  workstation:{
+    dash_board: '我的仪表盘',
+    upcoming: '我的待办',
+    focus: '我关注的',
+    creation: '我创建的',
+    table_name:{
+      track_case:'功能用例',
+      track_plan:'测试计划',
+      track_review:'用例评审',
+      track_issue:'缺陷管理',
+      api_definition:'接口定义',
+      api_automation:'接口自动化',
+      api_case:'接口用例',
+      performance:'性能测试',
+    }
   },
   display: {
     title: '显示设置',
@@ -894,6 +911,7 @@ export default {
       create_tip: "注: 详细的接口信息可以在编辑页面填写",
       api_import: "接口导入",
       check_select: "请勾选接口",
+      api_project:"所属项目",
       select_comp: {
         no_data: "无数据",
         add_data: "去添加"
@@ -1835,6 +1853,7 @@ export default {
       title: "缺陷标题",
       description: "缺陷描述",
       status: "缺陷状态",
+      issue_project:"所属项目",
       platform: "平台",
       operate: "操作",
       close: "关闭缺陷",

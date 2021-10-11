@@ -152,6 +152,7 @@ export default {
   mounted() {
     this.getProject();
     this.getTrashCase();
+    this.init()
   },
   watch: {
     redirectID() {
@@ -374,6 +375,12 @@ export default {
           tab.label = data.name;
           break;
         }
+      }
+    },
+    init(){
+      let scenarioData = this.$route.params.scenarioData;
+      if(scenarioData){
+        this.editScenario(scenarioData)
       }
     },
     editScenario(row) {

@@ -119,7 +119,7 @@
              :fields-width="fieldsWidth"
              min-width="100px"
              :label="$t('commons.pass_rate')">
-          </ms-table-column>
+           </ms-table-column>
 
           <ms-table-column
             sortable="custom"
