@@ -21,4 +21,6 @@ public interface ExtIssuesMapper {
     List<IssuesDao> getIssueForSync(String projectId);
 
     List<PlanReportIssueDTO> selectForPlanReport(String planId);
+
+    List<IssuesDao>getCountByStatus(@Param("request") IssuesRequest issuesRequest);
 }

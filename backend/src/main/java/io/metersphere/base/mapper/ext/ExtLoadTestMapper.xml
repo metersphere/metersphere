@@ -18,6 +18,12 @@
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
+        <if test="${condition}.followPeople != null">
+            and load_test.follow_people
+            <include refid="condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+        </if>
         <if test="${condition}.updateTime != null">
             AND load_test.update_time
             <include refid="condition">
@@ -28,6 +34,45 @@
             AND project.name
             <include refid="condition">
                 <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            AND load_test.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            AND load_test.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            AND load_test.user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="countCombine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            AND load_test.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.followPeople != null">
+            and load_test.follow_people
+            <include refid="condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            AND load_test.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
             </include>
         </if>
         <if test="${condition}.createTime != null">
@@ -142,6 +187,33 @@
     <select id="getNextNum" resultType="io.metersphere.base.domain.LoadTest">
         select * from load_test lt where lt.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
+
+    <select id="moduleCount" resultType="java.lang.Integer">
+        select count(id) from load_test
+        <where>
+            <if test="request.combine != null">
+                <include refid="countCombine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+        </where>
+    </select>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+        </where>
+    </sql>
+
+
 
     <select id="getProjectFiles" resultType="io.metersphere.base.domain.FileMetadata">
         SELECT file_metadata.*

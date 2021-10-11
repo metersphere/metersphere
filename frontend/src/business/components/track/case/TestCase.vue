@@ -177,7 +177,6 @@ export default {
       });
     },
     '$route'(to, from) {
-      this.init(to);
       if (to.path.indexOf('/track/case/all') == -1) {
         if (this.$refs && this.$refs.autoScenarioConfig) {
           this.$refs.autoScenarioConfig.forEach(item => {
@@ -185,6 +184,7 @@ export default {
           });
         }
       }
+      this.init(to);
     },
     activeName(newVal, oldVal) {
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
@@ -338,11 +338,14 @@ export default {
       if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0) {
         this.testCaseReadOnly = false;
         let caseId = this.$route.params.caseId;
+        let routeTestCase = this.$route.params.testCase;
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
-        if (caseId) {
+        if(routeTestCase){
+          this.editTestCase(routeTestCase);
+        }else if (caseId) {
           this.$get('test/case/get/' + caseId, response => {
             let testCase = response.data;
             this.editTestCase(testCase);

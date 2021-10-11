@@ -86,6 +86,7 @@ export default {
     test_resource_pool: 'Resource Pool',
     system_setting: 'Settings',
     api: 'API',
+    my_workstation:'MyWorkstation',
     performance: 'Performance',
     functional: 'Functional test',
     input_content: 'Please enter content',
@@ -331,6 +332,22 @@ export default {
     valid: 'valid',
     invalid: 'invalid',
     expired: 'expired',
+  },
+  workstation:{
+    dash_board: 'My DashBoard',
+    upcoming: 'My Upcoming',
+    focus: 'My Focus',
+    creation: 'My Creation',
+    table_name:{
+      track_case:'Track Case',
+      track_plan:'Track Plan',
+      track_review:'Track Review',
+      track_issue:'Track issue',
+      api_definition:'Api Definition',
+      api_automation:'Api Automation',
+      api_case:'Api Case',
+      performance:'Performance',
+    }
   },
   display: {
     title: 'Theme',
@@ -888,6 +905,7 @@ export default {
       create_tip: "Note: Detailed interface information can be filled out on the edit page",
       api_import: "Api Import",
       check_select: "Please check the API",
+      api_project:"Project",
       select_comp: {
         no_data: "No Data",
         add_data: "Add Data"
@@ -1816,6 +1834,7 @@ export default {
       description: "Issue Description",
       status: "Issue Status",
       platform: "Platform",
+      issue_project:"Project",
       operate: "Operate",
       close: "Close",
       delete: "Delete",
