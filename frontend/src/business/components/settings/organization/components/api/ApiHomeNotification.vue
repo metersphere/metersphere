@@ -180,7 +180,7 @@ export default {
         "</div>\n" +
         "</body>\n" +
         "</html>",
-      robotTitle: "${operator}发起了一个缺陷:${issuesName}，请跟进",
+      robotTitle: "${operator}创建了缺陷:${issuesName}",
       defectTask: [{
         taskType: "defectTask",
         event: "",
