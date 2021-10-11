@@ -522,4 +522,15 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             return list.get(0);
         }
     }
+
+    public ApiModule getDefaultNodeUnCreateNew(String projectId,String protocol) {
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("未规划接口").andParentIdIsNull();;
+        List<ApiModule> list = apiModuleMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
+        }else {
+            return list.get(0);
+        }
+    }
 }
