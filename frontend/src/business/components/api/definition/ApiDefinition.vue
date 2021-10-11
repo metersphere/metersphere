@@ -402,6 +402,9 @@ export default {
       // });
     }
   },
+  mounted(){
+    this.init();
+  },
   methods: {
     setEnvironment(data) {
       if (data) {
@@ -558,6 +561,7 @@ export default {
       this.apiDefaultTab = newTabName;
     },
     handleTabsEdit(targetName, action, api) {
+      debugger
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
@@ -581,7 +585,14 @@ export default {
     debug(id) {
       this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
     },
+    init(){
+      let routeTestCase = this.$route.params.apiDefinition;
+      if(routeTestCase){
+        this.editApi(routeTestCase)
+      }
+    },
     editApi(row) {
+      debugger
       let name = "";
       if (row.isCopy) {
         name = "copy" + "-" + row.name;
