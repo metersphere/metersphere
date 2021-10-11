@@ -82,23 +82,13 @@ export default {
 
     this.registerEvents();
   },
-  computed: {
-    ...mapGetters([
-      'isNewVersion',
-      'isOldVersion',
-    ])
-  },
   methods: {
     handleSelect(index) {
       this.activeIndex = index;
     },
     active() {
       if (this.activeIndex === '/api') {
-        if (this.isNewVersion) {
-          window.location.href = "/#/api/home";
-        } else if (this.isOldVersion) {
-          window.location.href = "/#/api/home_obsolete";
-        }
+        window.location.href = "/#/api/home";
       }
     },
     check(key) {

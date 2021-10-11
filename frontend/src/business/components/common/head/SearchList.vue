@@ -49,12 +49,6 @@ export default {
   inject: [
     'reload'
   ],
-  computed: {
-    ...mapGetters([
-      'isNewVersion',
-      'isOldVersion',
-    ]),
-  },
   data() {
     return {
       result: {},

@@ -39,10 +39,6 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
-    ...mapGetters([
-      'isNewVersion',
-      'isOldVersion',
-    ])
   },
   methods: {
     logout: function () {
