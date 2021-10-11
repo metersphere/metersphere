@@ -19,7 +19,16 @@
                 <el-col :span="10">
                   <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'DURATION'">
                     {{ $t('load_test.thread_num') }}{{ threadGroup.threadNumber }},
-                    {{ $t('load_test.duration') }}: {{ threadGroup.duration }} {{ getUnitLabel(threadGroup) }}
+                    {{ $t('load_test.duration') }}:
+                    <span v-if="threadGroup.durationHours">
+                      {{ threadGroup.durationHours }}{{ $t('schedule.cron.hours') }}
+                    </span>
+                    <span v-if="threadGroup.durationMinutes">
+                      {{ threadGroup.durationMinutes }}{{ $t('schedule.cron.minutes') }}
+                    </span>
+                    <span v-if="threadGroup.durationSeconds">
+                      {{ threadGroup.durationSeconds }}{{ $t('schedule.cron.seconds') }}
+                    </span>
                   </el-tag>
                   <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'ITERATION'">
                     {{ $t('load_test.thread_num') }} {{ threadGroup.threadNumber }},
@@ -46,20 +55,32 @@
               </el-form-item>
               <br>
               <div v-if="threadGroup.threadType === 'DURATION'">
-                <el-form-item :label="$t('load_test.duration')">
-                  <el-input-number
-                    :disabled="true"
-                    v-model="threadGroup.duration"
-                    :min="1"
-                    @change="calculateTotalChart()"
-                    size="mini"/>
+                <el-form-item :label="$t('schedule.cron.hours')">
+                  <el-input-number controls-position="right"
+                                   :disabled="true"
+                                   v-model="threadGroup.durationHours"
+                                   :min="0"
+                                   :max="9999"
+                                   @change="calculateTotalChart()"
+                                   size="mini"/>
                 </el-form-item>
-                <el-form-item>
-                  <el-radio-group v-model="threadGroup.unit" :disabled="true">
-                    <el-radio label="S">{{ $t('schedule.cron.seconds') }}</el-radio>
-                    <el-radio label="M">{{ $t('schedule.cron.minutes') }}</el-radio>
-                    <el-radio label="H">{{ $t('schedule.cron.hours') }}</el-radio>
-                  </el-radio-group>
+                <el-form-item :label="$t('schedule.cron.minutes')">
+                  <el-input-number controls-position="right"
+                                   :disabled="true"
+                                   v-model="threadGroup.durationMinutes"
+                                   :min="0"
+                                   :max="59"
+                                   @change="calculateTotalChart()"
+                                   size="mini"/>
+                </el-form-item>
+                <el-form-item :label="$t('schedule.cron.seconds')">
+                  <el-input-number controls-position="right"
+                                   :disabled="true"
+                                   v-model="threadGroup.durationSeconds"
+                                   :min="0"
+                                   :max="59"
+                                   @change="calculateTotalChart()"
+                                   size="mini"/>
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit')">
@@ -168,6 +189,9 @@ const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
 const STEPS = "Steps";
 const DURATION = "duration";
+const DURATION_HOURS = "durationHours";
+const DURATION_MINUTES = "durationMinutes";
+const DURATION_SECONDS = "durationSeconds";
 const UNIT = "unit";
 const RPS_LIMIT = "rpsLimit";
 const RPS_LIMIT_ENABLE = "rpsLimitEnable";
@@ -230,6 +254,15 @@ export default {
             case DURATION:
               this.threadGroups[i].duration = item.value;
               break;
+            case DURATION_HOURS:
+              this.threadGroups[i].durationHours = item.value;
+              break;
+            case DURATION_MINUTES:
+              this.threadGroups[i].durationMinutes = item.value;
+              break;
+            case DURATION_SECONDS:
+              this.threadGroups[i].durationSeconds = item.value;
+              break;
             case UNIT:
               this.threadGroups[i].unit = item.value;
               break;
@@ -265,17 +298,10 @@ export default {
           }
         });
         for (let i = 0; i < this.threadGroups.length; i++) {
-          // 恢复成单位需要的值
-          switch (this.threadGroups[i].unit) {
-            case 'M':
-              this.threadGroups[i].duration = this.threadGroups[i].duration / 60;
-              break;
-            case 'H':
-              this.threadGroups[i].duration = this.threadGroups[i].duration / 60 / 60;
-              break;
-            default:
-              break;
-          }
+          let tg = this.threadGroups[i];
+          tg.durationHours = Math.floor(tg.duration / 3600);
+          tg.durationMinutes = Math.floor((tg.duration / 60 % 60));
+          tg.durationSeconds = Math.floor((tg.duration % 60));
         }
         this.calculateTotalChart();
       }
