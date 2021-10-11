@@ -128,6 +128,53 @@ public class ApiDefinitionService {
         return resList;
     }
 
+    public void initDefaultModuleId(){
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andModuleIdIsNull();
+        List<ApiDefinition> updateApiList = apiDefinitionMapper.selectByExample(example);
+        Map<String, Map<String,List<ApiDefinition>>> projectIdMap = new HashMap<>();
+        for (ApiDefinition api : updateApiList) {
+            String projectId = api.getProjectId();
+            String protocal = api.getProtocol();
+            if (projectIdMap.containsKey(projectId)) {
+                if(projectIdMap.get(projectId).containsKey(protocal)){
+                    projectIdMap.get(projectId).get(protocal).add(api);
+                }else {
+                    List<ApiDefinition> list = new ArrayList<>();
+                    list.add(api);
+                    projectIdMap.get(projectId).put(protocal,list);
+                }
+            } else {
+                List<ApiDefinition> list = new ArrayList<>();
+                list.add(api);
+                Map<String,List<ApiDefinition>> map = new HashMap<>();
+                map.put(protocal,list);
+                projectIdMap.put(projectId, map);
+            }
+        }
+        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+        for (Map.Entry<String, Map<String,List<ApiDefinition>>> entry : projectIdMap.entrySet()) {
+            String projectId = entry.getKey();
+            Map<String,List<ApiDefinition>> map = entry.getValue();
+
+            for (Map.Entry<String,List<ApiDefinition>> itemEntry : map.entrySet()) {
+                String protocal = itemEntry.getKey();
+                ApiModule node = apiModuleService.getDefaultNodeUnCreateNew(projectId, protocal);
+                if(node != null){
+                    List<ApiDefinition> testCaseList = itemEntry.getValue();
+                    for (ApiDefinition apiDefinition : testCaseList) {
+                        ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
+                        updateCase.setId(apiDefinition.getId());
+                        updateCase.setModuleId(node.getId());
+                        updateCase.setModulePath("/" + node.getName());
+
+                        apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
+                    }
+                }
+            }
+        }
+    }
+
     public List<ApiDefinitionResult> listBatch(ApiBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
