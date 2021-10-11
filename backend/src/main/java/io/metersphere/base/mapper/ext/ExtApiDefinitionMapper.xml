@@ -120,6 +120,12 @@
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
+        <if test="${condition}.followPeople != null">
+            and api_definition.follow_people
+            <include refid="condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+        </if>
         <if test="${condition}.updateTime != null">
             and api_definition.update_time
             <include refid="condition">

@@ -29,7 +29,9 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
     private Map<String, Object> combine;
     private boolean isSelectThisWeedData;
     private long createTime = 0;
+    private long updateTime = 0;
     private String reviewId;
     private String deleteUserId;
     private long deleteTime;
+    private boolean toUpdate;
 }

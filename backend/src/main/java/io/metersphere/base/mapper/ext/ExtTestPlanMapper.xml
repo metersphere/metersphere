@@ -58,6 +58,12 @@
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
+        <if test="${condition}.followPeople != null">
+            and test_plan.follow_people
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+        </if>
         <if test="${condition}.projectName != null">
             and project.name
             <include refid="condition">
@@ -87,6 +93,19 @@
             <include refid="condition">
                 <property name="object" value="${condition}.stage"/>
             </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and test_plan.creator
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test="${condition}.principal != null">
+            and test_plan.id in (SELECT test_plan_id FROM test_plan_principal  WHERE principal_id
+            <include refid="condition">
+                <property name="object" value="${condition}.principal"/>
+            </include>
+            )
         </if>
     </sql>
 
