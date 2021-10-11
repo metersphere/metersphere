@@ -101,6 +101,7 @@ export default {
       this.report = {};
       this.content = {};
       this.fails = [];
+
       this.report = {};
       this.fullTreeNodes = [];
       this.failsTreeNodes = [];
