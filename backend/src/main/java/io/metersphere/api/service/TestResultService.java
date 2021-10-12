@@ -8,12 +8,13 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
@@ -51,6 +52,8 @@ public class TestResultService {
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
+    @Resource
+    private UserService userService;
 
     public void saveResult(TestResult testResult, String runMode, String debugReportId, String testId) {
         try {
@@ -195,7 +198,7 @@ public class TestResultService {
         }
     }
 
-    private static void sendTask(ApiTestReportVariable report, String reportUrl, TestResult testResult) {
+    private void sendTask(ApiTestReportVariable report, String reportUrl, TestResult testResult) {
         if (report == null) {
             return;
         }
@@ -233,9 +236,11 @@ public class TestResultService {
         if (StringUtils.equals("error", report.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         }
+        UserDTO userDTO = userService.getUserDTO(report.getUserId());
         Map paramMap = new HashMap<>();
         paramMap.put("type", "api");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
+        paramMap.put("operator", userDTO.getName());
         paramMap.putAll(new BeanMap(report));
         NoticeModel noticeModel = NoticeModel.builder()
                 .operator(report.getUserId())
