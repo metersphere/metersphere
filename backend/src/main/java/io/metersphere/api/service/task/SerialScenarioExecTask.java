@@ -38,7 +38,13 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                 return null;
             }
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
+                String testPlanScenarioId = "";
+                if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(runModeDataDTO.getTestId())) {
+                    testPlanScenarioId = request.getScenarioTestPlanIdMap().get(runModeDataDTO.getTestId());
+                } else {
+                    testPlanScenarioId = request.getPlanScenarioId();
+                }
+                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), testPlanScenarioId, request.getConfig());
             } else {
                 jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
             }
