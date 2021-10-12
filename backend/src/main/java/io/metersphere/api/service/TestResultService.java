@@ -238,7 +238,7 @@ public class TestResultService {
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         paramMap.putAll(new BeanMap(report));
         NoticeModel noticeModel = NoticeModel.builder()
-                .operator(SessionUtils.getUserId())
+                .operator(report.getUserId())
                 .successContext(successContext)
                 .successMailTemplate("ApiSuccessfulNotification")
                 .failedContext(failedContext)
