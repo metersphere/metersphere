@@ -202,11 +202,13 @@ public class TestPlanService {
 
         String planId = testPlan.getId();
         List<String> principals = testPlan.getPrincipals();
-        for (String principal : principals) {
-            TestPlanPrincipal testPlanPrincipal = new TestPlanPrincipal();
-            testPlanPrincipal.setTestPlanId(planId);
-            testPlanPrincipal.setPrincipalId(principal);
-            testPlanPrincipalService.insert(testPlanPrincipal);
+        if (!CollectionUtils.isEmpty(principals)) {
+            for (String principal : principals) {
+                TestPlanPrincipal testPlanPrincipal = new TestPlanPrincipal();
+                testPlanPrincipal.setTestPlanId(planId);
+                testPlanPrincipal.setPrincipalId(principal);
+                testPlanPrincipalService.insert(testPlanPrincipal);
+            }
         }
 
         if (StringUtils.isBlank(testPlan.getProjectId())) {
