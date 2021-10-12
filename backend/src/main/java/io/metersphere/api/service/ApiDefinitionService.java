@@ -608,6 +608,9 @@ public class ApiDefinitionService {
             }
 
         } else {
+            apiDefinition.setStatus(sameRequest.get(0).getStatus());
+            apiDefinition.setOriginalState(sameRequest.get(0).getOriginalState());
+            apiDefinition.setCaseStatus(sameRequest.get(0).getCaseStatus());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 //如果存在则修改
                 apiDefinition.setId(sameRequest.get(0).getId());
