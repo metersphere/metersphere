@@ -134,7 +134,7 @@ public class NoticeService {
     public List<MessageDetail> searchMessageByTypeBySend(String type, String projectId) {
         try {
             String orgId = "";
-            if (StringUtils.isNotEmpty(projectId)) {
+            if (null == SessionUtils.getUser()) {
                 Organization organization = extProjectMapper.getOrganizationByProjectId(projectId);
                 orgId = organization.getId();
             } else {
