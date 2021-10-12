@@ -75,7 +75,7 @@ export function saveScenario(url, scenario, scenarioDefinition, _this,success) {
   if (_this.$store.state.pluginFiles && _this.$store.state.pluginFiles.length > 0) {
     _this.$store.state.pluginFiles.forEach(fileItem => {
       if (fileItem.file) {
-        scenario.bodyFileRequestIds.push(fileItem.file.id);
+        scenario.bodyFileRequestIds.push(fileItem.file.uid);
         bodyFiles.push(fileItem.file);
       }
     });
