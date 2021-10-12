@@ -13,7 +13,7 @@ module.exports = {
       //1.8需求：增加分享功能，不登陆即可看到文档页面。所以代理设置增加了(?!/document)文档页面的相关信息
       // ['^(?!/login)']: {
       ['^((?!/login)(?!/document))']: {
-        target: 'http://localhost:8081',
+        target: 'https://localhost:8443',
         ws: true,
       },
     }
