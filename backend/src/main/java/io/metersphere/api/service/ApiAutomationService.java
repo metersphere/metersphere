@@ -1253,7 +1253,13 @@ public class ApiAutomationService {
 
         for (String reportId : executeQueue.keySet()) {
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-                jMeterService.runTest(executeQueue.get(reportId).getTestId(), reportId, request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
+                String testPlanScenarioId = "";
+                if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(executeQueue.get(reportId).getTestId())) {
+                    testPlanScenarioId = request.getScenarioTestPlanIdMap().get(executeQueue.get(reportId).getTestId());
+                } else {
+                    testPlanScenarioId = request.getPlanScenarioId();
+                }
+                jMeterService.runTest(executeQueue.get(reportId).getTestId(), reportId, request.getRunMode(), testPlanScenarioId, request.getConfig());
             } else {
                 jMeterService.runLocal(reportId, executeQueue.get(reportId).getHashTree(),
                         TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
