@@ -18,11 +18,13 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.UserService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.domain.ReportResultComponent;
@@ -86,6 +88,8 @@ public class TestPlanReportService {
     TestPlanReportContentMapper testPlanReportContentMapper;
     @Resource
     ShareInfoService shareInfoService;
+    @Resource
+    private UserService userService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -824,7 +828,8 @@ public class TestPlanReportService {
         paramMap.put("url", url);
         paramMap.put("projectId", projectId);
         paramMap.putAll(new BeanMap(testPlanReport));
-
+        String creator = testPlanReport.getCreator();
+        UserDTO userDTO = userService.getUserDTO(creator);
         String successfulMailTemplate = "";
         String errfoMailTemplate = "";
 
@@ -835,9 +840,11 @@ public class TestPlanReportService {
 
         String testPlanShareUrl = shareInfoService.getTestPlanShareUrl(testPlanReport.getId());
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
-
+        if (userDTO != null) {
+            paramMap.put("operator", userDTO.getName());
+        }
         NoticeModel noticeModel = NoticeModel.builder()
-                .operator(testPlanReport.getCreator())
+                .operator(creator)
                 .successContext(successContext)
                 .successMailTemplate(successfulMailTemplate)
                 .failedContext(failedContext)
