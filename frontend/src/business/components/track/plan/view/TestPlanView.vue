@@ -35,7 +35,6 @@
 
 import NodeTree from "../../common/NodeTree";
 import TestPlanTestCaseList from "./comonents/functional/FunctionalTestCaseList";
-import TestCaseRelevance from "./comonents/functional/TestCaseFunctionalRelevance";
 import SelectMenu from "../../common/SelectMenu";
 import MsContainer from "../../../common/components/MsContainer";
 import MsAsideContainer from "../../../common/components/MsAsideContainer";
@@ -55,7 +54,7 @@ export default {
     TestPlanFunctional,
     MsTestPlanHeaderBar,
     MsMainContainer,
-    MsAsideContainer, MsContainer, NodeTree, TestPlanTestCaseList, TestCaseRelevance, SelectMenu, TestPlanLoad
+    MsAsideContainer, MsContainer, NodeTree, TestPlanTestCaseList, SelectMenu, TestPlanLoad
   },
   data() {
     return {

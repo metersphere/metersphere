@@ -36,7 +36,7 @@
       </ms-tab-button>
     </template>
 
-    <test-case-functional-relevance
+    <test-plan-functional-relevance
       @refresh="refresh"
       :plan-id="planId"
       ref="testCaseRelevance"/>
@@ -46,23 +46,22 @@
 
 <script>
 import NodeTree from "../../../../common/NodeTree";
-import TestCaseRelevance from "./TestCaseFunctionalRelevance";
-import TestCaseFunctionalRelevance from "./TestCaseFunctionalRelevance";
 import MsTestPlanCommonComponent from "../base/TestPlanCommonComponent";
 import FunctionalTestCaseList from "./FunctionalTestCaseList";
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 import TestPlanMinder from "@/business/components/track/common/minder/TestPlanMinder";
 import {getCurrentProjectID} from "@/common/js/utils";
+import TestPlanFunctionalRelevance
+  from "@/business/components/track/plan/view/comonents/functional/TestPlanFunctionalRelevance";
 
 export default {
   name: "TestPlanFunctional",
   components: {
+    TestPlanFunctionalRelevance,
     TestPlanMinder,
     MsTabButton,
     FunctionalTestCaseList,
-    TestCaseFunctionalRelevance,
     MsTestPlanCommonComponent,
-    TestCaseRelevance,
     NodeTree,
   },
   data() {

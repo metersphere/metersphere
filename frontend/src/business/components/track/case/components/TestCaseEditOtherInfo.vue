@@ -39,6 +39,11 @@
         :case-id="caseId" ref="issue"/>
     </el-tab-pane>
 
+    <el-tab-pane :label="$t('依赖关系')" name="relationship">
+      <test-case-relationship-list :title="'前置对象'" relationship-type="PRE" :case-id="caseId" ref="preRelationshipList"/>
+      <test-case-relationship-list :title="'后置对象'" relationship-type="POST" :case-id="caseId" ref="postRelationshipList"/>
+    </el-tab-pane>
+
     <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
       <el-row>
         <el-col :span="20" :offset="1">
@@ -78,10 +83,12 @@ import TestCaseAttachment from "@/business/components/track/case/components/Test
 import TestCaseIssueRelate from "@/business/components/track/case/components/TestCaseIssueRelate";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import TestCaseTestRelate from "@/business/components/track/case/components/TestCaseTestRelate";
+import TestCaseRelationshipList from "@/business/components/track/case/components/TestCaseRelationshipList";
 
 export default {
   name: "TestCaseEditOtherInfo",
   components: {
+    TestCaseRelationshipList,
     TestCaseTestRelate,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
   props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId'],
@@ -112,6 +119,9 @@ export default {
         this.getDemandOptions();
       } else if (this.tabActiveName === 'bug') {
         this.$refs.issue.getIssues();
+      } else if (this.tabActiveName === 'relationship') {
+        this.$refs.preRelationshipList.getTableData();
+        this.$refs.postRelationshipList.getTableData();
       } else if (this.tabActiveName === 'attachment') {
         this.getFileMetaData();
       }

@@ -50,6 +50,7 @@ import {buildTree} from "../../api/definition/model/NodeTree";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 import {getCurrentProjectID} from "@/common/js/utils";
 import ModuleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
+import {getTestCaseNodes} from "@/network/testCase";
 
 export default {
   name: "TestCaseNodeTree",
@@ -137,8 +138,8 @@ export default {
     },
     list() {
       if (this.projectId) {
-        this.result = this.$get("/case/node/list/" + this.projectId, response => {
-          this.treeNodes = response.data;
+        this.result = getTestCaseNodes(this.projectId, data => {
+          this.treeNodes = data;
           this.treeNodes.forEach(node => {
             buildTree(node, {path: ''});
           });

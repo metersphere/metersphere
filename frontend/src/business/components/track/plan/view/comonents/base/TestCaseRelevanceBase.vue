@@ -4,6 +4,7 @@
     <template v-slot:aside>
       <select-menu
         :data="projects"
+        v-if="multipleProject"
         width="160px"
         :current-data="currentProject"
         :title="$t('test_track.switch_project')"
@@ -73,6 +74,10 @@
         default() {
           return false;
         }
+      },
+      multipleProject: {
+        type: Boolean,
+        default: true
       }
     },
     watch: {

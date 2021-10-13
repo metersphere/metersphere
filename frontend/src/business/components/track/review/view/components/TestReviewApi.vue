@@ -83,7 +83,6 @@ import MsTestPlanApiScenarioList from "@/business/components/track/plan/view/com
 import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
 import ApiCaseSimpleList from "@/business/components/api/definition/components/list/ApiCaseSimpleList";
 import TestPlanApiCaseList from "@/business/components/track/plan/view/comonents/api/TestPlanApiCaseList";
-import TestCaseRelevance from "@/business/components/track/plan/view/comonents/functional/TestCaseFunctionalRelevance";
 import NodeTree from "@/business/components/track/common/NodeTree";
 import MsApiModule from "../../../../api/definition/components/module/ApiModule"
 import TestReviewRelevanceApi from "@/business/components/track/review/view/components/TestReviewRelevanceApi";
@@ -100,7 +99,6 @@ export default {
     ApiCaseSimpleList,
     TestPlanApiCaseList,
     MsTestPlanCommonComponent,
-    TestCaseRelevance,
     NodeTree,
     MsApiModule,
   },

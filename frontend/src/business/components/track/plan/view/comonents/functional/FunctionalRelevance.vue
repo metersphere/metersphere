@@ -3,8 +3,8 @@
   <test-case-relevance-base
     @setProject="setProject"
     @save="saveCaseRelevance"
-    :plan-id="planId"
-    :flag="true"
+    :flag="isTestPlan"
+    :multiple-project="multipleProject"
     :is-saving="isSaving"
     ref="baseRelevance">
 
@@ -17,7 +17,7 @@
                  ref="nodeTree"/>
     </template>
 
-    <ms-table-header :condition.sync="page.condition" @search="search" title="" :show-create="false"/>
+    <ms-table-header :condition.sync="page.condition" @search="getTestCases" title="" :show-create="false"/>
 
     <ms-table
       v-loading="page.result.loading"
@@ -26,8 +26,8 @@
       :total="page.total"
       :page-size.sync="page.pageSize"
       :screen-height="null"
-      @handlePageChange="search"
-      @refresh="search"
+      @handlePageChange="getTestCases"
+      @refresh="getTestCases"
       ref="table">
 
       <ms-table-column
@@ -83,7 +83,7 @@
 
     </ms-table>
 
-    <ms-table-pagination :change="search" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize" :total="page.total"/>
+    <ms-table-pagination :change="getTestCases" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize" :total="page.total"/>
   </test-case-relevance-base>
 
 </template>
@@ -97,16 +97,13 @@ import MsTableSearchBar from "../../../../../common/components/MsTableSearchBar"
 import MsTableAdvSearchBar from "../../../../../common/components/search/MsTableAdvSearchBar";
 import MsTableHeader from "../../../../../common/components/MsTableHeader";
 import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
-import {buildPagePath, getPageDate, getPageInfo} from "@/common/js/tableUtils";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "@/business/components/common/components/MsTag";
-import {TEST_PLAN_RELEVANCE_FUNC_CONFIGS} from "@/business/components/common/components/search/search-components";
-
 
 export default {
-  name: "TestCaseFunctionalRelevance",
+  name: "FunctionalRelevance",
   components: {
     MsTag,
     MsTablePagination,
@@ -131,9 +128,6 @@ export default {
       projectId: '',
       projectName: '',
       projects: [],
-      page: getPageInfo({
-        components: TEST_PLAN_RELEVANCE_FUNC_CONFIGS
-      }),
       customNum: false,
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -144,21 +138,34 @@ export default {
     };
   },
   props: {
-    planId: {
-      type: String
+    page: {
+      type: Object
+    },
+    isTestPlan: {
+      type: Boolean
+    },
+    getTableData: {
+      type: Function
+    },
+    getNodeTree: {
+      type: Function
+    },
+    save: {
+      type: Function
+    },
+    multipleProject: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
-    planId() {
-      this.page.condition.planId = this.planId;
-    },
     selectNodeIds() {
-      this.search();
+      this.getTestCases();
     },
     projectId() {
       this.page.condition.projectId = this.projectId;
       this.getProjectNode();
-      this.search();
+      this.getTestCases();
       this.getProject();
     }
   },
@@ -184,67 +191,29 @@ export default {
         }
       })
     },
-    saveCaseRelevance(item) {
-      this.isSaving = true;
-      let param = {};
-      param.planId = this.planId;
-      param.ids = this.$refs.table.selectIds;
-      param.request = this.page.condition;
-      param.checked = item
-      this.result = this.$post('/test/plan/relevance', param, () => {
-        this.isSaving = false;
-        this.$success(this.$t('commons.save_success'));
-        this.$refs.baseRelevance.close();
-        this.$emit('refresh');
-      },(error) => {
-        this.isSaving = false;
-      });
-    },
-    search() {
-      this.getTestCases();
-    },
     getTestCases() {
       let condition = this.page.condition;
-      if (this.planId) {
-        condition.planId = this.planId;
-      }
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
         condition.nodeIds = this.selectNodeIds;
       } else {
         condition.nodeIds = [];
       }
+      condition.projectId = this.projectId;
       if (this.projectId) {
-        condition.projectId = this.projectId;
-        this.page.result = this.$post(buildPagePath('/test/case/relate', this.page), condition, response => {
-          getPageDate(response, this.page);
-          let data = this.page.data;
-          data.forEach(item => {
-            item.checked = false;
-            item.tags = JSON.parse(item.tags);
-          });
-          if (this.$refs.table) {
-            this.$refs.table.clear();
-          }
-        });
+        this.getTableData();
       }
+    },
+    saveCaseRelevance(item) {
+      this.isSaving = true;
+      let param = {};
+      param.ids = this.$refs.table.selectIds;
+      param.request = this.page.condition;
+      param.checked = item;
+      this.save(param, this);
     },
     nodeChange(node, nodeIds, nodeNames) {
       this.selectNodeIds = nodeIds;
       this.selectNodeNames = nodeNames;
-    },
-    refresh() {
-      this.close();
-    },
-    getAllNodeTreeByPlanId() {
-      if (this.planId) {
-        let param = {
-          testPlanId: this.planId,
-          projectId: this.projectId
-        };
-        this.result = this.$post("/case/node/list/all/plan", param, response => {
-          this.treeNodes = response.data;
-        });
-      }
     },
     close() {
       this.selectNodeIds = [];
@@ -259,11 +228,7 @@ export default {
       if (projectId) {
         this.projectId = projectId;
       }
-      this.$refs.nodeTree.result = this.$post("/case/node/list/all/plan",
-        {testPlanId: this.planId, projectId: this.projectId}, response => {
-          this.treeNodes = response.data;
-        });
-      this.selectNodeIds = [];
+      this.getNodeTree(this);
     }
   }
 }
