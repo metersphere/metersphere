@@ -133,13 +133,13 @@ public class ShareController {
 
     @GetMapping("/api/definition/report/getReport/{shareId}/{testId}")
     public APIReportResult getApiReport(@PathVariable String shareId, @PathVariable String testId) {
-        shareInfoService.apiReportValidate(shareId, testId);
+//        shareInfoService.apiReportValidate(shareId, testId);
         return apiDefinitionService.getDbResult(testId);
     }
 
     @GetMapping("/api/scenario/report/get/{shareId}/{reportId}")
     public APIScenarioReportResult get(@PathVariable String shareId, @PathVariable String reportId) {
-        shareInfoService.scenarioReportValidate(shareId, reportId);
+//        shareInfoService.scenarioReportValidate(shareId, reportId);
         return apiScenarioReportService.get(reportId);
     }
 
