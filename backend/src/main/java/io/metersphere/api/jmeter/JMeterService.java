@@ -155,9 +155,9 @@ public class JMeterService {
         if (baseInfo != null) {
             platformUrl = baseInfo.getUrl();
         }
-        platformUrl += "/api/jmeter/download?testId=" + testId + "&reportId=" + reportId + "&runMode=" + runMode;
+        platformUrl += "/api/jmeter/download?testId=" + testId + "&reportId=" + reportId + "&runMode=" + runMode + "&testPlanScenarioId";
         if (StringUtils.isNotEmpty(testPlanScenarioId)) {
-            platformUrl += "&testPlanScenarioId=" + testPlanScenarioId;
+            platformUrl += "=" + testPlanScenarioId;
         }
         runRequest.setUrl(platformUrl);
         runRequest.setRunMode(runMode);
