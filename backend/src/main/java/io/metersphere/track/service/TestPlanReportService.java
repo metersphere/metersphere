@@ -18,11 +18,13 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.UserService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.domain.ReportResultComponent;
@@ -88,6 +90,8 @@ public class TestPlanReportService {
     ShareInfoService shareInfoService;
     @Resource
     private TestPlanPrincipalMapper testPlanPrincipalMapper;
+    @Resource
+    private UserService userService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -256,7 +260,7 @@ public class TestPlanReportService {
             performanceInfoMap = saveRequest.getPerformanceIdMap();
         }
 
-        TestPlanReportExecuteCatch.addApiTestPlanExecuteInfo(testPlanReportID,saveRequest.getUserId(), apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
+        TestPlanReportExecuteCatch.addApiTestPlanExecuteInfo(testPlanReportID, saveRequest.getUserId(), apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
 
 //        testPlanReport.setPrincipal(testPlan.getPrincipal());
         if (testPlanReport.getIsScenarioExecuting() || testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting()) {
@@ -332,7 +336,7 @@ public class TestPlanReportService {
         for (String principalId : principalIds) {
             String name = userMap.get(principalId);
             if (StringUtils.isNotBlank(principalName)) {
-                principalName = principalName + "、" +name;
+                principalName = principalName + "、" + name;
             } else {
                 principalName = principalName + name;
             }
@@ -844,10 +848,16 @@ public class TestPlanReportService {
         } else {
             event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
         }
+        String creator = testPlanReport.getCreator();
+        UserDTO userDTO = userService.getUserDTO(creator);
+
         Map paramMap = new HashMap();
         paramMap.put("type", "testPlan");
         paramMap.put("url", url);
         paramMap.put("projectId", projectId);
+        if (userDTO != null) {
+            paramMap.put("operator", userDTO.getName());
+        }
         paramMap.putAll(new BeanMap(testPlanReport));
 
         String successfulMailTemplate = "";
@@ -862,7 +872,7 @@ public class TestPlanReportService {
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
 
         NoticeModel noticeModel = NoticeModel.builder()
-                .operator(testPlanReport.getCreator())
+                .operator(creator)
                 .successContext(successContext)
                 .successMailTemplate(successfulMailTemplate)
                 .failedContext(failedContext)
