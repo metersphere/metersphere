@@ -757,6 +757,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         apiDefinition = apiDefinitionService.get(this.getId());
                         if (apiDefinition == null) {
                             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(this.getId());
+                            if (apiTestCaseWithBLOBs == null) {
+                                apiTestCaseWithBLOBs = apiTestCaseService.get(this.getName());
+                            }
                             if (apiTestCaseWithBLOBs != null) {
                                 apiDefinition = apiDefinitionService.get(apiTestCaseWithBLOBs.getApiDefinitionId());
                             } else {
