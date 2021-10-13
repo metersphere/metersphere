@@ -551,6 +551,13 @@
         </if>
         order by `order` desc limit 1;
     </select>
+    <select id="getTestCase" resultType="io.metersphere.base.domain.TestCase">
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,
+        test_case.num, test_case.custom_num, test_case.priority, test_case.tags, test_case.create_time, test_case.update_time
+        from test_case as test_case
+        <include refid="notInQueryWhereCondition"></include>
+        ORDER BY test_case.order DESC
+    </select>
 
     <update id="deleteToGc">
         update test_case set original_status=status,

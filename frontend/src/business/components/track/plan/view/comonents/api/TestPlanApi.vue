@@ -84,7 +84,6 @@
 
 <script>
     import NodeTree from "../../../../common/NodeTree";
-    import TestCaseRelevance from "../functional/TestCaseFunctionalRelevance";
     import MsTestPlanCommonComponent from "../base/TestPlanCommonComponent";
     import TestPlanApiCaseList from "./TestPlanApiCaseList";
     import TestCaseApiRelevance from "./TestCaseApiRelevance";
@@ -105,7 +104,6 @@
         TestCaseApiRelevance,
         TestPlanApiCaseList,
         MsTestPlanCommonComponent,
-        TestCaseRelevance,
         NodeTree,
       },
       data() {

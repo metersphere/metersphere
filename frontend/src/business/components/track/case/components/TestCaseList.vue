@@ -368,10 +368,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    customNum: {
-      type: Boolean,
-      default: false
-    }
   },
   computed: {
     projectId() {
@@ -382,6 +378,9 @@ export default {
     },
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
+    },
+    customNum() {
+      return this.$store.state.currentProjectIsCustomNum;
     },
     systemFiledMap() {
       return SYSTEM_FIELD_NAME_MAP;

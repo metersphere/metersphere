@@ -127,7 +127,7 @@ public class TestCaseService {
     @Resource
     private IssuesMapper issuesMapper;
     @Resource
-    private CustomFieldService customFieldService;
+    private RelationshipEdgeService relationshipEdgeService;
     @Resource
     @Lazy
     private ApiTestCaseService apiTestCaseService;
@@ -1944,5 +1944,41 @@ public class TestCaseService {
                 extTestCaseMapper::getPreOrder,
                 extTestCaseMapper::getLastOrder,
                 testCaseMapper::updateByPrimaryKeySelective);
+    }
+
+    public List<TestCase> getRelationshipRelateList(QueryTestCaseRequest request) {
+        setDefaultOrder(request);
+        List<RelationshipEdge> relationshipEdges = relationshipEdgeService.getBySourceId(request.getId());
+        List<String> ids = relationshipEdges.stream().map(RelationshipEdge::getTargetId).collect(Collectors.toList());
+        ids.add(request.getId());
+        request.setTestCaseContainIds(ids);
+        return extTestCaseMapper.getTestCase(request);
+//        return extTestCaseMapper.getTestCaseByNotInPlan(request);
+    }
+
+    public List<RelationshipEdgeDTO> getRelationshipCase(String id, String relationshipType) {
+        List<RelationshipEdge> relationshipEdges = relationshipEdgeService.getBySourceIdAndRelationType(id, relationshipType);
+        List<String> targetIds = relationshipEdges.stream()
+                .map(RelationshipEdge::getTargetId)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(targetIds)) {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(targetIds);
+            List<TestCase> testCaseList = testCaseMapper.selectByExample(example);
+            Map<String, TestCase> caseMap = testCaseList.stream().collect(Collectors.toMap(TestCase::getId, i -> i));
+            List<RelationshipEdgeDTO> results = new ArrayList<>();
+            for (RelationshipEdge relationshipEdge : relationshipEdges) {
+                RelationshipEdgeDTO relationshipEdgeDTO = new RelationshipEdgeDTO();
+                BeanUtils.copyBean(relationshipEdgeDTO, relationshipEdge);
+                TestCase testCase = caseMap.get(relationshipEdge.getTargetId());
+                relationshipEdgeDTO.setTargetName(testCase.getName());
+                relationshipEdgeDTO.setCreator(testCase.getCreateUser());
+                relationshipEdgeDTO.setTargetNum(testCase.getNum());
+                relationshipEdgeDTO.setTargetCustomNum(testCase.getCustomNum());
+                results.add(relationshipEdgeDTO);
+            }
+            return results;
+        }
+        return new ArrayList<>();
     }
 }

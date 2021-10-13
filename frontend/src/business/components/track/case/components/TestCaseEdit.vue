@@ -78,7 +78,7 @@
             </el-row>
           </el-form>
 
-          <el-row v-if="customNum">
+          <el-row v-if="isCustomNum">
             <el-col :span="7">
               <el-form-item label="ID" :label-width="formLabelWidth" prop="customNum">
                 <el-input :disabled="readOnly" v-model.trim="form.customNum" size="small" class="ms-case-input"></el-input>
@@ -136,10 +136,9 @@
 </template>
 
 <script>
-  import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
+  import {TokenKey} from '@/common/js/constants';
   import MsDialogFooter from '../../../common/components/MsDialogFooter'
   import {
-    enableModules,
     getCurrentProjectID,
     getCurrentUser,
     getNodePath,
@@ -154,7 +153,7 @@
   import {STEP} from "@/business/components/api/automation/scenario/Setting";
   import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
   import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
-  import {API_STATUS, REVIEW_STATUS, TEST, TEST_CASE} from "@/business/components/api/definition/model/JsonData";
+  import {API_STATUS, REVIEW_STATUS} from "@/business/components/api/definition/model/JsonData";
   import MsTableButton from "@/business/components/common/components/MsTableButton";
   import MsSelectTree from "../../../common/select-tree/SelectTree";
   import MsTestCaseStepRichText from "./MsRichText";
@@ -286,10 +285,6 @@
         type: Object
       },
       type: String,
-      customNum: {
-        type: Boolean,
-        default: false
-      }
     },
     computed: {
       projectIds() {
@@ -300,6 +295,9 @@
       },
       systemNameMap() {
         return SYSTEM_FIELD_NAME_MAP;
+      },
+      isCustomNum() {
+        return this.$store.state.currentProjectIsCustomNum;
       },
       readOnly() {
         const {rowClickHasPermission} = this.currentTestCaseInfo;
