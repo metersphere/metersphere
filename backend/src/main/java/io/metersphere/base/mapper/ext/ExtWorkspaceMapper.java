@@ -17,4 +17,6 @@ public interface ExtWorkspaceMapper {
     String getOrganizationIdById(String resourceID);
 
     List<WorkspaceDTO> findIdAndNameByOrganizationId(@Param("organizationId") String organizationId);
+
+    void setDefaultMessageTask(@Param("workspaceId") String workspaceId);
 }

@@ -178,14 +178,6 @@
                 WHERE organization_id = #{orgId})) AS a)
     </update>
 
-    <select id="getOrganizationByProjectId" resultType="io.metersphere.base.domain.Organization">
-        SELECT organization.*
-        FROM organization
-                     JOIN workspace ON organization.id = organization_id
-                     JOIN project ON workspace.id = workspace_id
-        WHERE project.id = #{projectId, jdbcType=VARCHAR}
-    </select>
-
     <select id="selectTcpPorts" resultType="java.lang.Integer">
         SELECT mock_tcp_port
         FROM project

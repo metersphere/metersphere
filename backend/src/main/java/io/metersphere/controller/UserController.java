@@ -242,29 +242,6 @@ public class UserController {
         userService.deleteProjectMember(projectId, userId);
     }
 
-    /**
-     * 添加组织成员
-     */
-    @PostMapping("/org/member/add")
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.CREATE, title = "'添加组织成员-'+#request.userIds")
-    public void addOrganizationMember(@RequestBody AddOrgMemberRequest request) {
-        organizationService.checkOrgOwner(request.getOrganizationId());
-        userService.addOrganizationMember(request);
-    }
-
-    /**
-     * 删除组织成员
-     */
-    @GetMapping("/org/member/delete/{organizationId}/{userId}")
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.DELETE, title = "删除组织成员")
-    public void delOrganizationMember(@PathVariable String organizationId, @PathVariable String userId) {
-        organizationService.checkOrgOwner(organizationId);
-        String currentUserId = SessionUtils.getUser().getId();
-        if (StringUtils.equals(userId, currentUserId)) {
-            MSException.throwException(Translator.get("cannot_remove_current"));
-        }
-        userService.delOrganizationMember(organizationId, userId);
-    }
 
     /**
      * ws 下所有相关人员
@@ -331,31 +308,4 @@ public class UserController {
         userService.batchProcessUserInfo(request);
         return returnString;
     }
-
-    @GetMapping("/getWorkspaceDataStruct/{organizationId}")
-    public List<CascaderDTO> getWorkspaceDataStruct(@PathVariable String organizationId) {
-        List<OrganizationMemberDTO> organizationList = organizationService.findIdAndNameByOrganizationId(organizationId);
-        List<WorkspaceDTO> workspaceDTOList = workspaceService.findIdAndNameByOrganizationId(organizationId);
-        if (!workspaceDTOList.isEmpty()) {
-            Map<String, List<WorkspaceDTO>> orgIdWorkspaceMap = workspaceDTOList.stream().collect(Collectors.groupingBy(WorkspaceDTO::getOrganizationId));
-            List<CascaderDTO> returnList = CascaderParse.parseWorkspaceDataStruct(organizationList, orgIdWorkspaceMap);
-            return returnList;
-        } else {
-            return new ArrayList<>();
-        }
-    }
-
-    @GetMapping("/getUserRoleDataStruct/{organizationId}")
-    public List<CascaderDTO> getUserRoleDataStruct(@PathVariable String organizationId) {
-        List<OrganizationMemberDTO> organizationList = organizationService.findIdAndNameByOrganizationId(organizationId);
-        List<WorkspaceDTO> workspaceDTOList = workspaceService.findIdAndNameByOrganizationId(organizationId);
-        if (!workspaceDTOList.isEmpty()) {
-            Map<String, List<WorkspaceDTO>> orgIdWorkspaceMap = workspaceDTOList.stream().collect(Collectors.groupingBy(WorkspaceDTO::getOrganizationId));
-            List<CascaderDTO> returnList = CascaderParse.parseUserRoleDataStruct(organizationList, orgIdWorkspaceMap, false);
-            return returnList;
-        } else {
-            return new ArrayList<>();
-        }
-    }
-
 }

@@ -104,4 +104,13 @@
         </if>
         order by ug.update_time desc
     </select>
+
+    <select id="checkSourceRole" resultType="Integer">
+        SELECT COUNT(id)
+        FROM user_group ug
+        WHERE ug.user_id = #{userId}
+        AND ug.source_id = #{sourceId}
+        AND ug.group_id = #{groupId}
+    </select>
+
 </mapper>

@@ -11,7 +11,10 @@ import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.GroupRequest;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.controller.request.group.EditGroupUserRequest;
@@ -57,22 +60,20 @@ public class GroupService {
     @Resource
     private OrganizationService organizationService;
     @Resource
-    private OrganizationMapper organizationMapper;
-    @Resource
     private WorkspaceMapper workspaceMapper;
     @Resource
     private ProjectMapper projectMapper;
 
     private static final String GLOBAL = "global";
 
-    private static final Map<String, List<String>> map = new HashMap<String, List<String>>(4){{
+    private static final Map<String, List<String>> map = new HashMap<String, List<String>>(4) {{
         put(UserGroupType.SYSTEM, Arrays.asList(UserGroupType.SYSTEM, UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
         put(UserGroupType.ORGANIZATION, Arrays.asList(UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
         put(UserGroupType.WORKSPACE, Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
         put(UserGroupType.PROJECT, Collections.singletonList(UserGroupType.PROJECT));
     }};
 
-    private static final Map<String, String> typeMap = new HashMap<String, String>(4){{
+    private static final Map<String, String> typeMap = new HashMap<String, String>(4) {{
         put(UserGroupType.SYSTEM, "系统");
         put(UserGroupType.ORGANIZATION, "组织");
         put(UserGroupType.WORKSPACE, "工作空间");
@@ -235,9 +236,6 @@ public class GroupService {
             OrganizationResource organizationResource = organizationService.listResource(id, group.getType());
             List<String> collect = userGroups.stream().filter(ugp -> ugp.getGroupId().equals(id)).map(UserGroup::getSourceId).collect(Collectors.toList());
             map.put("ids", collect);
-            if (StringUtils.equals(type, UserGroupType.ORGANIZATION)) {
-                map.put("organizations", organizationResource.getOrganizations());
-            }
             if (StringUtils.equals(type, UserGroupType.WORKSPACE)) {
                 map.put("workspaces", organizationResource.getWorkspaces());
             }
@@ -266,8 +264,6 @@ public class GroupService {
     public List<Group> getWorkspaceMemberGroups(String workspaceId, String userId) {
         return extUserGroupMapper.getWorkspaceMemberGroups(workspaceId, userId);
     }
-
-
 
 
     private List<GroupResourceDTO> getResourcePermission(List<GroupResource> resource, List<GroupPermission> permissions, String type, List<String> permissionList) {
@@ -342,21 +338,13 @@ public class GroupService {
         List<T> resource = new ArrayList<>();
         Group group = groupMapper.selectByPrimaryKey(groupId);
         String orgId = group.getScopeId();
-        if (!StringUtils.equals(GLOBAL, orgId)) {
-            Organization organization = organizationMapper.selectByPrimaryKey(orgId);
-            if (organization == null) {
-                return resource;
-            }
-        }
+//        if (!StringUtils.equals(GLOBAL, orgId)) {
+//            Organization organization = organizationMapper.selectByPrimaryKey(orgId);
+//            if (organization == null) {
+//                return resource;
+//            }
+//        }
 
-        if (StringUtils.equals(UserGroupType.ORGANIZATION, type)) {
-            OrganizationExample organizationExample = new OrganizationExample();
-            OrganizationExample.Criteria criteria = organizationExample.createCriteria();
-            if (!StringUtils.equals(orgId, GLOBAL)) {
-                criteria.andIdEqualTo(orgId);
-            }
-           return organizationMapper.selectByExample(organizationExample);
-        }
 
         if (StringUtils.equals(UserGroupType.WORKSPACE, type)) {
             WorkspaceExample workspaceExample = new WorkspaceExample();
@@ -407,12 +395,6 @@ public class GroupService {
 
         Group group = groupMapper.selectByPrimaryKey(groupId);
         String type = group.getType();
-
-        if (StringUtils.equals(type, UserGroupType.ORGANIZATION)) {
-            OrganizationExample organizationExample = new OrganizationExample();
-            organizationExample.createCriteria().andIdIn(sources);
-            return organizationMapper.selectByExample(organizationExample);
-        }
 
         if (StringUtils.equals(type, UserGroupType.WORKSPACE)) {
             WorkspaceExample workspaceExample = new WorkspaceExample();
@@ -515,9 +497,9 @@ public class GroupService {
                         column.setOriginalValue("是");
                     } else {
                         String scopeId = group.getScopeId();
-                        Organization organization = organizationMapper.selectByPrimaryKey(scopeId);
-                        if (organization != null) {
-                            column.setOriginalValue("否; 所属组织：" + organization.getName());
+                        Workspace workspace = workspaceMapper.selectByPrimaryKey(scopeId);
+                        if (workspace != null) {
+                            column.setOriginalValue("否; 所属工作空间：" + workspace.getName());
                         } else {
                             column.setOriginalValue("否");
                         }

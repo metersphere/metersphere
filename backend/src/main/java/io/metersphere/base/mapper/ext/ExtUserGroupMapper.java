@@ -33,4 +33,6 @@ public interface ExtUserGroupMapper {
     List<RelatedSource> getRelatedSource(@Param("userId") String userId);
 
     List<User> getGroupUser(@Param("request")EditGroupRequest request);
+
+    int checkSourceRole(@Param("sourceId") String sourceId, @Param("userId") String userId, @Param("groupId") String groupId);
 }

@@ -6,7 +6,6 @@ import io.metersphere.base.mapper.GroupMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.WorkspaceMapper;
-import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
@@ -43,8 +42,6 @@ public class WorkspaceService {
     private ExtWorkspaceMapper extWorkspaceMapper;
     @Resource
     private GroupMapper groupMapper;
-    @Resource
-    private ExtOrganizationMapper extOrganizationMapper;
     @Resource
     private ProjectService projectService;
     @Resource
@@ -84,6 +81,8 @@ public class WorkspaceService {
             userGroupMapper.insert(userGroup);
             // 新项目创建新工作空间时设置
             extUserMapper.updateLastWorkspaceIdIfNull(workspace.getId(), SessionUtils.getUserId());
+            // 设置默认的通知
+            extWorkspaceMapper.setDefaultMessageTask(workspace.getId());
         } else {
             workspace.setUpdateTime(currentTime);
             workspaceMapper.updateByPrimaryKeySelective(workspace);
@@ -257,7 +256,7 @@ public class WorkspaceService {
     }
 
     public Integer checkSourceRole(String workspaceId, String userId, String roleId) {
-        return extOrganizationMapper.checkSourceRole(workspaceId, userId, roleId);
+        return extUserGroupMapper.checkSourceRole(workspaceId, userId, roleId);
     }
 
     public void updateWorkspaceByAdmin(Workspace workspace) {

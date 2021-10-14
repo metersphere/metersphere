@@ -5,7 +5,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.*;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
+import io.metersphere.base.mapper.ext.ExtUserMapper;
+import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -70,16 +73,12 @@ public class UserService {
     @Resource
     private ExtUserRoleMapper extUserRoleMapper;
     @Resource
-    private OrganizationMapper organizationMapper;
-    @Resource
     private WorkspaceMapper workspaceMapper;
     @Resource
     private ExtUserMapper extUserMapper;
     @Lazy
     @Resource
     private WorkspaceService workspaceService;
-    @Resource
-    private ExtOrganizationMapper extOrganizationMapper;
     @Resource
     private UserGroupMapper userGroupMapper;
     @Resource
@@ -832,10 +831,6 @@ public class UserService {
             Map<String, String> workspaceNameMap = new HashMap<>();
             Map<String, String> projectNameMap = new HashMap<>();
 
-            List<OrganizationMemberDTO> organizationList = extOrganizationMapper.findIdAndNameByOrganizationId("All");
-            for (OrganizationMemberDTO model : organizationList) {
-                orgNameMap.put(model.getName(), model.getId());
-            }
             List<WorkspaceDTO> workspaceList = workspaceService.findIdAndNameByOrganizationId("All");
             for (WorkspaceDTO model : workspaceList) {
                 workspaceNameMap.put(model.getName(), model.getId());
@@ -1153,13 +1148,7 @@ public class UserService {
         if (CollectionUtils.isNotEmpty(maps)) {
             for (Map<String, Object> map : maps) {
                 String id = map.get("id").toString();
-                OrganizationExample example = new OrganizationExample();
-                example.createCriteria().andIdIn((List<String>) map.get("ids"));
-                List<Organization> list = organizationMapper.selectByExample(example);
                 List<String> names = new LinkedList<>();
-                if (CollectionUtils.isNotEmpty(list)) {
-                    names = list.stream().map(Organization::getName).collect(Collectors.toList());
-                }
                 WorkspaceExample workspaceExample = new WorkspaceExample();
                 workspaceExample.createCriteria().andIdIn((List<String>) map.get("ids"));
                 List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
