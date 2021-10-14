@@ -53,7 +53,7 @@
             </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.case.priority')" prop="level">
-                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">
+                <el-select class="ms-scenario-input" size="small" v-model="level">
                   <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
                 </el-select>
               </el-form-item>
@@ -407,6 +407,7 @@ export default {
       value: API_STATUS[0].id,
       options: API_STATUS,
       levels: PRIORITY,
+      level: "P0",
       scenario: {},
       loading: false,
       showHideTree: true,
