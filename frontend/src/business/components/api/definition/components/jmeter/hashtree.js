@@ -5,9 +5,6 @@ import {loadHashTree, loadComponent} from "./components";
 export default class HashTreeElement extends Element {
   constructor({options: options, hashTree: hashTree}) {
     super(options);
-    this.props = getProps(options.elements);
-    this.comments = this.initStringProp('TestPlan.comments');
-
     if (hashTree) {
       this.hashTree = loadHashTree(hashTree);
     }
