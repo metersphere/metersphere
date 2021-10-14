@@ -3,11 +3,20 @@
     <el-tabs v-model="activeName">
       <el-tab-pane label="Config Center" name="config" v-if="request.config && request.config.length > 0">
         <el-table :data="request.config">
-          <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')">
-          </el-table-column>
+          <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')"/>
           <el-table-column prop="originalValue" :label="$t('operating_log.before_change')">
+            <template v-slot:default="scope">
+              <el-tooltip :content="scope.row.originalValue">
+                <div class="current-value ms-tag-del">{{ scope.row.originalValue }}</div>
+              </el-tooltip>
+            </template>
           </el-table-column>
           <el-table-column prop="newValue" :label="$t('operating_log.after_change')">
+            <template v-slot:default="scope">
+              <el-tooltip :content="scope.row.newValue">
+                <div class="current-value ms-tag-add">{{ scope.row.newValue }}</div>
+              </el-tooltip>
+            </template>
           </el-table-column>
         </el-table>
       </el-tab-pane>
@@ -113,8 +122,9 @@ export default {
   white-space: nowrap;
   width: 120px;
 }
+
 .ms-tag-del {
-  text-decoration:line-through;
+  text-decoration: line-through;
   text-decoration-color: red;
   -moz-text-decoration-line: line-through;
   background: #F3E6E7;

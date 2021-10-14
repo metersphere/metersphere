@@ -7,11 +7,15 @@ public class DefinitionReference {
     public static Map<String, String> definitionColumns = new LinkedHashMap<>();
     public static Map<String, String> caseColumns = new LinkedHashMap<>();
     public static Map<String, String> jdbcColumns = new LinkedHashMap<>();
+    public static Map<String, String> httpColumns = new LinkedHashMap<>();
+    public static Map<String, String> authColumns = new LinkedHashMap<>();
 
     static {
         definitionColumns.clear();
         caseColumns.clear();
         jdbcColumns.clear();
+        httpColumns.clear();
+        authColumns.clear();
         definitionColumns.put("name", "接口名称");
         definitionColumns.put("createUser", "创建人");
         definitionColumns.put("method", "请求类型");
@@ -46,6 +50,16 @@ public class DefinitionReference {
         jdbcColumns.put("queryTimeout", "超时时间");
         jdbcColumns.put("resultVariable", "存储结果");
         jdbcColumns.put("variableNames", "按列存储");
+        // http
+        httpColumns.put("connectTimeout","连接超时");
+        httpColumns.put("responseTimeout","响应超时");
+        httpColumns.put("alias","证书别名");
+        httpColumns.put("followRedirects","跟随重定向");
+        // http auth
+        authColumns.put("verification","认证方式");
+        authColumns.put("username","用户名");
+        authColumns.put("password","密码");
+        authColumns.put("encrypt","加密");
 
     }
 }

@@ -50,7 +50,9 @@ public class ApiDefinitionDiffUtil {
                 MsDubboSampler dubboSamplerOld = bloBsOld.toJavaObject(MsDubboSampler.class);
                 diffDubbo(dubboSamplerNew, dubboSamplerOld, jsonDiff, diffMap);
             }
-            return JSON.toJSONString(diffMap);
+            if (diffMap.size() > 1) {
+                return JSON.toJSONString(diffMap);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -59,7 +61,7 @@ public class ApiDefinitionDiffUtil {
 
     private static void diffHttp(MsHTTPSamplerProxy httpNew, MsHTTPSamplerProxy httpOld, JsonDiff jsonDiff, Map<String, String> diffMap) {
         // 请求头对比 old/new
-        if (CollectionUtils.isNotEmpty(httpNew.getHeaders())) {
+        if (CollectionUtils.isNotEmpty(httpNew.getHeaders()) && CollectionUtils.isNotEmpty(httpOld.getHeaders())) {
             httpNew.getHeaders().remove(httpNew.getHeaders().size() - 1);
             httpOld.getHeaders().remove(httpOld.getHeaders().size() - 1);
         }
@@ -73,7 +75,7 @@ public class ApiDefinitionDiffUtil {
             }
         }
         // 对比QUERY参数
-        if (CollectionUtils.isNotEmpty(httpNew.getArguments())) {
+        if (CollectionUtils.isNotEmpty(httpNew.getArguments()) && CollectionUtils.isNotEmpty(httpOld.getArguments())) {
             httpNew.getArguments().remove(httpNew.getArguments().size() - 1);
             httpOld.getArguments().remove(httpOld.getArguments().size() - 1);
         }
@@ -87,7 +89,7 @@ public class ApiDefinitionDiffUtil {
             }
         }
         // 对比REST参数
-        if (CollectionUtils.isNotEmpty(httpNew.getRest())) {
+        if (CollectionUtils.isNotEmpty(httpNew.getRest()) && CollectionUtils.isNotEmpty(httpOld.getRest())) {
             httpNew.getRest().remove(httpNew.getRest().size() - 1);
             httpOld.getRest().remove(httpOld.getRest().size() - 1);
         }
@@ -112,7 +114,7 @@ public class ApiDefinitionDiffUtil {
                 }
             }
             // 对比BODY-FORM参数
-            if (CollectionUtils.isNotEmpty(httpNew.getBody().getKvs())) {
+            if (CollectionUtils.isNotEmpty(httpNew.getBody().getKvs()) && CollectionUtils.isNotEmpty(httpOld.getBody().getKvs())) {
                 httpNew.getBody().getKvs().remove(httpNew.getBody().getKvs().size() - 1);
                 httpOld.getBody().getKvs().remove(httpOld.getBody().getKvs().size() - 1);
             }
@@ -131,6 +133,25 @@ public class ApiDefinitionDiffUtil {
                 diffMap.put("body_raw_2", httpOld.getBody().getRaw());
             }
 
+            // 认证配置
+            if (httpNew.getAuthManager() != null || httpOld.getAuthManager() != null) {
+                List<DetailColumn> authColumns = ReflexObjectUtil.getColumns(httpNew.getAuthManager(), DefinitionReference.authColumns);
+                List<DetailColumn> authColumnsOld = ReflexObjectUtil.getColumns(httpOld.getAuthManager(), DefinitionReference.authColumns);
+                List<DetailColumn> authDiffColumns = getColumn(authColumns, authColumnsOld);
+                if (CollectionUtils.isNotEmpty(authDiffColumns)) {
+                    diffMap.put("body_auth", JSON.toJSONString(authDiffColumns));
+                } else if (CollectionUtils.isEmpty(authDiffColumns) && CollectionUtils.isEmpty(authColumnsOld) && CollectionUtils.isNotEmpty(authColumns)) {
+                    diffMap.put("body_auth", JSON.toJSONString(authColumns));
+                }
+            }
+
+            // 其他设置
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(httpNew, DefinitionReference.httpColumns);
+            List<DetailColumn> columnsOld = ReflexObjectUtil.getColumns(httpOld, DefinitionReference.httpColumns);
+            List<DetailColumn> diffColumns = getColumn(columns, columnsOld);
+            if (CollectionUtils.isNotEmpty(diffColumns)) {
+                diffMap.put("body_config", JSON.toJSONString(diffColumns));
+            }
         }
     }
 

@@ -154,10 +154,10 @@ public class ReflexObjectUtil {
                         DetailColumn column = new DetailColumn();
                         BeanUtils.copyBean(column, originalColumns.get(i));
                         column.setNewValue(newColumns.get(i).getOriginalValue());
-                        if (originalColumns.get(i).getColumnName().equals("tags")) {
+                        if (StringUtils.isNotEmpty(originalColumns.get(i).getColumnName()) && originalColumns.get(i).getColumnName().equals("tags")) {
                             GsonDiff diff = new GsonDiff();
-                            String oldTags = "{\"root\":" + originalColumns.get(i).getOriginalValue().toString() + "}";
-                            String newTags = "{\"root\":" + newColumns.get(i).getOriginalValue().toString() + "}";
+                            String oldTags = "{\"root\":" + ((originalColumns.get(i) != null && originalColumns.get(i).getOriginalValue() != null) ? originalColumns.get(i).getOriginalValue().toString() : "\"\"") + "}";
+                            String newTags = "{\"root\":" + ((newColumns.get(i) != null && newColumns.get(i).getOriginalValue() != null) ? newColumns.get(i).getOriginalValue().toString() : "\"\"") + "}";
                             String diffStr = diff.diff(oldTags, newTags);
                             String diffValue = diff.apply(newTags, diffStr);
                             column.setDiffValue(diffValue);
