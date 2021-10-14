@@ -719,4 +719,8 @@ public class ProjectService {
         }
         return String.valueOf(returnPort);
     }
+
+    public long getProjectSize() {
+        return projectMapper.countByExample(new ProjectExample());
+    }
 }

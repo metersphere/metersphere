@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="result.loading">
     <el-card class="setting-card">
       <div class="setting-div">
         <el-card style="height: 100%;width: 100%">
@@ -9,15 +9,15 @@
           <div style="position: absolute; top: 50%; left: 50%;transform: translate(-50%, -50%);">
             <div class="div-item">
               <i class="el-icon-user-solid icon-color"></i>
-              系统用户 <span class="number"> 300 </span> 人
+              系统用户 <span class="number"> {{statistic.userSize}} </span> 人
             </div>
             <div class="div-item">
               <i class="el-icon-s-platform icon-color"></i>
-              工作空间 <span class="number"> 24 </span> 个
+              工作空间 <span class="number"> {{statistic.workspaceSize}} </span> 个
             </div>
             <div class="div-item">
               <i class="el-icon-s-cooperation icon-color"></i>
-              项目 <span class="number"> 120 </span> 个
+              项目 <span class="number"> {{statistic.projectSize}} </span> 个
             </div>
           </div>
         </el-card>
@@ -34,6 +34,21 @@ export default {
     color: function () {
       return `var(--primary_color)`
     }
+  },
+  data() {
+    return {
+      statistic: {
+        userSize: 0,
+        workspaceSize: 0,
+        projectSize: 0
+      },
+      result: {}
+    }
+  },
+  created() {
+    this.result = this.$get("/system/statistics/data", res => {
+      this.statistic = res.data;
+    })
   }
 }
 </script>

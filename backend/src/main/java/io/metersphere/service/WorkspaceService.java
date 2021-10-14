@@ -370,4 +370,7 @@ public class WorkspaceService {
         return null;
     }
 
+    public long getWorkspaceSize() {
+        return workspaceMapper.countByExample(new WorkspaceExample());
+    }
 }

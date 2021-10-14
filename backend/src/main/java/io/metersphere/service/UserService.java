@@ -1472,4 +1472,8 @@ public class UserService {
         user.setLastOrganizationId(workspace.getOrganizationId());
         userMapper.updateByPrimaryKeySelective(user);
     }
+
+    public long getUserSize() {
+        return userMapper.countByExample(new UserExample());
+    }
 }
