@@ -187,6 +187,7 @@ export default {
     run_completed: "执行完成",
     run_fail: "执行失败",
     generate_test_data: "生成测试数据",
+    project_setting: '项目设置',
     table: {
       select_tip: "已选中 {0} 条数据"
     },

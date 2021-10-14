@@ -187,6 +187,7 @@ export default {
     run_completed: "執行完成",
     run_fail: "執行失敗",
     generate_test_data: "生成測試數據",
+    project_setting: '項目設置',
     selector: {
       required: "必填",
       not_required: "非必填",

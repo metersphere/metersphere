@@ -27,6 +27,10 @@
       {{ $t('commons.report_statistics.title') }}
     </el-menu-item>
 
+    <el-menu-item index="/project" onselectstart="return false">
+      {{$t('commons.project_setting')}}
+    </el-menu-item>
+
     <el-menu-item index="/setting" onselectstart="return false">
       {{ $t('commons.system_setting') }}
     </el-menu-item>
