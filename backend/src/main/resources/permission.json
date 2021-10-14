@@ -31,26 +31,6 @@
       "resourceId": "SYSTEM_USER"
     },
     {
-      "id": "SYSTEM_ORGANIZATION:READ",
-      "name": "查询组织",
-      "resourceId": "SYSTEM_ORGANIZATION"
-    },
-    {
-      "id": "SYSTEM_ORGANIZATION:READ+CREATE",
-      "name": "创建组织",
-      "resourceId": "SYSTEM_ORGANIZATION"
-    },
-    {
-      "id": "SYSTEM_ORGANIZATION:READ+EDIT",
-      "name": "编辑组织",
-      "resourceId": "SYSTEM_ORGANIZATION"
-    },
-    {
-      "id": "SYSTEM_ORGANIZATION:READ+DELETE",
-      "name": "删除组织",
-      "resourceId": "SYSTEM_ORGANIZATION"
-    },
-    {
       "id": "SYSTEM_WORKSPACE:READ",
       "name": "查询工作空间",
       "resourceId": "SYSTEM_WORKSPACE"
@@ -764,10 +744,6 @@
     {
       "id": "SYSTEM_USER",
       "name": "用户"
-    },
-    {
-      "id": "SYSTEM_ORGANIZATION",
-      "name": "组织"
     },
     {
       "id": "SYSTEM_WORKSPACE",

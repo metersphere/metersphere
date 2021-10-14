@@ -51,10 +51,10 @@
       </el-table>
     </div>
     <template v-slot:footer>
+      <el-button @click="cancel" size="medium">{{ $t('commons.cancel') }}</el-button>
       <el-button type="primary" @click="onSubmit" size="medium" style="margin-top: 10px;margin-left: 5px;">
         {{ $t('commons.confirm') }}
       </el-button>
-      <el-button @click="cancel" size="medium">{{ $t('commons.cancel') }}</el-button>
     </template>
   </el-dialog>
 </template>

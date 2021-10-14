@@ -297,9 +297,9 @@ public class GroupService {
             return getUserGroup(UserGroupType.SYSTEM, request);
         }
 
-        if (groupTypeList.contains(UserGroupType.ORGANIZATION)) {
-            return getUserGroup(UserGroupType.ORGANIZATION, request);
-        }
+//        if (groupTypeList.contains(UserGroupType.ORGANIZATION)) {
+//            return getUserGroup(UserGroupType.ORGANIZATION, request);
+//        }
 
         if (groupTypeList.contains(UserGroupType.WORKSPACE)) {
             return getUserGroup(UserGroupType.WORKSPACE, request);
@@ -328,31 +328,6 @@ public class GroupService {
 //        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<GroupDTO> groups = extGroupMapper.getGroupList(request);
         return PageUtils.setPageInfo(page, groups);
-    }
-
-    public List<Organization> getOrganization(String userId) {
-        List<Organization> list = new ArrayList<>();
-        GroupExample groupExample = new GroupExample();
-        groupExample.createCriteria().andTypeEqualTo(UserGroupType.ORGANIZATION);
-        List<Group> groups = groupMapper.selectByExample(groupExample);
-        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
-
-        if (CollectionUtils.isEmpty(groups)) {
-            return list;
-        }
-        UserGroupExample userGroupExample = new UserGroupExample();
-        userGroupExample.createCriteria().andUserIdEqualTo(userId).andGroupIdIn(groupIds);
-        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-        List<String> orgIds = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
-
-        if (CollectionUtils.isEmpty(orgIds)) {
-            return list;
-        }
-
-        OrganizationExample organizationExample = new OrganizationExample();
-        organizationExample.createCriteria().andIdIn(orgIds);
-        list = organizationMapper.selectByExample(organizationExample);
-        return list;
     }
 
     public List<Group> getProjectMemberGroups(String projectId, String userId) {
@@ -556,5 +531,30 @@ public class GroupService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public List<Workspace> getWorkspace(String userId) {
+        List<Workspace> list = new ArrayList<>();
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andTypeEqualTo(UserGroupType.WORKSPACE);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(groups)) {
+            return list;
+        }
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId).andGroupIdIn(groupIds);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        List<String> workspaceIds = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(workspaceIds)) {
+            return list;
+        }
+
+        WorkspaceExample workspaceExample = new WorkspaceExample();
+        workspaceExample.createCriteria().andIdIn(workspaceIds);
+        list = workspaceMapper.selectByExample(workspaceExample);
+        return list;
     }
 }

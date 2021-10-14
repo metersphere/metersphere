@@ -3,8 +3,8 @@ package io.metersphere.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Group;
-import io.metersphere.base.domain.Organization;
 import io.metersphere.base.domain.User;
+import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -109,9 +109,9 @@ public class GroupController {
         return groupService.getProjectMemberGroups(projectId, userId);
     }
 
-    @GetMapping("/org/{userId}")
-    public List<Organization> getOrganization(@PathVariable String userId) {
-        return groupService.getOrganization(userId);
+    @GetMapping("/ws/{userId}")
+    public List<Workspace> getWorkspace(@PathVariable String userId) {
+        return groupService.getWorkspace(userId);
     }
 
     @GetMapping("/{type}/{id}")
