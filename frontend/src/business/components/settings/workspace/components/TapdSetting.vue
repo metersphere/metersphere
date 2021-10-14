@@ -46,7 +46,7 @@
 
 <script>
 import BugManageBtn from "@/business/components/settings/workspace/components/BugManageBtn";
-import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {TAPD} from "@/common/js/constants";
 
 export default {
@@ -132,7 +132,7 @@ export default {
     },
     testConnection() {
       if (this.form.account && this.form.password) {
-        this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + TAPD, () => {
+        this.$parent.result = this.$get("issues/auth/" + getCurrentWorkspaceId() + '/' + TAPD, () => {
           this.$success(this.$t('organization.integration.verified'));
         });
       } else {

@@ -57,7 +57,7 @@
 
 <script>
 import BugManageBtn from "@/business/components/settings/workspace/components/BugManageBtn";
-import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {ZEN_TAO} from "@/common/js/constants";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
@@ -166,7 +166,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.account && this.form.password) {
-            this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + ZEN_TAO, () => {
+            this.$parent.result = this.$get("issues/auth/" + getCurrentWorkspaceId() + '/' + ZEN_TAO, () => {
               this.$success(this.$t('organization.integration.verified'));
             });
           } else {

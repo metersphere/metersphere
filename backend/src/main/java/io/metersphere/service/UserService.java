@@ -1390,14 +1390,14 @@ public class UserService {
         return SessionUtils.getUser();
     }
 
-    public UserDTO.PlatformInfo getCurrentPlatformInfo(String orgId) {
+    public UserDTO.PlatformInfo getCurrentPlatformInfo(String workspaceId) {
         User user = userMapper.selectByPrimaryKey(SessionUtils.getUserId());
         String platformInfoStr = user.getPlatformInfo();
-        if (StringUtils.isBlank(orgId) || StringUtils.isBlank(platformInfoStr)) {
+        if (StringUtils.isBlank(workspaceId) || StringUtils.isBlank(platformInfoStr)) {
             return null;
         }
         JSONObject platformInfos = JSONObject.parseObject(platformInfoStr);
-        JSONObject platformInfo = platformInfos.getJSONObject(orgId);
+        JSONObject platformInfo = platformInfos.getJSONObject(workspaceId);
         if (platformInfo == null) {
             return null;
         }

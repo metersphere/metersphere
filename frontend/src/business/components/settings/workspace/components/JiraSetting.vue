@@ -65,7 +65,7 @@
 
 <script>
 import BugManageBtn from "@/business/components/settings/workspace/components/BugManageBtn";
-import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {JIRA} from "@/common/js/constants";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
@@ -176,7 +176,7 @@ export default {
     },
     testConnection() {
       if (this.form.account && this.form.password) {
-        this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + JIRA, () => {
+        this.$parent.result = this.$get("issues/auth/" + getCurrentWorkspaceId() + '/' + JIRA, () => {
           this.$success(this.$t('organization.integration.verified'));
         });
       } else {

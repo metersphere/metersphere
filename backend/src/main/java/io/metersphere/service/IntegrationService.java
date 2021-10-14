@@ -47,7 +47,7 @@ public class IntegrationService {
 
     public ServiceIntegration get(IntegrationRequest request) {
         String platform = request.getPlatform();
-        String orgId = request.getOrgId();
+        String orgId = request.getWorkspaceId();
         ServiceIntegrationExample example = new ServiceIntegrationExample();
         ServiceIntegrationExample.Criteria criteria = example.createCriteria();
 
@@ -65,7 +65,7 @@ public class IntegrationService {
 
     public void delete(IntegrationRequest request) {
         String platform = request.getPlatform();
-        String orgId = request.getOrgId();
+        String orgId = request.getWorkspaceId();
         ServiceIntegrationExample example = new ServiceIntegrationExample();
         example.createCriteria()
                 .andOrganizationIdEqualTo(orgId)

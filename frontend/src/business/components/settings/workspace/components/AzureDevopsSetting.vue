@@ -65,7 +65,7 @@
 
 <script>
 import BugManageBtn from "@/business/components/settings/workspace/components/BugManageBtn";
-import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {AZURE_DEVOPS} from "@/common/js/constants";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
@@ -176,7 +176,7 @@ export default {
     },
     testConnection() {
       if (this.form.pat) {
-        this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + AZURE_DEVOPS, () => {
+        this.$parent.result = this.$get("issues/auth/" + getCurrentWorkspaceId() + '/' + AZURE_DEVOPS, () => {
           this.$success(this.$t('organization.integration.verified'));
         });
       } else {
