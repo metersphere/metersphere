@@ -292,14 +292,10 @@ public class WorkspaceService {
         if (StringUtils.isBlank(workspace.getName())) {
             MSException.throwException(Translator.get("workspace_name_is_null"));
         }
-        if (StringUtils.isBlank(workspace.getOrganizationId())) {
-            MSException.throwException(Translator.get("organization_id_is_null"));
-        }
 
         WorkspaceExample example = new WorkspaceExample();
         WorkspaceExample.Criteria criteria = example.createCriteria();
-        criteria.andNameEqualTo(workspace.getName())
-                .andOrganizationIdEqualTo(workspace.getOrganizationId());
+        criteria.andNameEqualTo(workspace.getName());
         if (StringUtils.isNotBlank(workspace.getId())) {
             criteria.andIdNotEqualTo(workspace.getId());
         }

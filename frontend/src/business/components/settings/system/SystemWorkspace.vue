@@ -12,7 +12,6 @@
       >
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
-        <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
             <el-link type="primary" class="member-size" @click="cellClick(scope.row)">
@@ -46,17 +45,6 @@
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
-          <el-select filterable v-model="form.organizationId" :placeholder="$t('organization.select_organization')"
-                     class="select-width">
-            <el-option
-              v-for="item in form.orgList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
       </el-form>
       <template v-slot:footer>
         <ms-dialog-footer
@@ -74,17 +62,6 @@
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input type="textarea" v-model="form.description"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('workspace.organization_name')" prop="organizationId">
-          <el-select filterable v-model="form.organizationId" :placeholder="$t('organization.select_organization')"
-                     class="select-width">
-            <el-option
-              v-for="item in form.orgList1"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
@@ -215,9 +192,6 @@ export default {
     create() {
       this.dialogWsAddVisible = true;
       this.form = {};
-      this.$get("/organization/list", response => {
-        this.$set(this.form, "orgList", response.data);
-      });
       listenGoBack(this.close);
     },
     dataFilter(val) {

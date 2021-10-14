@@ -19,11 +19,6 @@ export default {
       meta: {system: true, title: 'commons.user', permissions: ['SYSTEM_USER:READ']}
     },
     {
-      path: 'organization',
-      component: () => import('@/business/components/settings/system/Organization'),
-      meta: {system: true, title: 'commons.organization', permissions: ['SYSTEM_ORGANIZATION:READ']}
-    },
-    {
       path: 'systemworkspace',
       component: () => import('@/business/components/settings/system/SystemWorkspace'),
       meta: {system: true, title: 'commons.workspace', permissions: ['SYSTEM_WORKSPACE:READ']}

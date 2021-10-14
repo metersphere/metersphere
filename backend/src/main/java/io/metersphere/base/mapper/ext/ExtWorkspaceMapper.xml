@@ -3,8 +3,8 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtWorkspaceMapper">
 
     <select id="getWorkspaceWithOrg" resultType="io.metersphere.dto.WorkspaceDTO">
-        select w.id, w.name, w.organization_id as organizationId, w.description, o.name as organizationName
-          from workspace w join organization o on w.organization_id = o.id
+        select w.id, w.name, w.description
+          from workspace w
           <where>
               <if test="request.name != null and request.name != ''">
                   AND w.name LIKE #{request.name,jdbcType=VARCHAR}
