@@ -57,7 +57,7 @@
 
 <script>
 import BugManageBtn from "@/business/components/settings/workspace/components/BugManageBtn";
-import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {ZEN_TAO} from "@/common/js/constants";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
@@ -97,7 +97,7 @@ export default {
           trigger: ['change', 'blur']
         },
       },
-    }
+    };
   },
   methods: {
     save() {
@@ -131,7 +131,7 @@ export default {
         } else {
           return false;
         }
-      })
+      });
     },
     init() {
       const {lastOrganizationId} = getCurrentUser();
@@ -149,7 +149,7 @@ export default {
         } else {
           this.clear();
         }
-      })
+      });
     },
     clear() {
       this.$set(this.form, 'account', '');
@@ -176,7 +176,7 @@ export default {
         } else {
           return false;
         }
-      })
+      });
     },
     cancelIntegration() {
       if (this.form.account && this.form.password) {
@@ -206,7 +206,7 @@ export default {
       });
     }
   }
-}
+};
 </script>
 
 <style scoped>

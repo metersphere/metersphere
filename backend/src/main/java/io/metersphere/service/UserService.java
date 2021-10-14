@@ -984,11 +984,11 @@ public class UserService {
 
         if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             List<String> userIdList = new ArrayList<>();
-            if (StringUtils.isEmpty(request.getOrganizationId())) {
+            if (StringUtils.isEmpty(request.getWorkspaceId())) {
                 userIdList = extUserMapper.selectIdsByQuery(request.getCondition());
             } else {
                 //组织->成员 页面发起的请求
-                userIdList = extUserRoleMapper.selectIdsByQuery(request.getOrganizationId(), request.getCondition());
+                userIdList = extUserRoleMapper.selectIdsByQuery(request.getWorkspaceId(), request.getCondition());
             }
 
             return userIdList;

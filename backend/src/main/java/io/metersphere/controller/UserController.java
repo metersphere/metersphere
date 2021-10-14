@@ -358,17 +358,18 @@ public class UserController {
         }
     }
 
-    @GetMapping("/getWorkspaceUserRoleDataStruct/{organizationId}")
-    public List<CascaderDTO> getWorkspaceUserRoleDataStruct(@PathVariable String organizationId) {
-        List<OrganizationMemberDTO> organizationList = organizationService.findIdAndNameByOrganizationId(organizationId);
-        List<WorkspaceDTO> workspaceDTOList = workspaceService.findIdAndNameByOrganizationId(organizationId);
-        if (!workspaceDTOList.isEmpty()) {
-            Map<String, List<WorkspaceDTO>> orgIdWorkspaceMap = workspaceDTOList.stream().collect(Collectors.groupingBy(WorkspaceDTO::getOrganizationId));
-            List<CascaderDTO> returnList = CascaderParse.parseUserRoleDataStruct(organizationList, orgIdWorkspaceMap, true);
-            return returnList;
-        } else {
-            return new ArrayList<>();
-        }
+    @GetMapping("/getWorkspaceUserRoleDataStruct/{workspaceId}")
+    public List<CascaderDTO> getWorkspaceUserRoleDataStruct(@PathVariable String workspaceId) {
+        // todo  getWorkspaceUserRoleDataStruct
+        return new ArrayList<>();
+//        WorkspaceDTO workspaceDTO = workspaceService.getWorkspaceDTO(workspaceId);
+//        if (workspaceDTO != null) {
+//            Map<String, List<WorkspaceDTO>> orgIdWorkspaceMap = workspaceDTOList.stream().collect(Collectors.groupingBy(WorkspaceDTO::getOrganizationId));
+//            List<CascaderDTO> returnList = CascaderParse.parseUserRoleDataStruct(organizationList, orgIdWorkspaceMap, true);
+//            return returnList;
+//        } else {
+//            return new ArrayList<>();
+//        }
     }
 
 

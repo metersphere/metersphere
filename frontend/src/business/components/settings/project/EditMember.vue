@@ -1,10 +1,10 @@
 <template>
-  <add-member :group-type="GROUP_PROJECT" :group-scope-id="organizationId" ref="addMember" @submit="submit"/>
+  <add-member :group-type="GROUP_PROJECT" :group-scope-id="workspaceId" ref="addMember" @submit="submit"/>
 </template>
 
 <script>
 import {GROUP_PROJECT} from "@/common/js/constants";
-import {getCurrentOrganizationId, getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import AddMember from "@/business/components/settings/common/AddMember";
 
 export default {
@@ -23,14 +23,14 @@ export default {
         ]
       },
       userList: [],
-    }
+    };
   },
   computed: {
     projectId() {
       return getCurrentProjectID();
     },
-    organizationId() {
-      return getCurrentOrganizationId();
+    workspaceId() {
+      return getCurrentWorkspaceId();
     },
     GROUP_PROJECT() {
       return GROUP_PROJECT;
@@ -38,12 +38,12 @@ export default {
   },
   methods: {
     submit(param) {
-      param['projectId'] = this.projectId
+      param['projectId'] = this.projectId;
       this.result = this.$post("user/project/member/add", param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$emit("refresh");
         this.$refs.addMember.close();
-      })
+      });
     },
     open() {
       this.$refs.addMember.open();
@@ -53,7 +53,7 @@ export default {
       this.form = {};
     }
   }
-}
+};
 </script>
 
 <style scoped>

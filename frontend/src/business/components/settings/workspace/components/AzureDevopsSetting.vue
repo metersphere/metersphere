@@ -11,7 +11,8 @@
           <el-input v-model="form.url" :placeholder="$t('organization.integration.input_azure_url')"/>
         </el-form-item>
         <el-form-item :label="$t('organization.integration.azure_organization_id')" prop="organization">
-          <el-input v-model="form.organization" :placeholder="$t('organization.integration.input_azure_organization_id')"/>
+          <el-input v-model="form.organization"
+                    :placeholder="$t('organization.integration.input_azure_organization_id')"/>
         </el-form-item>
         <el-form-item :label="$t('organization.integration.azure_issuetype')" prop="issuetype">
           <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_azure_issuetype')"/>
@@ -65,7 +66,7 @@
 
 <script>
 import BugManageBtn from "@/business/components/settings/workspace/components/BugManageBtn";
-import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {AZURE_DEVOPS} from "@/common/js/constants";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
@@ -107,7 +108,7 @@ export default {
           trigger: ['change', 'blur']
         }
       },
-    }
+    };
   },
   methods: {
     init() {
@@ -127,7 +128,7 @@ export default {
         } else {
           this.clear();
         }
-      })
+      });
     },
     save() {
       this.$refs['form'].validate(valid => {
@@ -140,7 +141,7 @@ export default {
           let auth = {
             pat: this.form.pat,
             url: formatUrl,
-            organization:this.form.organization,
+            organization: this.form.organization,
             issuetype: this.form.issuetype,
             storytype: this.form.storytype
           };
@@ -160,7 +161,7 @@ export default {
         } else {
           return false;
         }
-      })
+      });
     },
     clear() {
       this.$set(this.form, 'pat', '');
@@ -212,7 +213,7 @@ export default {
       });
     }
   }
-}
+};
 </script>
 
 <style scoped>

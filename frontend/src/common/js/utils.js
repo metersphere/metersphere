@@ -160,10 +160,6 @@ export function checkoutTestManagerOrTestUser() {
   return hasRolePermissions(ROLE_TEST_MANAGER, ROLE_TEST_USER);
 }
 
-export function getCurrentOrganizationId() {
-  return sessionStorage.getItem(ORGANIZATION_ID);
-}
-
 export function getCurrentWorkspaceId() {
   return sessionStorage.getItem(WORKSPACE_ID);
 }

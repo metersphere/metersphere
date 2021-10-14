@@ -11,7 +11,7 @@ import java.util.List;
 public class IssuesUpdateRequest extends IssuesWithBLOBs {
     private String content;
     private String testCaseId;
-    private String organizationId;
+    private String workspaceId;
 
     private List<String> tapdUsers;
     /**

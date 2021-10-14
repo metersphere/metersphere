@@ -65,7 +65,7 @@
 
 <script>
 import BugManageBtn from "@/business/components/settings/workspace/components/BugManageBtn";
-import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {JIRA} from "@/common/js/constants";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
@@ -107,7 +107,7 @@ export default {
           trigger: ['change', 'blur']
         }
       },
-    }
+    };
   },
   methods: {
     init() {
@@ -127,7 +127,7 @@ export default {
         } else {
           this.clear();
         }
-      })
+      });
     },
     save() {
       this.$refs['form'].validate(valid => {
@@ -160,7 +160,7 @@ export default {
         } else {
           return false;
         }
-      })
+      });
     },
     clear() {
       this.$set(this.form, 'account', '');
@@ -212,7 +212,7 @@ export default {
       });
     }
   }
-}
+};
 </script>
 
 <style scoped>

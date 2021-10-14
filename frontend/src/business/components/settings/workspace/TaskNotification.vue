@@ -77,21 +77,18 @@
 </template>
 
 <script>
-import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
+import {getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import JenkinsNotification from "@/business/components/settings/workspace/components/jenkins/JenkinsNotification";
 import TestPlanTaskNotification
   from "@/business/components/settings/workspace/components/track/TestPlanTaskNotification";
-import TestReviewNotification
-  from "@/business/components/settings/workspace/components/track/TestReviewNotification";
-import DefectTaskNotification
-  from "@/business/components/settings/workspace/components/track/DefectTaskNotification";
+import TestReviewNotification from "@/business/components/settings/workspace/components/track/TestReviewNotification";
+import DefectTaskNotification from "@/business/components/settings/workspace/components/track/DefectTaskNotification";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import HomeNotification from "@/business/components/settings/workspace/components/track/TrackHomeNotification";
 import TrackHomeNotification from "@/business/components/settings/workspace/components/track/TrackHomeNotification";
 import TestCaseNotification from "@/business/components/settings/workspace/components/track/TestCaseNotification";
-import TrackReportNotification
-  from "@/business/components/settings/workspace/components/track/TrackReportNotification";
+import TrackReportNotification from "@/business/components/settings/workspace/components/track/TrackReportNotification";
 import ApiDefinitionNotification
   from "@/business/components/settings/workspace/components/api/ApiDefinitionNotification";
 import ApiAutomationNotification
@@ -166,11 +163,7 @@ export default {
     },
 
     initUserList() {
-      let param = {
-        name: '',
-        organizationId: getCurrentOrganizationId()
-      };
-      this.result = this.$post('user/org/member/list/all', param, response => {
+      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
         this.jenkinsReceiverOptions = response.data;
         this.reviewReceiverOptions = response.data;
         this.defectReceiverOptions = response.data;

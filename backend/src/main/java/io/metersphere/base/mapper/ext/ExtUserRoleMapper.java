@@ -30,5 +30,5 @@ public interface ExtUserRoleMapper {
 
     List<User> getTestManagerAndTestUserList(@Param("request") QueryMemberRequest request);
 
-    List<String> selectIdsByQuery(@Param("organizationId") String organizationId, @Param("orgMember")UserRequest condition);
+    List<String> selectIdsByQuery(@Param("workspaceId") String workspaceId, @Param("orgMember")UserRequest condition);
 }

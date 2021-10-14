@@ -116,9 +116,9 @@
             WHERE user_role.source_id in
             (
                 SELECT id FROM workspace w
-                WHERE w.organization_id = #{organizationId}
+                WHERE w.id = #{workspaceId}
                 UNION
-                SELECT #{organizationId} AS id FROM dual
+                SELECT #{workspaceId} AS id FROM dual
             )
             <if test="orgMember.name != null">
                 AND `user`.name like CONCAT('%', #{orgMember.name},'%')

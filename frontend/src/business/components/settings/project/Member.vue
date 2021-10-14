@@ -2,7 +2,8 @@
   <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :create-permission="['PROJECT_USER:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
+        <ms-table-header :create-permission="['PROJECT_USER:READ+CREATE']" :condition.sync="condition"
+                         @search="initTableData" @create="create"
                          :create-tip="$t('member.create')" :title="$t('commons.member')" :have-search="false"/>
       </template>
       <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
@@ -34,7 +35,8 @@
     </el-card>
 
 
-    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%"
+               :destroy-on-close="true"
                @close="handleClose" v-loading="dialogResult.loading">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
@@ -49,8 +51,10 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.group')" prop="groupIds" :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
-          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
+        <el-form-item :label="$t('commons.group')" prop="groupIds"
+                      :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')"
+                     class="select-width">
             <el-option
               v-for="item in form.allgroups"
               :key="item.id"
@@ -68,7 +72,6 @@
     </el-dialog>
 
 
-
     <edit-member ref="editMember" @refresh="initTableData"/>
   </div>
 </template>
@@ -83,8 +86,8 @@ import MsDialogFooter from "@/business/components/common/components/MsDialogFoot
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import EditMember from "@/business/components/settings/project/EditMember";
-import {GROUP_PROJECT, GROUP_WORKSPACE} from "@/common/js/constants";
-import {getCurrentOrganizationId, getCurrentProjectID} from "@/common/js/utils";
+import {GROUP_PROJECT} from "@/common/js/constants";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "Member",
@@ -111,7 +114,7 @@ export default {
       total: 0,
       updateVisible: false,
       form: {}
-    }
+    };
   },
   computed: {
     projectId() {
@@ -134,7 +137,7 @@ export default {
             this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
               let groups = response.data;
               this.$set(this.tableData[i], "groups", groups);
-            })
+            });
           }
           this.total = data.itemCount;
         });
@@ -144,9 +147,12 @@ export default {
       this.updateVisible = true;
       this.form = Object.assign({}, row);
       let groupIds = this.form.groups.map(r => r.id);
-      this.dialogResult = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: getCurrentOrganizationId()}, response => {
+      this.dialogResult = this.$post('/user/group/list', {
+        type: GROUP_PROJECT,
+        resourceId: getCurrentWorkspaceId()
+      }, response => {
         this.$set(this.form, "allgroups", response.data);
-      })
+      });
       // 编辑使填充角色信息
       this.$set(this.form, 'groupIds', groupIds);
     },
@@ -156,7 +162,7 @@ export default {
         cancelButtonText: this.$t('commons.cancel'),
         type: 'warning'
       }).then(() => {
-        this.result = this.$get('/user/project/member/delete/' + this.projectId + '/' + encodeURIComponent(row.id),() => {
+        this.result = this.$get('/user/project/member/delete/' + this.projectId + '/' + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.remove_success'));
           this.initTableData();
         });
@@ -176,7 +182,7 @@ export default {
         phone: this.form.phone,
         groupIds: this.form.groupIds,
         projectId: this.projectId
-      }
+      };
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.result = this.$post("/project/member/update", param, () => {
@@ -191,7 +197,7 @@ export default {
   activated() {
     this.initTableData();
   }
-}
+};
 </script>
 
 <style scoped>

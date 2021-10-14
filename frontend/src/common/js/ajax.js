@@ -2,7 +2,7 @@ import {Message, MessageBox} from 'element-ui';
 import axios from "axios";
 import i18n from '../../i18n/i18n';
 import {TokenKey} from "@/common/js/constants";
-import {getCurrentOrganizationId, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export function registerRequestHeaders() {
   axios.interceptors.request.use(config => {
