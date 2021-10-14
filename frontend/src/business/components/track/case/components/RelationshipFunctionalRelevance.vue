@@ -48,10 +48,13 @@ export default {
       }
     },
     saveCaseRelevance(param, vueObj) {
-      param.sourceId = this.caseId;
-      param.relationshipType = this.relationshipType;
-      param.resourceType = 'TEST_CASE';
-      param.targetIds = param.ids;
+      if (this.relationshipType === 'PRE') {
+        param.targetIds = param.ids;
+      } else {
+        param.sourceIds = param.ids;
+      }
+      param.id = this.caseId;
+      param.type = 'TEST_CASE';
 
       vueObj.result = this.$post('/relationship/edge/save/batch', param, () => {
         vueObj.isSaving = false;

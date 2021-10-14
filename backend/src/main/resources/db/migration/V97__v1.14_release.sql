@@ -41,13 +41,12 @@ DROP PROCEDURE IF EXISTS test_cursor;
 create table if not exists relationship_edge (
     source_id varchar(50) not null comment '源节点的ID',
     target_id varchar(50) not null comment '目标节点的ID',
-    relationship_type varchar(20) not null comment '关系的类型，前置后置或者依赖',
-    resource_type varchar(20) not null comment '是表示什么资源',
+    `type` varchar(20) not null comment '边的分类',
     graph_id  varchar(50) not null comment '所属关系图的ID',
     creator varchar(50) not null comment '创建人',
     create_time bigint(13) not null,
     PRIMARY KEY (source_id, target_id)
-)
+    )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;

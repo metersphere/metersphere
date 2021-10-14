@@ -1,5 +1,6 @@
 <template>
   <chart
+    class="ms-chart"
     :init-options="defaultInitOptions"
     :options="options"
     :theme="theme"

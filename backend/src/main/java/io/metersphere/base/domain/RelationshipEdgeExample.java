@@ -244,143 +244,73 @@ public class RelationshipEdgeExample {
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeIsNull() {
-            addCriterion("relationship_type is null");
+        public Criteria andTypeIsNull() {
+            addCriterion("`type` is null");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeIsNotNull() {
-            addCriterion("relationship_type is not null");
+        public Criteria andTypeIsNotNull() {
+            addCriterion("`type` is not null");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeEqualTo(String value) {
-            addCriterion("relationship_type =", value, "relationshipType");
+        public Criteria andTypeEqualTo(String value) {
+            addCriterion("`type` =", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeNotEqualTo(String value) {
-            addCriterion("relationship_type <>", value, "relationshipType");
+        public Criteria andTypeNotEqualTo(String value) {
+            addCriterion("`type` <>", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeGreaterThan(String value) {
-            addCriterion("relationship_type >", value, "relationshipType");
+        public Criteria andTypeGreaterThan(String value) {
+            addCriterion("`type` >", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("relationship_type >=", value, "relationshipType");
+        public Criteria andTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("`type` >=", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeLessThan(String value) {
-            addCriterion("relationship_type <", value, "relationshipType");
+        public Criteria andTypeLessThan(String value) {
+            addCriterion("`type` <", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeLessThanOrEqualTo(String value) {
-            addCriterion("relationship_type <=", value, "relationshipType");
+        public Criteria andTypeLessThanOrEqualTo(String value) {
+            addCriterion("`type` <=", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeLike(String value) {
-            addCriterion("relationship_type like", value, "relationshipType");
+        public Criteria andTypeLike(String value) {
+            addCriterion("`type` like", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeNotLike(String value) {
-            addCriterion("relationship_type not like", value, "relationshipType");
+        public Criteria andTypeNotLike(String value) {
+            addCriterion("`type` not like", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeIn(List<String> values) {
-            addCriterion("relationship_type in", values, "relationshipType");
+        public Criteria andTypeIn(List<String> values) {
+            addCriterion("`type` in", values, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeNotIn(List<String> values) {
-            addCriterion("relationship_type not in", values, "relationshipType");
+        public Criteria andTypeNotIn(List<String> values) {
+            addCriterion("`type` not in", values, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeBetween(String value1, String value2) {
-            addCriterion("relationship_type between", value1, value2, "relationshipType");
+        public Criteria andTypeBetween(String value1, String value2) {
+            addCriterion("`type` between", value1, value2, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRelationshipTypeNotBetween(String value1, String value2) {
-            addCriterion("relationship_type not between", value1, value2, "relationshipType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeIsNull() {
-            addCriterion("resource_type is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeIsNotNull() {
-            addCriterion("resource_type is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeEqualTo(String value) {
-            addCriterion("resource_type =", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeNotEqualTo(String value) {
-            addCriterion("resource_type <>", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeGreaterThan(String value) {
-            addCriterion("resource_type >", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("resource_type >=", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeLessThan(String value) {
-            addCriterion("resource_type <", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeLessThanOrEqualTo(String value) {
-            addCriterion("resource_type <=", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeLike(String value) {
-            addCriterion("resource_type like", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeNotLike(String value) {
-            addCriterion("resource_type not like", value, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeIn(List<String> values) {
-            addCriterion("resource_type in", values, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeNotIn(List<String> values) {
-            addCriterion("resource_type not in", values, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeBetween(String value1, String value2) {
-            addCriterion("resource_type between", value1, value2, "resourceType");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceTypeNotBetween(String value1, String value2) {
-            addCriterion("resource_type not between", value1, value2, "resourceType");
+        public Criteria andTypeNotBetween(String value1, String value2) {
+            addCriterion("`type` not between", value1, value2, "type");
             return (Criteria) this;
         }
 
