@@ -314,8 +314,8 @@ public class GroupService {
 
     private Pager<List<GroupDTO>> getUserGroup(String groupType, EditGroupRequest request) {
         List<String> types;
-        String orgId = SessionUtils.getCurrentOrganizationId();
-        List<String> scopes = Arrays.asList(GLOBAL, orgId);
+        String workspaceId = SessionUtils.getCurrentWorkspaceId();
+        List<String> scopes = Arrays.asList(GLOBAL, workspaceId);
         int goPage = request.getGoPage();
         int pageSize = request.getPageSize();
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

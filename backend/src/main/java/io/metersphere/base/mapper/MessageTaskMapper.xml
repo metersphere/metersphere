@@ -10,9 +10,9 @@
     <result column="webhook" jdbcType="VARCHAR" property="webhook" />
     <result column="identification" jdbcType="VARCHAR" property="identification" />
     <result column="is_set" jdbcType="BIT" property="isSet" />
-    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.MessageTask">
     <result column="template" jdbcType="LONGVARCHAR" property="template" />
@@ -28,13 +28,13 @@
                   and ${criterion.condition}
                 </when>
                 <when test="criterion.singleValue">
-                  AND ${criterion.condition} #{criterion.value}
+                  and ${criterion.condition} #{criterion.value}
                 </when>
                 <when test="criterion.betweenValue">
-                  AND ${criterion.condition} #{criterion.value} AND #{criterion.secondValue}
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
                 <when test="criterion.listValue">
-                  AND ${criterion.condition}
+                  and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
@@ -76,26 +76,26 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `type`, event, user_id, task_type, webhook, identification, is_set, organization_id, 
-    test_id, create_time
+    id, `type`, event, user_id, task_type, webhook, identification, is_set, test_id, 
+    create_time, workspace_id
   </sql>
   <sql id="Blob_Column_List">
     `template`
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.MessageTaskExample" resultMap="ResultMapWithBLOBs">
-    SELECT
+    select
     <if test="distinct">
-      DISTINCT
+      distinct
     </if>
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    FROM message_task
+    from message_task
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
     <if test="orderByClause != null">
-      ORDER BY ${orderByClause}
+      order by ${orderByClause}
     </if>
   </select>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.MessageTaskExample" resultMap="BaseResultMap">
@@ -131,15 +131,15 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.MessageTask">
-    INSERT INTO message_task (id, `type`, event,
+    insert into message_task (id, `type`, event, 
       user_id, task_type, webhook, 
-      identification, is_set, organization_id, 
-      test_id, create_time, `template`
+      identification, is_set, test_id, 
+      create_time, workspace_id, `template`
       )
-    VALUES (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR},
+    values (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{webhook,jdbcType=VARCHAR}, 
-      #{identification,jdbcType=VARCHAR}, #{isSet,jdbcType=BIT}, #{organizationId,jdbcType=VARCHAR}, 
-      #{testId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{template,jdbcType=LONGVARCHAR}
+      #{identification,jdbcType=VARCHAR}, #{isSet,jdbcType=BIT}, #{testId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{workspaceId,jdbcType=VARCHAR}, #{template,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.MessageTask">
@@ -169,14 +169,14 @@
       <if test="isSet != null">
         is_set,
       </if>
-      <if test="organizationId != null">
-        organization_id,
-      </if>
       <if test="testId != null">
         test_id,
       </if>
       <if test="createTime != null">
         create_time,
+      </if>
+      <if test="workspaceId != null">
+        workspace_id,
       </if>
       <if test="template != null">
         `template`,
@@ -207,14 +207,14 @@
       <if test="isSet != null">
         #{isSet,jdbcType=BIT},
       </if>
-      <if test="organizationId != null">
-        #{organizationId,jdbcType=VARCHAR},
-      </if>
       <if test="testId != null">
         #{testId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="workspaceId != null">
+        #{workspaceId,jdbcType=VARCHAR},
       </if>
       <if test="template != null">
         #{template,jdbcType=LONGVARCHAR},
@@ -254,14 +254,14 @@
       <if test="record.isSet != null">
         is_set = #{record.isSet,jdbcType=BIT},
       </if>
-      <if test="record.organizationId != null">
-        organization_id = #{record.organizationId,jdbcType=VARCHAR},
-      </if>
       <if test="record.testId != null">
         test_id = #{record.testId,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.workspaceId != null">
+        workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       </if>
       <if test="record.template != null">
         `template` = #{record.template,jdbcType=LONGVARCHAR},
@@ -272,8 +272,8 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    UPDATE message_task
-    SET id = #{record.id,jdbcType=VARCHAR},
+    update message_task
+    set id = #{record.id,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       event = #{record.event,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR},
@@ -281,9 +281,9 @@
       webhook = #{record.webhook,jdbcType=VARCHAR},
       identification = #{record.identification,jdbcType=VARCHAR},
       is_set = #{record.isSet,jdbcType=BIT},
-      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       `template` = #{record.template,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -299,9 +299,9 @@
       webhook = #{record.webhook,jdbcType=VARCHAR},
       identification = #{record.identification,jdbcType=VARCHAR},
       is_set = #{record.isSet,jdbcType=BIT},
-      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT}
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -330,14 +330,14 @@
       <if test="isSet != null">
         is_set = #{isSet,jdbcType=BIT},
       </if>
-      <if test="organizationId != null">
-        organization_id = #{organizationId,jdbcType=VARCHAR},
-      </if>
       <if test="testId != null">
         test_id = #{testId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="workspaceId != null">
+        workspace_id = #{workspaceId,jdbcType=VARCHAR},
       </if>
       <if test="template != null">
         `template` = #{template,jdbcType=LONGVARCHAR},
@@ -346,32 +346,32 @@
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.MessageTask">
-    UPDATE message_task
-    SET `type` = #{type,jdbcType=VARCHAR},
+    update message_task
+    set `type` = #{type,jdbcType=VARCHAR},
       event = #{event,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},
       task_type = #{taskType,jdbcType=VARCHAR},
       webhook = #{webhook,jdbcType=VARCHAR},
       identification = #{identification,jdbcType=VARCHAR},
       is_set = #{isSet,jdbcType=BIT},
-      organization_id = #{organizationId,jdbcType=VARCHAR},
       test_id = #{testId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
+      workspace_id = #{workspaceId,jdbcType=VARCHAR},
       `template` = #{template,jdbcType=LONGVARCHAR}
-    WHERE id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.MessageTask">
-    UPDATE message_task
-    SET `type` = #{type,jdbcType=VARCHAR},
+    update message_task
+    set `type` = #{type,jdbcType=VARCHAR},
       event = #{event,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},
       task_type = #{taskType,jdbcType=VARCHAR},
       webhook = #{webhook,jdbcType=VARCHAR},
       identification = #{identification,jdbcType=VARCHAR},
       is_set = #{isSet,jdbcType=BIT},
-      organization_id = #{organizationId,jdbcType=VARCHAR},
       test_id = #{testId,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT}
-    WHERE id = #{id,jdbcType=VARCHAR}
+      create_time = #{createTime,jdbcType=BIGINT},
+      workspace_id = #{workspaceId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -20,16 +20,15 @@ import io.metersphere.api.jmeter.ReportCounter;
 import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
-import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
-import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.UserDTO;
@@ -84,7 +83,7 @@ public class ApiScenarioReportService {
     @Resource
     private UserService userService;
     @Resource
-    private ExtProjectMapper extProjectMapper;
+    private ProjectMapper projectMapper;
 
     public ApiScenarioReport complete(TestResult result, String runMode) {
         // 更新场景
@@ -648,8 +647,8 @@ public class ApiScenarioReportService {
                 .event(event)
                 .build();
 
-        Organization organization = extProjectMapper.getOrganizationByProjectId(scenario.getProjectId());
-        noticeSendService.send(organization, NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
+        Project project = projectMapper.selectByPrimaryKey(scenario.getProjectId());
+        noticeSendService.send(project, NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
     }
 
     public String update(APIScenarioReportResult test) {

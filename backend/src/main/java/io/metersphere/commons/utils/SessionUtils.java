@@ -78,17 +78,6 @@ public class SessionUtils {
         return getUser().getLastWorkspaceId();
     }
 
-    public static String getCurrentOrganizationId() {
-        try {
-            HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-            if (request.getHeader("ORGANIZATION_ID") != null) {
-                return request.getHeader("ORGANIZATION_ID");
-            }
-        } catch (Exception e) {
-        }
-        return getUser().getLastOrganizationId();
-    }
-
     public static String getCurrentProjectId() {
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();

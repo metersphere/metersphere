@@ -62,11 +62,6 @@ public class WorkspaceService {
         if (StringUtils.isBlank(workspace.getName())) {
             MSException.throwException(Translator.get("workspace_name_is_null"));
         }
-        // set organization id
-        if (StringUtils.isBlank(workspace.getOrganizationId())) {
-            String currentOrgId = SessionUtils.getCurrentOrganizationId();
-            workspace.setOrganizationId(currentOrgId);
-        }
 
         long currentTime = System.currentTimeMillis();
 

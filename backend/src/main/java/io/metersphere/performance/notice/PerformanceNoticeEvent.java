@@ -1,7 +1,7 @@
 package io.metersphere.performance.notice;
 
 import io.metersphere.base.domain.LoadTestReport;
-import io.metersphere.base.domain.Organization;
+import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
@@ -90,7 +90,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
                     .build();
             noticeSendService.send(loadTestReport.getTriggerMode(), NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, noticeModel);
         } else {
-            Organization organization = projectService.getOrganizationByProjectId(loadTestReport.getProjectId());
+            Project project = projectService.getProjectById(loadTestReport.getProjectId());
             String context = "${operator}执行性能测试完成: ${name}";
             NoticeModel noticeModel2 = NoticeModel.builder()
                     .operator(loadTestReport.getUserId())
@@ -102,7 +102,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
                     .event(NoticeConstants.Event.EXECUTE_COMPLETED)
                     .paramMap(paramMap)
                     .build();
-            noticeSendService.send(organization, NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, noticeModel2);
+            noticeSendService.send(project, NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, noticeModel2);
         }
     }
 
