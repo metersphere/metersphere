@@ -9,25 +9,50 @@ BEGIN
     DECLARE sourceId VARCHAR(64);
     DECLARE userId VARCHAR(64);
     DECLARE groupId VARCHAR(64);
+    DECLARE workspaceId VARCHAR(64);
+    DECLARE createTime BIGINT(13);
+    DECLARE updateTime BIGINT(13);
     DECLARE done INT DEFAULT 0;
-    DECLARE cursor1 CURSOR FOR (SELECT user_id, source_id, group_id
+    DECLARE sourceUserGroupId VARCHAR(64);
+    declare temp int default 0;
+    DECLARE cursor1 CURSOR FOR (SELECT user_id, source_id, group_id, id, create_time, update_time
                                 FROM user_group
-                                WHERE group_id IN ('org_admin', 'org_member'));
+                                WHERE group_id IN (select id from `group` where type = 'ORGANIZATION'));
+    DECLARE cursor2 CURSOR FOR (SELECT id
+                                FROM workspace
+                                WHERE organization_id = sourceId);
 
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     OPEN cursor1;
     outer_loop:
     LOOP
-        FETCH cursor1 INTO userId, sourceId, groupId;
+        FETCH cursor1 INTO userId, sourceId, groupId, sourceUserGroupId, createTime, updateTime;
+
         IF done
         THEN
             LEAVE outer_loop;
         END IF;
-        INSERT INTO user_group (id, user_id, group_id, source_id, create_time, update_time)
-        SELECT UUID(), userId, REPLACE(groupId, 'org', 'ws'), id, create_time, update_time
-        FROM workspace
-        WHERE organization_id = sourceId;
+        OPEN cursor2;
+        inner_loop:
+        LOOP
+            FETCH cursor2 INTO workspaceId;
+            IF done
+            THEN
+                LEAVE inner_loop;
+            END IF;
+            set temp = 0;
+            select count(*) from user_group where user_id = userId and group_id = 'ws_admin' and source_id = workspaceId into temp;
+            select temp;
+            -- 不存在就新增数据
+            IF temp = 0 then
+                INSERT INTO user_group (id, user_id, group_id, source_id, create_time, update_time)
+                values (UUID(), userId, 'ws_admin', workspaceId, createTime, updateTime);
+            END IF;
+        END LOOP;
+        DELETE FROM user_group where id = sourceUserGroupId;
+        SET done = 0;
+        CLOSE cursor2;
     END LOOP;
     CLOSE cursor1;
 END
@@ -36,7 +61,6 @@ DELIMITER ;
 
 CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
-
 
 create table if not exists relationship_edge (
     source_id varchar(50) not null comment '源节点的ID',
@@ -53,6 +77,87 @@ create table if not exists relationship_edge (
 
 ALTER TABLE api_definition ADD remark TEXT NULL;
 
-ALTER TABLE test_case_review ADD COLUMN follow_people VARCHAR(100);
-ALTER TABLE test_plan ADD COLUMN follow_people VARCHAR(100);
+ALTER TABLE test_case_review ADD COLUMN follow_people varchar(50);
+ALTER TABLE test_plan ADD COLUMN follow_people varchar(50);
 
+-- 服务集成从组织转移到工作空间
+DROP PROCEDURE IF EXISTS test_cursor;
+DELIMITER //
+CREATE PROCEDURE test_cursor()
+BEGIN
+    DECLARE organizationId VARCHAR(64);
+    DECLARE sourceConfig TEXT;
+    DECLARE sourcePlatform VARCHAR(64);
+    DECLARE sourceId VARCHAR(64);
+    DECLARE done INT DEFAULT 0;
+    DECLARE cursor1 CURSOR FOR (SELECT organization_id, configuration, platform, id from service_integration);
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    OPEN cursor1;
+    outer_loop:
+    LOOP
+        FETCH cursor1 INTO organizationId, sourceConfig, sourcePlatform, sourceId;
+        IF done
+        THEN
+            LEAVE outer_loop;
+        END IF;
+        INSERT INTO service_integration(id, organization_id, workspace_id, configuration, platform)
+        SELECT UUID(), organizationId, id, sourceConfig, sourcePlatform
+        FROM workspace
+        WHERE organization_id = organizationId;
+        DELETE FROM service_integration where id = sourceId;
+    END LOOP;
+    CLOSE cursor1;
+END
+//
+DELIMITER ;
+
+CALL test_cursor();
+DROP PROCEDURE IF EXISTS test_cursor;
+
+
+
+-- 处理组织级别全局用户组
+delete from `group` where type = 'ORGANIZATION' and scope_id = 'global';
+-- 处理组织级别非全局用户组
+DROP PROCEDURE IF EXISTS test_cursor;
+DELIMITER //
+CREATE PROCEDURE test_cursor()
+BEGIN
+    DECLARE sourceGroupId VARCHAR(64);
+    DECLARE sourceName VARCHAR(64);
+    DECLARE sourceDescription VARCHAR(120);
+    DECLARE sourceSystem TINYINT(1);
+    DECLARE sourceType VARCHAR(20);
+    DECLARE sourceCreateTime BIGINT(13);
+    DECLARE sourceUpdateTime BIGINT(13);
+    DECLARE sourceCreator VARCHAR(64);
+    DECLARE sourceOrganizationId VARCHAR(64);
+    DECLARE done INT DEFAULT 0;
+    DECLARE cursor1 CURSOR FOR (select id, name, description, `system`, type, create_time, update_time, creator, scope_id
+                                from `group`
+                                where type = 'ORGANIZATION' and scope_id != 'global');
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    OPEN cursor1;
+    outer_loop:
+    LOOP
+        FETCH cursor1 INTO sourceGroupId, sourceName, sourceDescription, sourceSystem,
+            sourceType, sourceCreateTime, sourceUpdateTime, sourceCreator, sourceOrganizationId;
+        IF done
+        THEN
+            LEAVE outer_loop;
+        END IF;
+        INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
+        SELECT UUID(), sourceName, sourceDescription, sourceSystem, 'WORKSPACE', sourceCreateTime, sourceUpdateTime, sourceCreator, id
+        FROM workspace
+        WHERE organization_id = sourceOrganizationId;
+        DELETE FROM `group` where id = sourceGroupId;
+    END LOOP;
+    CLOSE cursor1;
+END
+//
+DELIMITER ;
+
+CALL test_cursor();
+DROP PROCEDURE IF EXISTS test_cursor;
