@@ -44,7 +44,7 @@
           </div>
         </el-col>
 
-        <el-col :span="4">
+        <el-col :span="5">
           <div>
             <ms-environment-select
               :project-id="projectId"
@@ -53,10 +53,10 @@
               @setEnvironment="setEnvironment" ref="environmentSelect"/>
           </div>
         </el-col>
-        <el-col :span="1" v-if="!(isReadOnly || isCaseEdit)">
-          <el-button size="small" type="primary" @click="addCase" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_CASE']">+{{ $t('api_test.definition.request.case') }}
-          </el-button>
-        </el-col>
+<!--        <el-col :span="1" v-if="!(isReadOnly || isCaseEdit) && !(this.$store.state.currentApiCase && this.$store.state.currentApiCase.case)">-->
+<!--          <el-button size="small" type="primary" @click="addCase" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_CASE']">+{{ $t('api_test.definition.request.case') }}-->
+<!--          </el-button>-->
+<!--        </el-col>-->
       </el-row>
     </el-card>
 
