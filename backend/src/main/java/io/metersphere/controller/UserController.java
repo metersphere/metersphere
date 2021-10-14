@@ -267,20 +267,11 @@ public class UserController {
     }
 
     /**
-     * 查询组织成员列表
+     * ws 下所有相关人员
      */
-    @PostMapping("/org/member/list/{goPage}/{pageSize}")
-    public Pager<List<User>> getOrgMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryOrgMemberRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, userService.getOrgMemberList(request));
-    }
-
-    /**
-     * 组织下所有相关人员
-     */
-    @PostMapping("/org/member/list/all")
-    public List<User> getOrgMemberList(@RequestBody QueryOrgMemberRequest request) {
-        return userService.getOrgAllMember(request);
+    @GetMapping("/ws/member/list/{workspaceId}")
+    public List<User> getWsMemberList(@PathVariable String workspaceId) {
+        return userService.getWsAllMember(workspaceId);
     }
 
     @GetMapping("/besideorg/list/{orgId}")

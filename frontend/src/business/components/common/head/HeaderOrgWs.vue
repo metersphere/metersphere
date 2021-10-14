@@ -19,7 +19,6 @@
 <script>
 import {
   fullScreenLoading,
-  getCurrentOrganizationId,
   getCurrentUser,
   getCurrentWorkspaceId,
   saveLocalStorage,
@@ -67,7 +66,6 @@ export default {
     }
   },
   methods: {
-    getCurrentOrganizationId,
     getCurrentWorkspaceId,
     initMenuData() {
       this.$get("/workspace/list/userworkspace/" + encodeURIComponent(this.currentUserId), response => {

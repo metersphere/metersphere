@@ -51,7 +51,6 @@
 
 <script>
 import {
-  getCurrentOrganizationId,
   getCurrentProjectID,
   getCurrentUser, getCurrentWorkspaceId,
   listenGoBack,
@@ -177,7 +176,7 @@ export default {
     initUserList() {
       let param = {
         name: '',
-        organizationId: getCurrentOrganizationId()
+        workspaceId: getCurrentWorkspaceId()
       };
 
       this.result = this.$post('user/org/member/list/all', param, response => {

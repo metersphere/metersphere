@@ -1322,27 +1322,14 @@ public class UserService {
         return extUserGroupMapper.getProjectMemberList(request);
     }
 
-    public List<User> getOrgAllMember(QueryOrgMemberRequest request) {
-        String orgId = request.getOrganizationId();
-        if (StringUtils.isBlank(orgId)) {
-            return new ArrayList<>();
-        }
+    public List<User> getWsAllMember(String workspaceId) {
         List<String> sourceIds = new ArrayList<>();
-        sourceIds.add(orgId);
-
-        WorkspaceExample workspaceExample = new WorkspaceExample();
-        workspaceExample.createCriteria().andOrganizationIdEqualTo(orgId);
-        List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
-        if (CollectionUtils.isNotEmpty(workspaces)) {
-            List<String> wsIds = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
-            sourceIds.addAll(wsIds);
-            ProjectExample projectExample = new ProjectExample();
-            projectExample.createCriteria().andWorkspaceIdIn(wsIds);
-            List<Project> projectList = projectMapper.selectByExample(projectExample);
-            if (CollectionUtils.isNotEmpty(projectList)) {
-                List<String> proIds = projectList.stream().map(Project::getId).collect(Collectors.toList());
-                sourceIds.addAll(proIds);
-            }
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        if (CollectionUtils.isNotEmpty(projectList)) {
+            List<String> proIds = projectList.stream().map(Project::getId).collect(Collectors.toList());
+            sourceIds.addAll(proIds);
         }
 
         UserGroupExample userGroupExample = new UserGroupExample();

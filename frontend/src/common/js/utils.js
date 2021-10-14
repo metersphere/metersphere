@@ -102,24 +102,6 @@ export function hasPermission(permission) {
     }
   }
 
-  let currentOrganizationPermissions = user.userGroups.filter(ug => ug.group.type === 'ORGANIZATION')
-    .filter(ug => ug.sourceId === getCurrentOrganizationId())
-    .map(ug => ug.userGroupPermissions)
-    .reduce((total, current) => {
-      return total.concat(current);
-    }, [])
-    .map(g => g.permissionId)
-    .reduce((total, current) => {
-      total.add(current);
-      return total;
-    }, new Set);
-
-  for (const p of currentOrganizationPermissions) {
-    if (p === permission) {
-      return true;
-    }
-  }
-
   let systemPermissions = user.userGroups.filter(gp => gp.group.type === 'SYSTEM')
     .filter(ug => ug.sourceId === 'system' || ug.sourceId === 'adminSourceId')
     .map(ug => ug.userGroupPermissions)
