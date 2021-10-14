@@ -96,6 +96,9 @@ export default {
         if (paramUrl && this.isUrl) {
           this.request.url = decodeURIComponent(this.request.url.substr(0, this.request.url.indexOf("?")));
         }
+        if (this.isCustomizeReq) {
+          this.request.path = this.request.url;
+        }
       }
     },
     addProtocol(url) {
