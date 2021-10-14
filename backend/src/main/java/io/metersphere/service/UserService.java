@@ -395,8 +395,7 @@ public class UserService {
         List<String> list = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(list)) {
-            if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
-                user.setLastOrganizationId(null);
+            if (list.contains(user.getLastWorkspaceId())) {
                 user.setLastWorkspaceId(null);
                 userMapper.updateByPrimaryKeySelective(user);
             }
@@ -445,25 +444,8 @@ public class UserService {
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
 
-        if (StringUtils.equals("organization", sign)) {
-            user.setLastOrganizationId(sourceId);
-            List<Workspace> workspaces = workspaceService.getWorkspaceListByOrgIdAndUserId(user.getId(), sourceId);
-            if (workspaces.size() > 0) {
-                user.setLastWorkspaceId(workspaces.get(0).getId());
-                List<Project> projects = getProjectListByWsAndUserId(workspaces.get(0).getId());
-                if (projects.size() > 0) {
-                    user.setLastProjectId(projects.get(0).getId());
-                } else {
-                    user.setLastProjectId("");
-                }
-            } else {
-                user.setLastWorkspaceId("");
-                user.setLastProjectId("");
-            }
-        }
         if (StringUtils.equals("workspace", sign)) {
             Workspace workspace = workspaceMapper.selectByPrimaryKey(sourceId);
-            user.setLastOrganizationId(workspace.getOrganizationId());
             user.setLastWorkspaceId(sourceId);
             List<Project> projects = getProjectListByWsAndUserId(sourceId);
             if (projects.size() > 0) {
@@ -548,7 +530,6 @@ public class UserService {
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(workspaceId, user.getLastWorkspaceId())) {
             user.setLastWorkspaceId("");
-            user.setLastOrganizationId("");
             userMapper.updateByPrimaryKeySelective(user);
         }
 
@@ -595,13 +576,6 @@ public class UserService {
                 .andGroupIdIn(groupIds)
                 .andSourceIdEqualTo(organizationId);
 
-        User user = userMapper.selectByPrimaryKey(userId);
-        if (StringUtils.equals(organizationId, user.getLastOrganizationId())) {
-            user.setLastWorkspaceId("");
-            user.setLastOrganizationId("");
-            userMapper.updateByPrimaryKeySelective(user);
-        }
-
         userGroupMapper.deleteByExample(userGroupExample);
     }
 
@@ -643,8 +617,7 @@ public class UserService {
         // 获取最新UserDTO
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
-        if (StringUtils.equals("organization", sign) && StringUtils.equals(sourceId, user.getLastOrganizationId())) {
-            user.setLastOrganizationId("");
+        if (StringUtils.equals("organization", sign)) {
             user.setLastWorkspaceId("");
         }
         if (StringUtils.equals("workspace", sign) && StringUtils.equals(sourceId, user.getLastWorkspaceId())) {
@@ -790,7 +763,6 @@ public class UserService {
             user.setId(user.getId());
             user.setLastProjectId(projectId);
             user.setLastWorkspaceId(wsId);
-            user.setLastOrganizationId(orgId);
             updateUser(user);
             SessionUtils.putUser(SessionUser.fromUser(user));
         }
@@ -1091,20 +1063,6 @@ public class UserService {
         return request;
     }
 
-    public void addUserWorkspaceAndRole(UserRequest user, List<UserRole> userRoles) {
-        List<Map<String, Object>> roles = user.getRoles();
-        if (!roles.isEmpty()) {
-            insertUserRole(roles, user.getId());
-        }
-        List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(list)) {
-            if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
-                user.setLastOrganizationId("");
-                user.setLastWorkspaceId("");
-                userMapper.updateByPrimaryKeySelective(user);
-            }
-        }
-    }
 
     public Set<String> getUserPermission(String userId) {
         UserGroupExample userGroupExample = new UserGroupExample();
@@ -1353,8 +1311,7 @@ public class UserService {
         List<String> list = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(list)) {
-            if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
-                user.setLastOrganizationId("");
+            if (list.contains(user.getLastWorkspaceId())) {
                 user.setLastWorkspaceId("");
                 userMapper.updateByPrimaryKeySelective(user);
             }
@@ -1456,7 +1413,6 @@ public class UserService {
         SessionUser user = SessionUtils.getUser();
         user.setLastProjectId(project.getId());
         user.setLastWorkspaceId(project.getWorkspaceId());
-        user.setLastOrganizationId(workspace.getOrganizationId());
         userMapper.updateByPrimaryKeySelective(user);
     }
 
