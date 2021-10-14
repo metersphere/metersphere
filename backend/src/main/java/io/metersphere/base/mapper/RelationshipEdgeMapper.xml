@@ -2,10 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.RelationshipEdgeMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.RelationshipEdge">
-    <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
-    <result column="target_id" jdbcType="VARCHAR" property="targetId" />
-    <result column="relationship_type" jdbcType="VARCHAR" property="relationshipType" />
-    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+    <id column="source_id" jdbcType="VARCHAR" property="sourceId" />
+    <id column="target_id" jdbcType="VARCHAR" property="targetId" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="graph_id" jdbcType="VARCHAR" property="graphId" />
     <result column="creator" jdbcType="VARCHAR" property="creator" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -69,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    source_id, target_id, relationship_type, resource_type, graph_id, creator, create_time
+    source_id, target_id, `type`, graph_id, creator, create_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.RelationshipEdgeExample" resultMap="BaseResultMap">
     select
@@ -85,6 +84,18 @@
       order by ${orderByClause}
     </if>
   </select>
+  <select id="selectByPrimaryKey" parameterType="io.metersphere.base.domain.RelationshipEdgeKey" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from relationship_edge
+    where source_id = #{sourceId,jdbcType=VARCHAR}
+      and target_id = #{targetId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="io.metersphere.base.domain.RelationshipEdgeKey">
+    delete from relationship_edge
+    where source_id = #{sourceId,jdbcType=VARCHAR}
+      and target_id = #{targetId,jdbcType=VARCHAR}
+  </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.RelationshipEdgeExample">
     delete from relationship_edge
     <if test="_parameter != null">
@@ -92,12 +103,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.RelationshipEdge">
-    insert into relationship_edge (source_id, target_id, relationship_type, 
-      resource_type, graph_id, creator, 
-      create_time)
-    values (#{sourceId,jdbcType=VARCHAR}, #{targetId,jdbcType=VARCHAR}, #{relationshipType,jdbcType=VARCHAR}, 
-      #{resourceType,jdbcType=VARCHAR}, #{graphId,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT})
+    insert into relationship_edge (source_id, target_id, `type`,
+      graph_id, creator, create_time
+      )
+    values (#{sourceId,jdbcType=VARCHAR}, #{targetId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+      #{graphId,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.RelationshipEdge">
     insert into relationship_edge
@@ -108,11 +119,8 @@
       <if test="targetId != null">
         target_id,
       </if>
-      <if test="relationshipType != null">
-        relationship_type,
-      </if>
-      <if test="resourceType != null">
-        resource_type,
+      <if test="type != null">
+        `type`,
       </if>
       <if test="graphId != null">
         graph_id,
@@ -131,11 +139,8 @@
       <if test="targetId != null">
         #{targetId,jdbcType=VARCHAR},
       </if>
-      <if test="relationshipType != null">
-        #{relationshipType,jdbcType=VARCHAR},
-      </if>
-      <if test="resourceType != null">
-        #{resourceType,jdbcType=VARCHAR},
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
       </if>
       <if test="graphId != null">
         #{graphId,jdbcType=VARCHAR},
@@ -163,11 +168,8 @@
       <if test="record.targetId != null">
         target_id = #{record.targetId,jdbcType=VARCHAR},
       </if>
-      <if test="record.relationshipType != null">
-        relationship_type = #{record.relationshipType,jdbcType=VARCHAR},
-      </if>
-      <if test="record.resourceType != null">
-        resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
       </if>
       <if test="record.graphId != null">
         graph_id = #{record.graphId,jdbcType=VARCHAR},
@@ -187,13 +189,40 @@
     update relationship_edge
     set source_id = #{record.sourceId,jdbcType=VARCHAR},
       target_id = #{record.targetId,jdbcType=VARCHAR},
-      relationship_type = #{record.relationshipType,jdbcType=VARCHAR},
-      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
       graph_id = #{record.graphId,jdbcType=VARCHAR},
       creator = #{record.creator,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.RelationshipEdge">
+    update relationship_edge
+    <set>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="graphId != null">
+        graph_id = #{graphId,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where source_id = #{sourceId,jdbcType=VARCHAR}
+      and target_id = #{targetId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.RelationshipEdge">
+    update relationship_edge
+    set `type` = #{type,jdbcType=VARCHAR},
+      graph_id = #{graphId,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where source_id = #{sourceId,jdbcType=VARCHAR}
+      and target_id = #{targetId,jdbcType=VARCHAR}
   </update>
 </mapper>

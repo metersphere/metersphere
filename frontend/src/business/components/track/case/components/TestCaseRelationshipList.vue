@@ -4,7 +4,7 @@
     <el-button class="add-btn"
                :disabled="readOnly" type="primary" size="mini" @click="openRelevance">{{ $t('添加') }}</el-button>
 
-    <ms-table
+   <ms-table
       v-loading="result.loading"
       :show-select-all="false"
       :data="data"
@@ -44,6 +44,7 @@
       @refresh="getTableData"
       :relationship-type="relationshipType"
       ref="testCaseRelevance"/>
+
   </el-main>
 </template>
 
@@ -105,7 +106,7 @@ export default {
         this.getTableData();
         this.$success(this.$t('commons.delete_success'));
       });
-    }
+    },
   }
 }
 </script>
@@ -113,9 +114,5 @@ export default {
 <style scoped>
 .add-btn {
   margin-left: 20px;
-}
-
-.el-main:nth-child(2) {
-  margin-top: 20px;
 }
 </style>

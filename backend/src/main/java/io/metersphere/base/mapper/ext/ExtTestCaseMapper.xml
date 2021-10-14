@@ -559,6 +559,15 @@
         ORDER BY test_case.order DESC
     </select>
 
+    <select id="getTestCaseForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
+        select id,num,custom_num,`name`
+        from test_case
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <update id="deleteToGc">
         update test_case set original_status=status,
         status = 'Trash',

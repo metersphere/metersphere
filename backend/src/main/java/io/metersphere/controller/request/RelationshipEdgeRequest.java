@@ -9,5 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class RelationshipEdgeRequest extends RelationshipEdge {
+    private String id;
     private List<String> targetIds;
+    private List<String> sourceIds;
 }

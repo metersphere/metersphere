@@ -19,7 +19,7 @@ public class RelationshipEdgeController {
         relationshipEdgeService.saveBatch(request);
     }
 
-    @GetMapping("/delete")
+    @GetMapping("/delete/{sourceId}/{targetId}")
     public void delete(@PathVariable("sourceId") String sourceId, @PathVariable("targetId") String targetId) {
         relationshipEdgeService.delete(sourceId, targetId);
     }
