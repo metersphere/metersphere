@@ -290,14 +290,6 @@ export default {
         return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
       };
     },
-    initRoleBatchProcessDataStruct(isShow) {
-      this.$get("/user/getWorkspaceUserRoleDataStruct/" + getCurrentWorkspaceId(), response => {
-        this.batchAddUserRoleOptions = response.data;
-        if (isShow) {
-          this.$refs.cascaderDialog.open('ADD_USER_ROLE', this.batchAddUserRoleOptions);
-        }
-      });
-    },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.tableData, this.selectRows, this.condition);
       setUnSelectIds(this.tableData, this.condition, this.selectRows);
@@ -316,13 +308,6 @@ export default {
       setUnSelectIds(this.tableData, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       toggleAllSelection(this.$refs.userTable, this.tableData, this.selectRows);
-    },
-    addUserRoleBatch() {
-      if (this.batchAddUserRoleOptions.length == 0) {
-        this.initRoleBatchProcessDataStruct(true);
-      } else {
-        this.$refs.cascaderDialog.open('ADD_USER_ROLE', this.batchAddUserRoleOptions);
-      }
     },
     cascaderConfirm(batchProcessTypeParam, selectValueArr) {
       if (selectValueArr.length == 0) {
