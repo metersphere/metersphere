@@ -29,12 +29,47 @@
         <ms-api-key-value-detail :show-required="true" :items="request.body.form" :showDesc="true" :format="request.headerId" v-if="activeBody === 'form'"/>
       </el-tab-pane>
 
-      <!-- 认证配置 -->
-      <!--      <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig">-->
-      <!--      </el-tab-pane>-->
+      <!--认证配置 -->
+      <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig" v-if="request.body_auth">
+        <el-table :data="request.body_auth">
+          <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')"/>
+          <el-table-column prop="originalValue" :label="$t('operating_log.before_change')">
+            <template v-slot:default="scope">
+              <el-tooltip :content="scope.row.originalValue">
+                <div class="current-value ms-tag-del">{{ scope.row.originalValue }}</div>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column prop="newValue" :label="$t('operating_log.after_change')">
+            <template v-slot:default="scope">
+              <el-tooltip :content="scope.row.newValue">
+                <div class="current-value ms-tag-add">{{ scope.row.newValue }}</div>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+        </el-table>
 
-      <!--      <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig">-->
-      <!--      </el-tab-pane>-->
+      </el-tab-pane>
+
+      <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig" v-if="request.body_config">
+        <el-table :data="request.body_config">
+          <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')"/>
+          <el-table-column prop="originalValue" :label="$t('operating_log.before_change')">
+            <template v-slot:default="scope">
+              <el-tooltip :content="scope.row.originalValue">
+                <div class="current-value ms-tag-del">{{ scope.row.originalValue }}</div>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column prop="newValue" :label="$t('operating_log.after_change')">
+            <template v-slot:default="scope">
+              <el-tooltip :content="scope.row.newValue">
+                <div class="current-value ms-tag-add">{{ scope.row.newValue }}</div>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -79,6 +114,10 @@ export default {
       this.activeName = "headers";
     } else if (this.request.rest) {
       this.activeName = "rest";
+    } else if (this.request.body_config) {
+      this.activeName = "advancedConfig";
+    } else if (this.request.body_auth) {
+      this.activeName = "authConfig";
     }
     this.reloadCodeEdit();
   },
@@ -101,6 +140,10 @@ export default {
         this.activeName = "headers";
       } else if (this.request.rest) {
         this.activeName = "rest";
+      } else if (this.request.body_config) {
+        this.activeName = "advancedConfig";
+      } else if (this.request.body_auth) {
+        this.activeName = "authConfig";
       }
       this.reloadCodeEdit();
     }
@@ -143,6 +186,27 @@ export default {
 .ms-el-link {
   float: right;
   margin-right: 45px;
+}
+
+.current-value {
+  display: inline-block;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.ms-tag-del {
+  text-decoration: line-through;
+  text-decoration-color: red;
+  -moz-text-decoration-line: line-through;
+  background: #F3E6E7;
+}
+
+.ms-tag-add {
+  background: #E2ECDC;
 }
 
 @import "~jsondiffpatch/dist/formatters-styles/html.css";

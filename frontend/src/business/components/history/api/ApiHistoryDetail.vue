@@ -101,9 +101,13 @@ export default {
       this.detail.body = {};
       this.detail.headerId = getUUID();
       if (diffValue.body) {
-        let jsonSchema = (JSON.parse(diffValue.body)).jsonSchema;
-        this.formatJson(jsonSchema.properties);
-        this.detail.body.jsonSchema = jsonSchema;
+        let json = (JSON.parse(diffValue.body));
+        if (json && json.jsonSchema && json.jsonSchema.properties) {
+          this.formatJson(json.jsonSchema.properties);
+          this.detail.body.jsonSchema = json.jsonSchema;
+        } else if (json && json["++jsonSchema"]) {
+          this.detail.body.jsonSchema = json["++jsonSchema"];
+        }
         this.detail.headerId = getUUID();
       }
       if (diffValue.body_form) {
@@ -129,6 +133,14 @@ export default {
       if (diffValue.rest) {
         let rest = (JSON.parse(diffValue.rest)).root;
         this.detail.rest = rest;
+        this.detail.headerId = getUUID();
+      }
+      if (diffValue.body_auth) {
+        this.detail.body_auth = JSON.parse(diffValue.body_auth);
+        this.detail.headerId = getUUID();
+      }
+      if (diffValue.body_config) {
+        this.detail.body_config = JSON.parse(diffValue.body_config);
         this.detail.headerId = getUUID();
       }
     },
