@@ -4,9 +4,6 @@ import {ConfigCenter, ConsumerAndService, RegistryCenter} from "../../../../../m
 const DEFAULT_OPTIONS = {
   options: {
     attributes: {
-      guiclass: "DubboSampleGui",
-      testclass: "DubboSampler",
-      testname: "DubboSampler",
       enabled: "true"
     },
   }
