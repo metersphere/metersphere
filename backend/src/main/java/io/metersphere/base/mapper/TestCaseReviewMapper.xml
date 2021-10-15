@@ -12,6 +12,7 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="follow_people" jdbcType="VARCHAR" property="followPeople" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseReview">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, creator, `status`, create_time, update_time, end_time, project_id, tags, 
-    create_user
+    create_user, follow_people
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -133,11 +134,13 @@
     insert into test_case_review (id, `name`, creator, 
       `status`, create_time, update_time, 
       end_time, project_id, tags, 
-      create_user, description)
+      create_user, follow_people, description
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReview">
     insert into test_case_review
@@ -171,6 +174,9 @@
       </if>
       <if test="createUser != null">
         create_user,
+      </if>
+      <if test="followPeople != null">
+        follow_people,
       </if>
       <if test="description != null">
         description,
@@ -206,6 +212,9 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="followPeople != null">
+        #{followPeople,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -251,6 +260,9 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.followPeople != null">
+        follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -271,6 +283,7 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      follow_people = #{record.followPeople,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -287,7 +300,8 @@
       end_time = #{record.endTime,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      follow_people = #{record.followPeople,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -322,6 +336,9 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="followPeople != null">
+        follow_people = #{followPeople,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -339,6 +356,7 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
+      follow_people = #{followPeople,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -352,7 +370,8 @@
       end_time = #{endTime,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      follow_people = #{followPeople,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

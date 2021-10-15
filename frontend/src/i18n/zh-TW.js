@@ -1650,6 +1650,7 @@ export default {
       related_project: "關聯項目",
       related_tip: "關聯項目後可以添加關聯項目下的測試用例到評審列表",
       review_creator: "發起人",
+      review_follow_people: "關註人",
       review_status: "當前狀態",
       end_time: "截止時間",
       delete: "刪除評審",
