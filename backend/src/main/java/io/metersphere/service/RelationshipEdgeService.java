@@ -6,9 +6,7 @@ import io.metersphere.base.domain.RelationshipEdgeExample;
 import io.metersphere.base.mapper.RelationshipEdgeMapper;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.RelationshipEdgeRequest;
-import io.metersphere.dto.RelationshipGraphData;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -16,9 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author jianxingChen
