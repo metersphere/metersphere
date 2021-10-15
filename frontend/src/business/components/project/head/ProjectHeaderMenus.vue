@@ -26,6 +26,10 @@
             操作日志
           </el-menu-item>
 
+          <el-menu-item :index="'/project/code/segment'" popper-class="submenu" v-permission="['PROJECT_TRACK_ISSUE:READ']">
+            自定义代码片段
+          </el-menu-item>
+
           <el-menu-item :index="'/project/version'" popper-class="submenu" disabled>
             版本管理
           </el-menu-item>

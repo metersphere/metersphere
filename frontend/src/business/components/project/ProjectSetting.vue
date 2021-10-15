@@ -15,29 +15,21 @@
 
 
 import ProjectHeaderMenus from "@/business/components/project/head/ProjectHeaderMenus";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+import MsContainer from "@/business/components/common/components/MsContainer";
 
 export default {
   name: "ProjectSetting",
-  components: {ProjectHeaderMenus},
+  components: {MsContainer, ProjectHeaderMenus, MsMainContainer},
   data() {
     return {
       baseUrl: "project"
     }
   },
-  activated() {
-    this.$refs.table.doLayout()
-  }
 }
 </script>
 
 
-<style>
-.node-tree {
-  margin: 3%;
-}
-</style>
-
 <style scoped>
-
 
 </style>

@@ -1,5 +1,9 @@
 const ProjectSetting = () => import('@/business/components/project/ProjectSetting')
 const ProjectHome = () => import('@/business/components/project/home/ProjectHome')
+const ProjectMember = () => import('@/business/components/project/menu/Member')
+const ProjectEnv = () => import('@/business/components/project/menu/EnvironmentList')
+const ProjectLog = () => import('@/business/components/project/menu/Log')
+const ProjectCodeSegment = () => import('@/business/components/project/menu/function/CustomFunction')
 
 export default {
   path: "/project",
@@ -14,5 +18,26 @@ export default {
       name: 'projectHome',
       component: ProjectHome,
     },
+    {
+      path: 'member',
+      component: ProjectMember
+    },
+    {
+      path: 'env',
+      component: ProjectEnv
+    },
+    // {
+    //   path: 'file/manager',
+    //   component:
+    // },
+    {
+      path: 'log',
+      component: ProjectLog
+    },
+    {
+      path: 'code/segment',
+      component: ProjectCodeSegment
+    }
+
   ]
 };
