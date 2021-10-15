@@ -149,8 +149,9 @@ export default {
 
 <style scoped>
 .el-icon-check {
-  color: #44b349;
+  color: #783887;
   margin-left: 10px;
+  font-weight: bold;
 }
 
 ::-webkit-scrollbar {
