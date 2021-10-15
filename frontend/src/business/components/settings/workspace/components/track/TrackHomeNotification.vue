@@ -209,7 +209,7 @@ export default {
     handleAddTaskModel() {
 
       let task = {};
-      task.event = [];
+      task.event = '';
       task.userIds = [];
       task.type = '';
       task.webhook = '';
