@@ -86,8 +86,9 @@
             :field="item"
             :fields-width="fieldsWidth"
             column-key="creator"
+            :filters="creatorFilters"
             sortable
-            min-width="100"
+            min-width="100px"
             :label="$t('custom_field.issue_creator')"
             prop="creatorName">
           </ms-table-column>
@@ -186,6 +187,7 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import {getCurrentProjectID} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
 import {getProjectMember} from "@/network/user";
+import {post} from "@/common/js/ajax";
 
 export default {
   name: "IssueList",
@@ -221,7 +223,8 @@ export default {
       ],
       issueTemplate: {},
       members: [],
-      isThirdPart: false
+      isThirdPart: false,
+      creatorFilters: []
     };
   },
   watch: {
@@ -279,6 +282,9 @@ export default {
       return getCurrentProjectID();
     }
   },
+  created() {
+    this.getMaintainerOptions();
+  },
   methods: {
     tableDoLayout() {
       this.$refs.table.doLayout();
@@ -289,8 +295,15 @@ export default {
     getIssues() {
       this.page.condition.projectId = this.projectId;
       this.page.condition.orders = getLastTableSortField(this.tableHeaderKey);
-
       this.page.result = getIssues(this.page);
+    },
+    getMaintainerOptions() {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+        this.creatorFilters = response.data.map(u => {
+          return {text: u.name, value: u.id};
+        });
+      });
+
     },
     handleEdit(data) {
       this.$refs.issueEdit.open(data);
