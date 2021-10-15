@@ -3,9 +3,10 @@
     <div style="padding-left: 320px; padding-bottom: 5px; width: 100%">
       <span style="color: gray; padding-right: 10px">({{ totalCount }} {{ $t('commons.notice_count') }})</span>
       <el-dropdown @command="handleCommand" style="padding-right: 10px">
-                <span class="el-dropdown-link">
-                  {{ goPage }}/{{ totalPage }}<i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
+        <span class="el-dropdown-link" v-if="totalPage > 0">
+          {{ goPage }}/{{ totalPage }}<i class="el-icon-arrow-down el-icon--right"></i>
+        </span>
+        <span v-else class="el-dropdown-link">0/0</span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item v-for="i in totalPage" :key="i" :command="i">{{ i }}</el-dropdown-item>
         </el-dropdown-menu>
