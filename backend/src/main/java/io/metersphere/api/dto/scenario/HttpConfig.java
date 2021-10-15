@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.scenario;
 
+import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.base.domain.ApiModule;
@@ -25,9 +26,6 @@ public class HttpConfig {
     private boolean isMock;
     private List<HttpConfigCondition> conditions;
     private List<KeyValue> headers;
-
-    private MsJSR223PreProcessor preProcessor;
-    private MsJSR223PostProcessor postProcessor;
 
     private ApiModuleMapper apiModuleMapper;
 
