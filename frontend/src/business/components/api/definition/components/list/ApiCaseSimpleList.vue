@@ -581,10 +581,14 @@ export default {
       if (this.selectDataRange == 'thisWeekCount') {
         this.condition.selectThisWeedData = true;
       } else if (this.selectDataRange != null) {
-        let selectParamArr = this.selectDataRange.split("single:");
+        let selectParamArr = this.selectDataRange.split(":");
 
         if (selectParamArr.length === 2) {
-          this.condition.id = selectParamArr[1];
+          if(selectParamArr[0] === "single") {
+            this.condition.id = selectParamArr[1];
+          }else {
+            this.condition.apiDefinitionId = selectParamArr[1];
+          }
         }
       }
       let isNext = false;

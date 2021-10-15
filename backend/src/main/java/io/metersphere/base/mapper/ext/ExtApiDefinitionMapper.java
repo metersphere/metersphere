@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.ApiComputeResult;
 import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
+import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiDefinitionExampleWithOperation;
 import io.metersphere.controller.request.BaseQueryRequest;
@@ -19,6 +20,10 @@ public interface ExtApiDefinitionMapper {
     List<ApiSwaggerUrlDTO> selectScheduleList(@Param("projectId") String projectId);
 
     List<ApiDefinitionResult> list(@Param("request") ApiDefinitionRequest request);
+
+    List<ApiDefinitionResult> weekList(@Param("request") ApiDefinitionRequest request , @Param("startTimestamp") long startTimestamp );
+
+    List<Scenario> scenarioList(@Param("apiDefinitionId") String apiDefinitionId);
 
     int moduleCount(@Param("request") ApiDefinitionRequest request);
 

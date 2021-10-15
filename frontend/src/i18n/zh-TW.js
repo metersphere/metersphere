@@ -1094,6 +1094,7 @@ export default {
       common_config: "通用配置",
       http_config: "HTTP配置",
       database_config: "數據庫配置",
+      tips: "Tips: 執行多條SQL語句需配寘allowMultiQueries=true",
       tcp_config: "TCP配置",
       import: "導入環境",
       request_timeout: "連接超時",
@@ -1402,6 +1403,18 @@ export default {
             functional: "功能用例"
           }
         }
+      },
+      new_case_list: {
+        title: "過去7天有更新的接口",
+        table_coloum: {
+          index: "ID",
+          api_name: "接口名稱",
+          path: "路徑",
+          api_status: "狀態",
+          update_time: "更新時間",
+          relation_case: "關聯CASE",
+          relation_scenario: "關聯場景"
+        },
       },
       running_task_list: {
         title: "運行中的定時任務",

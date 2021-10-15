@@ -220,7 +220,8 @@
         <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true"
                    :modal="false"
                    size="90%">
-          <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb" :report-id="showReportId" :currentProjectId="projectId"/>
+          <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb"
+                                :report-id="showReportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
@@ -248,7 +249,12 @@ import {downloadFile, getCurrentProjectID, getUUID, setDefaultTheme, strMapToObj
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST, ORIGIN_COLOR} from "../../../../../common/js/constants";
 
-import {buildBatchParam, getCustomTableHeader, getCustomTableWidth, getLastTableSortField} from "@/common/js/tableUtils";
+import {
+  buildBatchParam,
+  getCustomTableHeader,
+  getCustomTableWidth,
+  getLastTableSortField
+} from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import {scenario} from "@/business/components/track/plan/event-bus";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -580,7 +586,7 @@ export default {
   },
   methods: {
     generateGraph() {
-      getGraphByCondition('API_SCENARIO', buildBatchParam(this, this.$refs.scenarioTable.selectIds),(data) => {
+      getGraphByCondition('API_SCENARIO', buildBatchParam(this, this.$refs.scenarioTable.selectIds), (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
       });
@@ -637,6 +643,15 @@ export default {
         case 'executePass':
           this.condition.executeStatus = 'executePass';
           break;
+      }
+      if (this.selectDataRange != null) {
+        let selectParamArr = this.selectDataRange.split(":");
+        if (selectParamArr.length === 2) {
+          if(selectParamArr[0] ==="ed") {
+            let ids = selectParamArr[1].split(",");
+            this.condition.ids = ids;
+          }
+        }
       }
       let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
       if (this.condition.projectId) {
@@ -1052,7 +1067,7 @@ export default {
           link.download = "场景JMX文件集.zip";
           this.result.loading = false;
           link.click();
-        },error => {
+        }, error => {
           this.result.loading = false;
           this.$error("导出JMX文件失败");
         });
