@@ -62,6 +62,12 @@ public class ApiDefinitionController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }
+    @PostMapping("/week/list/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
+    public Pager<List<ApiDefinitionResult>> weekList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, apiDefinitionService.weekList(request));
+    }
 
     @PostMapping("/list/relevance/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> listRelevance(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
