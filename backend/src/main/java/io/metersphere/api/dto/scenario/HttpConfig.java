@@ -1,7 +1,5 @@
 package io.metersphere.api.dto.scenario;
 
-import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
-import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiModuleExample;
 import io.metersphere.base.mapper.ApiModuleMapper;
@@ -11,7 +9,6 @@ import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,9 +22,6 @@ public class HttpConfig {
     private boolean isMock;
     private List<HttpConfigCondition> conditions;
     private List<KeyValue> headers;
-
-    private MsJSR223PreProcessor preProcessor;
-    private MsJSR223PostProcessor postProcessor;
 
     private ApiModuleMapper apiModuleMapper;
 
