@@ -6,8 +6,7 @@
         <el-col class="kv-checkbox" v-if="isShowEnable">
           <el-checkbox v-if="!isDisable(index)" v-model="item.enable" :disabled="isReadOnly"/>
         </el-col>
-        <span style="margin-left: 10px" v-else></span>
-
+        <span style="margin-left: 10px" v-else/>
         <el-col class="item">
           <input class="el-input el-input__inner" v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200" show-word-limit :style="item.style"/>
           <el-autocomplete :disabled="isReadOnly" :maxlength="400" v-if="suggestions" v-model="item.name" size="small" show-word-limit :style="item.style"/>
@@ -29,6 +28,8 @@
 </template>
 
 <script>
+const background_new = "background:#F3E6E7;";
+const background_old = "background:#E2ECDC";
 export default {
   name: "MsApiKeyValueDetail",
   components: {},
@@ -111,13 +112,13 @@ export default {
           if (itemStr.indexOf("--name") !== -1) {
             itemStr = itemStr.replaceAll("--", "");
             let obj = JSON.parse(itemStr);
-            obj.style = "background:#F3E6E7;text-decoration:line-through;text-decoration-color:red";
+            obj.style = background_new;
             obj.box = true;
             this.data.push(obj);
           } else if (itemStr.indexOf("++name") !== -1) {
             itemStr = itemStr.replaceAll("++", "");
             let obj = JSON.parse(itemStr);
-            obj.style = "background:#E2ECDC";
+            obj.style = background_old;
             this.data.push(obj);
           } else if (itemStr.indexOf("**") !== -1) {
             itemMap.forEach(function (value, key) {
@@ -129,10 +130,10 @@ export default {
                 newObj[key] = value;
               }
             });
-            item.style = "background:#E2ECDC";
+            item.style = background_old;
             this.data.push(item);
             newObj["box"] = true;
-            newObj["style"] = "background:#F3E6E7;text-decoration:line-through;text-decoration-color:red";
+            newObj["style"] = background_new;
             newObj["required"] = newObj.required ? this.$t('commons.selector.required') : this.$t('commons.selector.not_required');
             this.data.push(newObj);
           } else {

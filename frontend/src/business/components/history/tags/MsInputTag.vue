@@ -6,27 +6,22 @@
 
     <el-tag
       :class="getClass(tag)"
-      v-for="(tag, idx) in innerTags"
+      v-for="(tag) in innerTags"
       v-bind="$attrs"
       type="info"
       :key="tag"
       :size="size"
       :closable="!readOnly"
-      :disable-transitions="false"
-      @close="remove(idx)">
+      :disable-transitions="false">
       {{ getTag(tag) }}
     </el-tag>
     <input
       :disabled="readOnly"
       class="tag-input el-input"
       v-model="newTag"
-      :placeholder="$t('commons.tag_tip')"
-      @keydown.delete.stop="removeLastTag"
-      @keydown="addNew"
-      @blur="addNew"/>
+      :placeholder="$t('commons.tag_tip')"/>
   </div>
 </template>
-
 <script>
 export default {
   name: 'MsInputTag',
@@ -63,53 +58,6 @@ export default {
     }
   },
   methods: {
-    addNew(e) {
-      if (e && (!this.addTagOnKeys.includes(e.keyCode)) && (e.type !== 'blur')) {
-        return
-      }
-      if (e) {
-        e.stopPropagation()
-        e.preventDefault()
-      }
-      let addSuccess = false
-      if (this.newTag.includes(',')) {
-        this.newTag.split(',').forEach(item => {
-          if (this.addTag(item.trim())) {
-            addSuccess = true
-          }
-        })
-      } else {
-        if (this.addTag(this.newTag.trim())) {
-          addSuccess = true
-        }
-      }
-      if (addSuccess) {
-        this.tagChange()
-        this.newTag = ''
-      }
-    },
-    addTag(tag) {
-      tag = tag.trim()
-      if (tag && !this.innerTags.includes(tag)) {
-        this.innerTags.push(tag)
-        return true
-      }
-      return false
-    },
-    remove(index) {
-      this.innerTags.splice(index, 1)
-      this.tagChange()
-    },
-    removeLastTag() {
-      if (this.newTag) {
-        return
-      }
-      this.innerTags.pop()
-      this.tagChange()
-    },
-    tagChange() {
-      this.$emit('input', this.innerTags)
-    },
     getTag(tag) {
       if (tag && (tag.indexOf("++") !== -1 || tag.indexOf("--") !== -1)) {
         tag = tag.substring(2);
@@ -182,7 +130,7 @@ export default {
 }
 
 .ms-tag-del {
-  text-decoration:line-through;
+  text-decoration: line-through;
   text-decoration-color: red;
   -moz-text-decoration-line: line-through;
   background: #F3E6E7;
