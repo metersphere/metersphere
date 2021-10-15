@@ -66,6 +66,14 @@
           </template>
         </el-table-column>
         <el-table-column
+          v-if="item.id=='followPeople'"
+          prop="followPeople"
+          :label="$t('test_track.review.review_follow_people')"
+          show-overflow-tooltip
+          :key="index"
+        >
+        </el-table-column>
+        <el-table-column
           v-if="item.id=='createTime'"
           prop="createTime"
           :label="$t('commons.create_time')"

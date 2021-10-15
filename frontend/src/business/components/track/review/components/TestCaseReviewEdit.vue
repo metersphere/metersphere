@@ -47,11 +47,11 @@
             </el-form-item>
           </el-col>
           <el-col :span="12" :offset="1">
-            <el-form-item :label="$t('api_test.automation.follow_people')" :label-width="formLabelWidth"
+            <el-form-item :label="$t('test_track.review.review_follow_people')" :label-width="formLabelWidth"
                           prop="followPeople">
               <el-select v-model="form.followPeople"
                          clearable
-                         :placeholder="$t('api_test.automation.follow_people')" filterable size="small">
+                         :placeholder="$t('test_track.review.review_follow_people')" filterable size="small">
                 <el-option
                   v-for="item in maintainerOptions"
                   :key="item.id"

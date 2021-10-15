@@ -50,3 +50,6 @@ create table if not exists relationship_edge (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;
+
+ALTER TABLE test_case_review ADD COLUMN follow_people;
+

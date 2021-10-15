@@ -1649,6 +1649,7 @@ export default {
       related_project: "关联项目",
       related_tip: "关联项目后可以添加关联项目下的测试用例到评审列表",
       review_creator: "发起人",
+      review_follow_people: "关注人",
       review_status: "当前状态",
       end_time: "截止时间",
       delete: "删除评审",

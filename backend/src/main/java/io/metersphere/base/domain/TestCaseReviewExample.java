@@ -773,6 +773,76 @@ public class TestCaseReviewExample {
             addCriterion("create_user not between", value1, value2, "createUser");
             return (Criteria) this;
         }
+
+        public Criteria andFollowPeopleIsNull() {
+            addCriterion("follow_people is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIsNotNull() {
+            addCriterion("follow_people is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleEqualTo(String value) {
+            addCriterion("follow_people =", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotEqualTo(String value) {
+            addCriterion("follow_people <>", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleGreaterThan(String value) {
+            addCriterion("follow_people >", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleGreaterThanOrEqualTo(String value) {
+            addCriterion("follow_people >=", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLessThan(String value) {
+            addCriterion("follow_people <", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLessThanOrEqualTo(String value) {
+            addCriterion("follow_people <=", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLike(String value) {
+            addCriterion("follow_people like", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotLike(String value) {
+            addCriterion("follow_people not like", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIn(List<String> values) {
+            addCriterion("follow_people in", values, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotIn(List<String> values) {
+            addCriterion("follow_people not in", values, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleBetween(String value1, String value2) {
+            addCriterion("follow_people between", value1, value2, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotBetween(String value1, String value2) {
+            addCriterion("follow_people not between", value1, value2, "followPeople");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

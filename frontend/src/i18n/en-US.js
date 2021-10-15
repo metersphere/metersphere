@@ -1639,6 +1639,7 @@ export default {
       reviewer: "Reviewer",
       review_project: "Project",
       review_creator: "Creator",
+      review_follow_people: "Follow",
       review_status: "Status",
       related_project: "Related Project",
       related_tip: "After the project is associated, you can add test cases under the associated project to the review list",
