@@ -1277,6 +1277,7 @@ export default {
         pool_max: "Max Number of Configuration",
         query_timeout: "Max Wait(ms)",
         name_cannot_be_empty: "SQL request name cannot be empty",
+        tips: "Tips: Allowmultiqueries = true should be configured to execute multiple SQL statements",
         dataSource_cannot_be_empty: "SQL request datasource cannot be empty",
         result_variable: "Result variable",
         variable_names: "Variable names",
@@ -1422,6 +1423,18 @@ export default {
             functional: "Functional case"
           }
         }
+      },
+      new_case_list: {
+        title: "Updated interfaces in the past 7 days",
+        table_coloum: {
+          index: "ID",
+          api_name: "Api name",
+          path: "path",
+          api_status: "Api status",
+          update_time: "Update time",
+          relation_case: "Relation CASE",
+          relation_scenario: "Relation Scenario"
+        },
       },
       running_task_list: {
         title: "Running schedule task",

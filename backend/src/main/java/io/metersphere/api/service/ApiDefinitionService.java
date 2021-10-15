@@ -16,6 +16,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
 import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
@@ -132,39 +133,59 @@ public class ApiDefinitionService {
         return resList;
     }
 
-    public void initDefaultModuleId(){
+    public List<ApiDefinitionResult> weekList(ApiDefinitionRequest request) {
+        //获取7天之前的日期
+        Date startDay = DateUtils.dateSum(new Date(), -6);
+        //将日期转化为 00:00:00 的时间戳
+        Date startTime = null;
+        try {
+            startTime = DateUtils.getDayStartTime(startDay);
+        } catch (Exception e) {
+        }
+        if (startTime == null) {
+            return new ArrayList<>(0);
+        } else {
+            request = this.initRequest(request, true, true);
+            List<ApiDefinitionResult> resList = extApiDefinitionMapper.weekList(request, startTime.getTime());
+            calculateResult(resList, request.getProjectId());
+            calculateResultSce(resList);
+            return resList;
+        }
+    }
+
+    public void initDefaultModuleId() {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andModuleIdIsNull();
         List<ApiDefinition> updateApiList = apiDefinitionMapper.selectByExample(example);
-        Map<String, Map<String,List<ApiDefinition>>> projectIdMap = new HashMap<>();
+        Map<String, Map<String, List<ApiDefinition>>> projectIdMap = new HashMap<>();
         for (ApiDefinition api : updateApiList) {
             String projectId = api.getProjectId();
             String protocal = api.getProtocol();
             if (projectIdMap.containsKey(projectId)) {
-                if(projectIdMap.get(projectId).containsKey(protocal)){
+                if (projectIdMap.get(projectId).containsKey(protocal)) {
                     projectIdMap.get(projectId).get(protocal).add(api);
-                }else {
+                } else {
                     List<ApiDefinition> list = new ArrayList<>();
                     list.add(api);
-                    projectIdMap.get(projectId).put(protocal,list);
+                    projectIdMap.get(projectId).put(protocal, list);
                 }
             } else {
                 List<ApiDefinition> list = new ArrayList<>();
                 list.add(api);
-                Map<String,List<ApiDefinition>> map = new HashMap<>();
-                map.put(protocal,list);
+                Map<String, List<ApiDefinition>> map = new HashMap<>();
+                map.put(protocal, list);
                 projectIdMap.put(projectId, map);
             }
         }
         ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-        for (Map.Entry<String, Map<String,List<ApiDefinition>>> entry : projectIdMap.entrySet()) {
+        for (Map.Entry<String, Map<String, List<ApiDefinition>>> entry : projectIdMap.entrySet()) {
             String projectId = entry.getKey();
-            Map<String,List<ApiDefinition>> map = entry.getValue();
+            Map<String, List<ApiDefinition>> map = entry.getValue();
 
-            for (Map.Entry<String,List<ApiDefinition>> itemEntry : map.entrySet()) {
+            for (Map.Entry<String, List<ApiDefinition>> itemEntry : map.entrySet()) {
                 String protocal = itemEntry.getKey();
                 ApiModule node = apiModuleService.getDefaultNodeUnCreateNew(projectId, protocal);
-                if(node != null){
+                if (node != null) {
                     List<ApiDefinition> testCaseList = itemEntry.getValue();
                     for (ApiDefinition apiDefinition : testCaseList) {
                         ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
@@ -596,7 +617,7 @@ public class ApiDefinitionService {
     }
 
     private void _importCreate(List<ApiDefinition> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
-                               ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases ,List<MockConfigImportDTO> mocks) {
+                               ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases, List<MockConfigImportDTO> mocks) {
         String originId = apiDefinition.getId();
         if (CollectionUtils.isEmpty(sameRequest)) {
             apiDefinition.setId(UUID.randomUUID().toString());
@@ -1198,6 +1219,20 @@ public class ApiDefinitionService {
         return resList;
     }
 
+    public void calculateResultSce(List<ApiDefinitionResult> resList) {
+        if (!resList.isEmpty()) {
+            resList.stream().forEach(res -> {
+                List<Scenario> scenarioList = extApiDefinitionMapper.scenarioList(res.getId());
+                String count = String.valueOf(scenarioList.size());
+                res.setScenarioTotal(count);
+                String[] strings = new String[scenarioList.size()];
+                String[] ids2 = scenarioList.stream().map(Scenario::getId).collect(Collectors.toList()).toArray(strings);
+                res.setIds(ids2);
+                res.setScenarioType("scenario");
+            });
+        }
+    }
+
     public void calculateResult(List<ApiDefinitionResult> resList, String projectId) {
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
@@ -1206,6 +1241,7 @@ public class ApiDefinitionService {
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
                 if (compRes != null) {
+                    res.setCaseType("apiCase");
                     res.setCaseTotal(String.valueOf(compRes.getCaseTotal()));
                     res.setCasePassingRate(compRes.getPassRate());
                     // 状态优先级 未执行，未通过，通过
@@ -1217,6 +1253,7 @@ public class ApiDefinitionService {
                         res.setCaseStatus(Translator.get("execute_pass"));
                     }
                 } else {
+                    res.setCaseType("apiCase");
                     res.setCaseTotal("-");
                     res.setCasePassingRate("-");
                     res.setCaseStatus("-");
@@ -1571,7 +1608,7 @@ public class ApiDefinitionService {
     }
 
     public List<RelationshipEdgeDTO> getRelationshipApi(String id, String relationshipType) {
-        List<RelationshipEdge> relationshipEdges= relationshipEdgeService.getRelationshipEdgeByType(id, relationshipType);
+        List<RelationshipEdge> relationshipEdges = relationshipEdgeService.getRelationshipEdgeByType(id, relationshipType);
         List<String> ids = relationshipEdgeService.getRelationIdsByType(relationshipType, relationshipEdges);
 
         if (CollectionUtils.isNotEmpty(ids)) {
