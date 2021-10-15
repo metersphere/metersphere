@@ -4,7 +4,7 @@
       <el-col :span="24">
         <h3>{{ $t('organization.message.jenkins_task_notification') }}</h3>
         <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel"
-                   v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
+                   v-permission="['WORKSPACE_MESSAGE:READ+EDIT']">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
         <el-popover
@@ -124,7 +124,7 @@
                 v-show="!scope.row.isSet"
                 :tip="$t('commons.edit')"
                 @click="handleEditTask(scope.$index,scope.row)"
-                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
+                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
               <ms-tip-button
                 circle
                 type="danger"
@@ -133,7 +133,7 @@
                 v-show="!scope.row.isSet"
                 @click="deleteRowTask(scope.$index,scope.row)"
                 :tip="$t('commons.delete')"
-                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
+                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
             </template>
           </el-table-column>
         </el-table>
