@@ -27,12 +27,24 @@
           <ms-environment-s-s-l-config :project-id="projectId" :ssl-config="environment.config.sslConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="prescript">
+          <el-switch v-model="environment.config.preProcessor.connScenario" active-text="关联场景结果"
+            style="margin: 5px 5px 5px 5px"/>
+          <el-tooltip class="item" effect="dark" content="脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果" placement="right">
+            <i class="el-icon-info"/>
+          </el-tooltip>
+
           <jsr233-processor-content v-if="isRefresh"
                                     :jsr223-processor="environment.config.preProcessor"
                                     :is-pre-processor="true"
                                     :is-read-only="isReadOnly"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_post_script')" name="postscript">
+          <el-switch v-model="environment.config.postProcessor.connScenario" active-text="关联场景结果"
+                     style="margin: 5px 5px 5px 5px"/>
+          <el-tooltip class="item" effect="dark" content="脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果" placement="right">
+            <i class="el-icon-info"/>
+          </el-tooltip>
+
           <jsr233-processor-content  v-if="isRefresh"
                                      :jsr223-processor="environment.config.postProcessor"
             :is-pre-processor="false"
@@ -111,8 +123,14 @@
       if(!this.environment.config.preProcessor){
         this.environment.config.preProcessor = createComponent("JSR223PreProcessor");
       }
+      if(!this.environment.config.preProcessor.connScenario){
+        this.environment.config.preProcessor.connScenario = false;
+      }
       if(!this.environment.config.postProcessor){
         this.environment.config.postProcessor = createComponent("JSR223PostProcessor");
+      }
+      if(!this.environment.config.postProcessor.connScenario){
+        this.environment.config.postProcessor.connScenario = false;
       }
       if(!this.environment.config.authManager){
         this.environment.config.authManager = {'hashTree':[]};
@@ -120,6 +138,7 @@
       if(!this.environment.config.authManager.hashTree){
         this.environment.config.authManager.hashTree = [];
       }
+
     },
 
     watch: {
@@ -135,6 +154,12 @@
           if(!this.environment.config.postProcessor.script){
             this.environment.config.postProcessor.script = "";
           }
+        }
+        if(!this.environment.config.preProcessor.connScenario){
+          this.environment.config.preProcessor.connScenario = false;
+        }
+        if(!this.environment.config.postProcessor.connScenario){
+          this.environment.config.postProcessor.connScenario = false;
         }
 
         if(!this.environment.config.authManager){

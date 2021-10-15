@@ -175,7 +175,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (StringUtils.isEmpty(this.getEnvironmentId())) {
             this.setEnvironmentId(this.useEnvironment);
         }
-        // 非导出操作，且不是启用状态则跳过执行
+        // 非导出操作，且不是启用状态则跳过执行Ms
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
@@ -270,10 +270,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         addCertificate(config, httpSamplerTree);
 
-        //增加全局前后至脚本
-        if (httpConfig != null) {
-            this.setScript(httpConfig, httpSamplerTree, config);
-        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 if (el.getEnvironmentId() == null) {
@@ -288,32 +284,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
     }
-
-    private void setScript(HttpConfig httpConfig, HashTree httpSamplerTree, ParameterConfig config) {
-        MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
-        MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
-        if (preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
-            if (preProcessor.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    preProcessor.setEnvironmentId(useEnvironment);
-                } else {
-                    preProcessor.setEnvironmentId(this.getEnvironmentId());
-                }
-            }
-            preProcessor.toHashTree(httpSamplerTree, preProcessor.getHashTree(), config);
-        }
-        if (postProcessor != null && StringUtils.isNotEmpty(postProcessor.getScript())) {
-            if (postProcessor.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    postProcessor.setEnvironmentId(useEnvironment);
-                } else {
-                    postProcessor.setEnvironmentId(this.getEnvironmentId());
-                }
-            }
-            postProcessor.toHashTree(httpSamplerTree, postProcessor.getHashTree(), config);
-        }
-    }
-
     private void initConnectAndResponseTimeout(ParameterConfig config) {
         if (config.isEffective(this.getProjectId())) {
             String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
@@ -358,8 +328,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     this.setEnvironmentId(useEvnId);
                 }
                 HttpConfig httpConfig = matchConfig(config);
-                httpConfig.setPreProcessor(environmentConfig.getPreProcessor());
-                httpConfig.setPostProcessor(environmentConfig.getPostProcessor());
                 return httpConfig;
             }
         }
