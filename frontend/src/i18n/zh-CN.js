@@ -1414,6 +1414,18 @@ export default {
           }
         }
       },
+      new_case_list: {
+        title: "过去7天有更新的接口",
+        table_coloum: {
+          index: "ID",
+          api_name: "接口名称",
+          path: "路径",
+          api_status: "状态",
+          update_time: "更新时间",
+          relation_case: "关联CASE",
+          relation_scenario: "关联场景"
+        },
+      },
       running_task_list: {
         title: "运行中的定时任务",
         table_coloum: {

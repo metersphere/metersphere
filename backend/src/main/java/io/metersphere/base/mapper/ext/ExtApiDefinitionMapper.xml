@@ -257,6 +257,30 @@
         </if>
     </select>
 
+    <select id="weekList" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
+        select api_definition.id, api_definition.project_id, api_definition.num, api_definition.tags,api_definition.follow_people,api_definition.original_state,
+        api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
+        api_definition.description,api_definition.environment_id,
+        api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, project.name as
+        project_name, user.name as user_name,deleteUser.name AS delete_user,api_definition.delete_time, api_definition.remark
+        from (select * from api_definition where update_time >= #{startTimestamp} order by update_time desc)api_definition
+        left join project on api_definition.project_id = project.id
+        left join user on api_definition.user_id = user.id
+        left join user deleteUser on api_definition.delete_user_id = deleteUser.id
+        <include refid="queryWhereCondition"/>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <if test="order.name == 'user_name'">
+                    user_name ${order.type}
+                </if>
+                <if test="order.name != 'user_name'">
+                    api_definition.${order.name} ${order.type}
+                </if>
+            </foreach>
+        </if>
+    </select>
+
     <select id="listByIds" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
         select api_definition.id, api_definition.project_id, api_definition.num, api_definition.tags,api_definition.follow_people,
         api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
@@ -681,6 +705,14 @@
             #{id}
         </foreach>
         and api_definition.status != 'Trash';
+    </select>
+    <select id="scenarioList" resultType="io.metersphere.api.dto.scenario.Scenario">
+        select DISTINCT t1.id
+        from api_scenario t1
+                 join api_scenario_reference_id t2 on t1.id = t2.api_scenario_id
+                 join api_test_case t3 on t2.reference_id = t3.id and t2.reference_type = 'REF'
+        where t3.api_definition_id = #{apiDefinitionId}
+          and t3.`status`!='Trash'
     </select>
 
 </mapper>
