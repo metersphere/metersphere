@@ -1,62 +1,64 @@
 <template>
-  <div v-loading="result.loading">
-    <el-card class="table-card">
-      <template v-slot:header>
-        <ms-table-header :show-create="false" :condition.sync="condition"
-                         @search="init" :tip="$t('project.code_segment.search')">
-          <template v-slot:button>
-            <ms-table-button icon="el-icon-circle-plus-outline" :content="$t('project.code_segment.create')" @click="handleCreate"/>
+  <ms-container>
+    <ms-main-container>
+      <div v-loading="result.loading">
+        <el-card class="table-card">
+          <template v-slot:header>
+            <ms-table-header :show-create="false" :condition.sync="condition"
+                             @search="init" :tip="$t('project.code_segment.search')">
+              <template v-slot:button>
+                <ms-table-button icon="el-icon-circle-plus-outline" :content="$t('project.code_segment.create')" @click="handleCreate"/>
+              </template>
+            </ms-table-header>
           </template>
-        </ms-table-header>
-      </template>
-      <el-table border class="adjust-table" :data="data" style="width: 100%"
-                @sort-change="sort"
-                @filter-change="filter"
-                :height="screenHeight" ref="table">
-        <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
-        <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <pre>{{ scope.row.description }}</pre>
-          </template>
-        </el-table-column>
-        <el-table-column prop="tags" :label="$t('api_test.automation.tag')">
-          <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :content="itemName" style="margin-left: 0; margin-right: 2px">
-            </ms-tag>
-            <span></span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="type" column-key="type" :label="$t('project.code_segment.language')" show-overflow-tooltip :filters="languages"/>
-        <el-table-column prop="createTime"
-                         sortable
-                         :label="$t('commons.create_time')"
-                         show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('commons.operating')">
-          <template v-slot:default="scope">
-            <div>
-              <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
-                <template v-slot:middle>
-                  <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document" type="info"
-                                            @exec="handleCopy(scope.row)"/>
-                </template>
-              </ms-table-operator>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
-      <ms-table-pagination :change="init" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"/>
-    </el-card>
+          <el-table border class="adjust-table" :data="data" style="width: 100%"
+                    @sort-change="sort"
+                    @filter-change="filter"
+                    :height="screenHeight" ref="table">
+            <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
+            <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
+              <template v-slot:default="scope">
+                <pre>{{ scope.row.description }}</pre>
+              </template>
+            </el-table-column>
+            <el-table-column prop="tags" :label="$t('api_test.automation.tag')">
+              <template v-slot:default="scope">
+                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                        :content="itemName" style="margin-left: 0; margin-right: 2px">
+                </ms-tag>
+                <span></span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="type" column-key="type" :label="$t('project.code_segment.language')" show-overflow-tooltip :filters="languages"/>
+            <el-table-column prop="createTime"
+                             sortable
+                             :label="$t('commons.create_time')"
+                             show-overflow-tooltip>
+              <template v-slot:default="scope">
+                <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column :label="$t('commons.operating')">
+              <template v-slot:default="scope">
+                <div>
+                  <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
+                    <template v-slot:middle>
+                      <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document" type="info"
+                                                @exec="handleCopy(scope.row)"/>
+                    </template>
+                  </ms-table-operator>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+          <ms-table-pagination :change="init" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"/>
+        </el-card>
 
-    <edit-function @refresh="init" ref="editFunction"/>
-    <ms-delete-confirm :title="$t('project.code_segment.delete')" @delete="_handleDel" ref="deleteConfirm"/>
-  </div>
-
-
+        <edit-function @refresh="init" ref="editFunction"/>
+        <ms-delete-confirm :title="$t('project.code_segment.delete')" @delete="_handleDel" ref="deleteConfirm"/>
+      </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
@@ -70,10 +72,14 @@ import EditFunction from "@/business/components/settings/project/function/EditFu
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
 import {_filter, _sort} from "@/common/js/tableUtils";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 
 export default {
   name: "CustomFunction",
   components: {
+    MsMainContainer,
+    MsContainer,
     EditFunction,
     MsTableHeader,
     MsTableButton,

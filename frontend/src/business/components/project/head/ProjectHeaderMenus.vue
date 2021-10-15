@@ -3,7 +3,7 @@
   <div id="menu-bar" v-if="isRouterAlive">
     <el-row type="flex">
       <project-change :project-name="currentProject"/>
-      <el-col :span="14">
+      <el-col :span="24">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
                  :default-active="pathName">
           <el-menu-item :index="'/project/home'">
@@ -17,7 +17,7 @@
                         popper-class="submenu">
             项目环境
           </el-menu-item>
-          <el-menu-item :index="'/project/file/manager'" v-permission="['PROJECT_TRACK_PLAN:READ']"
+          <el-menu-item :index="'/project/file/manage'" v-permission="['PROJECT_TRACK_PLAN:READ']"
                         popper-class="submenu">
             文件管理
           </el-menu-item>
@@ -34,12 +34,11 @@
             版本管理
           </el-menu-item>
 
-          <el-menu-item :index="'/project/app/manager'" popper-class="submenu" disabled>
+          <el-menu-item :index="'/project/app/manage'" popper-class="submenu" disabled>
             应用管理
           </el-menu-item>
         </el-menu>
       </el-col>
-      <el-col :span="8"/>
     </el-row>
   </div>
 
