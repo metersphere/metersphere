@@ -20,7 +20,6 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.RelationshipEdgeDTO;
-import io.metersphere.dto.RelationshipGraphData;
 import io.metersphere.dto.TestCaseTestDao;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
