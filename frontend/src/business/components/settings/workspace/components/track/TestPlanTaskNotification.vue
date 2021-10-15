@@ -7,26 +7,6 @@
                    v-permission="['WORKSPACE_MESSAGE:READ+EDIT']">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
-        <el-popover
-          placement="right-end"
-          title="示例"
-          width="600"
-          trigger="click">
-          <ms-code-edit :read-only="true" height="400px" :data.sync="title" :modes="modes" :mode="'html'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
-            {{ $t('organization.message.mail_template_example') }}
-          </el-button>
-        </el-popover>
-        <el-popover
-          placement="right-end"
-          title="示例"
-          width="600"
-          trigger="click">
-          <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
-            {{ $t('organization.message.robot_template') }}
-          </el-button>
-        </el-popover>
       </el-col>
     </el-row>
     <el-row>
@@ -176,10 +156,7 @@ export default {
         "<body>\n" +
         "<div>\n" +
         "    <p style=\"text-align: left\">${operator} 创建测试计划: ${name}<br>\n" +
-        "        <br>\n" +
-        "        请跟进！<br>\n" +
-        "        点击下面链接进入测试计划页面</p>\n" +
-        "    <a href=\"${url}/#/track/plan/all\">${url}/#/track/plan/all</a>\n" +
+        "        </p>\n" +
         "</div>\n" +
         "</body>\n" +
         "</html>",
@@ -312,7 +289,33 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        this.$refs.noticeTemplate.open(row);
+        let htmlTemplate = "";
+        let robotTemplate = "";
+        switch (row.event) {
+          case 'CREATE':
+            htmlTemplate = this.title;
+            robotTemplate = this.robotTitle;
+            break;
+          case 'UPDATE':
+            htmlTemplate = this.title.replace('创建', '更新');
+            robotTemplate = this.robotTitle.replace('创建', '更新');
+            break;
+          case 'DELETE':
+            htmlTemplate = this.title.replace('创建', '删除');
+            robotTemplate = this.robotTitle.replace('创建', '删除');
+            break;
+          case 'COMMENT':
+            htmlTemplate = this.title.replace('创建', '评论');
+            robotTemplate = this.robotTitle.replace('创建', '评论');
+            break;
+          case "COMPLETE":
+            htmlTemplate = this.title.replace('创建', '完成测试计划');
+            robotTemplate = this.robotTitle.replace('创建', '完成测试计划');
+            break;
+          default:
+            break;
+        }
+        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
       }
     }
   },
