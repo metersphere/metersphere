@@ -116,7 +116,7 @@
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 </template>
 
@@ -176,6 +176,7 @@ export default {
         {value: 'DELETE', label: this.$t('commons.delete')},
         {value: 'COMMENT', label: this.$t('commons.comment')}
       ],
+      variables: ['operator', 'name', 'status', 'type']
     };
   },
   methods: {
