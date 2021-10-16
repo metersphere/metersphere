@@ -120,10 +120,12 @@
   import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
   import EnvironmentImport from "@/business/components/settings/project/EnvironmentImport";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+  import MsContainer from "@/business/components/common/components/MsContainer";
 
   export default {
     name: "EnvironmentList",
     components: {
+      MsContainer,
       MsMainContainer,
       EnvironmentImport,
       SearchList,

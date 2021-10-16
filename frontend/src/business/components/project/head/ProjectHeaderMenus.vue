@@ -30,11 +30,11 @@
             自定义代码片段
           </el-menu-item>
 
-          <el-menu-item :index="'/project/version'" popper-class="submenu" disabled>
+          <el-menu-item :index="'/project/version'" popper-class="submenu" disabled class="hidden-sm-and-down">
             版本管理
           </el-menu-item>
 
-          <el-menu-item :index="'/project/app/manage'" popper-class="submenu" disabled>
+          <el-menu-item :index="'/project/app/manage'" popper-class="submenu" disabled class="hidden-sm-and-down">
             应用管理
           </el-menu-item>
         </el-menu>

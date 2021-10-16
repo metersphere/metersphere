@@ -86,6 +86,8 @@ public class ProjectService {
     @Resource
     private ScheduleService scheduleService;
     @Resource
+    private UserMapper userMapper;
+    @Resource
     private ApiTestDelService apiTestDelService;
     @Value("${tcp.mock.port}")
     private String tcpMockPorts;
@@ -409,7 +411,15 @@ public class ProjectService {
     }
 
     public Project getProjectById(String id) {
-        return projectMapper.selectByPrimaryKey(id);
+        Project project = projectMapper.selectByPrimaryKey(id);
+        String createUser = project.getCreateUser();
+        if (StringUtils.isNotBlank(createUser)) {
+            User user = userMapper.selectByPrimaryKey(createUser);
+            if (user != null) {
+                project.setCreateUser(user.getName());
+            }
+        }
+        return project;
     }
 
     public boolean useCustomNum(String projectId) {

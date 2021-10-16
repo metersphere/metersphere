@@ -1,7 +1,11 @@
 <template>
   <ms-container>
     <ms-main-container>
-      <jar-manage ref="jarManage" class="file-manage-item"/>
+      <div>
+        <ms-jar-config-list  ref="jarConfigList" class="file-manage-item"/>
+      </div>
+
+      <ms-jar-config ref="jarConfig"/>
       <div style="margin-top: 6px;">
         <resource-manage ref="resourceManage" class="file-manage-item"/>
       </div>
@@ -11,10 +15,11 @@
 
 <script>
 
-import JarManage from "@/business/components/project/menu/file/JarManage";
 import ResourceManage from "@/business/components/project/menu/file/ResourceManage";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+import MsJarConfigList from "@/business/components/api/test/components/jar/JarConfigList";
+import MsJarConfig from "@/business/components/api/test/components/jar/JarConfig";
 
 export default {
   name: "FileManager",
@@ -22,7 +27,8 @@ export default {
     MsMainContainer,
     MsContainer,
     ResourceManage,
-    JarManage,
+    MsJarConfigList,
+    MsJarConfig
   },
   data() {
     return {
