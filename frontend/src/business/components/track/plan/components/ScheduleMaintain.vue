@@ -253,7 +253,7 @@ export default {
       });
     },
     initUserList() {
-      this.result = this.$get('user/ws/member/' + getCurrentWorkspaceId(), response => {
+      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
         this.scheduleReceiverOptions = response.data;
       });
     },

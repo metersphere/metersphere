@@ -174,12 +174,7 @@ export default {
       });
     },
     initUserList() {
-      let param = {
-        name: '',
-        workspaceId: getCurrentWorkspaceId()
-      };
-
-      this.result = this.$post('user/org/member/list/all', param, response => {
+      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
         this.scheduleReceiverOptions = response.data;
       });
 
