@@ -200,22 +200,6 @@ public class WorkspaceService {
         return workspaceMapper.selectByExample(workspaceExample);
     }
 
-    public List<Workspace> getWorkspaceListByOrgIdAndUserId(String userId, String orgId) {
-        List<RelatedSource> relatedSource = extUserGroupMapper.getRelatedSource(userId);
-        List<String> wsIds = relatedSource
-                .stream()
-                .filter(r -> StringUtils.equals(r.getOrganizationId(), orgId))
-                .map(RelatedSource::getWorkspaceId)
-                .distinct()
-                .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(wsIds)) {
-            return new ArrayList<>();
-        }
-        WorkspaceExample workspaceExample = new WorkspaceExample();
-        workspaceExample.createCriteria().andIdIn(wsIds);
-        return workspaceMapper.selectByExample(workspaceExample);
-    }
-
     public List<String> getWorkspaceIdsOrgId(String orgId) {
         return extWorkspaceMapper.getWorkspaceIdsByOrgId(orgId);
     }

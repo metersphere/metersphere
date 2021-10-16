@@ -45,24 +45,6 @@
         </if>
         order by user_group.update_time desc) temp
     </select>
-    <select id="getUserRoleHelpList" resultType="io.metersphere.dto.UserGroupHelpDTO">
-        SELECT
-            ug.group_id AS roleId,
-            g.`name` AS roleName,
-            ug.source_id AS sourceId,
-
-            IF(workspace.id IS NULL,IF(organization.id IS NULL,'',organization.`name`),workspace.name) AS sourceName,
-
-            IF(workspace.id IS NULL,NULL,workspace.organization_id) AS parentId
-
-        FROM user_group ug LEFT JOIN `group` g ON g.id = ug.group_id
-
-                       LEFT JOIN workspace ON workspace.id = ug.source_id
-
-                       LEFT JOIN organization ON organization.id = ug.source_id
-
-        WHERE ug.user_id = #{userId}
-    </select>
     <select id="getProjectMemberList" resultType="io.metersphere.base.domain.User">
         SELECT DISTINCT * FROM (
         SELECT `user`.* FROM user_group JOIN `user` ON user_group.user_id = `user`.id
@@ -77,23 +59,16 @@
         where p.id = #{projectId} and ur.user_id = #{userId}
     </select>
     <select id="getRelatedSource" resultType="io.metersphere.dto.RelatedSource">
-        SELECT organization_id, workspace_id, project.id
+        SELECT workspace_id, project.id
         FROM user_group
                  JOIN project ON source_id = project.id
                  JOIN workspace w ON project.workspace_id = w.id
-                 JOIN organization o ON w.organization_id = o.id
         WHERE user_id = #{userId} -- project_admin project_member read_only bb
         UNION
-        SELECT organization_id, w.id, ''
+        SELECT  w.id, ''
         FROM user_group
                  JOIN workspace w ON user_group.source_id = w.id
-                 JOIN organization o2 ON w.organization_id = o2.id
         WHERE user_id = #{userId} -- workspace_admin workspace_member ccc
-        UNION
-        SELECT o.id, '', ''
-        FROM user_group
-                 JOIN organization o ON user_group.source_id = o.id
-        WHERE user_id = #{userId} -- org_admin org_member aaa
     </select>
     <select id="getGroupUser" resultType="io.metersphere.base.domain.User">
         select distinct user.id, user.name, user.email, user.phone, user.create_time

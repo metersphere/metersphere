@@ -24,8 +24,6 @@ public interface ExtUserGroupMapper {
 
     List<User> getMemberList(@Param("member") QueryMemberRequest request);
 
-    List<UserGroupHelpDTO> getUserRoleHelpList(@Param("userId") String userId);
-
     List<User> getProjectMemberList(@Param("request") QueryMemberRequest request);
 
     List<Group> getProjectMemberGroups(@Param("projectId") String projectId,@Param("userId") String userId);

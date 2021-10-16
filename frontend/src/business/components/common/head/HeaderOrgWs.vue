@@ -4,7 +4,7 @@
         {{ currentWorkspaceName }}<i class="el-icon-caret-bottom el-icon--right"/>
     </span>
     <template v-slot:dropdown>
-      <el-dropdown-menu v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
+      <el-dropdown-menu class="ws-content" v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
                   'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
                   'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
                   'WORKSPACE_USER:READ']">
@@ -73,6 +73,8 @@ export default {
         let workspace = response.data.filter(r => r.id === getCurrentWorkspaceId());
         if (workspace.length > 0) {
           this.currentWorkspaceName = workspace[0].name;
+          this.workspaceList = response.data.filter(r => r.id !== getCurrentWorkspaceId());
+          this.workspaceList.unshift(workspace[0]);
         }
       });
     },
@@ -223,6 +225,31 @@ export default {
 
 .align-right {
   float: right;
+}
+
+.ws-content {
+  height: 300px;
+  overflow: auto;
+}
+
+/* 设置滚动条的样式 */
+.ws-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* 滚动槽 */
+.ws-content::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+/* 滚动条滑块 */
+.ws-content::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.ws-content::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255, 0, 0, 0.4);
 }
 
 </style>
