@@ -6,26 +6,6 @@
                    @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
-        <el-popover
-          placement="right-end"
-          title="示例"
-          width="600"
-          trigger="click">
-          <ms-code-edit :read-only="true" height="400px" :data.sync="title" :modes="modes" :mode="'html'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference" style="margin-left: 10px">
-            {{ $t('organization.message.mail_template_example') }}
-          </el-button>
-        </el-popover>
-        <el-popover
-          placement="right-end"
-          title="示例"
-          width="200"
-          trigger="click">
-          <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference" style="margin-left: 10px">
-            {{ $t('organization.message.robot_template') }}
-          </el-button>
-        </el-popover>
       </el-col>
     </el-row>
     <el-row>
@@ -162,35 +142,14 @@ export default {
         '</head>\n' +
         '<body>\n' +
         '<div>\n' +
-        '    <div style="text-align: left">\n' +
-        '        <p>尊敬的用户：</p>\n' +
-        '        <p style="margin-left: 60px">您好:\n' +
-        '    </div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        <p>${name} 接口测试运行失败/成功<br/>\n' +
-        '        <p>执行人:${operator}</p>' +
-        '        <p>负责人:${principal}</p>' +
-        '        <p>执行环境:${executionEnvironment}</p>' +
-        '        <p>执行时间:${executionTime}</p>' +
-        '            请点击下面链接进入测试报告页面</p>\n' +
-        '        <a href="${url}/#/${type}/report/view/${id}">${url}/#/${type}/report/view/${id}</a>\n' +
-        '        <p>新版接口测试报告路径</p>\n' +
-        '        <a href="${url}/#/api/automation/report/view/">${url}/#/api/automation/report/view/${id}</a>\n' +
+        '        ${operator}执行测试完成: ${name}, 结果是: ${status}' +
         '    </div>\n' +
         '\n' +
         '</div>\n' +
         '</body>\n' +
         '</html>',
-      robotTitle:
-        "测试'${name} ${type}测试运行${status}," + "\n" +
-        "执行人:${operator}" + "\n" +
-        "负责人:${principal}" + "\n" +
-        "测试环境为:${executionEnvironment}" + "\n" +
-        "执行时间：${executionTime}" + "\n" +
-        "请点击下面链接进入测试报告页面" + "\n" +
-        "${url}/#/${type}/report/view/${id}" + "\n" +
-        "新版接口测试报告路径" + "\n" +
-        "${url}/#/api/automation/report/view/${id}",
+      robotTitle: "${operator}执行测试完成: ${name}, 结果是: ${status}",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",
@@ -296,7 +255,18 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        this.$refs.noticeTemplate.open(row);
+        let htmlTemplate = "";
+        let robotTemplate = "";
+        switch (row.event) {
+          case 'EXECUTE_SUCCESSFUL':
+          case 'EXECUTE_FAILED':
+            htmlTemplate = this.title;
+            robotTemplate = this.robotTitle;
+            break;
+          default:
+            break;
+        }
+        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
       }
     }
   },
