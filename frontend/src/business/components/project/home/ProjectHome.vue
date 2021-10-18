@@ -32,46 +32,46 @@
               <div style="position: absolute; top: 50%; left: 50%;transform: translate(-50%, -50%);">
                 <div class="div-item">
                   <div style="float: left">
-                    <i class="el-icon-user-solid icon-color" @click="click('/project/member')"></i>
+                    <i class="el-icon-user-solid icon-color" @click="click('/project/member', ['PROJECT_USER:READ'])"></i>
                   </div>
                   <div style="float: left">
-                    <span class="title" @click="click('/project/member')">项目成员</span><br/>
+                    <span class="title" @click="click('/project/member', ['PROJECT_USER:READ'])">项目成员</span><br/>
                     <span class="desc">添加项目成员以及项目成员管理</span>
                   </div>
                 </div>
                 <div class="div-item">
                   <div style="float: left">
-                    <i class="el-icon-s-platform icon-color" @click="click('/project/env')"></i>
+                    <i class="el-icon-s-platform icon-color" @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])"></i>
                   </div>
                   <div style="float: left">
-                    <span class="title" @click="click('/project/env')">项目环境</span><br/>
+                    <span class="title" @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])">项目环境</span><br/>
                     <span class="desc">项目运行环境以及全局配置</span>
                   </div>
                 </div>
                 <div class="div-item">
                   <div style="float: left">
-                    <i class="el-icon-s-cooperation icon-color" @click="click('/project/file/manage')"></i>
+                    <i class="el-icon-s-cooperation icon-color" @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])"></i>
                   </div>
                   <div style="float: left">
-                    <span class="title" @click="click('/project/file/manage')">文件管理</span><br/>
+                    <span class="title" @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])">文件管理</span><br/>
                     <span class="desc">jar包以及资源文件管理</span>
                   </div>
                 </div>
                 <div class="div-item">
                   <div style="float: left">
-                    <i class="el-icon-s-flag icon-color" @click="click('/project/log')"></i>
+                    <i class="el-icon-s-flag icon-color" @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])"></i>
                   </div>
                   <div style="float: left">
-                    <span class="title" @click="click('/project/log')">操作记录</span><br/>
+                    <span class="title" @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])">操作记录</span><br/>
                     <span class="desc">项目全部操作过程</span>
                   </div>
                 </div>
                 <div class="div-item">
                   <div style="float: left">
-                    <i class="el-icon-document icon-color" @click="click('/project/code/segment')"></i>
+                    <i class="el-icon-document icon-color" @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])"></i>
                   </div>
                   <div style="float: left">
-                    <span class="title" @click="click('/project/code/segment')">自定义代码片段</span><br/>
+                    <span class="title" @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])">自定义代码片段</span><br/>
                     <span class="desc">自定义代码片段</span>
                   </div>
                 </div>
@@ -90,7 +90,7 @@
 <script>
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
 import ProjectList from "@/business/components/project/menu/ProjectList";
 export default {
   name: "ProjectHome",
@@ -108,8 +108,14 @@ export default {
     }
   },
   methods: {
-    click(str) {
-      this.$router.push(str);
+    click(str, permissions) {
+      for (let permission of permissions) {
+        if (hasPermission(permission)) {
+          this.$router.push(str);
+          return;
+        }
+      }
+      this.$warning("无操作权限！");
     },
     edit() {
       this.$refs.projectList.edit(this.project);

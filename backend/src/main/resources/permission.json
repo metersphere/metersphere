@@ -331,6 +331,61 @@
       "resourceId": "PROJECT_OPERATING_LOG"
     },
     {
+      "id": "PROJECT_FILE:READ+JAR",
+      "name": "查询jar包",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+UPLOAD+JAR",
+      "name": "上传jar包",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+DELETE+JAR",
+      "name": "删除jar包",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+FILE",
+      "name": "查询文件",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+UPLOAD+FILE",
+      "name": "上传文件",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+DELETE+FILE",
+      "name": "删除文件",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ",
+      "name": "查询",
+      "resourceId": "PROJECT_CUSTOM_CODE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ+CREATE",
+      "name": "创建",
+      "resourceId": "PROJECT_CUSTOM_CODE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ+EDIT",
+      "name": "编辑",
+      "resourceId": "PROJECT_CUSTOM_CODE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ+DELETE",
+      "name": "删除",
+      "resourceId": "PROJECT_CUSTOM_CODE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ+COPY",
+      "name": "复制",
+      "resourceId": "PROJECT_CUSTOM_CODE"
+    },
+    {
       "id": "PROJECT_TRACK_CASE:READ",
       "name": "查询用例",
       "resourceId": "PROJECT_TRACK_CASE"
@@ -816,6 +871,14 @@
     {
       "id": "PROJECT_OPERATING_LOG",
       "name": "操作日志"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE",
+      "name": "自定义代码片段"
+    },
+    {
+      "id": "PROJECT_FILE",
+      "name": "文件管理"
     },
     {
       "id": "PROJECT_TRACK_CASE",

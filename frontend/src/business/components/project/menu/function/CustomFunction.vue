@@ -7,7 +7,8 @@
             <ms-table-header :show-create="false" :condition.sync="condition"
                              @search="init" :tip="$t('project.code_segment.search')">
               <template v-slot:button>
-                <ms-table-button icon="el-icon-circle-plus-outline" :content="$t('project.code_segment.create')" @click="handleCreate"/>
+                <ms-table-button icon="el-icon-circle-plus-outline" :content="$t('project.code_segment.create')" @click="handleCreate"
+                                 v-permission="['PROJECT_CUSTOM_CODE:READ+CREATE']"/>
               </template>
             </ms-table-header>
           </template>
@@ -41,10 +42,11 @@
             <el-table-column :label="$t('commons.operating')">
               <template v-slot:default="scope">
                 <div>
-                  <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)">
+                  <ms-table-operator @editClick="handleEdit(scope.row)" @deleteClick="handleDelete(scope.row)"
+                                     :edit-permission="['PROJECT_CUSTOM_CODE:READ+EDIT']" :delete-permission="['PROJECT_CUSTOM_CODE:READ+DELETE']">
                     <template v-slot:middle>
                       <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document" type="info"
-                                                @exec="handleCopy(scope.row)"/>
+                                                @exec="handleCopy(scope.row)" v-permission="['PROJECT_CUSTOM_CODE:READ+COPY']"/>
                     </template>
                   </ms-table-operator>
                 </div>

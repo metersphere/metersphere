@@ -818,7 +818,7 @@ export default {
     copy: "复制测试",
     batch_add_parameter: "格式：参数名:参数值 <br/> 如：Accept-Encoding:utf-8",
     jar_config: {
-      title: "jar包管理",
+      title: "上传jar包",
       jar_file: "jar包",
       delete_tip: "删除需重启服务后生效",
       file_exist: "该项目下已存在该jar包",

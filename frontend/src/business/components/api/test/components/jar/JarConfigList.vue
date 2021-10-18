@@ -7,7 +7,7 @@
                          :create-tip="$t('project.create')">
           <template v-slot:button>
             <ms-table-button icon="el-icon-box"
-                             v-permission="['PROJECT_MANAGER:READ+EDIT']"
+                             v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"
                              :content="$t('api_test.jar_config.title')" @click="openJarConfig"/>
           </template>
         </ms-table-header>
@@ -34,7 +34,7 @@
           <template v-slot:default="scope">
             <div>
               <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
-                                        @exec="handleDelete(scope.row.id)"/>
+                                        @exec="handleDelete(scope.row.id)" v-permission="['PROJECT_FILE:READ+DELETE+JAR']"/>
             </div>
           </template>
         </el-table-column>

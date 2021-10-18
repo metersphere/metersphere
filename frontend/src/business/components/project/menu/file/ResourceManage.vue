@@ -16,7 +16,7 @@
             :on-exceed="handleExceed"
           >
             <ms-table-button icon="el-icon-upload2"
-                             :content="$t('load_test.upload_file')"/>
+                             :content="$t('load_test.upload_file')" v-permission="['PROJECT_FILE:READ+UPLOAD+FILE']"/>
           </el-upload>
         </template>
       </ms-table-header>
@@ -67,6 +67,7 @@
             icon="el-icon-delete"
             type="danger"
             :tip="$t('commons.delete')"
+            v-permission="['PROJECT_FILE:READ+DELETE+FILE']"
             @exec="handleDelete(scope.row)">
           </ms-table-operator-button>
         </template>

@@ -9,24 +9,24 @@
           <el-menu-item :index="'/project/home'">
             项目信息
           </el-menu-item>
-          <el-menu-item :index="'/project/member'" v-permission="['PROJECT_TRACK_CASE:READ']">
+          <el-menu-item :index="'/project/member'" v-permission="['PROJECT_USER:READ']">
             项目成员
           </el-menu-item>
 
-          <el-menu-item :index="'/project/env'" v-permission="['PROJECT_TRACK_REVIEW:READ']"
+          <el-menu-item :index="'/project/env'" v-permission="['PROJECT_ENVIRONMENT:READ']"
                         popper-class="submenu">
             项目环境
           </el-menu-item>
-          <el-menu-item :index="'/project/file/manage'" v-permission="['PROJECT_TRACK_PLAN:READ']"
+          <el-menu-item :index="'/project/file/manage'" v-permission="['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE']"
                         popper-class="submenu">
             文件管理
           </el-menu-item>
 
-          <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_TRACK_ISSUE:READ']">
+          <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
             操作日志
           </el-menu-item>
 
-          <el-menu-item :index="'/project/code/segment'" popper-class="submenu" v-permission="['PROJECT_TRACK_ISSUE:READ']">
+          <el-menu-item :index="'/project/code/segment'" popper-class="submenu" v-permission="['PROJECT_CUSTOM_CODE:READ']">
             自定义代码片段
           </el-menu-item>
 

@@ -812,7 +812,7 @@ export default {
     enable_validate_tip: "No request available",
     copy: "Copy Test",
     jar_config: {
-      title: "The Jar Package Management",
+      title: "Upload jar package",
       jar_file: "Jar package",
       delete_tip: "The deletion takes effect after the service is restarted",
       file_exist: "The name already exists in the project",
