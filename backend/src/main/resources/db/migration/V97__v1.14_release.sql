@@ -240,3 +240,81 @@ DELIMITER ;
 
 CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
+
+-- 工作空间服务集成
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'ws_admin', 'WORKSPACE_SERVICE:READ', 'WORKSPACE_SERVICE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'ws_member', 'WORKSPACE_SERVICE:READ', 'WORKSPACE_SERVICE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'ws_admin', 'WORKSPACE_SERVICE:READ+EDIT', 'WORKSPACE_SERVICE');
+-- 工作空间消息设置
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'ws_admin', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_MESSAGE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'ws_member', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_MESSAGE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'ws_admin', 'WORKSPACE_MESSAGE:READ+EDIT', 'WORKSPACE_MESSAGE');
+-- 项目权限设置
+-- jar
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_FILE:READ+UPLOAD+JAR', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_FILE:READ+DELETE+JAR', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_FILE:READ+UPLOAD+JAR', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_FILE:READ+DELETE+JAR', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'read_only', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE');
+-- file
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_FILE:READ+FILE', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_FILE:READ+UPLOAD+FILE', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_FILE:READ+DELETE+FILE', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_FILE:READ+FILE', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_FILE:READ+UPLOAD+FILE', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_FILE:READ+DELETE+FILE', 'PROJECT_FILE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'read_only', 'PROJECT_FILE:READ+FILE', 'PROJECT_FILE');
+-- custom code
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_CUSTOM_CODE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+CREATE', 'PROJECT_CUSTOM_CODE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+EDIT', 'PROJECT_CUSTOM_CODE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+DELETE', 'PROJECT_CUSTOM_CODE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+COPY', 'PROJECT_CUSTOM_CODE');
+-- member
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_CUSTOM_CODE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+CREATE', 'PROJECT_CUSTOM_CODE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+EDIT', 'PROJECT_CUSTOM_CODE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+DELETE', 'PROJECT_CUSTOM_CODE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+COPY', 'PROJECT_CUSTOM_CODE');
+
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'read_only', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_CUSTOM_CODE');
+
+-- 删除组织相关权限
+delete from user_group_permission where module_id = 'ORGANIZATION_OPERATING_LOG';
+delete from user_group_permission where module_id = 'ORGANIZATION_MESSAGE';
+delete from user_group_permission where module_id = 'ORGANIZATION_SERVICE';
+delete from user_group_permission where module_id = 'ORGANIZATION_GROUP';
+delete from user_group_permission where module_id = 'ORGANIZATION_WORKSPACE';
