@@ -138,22 +138,6 @@ export default {
   height: 500px;
 }
 
-.first-left-card {
-  /*height: calc(100vh - 100px);*/
-  /*line-height: calc(100vh - 200px);*/
-  height: 55vh;
-  line-height: 350px;
-  width: 40%;
-  float: left;
-}
-
-.first-right-card {
-  /*height: calc(100vh - 100px);*/
-  height: 55vh;
-  width: 60%;
-  float: right;
-}
-
 .project-name {
   text-align: center;
   color: var(--primary_color);
@@ -165,24 +149,6 @@ export default {
   margin-top: 25px;
   font-size: 16px;
   min-width: 220px;
-}
-/**/
-.setting-div1 {
-  position: absolute;
-  top: 50%;
-  left: 20%;
-  min-width: 50px;
-  min-height: 50px;
-  transform: translate(-20%, -50%);
-}
-
-.setting-div2 {
-  position: absolute;
-  top: 50%;
-  left: 80%;
-  min-width: 50px;
-  min-height: 50px;
-  transform: translate(-80%, -50%);
 }
 
 .icon-color {

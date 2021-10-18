@@ -16,6 +16,7 @@
       <el-table border :data="tableData"
                 class="adjust-table table-content"
                 highlight-current-row
+                :height="tableHeight"
                 @row-click="handleView">
 
         <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
@@ -80,7 +81,8 @@ export default {
       pageSize: 5,
       total: 0,
       tableData: [],
-      condition: {}
+      condition: {},
+      tableHeight: 'calc(50vh - 170px)'
     }
   },
   methods: {

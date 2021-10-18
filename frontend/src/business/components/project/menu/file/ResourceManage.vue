@@ -24,6 +24,7 @@
 
     <el-table v-loading="projectLoadingResult.loading"
               class="basic-config"
+              :height="height"
               :data="existFiles">
 
       <el-table-column type="selection"/>
@@ -114,6 +115,7 @@ export default {
       condition: {},
       projectId: getCurrentProjectID(),
       currentRow: null,
+      height: 'calc(50vh - 160px)'
     };
   },
   created() {

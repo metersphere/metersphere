@@ -160,46 +160,8 @@ export default {
     }
   },
   mounted() {
-    switch (this.$route.name) {
-      case "system":
-        this.initProject("/project/listAll");
-        this.getMember();
-        break;
-      case "organization":
-        this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-        this.getMember();
-        break;
-      case "workspace":
-        this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-        this.getMember();
-        break;
-      case "project":
-        this.getProject();
-        this.getMember();
-        break;
-    }
-  },
-  watch: {
-    '$route'(to, from) {
-      switch (to.name) {
-        case "system":
-          this.initProject("/project/listAll");
-          this.getMember();
-          break;
-        case "organization":
-          this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-          this.getMember();
-          break;
-        case "workspace":
-          this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-          this.getMember();
-          break;
-        case "project":
-          this.getProject();
-          this.getMember();
-          break;
-      }
-    }
+    this.getProject();
+    this.getMember();
   },
   methods: {
     isLink(row) {

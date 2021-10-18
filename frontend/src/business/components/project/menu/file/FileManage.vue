@@ -2,12 +2,12 @@
   <ms-container>
     <ms-main-container>
       <div>
-        <ms-jar-config-list  ref="jarConfigList" class="file-manage-item"/>
+        <ms-jar-config-list  ref="jarConfigList" class="file-manage-jar"/>
       </div>
 
       <ms-jar-config ref="jarConfig"/>
       <div style="margin-top: 6px;">
-        <resource-manage ref="resourceManage" class="file-manage-item"/>
+        <resource-manage ref="resourceManage" class="file-manage-resource"/>
       </div>
     </ms-main-container>
   </ms-container>
@@ -39,7 +39,11 @@ export default {
 </script>
 
 <style scoped>
-.file-manage-item {
+.file-manage-jar {
   height: calc(50vh - 60px);
+}
+
+.file-manage-resource {
+  height: calc(50vh - 44px);
 }
 </style>
