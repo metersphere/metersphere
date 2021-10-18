@@ -15,7 +15,7 @@
 <script>
 import TestCaseRelationshipList from "@/business/components/track/case/components/TestCaseRelationshipList";
 import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
-import {getRelationshipGraph} from "@/network/testCase";
+import {getRelationshipGraph} from "@/network/graph";
 export default {
   name: "TestCaseDependencies",
   components: {RelationshipGraphDrawer, TestCaseRelationshipList},

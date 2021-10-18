@@ -39,6 +39,24 @@ public class RelationshipEdgeService {
         relationshipEdgeMapper.deleteByExample(example);
     }
 
+    public void delete(String sourceIdOrTargetId) {
+        RelationshipEdgeExample example = new RelationshipEdgeExample();
+        example.createCriteria()
+                .andSourceIdEqualTo(sourceIdOrTargetId);
+        example.or(example.createCriteria()
+                .andTargetIdEqualTo(sourceIdOrTargetId));
+        relationshipEdgeMapper.deleteByExample(example);
+    }
+
+    public void delete(List<String> sourceIdOrTargetIds) {
+        RelationshipEdgeExample example = new RelationshipEdgeExample();
+        example.createCriteria()
+                .andSourceIdIn(sourceIdOrTargetIds);
+        example.or(example.createCriteria()
+                .andTargetIdIn(sourceIdOrTargetIds));
+        relationshipEdgeMapper.deleteByExample(example);
+    }
+
     public List<RelationshipEdge> getBySourceId(String sourceId) {
         RelationshipEdgeExample example = new RelationshipEdgeExample();
         example.createCriteria()

@@ -26,15 +26,14 @@
           <module-trash-button :condition="condition" :exe="enableTrash"/>
       </template>
     </ms-node-tree>
-    <test-case-import @refreshAll="refreshAll" ref="testCaseImport"></test-case-import>
-    <test-case-export @refreshAll="refreshAll" @exportTestCase="exportTestCase" ref="testCaseExport"></test-case-export>
+    <test-case-import @refreshAll="refreshAll" ref="testCaseImport"/>
+    <test-case-export @refreshAll="refreshAll" @exportTestCase="exportTestCase" ref="testCaseExport"/>
     <test-case-create
       :tree-nodes="treeNodes"
       @saveAsEdit="saveAsEdit"
       @createCase="createCase"
       @refresh="refresh"
-      ref="testCaseCreate"
-    ></test-case-create>
+      ref="testCaseCreate"/>
   </div>
 
 </template>
@@ -82,6 +81,11 @@ export default {
           label: this.$t('api_test.export_config'),
           callback: this.handleExport,
           permissions: ['PROJECT_TRACK_CASE:READ+EXPORT']
+        },
+        {
+          label: this.$t('查看依赖'),
+          callback: this.openGraph,
+          // permissions: ['PROJECT_TRACK_CASE:READ+EXPORT']
         }
       ]
     };
@@ -110,6 +114,9 @@ export default {
     },
   },
   methods: {
+    openGraph() {
+      this.$emit('openGraph');
+    },
     addTestCase(){
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
