@@ -256,7 +256,11 @@ public class ApiAutomationService {
 
         apiScenarioMapper.insert(scenario);
         apiScenarioReferenceIdService.saveByApiScenario(scenario);
-
+        // 存储依赖关系
+        ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
+        if (relationshipEdgeService != null) {
+            relationshipEdgeService.initRelationshipEdge(null, scenario);
+        }
         uploadFiles(request, bodyFiles, scenarioFiles);
 
         return scenario;
@@ -340,7 +344,8 @@ public class ApiAutomationService {
 
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
 
-        Integer version = apiScenarioMapper.selectByPrimaryKey(request.getId()).getVersion();
+        ApiScenarioWithBLOBs beforeScenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
+        Integer version = beforeScenario.getVersion();
         if (version == null) {
             scenario.setVersion(0);
         } else {
@@ -354,6 +359,12 @@ public class ApiAutomationService {
         apiScenarioReferenceIdService.saveByApiScenario(scenario);
         extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
         uploadFiles(request, bodyFiles, scenarioFiles);
+
+        // 存储依赖关系
+        ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
+        if (relationshipEdgeService != null) {
+            relationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
+        }
         return scenario;
     }
 
@@ -1888,6 +1899,12 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
                 scenarioWithBLOBs.setId(UUID.randomUUID().toString());
                 batchMapper.insert(scenarioWithBLOBs);
+
+                // 存储依赖关系
+                ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
+                if (relationshipEdgeService != null) {
+                    relationshipEdgeService.initRelationshipEdge(null, scenarioWithBLOBs);
+                }
                 apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
             }
 
