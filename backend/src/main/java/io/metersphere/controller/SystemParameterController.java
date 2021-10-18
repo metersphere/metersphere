@@ -122,5 +122,16 @@ public class SystemParameterController {
         return systemStatisticData;
     }
 
+    @GetMapping("/get/info/{key}")
+    public SystemParameter getInfo(@PathVariable String key) {
+        return SystemParameterService.getInfo(key);
+    }
+
+    @PostMapping("/edit/info")
+    public SystemParameter editInfo(@RequestBody SystemParameter systemParameter) {
+        SystemParameterService.editInfo(systemParameter);
+        return systemParameter;
+    }
+
 
 }

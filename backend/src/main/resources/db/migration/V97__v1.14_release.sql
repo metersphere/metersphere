@@ -318,3 +318,6 @@ delete from user_group_permission where module_id = 'ORGANIZATION_MESSAGE';
 delete from user_group_permission where module_id = 'ORGANIZATION_SERVICE';
 delete from user_group_permission where module_id = 'ORGANIZATION_GROUP';
 delete from user_group_permission where module_id = 'ORGANIZATION_WORKSPACE';
+
+
+insert into system_parameter (param_key, param_value, type, sort) values ('project.jar.limit.size', 1, 'text', 1);

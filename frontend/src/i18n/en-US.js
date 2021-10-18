@@ -817,6 +817,8 @@ export default {
       delete_tip: "The deletion takes effect after the service is restarted",
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
+      upload_limit_size_warn: "Upload file size cannot exceed {0} MB!",
+      upload_limit: "Upload file size cannot exceed",
     },
     batch_menus: {
       select_all_data: "Select all datas({0})",

@@ -823,6 +823,8 @@ export default {
       delete_tip: "删除需重启服务后生效",
       file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
+      upload_limit_size_warn: "上传文件大小不能超过 {0} MB!",
+      upload_limit: "上传文件大小不能超过",
     },
     batch_menus: {
       select_all_data: "选择所有数据(共{0}条)",
