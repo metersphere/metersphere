@@ -73,7 +73,7 @@ public class MsThreadGroup extends MsTestElement {
             }
 
             //检查全局前后置脚本
-            if (preProcessor != null) {
+            if (preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
                 preProcessor.setType("JSR223Processor");
                 preProcessor.setName("PRE_PROCESSOR_ENV_"+preProcessor.isConnScenario());
                 preProcessor.setClazzName("io.metersphere.api.dto.definition.request.processors.MsJSR223Processor");
@@ -83,7 +83,7 @@ public class MsThreadGroup extends MsTestElement {
                 el.toHashTree(groupTree, el.getHashTree(), config);
             }
 
-            if (postProcessor != null) {
+            if (postProcessor != null && StringUtils.isNotEmpty(postProcessor.getScript())) {
                 postProcessor.setType("JSR223Processor");
                 postProcessor.setName("POST_PROCESSOR_ENV_"+preProcessor.isConnScenario());
                 postProcessor.setClazzName("io.metersphere.api.dto.definition.request.processors.MsJSR223Processor");
