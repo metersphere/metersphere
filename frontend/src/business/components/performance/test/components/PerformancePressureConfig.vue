@@ -98,7 +98,7 @@
               </el-form-item>
               <br>
               <div v-if="threadGroup.threadType === 'DURATION'">
-                <el-form-item :label="$t('schedule.cron.hours')">
+                <el-form-item>
                   <el-input-number controls-position="right"
                                    :disabled="isReadOnly"
                                    v-model="threadGroup.durationHours"
@@ -107,7 +107,8 @@
                                    @change="calculateTotalChart()"
                                    size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('schedule.cron.minutes')">
+                <el-form-item :label="$t('schedule.cron.hours')"/>
+                <el-form-item>
                   <el-input-number controls-position="right"
                                    :disabled="isReadOnly"
                                    v-model="threadGroup.durationMinutes"
@@ -116,7 +117,8 @@
                                    @change="calculateTotalChart()"
                                    size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('schedule.cron.seconds')">
+                <el-form-item :label="$t('schedule.cron.minutes')"/>
+                <el-form-item>
                   <el-input-number controls-position="right"
                                    :disabled="isReadOnly"
                                    v-model="threadGroup.durationSeconds"
@@ -125,6 +127,7 @@
                                    @change="calculateTotalChart()"
                                    size="mini"/>
                 </el-form-item>
+                <el-form-item :label="$t('schedule.cron.seconds')"/>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit')">
                   <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
