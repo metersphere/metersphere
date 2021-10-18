@@ -205,18 +205,15 @@ public class TestResultService {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
 
-        String successContext = "";
-        String failedContext = "";
         String subject = "";
         String event = "";
+        String successContext = "${operator}执行接口测成功: ${name}" + ", 报告: " + url2;
+        String failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: " + url2;
+
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-            successContext = "${operator}执行接口测试功: ${name}" + ", 报告: " + url2;
-            failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: " + url2;
             subject = Translator.get("task_notification_jenkins");
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            successContext = "${operator}执行接口测试功: ${name}" + ", 报告: " + url2;
-            failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: " + url2;
             subject = Translator.get("task_notification");
         }
         if (StringUtils.equals("Success", report.getStatus())) {
