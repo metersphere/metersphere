@@ -5,7 +5,6 @@
         <ms-jar-config-list  ref="jarConfigList" class="file-manage-jar"/>
       </div>
 
-      <ms-jar-config ref="jarConfig"/>
       <div style="margin-top: 6px;">
         <resource-manage ref="resourceManage" class="file-manage-resource"/>
       </div>
@@ -19,7 +18,6 @@ import ResourceManage from "@/business/components/project/menu/file/ResourceMana
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsJarConfigList from "@/business/components/api/test/components/jar/JarConfigList";
-import MsJarConfig from "@/business/components/api/test/components/jar/JarConfig";
 
 export default {
   name: "FileManager",
@@ -28,7 +26,6 @@ export default {
     MsContainer,
     ResourceManage,
     MsJarConfigList,
-    MsJarConfig
   },
   data() {
     return {

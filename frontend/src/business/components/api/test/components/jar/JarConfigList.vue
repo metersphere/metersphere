@@ -42,6 +42,8 @@
       </el-table>
       <ms-table-pagination :change="getJarConfigs" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
+
+      <ms-jar-config ref="jarConfig" @refresh="getJarConfigs"/>
     </el-card>
   </div>
 </template>
@@ -54,6 +56,7 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
+import MsJarConfig from "@/business/components/api/test/components/jar/JarConfig";
 
 export default {
   name: "MsJarConfigList",
@@ -63,7 +66,8 @@ export default {
     MsMainContainer,
     MsContainer,
     MsTableHeader,
-    MsTableButton
+    MsTableButton,
+    MsJarConfig
   },
   props: {
     isReadOnly: {
