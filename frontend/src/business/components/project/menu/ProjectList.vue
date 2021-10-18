@@ -158,11 +158,6 @@ export default {
       this.create();
       this.$router.replace('/setting/project/all');
     }
-    this.list();
-    this.getMaintainerOptions();
-  },
-  activated() {
-    this.list();
   },
   computed: {
     currentUser: () => {

@@ -1,15 +1,23 @@
 <template>
-  <el-dropdown size="medium" @command="changeWs" class="align-right">
+  <el-dropdown size="medium" @command="changeWs" placement="bottom" class="align-right">
     <span class="dropdown-link">
-        {{ currentWorkspaceName }}<i class="el-icon-caret-bottom el-icon--right"/>
+      {{ currentWorkspaceName }}
+      <i class="el-icon-caret-bottom el-icon--right"/>
     </span>
     <template v-slot:dropdown>
       <el-dropdown-menu class="ws-content" v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
                   'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
                   'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
                   'WORKSPACE_USER:READ']">
+        <el-input :placeholder="$t('project.search_by_name')"
+                  prefix-icon="el-icon-search"
+                  v-model="searchString"
+                  clearable
+                  class="search-input"
+                  size="small"/>
         <el-dropdown-item :command="item" v-for="(item, index) in workspaceList" :key="index">
-          {{ item.name }} <i class="el-icon-check" v-if="getCurrentWorkspaceId() === item.id"/>
+          {{ item.name }}
+          <i class="el-icon-check" v-if="getCurrentWorkspaceId() === item.id"/>
         </el-dropdown-item>
       </el-dropdown-menu>
     </template>
@@ -36,17 +44,12 @@ export default {
   ],
   data() {
     return {
-      organizationList: [
-        {name: this.$t('organization.none')},
-      ],
       workspaceList: [],
       currentUserId: getCurrentUser().id,
       workspaceIds: [],
       currentWorkspaceName: '',
-      searchOrg: '',
-      searchWs: '',
-      orgListCopy: [{name: this.$t('organization.none')}],
-      wsListCopy: [{name: this.$t('workspace.none')}]
+      wsListCopy: [{name: this.$t('workspace.none')}],
+      searchString: ""
     };
   },
   computed: {
@@ -54,15 +57,9 @@ export default {
       return getCurrentUser();
     },
   },
-  props: {
-    color: String
-  },
   watch: {
-    searchOrg(val) {
-      this.query('org', val);
-    },
-    searchWs(val) {
-      this.query('ws', val);
+    searchString(val) {
+      this.query(val);
     }
   },
   methods: {
@@ -70,6 +67,7 @@ export default {
     initMenuData() {
       this.$get("/workspace/list/userworkspace/" + encodeURIComponent(this.currentUserId), response => {
         this.workspaceList = response.data;
+        this.wsListCopy = response.data;
         let workspace = response.data.filter(r => r.id === getCurrentWorkspaceId());
         if (workspace.length > 0) {
           this.currentWorkspaceName = workspace[0].name;
@@ -79,7 +77,6 @@ export default {
       });
     },
     getRedirectUrl(user) {
-      // console.log(user);
       if (!user.lastProjectId || !user.lastWorkspaceId) {
         // 没有项目级的权限直接回到 /
         // 只是某一个工作空间的用户组也转到 /
@@ -92,24 +89,6 @@ export default {
       redirectUrl = redirectUrl.split("/")[0];
       return '/' + redirectUrl + '/';
     },
-    changeOrg(data) {
-      let orgId = data.id;
-      if (!orgId) {
-        return false;
-      }
-      const loading = fullScreenLoading(this);
-      this.$post("/user/switch/source/org/" + orgId, {}, response => {
-        saveLocalStorage(response);
-
-        sessionStorage.setItem(ORGANIZATION_ID, orgId);
-        sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
-        sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
-
-        this.$router.push(this.getRedirectUrl(response.data)).then(() => {
-          this.reloadTopMenus(stopFullScreenLoading(loading));
-        }).catch(err => err);
-      });
-    },
     changeWs(data) {
       let workspaceId = data.id;
 
@@ -119,26 +98,15 @@ export default {
       const loading = fullScreenLoading(this);
       this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
         saveLocalStorage(response);
-
-        sessionStorage.setItem(ORGANIZATION_ID, response.data.lastOrganizationId);
         sessionStorage.setItem(WORKSPACE_ID, workspaceId);
         sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
-
         this.$router.push(this.getRedirectUrl(response.data)).then(() => {
           this.reloadTopMenus(stopFullScreenLoading(loading));
         }).catch(err => err);
       });
     },
-    query(sign, queryString) {
-      if (sign === 'org') {
-        this.organizationList = queryString ? this.orgListCopy.filter(this.createFilter(queryString)) : this.orgListCopy;
-      }
-      if (sign === 'ws') {
-        this.organizationList.forEach(org => {
-          let wsListCopy = org.wsListCopy;
-          org.workspaceList = queryString ? wsListCopy?.filter(this.createFilter(queryString)) : wsListCopy;
-        });
-      }
+    query(queryString) {
+      this.workspaceList = queryString ? this.wsListCopy.filter(this.createFilter(queryString)) : this.wsListCopy;
     },
     createFilter(queryString) {
       return item => {
@@ -174,40 +142,15 @@ export default {
   position: fixed;
 }
 
-.org-ws-menu {
-  height: 180px;
-  overflow: auto;
-}
-
 .search-input {
   padding: 0;
-  margin-top: -4px;
-  background-color: var(--color_shallow);
+  margin-top: -5px;
 }
 
 .search-input >>> .el-input__inner {
   border-radius: 0;
-  background-color: var(--color);
   color: #d2ced8;
   border-color: #b4aebe;
-}
-
-.title {
-  display: inline-block;
-  padding-left: 15px;
-  max-width: 150px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.org-ws-name {
-  display: inline-block;
-  padding-left: 15px;
-  max-width: 120px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /deep/ .el-submenu__title {
@@ -228,8 +171,9 @@ export default {
 }
 
 .ws-content {
-  height: 300px;
+  height: 240px;
   overflow: auto;
+  margin-top: 5px;
 }
 
 /* 设置滚动条的样式 */
@@ -245,7 +189,7 @@ export default {
 /* 滚动条滑块 */
 .ws-content::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .ws-content::-webkit-scrollbar-thumb:window-inactive {
