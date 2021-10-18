@@ -127,7 +127,7 @@ export default {
       }
     },
     _computedMenuName(resource) {
-      return PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] ? PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] : '项目';
+      return PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] ? PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] : '项目设置';
     },
     onSubmit() {
       let param = {};
