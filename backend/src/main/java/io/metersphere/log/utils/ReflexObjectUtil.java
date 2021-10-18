@@ -164,9 +164,28 @@ public class ReflexObjectUtil {
                         }
                         // 深度对比
                         else if (StringUtils.equals(module, "api_definition")) {
-                            String newValue = newColumns.get(i).getOriginalValue().toString();
-                            String oldValue = column.getOriginalValue().toString();
-                            column.setDiffValue(ApiDefinitionDiffUtil.diff(newValue, oldValue));
+                            if (originalColumns.get(i).getColumnName().equals("request")) {
+                                String newValue = newColumns.get(i).getOriginalValue().toString();
+                                String oldValue = column.getOriginalValue().toString();
+                                column.setDiffValue(ApiDefinitionDiffUtil.diff(newValue, oldValue));
+                            } else if (originalColumns.get(i).getColumnName().equals("response")) {
+                                String newValue = newColumns.get(i).getOriginalValue().toString();
+                                String oldValue = column.getOriginalValue().toString();
+                                column.setDiffValue(ApiDefinitionDiffUtil.diffResponse(newValue, oldValue));
+                            }
+                        } else {
+                            try {
+                                String newValue = column.getNewValue().toString();
+                                if (StringUtils.isNotEmpty(newValue)) {
+                                    column.setNewValue(newValue.replaceAll("\\n", " "));
+                                }
+                                String oldValue = column.getOriginalValue().toString();
+                                if (StringUtils.isNotEmpty(oldValue)) {
+                                    column.setOriginalValue(oldValue.replaceAll("\\n", " "));
+                                }
+                            } catch (Exception e) {
+
+                            }
                         }
                         comparedColumns.add(column);
                     }

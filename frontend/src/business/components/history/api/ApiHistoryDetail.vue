@@ -11,7 +11,7 @@
       </div>
       <div style="overflow: auto">
         <p class="tip">{{ this.$t('report.test_log_details') }} </p>
-        <ms-api-http-request-params :request="detail" v-if="detail.type === 'HTTPSamplerProxy'"/>
+        <ms-api-http-request-params :request="detail" v-if="detail.type === 'HTTPSamplerProxy' || detail.type === 'HTTP'"/>
         <ms-api-tcp-parameters :request="detail" v-if="detail.type === 'TCPSampler'"/>
         <ms-api-jdbc-parameters :request="detail" v-if="detail.type === 'JDBCSampler'"/>
         <ms-api-dubbo-parameters :request="detail" v-if="detail.type === 'DubboSampler'"/>
@@ -65,6 +65,8 @@ export default {
           this.formatJdbc(diffValue);
         } else if (diffValue.type === 'DubboSampler') {
           this.formatDubbo(diffValue);
+        } else {
+          this.formatHttp(diffValue);
         }
         this.detail.type = diffValue.type;
       }
@@ -97,6 +99,11 @@ export default {
         }
       }
     },
+    removeBlankLines(array) {
+      if (array && array.length > 0 && !array[array.length - 1].name && !array[array.length - 1].value) {
+        array.splice(array.length - 1, 1);
+      }
+    },
     formatHttp(diffValue) {
       this.detail.body = {};
       this.detail.headerId = getUUID();
@@ -112,6 +119,7 @@ export default {
       }
       if (diffValue.body_form) {
         let form = (JSON.parse(diffValue.body_form)).root;
+        this.removeBlankLines(form);
         this.detail.body.form = form;
         this.detail.headerId = getUUID();
       }
@@ -122,16 +130,25 @@ export default {
       }
       if (diffValue.header) {
         let header = (JSON.parse(diffValue.header)).root;
+        this.removeBlankLines(header);
         this.detail.header = header;
+        this.detail.headerId = getUUID();
+      }
+      if (diffValue.statusCode) {
+        let statusCode = (JSON.parse(diffValue.statusCode)).root;
+        this.removeBlankLines(statusCode);
+        this.detail.statusCode = statusCode;
         this.detail.headerId = getUUID();
       }
       if (diffValue.query) {
         let query = (JSON.parse(diffValue.query)).root;
+        this.removeBlankLines(query);
         this.detail.query = query;
         this.detail.headerId = getUUID();
       }
       if (diffValue.rest) {
         let rest = (JSON.parse(diffValue.rest)).root;
+        this.removeBlankLines(rest);
         this.detail.rest = rest;
         this.detail.headerId = getUUID();
       }
@@ -150,6 +167,7 @@ export default {
       }
       if (diffValue.query) {
         let parameters = (JSON.parse(diffValue.query)).root;
+        this.removeBlankLines(parameters);
         this.detail.parameters = parameters;
         this.detail.headerId = getUUID();
       }
@@ -161,6 +179,7 @@ export default {
       }
       if (diffValue.body_xml) {
         let parameters = (JSON.parse(diffValue.body_xml)).root;
+        this.removeBlankLines(parameters);
         this.detail.body.xml = parameters;
         this.detail.body.xml_1 = diffValue.body_xml_1;
         this.detail.body.xml_2 = diffValue.body_xml_2;
@@ -189,6 +208,7 @@ export default {
       }
       if (diffValue.variables) {
         let parameters = (JSON.parse(diffValue.variables)).root;
+        this.removeBlankLines(parameters);
         this.detail.variables = parameters;
         this.detail.headerId = getUUID();
       }
@@ -213,11 +233,13 @@ export default {
       }
       if (diffValue.args) {
         let parameters = (JSON.parse(diffValue.args)).root;
+        this.removeBlankLines(parameters);
         this.detail.args = parameters;
         this.detail.headerId = getUUID();
       }
       if (diffValue.attachment) {
         let parameters = (JSON.parse(diffValue.attachment)).root;
+        this.removeBlankLines(parameters);
         this.detail.attachment = parameters;
         this.detail.headerId = getUUID();
       }
