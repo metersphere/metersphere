@@ -14,7 +14,7 @@
 
   .ms-main-container {
     padding: 5px 10px;
-    height: calc(100vh - 40px);
+    height: calc(100vh - 80px);
   }
 
 </style>
