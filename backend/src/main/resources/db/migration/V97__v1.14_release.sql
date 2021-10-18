@@ -155,6 +155,8 @@ DROP PROCEDURE IF EXISTS test_cursor;
 ALTER TABLE message_task
     DROP COLUMN organization_id;
 
+ALTER TABLE user
+    DROP COLUMN last_organization_id;
 
 ALTER TABLE test_case_review ADD COLUMN follow_people varchar(50);
 ALTER TABLE test_plan ADD COLUMN follow_people varchar(50);
