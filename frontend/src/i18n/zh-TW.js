@@ -1600,6 +1600,7 @@ export default {
       related_project: "關聯項目",
       related_tip: "關聯項目後可以添加關聯項目下的測試用例到測試計劃列表",
       plan_stage: "測試階段",
+      follow_people: "關註人",
       plan_status: "當前狀態",
       smoke_test: "冒煙測試",
       functional_test: "功能測試",

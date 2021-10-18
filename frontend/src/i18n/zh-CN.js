@@ -1599,6 +1599,7 @@ export default {
       related_project: "关联项目",
       related_tip: "关联项目后可以添加关联项目下的测试用例到测试计划列表",
       plan_stage: "测试阶段",
+      follow_people: "关注人",
       plan_status: "当前状态",
       smoke_test: "冒烟测试",
       functional_test: "功能测试",

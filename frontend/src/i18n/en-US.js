@@ -1591,6 +1591,7 @@ export default {
       related_project: "Related Project",
       related_tip: "After linking the project, you can add test cases under the linking project to the test plan list",
       plan_stage: "Stage",
+      follow_people: "Follow",
       plan_status: "Status",
       smoke_test: "Smoke test",
       functional_test: "Functional test",

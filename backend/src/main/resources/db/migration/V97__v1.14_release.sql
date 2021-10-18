@@ -52,4 +52,5 @@ create table if not exists relationship_edge (
     COLLATE utf8mb4_general_ci;
 
 ALTER TABLE test_case_review ADD COLUMN follow_people;
+ALTER TABLE test_plan ADD COLUMN follow_people;
 
