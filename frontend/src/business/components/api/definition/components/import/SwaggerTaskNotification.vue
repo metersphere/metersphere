@@ -6,26 +6,6 @@
                    @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
-        <el-popover
-          placement="right-end"
-          title="示例"
-          width="600"
-          trigger="click">
-          <ms-code-edit :read-only="true" height="400px" :data.sync="title" :modes="modes" :mode="'html'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference" style="margin-left: 10px">
-            {{ $t('organization.message.mail_template_example') }}
-          </el-button>
-        </el-popover>
-        <el-popover
-          placement="right-end"
-          title="示例"
-          width="200"
-          trigger="click">
-          <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference" style="margin-left: 10px">
-            {{ $t('organization.message.robot_template') }}
-          </el-button>
-        </el-popover>
       </el-col>
     </el-row>
     <el-row>
@@ -276,7 +256,21 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        this.$refs.noticeTemplate.open(row);
+        let htmlTemplate = "";
+        let robotTemplate = "";
+        switch (row.event) {
+          case 'EXECUTE_SUCCESSFUL':
+            htmlTemplate = this.title;
+            robotTemplate = this.robotTitle;
+            break;
+          case 'EXECUTE_FAILED':
+            htmlTemplate = this.title.replace('成功', '失败');
+            robotTemplate = this.robotTitle.replace('成功', '失败');
+            break;
+          default:
+            break;
+        }
+        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
       }
     }
   },

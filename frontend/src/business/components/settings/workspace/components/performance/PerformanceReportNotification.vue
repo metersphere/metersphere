@@ -175,6 +175,9 @@ export default {
       ],
     };
   },
+  activated() {
+    this.initForm();
+  },
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
