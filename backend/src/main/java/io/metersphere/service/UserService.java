@@ -1274,11 +1274,12 @@ public class UserService {
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
         List<Project> projectList = projectMapper.selectByExample(projectExample);
-        if (CollectionUtils.isNotEmpty(projectList)) {
-            List<String> proIds = projectList.stream().map(Project::getId).collect(Collectors.toList());
-            sourceIds.addAll(proIds);
+        if (CollectionUtils.isEmpty(projectList)) {
+            return new ArrayList<>();
         }
 
+        List<String> proIds = projectList.stream().map(Project::getId).collect(Collectors.toList());
+        sourceIds.addAll(proIds);
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria().andSourceIdIn(sourceIds);
         List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);

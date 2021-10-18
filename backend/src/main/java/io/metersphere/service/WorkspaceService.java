@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -267,7 +266,8 @@ public class WorkspaceService {
         userGroup.setGroupId(UserGroupConstants.WS_ADMIN);
         userGroup.setSourceId(workspace.getId());
         userGroupMapper.insert(userGroup);
-
+        // 设置默认的通知
+        extWorkspaceMapper.setDefaultMessageTask(workspace.getId());
         return workspace;
     }
 
