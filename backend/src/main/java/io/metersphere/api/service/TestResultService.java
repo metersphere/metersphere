@@ -203,7 +203,6 @@ public class TestResultService {
         assert systemParameterService != null;
         assert noticeSendService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        String url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
         String url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
 
         String successContext = "";
@@ -211,13 +210,13 @@ public class TestResultService {
         String subject = "";
         String event = "";
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-            successContext = "接口测试 API任务通知:jenkins所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
-            failedContext = "接口测试 API任务通知:jenkins所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            successContext = "${operator}执行接口测试功: ${name}" + ", 报告: " + url2;
+            failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: " + url2;
             subject = Translator.get("task_notification_jenkins");
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            successContext = "接口测试定时任务通知:定时任务所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
-            failedContext = "接口测试定时任务通知:定时任务所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            successContext = "${operator}执行接口测试功: ${name}" + ", 报告: " + url2;
+            failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: " + url2;
             subject = Translator.get("task_notification");
         }
         if (StringUtils.equals("Success", report.getStatus())) {

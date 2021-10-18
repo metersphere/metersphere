@@ -833,12 +833,12 @@ public class TestPlanReportService {
         String subject = "";
         String event = "";
         if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.API.name())) {
-            successContext = "测试计划jenkins任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "测试计划jenkins任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
+            failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
             subject = Translator.get("task_notification_jenkins");
         } else {
-            successContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
+            failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
             subject = Translator.get("task_notification");
         }
 
