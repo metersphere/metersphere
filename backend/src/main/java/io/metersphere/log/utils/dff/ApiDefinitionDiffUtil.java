@@ -6,6 +6,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.utils.json.diff.JacksonDiff;
 import io.metersphere.log.utils.json.diff.JsonDiff;
@@ -22,6 +23,23 @@ import java.util.Map;
 public class ApiDefinitionDiffUtil {
     static final String JSON_START = "{\"root\":";
     static final String JSON_END = "}";
+
+    public static String diffResponse(String newValue, String oldValue) {
+        Map<String, String> diffMap = new LinkedHashMap<>();
+        JSONObject bloBsNew = JSON.parseObject(newValue);
+        JSONObject bloBsOld = JSON.parseObject(oldValue);
+        if (bloBsNew == null || StringUtils.isEmpty(bloBsNew.getString("type"))) {
+            return null;
+        }
+        JsonDiff jsonDiff = new JacksonDiff();
+        if (bloBsNew.getString("type").equals("HTTP")) {
+            diffHttpResponse(bloBsNew, bloBsOld, jsonDiff, diffMap);
+            if (diffMap.size() > 0) {
+                diffMap.put("type", bloBsNew.getString("type"));
+            }
+        }
+        return JSON.toJSONString(diffMap);
+    }
 
     public static String diff(String newValue, String oldValue) {
         try {
@@ -141,6 +159,11 @@ public class ApiDefinitionDiffUtil {
                 if (CollectionUtils.isNotEmpty(authDiffColumns)) {
                     diffMap.put("body_auth", JSON.toJSONString(authDiffColumns));
                 } else if (CollectionUtils.isEmpty(authDiffColumns) && CollectionUtils.isEmpty(authColumnsOld) && CollectionUtils.isNotEmpty(authColumns)) {
+                    authColumns.forEach(item -> {
+                        Object value = item.getOriginalValue();
+                        item.setNewValue(value);
+                        item.setOriginalValue("");
+                    });
                     diffMap.put("body_auth", JSON.toJSONString(authColumns));
                 }
             }
@@ -151,6 +174,67 @@ public class ApiDefinitionDiffUtil {
             List<DetailColumn> diffColumns = getColumn(columns, columnsOld);
             if (CollectionUtils.isNotEmpty(diffColumns)) {
                 diffMap.put("body_config", JSON.toJSONString(diffColumns));
+            }
+        }
+    }
+
+    private static void diffHttpResponse(JSONObject httpNew, JSONObject httpOld, JsonDiff jsonDiff, Map<String, String> diffMap) {
+        // 请求头对比 old/new
+        if (httpNew.get("headers") != null && httpOld.get("headers") != null) {
+            String headerNew = JSON_START + httpNew.get("headers").toString() + JSON_END;
+            String headerOld = JSON_START + httpOld.get("headers").toString() + JSON_END;
+            if (!StringUtils.equals(headerNew, headerOld)) {
+                String patch = jsonDiff.diff(headerOld, headerNew);
+                String diffPatch = jsonDiff.apply(headerNew, patch);
+                if (StringUtils.isNotEmpty(diffPatch)) {
+                    diffMap.put("header", diffPatch);
+                }
+            }
+        }
+        // 对比statusCode参数
+        if (httpNew.get("statusCode") != null && httpOld.get("statusCode") != null) {
+            String statusCodeNew = JSON_START + httpNew.get("statusCode").toString() + JSON_END;
+            String statusCodeOld = JSON_START + httpOld.get("statusCode").toString() + JSON_END;
+            if (!StringUtils.equals(statusCodeNew, statusCodeOld)) {
+                String patch = jsonDiff.diff(statusCodeOld, statusCodeNew);
+                String diff = jsonDiff.apply(statusCodeNew, patch);
+                if (StringUtils.isNotEmpty(diff)) {
+                    diffMap.put("statusCode", diff);
+                }
+            }
+        }
+        // 对比BODY-JSON参数
+        if (httpNew.get("body") != null && httpOld.get("body") != null) {
+            String bodyStrNew = httpNew.get("body").toString();
+            String bodyStrOld = httpOld.get("body").toString();
+            if (!StringUtils.equals(bodyStrNew, bodyStrOld)) {
+                String patch = jsonDiff.diff(bodyStrOld, bodyStrNew);
+                String diff = jsonDiff.apply(bodyStrNew, patch);
+                if (StringUtils.isNotEmpty(diff)) {
+                    diffMap.put("body", diff);
+                }
+            }
+            // 对比BODY-FORM参数
+            Body bodyNew = JSON.parseObject(bodyStrNew, Body.class);
+            Body bodyOld = JSON.parseObject(bodyStrOld, Body.class);
+
+            if (CollectionUtils.isNotEmpty(bodyNew.getKvs()) && CollectionUtils.isNotEmpty(bodyOld.getKvs())) {
+                bodyNew.getKvs().remove(bodyNew.getKvs().size() - 1);
+                bodyOld.getKvs().remove(bodyOld.getKvs().size() - 1);
+            }
+            String bodyFormNew = JSON_START + JSON.toJSONString(bodyNew.getKvs()) + JSON_END;
+            String bodyFormOld = JSON_START + JSON.toJSONString(bodyOld.getKvs()) + JSON_END;
+            if (!StringUtils.equals(bodyFormNew, bodyFormOld)) {
+                String patch = jsonDiff.diff(bodyFormOld, bodyFormNew);
+                String diff = jsonDiff.apply(bodyFormNew, patch);
+                if (StringUtils.isNotEmpty(diff)) {
+                    diffMap.put("body_form", diff);
+                }
+            }
+            // 对比BODY-XML参数
+            if (!StringUtils.equals(bodyNew.getRaw(), bodyOld.getRaw())) {
+                diffMap.put("body_raw_1", bodyNew.getRaw());
+                diffMap.put("body_raw_2", bodyOld.getRaw());
             }
         }
     }

@@ -93,7 +93,7 @@ export default {
       value.operTime = row.operTime;
       if (value.columnName === "tags") {
         this.$refs.tagsHistoryDetail.open(value);
-      } else if (value.columnName === "request" &&
+      } else if ((value.columnName === "request" || value.columnName === "response")&&
         (row.operModule === "接口定义" || row.operModule === "接口定義" || row.operModule === "Api definition")) {
         this.$refs.apiHistoryDetail.open(value);
       } else {

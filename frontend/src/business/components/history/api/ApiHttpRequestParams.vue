@@ -6,7 +6,9 @@
       <el-tab-pane :label="$t('api_test.request.headers')" name="headers" v-if="request.header">
         <ms-api-key-value-detail :items="request.header" :showDesc="true" :format="request.headerId"/>
       </el-tab-pane>
-
+      <el-tab-pane :label="$t('api_test.definition.request.status_code')" name="statusCode" v-if="request.statusCode">
+        <ms-api-key-value-detail :items="request.statusCode" :showDesc="true" :format="request.headerId"/>
+      </el-tab-pane>
       <!--query 参数-->
       <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters" v-if="request.query">
         <ms-api-key-value-detail :show-required="true" :items="request.query" :showDesc="true" :format="request.headerId"/>
@@ -97,7 +99,13 @@ export default {
     }
   },
   created() {
-    if (this.request.body && (this.request.body.jsonSchema || this.request.body.form || this.request.body.raw_1 || this.request.body.raw_2)) {
+    if (this.request.header) {
+      this.activeName = "headers";
+    } else if (this.request.query) {
+      this.activeName = "parameters";
+    } else if (this.request.rest) {
+      this.activeName = "rest";
+    } else if (this.request.body && (this.request.body.jsonSchema || this.request.body.form || this.request.body.raw_1 || this.request.body.raw_2)) {
       this.activeName = "body";
       if (this.request.body.jsonSchema) {
         this.activeBody = "json";
@@ -108,24 +116,26 @@ export default {
       if (this.request.body.raw_1 || this.request.body.raw_2) {
         this.activeBody = "raw";
       }
-    } else if (this.request.query) {
-      this.activeName = "parameters";
-    } else if (this.request.header) {
-      this.activeName = "headers";
-    } else if (this.request.rest) {
-      this.activeName = "rest";
     } else if (this.request.body_config) {
       this.activeName = "advancedConfig";
     } else if (this.request.body_auth) {
       this.activeName = "authConfig";
+    } else if (this.request.statusCode) {
+      this.activeName = "statusCode";
     }
     this.reloadCodeEdit();
   },
   watch: {
     'request.headerId'() {
-      if (this.request.body && (this.request.body.jsonSchema || this.request.body.form || this.request.body.raw_1 || this.request.body.raw_2)) {
+      if (this.request.header) {
+        this.activeName = "headers";
+      } else if (this.request.query) {
+        this.activeName = "parameters";
+      } else if (this.request.rest) {
+        this.activeName = "rest";
+      } else if (this.request.body && (this.request.body.jsonSchema || this.request.body.form || this.request.body.raw_1 || this.request.body.raw_2)) {
         this.activeName = "body";
-        if (this.request.body.json) {
+        if (this.request.body.jsonSchema) {
           this.activeBody = "json";
         }
         if (this.request.body.form) {
@@ -134,16 +144,12 @@ export default {
         if (this.request.body.raw_1 || this.request.body.raw_2) {
           this.activeBody = "raw";
         }
-      } else if (this.request.query) {
-        this.activeName = "parameters";
-      } else if (this.request.header) {
-        this.activeName = "headers";
-      } else if (this.request.rest) {
-        this.activeName = "rest";
       } else if (this.request.body_config) {
         this.activeName = "advancedConfig";
       } else if (this.request.body_auth) {
         this.activeName = "authConfig";
+      } else if (this.request.statusCode) {
+        this.activeName = "statusCode";
       }
       this.reloadCodeEdit();
     }
