@@ -323,9 +323,6 @@
                         </when>
                     </choose>
                 </if>
-                <if test="key=='status' and values.size == 0">
-                    and (test_case.status is null or test_case.status != 'Trash')
-                </if>
             </foreach>
         </if>
         <if test="request.filters == null || request.filters.size() == 0 ">

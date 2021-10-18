@@ -146,6 +146,15 @@
           </template>
         </ms-table-column >
 
+         <ms-table-column
+           prop="status"
+           :filters="statusFilters"
+           :field="item"
+           :fields-width="fieldsWidth"
+           min-width="100px"
+           :label="$t('api_test.definition.api_case_status')">
+        </ms-table-column>
+
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
                          :filters="field.name === '用例等级' ? priorityFilters : null"
                          :field="item"
@@ -204,6 +213,7 @@ import StatusTableItem from "@/business/components/track/common/tableItems/planv
 import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import MsTag from "@/business/components/common/components/MsTag";
+import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus.vue";
 import {
   buildBatchParam,
   deepClone,
@@ -255,7 +265,7 @@ export default {
     StatusTableItem,
     TestCaseDetail,
     ReviewStatus,
-    MsTag,
+    MsTag,ApiStatus
   },
   data() {
     return {
@@ -402,6 +412,7 @@ export default {
       this.condition.filters = {status: ["Trash"]};
     }else {
       this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+      this.condition.filters = {status: ["Prepare" , "Underway" , "Completed"]}
     }
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
@@ -429,6 +440,7 @@ export default {
   activated() {
     this.getTemplateField();
     this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+    this.condition.filters = {status: ["Prepare" , "Underway" , "Completed"]}
     let ids = this.$route.params.ids;
     if (ids) {
       this.condition.ids = ids;
@@ -440,7 +452,7 @@ export default {
     selectNodeIds() {
       this.page.currentPage = 1;
       if(!this.trashEnable){
-        this.condition.filters.status = [];
+        this.condition.filters.status = ["Prepare" , "Underway" , "Completed"];
       }
       initCondition(this.condition, false);
       this.initTableData();
@@ -549,7 +561,9 @@ export default {
           this.condition.nodeIds = this.selectNodeIds;
         }
       }
-
+      if(this.condition.filters.status===null) {
+        this.condition.filters.status = ["Prepare", "Underway", "Completed"];
+      }
       this.getData();
     },
     getData() {
