@@ -582,5 +582,13 @@
             </if>
         </where>
     </sql>
-
+    <select id="getTestCaseForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
+        select id,num,custom_num,`name`
+        from api_scenario
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and api_scenario.status != 'Trash';
+    </select>
 </mapper>
