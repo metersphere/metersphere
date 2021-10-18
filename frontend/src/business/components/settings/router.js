@@ -43,16 +43,6 @@ export default {
       component: () => import('@/business/components/settings/workspace/template/IssuesTemplateList'),
       meta: {workspaceTemplate: true, title: 'workspace.issue_template_manage', permissions: ['WORKSPACE_TEMPLATE:READ+ISSUE_TEMPLATE']},
     },
-    // {
-    //   path: 'workspace/template/report',
-    //   name: 'testCaseReportTemplate',
-    //   component: () => import('@/business/components/settings/workspace/template/TestCaseReportTemplate'),
-    //   meta: {
-    //     workspaceTemplate: true,
-    //     title: 'test_track.plan_view.report_template',
-    //     permissions: ['WORKSPACE_TEMPLATE:READ+REPORT_TEMPLATE']
-    //   }
-    // },
     {
       path: 'testresourcepool',
       component: () => import('@/business/components/settings/system/TestResourcePool'),
@@ -81,11 +71,6 @@ export default {
       meta: {workspace: true, title: 'organization.message_settings', permissions: ['WORKSPACE_MESSAGE:READ']}
     },
     {
-      path: 'projectmember',
-      component: () => import('@/business/components/settings/project/Member'),
-      meta: {project: true, title: 'commons.member', permissions: ['PROJECT_USER:READ']}
-    },
-    {
       path: 'personsetting',
       name: 'PersonSetting',
       component: () => import('@/business/components/settings/personal/PersonSetting'),
@@ -101,11 +86,6 @@ export default {
       }
     },
     {
-      path: 'project/list/:type',
-      component: () => import('@/business/components/settings/project/ProjectList'),
-      meta: {project: true, title: 'project.manager', permissions: ['PROJECT_MANAGER:READ']}
-    },
-    {
       path: 'project/:type',
       component: () => import('@/business/components/settings/workspace/MsProject'),
       meta: {workspace: true, title: 'project.manager', permissions: ['WORKSPACE_PROJECT_MANAGER:READ']}
@@ -114,11 +94,6 @@ export default {
       path: 'wsenvlist',
       component: () => import('@/business/components/settings/workspace/WsEnvironmentList'),
       meta: {workspace: true, title: 'api_test.environment.environment_config', permissions: ['WORKSPACE_PROJECT_ENVIRONMENT:READ']}
-    },
-    {
-      path: 'envlist',
-      component: () => import('@/business/components/settings/project/EnvironmentList'),
-      meta: {project: true, title: 'api_test.environment.environment_config', permissions: ['PROJECT_ENVIRONMENT:READ']}
     },
     {
       path: 'operatingLog/system',
@@ -133,20 +108,9 @@ export default {
       meta: {workspace: true, title: 'operating_log.title', permissions: ['WORKSPACE_OPERATING_LOG:READ']}
     },
     {
-      path: 'operatingLog/project',
-      name: 'project',
-      component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
-      meta: {project: true, title: 'operating_log.title', permissions: ['PROJECT_OPERATING_LOG:READ']}
-    },
-    {
       path: 'plugin',
       component: () => import('@/business/components/settings/plugin/PluginConfig'),
       meta: {system: true, title: 'plugin.title', permissions: ['SYSTEM_USER:READ']}
     },
-    {
-      path: 'function',
-      component: () => import('@/business/components/settings/project/function/CustomFunction'),
-      meta: {project: true, title: 'project.code_segment.code_segment'}
-    }
   ]
 };

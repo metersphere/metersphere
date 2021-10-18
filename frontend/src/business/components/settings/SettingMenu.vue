@@ -30,25 +30,6 @@
       </el-submenu>
     </el-submenu>
 
-    <el-submenu index="4" v-permission="['PROJECT_USER:READ']">
-      <template v-slot:title>
-        <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>
-        <span>{{ $t('commons.project') }}</span>
-      </template>
-      <el-menu-item v-for="menu in project" v-permission="menu.permissions" :key="menu.index" :index="menu.index"
-                    class="setting-item">
-        {{ $t(menu.title) }}
-      </el-menu-item>
-    </el-submenu>
-
-    <!--    <el-menu-item v-for="menu in project" :key="menu.index" :index="'/setting/project/all'" class="setting-item"-->
-    <!--                  v-roles="['test_user','test_manager', 'org_admin', 'admin']">-->
-    <!--      <template v-slot:title>-->
-    <!--        <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>-->
-    <!--        <span>{{ $t(menu.title) }}</span>-->
-    <!--      </template>-->
-    <!--    </el-menu-item>-->
-
     <el-submenu index="5">
       <template v-slot:title>
         <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
