@@ -88,6 +88,21 @@
               <ms-instructions-icon :content="'当功能用例关联的接口或性能用例在测试计划执行后，自动更新功能用例的状态'"/>
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('test_track.plan.follow_people')" :label-width="formLabelWidth"
+                          prop="followPeople">
+              <el-select v-model="form.followPeople"
+                         clearable
+                         :placeholder="$t('test_track.plan.follow_people')" filterable size="small">
+                <el-option
+                  v-for="item in maintainerOptions"
+                  :key="item.id"
+                  :label="item.id + ' (' + item.name + ')'"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
         </el-row>
 
         <el-row type="flex" justify="left" :gutter="20">
@@ -172,14 +187,24 @@ export default {
       },
       formLabelWidth: "100px",
       operationType: '',
-      principalOptions: []
+      principalOptions: [],
+      maintainerOptions: [],
     };
   },
   created() {
     //设置“测试阶段”和“负责人”的默认值
     this.form.stage = 'smoke';
+    this.getSelectOptions();
   },
   methods: {
+    getMaintainerOptions() {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+        this.maintainerOptions = response.data;
+      });
+    },
+    getSelectOptions() {
+      this.getMaintainerOptions();
+    },
     reload() {
       this.isStepTableAlive = false;
       this.$nextTick(() => (this.isStepTableAlive = true));
@@ -199,6 +224,7 @@ export default {
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;
+      this.getSelectOptions();
       this.reload();
     },
     testPlanInfo() {

@@ -75,6 +75,14 @@
           </template>
         </el-table-column>
         <el-table-column
+          v-if="item.id=='followPeople'"
+          prop="followPeople"
+          :label="$t('test_track.plan.follow_people')"
+          show-overflow-tooltip
+          :key="index"
+        >
+        </el-table-column>
+        <el-table-column
           v-if="item.id == 'stage'"
           prop="stage"
           column-key="stage"

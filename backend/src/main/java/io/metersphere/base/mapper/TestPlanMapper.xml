@@ -21,6 +21,7 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="execution_times" jdbcType="INTEGER" property="executionTimes" />
     <result column="automatic_status_update" jdbcType="BIT" property="automaticStatusUpdate" />
+    <result column="follow_people" jdbcType="VARCHAR" property="followPeople" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanWithBLOBs">
     <result column="tags" jdbcType="LONGVARCHAR" property="tags" />
@@ -88,7 +89,8 @@
   <sql id="Base_Column_List">
     id, workspace_id, report_id, `name`, description, `status`, stage, test_case_match_rule, 
     executor_match_rule, create_time, update_time, actual_end_time, planned_start_time, 
-    planned_end_time, actual_start_time, creator, project_id, execution_times, automatic_status_update
+    planned_end_time, actual_start_time, creator, project_id, execution_times, automatic_status_update, 
+    follow_people
   </sql>
   <sql id="Blob_Column_List">
     tags, report_summary, report_config
@@ -148,16 +150,16 @@
       create_time, update_time, actual_end_time, 
       planned_start_time, planned_end_time, actual_start_time, 
       creator, project_id, execution_times, 
-      automatic_status_update, tags, report_summary, 
-      report_config)
+      automatic_status_update, follow_people, tags, 
+      report_summary, report_config)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{stage,jdbcType=VARCHAR}, #{testCaseMatchRule,jdbcType=VARCHAR}, #{executorMatchRule,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{actualEndTime,jdbcType=BIGINT}, 
       #{plannedStartTime,jdbcType=BIGINT}, #{plannedEndTime,jdbcType=BIGINT}, #{actualStartTime,jdbcType=BIGINT}, 
       #{creator,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{executionTimes,jdbcType=INTEGER}, 
-      #{automaticStatusUpdate,jdbcType=BIT}, #{tags,jdbcType=LONGVARCHAR}, #{reportSummary,jdbcType=LONGVARCHAR}, 
-      #{reportConfig,jdbcType=LONGVARCHAR})
+      #{automaticStatusUpdate,jdbcType=BIT}, #{followPeople,jdbcType=VARCHAR}, #{tags,jdbcType=LONGVARCHAR}, 
+      #{reportSummary,jdbcType=LONGVARCHAR}, #{reportConfig,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
     insert into test_plan
@@ -218,6 +220,9 @@
       </if>
       <if test="automaticStatusUpdate != null">
         automatic_status_update,
+      </if>
+      <if test="followPeople != null">
+        follow_people,
       </if>
       <if test="tags != null">
         tags,
@@ -286,6 +291,9 @@
       </if>
       <if test="automaticStatusUpdate != null">
         #{automaticStatusUpdate,jdbcType=BIT},
+      </if>
+      <if test="followPeople != null">
+        #{followPeople,jdbcType=VARCHAR},
       </if>
       <if test="tags != null">
         #{tags,jdbcType=LONGVARCHAR},
@@ -364,6 +372,9 @@
       <if test="record.automaticStatusUpdate != null">
         automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
       </if>
+      <if test="record.followPeople != null">
+        follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      </if>
       <if test="record.tags != null">
         tags = #{record.tags,jdbcType=LONGVARCHAR},
       </if>
@@ -399,6 +410,7 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       execution_times = #{record.executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
+      follow_people = #{record.followPeople,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=LONGVARCHAR},
       report_summary = #{record.reportSummary,jdbcType=LONGVARCHAR},
       report_config = #{record.reportConfig,jdbcType=LONGVARCHAR}
@@ -426,7 +438,8 @@
       creator = #{record.creator,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       execution_times = #{record.executionTimes,jdbcType=INTEGER},
-      automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT}
+      automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
+      follow_people = #{record.followPeople,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -488,6 +501,9 @@
       <if test="automaticStatusUpdate != null">
         automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
       </if>
+      <if test="followPeople != null">
+        follow_people = #{followPeople,jdbcType=VARCHAR},
+      </if>
       <if test="tags != null">
         tags = #{tags,jdbcType=LONGVARCHAR},
       </if>
@@ -520,6 +536,7 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       execution_times = #{executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
+      follow_people = #{followPeople,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=LONGVARCHAR},
       report_summary = #{reportSummary,jdbcType=LONGVARCHAR},
       report_config = #{reportConfig,jdbcType=LONGVARCHAR}
@@ -544,7 +561,8 @@
       creator = #{creator,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       execution_times = #{executionTimes,jdbcType=INTEGER},
-      automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT}
+      automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
+      follow_people = #{followPeople,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
