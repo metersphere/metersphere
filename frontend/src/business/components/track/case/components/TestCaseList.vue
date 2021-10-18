@@ -176,6 +176,8 @@
     <batch-move @refresh="refresh" @moveSave="moveSave" ref="testBatchMove"/>
 
     <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
+
+    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
   </div>
 
 </template>
@@ -223,10 +225,13 @@ import BatchMove from "@/business/components/track/case/components/BatchMove";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
 import {editTestCaseOrder} from "@/network/testCase";
+import {getGraphByCondition} from "@/network/graph";
+import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
 
 export default {
   name: "TestCaseList",
   components: {
+    RelationshipGraphDrawer,
     TestCasePreview,
     BatchMove,
     MsTableColumn,
@@ -264,6 +269,7 @@ export default {
       condition: {
         components: TEST_CASE_CONFIGS
       },
+      graphData: {},
       priorityFilters: [
         {text: 'P0', value: 'P0'},
         {text: 'P1', value: 'P1'},
@@ -702,6 +708,12 @@ export default {
             });
           }
         }
+      });
+    },
+    generateGraph() {
+      getGraphByCondition('TEST_CASE', buildBatchParam(this, this.$refs.table.selectIds),(data) => {
+        this.graphData = data;
+        this.$refs.relationshipGraph.open();
       });
     },
     handleDeleteBatchToGc() {

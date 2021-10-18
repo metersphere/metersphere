@@ -325,6 +325,7 @@ public class TestCaseService {
         examples.createCriteria().andTestCaseIdEqualTo(testCaseId);
         testCaseTestMapper.deleteByExample(examples);
         relateDelete(testCaseId);
+        relationshipEdgeService.delete(testCaseId); // 删除关系图
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -1237,6 +1238,17 @@ public class TestCaseService {
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
         TestCaseExample example = this.getBatchExample(request);
         deleteTestPlanTestCaseBath(request.getIds());
+        relationshipEdgeService.delete(request.getIds()); // 删除关系图
+
+        request.getIds().forEach(testCaseId -> { // todo 优化下效率
+            testCaseIssueService.delTestCaseIssues(testCaseId);
+            testCaseCommentService.deleteCaseComment(testCaseId);
+            TestCaseTestExample examples = new TestCaseTestExample();
+            examples.createCriteria().andTestCaseIdEqualTo(testCaseId);
+            testCaseTestMapper.deleteByExample(examples);
+            relateDelete(testCaseId);
+        });
+
         testCaseMapper.deleteByExample(example);
     }
 
@@ -1810,7 +1822,6 @@ public class TestCaseService {
     }
 
     public void deleteToGcBatch(TestCaseBatchRequest request) {
-        TestCaseExample example = this.getBatchExample(request);
         if (CollectionUtils.isNotEmpty(request.getIds())) {
             for (String id : request.getIds()) {
                 this.deleteTestCaseToGc(id);

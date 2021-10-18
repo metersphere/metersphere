@@ -566,6 +566,7 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        and test_case.status != 'Trash';
     </select>
 
     <update id="deleteToGc">

@@ -70,8 +70,3 @@ export function getTestCaseNodes(projectId, callback) {
 export function getRelationshipCase(id, relationshipType, callback) {
   return baseGet('/test/case/relationship/case/' + id + '/' + relationshipType, callback);
 }
-
-export function getRelationshipGraph(id, type, callback) {
-  return baseGet('/graph/relationship/graph/' + id + '/' + type, callback);
-}
-
