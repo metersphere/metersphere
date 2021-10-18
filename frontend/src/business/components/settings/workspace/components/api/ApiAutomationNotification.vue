@@ -116,7 +116,7 @@
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 </template>
 
@@ -177,6 +177,36 @@ export default {
         {value: 'EXECUTE_SUCCESSFUL', label: this.$t('commons.run_success')},
         {value: 'EXECUTE_FAILED', label: this.$t('commons.run_fail')},
       ],
+      variables: [
+        'operator',
+        'id',
+        'projectId',
+        'tags',
+        'userId',
+        'apiScenarioModuleId',
+        'modulePath',
+        'name',
+        'level',
+        'status',
+        'principal',
+        'stepTotal',
+        'followPeople',
+        'schedule',
+        'createTime',
+        'updateTime',
+        'passRate',
+        'lastResult',
+        'reportId',
+        'num',
+        'originalState',
+        'customNum',
+        'createUser',
+        'version',
+        'deleteTime',
+        'deleteUserId',
+        'executeTimes',
+        'order'
+      ]
     };
   },
   activated() {

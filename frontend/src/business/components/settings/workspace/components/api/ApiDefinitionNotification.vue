@@ -116,7 +116,7 @@
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 </template>
 
@@ -180,6 +180,57 @@ export default {
         {value: 'EXECUTE_SUCCESSFUL', label: 'CASE ' + this.$t('commons.run_success')},
         {value: 'EXECUTE_FAILED', label: 'CASE ' + this.$t('commons.run_fail')},
       ],
+      variables: [],
+      apiVariables: [
+        'operator',
+        'id',
+        'projectId',
+        'name',
+        'method',
+        'protocol',
+        'path',
+        'modulePath',
+        'environmentId',
+        'schedule',
+        'status',
+        'moduleId',
+        'userId',
+        'createTime',
+        'updateTime',
+        'num',
+        'tags',
+        'originalState',
+        'createUser',
+        'caseTotal',
+        'caseStatus',
+        'casePassingRate',
+        'deleteTime',
+        'deleteUserId',
+        'followPeople',
+        'order'
+      ],
+      caseVariables: [
+        'operator',
+        'id',
+        'projectId',
+        'name',
+        'priority',
+        'apiDefinitionId',
+        'createUserId',
+        'updateUserId',
+        'createTime',
+        'updateTime',
+        'num',
+        'tags',
+        'lastResultId',
+        'status',
+        'originalStatus',
+        'deleteTime',
+        'deleteUserId',
+        'version',
+        'followPeople',
+        'order'
+      ]
     };
   },
   activated() {
@@ -275,42 +326,50 @@ export default {
           case 'CREATE':
             htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
+            this.variables = this.apiVariables;
             break;
           case 'UPDATE':
             htmlTemplate = this.title.replace('创建', '更新');
             robotTemplate = this.robotTitle.replace('创建', '更新');
+            this.variables = this.apiVariables;
             break;
           case 'DELETE':
             htmlTemplate = this.title.replace('创建', '删除');
             robotTemplate = this.robotTitle.replace('创建', '删除');
+            this.variables = this.apiVariables;
             break;
           case 'CASE_CREATE':
             htmlTemplate = this.title.replace('接口定义', '接口用例');
             robotTemplate = this.robotTitle.replace('接口定义', '接口用例');
+            this.variables = this.caseVariables;
             break;
           case 'CASE_UPDATE':
             htmlTemplate = this.title.replace('创建', '更新')
               .replace('接口定义', '接口用例');
             robotTemplate = this.robotTitle.replace('创建', '更新')
               .replace('接口定义', '接口用例');
+            this.variables = this.caseVariables;
             break;
           case 'CASE_DELETE':
             htmlTemplate = this.title.replace('创建', '删除')
               .replace('接口定义', '接口用例');
             robotTemplate = this.robotTitle.replace('创建', '删除')
               .replace('接口定义', '接口用例');
+            this.variables = this.caseVariables;
             break;
           case 'EXECUTE_SUCCESSFUL':
             htmlTemplate = this.title.replace('创建', '执行')
               .replace('接口定义', '接口用例成功');
             robotTemplate = this.robotTitle.replace('创建', '执行')
               .replace('接口定义', '接口用例成功');
+            this.variables = this.caseVariables;
             break;
           case 'EXECUTE_FAILED':
             htmlTemplate = this.title.replace('创建', '执行')
               .replace('接口定义', '接口用例失败');
             robotTemplate = this.robotTitle.replace('创建', '执行')
               .replace('接口定义', '接口用例失败');
+            this.variables = this.caseVariables;
             break;
           default:
             break;

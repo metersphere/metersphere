@@ -115,7 +115,7 @@
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 
 </template>
@@ -181,6 +181,28 @@ export default {
         // {value: 'SUCCESS_ONE_BY_ONE', label: '逐条成功（接口）'},
         // {value: 'FAIL_ONE_BY_ONE', label: '逐条失败（接口）'},
       ],
+      variables: [
+        'operator',
+        'id',
+        'workspaceId',
+        'reportId',
+        'name',
+        'description',
+        'status',
+        'stage',
+        'testCaseMatchRule',
+        'executorMatchRule',
+        'createTime',
+        'updateTime',
+        'actualEndTime',
+        'plannedStartTime',
+        'plannedEndTime',
+        'actualStartTime',
+        'creator',
+        'projectId',
+        'executionTimes',
+        'automaticStatusUpdate'
+      ]
     };
   },
   activated() {

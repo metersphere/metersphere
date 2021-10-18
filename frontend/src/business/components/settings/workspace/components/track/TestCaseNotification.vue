@@ -176,7 +176,37 @@ export default {
         {value: 'DELETE', label: this.$t('commons.delete')},
         {value: 'COMMENT', label: this.$t('commons.comment')}
       ],
-      variables: ['operator', 'name', 'status', 'type']
+      variables: [
+        'operator',
+        'id',
+        'nodeId',
+        'testId',
+        'nodePath',
+        'projectId',
+        'name',
+        'type',
+        'maintainer',
+        'priority',
+        'method',
+        'createTime',
+        'updateTime',
+        'sort',
+        'num',
+        'otherTestName',
+        'reviewStatus',
+        'tags',
+        'demandId',
+        'demandName',
+        'followPeople',
+        'status',
+        'stepModel',
+        'customNum',
+        'createUser',
+        'originalStatus',
+        'deleteTime',
+        'deleteUserId',
+        'order',
+      ]
     };
   },
   activated() {

@@ -116,7 +116,7 @@
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 </template>
 
@@ -173,6 +173,24 @@ export default {
       eventOptions: [
         {value: 'CLOSE_SCHEDULE', label: '关闭定时任务'},
       ],
+      variables: [
+        'operator',
+        'id',
+        'key',
+        'type',
+        'value',
+        'group',
+        'job',
+        'enable',
+        'resourceId',
+        'userId',
+        'workspaceId',
+        'createTime',
+        'updateTime',
+        'projectId',
+        'name',
+        'config'
+      ]
     };
   },
   activated() {

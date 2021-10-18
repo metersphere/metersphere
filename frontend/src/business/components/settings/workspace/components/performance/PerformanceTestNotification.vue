@@ -116,7 +116,7 @@
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 </template>
 
@@ -176,6 +176,24 @@ export default {
         {value: 'DELETE', label: this.$t('commons.delete')},
         {value: 'EXECUTE_COMPLETED', label: this.$t('commons.run_completed')},
       ],
+      variables: [
+        'operator',
+        'id',
+        'projectId',
+        'name',
+        'description',
+        'createTime',
+        'updateTime',
+        'status',
+        'testResourcePoolId',
+        'userId',
+        'num',
+        'createUser',
+        'scenarioVersion',
+        'scenarioId',
+        'followPeople',
+        'order'
+      ]
     };
   },
   activated() {

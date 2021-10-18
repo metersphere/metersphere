@@ -116,7 +116,7 @@
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 </template>
 
@@ -173,6 +173,34 @@ export default {
       eventOptions: [
         {value: 'DELETE', label: this.$t('commons.delete')},
       ],
+      variables: [
+        'operator',
+        'id',
+        'projectId',
+        'name',
+        'method',
+        'protocol',
+        'path',
+        'modulePath',
+        'environmentId',
+        'schedule',
+        'status',
+        'moduleId',
+        'userId',
+        'createTime',
+        'updateTime',
+        'num',
+        'tags',
+        'originalState',
+        'createUser',
+        'caseTotal',
+        'caseStatus',
+        'casePassingRate',
+        'deleteTime',
+        'deleteUserId',
+        'followPeople',
+        'order'
+      ]
     };
   },
   activated() {

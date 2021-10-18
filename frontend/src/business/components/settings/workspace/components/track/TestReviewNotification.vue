@@ -116,7 +116,7 @@
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 </template>
 
@@ -177,6 +177,20 @@ export default {
         {value: 'COMMENT', label: this.$t('commons.comment')},
         {value: 'COMPLETE', label: '评审完成'}
       ],
+      variables: [
+        'operator',
+        'id',
+        'name',
+        'creator',
+        'status',
+        'createTime',
+        'updateTime',
+        'endTime',
+        'projectId',
+        'tags',
+        'createUser',
+        'description'
+      ]
     };
   },
   activated() {
