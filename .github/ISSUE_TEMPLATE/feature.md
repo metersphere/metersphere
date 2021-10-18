@@ -3,7 +3,7 @@ name: 需求建议
 about: 提出针对本项目的想法和建议
 title: "[FEATURE]"
 labels: enhancement
-assignees: ''
+assignees: 'luty2018'
 
 ---
 
