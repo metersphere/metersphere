@@ -12,13 +12,12 @@
 <script>
 import MsDialogFooter from "../../../../common/components/MsDialogFooter";
 import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
-import MsJarConfigList from "./JarConfigList";
 import MsJarConfigFrom from "./JarConfigFrom";
 import MsJarSearchBar from "./JarSearchBar";
 
 export default {
   name: "MsJarConfig",
-  components: {MsJarConfigFrom, MsJarSearchBar, MsJarConfigList, MsDialogFooter},
+  components: {MsJarConfigFrom, MsJarSearchBar, MsDialogFooter},
   data() {
     return {
       visible: false,

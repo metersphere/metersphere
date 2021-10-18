@@ -91,7 +91,9 @@ export default {
   },
   methods: {
     openJarConfig() {
-      this.$refs.jarConfig.open();
+      this.$nextTick(() => {
+        this.$refs.jarConfig.open();
+      })
     },
     getJarConfigs(isSearchBarQuery) {
       if (isSearchBarQuery) {
