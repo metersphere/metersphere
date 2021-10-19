@@ -572,7 +572,7 @@ export default {
           this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
           this.clearDebug();
           this.$success(this.$t('report.test_stop_success'));
-          this.reload();
+          this.showHide();
         } catch (e) {
           this.debugLoading = false;
         }
