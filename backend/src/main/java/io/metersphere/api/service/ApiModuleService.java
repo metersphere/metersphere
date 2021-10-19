@@ -60,6 +60,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         super(ApiModuleDTO.class);
     }
 
+    public ApiModule get(String id) {
+        return apiModuleMapper.selectByPrimaryKey(id);
+    }
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
         this.getDefaultNode(projectId,protocol);
