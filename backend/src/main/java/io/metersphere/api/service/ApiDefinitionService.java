@@ -1349,9 +1349,7 @@ public class ApiDefinitionService {
             }
         } else { //  导出为 Swagger 格式
             Swagger3Parser swagger3Parser = new Swagger3Parser();
-            System.out.println(apiDefinitionMapper.selectByExampleWithBLOBs(example));
             apiExportResult = swagger3Parser.swagger3Export(apiDefinitionMapper.selectByExampleWithBLOBs(example));
-
         }
 
         return apiExportResult;
