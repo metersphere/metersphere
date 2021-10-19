@@ -9,41 +9,46 @@
                 v-model="editData.description"
                 type="textarea"
                 :autosize="{ minRows: 2, maxRows: 10}"
-                :rows="2" size="small"/>
+                :rows="2" size="small" :disabled="disabled"/>
     </el-form-item>
 
     <el-form-item :label="$t('variables.start')" prop="startNumber">
-      <el-input-number size="small" v-model="editData.startNumber" placeholder="0" style="width: 100%" :max="1000*10000000" :min="0"/>
+      <el-input-number :disabled="disabled" size="small" v-model="editData.startNumber" placeholder="0" style="width: 100%" :max="1000*10000000" :min="0"/>
     </el-form-item>
     <el-form-item :label="$t('variables.end')" prop="endNumber">
-      <el-input-number size="small" v-model="editData.endNumber" placeholder="10" style="width: 100%" :max="1000*10000000" :min="0"/>
+      <el-input-number :disabled="disabled" size="small" v-model="editData.endNumber" placeholder="10" style="width: 100%" :max="1000*10000000" :min="0"/>
     </el-form-item>
     <el-form-item :label="$t('variables.increment')" prop="increment">
-      <el-input-number size="small" v-model="editData.increment" placeholder="1" style="width: 100%" :max="1000*10000000" :min="0"/>
+      <el-input-number :disabled="disabled" size="small" v-model="editData.increment" placeholder="1" style="width: 100%" :max="1000*10000000" :min="0"/>
     </el-form-item>
     <el-form-item :label="$t('variables.format')" prop="value">
-      <el-input v-model="editData.value" :placeholder="$t('variables.counter_info')"></el-input>
+      <el-input :disabled="disabled" v-model="editData.value" :placeholder="$t('variables.counter_info')"></el-input>
     </el-form-item>
   </el-form>
 </template>
 
 <script>
-  export default {
-    name: "MsEditCounter",
-    components: {},
-    props: {
-      editData: {},
-    },
-    data() {
-      return {
-        rules: {
-          name: [
-            {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          ],
-        },
-      }
-    },
-  }
+export default {
+  name: "MsEditCounter",
+  components: {},
+  props: {
+    editData: {},
+  },
+  computed: {
+    disabled() {
+      return !(this.editData.name && this.editData.name !== "");
+    }
+  },
+  data() {
+    return {
+      rules: {
+        name: [
+          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+        ],
+      },
+    }
+  },
+}
 </script>
 
 <style scoped>

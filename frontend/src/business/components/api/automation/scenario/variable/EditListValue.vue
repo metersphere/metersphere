@@ -9,32 +9,39 @@
                 v-model="editData.description"
                 type="textarea"
                 :autosize="{ minRows: 2, maxRows: 10}"
-                :rows="2" size="small"/>
+                :rows="2" size="small"
+                :disabled="disabled"
+      />
     </el-form-item>
 
     <el-form-item :label="$t('api_test.value')" prop="value">
-      <el-input v-model="editData.value" placeholder="列表数据用,分隔"></el-input>
+      <el-input v-model="editData.value" :disabled="disabled" placeholder="列表数据用,分隔"/>
     </el-form-item>
   </el-form>
 </template>
 
 <script>
-  export default {
-    name: "MsEditListValue",
-    components: {},
-    props: {
-      editData: {},
-    },
-    data() {
-      return {
-        rules: {
-          name: [
-            {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          ],
-        },
-      }
-    },
-  }
+export default {
+  name: "MsEditListValue",
+  components: {},
+  props: {
+    editData: {},
+  },
+  computed: {
+    disabled() {
+      return !(this.editData.name && this.editData.name !== "");
+    }
+  },
+  data() {
+    return {
+      rules: {
+        name: [
+          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+        ],
+      },
+    }
+  },
+}
 </script>
 
 <style scoped>
