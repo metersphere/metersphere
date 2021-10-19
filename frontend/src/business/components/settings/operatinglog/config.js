@@ -176,7 +176,7 @@ export function getUrl(d) {
       url += "/setting/project/:type";
       break;
     case "项目-环境设置" || "項目-環境設置" || "Project environment setting" :
-      url += "/setting/envlist";
+      url += "/project/env";
       break;
     case "工作空间-模版设置-自定义字段" || "工作空間-模版設置-自定義字段" || "Workspace template settings field" :
       url += "/setting/workspace/template/field";
@@ -188,7 +188,7 @@ export function getUrl(d) {
       url += "/setting/workspace/template/issues";
       break;
     case "项目-成员" || "項目-成員" || "Project member" :
-      url += "/setting/projectmember";
+      url += "/project/member";
       break;
     default:
       break;
