@@ -46,7 +46,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (StringUtils.isBlank(request.getSwaggerUrl())) {
             sourceStr = getApiTestStr(source);
         }
-       return parse(sourceStr, request);
+        return parse(sourceStr, request);
     }
 
     public ApiDefinitionImport parse(String sourceStr, ApiTestImportRequest request) {
@@ -108,11 +108,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 Operation operation = operationsMap.get(method);
                 if (operation != null) {
                     MsHTTPSamplerProxy request = buildRequest(operation, pathName, method);
-                    ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method,importRequest);
+                    ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method, importRequest);
                     parseParameters(operation, request);
                     parseRequestBody(operation.getRequestBody(), request.getBody());
                     addBodyHeader(request);
-                    if(request.getBody().getKvs().size() > 1 && request.getBody().getKvs().get(0).getName() == null) {
+                    if (request.getBody().getKvs().size() > 1 && request.getBody().getKvs().get(0).getName() == null) {
                         request.getBody().getKvs().remove(0);
                     }   //  有数据的话，去掉 Kvs 里初始化的第一个全 null 的数据，否则有空行
                     apiDefinition.setRequest(JSON.toJSONString(request));
@@ -129,7 +129,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         return results;
     }
 
-    private ApiDefinitionWithBLOBs buildApiDefinition(String id, Operation operation, String path, String method,ApiTestImportRequest importRequest) {
+    private ApiDefinitionWithBLOBs buildApiDefinition(String id, Operation operation, String path, String method, ApiTestImportRequest importRequest) {
         String name = "";
         if (StringUtils.isNotBlank(operation.getSummary())) {
             name = operation.getSummary();
@@ -138,7 +138,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else {
             name = path;
         }
-        return buildApiDefinition(id, name, path, method,importRequest);
+        return buildApiDefinition(id, name, path, method, importRequest);
     }
 
     private MsHTTPSamplerProxy buildRequest(Operation operation, String path, String method) {
@@ -175,7 +175,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
         PathParameter pathParameter = (PathParameter) parameter;
-        rests.add(new KeyValue(pathParameter.getName(), "", getDefaultStringValue(parameter.getDescription())));
+        rests.add(new KeyValue(pathParameter.getName(), String.valueOf(pathParameter.getExample()), getDefaultStringValue(parameter.getDescription())));
     }
 
     private String getDefaultStringValue(String val) {
@@ -184,12 +184,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
+        addCookie(headers, cookieParameter.getName(), String.valueOf(cookieParameter.getExample()), getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()), "", parameter.getRequired());
+        addHeader(headers, headerParameter.getName(), String.valueOf(headerParameter.getExample()), getDefaultStringValue(headerParameter.getDescription()), "", parameter.getRequired());
     }
 
     private HttpResponse parseResponse(ApiResponses responses) {
@@ -201,9 +201,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         msResponse.setStatusCode(new ArrayList<>());
         if (responses != null) {
             responses.forEach((responseCode, response) -> {
-                msResponse.getStatusCode().add(new KeyValue(responseCode, responseCode));
                 parseResponseHeader(response, msResponse.getHeaders());
                 parseResponseBody(response, msResponse.getBody());
+                parseResponseCode(responseCode, msResponse);
             });
         }
         return msResponse;
@@ -213,8 +213,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Map<String, Header> headers = response.getHeaders();
         if (headers != null) {
             headers.forEach((k, v) -> {
-                msHeaders.add(new KeyValue(k, "", v.getDescription()));
+                msHeaders.add(new KeyValue(k, String.valueOf(v.getExample()), v.getDescription()));
             });
+        }
+    }
+
+    private void parseResponseCode(String response, HttpResponse msResponse) {
+        if (StringUtils.isNotEmpty(response)) {
+            msResponse.setStatusCode(JSON.parseObject(response, List.class));
         }
     }
 
@@ -245,7 +251,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         MediaType mediaType = content.get(contentType);
         if (mediaType == null) {
             Set<String> contentTypes = content.keySet();
-            if(contentTypes.size() == 0) {  //  防止空指针
+            if (contentTypes.size() == 0) {  //  防止空指针
                 return;
             }
             contentType = contentTypes.iterator().next();
@@ -295,7 +301,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                         kv.setType("file");
                     }
                 }
-                if(body.getKvs() == null) {  //  防止空指针
+                if (body.getKvs() == null) {  //  防止空指针
                     body.setKvs(new ArrayList<>());
                 }
                 body.getKvs().add(kv);
@@ -359,17 +365,17 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (schema instanceof BinarySchema) {
             return getDefaultValueByPropertyType(schema);
         } else {
-            if(schema.getType() != null) {  //  特判属性不是对象的情况，直接将基本类型赋值进去
-                if(StringUtils.equals(schema.getType(), "string")) {
+            if (schema.getType() != null) {  //  特判属性不是对象的情况，直接将基本类型赋值进去
+                if (StringUtils.equals(schema.getType(), "string")) {
                     Object exampleObj = schema.getExample();
                     String example = null;
                     if (exampleObj != null) {
                         example = exampleObj.toString();
                     }
                     return example == null ? "" : example;
-                } else if(StringUtils.equals(schema.getType(), "boolean")) {
+                } else if (StringUtils.equals(schema.getType(), "boolean")) {
                     return schema.getExample();
-                } else if(StringUtils.equals(schema.getType(), "double")) {
+                } else if (StringUtils.equals(schema.getType(), "double")) {
                     return schema.getExample();
                 }
             }
@@ -388,7 +394,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         JSONObject jsonObject = new JSONObject(true);
         properties.forEach((key, value) -> {
-            jsonObject.put(key,  parseSchema(value, refSet, infoMap));
+            jsonObject.put(key, parseSchema(value, refSet, infoMap));
         });
         return jsonObject;
     }
@@ -406,45 +412,46 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parseQueryParameters(Parameter parameter, List<KeyValue> arguments) {
         QueryParameter queryParameter = (QueryParameter) parameter;
-        arguments.add(new KeyValue(queryParameter.getName(), "", getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired()));
+        arguments.add(new KeyValue(queryParameter.getName(), String.valueOf(queryParameter.getExample()), getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired()));
     }
-/*    导出的 swagger json描述文件样例
-{
-    "openapi":"3.0.1",
-    "info":{},
-    "externalDocs":{},
-    "servers":{},
-    "tags":{},
-    "paths":{	//	对应 SwaggerApiExportResult 类的paths
-        "/lzx/test/{ball}":{	//	key
-            "get":{	//	对应 SwaggerPath 类的 JSONObject 类型的成员，”get“为key
-                "tags":[
-                "subModule2"
-                ],
-                "summary":"API",
-                "parameters":[
-                    {
-                        "name":"ballName",
-                        "in":"query",//	path,header,query都可选。
-                        "description":"描述param",
-                        "required":true	//	是否必填参数
-                    }
-                ],
-                "requestBody":{
-                    "content":{
-                        "application/octet-stream":{    //  type
-                            "schema":{
-                                "type":null,
-                                "format":null
+
+    /*    导出的 swagger json描述文件样例
+    {
+        "openapi":"3.0.1",
+        "info":{},
+        "externalDocs":{},
+        "servers":{},
+        "tags":{},
+        "paths":{	//	对应 SwaggerApiExportResult 类的paths
+            "/lzx/test/{ball}":{	//	key
+                "get":{	//	对应 SwaggerPath 类的 JSONObject 类型的成员，”get“为key
+                    "tags":[
+                    "subModule2"
+                    ],
+                    "summary":"API",
+                    "parameters":[
+                        {
+                            "name":"ballName",
+                            "in":"query",//	path,header,query都可选。
+                            "description":"描述param",
+                            "required":true	//	是否必填参数
+                        }
+                    ],
+                    "requestBody":{
+                        "content":{
+                            "application/octet-stream":{    //  type
+                                "schema":{
+                                    "type":null,
+                                    "format":null
+                                }
                             }
                         }
                     }
-                }
-            }	//	SwaggerApiInfo类，为 value
-        }
-    },
-    "components":{}
-}       */
+                }	//	SwaggerApiInfo类，为 value
+            }
+        },
+        "components":{}
+    }       */
     public SwaggerApiExportResult swagger3Export(List<ApiDefinitionWithBLOBs> apiDefinitionList) {
         SwaggerApiExportResult result = new SwaggerApiExportResult();
 
@@ -456,13 +463,13 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         result.setExternalDocs(new JSONObject());
 
         JSONObject paths = new JSONObject();
-        for(ApiDefinitionWithBLOBs apiDefinition : apiDefinitionList) {
+        for (ApiDefinitionWithBLOBs apiDefinition : apiDefinitionList) {
             SwaggerApiInfo swaggerApiInfo = new SwaggerApiInfo();   //  {tags:, summary:, description:, parameters:}
             swaggerApiInfo.setSummary(apiDefinition.getName());
             //  设置导入后的模块名 （根据 api 的 moduleID 查库获得所属模块，作为导出的模块名）
             ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
             String moduleName = "";
-            if(apiDefinition.getModuleId() != null) {   //  module_id 可能为空
+            if (apiDefinition.getModuleId() != null) {   //  module_id 可能为空
                 ApiModuleDTO node = apiModuleService.getNode(apiDefinition.getModuleId());
                 if (node != null) {
                     moduleName = node.getName();
@@ -480,7 +487,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             List<JSONObject> paramsList = buildParameters(requestObject);
             swaggerApiInfo.setParameters(paramsList);
             JSONObject methodDetail = JSON.parseObject(JSON.toJSONString(swaggerApiInfo));
-            if(paths.getJSONObject(apiDefinition.getPath()) == null) {
+            if (paths.getJSONObject(apiDefinition.getPath()) == null) {
                 paths.put(apiDefinition.getPath(), new JSONObject());
             }   //  一个路径下有多个发方法，如post，get，因此是一个 JSONObject 类型
             paths.getJSONObject(apiDefinition.getPath()).put(apiDefinition.getMethod().toLowerCase(), methodDetail);
@@ -497,12 +504,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             put("arguments", "query");
         }};
         Set<String> typeKeys = typeMap.keySet();
-        for(String type : typeKeys) {
+        for (String type : typeKeys) {
             JSONArray params = request.getJSONArray(type);  //  获得请求参数列表
-            if(params != null) {
-                for(int i = 0; i < params.size(); ++i) {
+            if (params != null) {
+                for (int i = 0; i < params.size(); ++i) {
                     JSONObject param = params.getJSONObject(i); //  对于每个参数:
-                    if(param.get("name") == null || StringUtils.isEmpty(((String) param.get("name")))) {
+                    if (param.get("name") == null || StringUtils.isEmpty(((String) param.get("name")))) {
                         continue;
                     }   //  否则无参数的情况，可能多出一行空行
                     SwaggerParams swaggerParam = new SwaggerParams();
@@ -510,6 +517,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     swaggerParam.setDescription((String) param.get("description"));
                     swaggerParam.setName((String) param.get("name"));
                     swaggerParam.setRequired((boolean) param.get("required"));
+                    swaggerParam.setExample((String) param.get("value"));
                     //  请求头 value 没有导出
 //                    JSONObject schema = new JSONObject();
 //                    swaggerParam.setSchema(schema);
@@ -533,7 +541,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     //  将请求体中的一个 json 对象转换成 swagger 格式的 json 对象返回
     private JSONObject buildRequestBodyJsonInfo(JSONObject requestBody) {
-        if(requestBody == null)
+        if (requestBody == null)
             return null;
         JSONObject schema = new JSONObject();
         schema.put("type", "object");
@@ -555,32 +563,31 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
     }   */
     private JSONObject buildRequestBodyJsonInfo(JSONArray requestBody) {
-        if(requestBody == null)
+        if (requestBody == null)
             return null;
         JSONObject schema = new JSONObject();
         schema.put("type", "array");
         JSONObject items = new JSONObject();
 
-        if(requestBody.size() > 0) {
+        if (requestBody.size() > 0) {
             Object example = requestBody.get(0);
-            if(example instanceof JSONObject) {
+            if (example instanceof JSONObject) {
                 items.put("type", "object");
                 items.put("properties", buildSchema((JSONObject) example));
-            } else if(example instanceof java.lang.String) {
+            } else if (example instanceof java.lang.String) {
                 items.put("type", "string");
-            } else if(example instanceof java.lang.Integer) {
+            } else if (example instanceof java.lang.Integer) {
                 items.put("type", "integer");
                 items.put("format", "int64");
-            } else if(example instanceof java.lang.Boolean) {
+            } else if (example instanceof java.lang.Boolean) {
                 items.put("type", "boolean");
-            } else if(example instanceof java.math.BigDecimal) {
+            } else if (example instanceof java.math.BigDecimal) {
                 items.put("type", "double");
-            }
-            else {    //  JSONOArray
+            } else {    //  JSONOArray
                 items.put("type", "array");
                 JSONObject item = new JSONObject();
-                if(((JSONArray) example).size() > 0) {
-                    if(((JSONArray) example).get(0) instanceof JSONObject) {
+                if (((JSONArray) example).size() > 0) {
+                    if (((JSONArray) example).get(0) instanceof JSONObject) {
                         item = buildRequestBodyJsonInfo((JSONObject) ((JSONArray) example).get(0));
                     }
                 }
@@ -604,7 +611,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     parsedParam.put("description", requestBody.getString("description"));
                 }
                 parsedParam.put("items", item);
-            } else if(StringUtils.equals(type, "object")) {
+            } else if (StringUtils.equals(type, "object")) {
                 parsedParam.put("type", "object");
                 JSONObject properties = requestBody.getJSONObject("properties");
                 JSONObject swaggerProperties = new JSONObject();
@@ -619,14 +626,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     parsedParam.put("description", requestBody.getString("description"));
                 }
                 parsedParam.put("properties", swaggerProperties);
-            } else if(StringUtils.equals(type, "integer")) {
+            } else if (StringUtils.equals(type, "integer")) {
                 parsedParam.put("type", "integer");
                 parsedParam.put("format", "int64");
                 setCommonJsonSchemaParam(parsedParam, requestBody);
-            }  else if(StringUtils.equals(type, "boolean")) {
+            } else if (StringUtils.equals(type, "boolean")) {
                 parsedParam.put("type", "boolean");
                 setCommonJsonSchemaParam(parsedParam, requestBody);
-            } else if(StringUtils.equals(type, "number")) {  //  double 类型会被 fastJson 转换为 BigDecimal
+            } else if (StringUtils.equals(type, "number")) {  //  double 类型会被 fastJson 转换为 BigDecimal
                 parsedParam.put("type", "double");
                 setCommonJsonSchemaParam(parsedParam, requestBody);
             } else {
@@ -636,6 +643,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         return parsedParam;
     }
+
     public void setCommonJsonSchemaParam(JSONObject parsedParam, JSONObject requestBody) {
         if (StringUtils.isNotBlank(requestBody.getString("description"))) {
             parsedParam.put("description", requestBody.getString("description"));
@@ -658,22 +666,22 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     //  设置一个 json 对象的属性在 swagger 格式中的类型、值
     private JSONObject buildSchema(JSONObject requestBody) {
         JSONObject schema = new JSONObject();
-        for(String key : requestBody.keySet()) {
+        for (String key : requestBody.keySet()) {
             Object param = requestBody.get(key);
             JSONObject parsedParam = new JSONObject();
-            if(param instanceof java.lang.String) {
+            if (param instanceof java.lang.String) {
                 parsedParam.put("type", "string");
-                parsedParam.put("example", param == null? "" : param);
-            } else if(param instanceof java.lang.Integer) {
+                parsedParam.put("example", param == null ? "" : param);
+            } else if (param instanceof java.lang.Integer) {
                 parsedParam.put("type", "integer");
                 parsedParam.put("format", "int64");
                 parsedParam.put("example", param);
-            } else if(param instanceof JSONObject) {
+            } else if (param instanceof JSONObject) {
                 parsedParam = buildRequestBodyJsonInfo((JSONObject) param);
-            } else if(param instanceof java.lang.Boolean) {
+            } else if (param instanceof java.lang.Boolean) {
                 parsedParam.put("type", "boolean");
                 parsedParam.put("example", param);
-            } else if(param instanceof java.math.BigDecimal) {  //  double 类型会被 fastJson 转换为 BigDecimal
+            } else if (param instanceof java.math.BigDecimal) {  //  double 类型会被 fastJson 转换为 BigDecimal
                 parsedParam.put("type", "double");
                 parsedParam.put("example", param);
             } else {    //  JSONOArray
@@ -682,8 +690,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 if (param == null) {
                     param = new JSONArray();
                 }
-                if(((JSONArray) param).size() > 0) {
-                    if(((JSONArray) param).get(0) instanceof JSONObject) {  ///
+                if (((JSONArray) param).size() > 0) {
+                    if (((JSONArray) param).get(0) instanceof JSONObject) {  ///
                         item = buildRequestBodyJsonInfo((JSONObject) ((JSONArray) param).get(0));
                     }
                 }
@@ -697,7 +705,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     private JSONObject buildformDataSchema(JSONObject kvs) {
         JSONObject schema = new JSONObject();
         JSONObject properties = new JSONObject();
-        for(String key : kvs.keySet()) {
+        for (String key : kvs.keySet()) {
             JSONObject property = new JSONObject();
             property.put("type", "string");
             property.put("example", kvs.getString(key));
@@ -709,11 +717,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private JSONObject getformDataProperties(JSONArray requestBody) {
         JSONObject result = new JSONObject();
-        for(Object item : requestBody) {
-            if(item instanceof JSONObject) {
+        for (Object item : requestBody) {
+            if (item instanceof JSONObject) {
                 String name = ((JSONObject) item).getString("name");
                 String value = ((JSONObject) item).getString("value");
-                if(name != null) {
+                if (name != null) {
                     result.put(name, value);
                 }
             }
@@ -721,15 +729,15 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         return result;
     }
 
-/*  请求头格式：
-    "headers":{
-        "headerName":{
-            "schema":{
-                "type":"string"
+    /*  请求头格式：
+        "headers":{
+            "headerName":{
+                "schema":{
+                    "type":"string"
+                }
             }
         }
-    }
-*/
+    */
     private JSONObject buildResponseBody(JSONObject response) {
         if (response == null) {
             return new JSONObject();
@@ -739,11 +747,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         //  build 请求头
         JSONObject headers = new JSONObject();
         JSONArray headValueList = response.getJSONArray("headers");
-        if(headValueList != null) {
-            for(Object item : headValueList) {
-                if(item instanceof JSONObject && ((JSONObject) item).getString("name") != null) {
+        if (headValueList != null) {
+            for (Object item : headValueList) {
+                if (item instanceof JSONObject && ((JSONObject) item).getString("name") != null) {
                     JSONObject head = new JSONObject(), headSchema = new JSONObject();
                     head.put("description", "");
+                    head.put("example", ((JSONObject) item).getString("value"));
                     headSchema.put("type", "string");
                     head.put("schema", headSchema);
                     headers.put(((JSONObject) item).getString("name"), head);
@@ -752,28 +761,28 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         statusCodeInfo.put("headers", headers);
 
+        // 返回code
         JSONArray statusCode = response.getJSONArray("statusCode");
-
         //  build 请求体
         if (statusCode == null || statusCode.size() < 1 || statusCode.getJSONObject(0).getString("name") == null) {
             return response;
         }
         statusCodeInfo.put("content", buildContent(response));
         statusCodeInfo.put("description", "");
-        responseBody.put(((JSONObject) response.getJSONArray("statusCode").get(0)).getString("name"), statusCodeInfo);
+        responseBody.put(JSON.toJSONString(statusCode), statusCodeInfo);
         return responseBody;
     }
 
-/*  请求体格式：
-    "content":{
-        "application/json":{
-            "schema":{
-                "type":"xxx",
-                "xxx":{...}
+    /*  请求体格式：
+        "content":{
+            "application/json":{
+                "schema":{
+                    "type":"xxx",
+                    "xxx":{...}
+                }
             }
         }
-    }
-*/
+    */
     private JSONObject buildContent(JSONObject respOrReq) {
         Hashtable<String, String> typeMap = new Hashtable<String, String>() {{
             put("XML", org.springframework.http.MediaType.APPLICATION_XML_VALUE);
@@ -786,11 +795,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Object bodyInfo = new Object();
         JSONObject body = respOrReq.getJSONObject("body");
 
-        if(body != null) { //  将请求体转换成相应的格式导出
+        if (body != null) { //  将请求体转换成相应的格式导出
             String bodyType = body.getString("type");
-            if(bodyType == null) {
+            if (bodyType == null) {
 
-            } else if(bodyType.equals("JSON")) {
+            } else if (bodyType.equals("JSON")) {
                 try {
                     if (StringUtils.equals(body.getString("format"), "JSON-SCHEMA")) {
 //                        String jsonSchema = JSONSchemaGenerator.getJson(body.getString("jsonSchema"));
@@ -811,7 +820,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                             bodyInfo = buildJsonSchema(jsonObject, required);
                         }
                     } else {
-                        try{    //  若请求体是一个 object
+                        try {    //  若请求体是一个 object
                             bodyInfo = buildRequestBodyJsonInfo(body.getJSONArray("raw"));
                         } catch (Exception e) {
                             bodyInfo = buildRequestBodyJsonInfo(body.getJSONObject("raw"));
@@ -824,11 +833,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                         ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
                     }
                 }
-            } else if(bodyType.equals("XML")) {
+            } else if (bodyType.equals("XML")) {
                 String xmlText = body.getString("raw");
                 JSONObject xmlToJson = XMLUtils.XmlToJson(xmlText);
                 bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
-            } else if(bodyType.equals("WWW_FORM") || bodyType.equals("Form Data") || bodyType.equals("BINARY")) {    //  key-value 类格式
+            } else if (bodyType.equals("WWW_FORM") || bodyType.equals("Form Data") || bodyType.equals("BINARY")) {    //  key-value 类格式
                 JSONObject formData = getformDataProperties(body.getJSONArray("kvs"));
                 bodyInfo = buildformDataSchema(formData);
             }
