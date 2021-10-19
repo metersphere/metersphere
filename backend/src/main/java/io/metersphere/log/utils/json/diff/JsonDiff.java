@@ -176,11 +176,15 @@ public class JsonDiff {
                 if (instruction.oper == Oper.INSERT || instruction.oper == Oper.DELETE) {
                     applyPartial(origEl, instruction, value);
                 } else if (instruction.isIndexed()) {
-                    if (!origEl.isJsonArray()) {
-                        throw new IllegalArgumentException();
-                    }
                     if (value.isJsonPrimitive()) {
                         ((JzonArray) origEl).set(instruction.index, value);
+                    } else if (origEl.isJsonObject()) {
+                        if (value.isJsonPrimitive() || value.isJsonNull()) {
+                            ((JzonObject) origEl).add(key, value);
+                        } else {
+                            JzonElement childEl = ((JzonObject) origEl).get(key);
+                            apply(childEl, value);
+                        }
                     } else {
                         if (((JzonArray) origEl).size() <= instruction.index) {
                             throw new IllegalArgumentException("Wrong index " + instruction.index + " for " + origEl);
