@@ -150,7 +150,6 @@ export default {
     this.result = this.$get('/project/get/' + this.projectId, res => {
       this.project = res.data;
     })
-
     this.result = this.$get('/project/member/size/' + this.projectId, res => {
       this.memberSize = res.data;
     })
@@ -160,11 +159,11 @@ export default {
 
 <style scoped>
 .home-height {
-  /*height: calc(100vh - 100px);*/
   height: 500px;
 }
 
 .project-name {
+  font-weight: bold;
   text-align: center;
   color: var(--primary_color);
   font-size: 18px;
