@@ -537,7 +537,23 @@ export default {
       exception_handle: "异常处理",
       stop_test: "终止测试",
       report_handle: "报文处理"
-    }
+    },
+    info: '项目信息',
+    member: '项目成员',
+    env: '项目环境',
+    file_manage: '文件管理',
+    log: '操作日志',
+    version_manage: '版本管理',
+    app_manage: '应用管理',
+    desc: '项目描述',
+    manage_people: '管理员',
+    creator: '创建人',
+    create_time: '创建时间',
+    member_desc: '添加项目成员以及项目成员管理',
+    env_desc: '项目运行环境以及全局配置',
+    file_desc: 'jar包以及资源文件管理',
+    log_desc: '项目全部操作过程',
+    code_segment_desc: '自定义代码片段'
   },
   member: {
     create: '添加成员',

@@ -7,35 +7,37 @@
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
                  :default-active="pathName">
           <el-menu-item :index="'/project/home'">
-            项目信息
+            {{ $t('project.info') }}
           </el-menu-item>
           <el-menu-item :index="'/project/member'" v-permission="['PROJECT_USER:READ']">
-            项目成员
+            {{ $t('project.member') }}
           </el-menu-item>
 
           <el-menu-item :index="'/project/env'" v-permission="['PROJECT_ENVIRONMENT:READ']"
                         popper-class="submenu">
-            项目环境
+            {{ $t('project.env') }}
           </el-menu-item>
-          <el-menu-item :index="'/project/file/manage'" v-permission="['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE']"
+          <el-menu-item :index="'/project/file/manage'"
+                        v-permission="['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE']"
                         popper-class="submenu">
-            文件管理
+            {{ $t('project.file_manage') }}
           </el-menu-item>
 
           <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
-            操作日志
+            {{ $t('project.log') }}
           </el-menu-item>
 
-          <el-menu-item :index="'/project/code/segment'" popper-class="submenu" v-permission="['PROJECT_CUSTOM_CODE:READ']">
-            自定义代码片段
+          <el-menu-item :index="'/project/code/segment'" popper-class="submenu"
+                        v-permission="['PROJECT_CUSTOM_CODE:READ']">
+            {{ $t('project.code_segment.code_segment') }}
           </el-menu-item>
 
           <el-menu-item :index="'/project/version'" popper-class="submenu" disabled class="hidden-sm-and-down">
-            版本管理
+            {{ $t('project.version_manage') }}
           </el-menu-item>
 
           <el-menu-item :index="'/project/app/manage'" popper-class="submenu" disabled class="hidden-sm-and-down">
-            应用管理
+            {{ $t('project.app_manage') }}
           </el-menu-item>
         </el-menu>
       </el-col>
@@ -163,12 +165,5 @@ export default {
 .deactivation >>> .el-submenu__title {
   border-bottom: white !important;
 }
-
-/*.project-change {*/
-/*  height: 40px;*/
-/*  line-height: 40px;*/
-/*  color: inherit;*/
-/*  margin-left: 20px;*/
-/*}*/
 
 </style>

@@ -537,7 +537,23 @@ export default {
       exception_handle: "異常處理",
       stop_test: "終止測試",
       report_handle: "報文處理"
-    }
+    },
+    info: '項目信息',
+    member: '項目成員',
+    env: '項目環境',
+    file_manage: '文件管理',
+    log: '操作日誌',
+    version_manage: '版本管理',
+    app_manage: '應用管理',
+    desc: '項目描述',
+    manage_people: '管理員',
+    creator: '創建人',
+    create_time: '創建時間',
+    member_desc: '添加項目成員以及項目成員管理',
+    env_desc: '項目運行環境以及全局配置',
+    file_desc: 'jar包以及資源文件管理',
+    log_desc: '項目全部操作過程',
+    code_segment_desc: '自定義代碼片段'
   },
   member: {
     create: '添加成員',

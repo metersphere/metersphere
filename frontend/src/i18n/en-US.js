@@ -533,7 +533,23 @@ export default {
       exception_handle: "Exception handling",
       stop_test: "Terminate the test",
       report_handle: "Message processing"
-    }
+    },
+    info: 'INFO',
+    member: 'Member',
+    env: 'ENVIRONMENT',
+    file_manage: 'FILE',
+    log: 'LOG',
+    version_manage: 'VERSION',
+    app_manage: 'APPLICATION',
+    desc: 'Project Description',
+    manage_people: 'Project Manager',
+    creator: 'Creator',
+    create_time: 'CreateTime',
+    member_desc: 'Project member management',
+    env_desc: 'Project operating environment',
+    file_desc: 'Jar package and resource file management',
+    log_desc: 'The whole operation process of the project',
+    code_segment_desc: 'Custom code snippet'
   },
   member: {
     create: 'Create',

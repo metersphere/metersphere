@@ -7,22 +7,27 @@
             <el-card class="home-height" style="position: relative">
               <div style="position: absolute; top: 50%; left: 50%;transform: translate(-50%, -50%);">
                 <span class="project-name">{{ project.name }}</span>
-                <i class="el-icon-setting project-edit" style="font-size: 16px;margin-left: 10px;" @click="edit"
+                <i class="el-icon-setting project-edit" style="font-size: 14px;margin-left: 8px;" @click="edit"
                    v-permission="['PROJECT_MANAGER:READ+EDIT']"></i>
                 <el-row class="project-item">
-                  <span class="project-item-title">项目描述：</span><span class="project-item-desc">{{project.description}}</span>
+                  <span class="project-item-title">{{ $t('project.desc') }}：</span><span
+                  class="project-item-desc">{{ project.description }}</span>
                 </el-row>
                 <el-row class="project-item">
-                  <span class="project-item-title">管理员：</span><span class="project-item-desc">{{ project.createUser }}</span>
+                  <span class="project-item-title">{{ $t('project.manage_people') }}：</span>
+                  <span class="project-item-desc">{{ project.createUser }}</span>
                 </el-row>
                 <el-row class="project-item">
-                  <span class="project-item-title">创建人：</span><span class="project-item-desc">{{ project.createUser }}</span>
+                  <span class="project-item-title">{{ $t('project.creator') }}：</span>
+                  <span class="project-item-desc">{{ project.createUser }}</span>
                 </el-row>
                 <el-row class="project-item">
-                  <span class="project-item-title">项目成员：</span><span class="number">{{ memberSize }}</span>
+                  <span class="project-item-title">{{ $t('project.member') }}：</span>
+                  <span class="number">{{ memberSize }}</span>
                 </el-row>
                 <el-row class="project-item">
-                  <span class="project-item-title">创建时间：</span><span class="project-item-desc">{{ project.createTime | timestampFormatDate }}</span>
+                  <span class="project-item-title">{{ $t('project.create_time') }}：</span><span
+                  class="project-item-desc">{{ project.createTime | timestampFormatDate }}</span>
                 </el-row>
               </div>
             </el-card>
@@ -32,47 +37,61 @@
               <div style="position: absolute; top: 50%; left: 50%;transform: translate(-50%, -50%);">
                 <div class="div-item">
                   <div style="float: left">
-                    <i class="el-icon-user-solid icon-color" @click="click('/project/member', ['PROJECT_USER:READ'])"></i>
+                    <i class="el-icon-user-solid icon-color"
+                       @click="click('/project/member', ['PROJECT_USER:READ'])"></i>
                   </div>
                   <div style="float: left">
-                    <span class="title" @click="click('/project/member', ['PROJECT_USER:READ'])">项目成员</span><br/>
-                    <span class="desc">添加项目成员以及项目成员管理</span>
-                  </div>
-                </div>
-                <div class="div-item">
-                  <div style="float: left">
-                    <i class="el-icon-s-platform icon-color" @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])"></i>
-                  </div>
-                  <div style="float: left">
-                    <span class="title" @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])">项目环境</span><br/>
-                    <span class="desc">项目运行环境以及全局配置</span>
+                    <span class="title" @click="click('/project/member', ['PROJECT_USER:READ'])">
+                      {{ $t('project.member') }}
+                    </span><br/>
+                    <span class="desc">{{ $t('project.member_desc') }}</span>
                   </div>
                 </div>
                 <div class="div-item">
                   <div style="float: left">
-                    <i class="el-icon-s-cooperation icon-color" @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])"></i>
+                    <i class="el-icon-s-platform icon-color"
+                       @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])"></i>
                   </div>
                   <div style="float: left">
-                    <span class="title" @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])">文件管理</span><br/>
-                    <span class="desc">jar包以及资源文件管理</span>
-                  </div>
-                </div>
-                <div class="div-item">
-                  <div style="float: left">
-                    <i class="el-icon-s-flag icon-color" @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])"></i>
-                  </div>
-                  <div style="float: left">
-                    <span class="title" @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])">操作记录</span><br/>
-                    <span class="desc">项目全部操作过程</span>
+                    <span class="title" @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])">
+                      {{ $t('project.env') }}
+                    </span><br/>
+                    <span class="desc">{{ $t('project.env_desc') }}</span>
                   </div>
                 </div>
                 <div class="div-item">
                   <div style="float: left">
-                    <i class="el-icon-document icon-color" @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])"></i>
+                    <i class="el-icon-s-cooperation icon-color"
+                       @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])"></i>
                   </div>
                   <div style="float: left">
-                    <span class="title" @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])">自定义代码片段</span><br/>
-                    <span class="desc">自定义代码片段</span>
+                    <span class="title"
+                          @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])">
+                      {{ $t('project.file_manage') }}</span><br/>
+                    <span class="desc">{{ $t('project.file_desc') }}</span>
+                  </div>
+                </div>
+                <div class="div-item">
+                  <div style="float: left">
+                    <i class="el-icon-s-flag icon-color"
+                       @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])"></i>
+                  </div>
+                  <div style="float: left">
+                    <span class="title" @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])">
+                      {{ $t('project.log') }}</span><br/>
+                    <span class="desc">{{ $t('project.log_desc') }}</span>
+                  </div>
+                </div>
+                <div class="div-item">
+                  <div style="float: left">
+                    <i class="el-icon-document icon-color"
+                       @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])"></i>
+                  </div>
+                  <div style="float: left">
+                    <span class="title"
+                          @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])">
+                      {{ $t('project.code_segment.code_segment') }}</span><br/>
+                    <span class="desc">{{ $t('project.code_segment_desc') }}</span>
                   </div>
                 </div>
               </div>
@@ -92,9 +111,10 @@ import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
 import ProjectList from "@/business/components/project/menu/ProjectList";
+
 export default {
   name: "ProjectHome",
-  components: {MsMainContainer, MsContainer,ProjectList},
+  components: {MsMainContainer, MsContainer, ProjectList},
   data() {
     return {
       project: {
@@ -147,7 +167,7 @@ export default {
 .project-name {
   text-align: center;
   color: var(--primary_color);
-  font-size: 20px;
+  font-size: 18px;
   user-select: none;
 }
 
@@ -184,7 +204,7 @@ export default {
 }
 
 .number {
-  font-size: 18px;
+  font-size: 15px;
   color: var(--primary_color);
 }
 
