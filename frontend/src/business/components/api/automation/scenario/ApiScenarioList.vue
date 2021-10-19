@@ -446,7 +446,8 @@ export default {
         {
           name: "生成依赖关系",
           handleClick: this.generateGraph,
-          permissions: ['PROJECT_API_SCENARIO:READ+MOVE_BATCH']
+          isXPack: true,
+          permissions: ['PROJECT_API_SCENARIO:READ+EDIT']
         },
         {
           name: this.$t('api_test.automation.batch_add_plan'),
@@ -492,9 +493,14 @@ export default {
     };
   },
   created() {
-    if (!hasLicense()) {
-      this.unTrashButtons.splice(5,1);
-    }
+    // if (!hasLicense()) {
+    //   for (let i = 0; i < this.unTrashButtons.length; i++) {
+    //     if (this.unTrashButtons[i].handleClick === this.generateGraph) {
+    //       this.unTrashButtons.splice(i,1);
+    //       break;
+    //     }
+    //   }
+    // }
     scenario.$on('hide', id => {
       this.hideStopBtn(id);
     });

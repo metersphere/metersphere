@@ -32,6 +32,7 @@
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="request" jdbcType="LONGVARCHAR" property="request" />
     <result column="response" jdbcType="LONGVARCHAR" property="response" />
+    <result column="remark" jdbcType="LONGVARCHAR" property="remark" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -92,13 +93,13 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, `method`, protocol, `path`, module_path, environment_id, 
-    schedule, `status`, module_id, user_id, create_time, update_time, num, tags, original_state, 
-    create_user, case_total, case_status, case_passing_rate, delete_time, delete_user_id, 
+    id, project_id, `name`, `method`, protocol, `path`, module_path, environment_id,
+    schedule, `status`, module_id, user_id, create_time, update_time, num, tags, original_state,
+    create_user, case_total, case_status, case_passing_rate, delete_time, delete_user_id,
     follow_people, `order`
   </sql>
   <sql id="Blob_Column_List">
-    description, request, response
+    description, request, response, remark
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiDefinitionExample" resultMap="ResultMapWithBLOBs">
     select
@@ -131,7 +132,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select 
+    select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -149,26 +150,26 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
-    insert into api_definition (id, project_id, `name`, 
-      `method`, protocol, `path`, 
-      module_path, environment_id, schedule, 
-      `status`, module_id, user_id, 
-      create_time, update_time, num, 
-      tags, original_state, create_user, 
-      case_total, case_status, case_passing_rate, 
-      delete_time, delete_user_id, follow_people, 
-      `order`, description, request, 
-      response)
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{method,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
-      #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{schedule,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{num,jdbcType=INTEGER}, 
-      #{tags,jdbcType=VARCHAR}, #{originalState,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{caseTotal,jdbcType=VARCHAR}, #{caseStatus,jdbcType=VARCHAR}, #{casePassingRate,jdbcType=VARCHAR}, 
-      #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, 
-      #{order,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, 
-      #{response,jdbcType=LONGVARCHAR})
+    insert into api_definition (id, project_id, `name`,
+      `method`, protocol, `path`,
+      module_path, environment_id, schedule,
+      `status`, module_id, user_id,
+      create_time, update_time, num,
+      tags, original_state, create_user,
+      case_total, case_status, case_passing_rate,
+      delete_time, delete_user_id, follow_people,
+      `order`, description, request,
+      response, remark)
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+      #{method,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR},
+      #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{schedule,jdbcType=VARCHAR},
+      #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR},
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{num,jdbcType=INTEGER},
+      #{tags,jdbcType=VARCHAR}, #{originalState,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR},
+      #{caseTotal,jdbcType=VARCHAR}, #{caseStatus,jdbcType=VARCHAR}, #{casePassingRate,jdbcType=VARCHAR},
+      #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR},
+      #{order,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR},
+      #{response,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     insert into api_definition
@@ -257,6 +258,9 @@
       <if test="response != null">
         response,
       </if>
+      <if test="remark != null">
+        remark,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -342,6 +346,9 @@
       </if>
       <if test="response != null">
         #{response,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -438,6 +445,9 @@
       <if test="record.response != null">
         response = #{record.response,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -472,7 +482,8 @@
       `order` = #{record.order,jdbcType=BIGINT},
       description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR},
-      response = #{record.response,jdbcType=LONGVARCHAR}
+      response = #{record.response,jdbcType=LONGVARCHAR},
+      remark = #{record.remark,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -592,6 +603,9 @@
       <if test="response != null">
         response = #{response,jdbcType=LONGVARCHAR},
       </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -623,7 +637,8 @@
       `order` = #{order,jdbcType=BIGINT},
       description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR},
-      response = #{response,jdbcType=LONGVARCHAR}
+      response = #{response,jdbcType=LONGVARCHAR},
+      remark = #{remark,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiDefinition">

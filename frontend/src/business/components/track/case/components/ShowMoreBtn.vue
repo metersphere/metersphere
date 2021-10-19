@@ -9,16 +9,18 @@
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
         <div class="show-more-btn-title">{{$t('test_track.case.batch_handle', [size])}}</div>
-        <el-dropdown-item v-for="(btn,index) in buttons" :disabled="isDisable(btn)" :key="index" @click.native.stop="click(btn)">
-          {{btn.name}}
-        </el-dropdown-item>
+        <span  v-for="(btn,index) in buttons" :key="index">
+          <el-dropdown-item :disabled="isDisable(btn)" v-if="isXPack(btn)"  @click.native.stop="click(btn)">
+           {{btn.name}}
+          </el-dropdown-item>
+        </span>
       </el-dropdown-menu>
     </el-dropdown>
   </div>
 </template>
 
 <script>
-  import {hasPermissions} from "@/common/js/utils";
+import {hasLicense, hasPermissions} from "@/common/js/utils";
 
   export default {
     name: "ShowMoreBtn",
@@ -53,6 +55,13 @@
           return !hasPermissions(...item.permissions);
         }
         return false;
+      },
+      isXPack(item) {
+        if (item.isXPack) {
+          return hasLicense();
+        } else {
+          return true;
+        }
       }
     }
   }

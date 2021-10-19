@@ -494,6 +494,7 @@ export default {
         url: "",
         protocol: this.currentProtocol,
         environmentId: "",
+        remark: "",
         moduleId: 'default-module',
         modulePath: "/" + this.$t("commons.module_title")
       };

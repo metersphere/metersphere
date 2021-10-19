@@ -33,6 +33,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -43,6 +44,7 @@ import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.FileService;
+import io.metersphere.service.RelationshipEdgeService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
@@ -115,6 +117,8 @@ public class ApiDefinitionService {
     private NoticeSendService noticeSendService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private RelationshipEdgeService relationshipEdgeService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600);
 
@@ -444,6 +448,7 @@ public class ApiDefinitionService {
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
+        test.setRemark(request.getRemark());
         test.setFollowPeople(request.getFollowPeople());
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
@@ -482,6 +487,7 @@ public class ApiDefinitionService {
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
         test.setFollowPeople(request.getFollowPeople());
+        test.setRemark(request.getRemark());
         test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiDefinitionMapper::getLastOrder));
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
@@ -1559,5 +1565,42 @@ public class ApiDefinitionService {
 
     public long countQuotedApiByProjectId(String projectId) {
         return extApiDefinitionMapper.countQuotedApiByProjectId(projectId);
+    }
+
+    public List<RelationshipEdgeDTO> getRelationshipApi(String id, String relationshipType) {
+        List<RelationshipEdge> relationshipEdges= relationshipEdgeService.getRelationshipEdgeByType(id, relationshipType);
+        List<String> ids = relationshipEdgeService.getRelationIdsByType(relationshipType, relationshipEdges);
+
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+            Map<String, ApiDefinition> apiMap = apiDefinitions.stream().collect(Collectors.toMap(ApiDefinition::getId, i -> i));
+            List<RelationshipEdgeDTO> results = new ArrayList<>();
+            for (RelationshipEdge relationshipEdge : relationshipEdges) {
+                RelationshipEdgeDTO relationshipEdgeDTO = new RelationshipEdgeDTO();
+                BeanUtils.copyBean(relationshipEdgeDTO, relationshipEdge);
+                ApiDefinition apiDefinition;
+                if (StringUtils.equals(relationshipType, "PRE")) {
+                    apiDefinition = apiMap.get(relationshipEdge.getTargetId());
+                } else {
+                    apiDefinition = apiMap.get(relationshipEdge.getSourceId());
+                }
+                relationshipEdgeDTO.setTargetName(apiDefinition.getName());
+                relationshipEdgeDTO.setCreator(apiDefinition.getCreateUser());
+                relationshipEdgeDTO.setTargetNum(apiDefinition.getNum());
+                results.add(relationshipEdgeDTO);
+            }
+            return results;
+        }
+        return new ArrayList<>();
+    }
+
+    public List<ApiDefinitionResult> getRelationshipRelateList(ApiDefinitionRequest request) {
+        request = this.initRequest(request, true, true);
+        List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
+        request.setNotInIds(relationshipIds);
+        request.setId(null); // 去掉id的查询条件
+        return extApiDefinitionMapper.list(request);
     }
 }

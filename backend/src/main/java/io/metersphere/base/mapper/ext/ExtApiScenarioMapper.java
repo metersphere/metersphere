@@ -6,6 +6,7 @@ import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioExampleWithOperation;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.dto.RelationshipGraphData;
 import org.apache.ibatis.annotations.Param;
 
@@ -52,7 +53,7 @@ public interface ExtApiScenarioMapper {
 
     ApiScenario getNextNum(@Param("projectId") String projectId);
 
-    List<String> selectIdsByQuery(@Param("request") ApiScenarioRequest request);
+    List<String> selectIdsByQuery(@Param("request") BaseQueryRequest request);
 
     void updateCustomNumByProjectId(@Param("projectId") String projectId);
 

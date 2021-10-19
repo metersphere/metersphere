@@ -319,6 +319,12 @@ export default {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatchToGc,
           permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
+        },
+        {
+          name: this.$t('生成依赖关系'),
+          isXPack: true,
+          handleClick: this.generateGraph,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
         }
       ],
       trashButtons: [

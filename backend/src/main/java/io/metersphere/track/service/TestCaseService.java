@@ -1959,29 +1959,15 @@ public class TestCaseService {
 
     public List<TestCase> getRelationshipRelateList(QueryTestCaseRequest request) {
         setDefaultOrder(request);
-        List<RelationshipEdge> sourceRelationshipEdges = relationshipEdgeService.getBySourceId(request.getId());
-        List<RelationshipEdge> targetRelationshipEdges = relationshipEdgeService.getByTargetId(request.getId());
-        List<String> ids = sourceRelationshipEdges.stream().map(RelationshipEdge::getTargetId).collect(Collectors.toList());
-        ids.addAll(targetRelationshipEdges.stream().map(RelationshipEdge::getTargetId).collect(Collectors.toList()));
-        ids.add(request.getId());
-        request.setTestCaseContainIds(ids);
+        List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
+        request.setTestCaseContainIds(relationshipIds);
         return extTestCaseMapper.getTestCase(request);
     }
 
     public List<RelationshipEdgeDTO> getRelationshipCase(String id, String relationshipType) {
-        List<RelationshipEdge> relationshipEdges;
-        List<String> ids;
-        if (StringUtils.equals(relationshipType, "PRE")) {
-            relationshipEdges = relationshipEdgeService.getBySourceId(id);
-            ids = relationshipEdges.stream()
-                    .map(RelationshipEdge::getTargetId)
-                    .collect(Collectors.toList());
-        } else {
-            relationshipEdges = relationshipEdgeService.getByTargetId(id);
-            ids = relationshipEdges.stream()
-                    .map(RelationshipEdge::getSourceId)
-                    .collect(Collectors.toList());
-        }
+
+        List<RelationshipEdge> relationshipEdges= relationshipEdgeService.getRelationshipEdgeByType(id, relationshipType);
+        List<String> ids = relationshipEdgeService.getRelationIdsByType(relationshipType, relationshipEdges);
 
         if (CollectionUtils.isNotEmpty(ids)) {
             TestCaseExample example = new TestCaseExample();
