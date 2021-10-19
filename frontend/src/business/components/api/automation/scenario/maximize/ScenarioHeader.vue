@@ -1,40 +1,50 @@
 <template>
   <div class="ms-header">
-    <div class="ms-div" v-loading="loading" @click="showAll">
-      <!-- 调试部分 -->
-      <el-row class="ms-header-margin">
-        <el-col :span="8">
-          <el-tooltip placement="top" :content="currentScenario.name">
-            <span class="ms-scenario-name">{{ currentScenario.name }}</span>
-          </el-tooltip>
-        </el-col>
-        <el-col :span="8">
-          {{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}
-        </el-col>
-        <el-col :span="8">
-          <el-link class="head" @click="showScenarioParameters">{{ $t('api_test.automation.scenario_total') }}</el-link>
-          ：{{ varSize }}
-        </el-col>
-      </el-row>
-    </div>
-    <div class="ms-header-right">
-      <el-checkbox v-model="cookieShare" @change="setCookieShare">共享cookie</el-checkbox>
-      <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">{{ $t('commons.failure_continues') }}</el-checkbox>
-      <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1"
-                   :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                   @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right"
-                   :result="envResult"/>
+    <el-row>
+      <el-col :span="10">
+        <div class="ms-div" v-loading="loading" @click="showAll">
+          <!-- 调试部分 -->
+          <el-row class="ms-header-margin">
+            <el-col :span="8">
+              <el-tooltip placement="top" :content="currentScenario.name">
+                <span class="ms-scenario-name">{{ currentScenario.name }}</span>
+              </el-tooltip>
+            </el-col>
+            <el-col :span="8">
+              {{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}
+            </el-col>
+            <el-col :span="8">
+              <el-link class="head" @click="showScenarioParameters">{{ $t('api_test.automation.scenario_total') }}</el-link>
+              ：{{ varSize }}
+            </el-col>
+          </el-row>
+        </div>
 
-      <el-dropdown split-button type="primary" @click="runDebug" style="margin-right: 10px" size="mini" @command="handleCommand" v-if="!debug">
-        {{ $t('api_test.request.debug') }}
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-      <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
+      </el-col>
+      <el-col :span="14">
+        <div class="ms-header-right">
+          <el-checkbox v-model="cookieShare" @change="setCookieShare">共享cookie</el-checkbox>
+          <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">{{ $t('commons.failure_continues') }}</el-checkbox>
+          <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1"
+                       :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                       @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right"
+                       :result="envResult"/>
 
-      <font-awesome-icon class="ms-alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
-    </div>
+          <el-dropdown split-button type="primary" @click="runDebug" style="margin-right: 10px" size="mini" @command="handleCommand" v-if="!debug">
+            {{ $t('api_test.request.debug') }}
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
+
+          <font-awesome-icon class="ms-alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
+        </div>
+
+      </el-col>
+    </el-row>
+
+
   </div>
 </template>
 
@@ -82,7 +92,7 @@ export default {
     execDebug() {
       this.debug = false;
     },
-    clearMessage(){
+    clearMessage() {
       this.debug = false;
       this.debugLoading = false;
     }
@@ -201,7 +211,6 @@ export default {
 
 .ms-header-right {
   float: right;
-  width: 520px;
   margin-top: 4px;
   z-index: 1;
 }
