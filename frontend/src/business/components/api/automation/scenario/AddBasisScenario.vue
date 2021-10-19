@@ -101,7 +101,8 @@
               this.$emit('saveAsEdit', this.scenarioForm);
               this.visible = false;
             } else {
-              saveScenario(path, this.scenarioForm, [], () => {
+              saveScenario(path, this.scenarioForm, [], this,(response) => {
+                this.$success(this.$t('commons.save_success'));
                 this.visible = false;
                 this.$emit('refresh');
               });
