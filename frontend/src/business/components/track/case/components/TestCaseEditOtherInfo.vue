@@ -40,7 +40,7 @@
     </el-tab-pane>
 
     <el-tab-pane :label="$t('依赖关系')" name="relationship">
-      <test-case-dependencies :case-id="caseId" ref="relationship"/>
+      <dependencies-list :resource-id="caseId" resource-type="TEST_CASE" ref="relationship"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
@@ -82,12 +82,12 @@ import TestCaseAttachment from "@/business/components/track/case/components/Test
 import TestCaseIssueRelate from "@/business/components/track/case/components/TestCaseIssueRelate";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import TestCaseTestRelate from "@/business/components/track/case/components/TestCaseTestRelate";
-import TestCaseDependencies from "@/business/components/track/case/components/TestCaseDependencies";
+import DependenciesList from "@/business/components/common/components/graph/DependenciesList";
 
 export default {
   name: "TestCaseEditOtherInfo",
   components: {
-    TestCaseDependencies,
+    DependenciesList,
     TestCaseTestRelate,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
   props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId'],

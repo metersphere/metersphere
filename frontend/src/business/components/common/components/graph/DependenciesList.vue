@@ -1,11 +1,11 @@
 <template>
   <div class="dependencies-container">
-    <el-main>
+    <el-main v-xpack>
       <i class="el-icon-view" @click="openGraph"></i>
     </el-main>
 
-    <test-case-relationship-list :title="'前置对象'" relationship-type="PRE" :case-id="caseId" ref="preRelationshipList"/>
-    <test-case-relationship-list :title="'后置对象'" relationship-type="POST" :case-id="caseId" ref="postRelationshipList"/>
+    <relationship-list :title="'前置对象'" relationship-type="PRE" :resource-id="resourceId" :resource-type="resourceType" ref="preRelationshipList"/>
+    <relationship-list :title="'后置对象'" relationship-type="POST" :resource-id="resourceId" :resource-type="resourceType" ref="postRelationshipList"/>
 
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
 
@@ -13,14 +13,15 @@
 </template>
 
 <script>
-import TestCaseRelationshipList from "@/business/components/track/case/components/TestCaseRelationshipList";
 import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
 import {getRelationshipGraph} from "@/network/graph";
+import RelationshipList from "@/business/components/common/components/graph/RelationshipList";
 export default {
-  name: "TestCaseDependencies",
-  components: {RelationshipGraphDrawer, TestCaseRelationshipList},
+  name: "DependenciesList",
+  components: {RelationshipList, RelationshipGraphDrawer},
   props: [
-    'caseId'
+    'resourceId',
+    'resourceType'
   ],
   data() {
     return {
@@ -33,7 +34,7 @@ export default {
       this.$refs.postRelationshipList.getTableData();
     },
     openGraph() {
-      getRelationshipGraph(this.caseId, 'TEST_CASE',  (data) => {
+      getRelationshipGraph(this.resourceId, this.resourceType,  (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
       });

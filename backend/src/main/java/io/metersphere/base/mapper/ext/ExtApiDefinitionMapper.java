@@ -6,13 +6,14 @@ import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
 import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.base.domain.ApiDefinitionExample;
 import io.metersphere.base.domain.ApiDefinitionExampleWithOperation;
 import io.metersphere.controller.request.BaseQueryRequest;
+import io.metersphere.dto.RelationshipGraphData;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface ExtApiDefinitionMapper {
     List<ApiSwaggerUrlDTO> selectScheduleList(@Param("projectId") String projectId);
@@ -68,4 +69,6 @@ public interface ExtApiDefinitionMapper {
     Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
     long countQuotedApiByProjectId(String projectId);
+
+    List<RelationshipGraphData.Node> getForGraph(@Param("ids") Set<String> ids);
 }

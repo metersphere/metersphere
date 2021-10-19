@@ -81,11 +81,6 @@ export default {
           label: this.$t('api_test.export_config'),
           callback: this.handleExport,
           permissions: ['PROJECT_TRACK_CASE:READ+EXPORT']
-        },
-        {
-          label: this.$t('查看依赖'),
-          callback: this.openGraph,
-          // permissions: ['PROJECT_TRACK_CASE:READ+EXPORT']
         }
       ]
     };
@@ -114,9 +109,6 @@ export default {
     },
   },
   methods: {
-    openGraph() {
-      this.$emit('openGraph');
-    },
     addTestCase(){
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));

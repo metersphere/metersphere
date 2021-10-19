@@ -11,14 +11,7 @@
       @refresh="getTableData">
 
       <ms-table-column
-        prop="targetCustomNum"
-        v-if="isCustomNum"
-        :label="$t('commons.id')"
-        min-width="80"/>
-
-      <ms-table-column
         prop="targetNum"
-        v-else
         :label="$t('commons.id')"
         min-width="80"/>
 
@@ -35,8 +28,8 @@
 
     </ms-table>
 
-    <relationship-functional-relevance
-      :case-id="caseId"
+    <api-relationship-relevance
+      :api-definition-id="apiDefinitionId"
       @refresh="getTableData"
       :relationship-type="relationshipType"
       ref="testCaseRelevance"/>
@@ -50,10 +43,12 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsTableSearchBar from "@/business/components/common/components/MsTableSearchBar";
 import RelationshipFunctionalRelevance
   from "@/business/components/track/case/components/RelationshipFunctionalRelevance";
-import {getRelationshipCase} from "@/network/testCase";
+import {getRelationshipApi} from "@/network/api";
+import ApiRelationshipRelevance
+  from "@/business/components/api/definition/components/complete/ApiRelationshipRelevance";
 export default {
-  name: "TestCaseRelationshipList",
-  components: {RelationshipFunctionalRelevance, MsTableSearchBar, MsTableColumn, MsTable},
+  name: "ApiRelationshipList",
+  components: {ApiRelationshipRelevance, RelationshipFunctionalRelevance, MsTableSearchBar, MsTableColumn, MsTable},
   data() {
     return {
       result: {},
@@ -71,18 +66,13 @@ export default {
     }
   },
   props: {
-    caseId: String,
+    apiDefinitionId: String,
     readOnly: Boolean,
     relationshipType: String,
   },
-  computed: {
-    isCustomNum() {
-      return this.$store.state.currentProjectIsCustomNum;
-    },
-  },
   methods: {
     getTableData() {
-      getRelationshipCase(this.caseId, this.relationshipType, (data) => {
+      getRelationshipApi(this.apiDefinitionId, this.relationshipType, (data) => {
         this.data = data;
       });
     },

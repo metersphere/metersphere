@@ -172,7 +172,7 @@ public class ApiAutomationService {
 
     public List<ApiScenarioWithBLOBs> listAll(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         List<ApiScenarioWithBLOBs> list = extApiScenarioMapper.selectIds(request.getIds());
         return list;
     }
@@ -183,7 +183,7 @@ public class ApiAutomationService {
 
     public List<String> idAll(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         return request.getIds();
     }
 
@@ -1004,7 +1004,7 @@ public class ApiAutomationService {
      */
     public String modeRun(RunScenarioRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
 
         List<String> ids = request.getIds();
         // 生成集成报告
@@ -1454,7 +1454,7 @@ public class ApiAutomationService {
      */
     public String execute(RunScenarioRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         List<String> ids = request.getIds();
         //检查是否有正在执行中的情景
 //        this.checkScenarioIsRunning(ids);
@@ -1770,7 +1770,7 @@ public class ApiAutomationService {
     public void bathEdit(ApiScenarioBatchRequest request) {
 
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
 
         if (StringUtils.isNotBlank(request.getEnvironmentId())) {
             bathEditEnv(request);
@@ -2027,7 +2027,7 @@ public class ApiAutomationService {
 
     private List<ApiScenarioWithBLOBs> getExportResult(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(request.getIds());
         List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = apiScenarioMapper.selectByExampleWithBLOBs(example);
@@ -2145,14 +2145,14 @@ public class ApiAutomationService {
 
     public void removeToGcByBatch(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
 
         this.removeToGc(request.getIds());
     }
 
     public void deleteBatchByCondition(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
 
         this.deleteBatch(request.getIds());
     }
@@ -2367,7 +2367,7 @@ public class ApiAutomationService {
             request.setIds(new ArrayList<>(0));
         }
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
 
         if (!request.getIds().isEmpty()) {
             ApiScenarioExample example = new ApiScenarioExample();
@@ -2400,7 +2400,7 @@ public class ApiAutomationService {
 
     public List<ApiScenarioWithBLOBs> listWithIds(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         List<ApiScenarioWithBLOBs> list = extApiScenarioMapper.listWithIds(request.getIds());
         return list;
     }
@@ -2470,7 +2470,7 @@ public class ApiAutomationService {
 
     public List<JmxInfoDTO> batchGenPerformanceTestJmx(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         List<JmxInfoDTO> returnList = new ArrayList<>();
 
         List<String> ids = request.getIds();
@@ -2495,7 +2495,7 @@ public class ApiAutomationService {
     public BatchOperaResponse batchCopy(ApiScenarioBatchRequest batchRequest) {
 
         ServiceUtils.getSelectAllIds(batchRequest, batchRequest.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(batchRequest.getIds());
         StringBuffer stringBuffer = new StringBuffer();
         for (ApiScenarioWithBLOBs apiModel : apiScenarioList) {
@@ -2555,7 +2555,7 @@ public class ApiAutomationService {
 
     public DeleteCheckResult checkBeforeDelete(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         List<String> deleteIds = request.getIds();
         DeleteCheckResult result = new DeleteCheckResult();
         List<String> checkMsgList = new ArrayList<>();

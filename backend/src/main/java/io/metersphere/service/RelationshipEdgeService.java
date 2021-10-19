@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.RelationshipEdgeMapper;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.RelationshipEdgeRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -17,6 +18,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author jianxingChen
@@ -55,6 +57,28 @@ public class RelationshipEdgeService {
         example.or(example.createCriteria()
                 .andTargetIdIn(sourceIdOrTargetIds));
         relationshipEdgeMapper.deleteByExample(example);
+    }
+
+    public List<RelationshipEdge> getRelationshipEdgeByType(String id, String relationshipType) {
+        if (StringUtils.equals(relationshipType, "PRE")) {
+            return getBySourceId(id);
+        }  else if (StringUtils.equals(relationshipType, "POST")) {
+            return getByTargetId(id);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<String> getRelationIdsByType(String relationshipType, List<RelationshipEdge> relationshipEdges) {
+        if (StringUtils.equals(relationshipType, "PRE")) {
+            return relationshipEdges.stream()
+                    .map(RelationshipEdge::getTargetId)
+                    .collect(Collectors.toList());
+        }  else if (StringUtils.equals(relationshipType, "POST")) {
+            return relationshipEdges.stream()
+                    .map(RelationshipEdge::getSourceId)
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 
     public List<RelationshipEdge> getBySourceId(String sourceId) {
@@ -138,6 +162,20 @@ public class RelationshipEdgeService {
             return relationshipEdges.get(0).getGraphId();
         }
         return graphId;
+    }
+
+    /**
+     * 给定一个节点获取跟他关联的所有节点的id
+     * @param nodeId
+     * @return
+     */
+    public List<String> getRelationshipIds(String nodeId) {
+        List<RelationshipEdge> sourceRelationshipEdges = getBySourceId(nodeId);
+        List<RelationshipEdge> targetRelationshipEdges = getByTargetId(nodeId);
+        List<String> ids = sourceRelationshipEdges.stream().map(RelationshipEdge::getTargetId).collect(Collectors.toList());
+        ids.addAll(targetRelationshipEdges.stream().map(RelationshipEdge::getSourceId).collect(Collectors.toList()));
+        ids.add(nodeId);
+        return ids;
     }
 
 }

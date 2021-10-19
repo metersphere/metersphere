@@ -180,7 +180,10 @@
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :data-count="$refs.table ? $refs.table.selectDataCounts : 0" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
-    <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove"></case-batch-move>
+    <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove"/>
+
+    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
+
   </div>
 
 </template>
@@ -215,11 +218,15 @@ import {
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {editApiDefinitionOrder} from "@/network/api";
+import {getProtocolFilter} from "@/business/components/api/definition/api-definition";
+import {getGraphByCondition} from "@/network/graph";
+import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
 
 
 export default {
   name: "ApiList",
   components: {
+    RelationshipGraphDrawer,
     HeaderLabelOperate,
     CaseBatchMove,
     ApiStatus,
@@ -253,6 +260,7 @@ export default {
       moduleId: "",
       enableOrderDrag: true,
       selectDataRange: "all",
+      graphData: [],
       deletePath: "/test/case/delete",
       buttons: [
         {
@@ -268,6 +276,12 @@ export default {
         {
           name: this.$t('api_test.definition.request.batch_move'),
           handleClick: this.handleBatchMove,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
+        },
+        {
+          name: this.$t('生成依赖关系'),
+          isXPack: true,
+          handleClick: this.generateGraph,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
         }
       ],
@@ -488,6 +502,12 @@ export default {
         }
       });
     },
+    generateGraph() {
+      getGraphByCondition('API', buildBatchParam(this, this.$refs.table.selectIds),(data) => {
+        this.graphData = data;
+        this.$refs.relationshipGraph.open();
+      });
+    },
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
     },
@@ -543,7 +563,7 @@ export default {
       }
       if (this.condition.projectId) {
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
-          this.genProtocalFilter(this.condition.protocol);
+          getProtocolFilter(this.condition.protocol);
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
           this.tableData.forEach(item => {
@@ -555,48 +575,6 @@ export default {
       }
       if (this.needRefreshModule()) {
         this.$emit("refreshTree");
-      }
-    },
-    genProtocalFilter(protocalType) {
-      if (protocalType === "HTTP") {
-        this.methodFilters = [
-          {text: 'GET', value: 'GET'},
-          {text: 'POST', value: 'POST'},
-          {text: 'PUT', value: 'PUT'},
-          {text: 'PATCH', value: 'PATCH'},
-          {text: 'DELETE', value: 'DELETE'},
-          {text: 'OPTIONS', value: 'OPTIONS'},
-          {text: 'HEAD', value: 'HEAD'},
-          {text: 'CONNECT', value: 'CONNECT'},
-        ];
-      } else if (protocalType === "TCP") {
-        this.methodFilters = [
-          {text: 'TCP', value: 'TCP'},
-        ];
-      } else if (protocalType === "SQL") {
-        this.methodFilters = [
-          {text: 'SQL', value: 'SQL'},
-        ];
-      } else if (protocalType === "DUBBO") {
-        this.methodFilters = [
-          {text: 'DUBBO', value: 'DUBBO'},
-          {text: 'dubbo://', value: 'dubbo://'},
-        ];
-      } else {
-        this.methodFilters = [
-          {text: 'GET', value: 'GET'},
-          {text: 'POST', value: 'POST'},
-          {text: 'PUT', value: 'PUT'},
-          {text: 'PATCH', value: 'PATCH'},
-          {text: 'DELETE', value: 'DELETE'},
-          {text: 'OPTIONS', value: 'OPTIONS'},
-          {text: 'HEAD', value: 'HEAD'},
-          {text: 'CONNECT', value: 'CONNECT'},
-          {text: 'DUBBO', value: 'DUBBO'},
-          {text: 'dubbo://', value: 'dubbo://'},
-          {text: 'SQL', value: 'SQL'},
-          {text: 'TCP', value: 'TCP'},
-        ];
       }
     },
     getMaintainerOptions() {

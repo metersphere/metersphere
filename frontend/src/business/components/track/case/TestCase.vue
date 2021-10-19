@@ -8,7 +8,6 @@
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
         @saveAsEdit="editTestCase"
-        @openGraph="openGraph"
         :show-operator="true"
         @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
@@ -323,9 +322,6 @@ export default {
         return;
       }
       this.$refs.testCaseList.exportTestCase(type);
-    },
-    openGraph() {
-      this.$refs.testCaseList.generateGraph();
     },
     addListener() {
       let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index

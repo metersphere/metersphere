@@ -25,6 +25,11 @@ public class BaseQueryRequest {
     private List<String> nodeIds;
 
     /**
+     * 排除哪些id
+     */
+    private List<String> notInIds;
+
+    /**
      * selectAll：选择的数据是否是全部数据（全部数据是不受分页影响的数据）
      * filters: 数据状态
      * name：如果是全部数据，那么表格如果历经查询，查询参数是什么

@@ -238,7 +238,7 @@
         api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
         api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, project.name as
-        project_name, user.name as user_name,deleteUser.name AS delete_user,api_definition.delete_time
+        project_name, user.name as user_name,deleteUser.name AS delete_user,api_definition.delete_time, api_definition.remark
         from api_definition
         left join project on api_definition.project_id = project.id
         left join user on api_definition.user_id = user.id
@@ -602,6 +602,12 @@
             <if test="request.moduleId != null">
                 AND api_definition.module_id = #{request.moduleId}
             </if>
+            <if test="request.notInIds != null and request.notInIds.size() > 0">
+                and api_definition.id not in
+                <foreach collection="request.notInIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
             <choose>
                 <when test="request.moduleIds != null and request.moduleIds.size() > 0">
                     AND api_definition.module_id in
@@ -666,6 +672,15 @@
                         SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash'
                     )
             )
+    </select>
+    <select id="getForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
+        select id,num,`name`
+        from api_definition
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and api_definition.status != 'Trash';
     </select>
 
 </mapper>
