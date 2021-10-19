@@ -1399,7 +1399,6 @@ public class UserService {
         if (project == null) {
             return;
         }
-        Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
         SessionUser user = SessionUtils.getUser();
         user.setLastProjectId(project.getId());
         user.setLastWorkspaceId(project.getWorkspaceId());
