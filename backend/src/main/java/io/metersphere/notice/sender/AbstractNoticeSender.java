@@ -114,8 +114,11 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     private String handleTime(String k, Map<String, Object> context) {
         String value = context.get(k).toString();
         if (StringUtils.endsWithIgnoreCase(k, "Time")) {
-            long time = Long.parseLong(value);
-            value = DateFormatUtils.format(time, "yyyy-MM-dd HH:mm:ss");
+            try {
+                long time = Long.parseLong(value);
+                value = DateFormatUtils.format(time, "yyyy-MM-dd HH:mm:ss");
+            } catch (Exception ignore) {
+            }
         }
         return value;
     }
