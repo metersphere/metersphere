@@ -17,11 +17,9 @@
         <el-input v-model="currentConfig.dbUrl" maxlength="500" show-word-limit
                   :placeholder="$t('commons.input_content')"/>
         <div v-if="currentConfig.driver ==='com.mysql.jdbc.Driver'">
-          <small>Tips: 执行多条SQL语句需配置allowMultiQueries=true</small>
+          <span style="font-size:10px">{{this.$t('api_test.request.sql.tips')}}</span>
         </div>
       </el-form-item>
-
-
 
       <el-form-item :label="$t('api_test.request.sql.username')" prop="username">
         <el-input v-model="currentConfig.username" maxlength="300" show-word-limit
