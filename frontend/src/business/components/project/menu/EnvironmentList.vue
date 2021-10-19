@@ -118,7 +118,7 @@
   import ProjectSwitch from "@/business/components/common/head/ProjectSwitch";
   import SearchList from "@/business/components/common/head/SearchList";
   import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
-  import EnvironmentImport from "@/business/components/settings/project/EnvironmentImport";
+  import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
   import MsContainer from "@/business/components/common/components/MsContainer";
 

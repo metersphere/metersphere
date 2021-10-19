@@ -70,7 +70,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import MsTag from "@/business/components/common/components/MsTag";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
-import EditFunction from "@/business/components/settings/project/function/EditFunction";
+import EditFunction from "@/business/components/project/menu/function/EditFunction";
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
 import {_filter, _sort} from "@/common/js/tableUtils";

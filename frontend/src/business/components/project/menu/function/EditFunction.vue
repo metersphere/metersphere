@@ -90,17 +90,17 @@
 
 <script>
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
-import FunctionParams from "@/business/components/settings/project/function/FunctionParams";
+import FunctionParams from "@/business/components/project/menu/function/FunctionParams";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
-import {FUNC_TEMPLATE, getCodeTemplate} from "@/business/components/settings/project/function/custom-function";
+import {FUNC_TEMPLATE} from "@/business/components/project/menu/function/custom-function";
 import MsRun from "@/business/components/api/automation/scenario/DebugRun";
 import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {JSR223Processor} from "@/business/components/api/definition/model/ApiTestModel";
-import FunctionRun from "@/business/components/settings/project/function/FunctionRun";
-import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
-import ApiFuncRelevance from "@/business/components/settings/project/function/ApiFuncRelevance";
-import ScriptNavMenu from "@/business/components/settings/project/function/ScriptNavMenu";
+import FunctionRun from "@/business/components/project/menu/function/FunctionRun";
+import CustomFunctionRelate from "@/business/components/project/menu/function/CustomFunctionRelate";
+import ApiFuncRelevance from "@/business/components/project/menu/function/ApiFuncRelevance";
+import ScriptNavMenu from "@/business/components/project/menu/function/ScriptNavMenu";
 
 export default {
   name: "EditFunction",

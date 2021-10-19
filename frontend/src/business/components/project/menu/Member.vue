@@ -90,7 +90,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
-import EditMember from "@/business/components/settings/project/EditMember";
+import EditMember from "@/business/components/project/menu/EditMember";
 import {GROUP_PROJECT} from "@/common/js/constants";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import MsContainer from "@/business/components/common/components/MsContainer";
