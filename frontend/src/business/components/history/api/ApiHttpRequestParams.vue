@@ -22,9 +22,9 @@
       <!--请求体-->
       <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="request.body && (request.body.jsonSchema ||request.body.raw_1 || request.body.raw_2 )">
         <el-radio-group v-model="activeBody" size="mini">
-          <el-radio-button label="json"/>
-          <el-radio-button label="raw"/>
-          <el-radio-button label="form"/>
+          <el-radio-button label="json" v-if="request.body.jsonSchema"/>
+          <el-radio-button label="raw" v-if="request.body.raw_1 || request.body.raw_2"/>
+          <el-radio-button label="form" v-if="request.body.form"/>
         </el-radio-group>
         <ms-json-code-edit :body="request.body" ref="jsonCodeEdit" v-if="activeBody === 'json'"/>
         <pre v-html="getDiff(request.body.raw_2,request.body.raw_1)" v-if="activeBody === 'raw'"></pre>
@@ -99,34 +99,15 @@ export default {
     }
   },
   created() {
-    if (this.request.header) {
-      this.activeName = "headers";
-    } else if (this.request.query) {
-      this.activeName = "parameters";
-    } else if (this.request.rest) {
-      this.activeName = "rest";
-    } else if (this.request.body && (this.request.body.jsonSchema || this.request.body.form || this.request.body.raw_1 || this.request.body.raw_2)) {
-      this.activeName = "body";
-      if (this.request.body.jsonSchema) {
-        this.activeBody = "json";
-      }
-      if (this.request.body.form) {
-        this.activeBody = "form";
-      }
-      if (this.request.body.raw_1 || this.request.body.raw_2) {
-        this.activeBody = "raw";
-      }
-    } else if (this.request.body_config) {
-      this.activeName = "advancedConfig";
-    } else if (this.request.body_auth) {
-      this.activeName = "authConfig";
-    } else if (this.request.statusCode) {
-      this.activeName = "statusCode";
-    }
-    this.reloadCodeEdit();
+    this.active();
   },
   watch: {
     'request.headerId'() {
+      this.active();
+    }
+  },
+  methods: {
+    active() {
       if (this.request.header) {
         this.activeName = "headers";
       } else if (this.request.query) {
@@ -151,10 +132,19 @@ export default {
       } else if (this.request.statusCode) {
         this.activeName = "statusCode";
       }
+      if (this.request.body && (this.request.body.jsonSchema || this.request.body.form || this.request.body.raw_1 || this.request.body.raw_2)) {
+        if (this.request.body.jsonSchema) {
+          this.activeBody = "json";
+        }
+        if (this.request.body.form) {
+          this.activeBody = "form";
+        }
+        if (this.request.body.raw_1 || this.request.body.raw_2) {
+          this.activeBody = "raw";
+        }
+      }
       this.reloadCodeEdit();
-    }
-  },
-  methods: {
+    },
     getDiff(v1, v2) {
       let delta = jsondiffpatch.diff(v1, v2);
       return formattersHtml.format(delta, v1);
