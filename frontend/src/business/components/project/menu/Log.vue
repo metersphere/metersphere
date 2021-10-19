@@ -227,6 +227,8 @@ export default {
       if (this.condition.operModules && this.condition.operModules.length > 0) {
         this.condition.operModule = this.condition.operModules[1];
       }
+      this.condition.projectIds = [getCurrentProjectID()];
+      this.condition.projectId = getCurrentProjectID();
       let url = "/operating/log/list/" + this.currentPage + "/" + this.pageSize;
       this.result.loading = true;
       this.$post(url, this.condition, response => {
@@ -238,7 +240,7 @@ export default {
     },
     reset() {
       let projectIds = this.condition.projectIds;
-      this.condition = {projectIds: projectIds};
+      this.condition = {projectIds: projectIds, projectId: getCurrentProjectID()};
       this.initTableData();
     },
     initProject(url) {

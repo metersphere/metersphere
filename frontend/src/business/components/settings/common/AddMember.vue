@@ -1,8 +1,8 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogVisible" width="40%"
+  <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogVisible" width="45%"
              :destroy-on-close="true"
              @close="close" v-loading="result.loading">
-    <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
+    <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="80px" size="small">
       <el-form-item :label="$t('commons.member')" prop="userIds"
                     :rules="{required: true, message: $t('member.please_choose_member'), trigger: 'blur'}">
         <el-select
@@ -130,7 +130,6 @@ export default {
 
 .user-select-right {
   float: right;
-  margin-right: 18px;
   color: #8492a6;
   font-size: 13px;
 }
