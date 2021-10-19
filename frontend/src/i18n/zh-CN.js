@@ -1231,6 +1231,7 @@ export default {
         timeout: "超时时间(ms)",
         database_driver: "数据库驱动",
         database_url: "数据库连接URL",
+        tips: "Tips: 执行多条SQL语句需配置allowMultiQueries=true",
         username: "用户名",
         password: "密码",
         pool_max: "最大连接数",
