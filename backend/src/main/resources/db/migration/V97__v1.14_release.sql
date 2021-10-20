@@ -326,3 +326,12 @@ delete from user_group_permission where module_id = 'ORGANIZATION_WORKSPACE';
 
 
 insert into system_parameter (param_key, param_value, type, sort) values ('project.jar.limit.size', 1, 'text', 1);
+
+ALTER TABLE quota
+    DROP COLUMN organization_id;
+
+ALTER TABLE service_integration
+    DROP COLUMN organization_id;
+
+ALTER TABLE workspace
+    DROP COLUMN organization_id;
