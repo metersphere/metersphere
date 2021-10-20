@@ -102,7 +102,7 @@ public class WorkspaceService {
         if (StringUtils.isNotBlank(request.getName())) {
             request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
-        return extWorkspaceMapper.getWorkspaceWithOrg(request);
+        return extWorkspaceMapper.getWorkspaces(request);
     }
 
     public void deleteWorkspace(String workspaceId) {
@@ -147,14 +147,6 @@ public class WorkspaceService {
         WorkspaceExample workspaceExample = new WorkspaceExample();
         workspaceExample.createCriteria().andIdIn(wsIds);
         return workspaceMapper.selectByExample(workspaceExample);
-    }
-
-    public List<String> getWorkspaceIdsOrgId(String orgId) {
-        return extWorkspaceMapper.getWorkspaceIdsByOrgId(orgId);
-    }
-
-    public List<WorkspaceDTO> getWorkspaceIdsByOrgId(String orgId) {
-        return extWorkspaceMapper.getWorkspaceIdsOrgId(orgId);
     }
 
     public void updateWorkspaceMember(WorkspaceMemberDTO memberDTO) {
@@ -243,10 +235,6 @@ public class WorkspaceService {
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
         return projectMapper.selectByExample(projectExample);
-    }
-
-    public List<WorkspaceDTO> findIdAndNameByOrganizationId(String organizationId) {
-        return extWorkspaceMapper.findIdAndNameByOrganizationId(organizationId);
     }
 
     public String getLogDetails(String id) {

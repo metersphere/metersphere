@@ -17,6 +17,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
+import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
@@ -694,7 +695,7 @@ public class UserService {
             Map<String, String> workspaceNameMap = new HashMap<>();
             Map<String, String> projectNameMap = new HashMap<>();
 
-            List<WorkspaceDTO> workspaceList = workspaceService.findIdAndNameByOrganizationId("All");
+            List<WorkspaceDTO> workspaceList = workspaceService.getAllWorkspaceList(new WorkspaceRequest());
             for (WorkspaceDTO model : workspaceList) {
                 workspaceNameMap.put(model.getName(), model.getId());
             }

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtWorkspaceMapper">
 
-    <select id="getWorkspaceWithOrg" resultType="io.metersphere.dto.WorkspaceDTO">
+    <select id="getWorkspaces" resultType="io.metersphere.dto.WorkspaceDTO">
         select w.id, w.name, w.description
           from workspace w
           <where>
@@ -11,31 +11,6 @@
               </if>
           </where>
         order by w.update_time desc
-    </select>
-
-    <select id="getWorkspaceIdsByOrgId" resultType="java.lang.String">
-        select id
-        from workspace
-        where organization_id = #{orgId}
-    </select>
-    <select id="getWorkspaceIdsOrgId" resultType="io.metersphere.dto.WorkspaceDTO">
-        select *
-        from workspace
-        where organization_id = #{orgId}
-    </select>
-
-    <select id="findIdAndNameByOrganizationId" resultType="io.metersphere.dto.WorkspaceDTO">
-        select id,name,organization_id AS organizationId from workspace
-        <where>
-            <if test="organizationId != 'All'">
-                AND organization_id = #{organizationId}
-            </if>
-        </where>
-    </select>
-
-    <select id="getOrganizationIdById" resultType="java.lang.String">
-        select organization_id from workspace
-        where id = #{orgId}
     </select>
 
     <insert id="setDefaultMessageTask">
