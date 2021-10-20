@@ -34,9 +34,9 @@ public class ServiceIntegrationController {
         integrationService.delete(request);
     }
 
-    @GetMapping("/all/{orgId}")
-    public List<ServiceIntegration> getAll(@PathVariable String orgId) {
-        return integrationService.getAll(orgId);
+    @GetMapping("/all/{workspaceId}")
+    public List<ServiceIntegration> getAll(@PathVariable String workspaceId) {
+        return integrationService.getAll(workspaceId);
     }
 
 }

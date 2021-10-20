@@ -313,6 +313,76 @@ public class ServiceIntegrationExample {
             addCriterion("platform not between", value1, value2, "platform");
             return (Criteria) this;
         }
+
+        public Criteria andWorkspaceIdIsNull() {
+            addCriterion("workspace_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdIsNotNull() {
+            addCriterion("workspace_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdEqualTo(String value) {
+            addCriterion("workspace_id =", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdNotEqualTo(String value) {
+            addCriterion("workspace_id <>", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdGreaterThan(String value) {
+            addCriterion("workspace_id >", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("workspace_id >=", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdLessThan(String value) {
+            addCriterion("workspace_id <", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdLessThanOrEqualTo(String value) {
+            addCriterion("workspace_id <=", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdLike(String value) {
+            addCriterion("workspace_id like", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdNotLike(String value) {
+            addCriterion("workspace_id not like", value, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdIn(List<String> values) {
+            addCriterion("workspace_id in", values, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdNotIn(List<String> values) {
+            addCriterion("workspace_id not in", values, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdBetween(String value1, String value2) {
+            addCriterion("workspace_id between", value1, value2, "workspaceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkspaceIdNotBetween(String value1, String value2) {
+            addCriterion("workspace_id not between", value1, value2, "workspaceId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

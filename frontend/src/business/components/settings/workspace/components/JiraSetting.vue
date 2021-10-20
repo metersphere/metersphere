@@ -111,10 +111,10 @@ export default {
   },
   methods: {
     init() {
-      const {lastOrganizationId} = getCurrentUser();
+      const {lastWorkspaceId} = getCurrentUser();
       let param = {};
       param.platform = JIRA;
-      param.orgId = lastOrganizationId;
+      param.workspaceId = lastWorkspaceId;
       this.$parent.result = this.$post("service/integration/type", param, response => {
         let data = response.data;
         if (data.configuration) {
@@ -144,8 +144,8 @@ export default {
             issuetype: this.form.issuetype,
             storytype: this.form.storytype
           };
-          const {lastOrganizationId} = getCurrentUser();
-          param.organizationId = lastOrganizationId;
+          const {lastWorkspaceId} = getCurrentUser();
+          param.workspaceId = lastWorkspaceId;
           param.platform = JIRA;
           param.configuration = JSON.stringify(auth);
           this.$parent.result = this.$post("service/integration/save", param, () => {
@@ -190,9 +190,9 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              const {lastOrganizationId} = getCurrentUser();
+              const {lastWorkspaceId} = getCurrentUser();
               let param = {};
-              param.orgId = lastOrganizationId;
+              param.workspaceId = lastWorkspaceId;
               param.platform = JIRA;
               this.$parent.result = this.$post("service/integration/delete", param, () => {
                 this.$success(this.$t('organization.integration.successful_operation'));

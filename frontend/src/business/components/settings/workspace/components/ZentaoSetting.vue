@@ -107,7 +107,7 @@ export default {
           if (!formatUrl.endsWith('/')) {
             formatUrl = formatUrl + '/';
           }
-          const {lastOrganizationId} = getCurrentUser();
+          const {lastWorkspaceId} = getCurrentUser();
           let param = {};
           let auth = {
             account: this.form.account,
@@ -115,7 +115,7 @@ export default {
             url: formatUrl,
             request: this.form.request
           };
-          param.organizationId = lastOrganizationId;
+          param.workspaceId = lastWorkspaceId;
           param.platform = ZEN_TAO;
           param.configuration = JSON.stringify(auth);
 
@@ -134,10 +134,10 @@ export default {
       });
     },
     init() {
-      const {lastOrganizationId} = getCurrentUser();
+      const {lastWorkspaceId} = getCurrentUser();
       let param = {};
       param.platform = ZEN_TAO;
-      param.orgId = lastOrganizationId;
+      param.workspaceId = lastWorkspaceId;
       this.$parent.result = this.$post("service/integration/type", param, response => {
         let data = response.data;
         if (data.configuration) {
@@ -184,9 +184,9 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              const {lastOrganizationId} = getCurrentUser();
+              const {lastWorkspaceId} = getCurrentUser();
               let param = {};
-              param.orgId = lastOrganizationId;
+              param.workspaceId = lastWorkspaceId;
               param.platform = ZEN_TAO;
               this.$parent.result = this.$post("service/integration/delete", param, () => {
                 this.$success(this.$t('organization.integration.successful_operation'));
