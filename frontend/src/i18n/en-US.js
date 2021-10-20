@@ -831,6 +831,7 @@ export default {
         update_time: "Update time"
       },
       expect_detail: "Expect",
+      request_condition:"Request Condition",
       base_info: "Base info",
       req_param: "Request params",
       rsp_param: "Response Params",

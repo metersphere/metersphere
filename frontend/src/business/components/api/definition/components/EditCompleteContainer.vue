@@ -74,7 +74,8 @@
     </div>
 
     <div v-if="showMock && (currentProtocol === 'HTTP')" class="ms-api-div">
-      <mock-config :base-mock-config-data="baseMockConfigData" type="http"/>
+<!--      <mock-config :base-mock-config-data="baseMockConfigData" type="http"/>-->
+      <mock-tab :base-mock-config-data="baseMockConfigData" type="http"/>
     </div>
     <div v-if="showMock && (currentProtocol === 'TCP')" class="ms-api-div">
       <tcp-mock-config :base-mock-config-data="baseMockConfigData" type="tcp"/>
@@ -104,7 +105,7 @@ import MsRunTestHttpPage from "./runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./runtest/RunTestDubboPage";
-import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
+import MockTab from "@/business/components/api/definition/components/mock/MockTab";
 import TcpMockConfig from "@/business/components/api/definition/components/mock/TcpMockConfig";
 import ApiCaseSimpleList from "./list/ApiCaseSimpleList";
 import MsApiCaseList from "./case/ApiCaseList";
@@ -120,7 +121,7 @@ export default {
     MsRunTestTcpPage,
     MsRunTestSqlPage,
     MsRunTestDubboPage,
-    MockConfig,
+    MockTab,
     TcpMockConfig,
     ApiCaseSimpleList,
     MsApiCaseList

@@ -20,10 +20,6 @@
       <el-radio :disabled="isReadOnly" :label="type.RAW" @change="modeChange">
         {{ $t('api_test.definition.request.body_raw') }}
       </el-radio>
-
-      <el-radio :disabled="isReadOnly" :label="type.BINARY" @change="modeChange">
-        {{ $t('api_test.definition.request.body_binary') }}
-      </el-radio>
     </el-radio-group>
     <div style="min-width: 1200px;" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
@@ -70,38 +66,29 @@
         :modes="modes"
         ref="codeEdit"/>
     </div>
-
-    <ms-api-binary-variable
-      :is-read-only="isReadOnly"
-      :parameters="body.binary"
-      :isShowEnable="isShowEnable"
-      type="body"
-      v-if="body.type == 'BINARY'"/>
     <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
   </div>
 </template>
 
 <script>
-import MsApiKeyValue from "../ApiKeyValue";
-import {BODY_TYPE, KeyValue} from "../../model/ApiTestModel";
-import MsCodeEdit from "../../../../common/components/MsCodeEdit";
-import MsJsonCodeEdit from "../../../../common/json-schema/JsonSchemaEditor";
-import MsDropdown from "../../../../common/components/MsDropdown";
-import MsApiVariable from "../ApiVariable";
-import MsApiBinaryVariable from "./ApiBinaryVariable";
-import MsApiFromUrlVariable from "./ApiFromUrlVariable";
-import BatchAddParameter from "../basis/BatchAddParameter";
+import MsApiKeyValue from "@/business/components/api/definition/components/ApiKeyValue";
+import {BODY_TYPE, KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
+import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
+import MsDropdown from "@/business/components/common/components/MsDropdown";
+import MsApiVariable from "@/business/components/api/definition/components/ApiVariable";
+import MsApiFromUrlVariable from "@/business/components/api/definition/components/body/ApiFromUrlVariable";
+import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 import Convert from "@/business/components/common/json-schema/convert/convert";
 
 
 export default {
-  name: "MsApiBody",
+  name: "MockApiBody",
   components: {
     MsApiVariable,
     MsDropdown,
     MsCodeEdit,
     MsApiKeyValue,
-    MsApiBinaryVariable,
     MsApiFromUrlVariable,
     MsJsonCodeEdit,
     BatchAddParameter
@@ -235,9 +222,9 @@ export default {
           this.setContentType("application/x-www-form-urlencoded");
           break;
         // todo from data
-        case "BINARY":
-          this.setContentType("application/octet-stream");
-          break;
+        // case "BINARY":
+        //   this.setContentType("application/octet-stream");
+        //   break;
         default:
           this.removeContentType();
           break;
