@@ -25,22 +25,6 @@ export function hasRole(role) {
   return roles.indexOf(role) > -1;
 }
 
-export function hasRolePermission(role) {
-  let user = getCurrentUser();
-  for (let ur of user.userRoles) {
-    if (role === ur.roleId) {
-      if (ur.roleId === ROLE_ADMIN) {
-        return true;
-      } else if (ur.roleId === ROLE_ORG_ADMIN && user.lastOrganizationId === ur.sourceId) {
-        return true;
-      } else if (user.lastWorkspaceId === ur.sourceId) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 export function hasPermission(permission) {
   let user = getCurrentUser();
 
@@ -116,15 +100,6 @@ export function hasLicense() {
   return v && v === 'valid';
 }
 
-export function hasRolePermissions(...roles) {
-  for (let role of roles) {
-    if (hasRolePermission(role)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export function hasPermissions(...permissions) {
   for (let p of permissions) {
     if (hasPermission(p)) {
@@ -132,20 +107,6 @@ export function hasPermissions(...permissions) {
     }
   }
   return false;
-}
-
-export function checkoutCurrentOrganization() {
-  // 查看当前用户是否是 lastOrganizationId 的组织管理员
-  return hasRolePermissions(ROLE_ORG_ADMIN);
-}
-
-export function checkoutCurrentWorkspace() {
-  // 查看当前用户是否是 lastWorkspaceId 的工作空间用户
-  return hasRolePermissions(ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER);
-}
-
-export function checkoutTestManagerOrTestUser() {
-  return hasRolePermissions(ROLE_TEST_MANAGER, ROLE_TEST_USER);
 }
 
 export function getCurrentWorkspaceId() {

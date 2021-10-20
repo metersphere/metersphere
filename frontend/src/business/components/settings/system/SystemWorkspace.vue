@@ -234,7 +234,6 @@ export default {
         name: '',
         workspaceId: row.id
       };
-      this.orgId = row.organizationId;
       let path = "/user/special/ws/member/list";
       this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
         let data = res.data;
@@ -441,9 +440,6 @@ export default {
         description: [
           {max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
         ],
-        organizationId: [
-          {required: true, message: this.$t('organization.select_organization'), trigger: ['blur']}
-        ]
       },
       wsMemberRule: {
         userIds: [
