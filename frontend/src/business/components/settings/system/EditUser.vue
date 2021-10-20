@@ -293,7 +293,7 @@ export default {
       }
       let id = idType.split("+")[0];
       let type = idType.split("+")[1];
-      this.result = this.$get('/organization/list/resource/' + id + "/" + type, res => {
+      this.result = this.$get('/workspace/list/resource/' + id + "/" + type, res => {
         let data = res.data;
         if (data) {
           this._setResource(data, index, type);
@@ -302,9 +302,6 @@ export default {
     },
     _setResource(data, index, type) {
       switch (type) {
-        case GROUP_ORGANIZATION:
-          this.form.groups[index].organizations = data.organizations;
-          break;
         case GROUP_WORKSPACE:
           this.form.groups[index].workspaces = data.workspaces;
           break;

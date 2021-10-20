@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
+import io.metersphere.dto.WorkspaceResource;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
@@ -98,5 +99,10 @@ public class WorkspaceController {
         WorkspaceRequest request = new WorkspaceRequest();
         request.setOrganizationId(orgId);
         return workspaceService.getWorkspaceList(request);
+    }
+
+    @GetMapping("/list/resource/{groupId}/{type}")
+    public WorkspaceResource listResource(@PathVariable String groupId, @PathVariable String type) {
+        return workspaceService.listResource(groupId, type);
     }
 }

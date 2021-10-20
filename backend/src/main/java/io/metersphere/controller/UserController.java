@@ -19,20 +19,14 @@ import io.metersphere.dto.*;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
-import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
-import io.metersphere.service.WorkspaceService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RequestMapping("user")
 @RestController
@@ -40,10 +34,6 @@ public class UserController {
 
     @Resource
     private UserService userService;
-    @Resource
-    private OrganizationService organizationService;
-    @Resource
-    private WorkspaceService workspaceService;
 
     @PostMapping("/special/add")
     @MsAuditLog(module = "system_user", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#user)", msClass = UserService.class)

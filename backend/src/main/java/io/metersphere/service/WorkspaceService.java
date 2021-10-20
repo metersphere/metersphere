@@ -10,12 +10,11 @@ import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.UserGroupConstants;
+import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
-import io.metersphere.dto.RelatedSource;
-import io.metersphere.dto.WorkspaceDTO;
-import io.metersphere.dto.WorkspaceMemberDTO;
+import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -346,5 +345,38 @@ public class WorkspaceService {
 
     public long getWorkspaceSize() {
         return workspaceMapper.countByExample(new WorkspaceExample());
+    }
+
+    public WorkspaceResource listResource(String groupId, String type) {
+        Group group = groupMapper.selectByPrimaryKey(groupId);
+        String workspaceId = group.getScopeId();
+        WorkspaceResource resource = new WorkspaceResource();
+
+        if (StringUtils.equals(UserGroupType.WORKSPACE, type)) {
+            WorkspaceExample workspaceExample = new WorkspaceExample();
+            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
+            if (!StringUtils.equals(workspaceId, "global")) {
+                criteria.andIdEqualTo(workspaceId);
+            }
+            List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+            resource.setWorkspaces(workspaces);
+        }
+
+        if (StringUtils.equals(UserGroupType.PROJECT, type)) {
+            ProjectExample projectExample = new ProjectExample();
+            ProjectExample.Criteria pc = projectExample.createCriteria();
+            WorkspaceExample workspaceExample = new WorkspaceExample();
+            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
+            if (!StringUtils.equals(workspaceId, "global")) {
+                criteria.andIdEqualTo(workspaceId);
+                List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+                List<String> list = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
+                pc.andWorkspaceIdIn(list);
+            }
+            List<Project> projects = projectMapper.selectByExample(projectExample);
+            resource.setProjects(projects);
+        }
+
+        return resource;
     }
 }

@@ -58,7 +58,7 @@ public class GroupService {
     @Resource
     private UserGroupMapper userGroupMapper;
     @Resource
-    private OrganizationService organizationService;
+    private WorkspaceService workspaceService;
     @Resource
     private WorkspaceMapper workspaceMapper;
     @Resource
@@ -67,15 +67,13 @@ public class GroupService {
     private static final String GLOBAL = "global";
 
     private static final Map<String, List<String>> map = new HashMap<String, List<String>>(4) {{
-        put(UserGroupType.SYSTEM, Arrays.asList(UserGroupType.SYSTEM, UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
-        put(UserGroupType.ORGANIZATION, Arrays.asList(UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
+        put(UserGroupType.SYSTEM, Arrays.asList(UserGroupType.SYSTEM, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
         put(UserGroupType.WORKSPACE, Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
         put(UserGroupType.PROJECT, Collections.singletonList(UserGroupType.PROJECT));
     }};
 
     private static final Map<String, String> typeMap = new HashMap<String, String>(4) {{
         put(UserGroupType.SYSTEM, "系统");
-        put(UserGroupType.ORGANIZATION, "组织");
         put(UserGroupType.WORKSPACE, "工作空间");
         put(UserGroupType.PROJECT, "项目");
     }};
@@ -233,14 +231,14 @@ public class GroupService {
             String type = group.getType();
             Map<String, Object> map = new HashMap<>(2);
             map.put("type", id + "+" + type);
-            OrganizationResource organizationResource = organizationService.listResource(id, group.getType());
+            WorkspaceResource workspaceResource = workspaceService.listResource(id, group.getType());
             List<String> collect = userGroups.stream().filter(ugp -> ugp.getGroupId().equals(id)).map(UserGroup::getSourceId).collect(Collectors.toList());
             map.put("ids", collect);
             if (StringUtils.equals(type, UserGroupType.WORKSPACE)) {
-                map.put("workspaces", organizationResource.getWorkspaces());
+                map.put("workspaces", workspaceResource.getWorkspaces());
             }
             if (StringUtils.equals(type, UserGroupType.PROJECT)) {
-                map.put("projects", organizationResource.getProjects());
+                map.put("projects", workspaceResource.getProjects());
             }
             list.add(map);
         }
@@ -293,10 +291,6 @@ public class GroupService {
             return getUserGroup(UserGroupType.SYSTEM, request);
         }
 
-//        if (groupTypeList.contains(UserGroupType.ORGANIZATION)) {
-//            return getUserGroup(UserGroupType.ORGANIZATION, request);
-//        }
-
         if (groupTypeList.contains(UserGroupType.WORKSPACE)) {
             return getUserGroup(UserGroupType.WORKSPACE, request);
         }
@@ -337,20 +331,13 @@ public class GroupService {
     public List<?> getResource(String type, String groupId) {
         List<T> resource = new ArrayList<>();
         Group group = groupMapper.selectByPrimaryKey(groupId);
-        String orgId = group.getScopeId();
-//        if (!StringUtils.equals(GLOBAL, orgId)) {
-//            Organization organization = organizationMapper.selectByPrimaryKey(orgId);
-//            if (organization == null) {
-//                return resource;
-//            }
-//        }
-
+        String workspaceId = group.getScopeId();
 
         if (StringUtils.equals(UserGroupType.WORKSPACE, type)) {
             WorkspaceExample workspaceExample = new WorkspaceExample();
             WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
-            if (!StringUtils.equals(orgId, GLOBAL)) {
-                criteria.andOrganizationIdEqualTo(orgId);
+            if (!StringUtils.equals(workspaceId, GLOBAL)) {
+                criteria.andIdEqualTo(workspaceId);
             }
             return workspaceMapper.selectByExample(workspaceExample);
         }
@@ -360,8 +347,8 @@ public class GroupService {
             ProjectExample.Criteria pc = projectExample.createCriteria();
             WorkspaceExample workspaceExample = new WorkspaceExample();
             WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
-            if (!StringUtils.equals(orgId, GLOBAL)) {
-                criteria.andOrganizationIdEqualTo(orgId);
+            if (!StringUtils.equals(workspaceId, GLOBAL)) {
+                criteria.andIdEqualTo(workspaceId);
                 List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
                 List<String> list = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
                 pc.andWorkspaceIdIn(list);

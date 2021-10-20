@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class OrganizationResource {
+public class WorkspaceResource {
     private List<Workspace> workspaces = new ArrayList<>();
     private List<Project> projects = new ArrayList<>();
 }
