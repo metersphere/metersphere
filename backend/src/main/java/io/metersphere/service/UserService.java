@@ -645,27 +645,16 @@ public class UserService {
         List<UserGroup> project = userGroups.stream().filter(ug -> projectGroupIds.contains(ug.getGroupId()))
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(project)) {
-            // 项目用户组为空切换工作空间
-            List<String> orgIds = user.getGroups()
-                    .stream()
-                    .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.ORGANIZATION))
-                    .map(Group::getId)
-                    .collect(Collectors.toList());
-            List<String> testIds = user.getGroups()
+            List<String> workspaceIds = user.getGroups()
                     .stream()
                     .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.WORKSPACE))
                     .map(Group::getId)
                     .collect(Collectors.toList());
-            List<UserGroup> org = userGroups.stream().filter(ug -> orgIds.contains(ug.getGroupId()))
+            List<UserGroup> workspaces = userGroups.stream().filter(ug -> workspaceIds.contains(ug.getGroupId()))
                     .collect(Collectors.toList());
-            List<UserGroup> test = userGroups.stream().filter(ug -> testIds.contains(ug.getGroupId()))
-                    .collect(Collectors.toList());
-            if (test.size() > 0) {
-                String wsId = test.get(0).getSourceId();
+            if (workspaces.size() > 0) {
+                String wsId = workspaces.get(0).getSourceId();
                 switchUserRole("workspace", wsId);
-            } else if (org.size() > 0) {
-                String orgId = org.get(0).getSourceId();
-                switchUserRole("organization", orgId);
             }
         } else {
             UserGroup userGroup = project.stream().filter(p -> StringUtils.isNotBlank(p.getSourceId()))
@@ -673,14 +662,12 @@ public class UserService {
             String projectId = userGroup.getSourceId();
             Project p = projectMapper.selectByPrimaryKey(projectId);
             String wsId = p.getWorkspaceId();
-            Workspace workspace = workspaceMapper.selectByPrimaryKey(wsId);
             user.setId(user.getId());
             user.setLastProjectId(projectId);
             user.setLastWorkspaceId(wsId);
             updateUser(user);
             SessionUtils.putUser(SessionUser.fromUser(user));
         }
-
     }
 
     public List<User> searchUser(String condition) {
