@@ -264,6 +264,7 @@ public class ApiDefinitionService {
         esbApiParamService.deleteByResourceId(apiId);
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.deleteMockConfigByApiId(apiId);
+        relationshipEdgeService.delete(apiId); // 删除关系图
         FileUtils.deleteBodyFiles(apiId);
     }
 
@@ -274,6 +275,7 @@ public class ApiDefinitionService {
         apiDefinitionMapper.deleteByExample(example);
         apiTestCaseService.deleteBatchByDefinitionId(apiIds);
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+        relationshipEdgeService.delete(apiIds); // 删除关系图
         for (String apiId : apiIds) {
             mockConfigService.deleteMockConfigByApiId(apiId);
         }
