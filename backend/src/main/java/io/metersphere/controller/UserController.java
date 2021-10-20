@@ -45,11 +45,6 @@ public class UserController {
         return PageUtils.setPageInfo(page, userService.getUserListWithRequest(request));
     }
 
-    @GetMapping("/special/user/role/{userId}")
-    public UserRoleDTO getUserRole(@PathVariable("userId") String userId) {
-        return userService.getUserRole(userId);
-    }
-
     @GetMapping("/special/user/group/{userId}")
     public UserGroupPermissionDTO getUserGroup(@PathVariable("userId") String userId) {
         return userService.getUserGroup(userId);
@@ -230,14 +225,6 @@ public class UserController {
     @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = UserService.class)
     public int updateUserPassword(@RequestBody EditPassWordRequest request) {
         return userService.updateUserPassword(request);
-    }
-
-    /**
-     * 获取工作空间成员用户 不分页
-     */
-    @PostMapping("/ws/member/tester/list")
-    public List<User> getTestManagerAndTestUserList(@RequestBody QueryMemberRequest request) {
-        return userService.getTestManagerAndTestUserList(request);
     }
 
     @PostMapping("/project/member/tester/list")

@@ -8,7 +8,6 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
-import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -22,10 +21,11 @@ import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.member.UserRequest;
-import io.metersphere.controller.request.organization.AddOrgMemberRequest;
-import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
-import io.metersphere.dto.*;
+import io.metersphere.dto.GroupResourceDTO;
+import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserGroupPermissionDTO;
+import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.UserDataListener;
@@ -67,12 +67,6 @@ public class UserService {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private RoleMapper roleMapper;
-    @Resource
-    private UserRoleMapper userRoleMapper;
-    @Resource
-    private ExtUserRoleMapper extUserRoleMapper;
-    @Resource
     private WorkspaceMapper workspaceMapper;
     @Resource
     private ExtUserMapper extUserMapper;
@@ -88,7 +82,7 @@ public class UserService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
-    private UserRoleService userRoleService;
+    private UserGroupService userGroupService;
     @Resource
     private ExtUserGroupMapper extUserGroupMapper;
     @Resource
@@ -307,30 +301,6 @@ public class UserService {
         }
 
         return getUserDTO(users.get(0).getId());
-    }
-
-    public UserRoleDTO getUserRole(String userId) {
-        UserRoleDTO userRoleDTO = new UserRoleDTO();
-        //
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andUserIdEqualTo(userId);
-        List<UserRole> userRoleList = userRoleMapper.selectByExample(userRoleExample);
-
-        if (CollectionUtils.isEmpty(userRoleList)) {
-            return userRoleDTO;
-        }
-        // 设置 user_role
-        userRoleDTO.setUserRoles(userRoleList);
-
-        List<String> roleIds = userRoleList.stream().map(UserRole::getRoleId).collect(Collectors.toList());
-
-        RoleExample roleExample = new RoleExample();
-        roleExample.createCriteria().andIdIn(roleIds);
-
-        List<Role> roleList = roleMapper.selectByExample(roleExample);
-        userRoleDTO.setRoles(roleList);
-
-        return userRoleDTO;
     }
 
     public List<User> getUserList() {
@@ -585,10 +555,6 @@ public class UserService {
     public String getDefaultLanguage() {
         final String key = "default.language";
         return extUserMapper.getDefaultLanguage(key);
-    }
-
-    public List<User> getTestManagerAndTestUserList(QueryMemberRequest request) {
-        return extUserRoleMapper.getTestManagerAndTestUserList(request);
     }
 
     public ResultHolder login(LoginRequest request) {
@@ -878,9 +844,6 @@ public class UserService {
             List<String> userIdList = new ArrayList<>();
             if (StringUtils.isEmpty(request.getWorkspaceId())) {
                 userIdList = extUserMapper.selectIdsByQuery(request.getCondition());
-            } else {
-                //组织->成员 页面发起的请求
-                userIdList = extUserRoleMapper.selectIdsByQuery(request.getWorkspaceId(), request.getCondition());
             }
 
             return userIdList;
@@ -974,7 +937,7 @@ public class UserService {
     }
 
     private String getRoles(String userId) {
-        List<Map<String, Object>> maps = userRoleService.getUserGroup(userId);
+        List<Map<String, Object>> maps = userGroupService.getUserGroup(userId);
         List<String> colNames = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(maps)) {
             for (Map<String, Object> map : maps) {

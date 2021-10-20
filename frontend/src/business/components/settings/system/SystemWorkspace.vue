@@ -260,7 +260,7 @@ export default {
       this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
         let data = res.data;
         this.memberLineData = data.listObject;
-        let url = "/userrole/list/ws/" + row.id;
+        let url = "/user/group/list/ws/" + row.id;
         // 填充角色信息
         for (let i = 0; i < this.memberLineData.length; i++) {
           this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
@@ -275,9 +275,6 @@ export default {
       this.dialogWsUpdateVisible = true;
       // copy user
       this.form = Object.assign({}, row);
-      this.$get("/organization/list", response => {
-        this.$set(this.form, "orgList1", response.data);
-      });
       listenGoBack(this.close);
     },
     close() {

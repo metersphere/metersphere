@@ -126,8 +126,8 @@
 <script>
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
-import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasRoles} from "@/common/js/utils";
-import {LOG_TYPE, LOG_TYPE_MAP, sysList, getUrl} from "@/business/components/settings/operatinglog/config";
+import {getCurrentProjectID} from "@/common/js/utils";
+import {getUrl, LOG_TYPE, LOG_TYPE_MAP, sysList} from "@/business/components/settings/operatinglog/config";
 import MsLogDetail from "@/business/components/settings/operatinglog/LogDetail";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsContainer from "@/business/components/common/components/MsContainer";

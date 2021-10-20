@@ -25,18 +25,6 @@ export function hasRole(role) {
   return roles.indexOf(role) > -1;
 }
 
-// 是否含有某个角色
-export function hasRoles(...roles) {
-  let user = getCurrentUser();
-  let rs = user.roles.map(r => r.id);
-  for (let item of roles) {
-    if (rs.indexOf(item) > -1) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export function hasRolePermission(role) {
   let user = getCurrentUser();
   for (let ur of user.userRoles) {
@@ -193,16 +181,9 @@ export function saveLocalStorage(response) {
   if (!sessionStorage.getItem(PROJECT_ID)) {
     sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
   }
-  if (!sessionStorage.getItem(ORGANIZATION_ID)) {
-    sessionStorage.setItem(ORGANIZATION_ID, response.data.lastOrganizationId);
-  }
   if (!sessionStorage.getItem(WORKSPACE_ID)) {
     sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
   }
-  let rolesArray = response.data.roles;
-  let roles = rolesArray.map(r => r.id);
-  // 保存角色
-  localStorage.setItem("roles", roles);
 }
 
 export function saveLicense(data) {

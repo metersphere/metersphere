@@ -59,9 +59,6 @@ Vue.use(VueClipboard)
 // v-permission
 Vue.directive('permission', permission);
 
-// v-roles
-Vue.directive('roles', roles);
-
 Vue.directive('xpack', xpack);
 
 Vue.directive('modules', modules);
