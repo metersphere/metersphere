@@ -789,13 +789,15 @@ public class ApiDefinitionService {
         Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         Map<String, String> map = request.getEnvironmentMap();
         if (map != null && map.size() > 0) {
-            ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(request.getProjectId()));
-            if (environment != null) {
-                EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                env.setApiEnvironmentid(environment.getId());
-                envConfig.put(request.getProjectId(), env);
-                config.setConfig(envConfig);
+            for (String key : map.keySet()) {
+                ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(key));
+                if (environment != null) {
+                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    env.setApiEnvironmentid(environment.getId());
+                    envConfig.put(key, env);
+                }
             }
+            config.setConfig(envConfig);
         }
 
         if (CollectionUtils.isNotEmpty(bodyFiles)) {
