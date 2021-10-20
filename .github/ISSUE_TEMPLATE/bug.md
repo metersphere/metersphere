@@ -2,7 +2,7 @@
 name: BUG 提交
 about: 提交产品缺陷帮助我们更好的改进
 title: "[BUG]"
-labels: bug
+labels: "类型: 缺陷"
 assignees: youliyuan-fit2cloud
 
 ---
