@@ -446,7 +446,6 @@ export default {
   activated() {
     this.getTemplateField();
     this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
-    this.condition.filters = {status: ["Prepare" , "Underway" , "Completed"]}
     let ids = this.$route.params.ids;
     if (ids) {
       this.condition.ids = ids;
@@ -458,7 +457,7 @@ export default {
     selectNodeIds() {
       this.page.currentPage = 1;
       if(!this.trashEnable){
-        this.condition.filters.status = ["Prepare" , "Underway" , "Completed"];
+        this.condition.filters.status = [];
       }
       initCondition(this.condition, false);
       this.initTableData();

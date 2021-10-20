@@ -4,6 +4,8 @@ package io.metersphere.service;
 import io.metersphere.base.domain.RelationshipEdge;
 import io.metersphere.base.domain.RelationshipEdgeExample;
 import io.metersphere.base.mapper.RelationshipEdgeMapper;
+import io.metersphere.base.mapper.ext.ExtRelationshipEdgeMapper;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.RelationshipEdgeRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -15,9 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +30,8 @@ public class RelationshipEdgeService {
 
     @Resource
     private RelationshipEdgeMapper relationshipEdgeMapper;
+    @Resource
+    private ExtRelationshipEdgeMapper extRelationshipEdgeMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
@@ -95,29 +97,51 @@ public class RelationshipEdgeService {
         return relationshipEdgeMapper.selectByExample(example);
     }
 
+    /**
+     * 保存新的边
+     * 校验是否存在环
+     * 同时将两个不连通的图合并成一个图
+     * @param request
+     */
     public void saveBatch(RelationshipEdgeRequest request) {
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         RelationshipEdgeMapper batchMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
 
-        String graphId = getGraphId(request);
-
-        // todo 检验是否有环
+        String graphId = UUID.randomUUID().toString();
+        List<RelationshipEdge> relationshipEdges = getEdgesBySaveRequest(request);
+        Set<String> addEdgesIds = new HashSet<>();
 
         if (CollectionUtils.isNotEmpty(request.getTargetIds())) {
-            for (String targetId : request.getTargetIds()) {
+            request.getTargetIds().forEach(targetId -> {
                 RelationshipEdge edge = getNewRelationshipEdge(graphId, request.getId(), targetId, request.getType());
-                batchMapper.insert(edge);
-            }
+                relationshipEdges.add(edge);
+                addEdgesIds.add(edge.getSourceId() + edge.getTargetId());
+            });
         }
 
         if (CollectionUtils.isNotEmpty(request.getSourceIds())) {
-            for (String sourceId : request.getSourceIds()) {
+            request.getSourceIds().forEach(sourceId -> {
                 RelationshipEdge edge = getNewRelationshipEdge(graphId, sourceId, request.getId(), request.getType());
-                batchMapper.insert(edge);
-            }
+                relationshipEdges.add(edge);
+                addEdgesIds.add(edge.getSourceId() + edge.getTargetId());
+            });
         }
 
+        // 判断是否有环, 两个方向都搜索一遍
+        if (directedCycle(request.getId(), relationshipEdges, new HashSet<>(), true) ||
+                directedCycle(request.getId(), relationshipEdges, new HashSet<>(), false)) {
+            MSException.throwException("关联后存在循环依赖，请检查依赖关系");
+        };
+
+        relationshipEdges.forEach(item -> {
+            if (addEdgesIds.contains(item.getSourceId() + item.getTargetId())) {
+                batchMapper.insert(item);
+            } else {
+                item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
+                batchMapper.updateByPrimaryKey(item);
+            }
+        });
         sqlSession.flushStatements();
     }
 
@@ -133,15 +157,11 @@ public class RelationshipEdgeService {
     }
 
     /**
-     * 获取当前节点所在的图的id
+     * 查找要关联的边所在图的所有的边
      * @param request
      * @return
      */
-    private String getGraphId(RelationshipEdgeRequest request) {
-        // 判断这些顶点是否已经和其他顶点连通
-        // 连通的话，加到同一个图中，否则新建一个图，即 graphId
-        String graphId = UUID.randomUUID().toString();
-
+    public List<RelationshipEdge>  getEdgesBySaveRequest(RelationshipEdgeRequest request) {
         List<String> graphNodes = new ArrayList<>();
         graphNodes.add(request.getId());
         if (request.getTargetIds() != null) {
@@ -150,18 +170,58 @@ public class RelationshipEdgeService {
         if (request.getSourceIds() != null) {
             graphNodes.addAll(request.getSourceIds());
         }
+
+        List<String> graphIds = extRelationshipEdgeMapper.getGraphIdsByNodeIds(graphNodes);
+        if (CollectionUtils.isEmpty(graphIds)) {
+            return new ArrayList<>();
+        }
         RelationshipEdgeExample example = new RelationshipEdgeExample();
         example.createCriteria()
-                .andSourceIdIn(graphNodes);
-        example.or(
-                example.createCriteria()
-                        .andTargetIdIn(graphNodes)
-        );
-        List<RelationshipEdge> relationshipEdges = relationshipEdgeMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(relationshipEdges)) {
-            return relationshipEdges.get(0).getGraphId();
+                .andGraphIdIn(graphIds);
+
+        return relationshipEdgeMapper.selectByExample(example);
+    }
+
+    /**
+     * 给定一点，深度搜索该连通图中是否存在环
+     * @param id
+     * @param edges
+     * @param markSet
+     * @param isForwardDirection
+     * @return
+     */
+    public boolean directedCycle(String id, List<RelationshipEdge> edges, Set<String> markSet, Boolean isForwardDirection) {
+
+        if (markSet.contains(id)) {
+            // 如果已经访问过该节点，则说明存在环
+            return true;
         }
-        return graphId;
+
+        markSet.add(id);
+        ArrayList<String> nextLevelNodes = new ArrayList();
+        for (RelationshipEdge relationshipEdge : edges) {
+            if (isForwardDirection) {// 正向则搜索 sourceId 是当前节点的边
+                if (id.equals(relationshipEdge.getSourceId())) {
+                    nextLevelNodes.add(relationshipEdge.getTargetId());
+                }
+            } else {
+                if (id.equals(relationshipEdge.getTargetId())) {
+                    nextLevelNodes.add(relationshipEdge.getSourceId());
+                }
+            }
+        }
+
+        for (String nextNode : nextLevelNodes) {
+            if (directedCycle(nextNode, edges, markSet, isForwardDirection)) {
+                return true;
+            };
+        }
+
+        // 关键，递归完这一条路径要把这个标记去掉，否则会误判为有环
+        // 比如 1->3, 1->2->3 , 3 经过多次但是无环
+        markSet.remove(id);
+
+        return false;
     }
 
     /**
