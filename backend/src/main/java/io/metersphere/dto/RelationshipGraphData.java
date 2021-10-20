@@ -27,6 +27,7 @@ public class RelationshipGraphData {
         private Integer index;
         private String name;
         private Boolean highlight;
+        private Boolean directRelationship;
         private Integer x;
         private Integer y;
     }
