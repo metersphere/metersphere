@@ -798,20 +798,16 @@ public class UserService {
             data.setEmail(Translator.get("required"));
             data.setUserIsAdmin(Translator.get("options_no"));
             data.setUserIsTester(Translator.get("options_no"));
-            data.setUserIsOrgMember(Translator.get("options_no"));
             data.setUserIsViewer(Translator.get("options_no"));
             data.setUserIsTestManager(Translator.get("options_no"));
             data.setUserIsProjectAdmin(Translator.get("options_no"));
             data.setUserIsProjectMember(Translator.get("options_no"));
-            data.setUserIsOrgAdmin(Translator.get("options_yes"));
-            data.setOrgAdminOrganization("默认组织");
             list.add(data);
         }
         list.add(new UserExcelData());
         UserExcelData explain = new UserExcelData();
         explain.setId("ID不支持中文");
         explain.setName(Translator.get("do_not_modify_header_order"));
-        explain.setOrgAdminOrganization("多个组织请换行展示");
         explain.setPassword(Translator.get("required") + ";" + Translator.get("password_format_is_incorrect"));
         list.add(explain);
         return list;
@@ -827,7 +823,6 @@ public class UserService {
         try {
             Class clazz = new UserExcelDataFactory().getExcelDataByLocal();
 
-            Map<String, String> orgNameMap = new HashMap<>();
             Map<String, String> workspaceNameMap = new HashMap<>();
             Map<String, String> projectNameMap = new HashMap<>();
 
@@ -840,7 +835,7 @@ public class UserService {
                 projectNameMap.put(pro.getName(), pro.getId());
             }
 
-            EasyExcelListener easyExcelListener = new UserDataListener(clazz, workspaceNameMap, orgNameMap, projectNameMap);
+            EasyExcelListener easyExcelListener = new UserDataListener(clazz, workspaceNameMap, projectNameMap);
             EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
             if (CollectionUtils.isNotEmpty(((UserDataListener) easyExcelListener).getNames())) {
                 request.setAttribute("ms-req-title", String.join(",", ((UserDataListener) easyExcelListener).getNames()));

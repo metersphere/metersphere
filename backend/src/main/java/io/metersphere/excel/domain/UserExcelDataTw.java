@@ -49,26 +49,6 @@ public class UserExcelDataTw extends TestCaseExcelData {
 
     @NotBlank(message = "{cannot_be_null}")
     @ColumnWidth(30)
-    @ExcelProperty("是否是組織管理員(是/否)")
-    private String userIsOrgAdmin;
-
-    @Length(max = 100)
-    @ColumnWidth(30)
-    @ExcelProperty("組織管理員組織名稱")
-    private String orgAdminOrganization;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ColumnWidth(30)
-    @ExcelProperty("是否是組織成員(是/否)")
-    private String userIsOrgMember;
-
-    @Length(max = 100)
-    @ColumnWidth(30)
-    @ExcelProperty("組織成員組織名稱")
-    private String orgMemberOrganization;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ColumnWidth(30)
     @ExcelProperty("是否是工作空間管理員(是/否)")
     private String userIsTestManager;
 
