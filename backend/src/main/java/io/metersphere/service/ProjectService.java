@@ -5,6 +5,7 @@ import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiTestDelService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.*;
@@ -89,7 +90,8 @@ public class ProjectService {
     private ExtUserMapper extUserMapper;
     @Resource
     private ScheduleService scheduleService;
-
+    @Resource
+    private ApiTestDelService apiTestDelService;
     @Value("${tcp.mock.port}")
     private String tcpMockPorts;
 
@@ -189,6 +191,7 @@ public class ProjectService {
 
         // 删除项目下 接口测试 相关
         deleteAPIResourceByProjectId(projectId);
+        apiTestDelService.delete(projectId);
 
         // User Group
         deleteProjectUserGroup(projectId);
