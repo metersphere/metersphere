@@ -560,9 +560,9 @@ public class ApiDefinitionService {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 //postman 可能含有前置脚本，接口定义去掉脚本
                 apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
-                batchMapper.insert(apiDefinition);
                 String originId = apiDefinition.getId();
                 apiDefinition.setId(UUID.randomUUID().toString());
+                batchMapper.insert(apiDefinition);
                 String requestStr = setImportHashTree(apiDefinition);
                 reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 apiDefinition.setRequest(requestStr);
@@ -1014,6 +1014,7 @@ public class ApiDefinitionService {
             if (apiImport.getEsbApiParamsMap() != null) {
                 String apiId = item.getId();
                 EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
+                request.setModeId("fullCoverage");//标准版ESB数据导入不区分是否覆盖，默认都为覆盖
                 importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
                 if (model != null) {
                     apiImport.getEsbApiParamsMap().remove(apiId);

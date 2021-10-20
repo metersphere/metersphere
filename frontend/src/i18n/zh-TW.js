@@ -837,6 +837,7 @@ export default {
         update_time: "更新時間"
       },
       expect_detail: "期望詳情",
+      request_condition:"請求觸發條件",
       base_info: "基本信息",
       req_param: "請求參數",
       rsp_param: "響應內容",

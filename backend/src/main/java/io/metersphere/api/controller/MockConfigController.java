@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.dto.mock.MockApiUtils;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
 import io.metersphere.api.dto.mockconfig.response.MockConfigResponse;
@@ -10,6 +11,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.MockExpectConfig;
 import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -34,10 +36,24 @@ public class MockConfigController {
         return mockConfigService.genMockConfig(request);
     }
 
-    @PostMapping("/updateMockExpectConfig")
-    public MockExpectConfig updateMockExpectConfig(@RequestBody MockExpectConfigRequest request) {
-        return mockConfigService.updateMockExpectConfig(request);
+    @PostMapping(value ="/updateMockExpectConfig", consumes = {"multipart/form-data"})
+    public MockExpectConfig updateMockExpectConfig(@RequestPart("request")MockExpectConfigRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
+        return mockConfigService.updateMockExpectConfig(request,bodyFiles);
     }
+
+    @PostMapping(value ="/updateMockExpectConfigStatus")
+    public MockExpectConfig updateMockExpectConfig(@RequestBody MockExpectConfigRequest request) {
+        return mockConfigService.updateMockExpectConfigStatus(request);
+    }
+
+//    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
+//    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API)
+//    @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
+//    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "api/DefinitionCreate", subject = "接口定义通知")
+//    public ApiDefinitionWithBLOBs create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
+//        checkPermissionService.checkProjectOwner(request.getProjectId());
+//        return apiDefinitionService.create(request, bodyFiles);
+//    }
 
     @GetMapping("/mockExpectConfig/{id}")
     public MockExpectConfigResponse selectMockExpectConfig(@PathVariable String id) {
@@ -58,4 +74,12 @@ public class MockConfigController {
         List<Map<String, String>> apiParams = mockConfigService.getApiParamsByApiDefinitionBLOBs(apiDefinitionWithBLOBs);
         return apiParams;
     }
+
+    @GetMapping("/getApiResponse/{id}")
+    public Map<String, String> getApiResponse(@PathVariable String id) {
+        ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionService.getBLOBs(id);
+        Map<String, String> returnMap = MockApiUtils.getApiResponse(apiDefinitionWithBLOBs.getResponse());
+        return returnMap;
+    }
+
 }

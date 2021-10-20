@@ -13,7 +13,7 @@
            <i class="el-icon-plus"/>
          </div>
            <div class="upload-item" slot="file" slot-scope="{file}">
-             <span>{{file.file ? file.file.name : file.name}}</span>
+             <span>{{file.file && file.file.name ? file.file.name : file.name}}</span>
              <span class="el-upload-list__item-actions">
               <!--<span v-if="!disabled" class="el-upload-list__item-delete" @click="handleDownload(file)">-->
                <!--<i class="el-icon-download"/>-->

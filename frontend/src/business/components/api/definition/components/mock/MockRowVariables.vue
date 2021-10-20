@@ -14,8 +14,6 @@
           <el-autocomplete :disabled="isReadOnly" :maxlength="400" v-model="item.name" size="small" style="width: 100%"
                            :fetch-suggestions="querySearch"
                            show-word-limit/>
-          <!--          <ms-api-variable-input :show-copy="showCopy" :show-variable="showVariable" :is-read-only="isReadOnly" v-model="item.name" size="small" maxlength="200" @change="change"-->
-          <!--                                 :placeholder="$t('api_test.variable_name')" show-word-limit/>-->
         </el-col>
         <el-col>
           <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"

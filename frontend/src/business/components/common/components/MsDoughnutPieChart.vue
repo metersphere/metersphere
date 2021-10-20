@@ -72,6 +72,8 @@ export default {
       this.reload();
     }
   },
+  created() {
+  },
   mounted() {
     this.reload();
   },
