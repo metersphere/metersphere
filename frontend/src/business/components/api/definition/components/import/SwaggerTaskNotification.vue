@@ -66,41 +66,49 @@
           </el-table-column>
           <el-table-column :label="$t('commons.operating')" prop="result" min-width="25%">
             <template v-slot:default="scope">
-              <el-button
+              <ms-tip-button
+                circle
                 type="success"
                 size="mini"
                 v-if="scope.row.isSet"
                 v-xpack
                 @click="handleTemplate(scope.$index,scope.row)"
-              >{{ $t('organization.message.template') }}
-              </el-button>
-              <el-button
+                :tip="$t('organization.message.template')"
+                icon="el-icon-tickets"/>
+              <ms-tip-button
+                circle
                 type="primary"
                 size="mini"
                 v-show="scope.row.isSet"
                 @click="handleAddTask(scope.$index,scope.row)"
-              >{{ $t('commons.add') }}
-              </el-button>
-              <el-button
+                :tip="$t('commons.add')"
+                icon="el-icon-check"/>
+              <ms-tip-button
+                circle
                 size="mini"
                 v-show="scope.row.isSet"
-                @click.native.prevent="removeRowTask(scope.$index,scheduleTask)"
-              >{{ $t('commons.cancel') }}
-              </el-button>
-              <el-button
+                @click="removeRowTask(scope.$index,scheduleTask)"
+                :tip="$t('commons.cancel')"
+                icon="el-icon-refresh-left"/>
+              <ms-tip-button
+                el-button
+                circle
                 type="primary"
                 size="mini"
+                icon="el-icon-edit"
                 v-show="!scope.row.isSet"
+                :tip="$t('commons.edit')"
                 @click="handleEditTask(scope.$index,scope.row)"
-              >{{ $t('commons.edit') }}
-              </el-button>
-              <el-button
+                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
+              <ms-tip-button
+                circle
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
                 v-show="!scope.row.isSet"
-                @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
-              ></el-button>
+                @click="deleteRowTask(scope.$index,scope.row)"
+                :tip="$t('commons.delete')"
+                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
             </template>
           </el-table-column>
         </el-table>
@@ -113,6 +121,7 @@
 <script>
 import {hasLicense} from "@/common/js/utils";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
+import MsTipButton from "@/business/components/common/components/MsTipButton";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
@@ -120,6 +129,7 @@ const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./
 export default {
   name: "SwaggerTaskNotification",
   components: {
+    MsTipButton,
     MsCodeEdit,
     "NoticeTemplate": noticeTemplate.default
   },
