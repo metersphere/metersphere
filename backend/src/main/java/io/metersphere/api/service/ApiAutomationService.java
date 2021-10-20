@@ -44,6 +44,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.AutomationReference;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.RelationshipEdgeService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -139,6 +140,8 @@ public class ApiAutomationService {
     private NodeKafkaService nodeKafkaService;
     @Resource
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
+    @Resource
+    private RelationshipEdgeService relationshipEdgeService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -474,7 +477,8 @@ public class ApiAutomationService {
             example.createCriteria().andIdIn(idList);
             testPlanApiScenarioMapper.deleteByExample(example);
         }
-
+        // 删除引用关系
+        relationshipEdgeService.delete(scenarioId);
         deleteBodyFileByScenarioId(scenarioId);
     }
 
@@ -539,6 +543,8 @@ public class ApiAutomationService {
             example.createCriteria().andIdIn(testPlanApiScenarioIdList);
             testPlanApiScenarioMapper.deleteByExample(example);
         }
+        // 删除引用关系
+        relationshipEdgeService.delete(scenarioIds);
         deleteBodyFileByScenarioIds(scenarioIds);
     }
 
@@ -2153,7 +2159,6 @@ public class ApiAutomationService {
     public void deleteBatchByCondition(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery(query));
-
         this.deleteBatch(request.getIds());
     }
 
@@ -2170,7 +2175,6 @@ public class ApiAutomationService {
      * @return
      */
     public float countInterfaceCoverage(List<ApiScenarioWithBLOBs> allScenarioInfoList, List<ApiDefinition> allEffectiveApiList) {
-        float intetfaceCoverage = 0;
         if (allEffectiveApiList == null || allEffectiveApiList.isEmpty()) {
             return 100;
         }
@@ -2206,7 +2210,6 @@ public class ApiAutomationService {
                     }
                 }
             }
-            useUrl = null;
         }
 
         List<String> containsApiIdList = new ArrayList<>();
@@ -2245,8 +2248,8 @@ public class ApiAutomationService {
         List<ApiMethodUrlDTO> urlList = new ArrayList<>();
 
         try {
-            String scenarioDefiniton = scenario.getScenarioDefinition();
-            JSONObject scenarioObj = JSONObject.parseObject(scenarioDefiniton);
+            String scenarioDefinition = scenario.getScenarioDefinition();
+            JSONObject scenarioObj = JSONObject.parseObject(scenarioDefinition);
             List<ApiMethodUrlDTO> stepUrlList = this.getMethodUrlDTOByHashTreeJsonObj(scenarioObj);
             if (CollectionUtils.isNotEmpty(stepUrlList)) {
                 Collection unionList = CollectionUtils.union(urlList, stepUrlList);
