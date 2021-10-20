@@ -1807,7 +1807,7 @@ export default {
       add_issue: "添加缺陷",
       issue_list: "缺陷列表",
       search_name: "根据标题搜索",
-      platform_tip: "在系统设置-组织-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台",
+      platform_tip: "在系统设置-工作空间-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台",
       input_title: "请输入标题",
       id: "缺陷ID",
       title: "缺陷标题",

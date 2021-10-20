@@ -1798,7 +1798,7 @@ export default {
       add_issue: "Add Issue",
       issue_list: "Issue List",
       search_name: "Search for title",
-      platform_tip: "Integrated defect management platform in the system setting-organization-service integration can automatically submit defects to the designated defect management platform",
+      platform_tip: "Integrated defect management platform in the system setting-workspace-service integration can automatically submit defects to the designated defect management platform",
       input_title: "Please enter title",
       id: "Issue ID",
       title: "Issue Title",
