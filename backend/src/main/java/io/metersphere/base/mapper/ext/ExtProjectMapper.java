@@ -31,4 +31,6 @@ public interface ExtProjectMapper {
     List<Integer> selectTcpPorts();
 
     Project selectProjectByResourceId(@Param("resourceId") String resourceId);
+
+    long getProjectMemberSize(@Param("projectId") String projectId);
 }

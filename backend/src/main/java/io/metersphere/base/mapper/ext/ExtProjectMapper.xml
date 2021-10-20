@@ -236,4 +236,9 @@
                 WHERE id = #{resourceId})
         LIMIT 1
     </select>
+    <select id="getProjectMemberSize" resultType="java.lang.Long">
+        SELECT count(distinct (`user`.id)) FROM user_group JOIN `user` ON user_group.user_id = `user`.id
+        WHERE user_group.source_id = #{projectId}
+    </select>
+
 </mapper>

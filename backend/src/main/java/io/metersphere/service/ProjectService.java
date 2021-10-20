@@ -728,8 +728,6 @@ public class ProjectService {
     }
 
     public long getProjectMemberSize(String id) {
-        UserGroupExample userGroupExample = new UserGroupExample();
-        userGroupExample.createCriteria().andSourceIdEqualTo(id);
-        return userGroupMapper.countByExample(userGroupExample);
+        return extProjectMapper.getProjectMemberSize(id);
     }
 }
