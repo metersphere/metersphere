@@ -67,10 +67,8 @@ export default {
         lazyLoad(node, resolve) {
           const {level, value} = node;
           if (level === 0) {
-            self.getOrganization(resolve);
+            self.getWorkspace(resolve);
           } else if (level === 1) {
-            self.getWorkspace(value, resolve);
-          } else if (level === 2) {
             self.getProject(value, resolve);
           } else {
             resolve([]);
@@ -116,17 +114,8 @@ export default {
         }
       });
     },
-    getOrganization(resolve) {
-      this.$get("organization/list", res => {
-        let data = res.data ? res.data : [];
-        if (data.length > 0) {
-          data.forEach(d => d.leaf = false);
-        }
-        resolve(data);
-      })
-    },
-    getWorkspace(condition, resolve) {
-      this.$get("workspace/list/" + condition, res => {
+    getWorkspace(resolve) {
+      this.$get("workspace/list/", res => {
         let data = res.data ? res.data : [];
         if (data.length > 0) {
           data.forEach(d => d.leaf = false);
