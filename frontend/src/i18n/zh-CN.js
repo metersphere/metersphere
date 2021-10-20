@@ -837,6 +837,7 @@ export default {
         update_time: "更新时间"
       },
       expect_detail: "期望详情",
+      request_condition:"请求触发条件",
       base_info: "基本信息",
       req_param: "请求参数",
       rsp_param: "响应内容",

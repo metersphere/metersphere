@@ -1,42 +1,24 @@
 <template>
   <div>
     <el-radio-group v-model="body.type" size="mini">
-      <el-radio :disabled="isReadOnly" :label="type.FORM_DATA" @change="modeChange">
-        {{ $t('api_test.definition.request.body_form_data') }}
-      </el-radio>
-
-      <el-radio :disabled="isReadOnly" :label="type.WWW_FORM" @change="modeChange">
-        {{ $t('api_test.definition.request.body_x_www_from_urlencoded') }}
-      </el-radio>
-
       <el-radio :disabled="isReadOnly" :label="type.JSON" @change="modeChange">
         {{ $t('api_test.definition.request.body_json') }}
       </el-radio>
-
+      <el-radio :disabled="isReadOnly" label="fromApi" @change="modeChange">
+<!--        {{ 跟随API定义 }}-->
+        跟随API定义
+      </el-radio>
       <el-radio :disabled="isReadOnly" :label="type.XML" @change="modeChange">
         {{ $t('api_test.definition.request.body_xml') }}
       </el-radio>
-
       <el-radio :disabled="isReadOnly" :label="type.RAW" @change="modeChange">
         {{ $t('api_test.definition.request.body_raw') }}
       </el-radio>
-
-      <el-radio :disabled="isReadOnly" :label="type.BINARY" @change="modeChange">
-        {{ $t('api_test.definition.request.body_binary') }}
+      <el-radio :disabled="isReadOnly" label="script" @change="modeChange">
+        {{ $t('api_test.automation.customize_script') }}
       </el-radio>
     </el-radio-group>
-    <div style="min-width: 1200px;" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
-      <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
-        <el-link class="ms-el-link" @click="batchAdd"> {{ $t("commons.batch_add") }}</el-link>
-      </el-row>
-      <ms-api-variable
-        :with-mor-setting="true"
-        :is-read-only="isReadOnly"
-        :parameters="body.kvs"
-        :isShowEnable="isShowEnable"
-        type="body"/>
-    </div>
-    <div v-if="body.type == 'JSON'">
+    <div class="ms-body" v-if="body.type == 'JSON'">
       <div style="padding: 10px">
         <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA"/>
       </div>
@@ -45,21 +27,35 @@
         :body="body"
         ref="jsonCodeEdit"/>
       <ms-code-edit
-        v-else-if="codeEditActive"
+        v-else-if="codeEditActive && loadIsOver"
         :read-only="isReadOnly"
         :data.sync="body.raw"
         :modes="modes"
         :mode="'json'"
-        height="400px"
+        height="90%"
         ref="codeEdit"/>
     </div>
 
-    <div class="ms-body" v-if="body.type == 'XML'">
+    <div class="ms-body" v-if="body.type == 'fromApi'">
       <ms-code-edit
-        :read-only="isReadOnly"
-        :data.sync="body.raw"
+        :read-only="true"
+        :data.sync="body.apiRspRaw"
         :modes="modes"
         :mode="'text'"
+        v-if="loadIsOver"
+        height="90%"
+        ref="fromApiCodeEdit"/>
+    </div>
+
+    <div class="ms-body" v-if="body.type == 'XML'">
+      <el-input v-model="body.xmlHeader" size="small" style="width: 400px;margin-bottom: 5px"/>
+      <ms-code-edit
+        :read-only="isReadOnly"
+        :data.sync="body.xmlRaw"
+        :modes="modes"
+        :mode="'xml'"
+        v-if="loadIsOver"
+        height="90%"
         ref="codeEdit"/>
     </div>
 
@@ -68,45 +64,45 @@
         :read-only="isReadOnly"
         :data.sync="body.raw"
         :modes="modes"
+        height="90%"
         ref="codeEdit"/>
     </div>
 
-    <ms-api-binary-variable
-      :is-read-only="isReadOnly"
-      :parameters="body.binary"
-      :isShowEnable="isShowEnable"
-      type="body"
-      v-if="body.type == 'BINARY'"/>
+    <div class="ms-body" v-if="body.type == 'script'">
+      <mock-api-script-editor v-if="loadIsOver"
+                 :jsr223-processor="body.scriptObject"/>
+    </div>
+
     <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
   </div>
 </template>
 
 <script>
-import MsApiKeyValue from "../ApiKeyValue";
-import {BODY_TYPE, KeyValue} from "../../model/ApiTestModel";
-import MsCodeEdit from "../../../../common/components/MsCodeEdit";
-import MsJsonCodeEdit from "../../../../common/json-schema/JsonSchemaEditor";
-import MsDropdown from "../../../../common/components/MsDropdown";
-import MsApiVariable from "../ApiVariable";
-import MsApiBinaryVariable from "./ApiBinaryVariable";
-import MsApiFromUrlVariable from "./ApiFromUrlVariable";
-import BatchAddParameter from "../basis/BatchAddParameter";
+import MsApiKeyValue from "@/business/components/api/definition/components/ApiKeyValue";
+import {BODY_TYPE, KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
+import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
+import MsDropdown from "@/business/components/common/components/MsDropdown";
+import MsApiVariable from "@/business/components/api/definition/components/ApiVariable";
+import MsApiFromUrlVariable from "@/business/components/api/definition/components/body/ApiFromUrlVariable";
+import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 import Convert from "@/business/components/common/json-schema/convert/convert";
-
+import MockApiScriptEditor from "@/business/components/api/definition/components/mock/Components/MockApiScriptEditor";
 
 export default {
-  name: "MsApiBody",
+  name: "MockApiResponseBody",
   components: {
     MsApiVariable,
     MsDropdown,
     MsCodeEdit,
     MsApiKeyValue,
-    MsApiBinaryVariable,
     MsApiFromUrlVariable,
     MsJsonCodeEdit,
-    BatchAddParameter
+    BatchAddParameter,
+    MockApiScriptEditor
   },
   props: {
+    apiId:String,
     body: {},
     headers: Array,
     isReadOnly: {
@@ -120,6 +116,7 @@ export default {
   },
   data() {
     return {
+      loadIsOver: true,
       type: BODY_TYPE,
       modes: ['text', 'json', 'xml', 'html'],
       jsonSchema: "JSON",
@@ -143,13 +140,30 @@ export default {
         }
       }
     },
+
+    'body.xmlRaw'() {
+      if (!this.body.xmlRaw) {
+        this.body.xmlRaw = '';
+      }
+    },
+
+    'body.scriptObject'() {
+      if (!this.body.scriptObject) {
+        this.body.scriptObject = {};
+      }
+    },
+
+    'body.xmlHeader'() {
+      if (!this.body.xmlHeader) {
+        this.body.xmlHeader = 'version="1.0" encoding="UTF-8"';
+      }
+    },
   },
   methods: {
     isObj(x) {
       let type = typeof x;
       return x !== null && (type === 'object' || type === 'function');
     },
-
     toObject(val) {
       if (val === null || val === undefined) {
         return;
@@ -226,22 +240,37 @@ export default {
     modeChange(mode) {
       switch (this.body.type) {
         case "JSON":
-          this.setContentType("application/json");
+          // this.setContentType("application/json");
+          this.refreshMsCodeEdit();
           break;
         case "XML":
-          this.setContentType("text/xml");
+          // this.setContentType("text/xml");
+          this.refreshMsCodeEdit();
           break;
-        case "WWW_FORM":
-          this.setContentType("application/x-www-form-urlencoded");
-          break;
-        // todo from data
-        case "BINARY":
-          this.setContentType("application/octet-stream");
+        case "fromApi":
+          this.selectApiResponse();
           break;
         default:
-          this.removeContentType();
+          // this.removeContentType();
+          this.refreshMsCodeEdit();
           break;
       }
+    },
+    refreshMsCodeEdit(){
+      this.loadIsOver = false;
+      this.$nextTick(() => {
+        this.loadIsOver = true;
+      });
+    },
+    selectApiResponse(){
+      let selectUrl = "/mockConfig/getApiResponse/" + this.apiId;
+      this.$get(selectUrl, response => {
+        let apiResponse = response.data;
+        if(apiResponse && apiResponse.returnMsg){
+          this.body.apiRspRaw = apiResponse.returnMsg;
+        }
+        this.refreshMsCodeEdit();
+      });
     },
     setContentType(value) {
       let isType = false;
@@ -322,7 +351,16 @@ export default {
         }
       });
     }
+    if (!this.body.xmlRaw) {
+      this.body.xmlRaw = '';
+    }
+    if (!this.body.scriptObject) {
+      this.body.scriptObject = {};
+    }
 
+    if (!this.body.xmlHeader) {
+      this.body.xmlHeader = 'version="1.0" encoding="UTF-8"';
+    }
   }
 }
 </script>
@@ -334,7 +372,7 @@ export default {
 
 .ms-body {
   padding: 15px 0;
-  height: 400px;
+  height: 150px;
 }
 
 .el-dropdown {

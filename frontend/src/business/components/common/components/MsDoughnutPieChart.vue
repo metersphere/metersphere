@@ -69,8 +69,12 @@ export default {
   },
   watch: {
     data() {
+      console.log(JSON.stringify(this.data));
       this.reload();
     }
+  },
+  created() {
+    console.log(JSON.stringify(this.data));
   },
   mounted() {
     this.reload();

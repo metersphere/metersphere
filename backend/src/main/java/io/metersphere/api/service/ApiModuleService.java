@@ -295,6 +295,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (StringUtils.isNotBlank(node.getId())) {
             criteria.andIdNotEqualTo(node.getId());
         }
+        if(StringUtils.isNotEmpty(node.getProtocol())){
+            criteria.andProtocolEqualTo(node.getProtocol());
+        }
         return apiModuleMapper.selectByExample(example);
     }
 
