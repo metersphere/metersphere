@@ -143,13 +143,13 @@ export default {
         '<body>\n' +
         '<div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        ${operator}执行测试完成: ${name}, 结果是: ${status}' +
+        '        ${operator}执行测试成功: ${name}, 报告: ${reportUrl}' +
         '    </div>\n' +
         '\n' +
         '</div>\n' +
         '</body>\n' +
         '</html>',
-      robotTitle: "${operator}执行测试完成: ${name}, 结果是: ${status}",
+      robotTitle: "${operator}执行测试成功: ${name}, 报告: ${reportUrl}",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",
@@ -259,9 +259,12 @@ export default {
         let robotTemplate = "";
         switch (row.event) {
           case 'EXECUTE_SUCCESSFUL':
-          case 'EXECUTE_FAILED':
             htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
+            break;
+          case 'EXECUTE_FAILED':
+            htmlTemplate = this.title.replace('成功', '失败');
+            robotTemplate = this.robotTitle.replace('成功', '失败');
             break;
           default:
             break;

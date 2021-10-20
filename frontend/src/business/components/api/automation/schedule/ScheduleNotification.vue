@@ -106,7 +106,7 @@
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 </template>
 
@@ -143,13 +143,13 @@ export default {
         '<body>\n' +
         '<div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        ${operator}执行测试完成: ${name}, 结果是: ${status}' +
+        '        ${operator}执行接口测成功: ${name}, 报告: ${reportUrl}' +
         '    </div>\n' +
         '\n' +
         '</div>\n' +
         '</body>\n' +
         '</html>',
-      robotTitle: "${operator}执行测试完成: ${name}, 结果是: ${status}",
+      robotTitle: "${operator}执行接口测成功: ${name}, 报告: ${reportUrl}",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",
@@ -171,13 +171,44 @@ export default {
         {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
         {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
-    }
+      variables: [
+        'operator',
+        'id',
+        'reportUrl',
+        'projectId',
+        'tags',
+        'userId',
+        'apiScenarioModuleId',
+        'modulePath',
+        'name',
+        'level',
+        'status',
+        'principal',
+        'stepTotal',
+        'followPeople',
+        'schedule',
+        'createTime',
+        'updateTime',
+        'passRate',
+        'lastResult',
+        'reportId',
+        'num',
+        'originalState',
+        'customNum',
+        'createUser',
+        'version',
+        'deleteTime',
+        'deleteUserId',
+        'executeTimes',
+        'order'
+      ]
+    };
   },
   mounted() {
-    this.initForm()
+    this.initForm();
   },
   activated() {
-    this.initForm()
+    this.initForm();
   },
   watch: {
     testId() {
@@ -189,7 +220,7 @@ export default {
       this.result = this.$get('/notice/search/message/' + this.testId, response => {
         // console.log(response.data);
         this.scheduleTask = response.data;
-      })
+      });
     },
     handleEdit(index, data) {
       data.isReadOnly = true;
@@ -238,13 +269,13 @@ export default {
     },
     addTask(data) {
       this.result = this.$post("/notice/save/message/task", data, () => {
-        this.initForm()
+        this.initForm();
         this.$success(this.$t('commons.save_success'));
-      })
+      });
     },
     removeRowTask(index, data) { //移除
       if (!data[index].identification) {
-        data.splice(index, 1)
+        data.splice(index, 1);
       } else {
         data[index].isSet = false;
       }
@@ -252,14 +283,14 @@ export default {
     deleteRowTask(index, data) { //删除
       this.result = this.$get("/notice/delete/message/" + data.identification, response => {
         this.$success(this.$t('commons.delete_success'));
-        this.initForm()
-      })
+        this.initForm();
+      });
     },
     rowClass() {
-      return "text-align:center"
+      return "text-align:center";
     },
     headClass() {
-      return "text-align:center;background:'#ededed'"
+      return "text-align:center;background:'#ededed'";
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
@@ -267,9 +298,12 @@ export default {
         let robotTemplate = "";
         switch (row.event) {
           case 'EXECUTE_SUCCESSFUL':
-          case 'EXECUTE_FAILED':
             htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
+            break;
+          case 'EXECUTE_FAILED':
+            htmlTemplate = this.title.replace('成功', '失败');
+            robotTemplate = this.robotTitle.replace('成功', '失败');
             break;
           default:
             break;
@@ -278,7 +312,7 @@ export default {
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>

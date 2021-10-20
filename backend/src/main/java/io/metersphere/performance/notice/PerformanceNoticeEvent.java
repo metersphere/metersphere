@@ -41,19 +41,15 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
     public void sendNotice(LoadTestReport loadTestReport) {
 
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        String url = baseSystemConfigDTO.getUrl() + "/#/performance/report/view/" + loadTestReport.getId();
-        String successContext = "";
-        String failedContext = "";
+        String reportUrl = baseSystemConfigDTO.getUrl() + "/#/performance/report/view/" + loadTestReport.getId();
         String subject = "";
         String event = "";
+        String successContext = "${operator}执行性能测试成功: ${name}, 报告: ${reportUrl}";
+        String failedContext = "${operator}执行性能测试失败: ${name}, 报告: ${reportUrl}";
         if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())) {
-            successContext = "性能测试 API任务通知:" + loadTestReport.getName() + "执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "性能测试 API任务通知:" + loadTestReport.getName() + "执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification_jenkins");
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), loadTestReport.getTriggerMode())) {
-            successContext = "性能测试定时任务通知:" + loadTestReport.getName() + "执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "性能测试定时任务通知:" + loadTestReport.getName() + "执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification");
         }
 
@@ -71,6 +67,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
         paramMap.put("operator", userDTO.getName());
         paramMap.put("type", "performance");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
+        paramMap.put("reportUrl", reportUrl);
         paramMap.putAll(new BeanMap(loadTestDTO));
 
 

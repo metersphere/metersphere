@@ -153,7 +153,7 @@ public class TestResultService {
             if (reportTask != null) {
                 if (StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode())
                         || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
-                    sendTask(reportTask, reportUrl, testResult);
+                    sendTask(reportTask, testResult);
                 }
             }
         } catch (Exception e) {
@@ -194,7 +194,7 @@ public class TestResultService {
         }
     }
 
-    private void sendTask(ApiTestReportVariable report, String reportUrl, TestResult testResult) {
+    private void sendTask(ApiTestReportVariable report, TestResult testResult) {
         if (report == null) {
             return;
         }
@@ -203,12 +203,12 @@ public class TestResultService {
         assert systemParameterService != null;
         assert noticeSendService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        String url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
+        String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
 
         String subject = "";
         String event = "";
-        String successContext = "${operator}执行接口测成功: ${name}" + ", 报告: " + url2;
-        String failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: " + url2;
+        String successContext = "${operator}执行接口测成功: ${name}" + ", 报告: ${reportUrl}";
+        String failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: ${reportUrl}";
 
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
             subject = Translator.get("task_notification_jenkins");
@@ -231,6 +231,7 @@ public class TestResultService {
         Map paramMap = new HashMap<>();
         paramMap.put("type", "api");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
+        paramMap.put("reportUrl", reportUrl);
         paramMap.put("operator", report.getExecutor());
         paramMap.putAll(new BeanMap(report));
         NoticeModel noticeModel = NoticeModel.builder()
