@@ -53,6 +53,6 @@ create table if not exists relationship_edge (
 
 ALTER TABLE api_definition ADD remark TEXT NULL;
 
-ALTER TABLE test_case_review ADD COLUMN follow_people;
-ALTER TABLE test_plan ADD COLUMN follow_people;
+ALTER TABLE test_case_review ADD COLUMN follow_people VARCHAR(100);
+ALTER TABLE test_plan ADD COLUMN follow_people VARCHAR(100);
 
