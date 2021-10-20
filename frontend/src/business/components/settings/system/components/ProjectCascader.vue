@@ -141,7 +141,7 @@ export default {
 
 <style scoped>
 .user-cascade >>> .el-dialog {
-  width: 750px;
+  width: 600px;
 }
 
 .user-cascade >>> .el-dialog__body {
@@ -154,6 +154,6 @@ export default {
 
 /deep/ .el-cascader-menu__wrap {
   height: 300px;
-  width: 250px;
+  width: 280px;
 }
 </style>
