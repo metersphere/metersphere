@@ -175,36 +175,6 @@ public class UserService {
 
     }
 
-    private void insertUserRole(List<Map<String, Object>> roles, String userId) {
-        for (int i = 0; i < roles.size(); i++) {
-            Map<String, Object> map = roles.get(i);
-            String role = (String) map.get("id");
-            if (StringUtils.equals(role, RoleConstants.ADMIN)) {
-                UserRole userRole = new UserRole();
-                userRole.setId(UUID.randomUUID().toString());
-                userRole.setUserId(userId);
-                userRole.setUpdateTime(System.currentTimeMillis());
-                userRole.setCreateTime(System.currentTimeMillis());
-                userRole.setRoleId(role);
-                // TODO 修改
-                userRole.setSourceId("adminSourceId");
-                userRoleMapper.insertSelective(userRole);
-            } else {
-                List<String> list = (List<String>) map.get("ids");
-                for (int j = 0; j < list.size(); j++) {
-                    UserRole userRole1 = new UserRole();
-                    userRole1.setId(UUID.randomUUID().toString());
-                    userRole1.setUserId(userId);
-                    userRole1.setRoleId(role);
-                    userRole1.setUpdateTime(System.currentTimeMillis());
-                    userRole1.setCreateTime(System.currentTimeMillis());
-                    userRole1.setSourceId(list.get(j));
-                    userRoleMapper.insertSelective(userRole1);
-                }
-            }
-        }
-    }
-
     private void checkUserParam(User user) {
 
         if (StringUtils.isBlank(user.getId())) {
@@ -535,53 +505,6 @@ public class UserService {
         userGroupMapper.deleteByExample(userGroupExample);
     }
 
-    public void addOrganizationMember(AddOrgMemberRequest request) {
-        if (!CollectionUtils.isEmpty(request.getUserIds())) {
-            for (String userId : request.getUserIds()) {
-                UserGroupExample userGroupExample = new UserGroupExample();
-                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
-                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-                if (userGroups.size() > 0) {
-                    MSException.throwException(Translator.get("user_already_exists") + ": " + userId);
-                } else {
-                    for (String groupId : request.getGroupIds()) {
-                        UserGroup userGroup = new UserGroup();
-                        userGroup.setId(UUID.randomUUID().toString());
-                        userGroup.setUserId(userId);
-                        userGroup.setGroupId(groupId);
-                        userGroup.setSourceId(request.getOrganizationId());
-                        userGroup.setCreateTime(System.currentTimeMillis());
-                        userGroup.setUpdateTime(System.currentTimeMillis());
-                        userGroupMapper.insertSelective(userGroup);
-                    }
-                }
-            }
-        }
-    }
-
-    public void delOrganizationMember(String organizationId, String userId) {
-
-        GroupExample groupExample = new GroupExample();
-        groupExample.createCriteria().andTypeEqualTo(UserGroupType.ORGANIZATION);
-        List<Group> groups = groupMapper.selectByExample(groupExample);
-        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
-
-        if (CollectionUtils.isEmpty(groupIds)) {
-            return;
-        }
-
-        UserGroupExample userGroupExample = new UserGroupExample();
-        userGroupExample.createCriteria().andUserIdEqualTo(userId)
-                .andGroupIdIn(groupIds)
-                .andSourceIdEqualTo(organizationId);
-
-        userGroupMapper.deleteByExample(userGroupExample);
-    }
-
-    public List<User> getOrgMemberList(QueryOrgMemberRequest request) {
-        return extUserGroupMapper.getOrgMemberList(request);
-    }
-
     public boolean checkUserPassword(String userId, String password) {
         if (StringUtils.isBlank(userId)) {
             MSException.throwException(Translator.get("user_name_is_null"));
@@ -592,13 +515,6 @@ public class UserService {
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
         return userMapper.countByExample(example) > 0;
-    }
-
-    /**
-     * 查询该组织外的其他用户列表
-     */
-    public List<User> getBesideOrgMemberList(String orgId) {
-        return extUserRoleMapper.getBesideOrgMemberList(orgId);
     }
 
     public void setLanguage(String lang) {
@@ -758,7 +674,6 @@ public class UserService {
             Project p = projectMapper.selectByPrimaryKey(projectId);
             String wsId = p.getWorkspaceId();
             Workspace workspace = workspaceMapper.selectByPrimaryKey(wsId);
-            String orgId = workspace.getOrganizationId();
             user.setId(user.getId());
             user.setLastProjectId(projectId);
             user.setLastWorkspaceId(wsId);
@@ -987,72 +902,6 @@ public class UserService {
         }
 
     }
-
-    private Map<String, List<String>> genRoleResourceMap(List<String> batchProcessValue) {
-        Map<String, List<String>> returnMap = new HashMap<>();
-        Map<String, String> workspaceToOrgMap = new HashMap<>();
-        for (String string : batchProcessValue) {
-            String[] stringArr = string.split("<->");
-            // string格式： 资源ID<->权限<->workspace/org
-            if (stringArr.length == 3) {
-                String resourceID = stringArr[0];
-                String role = stringArr[1];
-                String sourceType = stringArr[2];
-                String finalResourceId = resourceID;
-                if (StringUtils.equalsIgnoreCase(sourceType, "workspace")) {
-                    if (StringUtils.equalsAnyIgnoreCase(role, RoleConstants.ORG_ADMIN, RoleConstants.ORG_MEMBER)) {
-                        finalResourceId = workspaceToOrgMap.get(resourceID);
-                        if (finalResourceId == null) {
-                            finalResourceId = workspaceService.getOrganizationIdById(resourceID);
-                            workspaceToOrgMap.put(resourceID, finalResourceId);
-                        }
-                    }
-                }
-                if (StringUtils.isNotEmpty(finalResourceId)) {
-                    if (returnMap.containsKey(role)) {
-                        if (!returnMap.get(role).contains(finalResourceId)) {
-                            returnMap.get(role).add(finalResourceId);
-                        }
-
-                    } else {
-                        List<String> list = new ArrayList<>();
-                        list.add(finalResourceId);
-                        returnMap.put(role, list);
-                    }
-                }
-            }
-        }
-        return returnMap;
-    }
-
-    private UserRequest convert2UserRequest(String userID, Map<String, List<String>> roleIdMap, List<UserRole> userRoles) {
-        Map<String, List<String>> userRoleAndResourceMap = userRoles.stream().collect(
-                Collectors.groupingBy(UserRole::getRoleId, Collectors.mapping(UserRole::getSourceId, Collectors.toList())));
-        List<Map<String, Object>> roles = new ArrayList<>();
-        for (Map.Entry<String, List<String>> entry : roleIdMap.entrySet()) {
-            String role = entry.getKey();
-            List<String> rawResourceIDList = entry.getValue();
-            List<String> resourceIDList = new ArrayList<>();
-            for (String resourceID : rawResourceIDList) {
-                if (userRoleAndResourceMap.containsKey(role) && userRoleAndResourceMap.get(role).contains(resourceID)) {
-                    continue;
-                }
-                resourceIDList.add(resourceID);
-            }
-            if (resourceIDList.isEmpty()) {
-                continue;
-            }
-            Map<String, Object> roleMap = new HashMap<>();
-            roleMap.put("id", role);
-            roleMap.put("ids", resourceIDList);
-            roles.add(roleMap);
-        }
-        UserRequest request = new UserRequest();
-        request.setId(userID);
-        request.setRoles(roles);
-        return request;
-    }
-
 
     public Set<String> getUserPermission(String userId) {
         UserGroupExample userGroupExample = new UserGroupExample();

@@ -91,9 +91,6 @@ public class WorkspaceService {
     public List<Workspace> getWorkspaceList(WorkspaceRequest request) {
         WorkspaceExample example = new WorkspaceExample();
         WorkspaceExample.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(request.getOrganizationId())) {
-            criteria.andOrganizationIdEqualTo(request.getOrganizationId());
-        }
         if (StringUtils.isNotBlank(request.getName())) {
             criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
         }

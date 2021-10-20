@@ -95,11 +95,6 @@ public class GroupController {
         return groupService.getGroupsByType(request);
     }
 
-    @GetMapping("/list/org/{orgId}/{userId}")
-    public List<Group> getOrganizationMemberGroups(@PathVariable String orgId, @PathVariable String userId) {
-        return groupService.getOrganizationMemberGroups(orgId, userId);
-    }
-
     @GetMapping("/list/ws/{workspaceId}/{userId}")
     public List<Group> getWorkspaceMemberGroups(@PathVariable String workspaceId, @PathVariable String userId) {
         return groupService.getWorkspaceMemberGroups(workspaceId, userId);

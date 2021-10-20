@@ -94,13 +94,6 @@ public class WorkspaceController {
         workspaceService.updateWorkspaceMember(memberDTO);
     }
 
-    @GetMapping("/list/{orgId}")
-    public List<Workspace> getWorkspaceByOrgId(@PathVariable String orgId) {
-        WorkspaceRequest request = new WorkspaceRequest();
-        request.setOrganizationId(orgId);
-        return workspaceService.getWorkspaceList(request);
-    }
-
     @GetMapping("/list/resource/{groupId}/{type}")
     public WorkspaceResource listResource(@PathVariable String groupId, @PathVariable String type) {
         return workspaceService.listResource(groupId, type);

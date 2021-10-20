@@ -12,8 +12,6 @@ import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.member.UserRequest;
-import io.metersphere.controller.request.organization.AddOrgMemberRequest;
-import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
 import io.metersphere.dto.*;
 import io.metersphere.excel.domain.ExcelResponse;
@@ -98,29 +96,6 @@ public class UserController {
     @MsAuditLog(module = "workspace_member", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#userId)", msClass = UserService.class)
     public void deleteMemberByAdmin(@PathVariable String workspaceId, @PathVariable String userId) {
         userService.deleteMember(workspaceId, userId);
-    }
-
-    @PostMapping("/special/org/member/add")
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.userIds,#request.organizationId)", msClass = UserService.class)
-    public void addOrganizationMemberByAdmin(@RequestBody AddOrgMemberRequest request) {
-        userService.addOrganizationMember(request);
-    }
-
-    @GetMapping("/special/org/member/delete/{organizationId}/{userId}")
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#userId)", msClass = UserService.class)
-    public void delOrganizationMemberByAdmin(@PathVariable String organizationId, @PathVariable String userId) {
-        userService.delOrganizationMember(organizationId, userId);
-    }
-
-    @PostMapping("/special/org/member/list/{goPage}/{pageSize}")
-    public Pager<List<User>> getOrgMemberListByAdmin(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryOrgMemberRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, userService.getOrgMemberList(request));
-    }
-
-    @PostMapping("/special/org/member/list/all")
-    public List<User> getOrgMemberListByAdmin(@RequestBody QueryOrgMemberRequest request) {
-        return userService.getOrgMemberList(request);
     }
 
     @GetMapping("/list")
@@ -239,11 +214,6 @@ public class UserController {
     @GetMapping("/ws/member/list/{workspaceId}")
     public List<User> getWsMemberList(@PathVariable String workspaceId) {
         return userService.getWsAllMember(workspaceId);
-    }
-
-    @GetMapping("/besideorg/list/{orgId}")
-    public List<User> getBesideOrgMemberList(@PathVariable String orgId) {
-        return userService.getBesideOrgMemberList(orgId);
     }
 
     /*

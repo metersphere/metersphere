@@ -8,13 +8,6 @@
         from user_group ug join `group` g on ug.group_id = g.id
         where ug.user_id = #{userId}
     </select>
-    <select id="getOrganizationMemberGroups" resultType="io.metersphere.base.domain.Group">
-        select g.id, g.name
-        from organization o
-                 join user_group ug on o.id = ug.source_id
-                 join `group` g on g.id = ug.group_id
-        where o.id = #{orgId} and ug.user_id = #{userId}
-    </select>
     <select id="getOrgMemberList" resultType="io.metersphere.base.domain.User">
         SELECT DISTINCT * FROM (
         SELECT `user`.*

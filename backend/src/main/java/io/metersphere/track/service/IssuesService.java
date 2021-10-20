@@ -178,11 +178,9 @@ public class IssuesService {
 
     public List<String> getPlatforms(Project project) {
         String workspaceId = project.getWorkspaceId();
-        Workspace workspace = workspaceMapper.selectByPrimaryKey(workspaceId);
-        String orgId = workspace.getOrganizationId();
-        boolean tapd = isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
-        boolean jira = isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
-        boolean zentao = isIntegratedPlatform(orgId, IssuesManagePlatform.Zentao.toString());
+        boolean tapd = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Tapd.toString());
+        boolean jira = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Jira.toString());
+        boolean zentao = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Zentao.toString());
 
         List<String> platforms = new ArrayList<>();
         if (tapd) {

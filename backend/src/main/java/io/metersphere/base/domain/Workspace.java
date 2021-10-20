@@ -7,8 +7,6 @@ import lombok.Data;
 public class Workspace implements Serializable {
     private String id;
 
-    private String organizationId;
-
     private String name;
 
     private String description;

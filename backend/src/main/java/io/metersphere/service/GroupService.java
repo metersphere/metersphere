@@ -255,14 +255,9 @@ public class GroupService {
         return groupMapper.selectByExample(groupExample);
     }
 
-    public List<Group> getOrganizationMemberGroups(String orgId, String userId) {
-        return extUserGroupMapper.getOrganizationMemberGroups(orgId, userId);
-    }
-
     public List<Group> getWorkspaceMemberGroups(String workspaceId, String userId) {
         return extUserGroupMapper.getWorkspaceMemberGroups(workspaceId, userId);
     }
-
 
     private List<GroupResourceDTO> getResourcePermission(List<GroupResource> resource, List<GroupPermission> permissions, String type, List<String> permissionList) {
         List<GroupResourceDTO> dto = new ArrayList<>();
