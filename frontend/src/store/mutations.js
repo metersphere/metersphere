@@ -17,6 +17,9 @@ const mutations = {
   setTestPlanViewSelectNode: (state, value) => state.testPlanViewSelectNode = value,
   setIsTestCaseMinderChanged: (state, value) => state.isTestCaseMinderChanged = value,
   setCurrentProjectIsCustomNum: (state, value) => state.currentProjectIsCustomNum = value,
+  setTestCaseTemplate: (state, value) => {
+    state.testCaseTemplate = value
+  },
 }
 
 export default mutations;
