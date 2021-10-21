@@ -548,7 +548,7 @@ export default {
       update: "更新代码片段",
       delete: "删除自定义代码片段",
       language: "脚本语言",
-      relate_tip: "在 系统设置->项目->自定义代码片段 菜单中创建",
+      relate_tip: "在 项目设置->自定义代码片段 菜单中创建",
       select_tip: "请选择自定义代码片段!",
       none_content: "自定义代码片段为空！",
       segment: "代码片段",

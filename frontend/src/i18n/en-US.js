@@ -544,7 +544,7 @@ export default {
       update: "Update Custom Code",
       delete: "Delete Custom Code",
       language: "language",
-      relate_tip: "Create in the System Settings -> Project -> Custom Code Snippet menu",
+      relate_tip: "Create in the Project Settings -> Custom Code Snippet menu",
       select_tip: "Please select a custom code!",
       none_content: "The custom code snippet is empty！",
       segment: "code segment",
