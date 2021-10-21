@@ -25,6 +25,9 @@
     <!-- 请求参数 -->
     <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
     <ms-basis-parameters :showScript="false" :request="request"/>
+
+    <api-other-info :api="basisData"/>
+
     <ms-change-history ref="changeHistory"/>
 
   </div>
@@ -34,10 +37,12 @@
 import MsBasisApi from "./BasisApi";
 import MsBasisParameters from "../request/database/BasisParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
+import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
 
 export default {
   name: "MsApiSqlRequestForm",
   components: {
+    ApiOtherInfo,
     MsBasisApi, MsBasisParameters,MsChangeHistory
   },
   props: {

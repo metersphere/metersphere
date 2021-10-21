@@ -52,6 +52,7 @@
       <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :show-options-button="true" :request="request" />
 <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
     </div>
+    <api-other-info :api="basisData"/>
 
     <ms-change-history ref="changeHistory"/>
 
@@ -64,13 +65,15 @@ import MsTcpBasicApi from "./TCPBasicApi";
 import MsTcpFormatParameters from  "../request/tcp/TcpFormatParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import {hasLicense, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
 const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 export default {
   name: "MsAddCompleteTcpApi",
-  components: {MsTcpBasicApi, MsTcpFormatParameters,MsChangeHistory,
+  components: {
+    ApiOtherInfo, MsTcpBasicApi, MsTcpFormatParameters,MsChangeHistory,
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default},
   props: {
