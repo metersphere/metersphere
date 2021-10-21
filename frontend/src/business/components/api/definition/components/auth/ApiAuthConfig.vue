@@ -55,58 +55,60 @@
 </template>
 
 <script>
-  import {createComponent} from "../jmeter/components";
+import {createComponent} from "../jmeter/components";
 
-  export default {
-    name: "MsApiAuthConfig",
-    components: {},
-    props: {
-      request: {},
-    },
-    created() {
-      if (this.request.hashTree) {
-        for (let index in this.request.hashTree) {
-          if (this.request.hashTree[index].type == 'AuthManager') {
-            this.request.authManager = this.request.hashTree[index];
-            this.request.hashTree.splice(index, 1);
-          }
-        }
-      }
-      if (this.request.authManager) {
-        this.authConfig = this.request.authManager;
-      }
-    },
-    data() {
-      return {
-        options: [{name: "No Auth"}, {name: "Basic Auth"}],
-        encryptOptions: [{id: false, name: "不加密"}],
-        activeName: "verified",
-        rule: {},
-        authConfig: {},
-      }
-    },
-    methods: {
-      change() {
-        if (this.authConfig.verification === "Basic Auth") {
-          let authManager = createComponent("AuthManager");
-          authManager.verification = "Basic Auth";
-          authManager.environment = this.request.useEnvironment;
-          this.request.hashTree.push(authManager);
-          this.authConfig = authManager;
-        } else {
-          for (let index in this.request.hashTree) {
-            if (this.request.hashTree[index].type === "AuthManager") {
-              this.request.hashTree.splice(index, 1);
-            }
-          }
+export default {
+  name: "MsApiAuthConfig",
+  components: {},
+  props: {
+    request: {},
+  },
+  created() {
+    if (this.request.hashTree) {
+      for (let index in this.request.hashTree) {
+        if (this.request.hashTree[index].type == 'AuthManager') {
+          this.request.authManager = this.request.hashTree[index];
+          this.request.hashTree.splice(index, 1);
         }
       }
     }
+    if (this.request.authManager) {
+      this.authConfig = this.request.authManager;
+    }
+  },
+  data() {
+    return {
+      options: [{name: "No Auth"}, {name: "Basic Auth"}],
+      encryptOptions: [{id: false, name: "不加密"}],
+      activeName: "verified",
+      rule: {},
+      authConfig: {},
+    }
+  },
+  methods: {
+    change() {
+      if (this.authConfig.verification === "Basic Auth") {
+        let authManager = createComponent("AuthManager");
+        authManager.verification = "Basic Auth";
+        authManager.environment = this.request.useEnvironment;
+        this.request.hashTree.push(authManager);
+        this.authConfig = authManager;
+      } else {
+        for (let index in this.request.hashTree) {
+          if (this.request.hashTree[index].type === "AuthManager") {
+            this.request.hashTree.splice(index, 1);
+          }
+        }
+        this.request.authManager = {};
+      }
+      this.request.authManager = this.authConfig;
+    }
   }
+}
 </script>
 
 <style scoped>
-  /deep/ .el-tabs__nav-wrap::after {
-    height: 0px;
-  }
+/deep/ .el-tabs__nav-wrap::after {
+  height: 0px;
+}
 </style>

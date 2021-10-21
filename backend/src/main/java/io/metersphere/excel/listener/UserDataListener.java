@@ -1,6 +1,5 @@
 package io.metersphere.excel.listener;
 
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -19,8 +18,6 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
 
     //key:workspace.name value:id
     Map<String, String> workspaceNameMap;
-    //key:Organization.name value:id
-    Map<String, String> orgNameMap;
     /**
      * key:project.name value.id
      */
@@ -47,10 +44,9 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
         return this.names;
     }
 
-    public UserDataListener(Class clazz, Map<String, String> workspaceNameMap, Map<String, String> orgNameMap, Map<String, String> projectNameMap) {
+    public UserDataListener(Class clazz, Map<String, String> workspaceNameMap, Map<String, String> projectNameMap) {
         this.clazz = clazz;
         this.workspaceNameMap = workspaceNameMap;
-        this.orgNameMap = orgNameMap;
         this.projectNameMap = projectNameMap;
         this.userService = (UserService) CommonBeanFactory.getBean("userService");
         savedUserId = userService.selectAllId();
@@ -60,16 +56,6 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     public String validate(UserExcelData data, String errMsg) {
         StringBuilder stringBuilder = new StringBuilder(errMsg);
 
-        //判断组织管理员组织(系统)
-        String orgManagerOrgCheck = this.checkOrganization(data.getUserIsOrgAdmin(), data.getOrgAdminOrganization());
-        if (orgManagerOrgCheck != null) {
-            stringBuilder.append(orgManagerOrgCheck);
-        }
-        //判断组织成员组织(系统)
-        String orgMemberOrgCheck = this.checkOrganization(data.getUserIsOrgMember(), data.getOrgMemberOrganization());
-        if (orgMemberOrgCheck != null) {
-            stringBuilder.append(orgMemberOrgCheck);
-        }
         //判断测试经理工作空间(系统)
         String testManagerWorkspaceCheck = this.checkWorkSpace(data.getUserIsTestManager(), data.getTestManagerWorkspace());
         if (testManagerWorkspaceCheck != null) {
@@ -156,31 +142,6 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     }
 
     /**
-     * 检查组织
-     *
-     * @param userRoleInExcel         excel表里的用户权限填写信息
-     * @param organizationInfoInExcel excel表中用户组织填写信息
-     * @return 报错信息
-     */
-    private String checkOrganization(String userRoleInExcel, String organizationInfoInExcel) {
-        String result = null;
-        if (StringUtils.equalsIgnoreCase(Translator.get("options_yes"), userRoleInExcel)) {
-            String[] organizationArr = organizationInfoInExcel.split("\n");
-            for (String organization :
-                    organizationArr) {
-                if (!orgNameMap.containsKey(organization)) {
-                    if (result == null) {
-                        result = new String(Translator.get("user_import_organization_not_fond") + "：" + organization + "; ");
-                    } else {
-                        result += Translator.get("user_import_organization_not_fond") + "：" + organization + "; ";
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
      * 检查项目
      * @param userGroupInExcel   excel表中用户组填写信息
      * @param projectInfoInExcel excel表中用户项目填写信息
@@ -242,18 +203,6 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
             adminIdList.add("system");
             Map<String, Object> adminRoleMap = this.genGroupMap(UserGroupConstants.ADMIN, adminIdList);
             groupMapList.add(adminRoleMap);
-        }
-        //判断组织管理员
-        List<String> orgManagerOrdIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsOrgAdmin(), data.getOrgAdminOrganization(), orgNameMap);
-        if (!orgManagerOrdIdList.isEmpty()) {
-            Map<String, Object> orgAdminRoleMap = this.genGroupMap(UserGroupConstants.ORG_ADMIN, orgManagerOrdIdList);
-            groupMapList.add(orgAdminRoleMap);
-        }
-        //判断组织成员
-        List<String> orgMemberOrdIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsOrgMember(), data.getOrgMemberOrganization(), orgNameMap);
-        if (!orgMemberOrdIdList.isEmpty()) {
-            Map<String, Object> orgMemberRoleMap = this.genGroupMap(UserGroupConstants.ORG_MEMBER, orgMemberOrdIdList);
-            groupMapList.add(orgMemberRoleMap);
         }
         //判断测试经理
         List<String> testManagerWorkspaceIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsTestManager(), data.getTestManagerWorkspace(), workspaceNameMap);

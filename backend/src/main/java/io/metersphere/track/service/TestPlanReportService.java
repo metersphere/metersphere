@@ -18,11 +18,13 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.UserService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.domain.ReportResultComponent;
@@ -86,6 +88,10 @@ public class TestPlanReportService {
     TestPlanReportContentMapper testPlanReportContentMapper;
     @Resource
     ShareInfoService shareInfoService;
+    @Resource
+    private TestPlanPrincipalMapper testPlanPrincipalMapper;
+    @Resource
+    private UserService userService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -254,9 +260,9 @@ public class TestPlanReportService {
             performanceInfoMap = saveRequest.getPerformanceIdMap();
         }
 
-        TestPlanReportExecuteCatch.addApiTestPlanExecuteInfo(testPlanReportID,saveRequest.getUserId(), apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
+        TestPlanReportExecuteCatch.addApiTestPlanExecuteInfo(testPlanReportID, saveRequest.getUserId(), apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
 
-        testPlanReport.setPrincipal(testPlan.getPrincipal());
+//        testPlanReport.setPrincipal(testPlan.getPrincipal());
         if (testPlanReport.getIsScenarioExecuting() || testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting()) {
             testPlanReport.setStatus(APITestStatus.Running.name());
         } else {
@@ -297,7 +303,9 @@ public class TestPlanReportService {
                 List<String> creatorList = new ArrayList<>();
                 creatorList.add(report.getCreator());
                 returnDTO.setExecutors(creatorList);
-                returnDTO.setPrincipal(report.getPrincipal());
+                String name = getPrincipalName(report.getTestPlanId());
+                returnDTO.setPrincipal(name);
+                returnDTO.setPrincipalName(name);
                 returnDTO.setStartTime(report.getStartTime());
                 returnDTO.setEndTime(report.getEndTime());
 
@@ -313,6 +321,27 @@ public class TestPlanReportService {
             returnDTO.setReportComponents(report.getComponents());
         }
         return returnDTO;
+    }
+
+    private String getPrincipalName(String planId) {
+        if (StringUtils.isBlank(planId)) {
+            return "";
+        }
+        String principalName = "";
+        TestPlanPrincipalExample example = new TestPlanPrincipalExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanPrincipal> principals = testPlanPrincipalMapper.selectByExample(example);
+        List<String> principalIds = principals.stream().map(TestPlanPrincipal::getPrincipalId).collect(Collectors.toList());
+        Map<String, String> userMap = ServiceUtils.getUserNameMap(principalIds);
+        for (String principalId : principalIds) {
+            String name = userMap.get(principalId);
+            if (StringUtils.isNotBlank(principalName)) {
+                principalName = principalName + "、" + name;
+            } else {
+                principalName = principalName + name;
+            }
+        }
+        return principalName;
     }
 
     public synchronized void updateReport(List<String> testPlanReportIdList, String runMode, String triggerMode) {
@@ -799,17 +828,13 @@ public class TestPlanReportService {
         assert noticeSendService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url = baseSystemConfigDTO.getUrl() + "/#/track/testPlan/reportList";
-        String successContext = "";
-        String failedContext = "";
         String subject = "";
         String event = "";
+        String successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
+        String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
         if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.API.name())) {
-            successContext = "测试计划jenkins任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "测试计划jenkins任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification_jenkins");
         } else {
-            successContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification");
         }
 
@@ -819,10 +844,16 @@ public class TestPlanReportService {
         } else {
             event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
         }
+        String creator = testPlanReport.getCreator();
+        UserDTO userDTO = userService.getUserDTO(creator);
+
         Map paramMap = new HashMap();
         paramMap.put("type", "testPlan");
         paramMap.put("url", url);
         paramMap.put("projectId", projectId);
+        if (userDTO != null) {
+            paramMap.put("operator", userDTO.getName());
+        }
         paramMap.putAll(new BeanMap(testPlanReport));
 
         String successfulMailTemplate = "";
@@ -837,7 +868,7 @@ public class TestPlanReportService {
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
 
         NoticeModel noticeModel = NoticeModel.builder()
-                .operator(testPlanReport.getCreator())
+                .operator(creator)
                 .successContext(successContext)
                 .successMailTemplate(successfulMailTemplate)
                 .failedContext(failedContext)

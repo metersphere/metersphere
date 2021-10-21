@@ -3,7 +3,6 @@
 <mapper namespace="io.metersphere.base.mapper.WorkspaceMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.Workspace">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -69,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, organization_id, `name`, description, create_time, update_time, create_user
+    id, `name`, description, create_time, update_time, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.WorkspaceExample" resultMap="BaseResultMap">
     select
@@ -102,21 +101,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.Workspace">
-    insert into workspace (id, organization_id, `name`, 
-      description, create_time, update_time, 
-      create_user)
-    values (#{id,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR})
+    insert into workspace (id, `name`, description, 
+      create_time, update_time, create_user
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Workspace">
     insert into workspace
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
-      </if>
-      <if test="organizationId != null">
-        organization_id,
       </if>
       <if test="name != null">
         `name`,
@@ -137,9 +133,6 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
-      </if>
-      <if test="organizationId != null">
-        #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -170,9 +163,6 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.organizationId != null">
-        organization_id = #{record.organizationId,jdbcType=VARCHAR},
-      </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
@@ -196,7 +186,6 @@
   <update id="updateByExample" parameterType="map">
     update workspace
     set id = #{record.id,jdbcType=VARCHAR},
-      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -209,9 +198,6 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.Workspace">
     update workspace
     <set>
-      <if test="organizationId != null">
-        organization_id = #{organizationId,jdbcType=VARCHAR},
-      </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
@@ -232,8 +218,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.Workspace">
     update workspace
-    set organization_id = #{organizationId,jdbcType=VARCHAR},
-      `name` = #{name,jdbcType=VARCHAR},
+    set `name` = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},

@@ -3,8 +3,7 @@ import {TokenKey} from '@/common/js/constants';
 import {
   enableModules,
   hasLicense,
-  hasPermissions,
-  hasRoles
+  hasPermissions
 } from "@/common/js/utils";
 import NProgress from 'nprogress'; // progress bar
 import 'nprogress/nprogress.css'; // progress bar style
@@ -25,9 +24,7 @@ function checkRolePermission(el, binding, type) {
   if (value && value instanceof Array && value.length > 0) {
     const permissionRoles = value;
     let hasPermission = false;
-    if (type === 'roles') {
-      hasPermission = hasRoles(...permissionRoles);
-    } else if (type === 'permission') {
+    if (type === 'permission') {
       hasPermission = hasPermissions(...permissionRoles);
     }
     if (!hasPermission) {

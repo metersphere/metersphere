@@ -60,6 +60,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         super(ApiModuleDTO.class);
     }
 
+    public ApiModule get(String id) {
+        return apiModuleMapper.selectByPrimaryKey(id);
+    }
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
         this.getDefaultNode(projectId,protocol);
@@ -292,6 +295,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (StringUtils.isNotBlank(node.getId())) {
             criteria.andIdNotEqualTo(node.getId());
         }
+        if(StringUtils.isNotEmpty(node.getProtocol())){
+            criteria.andProtocolEqualTo(node.getProtocol());
+        }
         return apiModuleMapper.selectByExample(example);
     }
 
@@ -518,6 +524,17 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             record.setProjectId(projectId);
             apiModuleMapper.insert(record);
             return record;
+        }else {
+            return list.get(0);
+        }
+    }
+
+    public ApiModule getDefaultNodeUnCreateNew(String projectId,String protocol) {
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("未规划接口").andParentIdIsNull();;
+        List<ApiModule> list = apiModuleMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
         }else {
             return list.get(0);
         }

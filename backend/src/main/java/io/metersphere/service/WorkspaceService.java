@@ -6,15 +6,15 @@ import io.metersphere.base.mapper.GroupMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.WorkspaceMapper;
-import io.metersphere.base.mapper.ext.*;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
+import io.metersphere.base.mapper.ext.ExtUserMapper;
+import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.UserGroupConstants;
+import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
-import io.metersphere.dto.RelatedSource;
-import io.metersphere.dto.UserRoleHelpDTO;
-import io.metersphere.dto.WorkspaceDTO;
-import io.metersphere.dto.WorkspaceMemberDTO;
+import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -40,11 +39,7 @@ public class WorkspaceService {
     @Resource
     private ExtWorkspaceMapper extWorkspaceMapper;
     @Resource
-    private ExtUserRoleMapper extUserRoleMapper;
-    @Resource
     private GroupMapper groupMapper;
-    @Resource
-    private ExtOrganizationMapper extOrganizationMapper;
     @Resource
     private ProjectService projectService;
     @Resource
@@ -61,11 +56,6 @@ public class WorkspaceService {
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
             MSException.throwException(Translator.get("workspace_name_is_null"));
-        }
-        // set organization id
-        if (StringUtils.isBlank(workspace.getOrganizationId())) {
-            String currentOrgId = SessionUtils.getCurrentOrganizationId();
-            workspace.setOrganizationId(currentOrgId);
         }
 
         long currentTime = System.currentTimeMillis();
@@ -89,6 +79,8 @@ public class WorkspaceService {
             userGroupMapper.insert(userGroup);
             // 新项目创建新工作空间时设置
             extUserMapper.updateLastWorkspaceIdIfNull(workspace.getId(), SessionUtils.getUserId());
+            // 设置默认的通知
+            extWorkspaceMapper.setDefaultMessageTask(workspace.getId());
         } else {
             workspace.setUpdateTime(currentTime);
             workspaceMapper.updateByPrimaryKeySelective(workspace);
@@ -99,9 +91,6 @@ public class WorkspaceService {
     public List<Workspace> getWorkspaceList(WorkspaceRequest request) {
         WorkspaceExample example = new WorkspaceExample();
         WorkspaceExample.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(request.getOrganizationId())) {
-            criteria.andOrganizationIdEqualTo(request.getOrganizationId());
-        }
         if (StringUtils.isNotBlank(request.getName())) {
             criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
@@ -113,7 +102,7 @@ public class WorkspaceService {
         if (StringUtils.isNotBlank(request.getName())) {
             request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
-        return extWorkspaceMapper.getWorkspaceWithOrg(request);
+        return extWorkspaceMapper.getWorkspaces(request);
     }
 
     public void deleteWorkspace(String workspaceId) {
@@ -138,53 +127,7 @@ public class WorkspaceService {
         scheduleService.deleteByWorkspaceId(workspaceId);
     }
 
-    /**
-     * ORG_ADMIN需要检查是否有操作此工作空间的权限
-     */
-    public void checkWorkspaceOwnerByOrgAdmin(String workspaceId) {
-        // todo
-//        checkWorkspaceIsExist(workspaceId);
-//        WorkspaceExample example = new WorkspaceExample();
-//        SessionUser sessionUser = SessionUtils.getUser();
-//        UserDTO user = userService.getUserDTO(sessionUser.getId());
-//        List<String> orgIds = user.getUserRoles().stream()
-//                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
-//                .map(UserRole::getSourceId)
-//                .collect(Collectors.toList());
-//        example.createCriteria()
-//                .andOrganizationIdIn(orgIds)
-//                .andIdEqualTo(workspaceId);
-//        if (workspaceMapper.countByExample(example) == 0) {
-//            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
-//        }
-    }
 
-    public void checkWorkspaceOwner(String workspaceId) {
-        // todo
-//        checkWorkspaceIsExist(workspaceId);
-//        int size = 0;
-//        WorkspaceExample example = new WorkspaceExample();
-//        SessionUser sessionUser = SessionUtils.getUser();
-//        UserDTO user = userService.getUserDTO(sessionUser.getId());
-//        List<String> orgIds = user.getUserRoles().stream()
-//                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
-//                .map(UserRole::getSourceId)
-//                .collect(Collectors.toList());
-//        if (!CollectionUtils.isEmpty(orgIds)) {
-//            example.createCriteria()
-//                    .andOrganizationIdIn(orgIds)
-//                    .andIdEqualTo(workspaceId);
-//            size = (int) workspaceMapper.countByExample(example);
-//        }
-//        List<String> wsIds = user.getUserRoles().stream()
-//                .filter(ur -> RoleConstants.TEST_MANAGER.equals(ur.getRoleId()))
-//                .map(UserRole::getSourceId)
-//                .collect(Collectors.toList());
-//        boolean contains = wsIds.contains(workspaceId);
-//        if (size == 0 && !contains) {
-//            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
-//        }
-    }
 
     public void checkWorkspaceIsExist(String workspaceId) {
         WorkspaceExample example = new WorkspaceExample();
@@ -195,40 +138,15 @@ public class WorkspaceService {
     }
 
     public List<Workspace> getWorkspaceListByUserId(String userId) {
-        List<UserRoleHelpDTO> userRoleHelpList = extUserRoleMapper.getUserRoleHelpList(userId);
-        List<String> workspaceIds = new ArrayList<>();
-        userRoleHelpList.forEach(r -> {
-            if (!StringUtils.isEmpty(r.getParentId())) {
-                workspaceIds.add(r.getSourceId());
-            }
-        });
-        WorkspaceExample workspaceExample = new WorkspaceExample();
-        workspaceExample.createCriteria().andIdIn(workspaceIds);
-        return workspaceMapper.selectByExample(workspaceExample);
-    }
-
-    public List<Workspace> getWorkspaceListByOrgIdAndUserId(String userId, String orgId) {
         List<RelatedSource> relatedSource = extUserGroupMapper.getRelatedSource(userId);
         List<String> wsIds = relatedSource
                 .stream()
-                .filter(r -> StringUtils.equals(r.getOrganizationId(), orgId))
                 .map(RelatedSource::getWorkspaceId)
                 .distinct()
                 .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(wsIds)) {
-            return new ArrayList<>();
-        }
         WorkspaceExample workspaceExample = new WorkspaceExample();
         workspaceExample.createCriteria().andIdIn(wsIds);
         return workspaceMapper.selectByExample(workspaceExample);
-    }
-
-    public List<String> getWorkspaceIdsOrgId(String orgId) {
-        return extWorkspaceMapper.getWorkspaceIdsByOrgId(orgId);
-    }
-
-    public List<WorkspaceDTO> getWorkspaceIdsByOrgId(String orgId) {
-        return extWorkspaceMapper.getWorkspaceIdsOrgId(orgId);
     }
 
     public void updateWorkspaceMember(WorkspaceMemberDTO memberDTO) {
@@ -263,7 +181,7 @@ public class WorkspaceService {
     }
 
     public Integer checkSourceRole(String workspaceId, String userId, String roleId) {
-        return extOrganizationMapper.checkSourceRole(workspaceId, userId, roleId);
+        return extUserGroupMapper.checkSourceRole(workspaceId, userId, roleId);
     }
 
     public void updateWorkspaceByAdmin(Workspace workspace) {
@@ -290,7 +208,8 @@ public class WorkspaceService {
         userGroup.setGroupId(UserGroupConstants.WS_ADMIN);
         userGroup.setSourceId(workspace.getId());
         userGroupMapper.insert(userGroup);
-
+        // 设置默认的通知
+        extWorkspaceMapper.setDefaultMessageTask(workspace.getId());
         return workspace;
     }
 
@@ -298,14 +217,10 @@ public class WorkspaceService {
         if (StringUtils.isBlank(workspace.getName())) {
             MSException.throwException(Translator.get("workspace_name_is_null"));
         }
-        if (StringUtils.isBlank(workspace.getOrganizationId())) {
-            MSException.throwException(Translator.get("organization_id_is_null"));
-        }
 
         WorkspaceExample example = new WorkspaceExample();
         WorkspaceExample.Criteria criteria = example.createCriteria();
-        criteria.andNameEqualTo(workspace.getName())
-                .andOrganizationIdEqualTo(workspace.getOrganizationId());
+        criteria.andNameEqualTo(workspace.getName());
         if (StringUtils.isNotBlank(workspace.getId())) {
             criteria.andIdNotEqualTo(workspace.getId());
         }
@@ -320,14 +235,6 @@ public class WorkspaceService {
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
         return projectMapper.selectByExample(projectExample);
-    }
-
-    public String getOrganizationIdById(String resourceID) {
-        return extWorkspaceMapper.getOrganizationIdById(resourceID);
-    }
-
-    public List<WorkspaceDTO> findIdAndNameByOrganizationId(String organizationId) {
-        return extWorkspaceMapper.findIdAndNameByOrganizationId(organizationId);
     }
 
     public String getLogDetails(String id) {
@@ -371,4 +278,40 @@ public class WorkspaceService {
         return null;
     }
 
+    public long getWorkspaceSize() {
+        return workspaceMapper.countByExample(new WorkspaceExample());
+    }
+
+    public WorkspaceResource listResource(String groupId, String type) {
+        Group group = groupMapper.selectByPrimaryKey(groupId);
+        String workspaceId = group.getScopeId();
+        WorkspaceResource resource = new WorkspaceResource();
+
+        if (StringUtils.equals(UserGroupType.WORKSPACE, type)) {
+            WorkspaceExample workspaceExample = new WorkspaceExample();
+            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
+            if (!StringUtils.equals(workspaceId, "global")) {
+                criteria.andIdEqualTo(workspaceId);
+            }
+            List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+            resource.setWorkspaces(workspaces);
+        }
+
+        if (StringUtils.equals(UserGroupType.PROJECT, type)) {
+            ProjectExample projectExample = new ProjectExample();
+            ProjectExample.Criteria pc = projectExample.createCriteria();
+            WorkspaceExample workspaceExample = new WorkspaceExample();
+            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
+            if (!StringUtils.equals(workspaceId, "global")) {
+                criteria.andIdEqualTo(workspaceId);
+                List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+                List<String> list = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
+                pc.andWorkspaceIdIn(list);
+            }
+            List<Project> projects = projectMapper.selectByExample(projectExample);
+            resource.setProjects(projects);
+        }
+
+        return resource;
+    }
 }

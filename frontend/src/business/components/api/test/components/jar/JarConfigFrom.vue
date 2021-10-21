@@ -33,7 +33,14 @@
           ref="fileUpload">
           <i class="el-icon-upload"></i>
           <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-          <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}</div>
+          <div class="el-upload__tip" slot="tip">
+            {{$t('api_test.jar_config.upload_limit')}} <span v-if="!showJarLimit">{{limitSize}}</span>
+            <el-input v-model.number="limitSize" v-if="showJarLimit" size="mini" style="width: 50px;"
+                      ref="jarLimitInput"
+                      @blur="jarInputBlur"></el-input>
+            <span style="margin-left: 2px;">M</span>
+            <i class="el-icon-edit" @click="clickEdit" style="margin-left: 5px;"></i>
+          </div>
         </el-upload>
       </el-col>
 
@@ -69,7 +76,9 @@
               {max: 250, message: this.$t('commons.input_limit', [1, 250]), trigger: 'blur'}
             ],
           },
-          fileList: []
+          fileList: [],
+          limitSize: 50,
+          showJarLimit: false
         }
       },
       props: {
@@ -86,6 +95,16 @@
         callback: {
           type: Function
         },
+      },
+      beforeCreate() {
+        let key = 'project.jar.limit.size';
+        this.$get("system/get/info/" + key, res => {
+          let paramValue;
+          if (res.data) {
+            paramValue = res.data.paramValue;
+          }
+          this.limitSize = paramValue ? paramValue : 50;
+        })
       },
       watch: {
         config() {
@@ -121,11 +140,26 @@
             this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
             return false;
           }
-          if (file.size / 1024 / 1024 > 50) {
-            this.$warning(this.$t('jar_config.upload_limit_size'));
+          if (file.size / 1024 / 1024 > this.limitSize) {
+            this.$warning(this.$t('api_test.jar_config.upload_limit_size_warn', [this.limitSize]));
             return false;
           }
           return true;
+        },
+        clickEdit() {
+          this.showJarLimit = true;
+          this.$nextTick(() => {
+            this.$refs.jarLimitInput.focus();
+          })
+        },
+        jarInputBlur() {
+          this.showJarLimit = false;
+          let param = {paramKey: 'project.jar.limit.size', paramValue: this.limitSize};
+          this.$post("/system/edit/info", param, () => {
+            this.$success(this.$t('commons.save_success'));
+          })
+          // 清空文件列表
+          this.fileList = [];
         },
         save(type) {
           this.$refs['form'].validate((valid) => {

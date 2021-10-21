@@ -166,7 +166,7 @@
     <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                 :select-row="this.$refs.table ? this.$refs.table.selectRows : new Set()" ref="batchEdit" @batchEdit="batchEdit"/>
     <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="planCaseIds" :type="'apiScenario'"/>
-    <ms-task-center ref="taskCenter"/>
+    <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
 </template>
 

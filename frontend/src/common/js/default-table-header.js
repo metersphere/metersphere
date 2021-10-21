@@ -54,11 +54,12 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'priority', key: '3', label: 'test_track.case.priority'},
     {id: 'path', key: '4', label: 'api_test.definition.api_definition_path'},
     {id: 'status', key: '5', label: 'test_track.plan_view.execute_result'},
-    {id: 'passRate', key: '6', label: 'commons.pass_rate'},
+    {id: 'caseStatus', key: '6', label: 'commons.status'},
     {id: 'tags', key: '7', label: 'commons.tag'},
     {id: 'createUser', key: '8', label: 'api_test.creator'},
     {id: 'updateTime', key: '9', label: 'api_test.definition.api_last_time'},
     {id: 'createTime', key: 'a', label: 'commons.create_time'},
+    {id: 'passRate', key: 'b', label: 'commons.pass_rate'},
   ],
   //场景测试
   API_SCENARIO: [
@@ -180,6 +181,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createUser', key: '7', label: 'commons.create_user'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
+    {id: 'status', key: '10', label: 'api_test.definition.api_case_status'},
   ],
   //缺陷列表
   ISSUE_LIST: [

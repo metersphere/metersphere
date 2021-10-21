@@ -24,7 +24,13 @@ public class JsonStructUtils {
      * @return
      */
     public static boolean checkJsonObjCompliance(JSONObject sourceObj, JSONObject matchObj) {
-        if (sourceObj == null && matchObj == null) {
+        if(sourceObj == null){
+            sourceObj = new JSONObject();
+        }
+        if(matchObj == null){
+            matchObj = new JSONObject();
+        }
+        if (sourceObj .isEmpty() && matchObj.isEmpty()) {
             return true;
         } else if (sourceObj != null && matchObj != null) {
             boolean lastMatchResultIsTrue = false;
@@ -55,7 +61,7 @@ public class JsonStructUtils {
     public static boolean checkJsonArrayCompliance(JSONArray sourceArray, JSONArray matchArray) {
         if (sourceArray == null && matchArray == null) {
             return true;
-        } else if (sourceArray != null && matchArray != null && sourceArray.size() > matchArray.size()) {
+        } else if (sourceArray != null && matchArray != null && sourceArray.size() >= matchArray.size()) {
             try {
                 for (int i = 0; i < matchArray.size(); i++) {
                     Object obj = matchArray.get(i);

@@ -100,6 +100,34 @@ public class TestResult {
          * 场景里的第一层视为步骤，不考虑深层情况
          */
         if (result != null && CollectionUtils.isNotEmpty(result.getRequestResults())) {
+
+            //如果有全局前后置脚本，会出现前后置的测试步骤，影响统计。此处略过不处理。
+            // 同时，jmeter会将前后置脚本步骤作为一个请求来计算。当检测到有前后置脚本步骤执行时，请求数也要做处理
+            List<RequestResult> formatedResult = new ArrayList<>();
+
+            int successStep = 0;
+            int errorStep  = 0;
+            for (RequestResult item :result.getRequestResults()) {
+                if(!StringUtils.startsWithAny(item.getName(),"PRE_PROCESSOR_ENV_","POST_PROCESSOR_ENV_")){
+                    formatedResult.add(item);
+                }else {
+                    if(StringUtils.equalsAnyIgnoreCase(item.getName(),"PRE_PROCESSOR_ENV_false","POST_PROCESSOR_ENV_false")){
+                        if(item.isSuccess()){
+                            successStep++;
+                        }else {
+                            errorStep++;
+                        }
+                    }
+                }
+            }
+            result.setSuccess(result.getSuccess() - successStep);
+            result.setError(result.getError()-errorStep);
+            this.success = this.success - successStep;
+            this.error = this.error-errorStep;
+            this.total = this.total - successStep - errorStep;
+
+            result.setRequestResults(formatedResult);
+
             result.getRequestResults().forEach(item -> {
                 String itemAndScenarioName = "";
                 if (StringUtils.isNotEmpty(item.getScenario())) {

@@ -26,7 +26,9 @@ const state = {
   selectStep: {},
   currentApiCase: {},
   pluginFiles: [],
-  isTestCaseMinderChanged: false
+  isTestCaseMinderChanged: false,
+  // 当前项目是否勾选自定义ID
+  currentProjectIsCustomNum: false
 }
 
 const store = new Vuex.Store({

@@ -38,6 +38,9 @@
               <el-button type="warning" plain size="mini" @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
+              <el-button type="default" :disabled="testDeleted" plain size="mini" @click="downloadZipFile()">
+                {{ $t('report.downloadZipFile') }}
+              </el-button>
             </el-row>
           </el-col>
           <el-col :span="6">
@@ -373,6 +376,33 @@ export default {
         text.then((data) => {
           Message.error({message: JSON.parse(data).message || e.message, showClose: true});
         });
+      });
+    },
+    downloadZipFile() {
+      let testId = this.report.testId;
+      let reportId = this.report.id;
+      let resourceIndex = 0;
+      let ratio = "1.0";
+      let config = {
+        url: `/jmeter/download?testId=${testId}&ratio=${ratio}&reportId=${reportId}&resourceIndex=${resourceIndex}`,
+        method: 'get',
+        responseType: 'blob'
+      };
+      this.result = this.$request(config).then(response => {
+        const filename = testId + ".zip";
+        const blob = new Blob([response.data]);
+        if ("download" in document.createElement("a")) {
+          // 非IE下载
+          //  chrome/firefox
+          let aTag = document.createElement('a');
+          aTag.download = filename;
+          aTag.href = URL.createObjectURL(blob);
+          aTag.click();
+          URL.revokeObjectURL(aTag.href);
+        } else {
+          // IE10+下载
+          navigator.msSaveBlob(blob, filename);
+        }
       });
     },
     compareReports() {

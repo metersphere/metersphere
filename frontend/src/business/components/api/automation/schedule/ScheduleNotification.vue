@@ -6,28 +6,6 @@
                    @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
-        <el-popover
-          placement="right-end"
-          title="示例"
-          width="400"
-          trigger="click"
-        >
-          <ms-code-edit :read-only="true" height="400px" :data.sync="title" :modes="modes" :mode="'html'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
-            {{ $t('organization.message.mail_template_example') }}
-          </el-button>
-        </el-popover>
-        <el-popover
-          placement="right-end"
-          title="示例"
-          width="400"
-          trigger="click"
-        >
-          <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
-            {{ $t('organization.message.robot_template') }}
-          </el-button>
-        </el-popover>
       </el-col>
     </el-row>
     <el-row>
@@ -88,59 +66,70 @@
           </el-table-column>
           <el-table-column :label="$t('commons.operating')" prop="result" min-width="25%">
             <template v-slot:default="scope">
-              <el-button
+              <ms-tip-button
+                circle
                 type="success"
                 size="mini"
                 v-if="scope.row.isSet"
                 v-xpack
                 @click="handleTemplate(scope.$index,scope.row)"
-              >{{ $t('organization.message.template') }}
-              </el-button>
-              <el-button
+                :tip="$t('organization.message.template')"
+                icon="el-icon-tickets"/>
+              <ms-tip-button
+                circle
                 type="primary"
                 size="mini"
                 v-show="scope.row.isSet"
                 @click="handleAddTask(scope.$index,scope.row)"
-              >{{ $t('commons.add') }}
-              </el-button>
-              <el-button
+                :tip="$t('commons.add')"
+                icon="el-icon-check"/>
+              <ms-tip-button
+                circle
                 size="mini"
                 v-show="scope.row.isSet"
-                @click.native.prevent="removeRowTask(scope.$index,scheduleTask)"
-              >{{ $t('commons.cancel') }}
-              </el-button>
-              <el-button
+                @click="removeRowTask(scope.$index,scheduleTask)"
+                :tip="$t('commons.cancel')"
+                icon="el-icon-refresh-left"/>
+              <ms-tip-button
+                el-button
+                circle
                 type="primary"
                 size="mini"
+                icon="el-icon-edit"
                 v-show="!scope.row.isSet"
+                :tip="$t('commons.edit')"
                 @click="handleEditTask(scope.$index,scope.row)"
-              >{{ $t('commons.edit') }}
-              </el-button>
-              <el-button
+                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
+              <ms-tip-button
+                circle
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
                 v-show="!scope.row.isSet"
-                @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
-              ></el-button>
+                @click="deleteRowTask(scope.$index,scope.row)"
+                :tip="$t('commons.delete')"
+                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
             </template>
           </el-table-column>
         </el-table>
       </el-col>
     </el-row>
-    <notice-template v-xpack ref="noticeTemplate"/>
+    <notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
   </div>
 </template>
 
 <script>
 import {hasLicense} from "@/common/js/utils";
 import MsCodeEdit from "@/business/components/api/definition/components/MsCodeEdit";
+import MsTipButton from "@/business/components/common/components/MsTipButton";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
 
 export default {
   name: "ScheduleNotification",
   components: {
+    MsTipButton,
     MsCodeEdit,
     "NoticeTemplate": noticeTemplate.default
   },
@@ -163,35 +152,14 @@ export default {
         '</head>\n' +
         '<body>\n' +
         '<div>\n' +
-        '    <div style="text-align: left">\n' +
-        '        <p>尊敬的用户：</p>\n' +
-        '        <p style="margin-left: 60px">您好:\n' +
-        '    </div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        <p>${name} 接口测试运行失败<br/>\n' +
-        '        <p>执行人:${operator}</p>' +
-        '        <p>负责人:${principal}</p>' +
-        '        <p>执行环境:${executionEnvironment}</p>' +
-        '        <p>执行时间:${executionTime}</p>' +
-        '            请点击下面链接进入测试报告页面</p>\n' +
-        '        <a href="${url}/#/${type}/report/view/${id}">${url}/#/${type}/report/view/${id}</a>\n' +
-        '        <p>新版接口测试报告路径</p>\n' +
-        '        <a href="${url}/#/api/automation/report/view/">${url}/#/api/automation/report/view/${id}</a>\n' +
+        '        ${operator}执行接口测成功: ${name}, 报告: ${reportUrl}' +
         '    </div>\n' +
         '\n' +
         '</div>\n' +
         '</body>\n' +
         '</html>',
-      robotTitle:
-        "测试'${name} ${type}测试运行${status}\n" +
-        "执行人:${operator}" + "\n" +
-        "负责人:${principal}" + "\n" +
-        "测试环境为:${executionEnvironment}\n" +
-        "执行时间：${executionTime}\n" +
-        "请点击下面链接进入测试报告页面\n" +
-        "${url}/#/${type}/report/view/${id}" +
-        "新版接口测试报告路径\n" +
-        "${url}/#/api/automation/report/view/${id}",
+      robotTitle: "${operator}执行接口测成功: ${name}, 报告: ${reportUrl}",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",
@@ -213,16 +181,47 @@ export default {
         {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
         {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
-    }
+      variables: [
+        'operator',
+        'id',
+        'reportUrl',
+        'projectId',
+        'tags',
+        'userId',
+        'apiScenarioModuleId',
+        'modulePath',
+        'name',
+        'level',
+        'status',
+        'principal',
+        'stepTotal',
+        'followPeople',
+        'schedule',
+        'createTime',
+        'updateTime',
+        'passRate',
+        'lastResult',
+        'reportId',
+        'num',
+        'originalState',
+        'customNum',
+        'createUser',
+        'version',
+        'deleteTime',
+        'deleteUserId',
+        'executeTimes',
+        'order'
+      ]
+    };
   },
   mounted() {
-    this.initForm()
+    this.initForm();
   },
   activated() {
-    this.initForm()
+    this.initForm();
   },
-  watch:{
-    testId(){
+  watch: {
+    testId() {
       this.initForm();
     }
   },
@@ -231,7 +230,7 @@ export default {
       this.result = this.$get('/notice/search/message/' + this.testId, response => {
         // console.log(response.data);
         this.scheduleTask = response.data;
-      })
+      });
     },
     handleEdit(index, data) {
       data.isReadOnly = true;
@@ -242,7 +241,7 @@ export default {
     },
     handleAddTaskModel() {
       let Task = {};
-      Task.event = [];
+      Task.event = '';
       Task.userIds = [];
       Task.type = '';
       Task.webhook = '';
@@ -280,13 +279,13 @@ export default {
     },
     addTask(data) {
       this.result = this.$post("/notice/save/message/task", data, () => {
-        this.initForm()
+        this.initForm();
         this.$success(this.$t('commons.save_success'));
-      })
+      });
     },
     removeRowTask(index, data) { //移除
       if (!data[index].identification) {
-        data.splice(index, 1)
+        data.splice(index, 1);
       } else {
         data[index].isSet = false;
       }
@@ -294,22 +293,36 @@ export default {
     deleteRowTask(index, data) { //删除
       this.result = this.$get("/notice/delete/message/" + data.identification, response => {
         this.$success(this.$t('commons.delete_success'));
-        this.initForm()
-      })
+        this.initForm();
+      });
     },
     rowClass() {
-      return "text-align:center"
+      return "text-align:center";
     },
     headClass() {
-      return "text-align:center;background:'#ededed'"
+      return "text-align:center;background:'#ededed'";
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        this.$refs.noticeTemplate.open(row);
+        let htmlTemplate = "";
+        let robotTemplate = "";
+        switch (row.event) {
+          case 'EXECUTE_SUCCESSFUL':
+            htmlTemplate = this.title;
+            robotTemplate = this.robotTitle;
+            break;
+          case 'EXECUTE_FAILED':
+            htmlTemplate = this.title.replace('成功', '失败');
+            robotTemplate = this.robotTitle.replace('成功', '失败');
+            break;
+          default:
+            break;
+        }
+        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>

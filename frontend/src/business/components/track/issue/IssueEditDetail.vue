@@ -24,7 +24,8 @@
 
         <el-row class="custom-field-row">
           <el-col :span="8" v-if="hasTapdId">
-            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.tapd_current_owner')" prop="tapdUsers">
+            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.tapd_current_owner')"
+                          prop="tapdUsers">
               <el-select v-model="form.tapdUsers" multiple filterable
                          :placeholder="$t('test_track.issue.please_choose_current_owner')">
                 <el-option v-for="(userInfo, index) in tapdUsers" :key="index" :label="userInfo.user"
@@ -33,7 +34,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="8" v-if="hasZentaoId">
-            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.zentao_bug_build')" prop="zentaoBuilds">
+            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.zentao_bug_build')"
+                          prop="zentaoBuilds">
               <el-select v-model="form.zentaoBuilds" multiple filterable
                          :placeholder="$t('test_track.issue.zentao_bug_build')">
                 <el-option v-for="(build, index) in Builds" :key="index" :label="build.name"
@@ -42,7 +44,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="8" v-if="hasZentaoId">
-            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.zentao_bug_assigned')" prop="zentaoAssigned">
+            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.zentao_bug_assigned')"
+                          prop="zentaoAssigned">
               <el-select v-model="form.zentaoAssigned" filterable
                          :placeholder="$t('test_track.issue.please_choose_current_owner')">
                 <el-option v-for="(userInfo, index) in zentaoUsers" :key="index" :label="userInfo.name"
@@ -76,7 +79,7 @@ import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentOrganizationId, getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
 
 export default {
@@ -158,18 +161,27 @@ export default {
       let platform = this.issueTemplate.platform;
       if (platform === 'Zentao') {
         this.hasZentaoId = true;
-        this.result = this.$post("/issues/zentao/builds", {projectId: this.projectId, organizationId: getCurrentOrganizationId()}, response => {
+        this.result = this.$post("/issues/zentao/builds", {
+          projectId: this.projectId,
+          workspaceId: getCurrentWorkspaceId()
+        }, response => {
           if (response.data) {
             this.Builds = response.data;
           }
-          this.result = this.$post("/issues/zentao/user", {projectId: this.projectId, organizationId: getCurrentOrganizationId()}, response => {
+          this.result = this.$post("/issues/zentao/user", {
+            projectId: this.projectId,
+            workspaceId: getCurrentWorkspaceId()
+          }, response => {
             this.zentaoUsers = response.data;
           });
         });
       }
       if (platform === 'Tapd') {
         this.hasTapdId = true;
-        this.result = this.$post("/issues/tapd/user", {projectId: this.projectId, organizationId: getCurrentOrganizationId()}, (response) => {
+        this.result = this.$post("/issues/tapd/user", {
+          projectId: this.projectId,
+          workspaceId: getCurrentWorkspaceId()
+        }, (response) => {
           this.tapdUsers = response.data;
         });
       }
@@ -195,7 +207,7 @@ export default {
         this.form = {
           title: this.issueTemplate.title,
           description: this.issueTemplate.content
-        }
+        };
         this.url = 'issues/add';
         if (!this.form.creator) {
           this.form.creator = getCurrentUserId();
@@ -234,7 +246,7 @@ export default {
       let param = {};
       Object.assign(param, this.form);
       param.projectId = this.projectId;
-      param.organizationId = getCurrentOrganizationId();
+      param.workspaceId = getCurrentWorkspaceId();
       buildCustomFields(this.form, param, this.issueTemplate);
       if (this.isPlan) {
         param.testCaseIds = [this.caseId];

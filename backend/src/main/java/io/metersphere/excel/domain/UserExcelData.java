@@ -21,14 +21,6 @@ public class UserExcelData {
     @ExcelIgnore
     private String userIsAdmin;
     @ExcelIgnore
-    private String userIsOrgAdmin;
-    @ExcelIgnore
-    private String orgAdminOrganization;
-    @ExcelIgnore
-    private String userIsOrgMember;
-    @ExcelIgnore
-    private String orgMemberOrganization;
-    @ExcelIgnore
     private String userIsTestManager;
     @ExcelIgnore
     private String testManagerWorkspace;

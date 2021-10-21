@@ -26,15 +26,14 @@
           <module-trash-button :condition="condition" :exe="enableTrash"/>
       </template>
     </ms-node-tree>
-    <test-case-import @refreshAll="refreshAll" ref="testCaseImport"></test-case-import>
-    <test-case-export @refreshAll="refreshAll" @exportTestCase="exportTestCase" ref="testCaseExport"></test-case-export>
+    <test-case-import @refreshAll="refreshAll" ref="testCaseImport"/>
+    <test-case-export @refreshAll="refreshAll" @exportTestCase="exportTestCase" ref="testCaseExport"/>
     <test-case-create
       :tree-nodes="treeNodes"
       @saveAsEdit="saveAsEdit"
       @createCase="createCase"
       @refresh="refresh"
-      ref="testCaseCreate"
-    ></test-case-create>
+      ref="testCaseCreate"/>
   </div>
 
 </template>
@@ -50,6 +49,7 @@ import {buildTree} from "../../api/definition/model/NodeTree";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 import {getCurrentProjectID} from "@/common/js/utils";
 import ModuleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
+import {getTestCaseNodes} from "@/network/testCase";
 
 export default {
   name: "TestCaseNodeTree",
@@ -137,8 +137,8 @@ export default {
     },
     list() {
       if (this.projectId) {
-        this.result = this.$get("/case/node/list/" + this.projectId, response => {
-          this.treeNodes = response.data;
+        this.result = getTestCaseNodes(this.projectId, data => {
+          this.treeNodes = data;
           this.treeNodes.forEach(node => {
             buildTree(node, {path: ''});
           });

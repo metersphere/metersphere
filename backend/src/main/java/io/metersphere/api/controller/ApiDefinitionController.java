@@ -14,10 +14,7 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.EsbApiParamService;
 import io.metersphere.api.service.EsbImportService;
-import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.base.domain.Schedule;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -26,6 +23,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
@@ -304,5 +302,16 @@ public class ApiDefinitionController {
     @PostMapping("/edit/order")
     public void orderCase(@RequestBody ResetOrderRequest request) {
         apiDefinitionService.updateOrder(request);
+    }
+
+    @GetMapping("/relationship/{id}/{relationshipType}")
+    public List<RelationshipEdgeDTO> getRelationshipApi(@PathVariable("id") String id, @PathVariable("relationshipType") String relationshipType) {
+        return apiDefinitionService.getRelationshipApi(id, relationshipType);
+    }
+
+    @PostMapping("/relationship/relate/{goPage}/{pageSize}")
+    public Pager< List<ApiDefinitionResult>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, apiDefinitionService.getRelationshipRelateList(request));
     }
 }

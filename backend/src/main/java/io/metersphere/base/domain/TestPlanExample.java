@@ -594,76 +594,6 @@ public class TestPlanExample {
             return (Criteria) this;
         }
 
-        public Criteria andPrincipalIsNull() {
-            addCriterion("principal is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalIsNotNull() {
-            addCriterion("principal is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalEqualTo(String value) {
-            addCriterion("principal =", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalNotEqualTo(String value) {
-            addCriterion("principal <>", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalGreaterThan(String value) {
-            addCriterion("principal >", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalGreaterThanOrEqualTo(String value) {
-            addCriterion("principal >=", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalLessThan(String value) {
-            addCriterion("principal <", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalLessThanOrEqualTo(String value) {
-            addCriterion("principal <=", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalLike(String value) {
-            addCriterion("principal like", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalNotLike(String value) {
-            addCriterion("principal not like", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalIn(List<String> values) {
-            addCriterion("principal in", values, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalNotIn(List<String> values) {
-            addCriterion("principal not in", values, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalBetween(String value1, String value2) {
-            addCriterion("principal between", value1, value2, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalNotBetween(String value1, String value2) {
-            addCriterion("principal not between", value1, value2, "principal");
-            return (Criteria) this;
-        }
-
         public Criteria andTestCaseMatchRuleIsNull() {
             addCriterion("test_case_match_rule is null");
             return (Criteria) this;
@@ -924,6 +854,66 @@ public class TestPlanExample {
             return (Criteria) this;
         }
 
+        public Criteria andActualEndTimeIsNull() {
+            addCriterion("actual_end_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeIsNotNull() {
+            addCriterion("actual_end_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeEqualTo(Long value) {
+            addCriterion("actual_end_time =", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeNotEqualTo(Long value) {
+            addCriterion("actual_end_time <>", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeGreaterThan(Long value) {
+            addCriterion("actual_end_time >", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("actual_end_time >=", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeLessThan(Long value) {
+            addCriterion("actual_end_time <", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeLessThanOrEqualTo(Long value) {
+            addCriterion("actual_end_time <=", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeIn(List<Long> values) {
+            addCriterion("actual_end_time in", values, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeNotIn(List<Long> values) {
+            addCriterion("actual_end_time not in", values, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeBetween(Long value1, Long value2) {
+            addCriterion("actual_end_time between", value1, value2, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeNotBetween(Long value1, Long value2) {
+            addCriterion("actual_end_time not between", value1, value2, "actualEndTime");
+            return (Criteria) this;
+        }
+
         public Criteria andPlannedStartTimeIsNull() {
             addCriterion("planned_start_time is null");
             return (Criteria) this;
@@ -1101,66 +1091,6 @@ public class TestPlanExample {
 
         public Criteria andActualStartTimeNotBetween(Long value1, Long value2) {
             addCriterion("actual_start_time not between", value1, value2, "actualStartTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeIsNull() {
-            addCriterion("actual_end_time is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeIsNotNull() {
-            addCriterion("actual_end_time is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeEqualTo(Long value) {
-            addCriterion("actual_end_time =", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeNotEqualTo(Long value) {
-            addCriterion("actual_end_time <>", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeGreaterThan(Long value) {
-            addCriterion("actual_end_time >", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("actual_end_time >=", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeLessThan(Long value) {
-            addCriterion("actual_end_time <", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeLessThanOrEqualTo(Long value) {
-            addCriterion("actual_end_time <=", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeIn(List<Long> values) {
-            addCriterion("actual_end_time in", values, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeNotIn(List<Long> values) {
-            addCriterion("actual_end_time not in", values, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeBetween(Long value1, Long value2) {
-            addCriterion("actual_end_time between", value1, value2, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeNotBetween(Long value1, Long value2) {
-            addCriterion("actual_end_time not between", value1, value2, "actualEndTime");
             return (Criteria) this;
         }
 
@@ -1421,6 +1351,76 @@ public class TestPlanExample {
 
         public Criteria andAutomaticStatusUpdateNotBetween(Boolean value1, Boolean value2) {
             addCriterion("automatic_status_update not between", value1, value2, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIsNull() {
+            addCriterion("follow_people is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIsNotNull() {
+            addCriterion("follow_people is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleEqualTo(String value) {
+            addCriterion("follow_people =", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotEqualTo(String value) {
+            addCriterion("follow_people <>", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleGreaterThan(String value) {
+            addCriterion("follow_people >", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleGreaterThanOrEqualTo(String value) {
+            addCriterion("follow_people >=", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLessThan(String value) {
+            addCriterion("follow_people <", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLessThanOrEqualTo(String value) {
+            addCriterion("follow_people <=", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLike(String value) {
+            addCriterion("follow_people like", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotLike(String value) {
+            addCriterion("follow_people not like", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIn(List<String> values) {
+            addCriterion("follow_people in", values, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotIn(List<String> values) {
+            addCriterion("follow_people not in", values, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleBetween(String value1, String value2) {
+            addCriterion("follow_people between", value1, value2, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotBetween(String value1, String value2) {
+            addCriterion("follow_people not between", value1, value2, "followPeople");
             return (Criteria) this;
         }
     }

@@ -63,3 +63,10 @@ export function editTestReviewTestCaseOrder(request, callback) {
   return basePost('/test/review/case/edit/order', request, callback);
 }
 
+export function getTestCaseNodes(projectId, callback) {
+  return baseGet('/case/node/list/' + projectId, callback);
+}
+
+export function getRelationshipCase(id, relationshipType, callback) {
+  return baseGet('/test/case/relationship/case/' + id + '/' + relationshipType, callback);
+}

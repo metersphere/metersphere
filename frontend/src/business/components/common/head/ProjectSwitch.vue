@@ -14,7 +14,7 @@
         <font-awesome-icon :icon="['fa', 'plus']"/>
         <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
       </el-menu-item>
-      <el-menu-item :index="'/setting/project/all'" v-permission="['WORKSPACE_PROJECT_MANAGER:READ']">
+      <el-menu-item :index="'/setting/project/:type'" v-permission="['WORKSPACE_PROJECT_MANAGER:READ']">
         <font-awesome-icon :icon="['fa', 'list-ul']"/>
         <span style="padding-left: 7px;">{{ $t('commons.show_all') }}</span>
       </el-menu-item>

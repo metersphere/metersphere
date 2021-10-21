@@ -127,7 +127,7 @@ public class TestCaseService {
     @Resource
     private IssuesMapper issuesMapper;
     @Resource
-    private CustomFieldService customFieldService;
+    private RelationshipEdgeService relationshipEdgeService;
     @Resource
     @Lazy
     private ApiTestCaseService apiTestCaseService;
@@ -325,6 +325,7 @@ public class TestCaseService {
         examples.createCriteria().andTestCaseIdEqualTo(testCaseId);
         testCaseTestMapper.deleteByExample(examples);
         relateDelete(testCaseId);
+        relationshipEdgeService.delete(testCaseId); // 删除关系图
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -1237,6 +1238,17 @@ public class TestCaseService {
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
         TestCaseExample example = this.getBatchExample(request);
         deleteTestPlanTestCaseBath(request.getIds());
+        relationshipEdgeService.delete(request.getIds()); // 删除关系图
+
+        request.getIds().forEach(testCaseId -> { // todo 优化下效率
+            testCaseIssueService.delTestCaseIssues(testCaseId);
+            testCaseCommentService.deleteCaseComment(testCaseId);
+            TestCaseTestExample examples = new TestCaseTestExample();
+            examples.createCriteria().andTestCaseIdEqualTo(testCaseId);
+            testCaseTestMapper.deleteByExample(examples);
+            relateDelete(testCaseId);
+        });
+
         testCaseMapper.deleteByExample(example);
     }
 
@@ -1810,7 +1822,6 @@ public class TestCaseService {
     }
 
     public void deleteToGcBatch(TestCaseBatchRequest request) {
-        TestCaseExample example = this.getBatchExample(request);
         if (CollectionUtils.isNotEmpty(request.getIds())) {
             for (String id : request.getIds()) {
                 this.deleteTestCaseToGc(id);
@@ -1944,5 +1955,43 @@ public class TestCaseService {
                 extTestCaseMapper::getPreOrder,
                 extTestCaseMapper::getLastOrder,
                 testCaseMapper::updateByPrimaryKeySelective);
+    }
+
+    public List<TestCase> getRelationshipRelateList(QueryTestCaseRequest request) {
+        setDefaultOrder(request);
+        List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
+        request.setTestCaseContainIds(relationshipIds);
+        return extTestCaseMapper.getTestCase(request);
+    }
+
+    public List<RelationshipEdgeDTO> getRelationshipCase(String id, String relationshipType) {
+
+        List<RelationshipEdge> relationshipEdges= relationshipEdgeService.getRelationshipEdgeByType(id, relationshipType);
+        List<String> ids = relationshipEdgeService.getRelationIdsByType(relationshipType, relationshipEdges);
+
+        if (CollectionUtils.isNotEmpty(ids)) {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(ids);
+            List<TestCase> testCaseList = testCaseMapper.selectByExample(example);
+            Map<String, TestCase> caseMap = testCaseList.stream().collect(Collectors.toMap(TestCase::getId, i -> i));
+            List<RelationshipEdgeDTO> results = new ArrayList<>();
+            for (RelationshipEdge relationshipEdge : relationshipEdges) {
+                RelationshipEdgeDTO relationshipEdgeDTO = new RelationshipEdgeDTO();
+                BeanUtils.copyBean(relationshipEdgeDTO, relationshipEdge);
+                TestCase testCase;
+                if (StringUtils.equals(relationshipType, "PRE")) {
+                    testCase = caseMap.get(relationshipEdge.getTargetId());
+                } else {
+                    testCase = caseMap.get(relationshipEdge.getSourceId());
+                }
+                relationshipEdgeDTO.setTargetName(testCase.getName());
+                relationshipEdgeDTO.setCreator(testCase.getCreateUser());
+                relationshipEdgeDTO.setTargetNum(testCase.getNum());
+                relationshipEdgeDTO.setTargetCustomNum(testCase.getCustomNum());
+                results.add(relationshipEdgeDTO);
+            }
+            return results;
+        }
+        return new ArrayList<>();
     }
 }

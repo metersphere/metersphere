@@ -21,10 +21,10 @@
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
               <div v-if="linkDatas.indexOf(detail.columnName)!== -1">
-                <el-link style="color: #409EFF" @click="openDetail(scope.row,detail)">{{$t('operating_log.info')}}</el-link>
+                <el-link style="color: #409EFF" @click="openDetail(scope.row,detail)">{{ $t('operating_log.info') }}</el-link>
               </div>
               <el-tooltip :content="detail.originalValue" v-else>
-                <div class="current-value">{{ detail.originalValue ?detail.originalValue :"空值"}}</div>
+                <div class="current-value">{{ detail.originalValue ? detail.originalValue : "空值" }}</div>
               </el-tooltip>
             </div>
           </div>
@@ -35,10 +35,10 @@
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
               <div v-if="linkDatas.indexOf(detail.columnName)!== -1">
-                <el-link style="color: #409EFF" @click="openDetail(scope.row,detail)">{{$t('operating_log.info')}}</el-link>
+                <el-link style="color: #409EFF" @click="openDetail(scope.row,detail)">{{ $t('operating_log.info') }}</el-link>
               </div>
               <el-tooltip :content="detail.newValue" v-else>
-                <div class="current-value">{{ detail.newValue ? detail.newValue : "空值"}}</div>
+                <div class="current-value">{{ detail.newValue ? detail.newValue : "空值" }}</div>
               </el-tooltip>
             </div>
           </div>
@@ -46,62 +46,73 @@
       </el-table-column>
     </el-table>
 
-    <ms-history-detail ref="historyDetail"></ms-history-detail>
+    <ms-history-detail ref="historyDetail"/>
+    <ms-tags-history-detail ref="tagsHistoryDetail"/>
+    <ms-api-history-detail ref="apiHistoryDetail"/>
   </el-dialog>
 </template>
 <script>
-  import MsHistoryDetail from "./HistoryDetail";
+import MsHistoryDetail from "./HistoryDetail";
+import MsTagsHistoryDetail from "./tags/TagsHistoryDetail";
+import MsApiHistoryDetail from "./api/ApiHistoryDetail";
 
-  export default {
-    name: "MsChangeHistory",
-    components: {MsHistoryDetail},
-    props: {
-      title: String,
+export default {
+  name: "MsChangeHistory",
+  components: {MsHistoryDetail, MsTagsHistoryDetail, MsApiHistoryDetail},
+  props: {
+    title: String,
+  },
+  data() {
+    return {
+      infoVisible: false,
+      loading: false,
+      details: [],
+      linkDatas: ["prerequisite", "steps", "remark", "request", "response", "scenarioDefinition", "tags", "loadConfiguration", "advancedConfiguration"],
+    }
+  },
+  methods: {
+    handleClose() {
+      this.infoVisible = false;
     },
-    data() {
-      return {
-        infoVisible: false,
-        loading: false,
-        details: [],
-        linkDatas: ["prerequisite", "steps", "remark", "request", "response", "scenarioDefinition","tags", "loadConfiguration", "advancedConfiguration"],
+    getDetails(id) {
+      this.result = this.$get("/operating/log/get/source/" + id, response => {
+        let data = response.data;
+        this.loading = false;
+        if (data) {
+          this.details = data;
+        }
+      })
+    },
+    open(id) {
+      this.infoVisible = true;
+      this.loading = true;
+      this.getDetails(id);
+    },
+    openDetail(row, value) {
+      value.createUser = row.details.createUser;
+      value.operTime = row.operTime;
+      if (value.columnName === "tags") {
+        this.$refs.tagsHistoryDetail.open(value);
+      } else if ((value.columnName === "request" || value.columnName === "response")&&
+        (row.operModule === "接口定义" || row.operModule === "接口定義" || row.operModule === "Api definition")) {
+        this.$refs.apiHistoryDetail.open(value);
+      } else {
+        this.$refs.historyDetail.open(value);
       }
     },
-    methods: {
-      handleClose() {
-        this.infoVisible = false;
-      },
-      getDetails(id) {
-        this.result = this.$get("/operating/log/get/source/" + id, response => {
-          let data = response.data;
-          this.loading =false;
-          if (data) {
-            this.details = data;
-          }
-        })
-      },
-      open(id) {
-        this.infoVisible = true;
-        this.loading = true;
-        this.getDetails(id);
-      },
-      openDetail(row, value) {
-        value.createUser = row.details.createUser;
-        value.operTime = row.operTime;
-        this.$refs.historyDetail.open(value);
-      },
-    }
   }
+}
 </script>
 
 <style scoped>
-  .current-value {
-    display: inline-block;
-    overflow-x: hidden;
-    padding-bottom: 0;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-    white-space: nowrap;
-    width: 120px;
-  }
+.current-value {
+  display: inline-block;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 120px;
+}
 
 </style>

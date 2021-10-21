@@ -19,6 +19,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.dto.TestCaseTestDao;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -99,6 +100,10 @@ public class TestCaseController {
         return testCaseService.listTestCaseIds(request);
     }
 
+    @GetMapping("/relationship/case/{id}/{relationshipType}")
+    public List<RelationshipEdgeDTO> getRelationshipCase(@PathVariable("id") String id, @PathVariable("relationshipType") String relationshipType) {
+        return testCaseService.getRelationshipCase(id, relationshipType);
+    }
 
     @GetMapping("recent/{count}")
     public List<TestCase> recentTestPlans(@PathVariable int count) {
@@ -113,6 +118,12 @@ public class TestCaseController {
     public Pager<List<TestCase>> getTestCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.getTestCaseRelateList(request));
+    }
+
+    @PostMapping("/relationship/relate/{goPage}/{pageSize}")
+    public Pager<List<TestCase>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.getRelationshipRelateList(request));
     }
 
     @PostMapping("/relate/issue/{goPage}/{pageSize}")
@@ -332,6 +343,4 @@ public class TestCaseController {
     public void minderEdit(@RequestBody TestCaseMinderEditRequest request) {
         testCaseService.minderEdit(request);
     }
-
-
 }

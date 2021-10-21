@@ -7,7 +7,8 @@
         select distinct  test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
         test_case_review.tags,
         test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
-        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id
+        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id,
+        test_case_review.follow_people
         from test_case_review
             join project on project.id = test_case_review.project_id
         left join user on test_case_review.creator = user.id

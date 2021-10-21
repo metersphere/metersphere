@@ -5,11 +5,8 @@ import io.metersphere.api.dto.automation.DragApiScenarioModuleRequest;
 import io.metersphere.api.service.ApiScenarioModuleService;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

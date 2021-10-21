@@ -78,7 +78,9 @@
         <table tableName="test_plan"/>
         <table tableName="test_case_test"/>-->
 <!--        <table tableName="api_test_environment"></table>-->
-        <table tableName="report_statistics"/>
+<!--        <table tableName="workspace">-->
+<!--            <ignoreColumn column="organization_id"/>-->
+<!--        </table>-->
 <!--        <table tableName="custom_field"></table>-->
 <!--        <table tableName="test_case"></table>-->
 <!--        <table tableName="test_case"></table>-->

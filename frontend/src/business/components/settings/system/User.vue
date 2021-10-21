@@ -414,11 +414,6 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    getOrgList() {
-      this.$get("/organization/list", response => {
-        this.$set(this.form, "orgList", response.data);
-      })
-    },
     getWsList() {
       this.$get("/workspace/list", response => {
         this.$set(this.form, "wsList", response.data);

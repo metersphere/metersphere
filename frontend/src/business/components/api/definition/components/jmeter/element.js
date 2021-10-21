@@ -10,10 +10,6 @@ export default class Element {
     this.name = options.name
 
     if (options.attributes) {
-      this.attributes = options.attributes;
-      if (options.attributes.testname) {
-        this.label = options.attributes.testname;
-      }
       if (options.attributes.testclass && this.name === undefined) {
         this.name = options.attributes.testclass;
       }

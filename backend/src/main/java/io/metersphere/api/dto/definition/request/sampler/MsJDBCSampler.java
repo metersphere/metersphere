@@ -149,34 +149,34 @@ public class MsJDBCSampler extends MsTestElement {
             tree.add(arguments);
         }
 
-        MsJSR223PreProcessor preProcessor = null;
-        MsJSR223PostProcessor postProcessor = null;
-        if(envConfig != null){
-            preProcessor = envConfig.getPreProcessor();
-            postProcessor = envConfig.getPostProcessor();
-        }
-
-        //增加全局前后至脚本
-        if(preProcessor != null){
-            if (preProcessor.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    preProcessor.setEnvironmentId(useEnvironment);
-                } else {
-                    preProcessor.setEnvironmentId(this.getEnvironmentId());
-                }
-            }
-            preProcessor.toHashTree(samplerHashTree, preProcessor.getHashTree(), config);
-        }
-        if(postProcessor != null){
-            if (postProcessor.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    postProcessor.setEnvironmentId(useEnvironment);
-                } else {
-                    postProcessor.setEnvironmentId(this.getEnvironmentId());
-                }
-            }
-            postProcessor.toHashTree(samplerHashTree, postProcessor.getHashTree(), config);
-        }
+//        MsJSR223PreProcessor preProcessor = null;
+//        MsJSR223PostProcessor postProcessor = null;
+//        if(envConfig != null){
+//            preProcessor = envConfig.getPreProcessor();
+//            postProcessor = envConfig.getPostProcessor();
+//        }
+//
+//        //增加全局前后至脚本
+//        if(preProcessor != null){
+//            if (preProcessor.getEnvironmentId() == null) {
+//                if (this.getEnvironmentId() == null) {
+//                    preProcessor.setEnvironmentId(useEnvironment);
+//                } else {
+//                    preProcessor.setEnvironmentId(this.getEnvironmentId());
+//                }
+//            }
+//            preProcessor.toHashTree(samplerHashTree, preProcessor.getHashTree(), config);
+//        }
+//        if(postProcessor != null){
+//            if (postProcessor.getEnvironmentId() == null) {
+//                if (this.getEnvironmentId() == null) {
+//                    postProcessor.setEnvironmentId(useEnvironment);
+//                } else {
+//                    postProcessor.setEnvironmentId(this.getEnvironmentId());
+//                }
+//            }
+//            postProcessor.toHashTree(samplerHashTree, postProcessor.getHashTree(), config);
+//        }
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {

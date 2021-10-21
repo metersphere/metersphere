@@ -62,6 +62,7 @@ export default {
   data() {
     return {
       noticeCount: 0,
+      serverTime: new Date().getTime(),
       taskVisible: false,
       result: {},
       systemNoticeData: [],
@@ -120,13 +121,14 @@ export default {
     onError(e) {
     },
     onMessage(e) {
-      let count = e.data;
-      this.noticeCount = count;
+      let m = JSON.parse(e.data);
+      this.noticeCount = m.count;
+      this.serverTime = m.now;
       this.initIndex++;
-      if (count > 0) {
+      if (this.noticeCount > 0) {
         this.showNotification();
       }
-      if (this.taskVisible && count > 0 && this.initEnd) {
+      if (this.taskVisible && this.noticeCount > 0 && this.initEnd) {
         this.$refs.systemNotice.init();
         this.$refs.mentionedMe.init();
       }
@@ -156,7 +158,7 @@ export default {
     showNotification() {
       this.result = this.$post('/notification/list/all/' + 1 + '/' + 10, {}, response => {
         let data = response.data.listObject;
-        let now = new Date().getTime();
+        let now = this.serverTime;
         data.filter(d => d.status === 'UNREAD').forEach(d => {
           if (now - d.createTime > 10 * 1000) {
             return;

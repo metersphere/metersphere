@@ -8,7 +8,6 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
@@ -18,6 +17,7 @@ import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import io.metersphere.track.service.TestPlanTestCaseService;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -150,7 +150,12 @@ public class TestResultService {
                     testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
                 }
             }
-
+            if (reportTask != null) {
+                if (StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode())
+                        || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
+                    sendTask(reportTask, testResult);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
             LogUtil.error(e.getMessage(), e);
@@ -189,4 +194,58 @@ public class TestResultService {
         }
     }
 
+    private void sendTask(ApiTestReportVariable report, TestResult testResult) {
+        if (report == null) {
+            return;
+        }
+        SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+        NoticeSendService noticeSendService = CommonBeanFactory.getBean(NoticeSendService.class);
+        assert systemParameterService != null;
+        assert noticeSendService != null;
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+        String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
+
+        String subject = "";
+        String event = "";
+        String successContext = "${operator}执行接口测成功: ${name}" + ", 报告: ${reportUrl}";
+        String failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: ${reportUrl}";
+
+        if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
+            subject = Translator.get("task_notification_jenkins");
+        }
+        if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
+            subject = Translator.get("task_notification");
+        }
+        if (StringUtils.equals("Success", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+        }
+        if (StringUtils.equals("success", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+        }
+        if (StringUtils.equals("Error", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_FAILED;
+        }
+        if (StringUtils.equals("error", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_FAILED;
+        }
+        Map paramMap = new HashMap<>();
+        paramMap.put("type", "api");
+        paramMap.put("url", baseSystemConfigDTO.getUrl());
+        paramMap.put("reportUrl", reportUrl);
+        paramMap.put("operator", report.getExecutor());
+        paramMap.putAll(new BeanMap(report));
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(report.getUserId())
+                .successContext(successContext)
+                .successMailTemplate("ApiSuccessfulNotification")
+                .failedContext(failedContext)
+                .failedMailTemplate("ApiFailedNotification")
+                .testId(testResult.getTestId())
+                .status(report.getStatus())
+                .event(event)
+                .subject(subject)
+                .paramMap(paramMap)
+                .build();
+        noticeSendService.send(report.getTriggerMode(), NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+    }
 }

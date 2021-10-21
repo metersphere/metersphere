@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.log.utils.diff.json.GsonDiff;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
@@ -17,6 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReflexObjectUtil {
+    static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static List<DetailColumn> getColumns(Object obj, Map<String, String> columns) {
         List<DetailColumn> columnList = new LinkedList<>();
@@ -28,7 +30,45 @@ public class ReflexObjectUtil {
         if (StringUtils.isNotEmpty(dffValue)) {
             dffColumns = Arrays.asList(dffValue.split(","));
         }
-        // 得到类对象
+        // 得到类中的所有属性集合
+        List<Field[]> fields = getFields(obj);
+        try {
+            for (Field[] fs : fields) {
+                for (int i = 0; i < fs.length; i++) {
+                    Field f = fs[i];
+                    f.setAccessible(true);
+                    if (columns.containsKey(f.getName())) {
+                        Object val = f.get(obj);
+                        if (StatusReference.statusMap.containsKey(String.valueOf(val))) {
+                            val = StatusReference.statusMap.get(String.valueOf(val));
+                        }
+                        DetailColumn column = new DetailColumn(columns.get(f.getName()), f.getName(), val, "");
+                        if (dffColumns.contains(f.getName())) {
+                            column.setDepthDff(true);
+                            column.setOriginalValue(formatJson(val));
+                        }
+                        columnList.add(column);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        List<String> keys = columns.keySet().stream().collect(Collectors.toList());
+        ReflexObjectUtil.order(keys, columnList);
+        return columnList;
+    }
+
+    static Object formatJson(Object val) {
+        try {
+            JsonObject jsonObject = gson.fromJson(String.valueOf(val), JsonObject.class);
+            return gson.toJson(jsonObject);
+        } catch (Exception e) {
+            return val;
+        }
+    }
+
+    static List<Field[]> getFields(Object obj) {
         Class clazz = obj.getClass();
         // 得到类中的所有属性集合
         List<Field[]> fields = new LinkedList<>();
@@ -40,39 +80,29 @@ public class ReflexObjectUtil {
             // 获得父类的字节码对象
             clazz = clazz.getSuperclass();
         }
+        return fields;
+    }
+
+    public static List<DetailColumn> getColumns(Object obj) {
+        List<DetailColumn> columnList = new LinkedList<>();
+        if (obj == null) {
+            return columnList;
+        }
+        // 得到类中的所有属性集合
+        List<Field[]> fields = getFields(obj);
         for (Field[] fs : fields) {
             for (int i = 0; i < fs.length; i++) {
                 Field f = fs[i];
                 f.setAccessible(true);
                 try {
-                    if (columns.containsKey(f.getName())) {
-                        Object val = f.get(obj);
-                        if (val != null && StatusReference.statusMap.containsKey(val.toString())) {
-                            val = StatusReference.statusMap.get(val.toString());
-                        }
-                        DetailColumn column = new DetailColumn(columns.get(f.getName()), f.getName(), val, "");
-                        if (dffColumns.contains(f.getName())) {
-                            column.setDepthDff(true);
-                            if (val != null) {
-                                try {
-                                    // 格式化
-                                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                                    JsonObject jsonObject = gson.fromJson(val.toString(), JsonObject.class);
-                                    column.setOriginalValue(gson.toJson(jsonObject));
-                                } catch (Exception e) {
-
-                                }
-                            }
-                        }
-                        columnList.add(column);
-                    }
+                    Object val = f.get(obj);
+                    DetailColumn column = new DetailColumn(f.getName(), f.getName(), val, "");
+                    columnList.add(column);
                 } catch (Exception e) {
                     LogUtil.error(e);
                 }
             }
         }
-        List<String> keys = columns.keySet().stream().collect(Collectors.toList());
-        ReflexObjectUtil.order(keys, columnList);
         return columnList;
     }
 
@@ -96,7 +126,7 @@ public class ReflexObjectUtil {
         }));
     }
 
-    public static List<DetailColumn> compared(OperatingLogDetails obj, OperatingLogDetails newObj) {
+    public static List<DetailColumn> compared(OperatingLogDetails obj, OperatingLogDetails newObj, String module) {
         List<DetailColumn> comparedColumns = new LinkedList<>();
         try {
             if (obj != null && newObj != null) {
@@ -116,10 +146,38 @@ public class ReflexObjectUtil {
                         if (StringUtils.isEmpty(JSON.toJSONString(originalColumns.get(i).getOriginalValue())) && StringUtils.isEmpty(JSON.toJSONString(newColumns.get(i).getOriginalValue()))) {
                             continue;
                         }
-                        // 深度对比
                         DetailColumn column = new DetailColumn();
                         BeanUtils.copyBean(column, originalColumns.get(i));
                         column.setNewValue(newColumns.get(i).getOriginalValue());
+                        if (StringUtils.isNotEmpty(originalColumns.get(i).getColumnName()) && originalColumns.get(i).getColumnName().equals("tags")) {
+                            GsonDiff diff = new GsonDiff();
+                            String oldTags = ApiDefinitionDiffUtil.JSON_START + ((originalColumns.get(i) != null && originalColumns.get(i).getOriginalValue() != null) ? originalColumns.get(i).getOriginalValue().toString() : "\"\"") + ApiDefinitionDiffUtil.JSON_END;
+                            String newTags = ApiDefinitionDiffUtil.JSON_START + ((newColumns.get(i) != null && newColumns.get(i).getOriginalValue() != null) ? newColumns.get(i).getOriginalValue().toString() : "\"\"") + ApiDefinitionDiffUtil.JSON_END;
+                            String diffStr = diff.diff(oldTags, newTags);
+                            String diffValue = diff.apply(newTags, diffStr);
+                            column.setDiffValue(diffValue);
+                        }
+                        // 深度对比
+                        else if (StringUtils.equals(module, "api_definition")) {
+                            if (originalColumns.get(i).getColumnName().equals("request")) {
+                                String newValue = newColumns.get(i).getOriginalValue().toString();
+                                String oldValue = column.getOriginalValue().toString();
+                                column.setDiffValue(ApiDefinitionDiffUtil.diff(newValue, oldValue));
+                            } else if (originalColumns.get(i).getColumnName().equals("response")) {
+                                String newValue = newColumns.get(i).getOriginalValue().toString();
+                                String oldValue = column.getOriginalValue().toString();
+                                column.setDiffValue(ApiDefinitionDiffUtil.diffResponse(newValue, oldValue));
+                            }
+                        } else {
+                            String newValue = column.getNewValue().toString();
+                            if (StringUtils.isNotEmpty(newValue)) {
+                                column.setNewValue(newValue.replaceAll("\\n", " "));
+                            }
+                            String oldValue = column.getOriginalValue().toString();
+                            if (StringUtils.isNotEmpty(oldValue)) {
+                                column.setOriginalValue(oldValue.replaceAll("\\n", " "));
+                            }
+                        }
                         comparedColumns.add(column);
                     }
                 }

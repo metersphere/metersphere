@@ -16,6 +16,9 @@
       <el-form-item :label="$t('api_test.request.sql.database_url')" prop="dbUrl">
         <el-input v-model="currentConfig.dbUrl" maxlength="500" show-word-limit
                   :placeholder="$t('commons.input_content')"/>
+        <div v-if="currentConfig.driver ==='com.mysql.jdbc.Driver'">
+          <span style="font-size:10px">{{this.$t('api_test.request.sql.tips')}}</span>
+        </div>
       </el-form-item>
 
       <el-form-item :label="$t('api_test.request.sql.username')" prop="username">

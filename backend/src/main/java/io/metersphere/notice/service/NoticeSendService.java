@@ -1,7 +1,7 @@
 package io.metersphere.notice.service;
 
 import com.alibaba.nacos.client.utils.StringUtils;
-import io.metersphere.base.domain.Organization;
+import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
@@ -113,7 +113,7 @@ public class NoticeSendService {
     /**
      * 后台触发的发送，没有session
      */
-    public void send(Organization organization, String taskType, NoticeModel noticeModel) {
+    public void send(Project project, String taskType, NoticeModel noticeModel) {
         try {
             List<MessageDetail> messageDetails;
 //            switch (taskType) {
@@ -127,7 +127,7 @@ public class NoticeSendService {
 //                default:
 //                    break;
 //            }
-            messageDetails = noticeService.searchMessageByTypeAndOrganizationId(taskType, organization.getId());
+            messageDetails = noticeService.searchMessageByTypeAndWorkspaceId(taskType, project.getWorkspaceId());
 
             // 异步发送通知
             messageDetails.stream()

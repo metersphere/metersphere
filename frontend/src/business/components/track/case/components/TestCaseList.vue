@@ -146,6 +146,15 @@
           </template>
         </ms-table-column >
 
+         <ms-table-column
+           prop="status"
+           :filters="statusFilters"
+           :field="item"
+           :fields-width="fieldsWidth"
+           min-width="100px"
+           :label="$t('api_test.definition.api_case_status')">
+        </ms-table-column>
+
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
                          :filters="field.name === '用例等级' ? priorityFilters : null"
                          :field="item"
@@ -176,6 +185,8 @@
     <batch-move @refresh="refresh" @moveSave="moveSave" ref="testBatchMove"/>
 
     <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
+
+    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
   </div>
 
 </template>
@@ -202,6 +213,7 @@ import StatusTableItem from "@/business/components/track/common/tableItems/planv
 import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import MsTag from "@/business/components/common/components/MsTag";
+import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus.vue";
 import {
   buildBatchParam,
   deepClone,
@@ -223,10 +235,13 @@ import BatchMove from "@/business/components/track/case/components/BatchMove";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
 import {editTestCaseOrder} from "@/network/testCase";
+import {getGraphByCondition} from "@/network/graph";
+import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
 
 export default {
   name: "TestCaseList",
   components: {
+    RelationshipGraphDrawer,
     TestCasePreview,
     BatchMove,
     MsTableColumn,
@@ -250,7 +265,7 @@ export default {
     StatusTableItem,
     TestCaseDetail,
     ReviewStatus,
-    MsTag,
+    MsTag,ApiStatus
   },
   data() {
     return {
@@ -264,6 +279,7 @@ export default {
       condition: {
         components: TEST_CASE_CONFIGS
       },
+      graphData: {},
       priorityFilters: [
         {text: 'P0', value: 'P0'},
         {text: 'P1', value: 'P1'},
@@ -303,6 +319,12 @@ export default {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatchToGc,
           permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
+        },
+        {
+          name: this.$t('生成依赖关系'),
+          isXPack: true,
+          handleClick: this.generateGraph,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
         }
       ],
       trashButtons: [
@@ -368,10 +390,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    customNum: {
-      type: Boolean,
-      default: false
-    }
   },
   computed: {
     projectId() {
@@ -382,6 +400,9 @@ export default {
     },
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
+    },
+    customNum() {
+      return this.$store.state.currentProjectIsCustomNum;
     },
     systemFiledMap() {
       return SYSTEM_FIELD_NAME_MAP;
@@ -397,6 +418,7 @@ export default {
       this.condition.filters = {status: ["Trash"]};
     }else {
       this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+      this.condition.filters = {status: ["Prepare" , "Underway" , "Completed"]}
     }
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
@@ -544,7 +566,9 @@ export default {
           this.condition.nodeIds = this.selectNodeIds;
         }
       }
-
+      if(this.condition.filters.status===null) {
+        this.condition.filters.status = ["Prepare", "Underway", "Completed"];
+      }
       this.getData();
     },
     getData() {
@@ -703,6 +727,12 @@ export default {
             });
           }
         }
+      });
+    },
+    generateGraph() {
+      getGraphByCondition('TEST_CASE', buildBatchParam(this, this.$refs.table.selectIds),(data) => {
+        this.graphData = data;
+        this.$refs.relationshipGraph.open();
       });
     },
     handleDeleteBatchToGc() {

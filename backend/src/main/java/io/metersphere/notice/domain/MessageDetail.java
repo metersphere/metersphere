@@ -14,7 +14,6 @@ public class MessageDetail {
     private String webhook;
     private String type;
     private String identification;
-    private String organizationId;
     private Boolean isSet;
     private String testId;
     private Long createTime;

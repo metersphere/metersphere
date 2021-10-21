@@ -186,7 +186,18 @@ export default {
     run_success: "执行成功",
     run_completed: "执行完成",
     run_fail: "执行失败",
+    relationship: {
+      name: '依赖关系',
+      pre: '前置对象',
+      post: '后置置对象',
+      graph: '依赖图',
+      selected: '选中节点',
+      direct: '直接关联',
+      indirect: '间接关联',
+
+    },
     generate_test_data: "生成测试数据",
+    project_setting: '项目设置',
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -244,7 +255,7 @@ export default {
         not_equals: "不等于",
         between: "之间",
         current_user: "是当前用户"
-      }
+      },
     },
     monitor: "监控",
     all_label: {
@@ -536,7 +547,23 @@ export default {
       exception_handle: "异常处理",
       stop_test: "终止测试",
       report_handle: "报文处理"
-    }
+    },
+    info: '项目信息',
+    member: '项目成员',
+    env: '项目环境',
+    file_manage: '文件管理',
+    log: '操作日志',
+    version_manage: '版本管理',
+    app_manage: '应用管理',
+    desc: '项目描述',
+    manage_people: '管理员',
+    creator: '创建人',
+    create_time: '创建时间',
+    member_desc: '添加项目成员以及项目成员管理',
+    env_desc: '项目运行环境以及全局配置',
+    file_desc: 'jar包以及资源文件管理',
+    log_desc: '项目全部操作过程',
+    code_segment_desc: '自定义代码片段'
   },
   member: {
     create: '添加成员',
@@ -651,6 +678,7 @@ export default {
     test_stop_success: '停止成功',
     test_execute_again: '再次执行',
     downloadJtl: '下载JTL',
+    downloadZipFile: '下载执行文件',
     export: '导出',
     export_to_ms_format: '导出 MeterSphere 格式',
     export_to_swagger3_format: '导出 Swagger3.0 格式',
@@ -816,11 +844,13 @@ export default {
     copy: "复制测试",
     batch_add_parameter: "格式：参数名:参数值 <br/> 如：Accept-Encoding:utf-8",
     jar_config: {
-      title: "jar包管理",
+      title: "上传jar包",
       jar_file: "jar包",
       delete_tip: "删除需重启服务后生效",
       file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
+      upload_limit_size_warn: "上传文件大小不能超过 {0} MB!",
+      upload_limit: "上传文件大小不能超过",
     },
     batch_menus: {
       select_all_data: "选择所有数据(共{0}条)",
@@ -836,6 +866,7 @@ export default {
         update_time: "更新时间"
       },
       expect_detail: "期望详情",
+      request_condition:"请求触发条件",
       base_info: "基本信息",
       req_param: "请求参数",
       rsp_param: "响应内容",
@@ -1230,6 +1261,7 @@ export default {
         timeout: "超时时间(ms)",
         database_driver: "数据库驱动",
         database_url: "数据库连接URL",
+        tips: "Tips: 执行多条SQL语句需配置allowMultiQueries=true",
         username: "用户名",
         password: "密码",
         pool_max: "最大连接数",
@@ -1598,6 +1630,7 @@ export default {
       related_project: "关联项目",
       related_tip: "关联项目后可以添加关联项目下的测试用例到测试计划列表",
       plan_stage: "测试阶段",
+      follow_people: "关注人",
       plan_status: "当前状态",
       smoke_test: "冒烟测试",
       functional_test: "功能测试",
@@ -1648,6 +1681,7 @@ export default {
       related_project: "关联项目",
       related_tip: "关联项目后可以添加关联项目下的测试用例到评审列表",
       review_creator: "发起人",
+      review_follow_people: "关注人",
       review_status: "当前状态",
       end_time: "截止时间",
       delete: "删除评审",
@@ -1783,7 +1817,7 @@ export default {
       add_issue: "添加缺陷",
       issue_list: "缺陷列表",
       search_name: "根据标题搜索",
-      platform_tip: "在系统设置-组织-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台",
+      platform_tip: "在系统设置-工作空间-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台",
       input_title: "请输入标题",
       id: "缺陷ID",
       title: "缺陷标题",

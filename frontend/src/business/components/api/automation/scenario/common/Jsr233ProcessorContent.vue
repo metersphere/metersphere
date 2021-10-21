@@ -27,9 +27,9 @@
 <script>
     import MsCodeEdit from "../../../definition/components/MsCodeEdit";
     import MsDropdown from "../../../../common/components/MsDropdown";
-    import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
-    import ApiFuncRelevance from "@/business/components/settings/project/function/ApiFuncRelevance";
-    import ScriptNavMenu from "@/business/components/settings/project/function/ScriptNavMenu";
+    import CustomFunctionRelate from "@/business/components/project/menu/function/CustomFunctionRelate";
+    import ApiFuncRelevance from "@/business/components/project/menu/function/ApiFuncRelevance";
+    import ScriptNavMenu from "@/business/components/project/menu/function/ScriptNavMenu";
     export default {
         name: "Jsr233ProcessorContent",
       components: {MsDropdown, MsCodeEdit, CustomFunctionRelate, ApiFuncRelevance, ScriptNavMenu},

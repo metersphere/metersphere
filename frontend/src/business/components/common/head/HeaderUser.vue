@@ -9,12 +9,6 @@
         <el-dropdown-item command="about">{{ $t('commons.about_us') }} <i class="el-icon-info"/></el-dropdown-item>
         <el-dropdown-item command="help">{{ $t('commons.help_documentation') }}</el-dropdown-item>
         <el-dropdown-item command="ApiHelp">{{ $t('commons.api_help_documentation') }}</el-dropdown-item>
-        <el-dropdown-item command="old" v-show=isNewVersion @click.native="changeBar('old')">
-          {{ $t('commons.cut_back_old_version') }}
-        </el-dropdown-item>
-        <el-dropdown-item command="new" v-show=isOldVersion @click.native="changeBar('new')">
-          {{ $t('commons.cut_back_new_version') }}
-        </el-dropdown-item>
         <el-dropdown-item command="logout">{{ $t('commons.exit_system') }}</el-dropdown-item>
       </el-dropdown-menu>
     </template>
@@ -45,10 +39,6 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
-    ...mapGetters([
-      'isNewVersion',
-      'isOldVersion',
-    ])
   },
   methods: {
     logout: function () {

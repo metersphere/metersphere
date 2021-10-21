@@ -11,7 +11,6 @@ import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.TriggerMode;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,13 +37,23 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                 MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                 return null;
             }
+            String testId;
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
+                String testPlanScenarioId = "";
+                if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(runModeDataDTO.getTestId())) {
+                    testPlanScenarioId = request.getScenarioTestPlanIdMap().get(runModeDataDTO.getTestId());
+                } else {
+                    testPlanScenarioId = request.getPlanScenarioId();
+                }
+                testId = runModeDataDTO.getTestId();
+                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), testPlanScenarioId, request.getConfig());
             } else {
+                testId = runModeDataDTO.getReport().getId();
                 jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
             }
-            while (MessageCache.executionQueue.containsKey(runModeDataDTO.getReport().getId())) {
-                long currentSecond = (System.currentTimeMillis() - MessageCache.executionQueue.get(runModeDataDTO.getReport().getId())) / 1000 / 60;
+            while (MessageCache.executionQueue.containsKey(testId)) {
+                long time = MessageCache.executionQueue.get(runModeDataDTO.getReport().getId());
+                long currentSecond = (System.currentTimeMillis() - time) / 1000 / 60;
                 // 设置五分钟超时
                 if (currentSecond > 5) {
                     // 执行失败了，恢复报告状态
@@ -59,12 +68,11 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                     MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                     break;
                 }
+                Thread.sleep(1000);
             }
-            report = apiScenarioReportMapper.selectByPrimaryKey(runModeDataDTO.getReport().getId());
-            return (T) report;
+            return null;
         } catch (Exception ex) {
             LogUtil.error(ex);
-            MSException.throwException(ex.getMessage());
             return null;
         }
     }

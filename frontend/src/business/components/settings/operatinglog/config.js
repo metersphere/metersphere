@@ -77,15 +77,13 @@ export const sysList = [
   {
     label: "系统设置", value: "系统设置", children: [
       {label: "系统-用户", value: "系统-用户", leaf: true},
-      {label: "系统-组织", value: "系统-组织", leaf: true},
       {label: "工作空间", value: "工作空间", leaf: true},
       {label: "系统-测试资源池", value: "系统-测试资源池", leaf: true},
       {label: "系统-系统参数设置", value: "系统-系统参数设置", leaf: true},
       {label: "系统-配额管理", value: "系统-配额管理", leaf: true},
       {label: "系统-授权管理", value: "系统-授权管理", leaf: true},
-      {label: "组织-成员", value: "组织-成员", leaf: true},
-      {label: "组织-服务集成", value: "组织-服务集成", leaf: true},
-      {label: "组织-消息设置", value: "组织-消息设置", leaf: true},
+      {label: "工作空间-服务集成", value: "工作空间-服务集成", leaf: true},
+      {label: "工作空间-消息设置", value: "工作空间-消息设置", leaf: true},
 
       {label: "工作空间-成员", value: "工作空间-成员", leaf: true},
       {label: "项目-项目管理", value: "项目-项目管理", leaf: true},
@@ -176,7 +174,7 @@ export function getUrl(d) {
       url += "/setting/project/:type";
       break;
     case "项目-环境设置" || "項目-環境設置" || "Project environment setting" :
-      url += "/setting/envlist";
+      url += "/project/env";
       break;
     case "工作空间-模版设置-自定义字段" || "工作空間-模版設置-自定義字段" || "Workspace template settings field" :
       url += "/setting/workspace/template/field";
@@ -188,7 +186,7 @@ export function getUrl(d) {
       url += "/setting/workspace/template/issues";
       break;
     case "项目-成员" || "項目-成員" || "Project member" :
-      url += "/setting/projectmember";
+      url += "/project/member";
       break;
     default:
       break;

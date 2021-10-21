@@ -6,7 +6,8 @@
     <div v-loading="result.loading">
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
-          <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')" :disabled="type === 'Edit'"/>
+          <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')"
+                    :disabled="type === 'Edit'"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
           <el-input v-model="form.name" autocomplete="off" :placeholder="$t('user.input_name')"/>
@@ -40,22 +41,6 @@
               {{ $t('commons.delete') }}
             </el-button>
           </el-form-item>
-          <div v-if="groupType(group.type) === org">
-            <el-form-item :label="$t('organization.select_organization')"
-                          :prop="'groups.' + index + '.ids'"
-                          :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"
-            >
-              <el-select filterable v-model="group.ids" :placeholder="$t('organization.select_organization')" multiple
-                         class="edit-user-select">
-                <el-option
-                  v-for="item in group.organizations"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </div>
           <div v-if="groupType(group.type) === ws">
             <el-form-item :label="$t('workspace.select')"
                           :prop="'groups.' + index + '.ids'"
@@ -112,7 +97,7 @@
 
 <script>
 import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
-import {GROUP_ORGANIZATION, GROUP_PROJECT, GROUP_SYSTEM, GROUP_WORKSPACE} from "@/common/js/constants";
+import {GROUP_PROJECT, GROUP_SYSTEM, GROUP_WORKSPACE} from "@/common/js/constants";
 
 export default {
   name: "EditUser",
@@ -175,7 +160,6 @@ export default {
         ],
       },
       userGroup: [],
-      organizations: [],
       workspaces: [],
       projects: [],
       type: "Add",
@@ -183,9 +167,6 @@ export default {
     }
   },
   computed: {
-    org() {
-      return GROUP_ORGANIZATION;
-    },
     ws() {
       return GROUP_WORKSPACE;
     },
@@ -293,7 +274,7 @@ export default {
       }
       let id = idType.split("+")[0];
       let type = idType.split("+")[1];
-      this.result = this.$get('/organization/list/resource/' + id + "/" + type, res => {
+      this.result = this.$get('/workspace/list/resource/' + id + "/" + type, res => {
         let data = res.data;
         if (data) {
           this._setResource(data, index, type);
@@ -302,9 +283,6 @@ export default {
     },
     _setResource(data, index, type) {
       switch (type) {
-        case GROUP_ORGANIZATION:
-          this.form.groups[index].organizations = data.organizations;
-          break;
         case GROUP_WORKSPACE:
           this.form.groups[index].workspaces = data.workspaces;
           break;

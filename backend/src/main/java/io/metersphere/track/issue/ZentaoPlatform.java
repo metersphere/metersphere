@@ -65,7 +65,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         this.password = object.getString("password");
         this.url = object.getString("url");
         String type = object.getString("request");
-        this.orgId = issuesRequest.getOrganizationId();
+        this.workspaceId = issuesRequest.getWorkspaceId();
         this.zentaoClient = ZentaoFactory.getInstance(this.url, type);
     }
 
@@ -282,7 +282,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
         if (StringUtils.isNotBlank(config)) {
             zentaoConfig = JSONObject.parseObject(config, ZentaoConfig.class);
-            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(this.orgId);
+            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(this.workspaceId);
             if (userPlatInfo != null && StringUtils.isNotBlank(userPlatInfo.getZentaoUserName())
                     && StringUtils.isNotBlank(userPlatInfo.getZentaoPassword())) {
                 zentaoConfig.setAccount(userPlatInfo.getZentaoUserName());

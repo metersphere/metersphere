@@ -9,9 +9,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
-import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -79,9 +77,9 @@ public class IssuesService {
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
 
-    public void testAuth(String orgId, String platform) {
+    public void testAuth(String workspaceId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
-        issuesRequest.setOrganizationId(orgId);
+        issuesRequest.setWorkspaceId(workspaceId);
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, issuesRequest);
         abstractPlatform.testAuth();
     }
@@ -136,11 +134,9 @@ public class IssuesService {
             return null;
         }
         String workspaceId = project.getWorkspaceId();
-        Workspace workspace = workspaceMapper.selectByPrimaryKey(workspaceId);
         TestCase testCase = testCaseMapper.selectByPrimaryKey(caseId);
-        String orgId = workspace.getOrganizationId();
         String userId = testCase.getMaintainer();
-        issueRequest.setOrganizationId(orgId);
+        issueRequest.setWorkspaceId(workspaceId);
         issueRequest.setUserId(userId);
         return getIssuesByProjectIdOrCaseId(issueRequest);
     }
@@ -182,11 +178,9 @@ public class IssuesService {
 
     public List<String> getPlatforms(Project project) {
         String workspaceId = project.getWorkspaceId();
-        Workspace workspace = workspaceMapper.selectByPrimaryKey(workspaceId);
-        String orgId = workspace.getOrganizationId();
-        boolean tapd = isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
-        boolean jira = isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
-        boolean zentao = isIntegratedPlatform(orgId, IssuesManagePlatform.Zentao.toString());
+        boolean tapd = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Tapd.toString());
+        boolean jira = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Jira.toString());
+        boolean zentao = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Zentao.toString());
 
         List<String> platforms = new ArrayList<>();
         if (tapd) {
@@ -244,10 +238,10 @@ public class IssuesService {
     /**
      * 是否关联平台
      */
-    public boolean isIntegratedPlatform(String orgId, String platform) {
+    public boolean isIntegratedPlatform(String workspaceId, String platform) {
         IntegrationRequest request = new IntegrationRequest();
         request.setPlatform(platform);
-        request.setOrgId(orgId);
+        request.setWorkspaceId(workspaceId);
         ServiceIntegration integration = integrationService.get(request);
         return StringUtils.isNotBlank(integration.getId());
     }
@@ -289,23 +283,14 @@ public class IssuesService {
         platforms.add(issuesWithBLOBs.getPlatform());
         String projectId = issuesWithBLOBs.getProjectId();
         Project project = projectService.getProjectById(projectId);
-        Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
         IssuesRequest issuesRequest = new IssuesRequest();
-        issuesRequest.setOrganizationId(workspace.getOrganizationId());
+        issuesRequest.setWorkspaceId(project.getWorkspaceId());
         AbstractIssuePlatform platform = IssueFactory.createPlatform(issuesWithBLOBs.getPlatform(), issuesRequest);
         platform.deleteIssue(id);
     }
 
     public IssuesWithBLOBs get(String id) {
         return issuesMapper.selectByPrimaryKey(id);
-    }
-
-    private static String getIssuesContext(SessionUser user, IssuesUpdateRequest issuesRequest, String type) {
-        String context = "";
-        if (StringUtils.equals(NoticeConstants.Event.CREATE, type)) {
-            context = "缺陷任务通知：" + user.getName() + "发起了一个缺陷" + "'" + issuesRequest.getTitle() + "'" + "请跟进";
-        }
-        return context;
     }
 
     public List<ZentaoBuild> getZentaoBuilds(IssuesRequest request) {
@@ -403,8 +388,6 @@ public class IssuesService {
     public void syncThirdPartyIssues(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
             Project project = projectService.getProjectById(projectId);
-            Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
-
             List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId);
 
             if (CollectionUtils.isEmpty(issues)) {
@@ -426,7 +409,7 @@ public class IssuesService {
 
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
-            issuesRequest.setOrganizationId(workspace.getOrganizationId());
+            issuesRequest.setWorkspaceId(project.getWorkspaceId());
             if (CollectionUtils.isNotEmpty(tapdIssues)) {
                 TapdPlatform tapdPlatform = new TapdPlatform(issuesRequest);
                 syncThirdPartyIssues(tapdPlatform::syncIssues, project, tapdIssues);
@@ -466,7 +449,7 @@ public class IssuesService {
         if (StringUtils.isBlank(orgId)) {
             MSException.throwException("organization id is null");
         }
-        request.setOrgId(orgId);
+        request.setWorkspaceId(orgId);
         request.setPlatform(platform);
 
         ServiceIntegration integration = integrationService.get(request);
@@ -499,7 +482,7 @@ public class IssuesService {
 
     public void userAuth(AuthUserIssueRequest authUserIssueRequest) {
         IssuesRequest issuesRequest = new IssuesRequest();
-        issuesRequest.setOrganizationId(authUserIssueRequest.getOrgId());
+        issuesRequest.setWorkspaceId(authUserIssueRequest.getWorkspaceId());
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(authUserIssueRequest.getPlatform(), issuesRequest);
         abstractPlatform.userAuth(authUserIssueRequest);
     }
@@ -557,7 +540,7 @@ public class IssuesService {
                 break;
             }
         }
-
+        issues.setStatus(status);
         issues.setCustomFields(JSONObject.toJSONString(fields));
         issuesMapper.updateByPrimaryKeySelective(issues);
     }

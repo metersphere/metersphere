@@ -39,6 +39,10 @@
         :case-id="caseId" ref="issue"/>
     </el-tab-pane>
 
+    <el-tab-pane :label="$t('commons.relationship.name')" name="relationship">
+      <dependencies-list :read-only="readOnly" :resource-id="caseId" resource-type="TEST_CASE" ref="relationship"/>
+    </el-tab-pane>
+
     <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
       <el-row>
         <el-col :span="20" :offset="1">
@@ -78,10 +82,12 @@ import TestCaseAttachment from "@/business/components/track/case/components/Test
 import TestCaseIssueRelate from "@/business/components/track/case/components/TestCaseIssueRelate";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import TestCaseTestRelate from "@/business/components/track/case/components/TestCaseTestRelate";
+import DependenciesList from "@/business/components/common/components/graph/DependenciesList";
 
 export default {
   name: "TestCaseEditOtherInfo",
   components: {
+    DependenciesList,
     TestCaseTestRelate,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
   props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId'],
@@ -112,6 +118,8 @@ export default {
         this.getDemandOptions();
       } else if (this.tabActiveName === 'bug') {
         this.$refs.issue.getIssues();
+      } else if (this.tabActiveName === 'relationship') {
+        this.$refs.relationship.open();
       } else if (this.tabActiveName === 'attachment') {
         this.getFileMetaData();
       }

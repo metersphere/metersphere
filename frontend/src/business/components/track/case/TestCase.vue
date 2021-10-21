@@ -33,7 +33,6 @@
             @refreshAll="refreshAll"
             @setCondition="setCondition"
             @decrease="decrease"
-            :custom-num="custom_num"
             ref="testCaseTrashList">
           </test-case-list>
         </el-tab-pane>
@@ -60,7 +59,6 @@
               @refreshAll="refreshAll"
               @setCondition="setCondition"
               @decrease="decrease"
-              :custom-num="custom_num"
               ref="testCaseList">
             </test-case-list>
             <test-case-minder
@@ -88,7 +86,6 @@
               :select-node="selectNode"
               :select-condition="condition"
               :type="type"
-              :custom-num="custom_num"
               @addTab="addTab"
               ref="testCaseEdit">
             </test-case-edit>
@@ -165,7 +162,6 @@ export default {
       type: '',
       activeDom: 'left',
       tmpActiveDom: null,
-      custom_num: false
     };
   },
   mounted() {
@@ -463,7 +459,7 @@ export default {
       this.$get("/project/get/" + this.projectId, result => {
         let data = result.data;
         if (data) {
-          this.custom_num = data.customNum;
+          this.$store.commit('setCurrentProjectIsCustomNum',  data.customNum);
         }
       });
     },

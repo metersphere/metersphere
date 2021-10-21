@@ -95,7 +95,9 @@
               :middle-tip="$t('api_test.definition.case_title')"
               left-content="API"
               middle-content="CASE"
-              :right-content="$t('api_test.definition.doc_title')">
+              :right-content="$t('api_test.definition.doc_title')"
+              :right-button-enable="currentProtocol === 'HTTP' "
+            >
               <!-- 列表集合 -->
               <ms-api-list
                 v-if="activeDom==='left'"
@@ -137,7 +139,7 @@
                 ref="caseList"/>
               <api-documents-page
                 class="api-doc-page"
-                v-if="activeDom==='right'"
+                v-if="activeDom==='right' && currentProtocol==='HTTP'"
                 :project-id="projectId"
                 :trash-enable="trashEnable"
                 :module-ids="selectNodeIds"/>
@@ -365,6 +367,9 @@ export default {
   },
   watch: {
     currentProtocol() {
+      if(this.activeDom === 'right'){
+        this.activeDom = 'left';
+      }
       this.handleCommand("CLOSE_ALL");
     },
     selectNodeIds() {
@@ -489,6 +494,7 @@ export default {
         url: "",
         protocol: this.currentProtocol,
         environmentId: "",
+        remark: "",
         moduleId: 'default-module',
         modulePath: "/" + this.$t("commons.module_title")
       };

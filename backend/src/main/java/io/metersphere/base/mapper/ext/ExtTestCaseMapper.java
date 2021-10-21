@@ -3,6 +3,7 @@ package io.metersphere.base.mapper.ext;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.controller.request.BaseQueryRequest;
+import io.metersphere.dto.RelationshipGraphData;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
@@ -118,4 +119,8 @@ public interface ExtTestCaseMapper {
     Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
     Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    List<TestCase> getTestCase(@Param("request") QueryTestCaseRequest request);
+
+    List<RelationshipGraphData.Node> getTestCaseForGraph(@Param("ids") Set<String> ids);
 }

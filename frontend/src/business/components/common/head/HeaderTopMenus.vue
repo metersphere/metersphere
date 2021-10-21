@@ -22,10 +22,14 @@
                   v-permission="['PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ']">
       {{ $t('commons.performance') }}
     </el-menu-item>
-    <el-menu-item index="/report" onselectstart="return false"
-                  v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ']"
-    >
+    <el-menu-item index="/report" v-if="check('reportStat')" onselectstart="return false"
+                  v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ']">
       {{ $t('commons.report_statistics.title') }}
+    </el-menu-item>
+
+    <el-menu-item index="/project" onselectstart="return false"
+                  v-permission="['PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ']">
+      {{$t('commons.project_setting')}}
     </el-menu-item>
 
     <el-menu-item index="/setting" onselectstart="return false">
@@ -83,23 +87,13 @@ export default {
 
     this.registerEvents();
   },
-  computed: {
-    ...mapGetters([
-      'isNewVersion',
-      'isOldVersion',
-    ])
-  },
   methods: {
     handleSelect(index) {
       this.activeIndex = index;
     },
     active() {
       if (this.activeIndex === '/api') {
-        if (this.isNewVersion) {
-          window.location.href = "/#/api/home";
-        } else if (this.isOldVersion) {
-          window.location.href = "/#/api/home_obsolete";
-        }
+        window.location.href = "/#/api/home";
       }
     },
     check(key) {

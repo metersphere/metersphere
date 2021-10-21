@@ -237,16 +237,18 @@
     <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
     <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
             :run-data="debugData" ref="runTest"/>
-    <ms-task-center ref="taskCenter"/>
+    <ms-task-center ref="taskCenter" :show-menu="false"/>
+    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
+
   </div>
 </template>
 
 <script>
-import {downloadFile, getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID, setDefaultTheme, strMapToObj} from "@/common/js/utils";
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
+import {API_SCENARIO_LIST, ORIGIN_COLOR} from "../../../../../common/js/constants";
 
-import {getCustomTableHeader, getCustomTableWidth, getLastTableSortField} from "@/common/js/tableUtils";
+import {buildBatchParam, getCustomTableHeader, getCustomTableWidth, getLastTableSortField} from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import {scenario} from "@/business/components/track/plan/event-bus";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -255,7 +257,9 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import {editApiScenarioCaseOrder} from "@/business/components/api/automation/api-automation";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import axios from "axios";
-import {error} from "@/common/js/message";
+import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
+import {getGraphByCondition} from "@/network/graph";
+import {hasLicense} from "@/common/js/utils";
 
 export default {
   name: "MsApiScenarioList",
@@ -263,6 +267,7 @@ export default {
     MsTable,
     MsTableColumn,
     HeaderLabelOperate,
+    RelationshipGraphDrawer,
     HeaderCustom: () => import("@/business/components/common/head/HeaderCustom"),
     BatchMove: () => import("../../../track/case/components/BatchMove"),
     EnvironmentSelect: () => import("../../definition/components/environment/EnvironmentSelect"),
@@ -439,6 +444,12 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
         },
         {
+          name: "生成依赖关系",
+          handleClick: this.generateGraph,
+          isXPack: true,
+          permissions: ['PROJECT_API_SCENARIO:READ+EDIT']
+        },
+        {
           name: this.$t('api_test.automation.batch_add_plan'),
           handleClick: this.handleBatchAddCase,
           permissions: ['PROJECT_API_SCENARIO:READ+MOVE_BATCH']
@@ -478,9 +489,18 @@ export default {
         projectEnv: [],
         projectId: ''
       },
+      graphData: {}
     };
   },
   created() {
+    // if (!hasLicense()) {
+    //   for (let i = 0; i < this.unTrashButtons.length; i++) {
+    //     if (this.unTrashButtons[i].handleClick === this.generateGraph) {
+    //       this.unTrashButtons.splice(i,1);
+    //       break;
+    //     }
+    //   }
+    // }
     scenario.$on('hide', id => {
       this.hideStopBtn(id);
     });
@@ -559,6 +579,12 @@ export default {
     }
   },
   methods: {
+    generateGraph() {
+      getGraphByCondition('API_SCENARIO', buildBatchParam(this, this.$refs.scenarioTable.selectIds),(data) => {
+        this.graphData = data;
+        this.$refs.relationshipGraph.open();
+      });
+    },
     getProjectName() {
       this.$get('project/get/' + this.projectId, response => {
         let project = response.data;

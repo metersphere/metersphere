@@ -31,6 +31,7 @@ public class TestPlanReportDTO {
     private List<Issues> Issues;
     private List<String> executors;
     private String principal;
+    private String principalName;
     private Long startTime;
     private Long endTime;
     private String projectName;

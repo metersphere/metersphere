@@ -16,7 +16,6 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.JmeterProperties;
-import io.metersphere.config.KafkaConfig;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
@@ -33,7 +32,6 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -157,7 +155,7 @@ public class JMeterService {
         if (baseInfo != null) {
             platformUrl = baseInfo.getUrl();
         }
-        platformUrl += "/api/jmeter/download?testId=" + testId + "&reportId=" + reportId + "&testPlanScenarioId" + "&runMode=" + runMode;
+        platformUrl += "/api/jmeter/download?testId=" + testId + "&reportId=" + reportId + "&runMode=" + runMode + "&testPlanScenarioId";
         if (StringUtils.isNotEmpty(testPlanScenarioId)) {
             platformUrl += "=" + testPlanScenarioId;
         }
@@ -176,12 +174,12 @@ public class JMeterService {
             }
         } else {
             try {
-                SendResult result = kafkaTemplate.send(KafkaConfig.EXEC_TOPIC, JSON.toJSONString(runRequest)).get();
-                if (result != null) {
-                    LogUtil.debug("获取ack 结果：" + result.getRecordMetadata());
-                }
-                kafkaTemplate.flush();
-               // this.send(runRequest,config,reportId);
+//                SendResult result = kafkaTemplate.send(KafkaConfig.EXEC_TOPIC, JSON.toJSONString(runRequest)).get();
+//                if (result != null) {
+//                    LogUtil.debug("获取ack 结果：" + result.getRecordMetadata());
+//                }
+//                kafkaTemplate.flush();
+                this.send(runRequest, config, reportId);
             } catch (Exception e) {
                 e.printStackTrace();
                 if (MessageCache.cache.get(config.getAmassReport()) != null
@@ -192,7 +190,7 @@ public class JMeterService {
         }
     }
 
-    public void send(RunRequest runRequest, RunModeConfig config, String reportId) {
+    public synchronized void send(RunRequest runRequest, RunModeConfig config, String reportId) {
         try {
             int index = (int) (Math.random() * config.getTestResources().size());
             JvmInfoDTO jvmInfoDTO = config.getTestResources().get(index);
@@ -201,21 +199,17 @@ public class JMeterService {
             NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
             String nodeIp = node.getIp();
             Integer port = node.getPort();
-            try {
-                String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
-                ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
-                if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
-                    // 清理零时报告
-                    ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
-                    apiScenarioReportService.delete(reportId);
-                    MSException.throwException("执行失败：" + result);
-                    if (MessageCache.cache.get(config.getAmassReport()) != null
-                            && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
-                        MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
-                    }
+            String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
+            ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
+            if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
+                // 清理零时报告
+                ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
+                apiScenarioReportService.delete(reportId);
+                MSException.throwException("执行失败：" + result);
+                if (MessageCache.cache.get(config.getAmassReport()) != null
+                        && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
+                    MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
                 }
-            } catch (Exception e) {
-                MSException.throwException(e.getMessage());
             }
         } catch (Exception e) {
             if (MessageCache.cache.get(config.getAmassReport()) != null

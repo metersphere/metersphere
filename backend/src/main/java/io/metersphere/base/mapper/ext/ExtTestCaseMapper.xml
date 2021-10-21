@@ -323,7 +323,7 @@
                         </when>
                     </choose>
                 </if>
-                <if test="key=='status' and values.size == 0">
+                <if test="key=='status' and (values == null || values.size() == 0)">
                     and (test_case.status is null or test_case.status != 'Trash')
                 </if>
             </foreach>
@@ -550,6 +550,23 @@
             and `order` &lt; #{baseOrder}
         </if>
         order by `order` desc limit 1;
+    </select>
+    <select id="getTestCase" resultType="io.metersphere.base.domain.TestCase">
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,
+        test_case.num, test_case.custom_num, test_case.priority, test_case.tags, test_case.create_time, test_case.update_time
+        from test_case as test_case
+        <include refid="notInQueryWhereCondition"></include>
+        ORDER BY test_case.order DESC
+    </select>
+
+    <select id="getTestCaseForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
+        select id,num,custom_num,`name`
+        from test_case
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and (test_case.status != 'Trash' or test_case.status is NULL);
     </select>
 
     <update id="deleteToGc">

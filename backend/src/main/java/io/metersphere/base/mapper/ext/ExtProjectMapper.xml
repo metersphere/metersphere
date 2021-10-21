@@ -172,19 +172,8 @@
         </set>
         WHERE project.id IN (SELECT id FROM (SELECT id
                 FROM project
-                WHERE workspace_id IN
-                (SELECT workspace.id
-                FROM workspace
-                WHERE organization_id = #{orgId})) AS a)
+                WHERE workspace_id = #{workspaceId}) AS a)
     </update>
-
-    <select id="getOrganizationByProjectId" resultType="io.metersphere.base.domain.Organization">
-        SELECT organization.*
-        FROM organization
-                     JOIN workspace ON organization.id = organization_id
-                     JOIN project ON workspace.id = workspace_id
-        WHERE project.id = #{projectId, jdbcType=VARCHAR}
-    </select>
 
     <select id="selectTcpPorts" resultType="java.lang.Integer">
         SELECT mock_tcp_port
@@ -247,4 +236,9 @@
                 WHERE id = #{resourceId})
         LIMIT 1
     </select>
+    <select id="getProjectMemberSize" resultType="java.lang.Long">
+        SELECT count(distinct (`user`.id)) FROM user_group JOIN `user` ON user_group.user_id = `user`.id
+        WHERE user_group.source_id = #{projectId}
+    </select>
+
 </mapper>

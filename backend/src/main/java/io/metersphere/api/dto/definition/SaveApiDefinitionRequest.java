@@ -33,7 +33,7 @@ public class SaveApiDefinitionRequest {
     private String modulePath;
 
     private String method;
-    
+
     private MsTestElement request;
 
     private Response response;
@@ -43,6 +43,8 @@ public class SaveApiDefinitionRequest {
     private String userId;
 
     private String followPeople;
+
+    private String remark;
 
     private Schedule schedule;
 

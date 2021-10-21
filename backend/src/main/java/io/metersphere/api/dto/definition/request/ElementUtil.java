@@ -180,16 +180,6 @@ public class ElementUtil {
 
     public static String getParentName(MsTestElement parent) {
         if (parent != null) {
-//            if (MsTestElementConstants.TransactionController.name().equals(parent.getType())) {
-//                MsTransactionController transactionController = (MsTransactionController) parent;
-//                if (StringUtils.isNotEmpty(transactionController.getName())) {
-//                    return transactionController.getName();
-//                } else if (StringUtils.isNotEmpty(transactionController.getLabelName())) {
-//                    return transactionController.getLabelName();
-//                } else {
-//                    return "TransactionController";
-//                }
-//            }
             // 获取全路径以备后面使用
             String fullPath = getFullPath(parent, new String());
             return fullPath + DelimiterConstants.SEPARATOR.toString() + parent.getName();
@@ -287,6 +277,21 @@ public class ElementUtil {
                     authManager.fluentPut("clazzName", clazzMap.get(authManager.getString("type")));
                     element.fluentPut("authManager", authManager);
                 }
+            }
+        }
+    }
+
+    public static void relationships(JSONArray hashTree, List<String> referenceRelationships) {
+        for (int i = 0; i < hashTree.size(); i++) {
+            JSONObject element = hashTree.getJSONObject(i);
+            if (element != null && StringUtils.equals(element.get("type").toString(), "scenario") && StringUtils.equals(element.get("referenced").toString(), "REF")) {
+                if (!referenceRelationships.contains(element.get("id").toString())) {
+                    referenceRelationships.add(element.get("id").toString());
+                }
+            }
+            if (element.containsKey("hashTree")) {
+                JSONArray elementJSONArray = element.getJSONArray("hashTree");
+                relationships(elementJSONArray, referenceRelationships);
             }
         }
     }

@@ -48,26 +48,6 @@ public class UserExcelDataCn extends UserExcelData {
     private String userIsAdmin;
 
     @NotBlank(message = "{cannot_be_null}")
-    @ColumnWidth(30)
-    @ExcelProperty("是否是组织管理员(是/否)")
-    private String userIsOrgAdmin;
-
-    @Length(max = 100)
-    @ColumnWidth(30)
-    @ExcelProperty("组织管理员组织名称")
-    private String orgAdminOrganization;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("是否是组织成员(是/否)")
-    @ColumnWidth(30)
-    private String userIsOrgMember;
-
-    @Length(max = 100)
-    @ColumnWidth(30)
-    @ExcelProperty("组织成员组织名称")
-    private String orgMemberOrganization;
-
-    @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("是否是工作空间管理员(是/否)")
     @ColumnWidth(30)
     private String userIsTestManager;

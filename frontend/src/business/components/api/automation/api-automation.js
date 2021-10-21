@@ -70,12 +70,12 @@ function getScenarioFiles(obj) {
   return scenarioFiles;
 }
 
-export function saveScenario(url, scenario, scenarioDefinition, _this,success) {
+export function saveScenario(url, scenario, scenarioDefinition, _this, success) {
   let bodyFiles = getBodyUploadFiles(scenario, scenarioDefinition);
-  if (_this.$store.state.pluginFiles && _this.$store.state.pluginFiles.length > 0) {
+  if (_this && _this.$store && _this.$store.state && _this.$store.state.pluginFiles && _this.$store.state.pluginFiles.length > 0) {
     _this.$store.state.pluginFiles.forEach(fileItem => {
       if (fileItem.file) {
-        scenario.bodyFileRequestIds.push(fileItem.file.id);
+        scenario.bodyFileRequestIds.push(fileItem.file.uid);
         bodyFiles.push(fileItem.file);
       }
     });

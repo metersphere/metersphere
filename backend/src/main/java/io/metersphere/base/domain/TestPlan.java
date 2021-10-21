@@ -19,8 +19,6 @@ public class TestPlan implements Serializable {
 
     private String stage;
 
-    private String principal;
-
     private String testCaseMatchRule;
 
     private String executorMatchRule;
@@ -29,13 +27,13 @@ public class TestPlan implements Serializable {
 
     private Long updateTime;
 
+    private Long actualEndTime;
+
     private Long plannedStartTime;
 
     private Long plannedEndTime;
 
     private Long actualStartTime;
-
-    private Long actualEndTime;
 
     private String creator;
 
@@ -44,6 +42,8 @@ public class TestPlan implements Serializable {
     private Integer executionTimes;
 
     private Boolean automaticStatusUpdate;
+
+    private String followPeople;
 
     private static final long serialVersionUID = 1L;
 }

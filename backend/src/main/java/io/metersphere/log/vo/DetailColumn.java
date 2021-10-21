@@ -12,6 +12,7 @@ public class DetailColumn {
     private String columnName;
     private Object originalValue;
     private Object newValue;
+    private Object diffValue;
 
     public DetailColumn() {
 

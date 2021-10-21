@@ -219,35 +219,7 @@ export default {
         this.apiParams = response.data;
       });
     },
-    copyExpect(row) {
-      let selectUrl = "/mockConfig/mockExpectConfig/" + row.id;
-      this.$get(selectUrl, response => {
-        let data = response.data;
-        this.showHeadTable = false;
-        this.mockExpectConfig = data;
-        this.mockExpectConfig.id = "";
-        this.mockExpectConfig.name = this.mockExpectConfig.name + "_copy";
-        if (this.mockExpectConfig.request == null) {
-          this.mockExpectConfig.request = {
-            jsonParam: false,
-            variables: [],
-            jsonData: "{}",
-          };
-        }
-        if (this.mockExpectConfig.response == null) {
-          this.mockExpectConfig.response = {
-            httpCode: "",
-            delayed: "",
-            httpHeads: [],
-            body: "",
-          };
-        }
-        this.$nextTick(function () {
-          this.showHeadTable = true;
-          this.saveMockExpectConfig();
-        });
-      });
-    },
+
     removeExpect(row) {
       this.$confirm(this.$t('api_test.mock.delete_mock_expect'), this.$t('commons.prompt'), {
         confirmButtonText: this.$t('commons.confirm'),
@@ -332,40 +304,6 @@ export default {
         }
       });
     },
-    changeStatus(row) {
-      let mockParam = {};
-      mockParam.id = row.id;
-      mockParam.status = row.status;
-      this.$post('/mockConfig/updateMockExpectConfig', mockParam, response => {
-      });
-    },
-    clickRow(row, column, event) {
-      this.cleanMockExpectConfig();
-      let selectUrl = "/mockConfig/mockExpectConfig/" + row.id;
-      this.$get(selectUrl, response => {
-        let data = response.data;
-        this.showHeadTable = false;
-        this.mockExpectConfig = data;
-        if (this.mockExpectConfig.request == null) {
-          this.mockExpectConfig.request = {
-            jsonParam: false,
-            variables: [],
-            jsonData: "{}",
-          };
-        }
-        if (this.mockExpectConfig.response == null) {
-          this.mockExpectConfig.response = {
-            httpCode: "",
-            delayed: "",
-            httpHeads: [],
-            body: "",
-          };
-        }
-        this.$nextTick(function () {
-          this.showHeadTable = true;
-        });
-      });
-    }
   }
 };
 </script>

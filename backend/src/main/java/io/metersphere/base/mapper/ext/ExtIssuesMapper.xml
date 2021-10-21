@@ -89,10 +89,17 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key == 'creator'">
+                                AND issues.creator IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
             </if>
+
         </where>
     </sql>
 

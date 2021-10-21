@@ -202,11 +202,13 @@ public class TestPlanService {
 
         String planId = testPlan.getId();
         List<String> principals = testPlan.getPrincipals();
-        for (String principal : principals) {
-            TestPlanPrincipal testPlanPrincipal = new TestPlanPrincipal();
-            testPlanPrincipal.setTestPlanId(planId);
-            testPlanPrincipal.setPrincipalId(principal);
-            testPlanPrincipalService.insert(testPlanPrincipal);
+        if (!CollectionUtils.isEmpty(principals)) {
+            for (String principal : principals) {
+                TestPlanPrincipal testPlanPrincipal = new TestPlanPrincipal();
+                testPlanPrincipal.setTestPlanId(planId);
+                testPlanPrincipal.setPrincipalId(principal);
+                testPlanPrincipalService.insert(testPlanPrincipal);
+            }
         }
 
         if (StringUtils.isBlank(testPlan.getProjectId())) {
@@ -279,19 +281,19 @@ public class TestPlanService {
         }
 
         // 如果当前状态已完成，没有结束时间，设置结束时间
-        if (StringUtils.equalsAnyIgnoreCase(testPlan.getStatus(),TestPlanStatus.Finished.name(),TestPlanStatus.Completed.name())
-        && res.getActualEndTime() == null) {
+        if (StringUtils.equalsAnyIgnoreCase(testPlan.getStatus(), TestPlanStatus.Finished.name(), TestPlanStatus.Completed.name())
+                && res.getActualEndTime() == null) {
             testPlan.setActualEndTime(System.currentTimeMillis());
         }
 
         // 如果当前状态不是已完成，设置结束时间为null
-        if (!StringUtils.equalsAnyIgnoreCase(testPlan.getStatus(),TestPlanStatus.Finished.name(),TestPlanStatus.Completed.name())
+        if (!StringUtils.equalsAnyIgnoreCase(testPlan.getStatus(), TestPlanStatus.Finished.name(), TestPlanStatus.Completed.name())
                 && res.getActualEndTime() != null) {
             testPlan.setActualEndTime(null);
         }
 
         // 如果当前状态不是未开始，并且没有开始时间，设置开始时间
-        if (!StringUtils.equals(testPlan.getStatus(),TestPlanStatus.Prepare.name())
+        if (!StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
                 && res.getActualStartTime() == null) {
             testPlan.setActualStartTime(System.currentTimeMillis());
         }
@@ -631,18 +633,6 @@ public class TestPlanService {
         return testPlanMapper.selectByExample(example);
     }
 
-    public List<TestPlanDTOWithMetric> listRelateAllPlan() {
-        SessionUser user = SessionUtils.getUser();
-        QueryTestPlanRequest request = new QueryTestPlanRequest();
-        request.setPrincipal(user.getId());
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setProjectId(SessionUtils.getCurrentProjectId());
-        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId(), SessionUtils.getCurrentProjectId()));
-        List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.listRelate(request);
-        calcTestPlanRate(testPlans);
-        return testPlans;
-    }
-
     public List<TestPlanCaseDTO> listTestCaseByPlanId(String planId) {
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
@@ -707,6 +697,10 @@ public class TestPlanService {
             try {
                 String context = getTestPlanContext(testPlan, NoticeConstants.Event.UPDATE);
                 Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
+                SessionUser user = SessionUtils.getUser();
+                if (user != null) {
+                    paramMap.put("operator", user.getName());
+                }
                 NoticeModel noticeModel = NoticeModel.builder()
                         .operator(SessionUtils.getUserId())
                         .context(context)
@@ -1122,7 +1116,7 @@ public class TestPlanService {
             }
             if (StringUtils.isNotEmpty(reportId)) {
                 executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.RUNNING.name());
-            }else {
+            } else {
                 executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.PREPARE.name());
             }
         }
@@ -1581,7 +1575,7 @@ public class TestPlanService {
                     request.setTestPlanLoadCaseId(item.getId());
                     request.setReportId(reportId);
                     Boolean existReport = testPlanLoadCaseService.isExistReport(request);
-                    if  (existReport) {
+                    if (existReport) {
                         try {
                             LoadTestReportWithBLOBs loadTestReport = performanceReportService.getLoadTestReport(reportId);
                             ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
@@ -1690,21 +1684,21 @@ public class TestPlanService {
         }
     }
 
-    public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo, String planId,boolean saveResponse) {
-        if(MapUtils.isEmpty(executeInfo.getApiCaseExecInfo()) && MapUtils.isEmpty(executeInfo.getApiScenarioCaseExecInfo())){
+    public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo, String planId, boolean saveResponse) {
+        if (MapUtils.isEmpty(executeInfo.getApiCaseExecInfo()) && MapUtils.isEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
             return;
         }
         if (checkReportConfig(config, "api")) {
             List<TestPlanFailureApiDTO> apiAllCases = null;
             List<TestPlanFailureScenarioDTO> scenarioAllCases = null;
             if (checkReportConfig(config, "api", "all")) {
-                if(MapUtils.isNotEmpty(executeInfo.getApiCaseExecInfo())){
+                if (MapUtils.isNotEmpty(executeInfo.getApiCaseExecInfo())) {
                     // 接口
-                    apiAllCases = testPlanApiCaseService.getAllCases(executeInfo.getApiCaseExecInfo().keySet(),planId,null);
+                    apiAllCases = testPlanApiCaseService.getAllCases(executeInfo.getApiCaseExecInfo().keySet(), planId, null);
                     if (saveResponse) {
                         apiAllCases.forEach(item -> {
                             ApiDefinitionExecResult result = executeInfo.getApiCaseExecuteReportMap().get(item.getId());
-                            if(result != null){
+                            if (result != null) {
                                 APIReportResult dbResult = apiDefinitionService.buildAPIReportResult(result);
                                 if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
                                     item.setResponse(dbResult.getContent());
@@ -1714,13 +1708,13 @@ public class TestPlanService {
                     }
                     report.setApiAllCases(apiAllCases);
                 }
-                if(MapUtils.isNotEmpty(executeInfo.getApiScenarioCaseExecInfo())){
+                if (MapUtils.isNotEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
                     //场景
-                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioCaseExecInfo().keySet(),planId,null);
+                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioCaseExecInfo().keySet(), planId, null);
                     if (saveResponse) {
                         scenarioAllCases.forEach((item) -> {
                             APIScenarioReportResult result = executeInfo.getApiScenarioReportReportMap().get(item.getId());
-                            if(result != null){
+                            if (result != null) {
                                 item.setResponse(result);
                             }
                         });
@@ -1766,13 +1760,13 @@ public class TestPlanService {
     }
 
     public void buildLoadReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo, String planId, boolean saveResponse) {
-        if(MapUtils.isEmpty(executeInfo.getLoadCaseExecInfo())){
+        if (MapUtils.isEmpty(executeInfo.getLoadCaseExecInfo())) {
             return;
         }
         if (checkReportConfig(config, "load")) {
             List<TestPlanLoadCaseDTO> allCases = null;
             if (checkReportConfig(config, "load", "all")) {
-                allCases = testPlanLoadCaseService.getAllCases(executeInfo.getLoadCaseExecInfo().keySet(),planId,null);
+                allCases = testPlanLoadCaseService.getAllCases(executeInfo.getLoadCaseExecInfo().keySet(), planId, null);
                 if (saveResponse) {
                     buildLoadResponse(allCases);
                 }
@@ -1791,9 +1785,9 @@ public class TestPlanService {
         }
     }
 
-    public TestPlanSimpleReportDTO buildPlanReport(TestPlanExecuteInfo executeInfo,String planId, boolean saveResponse) {
+    public TestPlanSimpleReportDTO buildPlanReport(TestPlanExecuteInfo executeInfo, String planId, boolean saveResponse) {
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
-        if(testPlan != null){
+        if (testPlan != null) {
             String reportConfig = testPlan.getReportConfig();
             JSONObject config = null;
             if (StringUtils.isNotBlank(reportConfig)) {
@@ -1804,11 +1798,12 @@ public class TestPlanService {
             buildApiReport(report, config, executeInfo, planId, saveResponse);
             buildLoadReport(report, config, executeInfo, planId, saveResponse);
             return report;
-        }else {
+        } else {
             return null;
         }
 
     }
+
     public TestPlanSimpleReportDTO buildPlanReport(String planId, boolean saveResponse) {
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
 
@@ -1911,14 +1906,14 @@ public class TestPlanService {
         testPlanApiCaseService.calculatePlanReport(planId, report);
         testPlanScenarioCaseService.calculatePlanReport(planId, report);
         testPlanLoadCaseService.calculatePlanReport(planId, report);
-        if(report.getExecuteCount() != 0 && report.getCaseCount() != null){
+        if (report.getExecuteCount() != 0 && report.getCaseCount() != null) {
             report.setExecuteRate(report.getExecuteCount() * 0.1 * 10 / report.getCaseCount());
-        }else {
+        } else {
             report.setExecuteRate(0.0);
         }
-        if(report.getPassCount() != 0 && report.getCaseCount() != null){
-            report.setPassRate(report.getPassCount() * 0.1 * 10/ report.getExecuteCount());
-        }else {
+        if (report.getPassCount() != 0 && report.getCaseCount() != null) {
+            report.setPassRate(report.getPassCount() * 0.1 * 10 / report.getExecuteCount());
+        } else {
             report.setPassRate(0.0);
         }
 

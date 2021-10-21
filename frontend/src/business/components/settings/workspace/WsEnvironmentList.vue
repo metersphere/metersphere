@@ -114,7 +114,7 @@
   import ProjectSwitch from "@/business/components/common/head/ProjectSwitch";
   import SearchList from "@/business/components/common/head/SearchList";
   import {downloadFile} from "@/common/js/utils";
-  import EnvironmentImport from "@/business/components/settings/project/EnvironmentImport";
+  import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
 
   export default {
     name: "EnvironmentList",
