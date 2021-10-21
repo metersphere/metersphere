@@ -23,10 +23,10 @@
 </template>
 
 <script>
-import ApiFuncRelevance from "@/business/components/settings/project/function/ApiFuncRelevance";
-import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
-import {getCodeTemplate} from "@/business/components/settings/project/function/custom-function";
-import {SCRIPT_MENU} from "@/business/components/settings/project/function/script-menu";
+import ApiFuncRelevance from "@/business/components/project/menu/function/ApiFuncRelevance";
+import CustomFunctionRelate from "@/business/components/project/menu/function/CustomFunctionRelate";
+import {getCodeTemplate} from "@/business/components/project/menu/function/custom-function";
+import {SCRIPT_MENU} from "@/business/components/project/menu/function/script-menu";
 
 export default {
   name: "MockScriptNavMenu",
