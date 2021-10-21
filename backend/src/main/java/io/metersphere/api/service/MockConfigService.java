@@ -651,7 +651,11 @@ public class MockConfigService {
                     returnStr = MockApiUtils.getResultByResponseResult(responseJsonObj.getJSONObject("body"), url, headerMap, requestMockParams);
                 }
                 if (responseJsonObj.containsKey("httpCode")) {
-                    response.setStatus(Integer.parseInt(responseJsonObj.getString("httpCode")));
+                    int httpCodeNum = 500;
+                    try {
+                        httpCodeNum = Integer.parseInt(responseJsonObj.getString("httpCode"));
+                    }catch (Exception e){}
+                    response.setStatus(httpCodeNum);
                 }
                 if (responseJsonObj.containsKey("delayed")) {
                     try {
