@@ -328,13 +328,49 @@ delete from user_group_permission where module_id = 'ORGANIZATION_WORKSPACE';
 insert into system_parameter (param_key, param_value, type, sort) values ('project.jar.limit.size', 1, 'text', 1);
 
 ALTER TABLE quota
-    DROP COLUMN organization_id;
+DROP
+COLUMN organization_id;
 
 ALTER TABLE service_integration
-    DROP COLUMN organization_id;
+DROP
+COLUMN organization_id;
 
 ALTER TABLE workspace
-    DROP COLUMN organization_id;
+DROP
+COLUMN organization_id;
 
-ALTER TABLE api_test_case ADD COLUMN case_status VARCHAR(100) comment '用例状态等同场景的status';
-UPDATE api_test_case set case_status ="Underway" where case_status is null;
+ALTER TABLE api_test_case
+    ADD COLUMN case_status VARCHAR(100) comment '用例状态等同场景的status';
+UPDATE api_test_case
+set case_status ="Underway"
+where case_status is null;
+
+ALTER TABLE test_plan
+DROP
+COLUMN follow_people;
+
+ALTER TABLE test_case_review
+DROP
+COLUMN follow_people;
+
+DROP TABLE IF EXISTS `test_plan_follow`;
+CREATE TABLE `test_plan_follow`
+(
+    `test_plan_id` varchar(50) DEFAULT NULL,
+    `follow_id`    varchar(50) DEFAULT NULL COMMENT '关注人',
+    UNIQUE KEY `test_plan_principal_pk` (`test_plan_id`,`follow_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+SET
+FOREIGN_KEY_CHECKS = 1;
+
+DROP TABLE IF EXISTS `test_case_review_follow`;
+CREATE TABLE `test_case_review_follow`
+(
+    `review_id` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL,
+    `follow_id` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '关注人',
+    UNIQUE KEY `test_case_review_users_pk` (`review_id`,`follow_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT=' review and user association table';
+
+SET
+FOREIGN_KEY_CHECKS = 1;

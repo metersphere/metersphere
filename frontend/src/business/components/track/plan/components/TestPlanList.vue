@@ -75,8 +75,8 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.id=='followPeople'"
-          prop="followPeople"
+          v-if="item.id=='follow'"
+          prop="follow"
           :label="$t('test_track.plan.follow_people')"
           show-overflow-tooltip
           :key="index"
@@ -382,6 +382,24 @@ export default {
             this.$set(item, "principalName", principal);
             // 编辑时初始化id
             this.$set(item, "principals", principalIds);
+          })
+          //关注人
+          this.$get("/test/plan/follow/" + item.id, res => {
+            let data = res.data;
+            let follow = "";
+            let followIds = data.map(d => d.id);
+            if (data) {
+              data.forEach(d => {
+                if (follow !== "") {
+                  follow = follow + "、" + d.name;
+                } else {
+                  follow = follow + d.name;
+                }
+              })
+            }
+            this.$set(item, "follow", follow);
+            // 编辑时初始化id
+            this.$set(item, "follows", followIds);
           })
         });
       });

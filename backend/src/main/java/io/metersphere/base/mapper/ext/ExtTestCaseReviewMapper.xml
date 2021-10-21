@@ -4,13 +4,13 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
             parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
-        select distinct  test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
+        select distinct test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
         test_case_review.tags,
         test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
-        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id,
-        test_case_review.follow_people
+        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id
+
         from test_case_review
-            join project on project.id = test_case_review.project_id
+        join project on project.id = test_case_review.project_id
         left join user on test_case_review.creator = user.id
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
