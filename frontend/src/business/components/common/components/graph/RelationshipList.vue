@@ -9,6 +9,7 @@
       :case-id="resourceId"
       :read-only="readOnly"
       :relationship-type="relationshipType"
+      @setCount="setCount"
       @deleteRelationship="handleDelete"
       ref="testCaseRelationshipList"/>
 
@@ -17,6 +18,7 @@
       :read-only="readOnly"
       :api-definition-id="resourceId"
       :relationship-type="relationshipType"
+      @setCount="setCount"
       @deleteRelationship="handleDelete"
       ref="testCaseRelationshipList"/>
 
@@ -66,6 +68,9 @@ export default {
         this.$success(this.$t('commons.delete_success'));
       });
     },
+    setCount(count) {
+      this.$emit('setCount', count);
+    }
   }
 }
 </script>

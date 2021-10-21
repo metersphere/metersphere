@@ -315,6 +315,11 @@ public class ApiDefinitionController {
         return apiDefinitionService.getRelationshipApi(id, relationshipType);
     }
 
+    @GetMapping("/relationship/count/{id}/")
+    public int getRelationshipApi(@PathVariable("id") String id) {
+        return apiDefinitionService.getRelationshipCount(id);
+    }
+
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
     public Pager< List<ApiDefinitionResult>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

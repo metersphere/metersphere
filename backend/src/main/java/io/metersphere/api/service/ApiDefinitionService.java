@@ -1607,16 +1607,21 @@ public class ApiDefinitionService {
         return extApiDefinitionMapper.countQuotedApiByProjectId(projectId);
     }
 
+    public int getRelationshipCount(String id) {
+        return relationshipEdgeService.getRelationshipCount(id, extApiDefinitionMapper::countByIds);
+    }
+
     public List<RelationshipEdgeDTO> getRelationshipApi(String id, String relationshipType) {
         List<RelationshipEdge> relationshipEdges = relationshipEdgeService.getRelationshipEdgeByType(id, relationshipType);
         List<String> ids = relationshipEdgeService.getRelationIdsByType(relationshipType, relationshipEdges);
 
         if (CollectionUtils.isNotEmpty(ids)) {
             ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andIdIn(ids);
+            example.createCriteria().andIdIn(ids).andStatusNotEqualTo("Trash");
             List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
             Map<String, ApiDefinition> apiMap = apiDefinitions.stream().collect(Collectors.toMap(ApiDefinition::getId, i -> i));
             List<RelationshipEdgeDTO> results = new ArrayList<>();
+            buildUserInfo(apiDefinitions);
             for (RelationshipEdge relationshipEdge : relationshipEdges) {
                 RelationshipEdgeDTO relationshipEdgeDTO = new RelationshipEdgeDTO();
                 BeanUtils.copyBean(relationshipEdgeDTO, relationshipEdge);
@@ -1627,13 +1632,29 @@ public class ApiDefinitionService {
                     apiDefinition = apiMap.get(relationshipEdge.getSourceId());
                 }
                 relationshipEdgeDTO.setTargetName(apiDefinition.getName());
-                relationshipEdgeDTO.setCreator(apiDefinition.getCreateUser());
+                relationshipEdgeDTO.setCreator(apiDefinition.getUserId());
                 relationshipEdgeDTO.setTargetNum(apiDefinition.getNum());
+                relationshipEdgeDTO.setStatus(apiDefinition.getStatus());
                 results.add(relationshipEdgeDTO);
             }
             return results;
         }
         return new ArrayList<>();
+    }
+
+    public void buildUserInfo(List<? extends ApiDefinition> apis) {
+        List<String> userIds = new ArrayList();
+        userIds.addAll(apis.stream().map(ApiDefinition::getCreateUser).collect(Collectors.toList()));
+        userIds.addAll(apis.stream().map(ApiDefinition::getDeleteUserId).collect(Collectors.toList()));
+        userIds.addAll(apis.stream().map(ApiDefinition::getUserId).collect(Collectors.toList()));
+        if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
+            Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
+            apis.forEach(caseResult -> {
+                caseResult.setCreateUser(userMap.get(caseResult.getCreateUser()));
+                caseResult.setDeleteUserId(userMap.get(caseResult.getDeleteUserId()));
+                caseResult.setUserId(userMap.get(caseResult.getUserId()));
+            });
+        }
     }
 
     public List<ApiDefinitionResult> getRelationshipRelateList(ApiDefinitionRequest request) {

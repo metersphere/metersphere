@@ -189,13 +189,14 @@ export default {
     generate_test_data: "Generate test data",
     relationship: {
       name: 'Dependencies',
-      pre: 'Prepositional Object',
-      post: 'Postposition Object',
+      pre_case: 'Prepositional Case',
+      post_case: 'Postposition Case',
+      pre_api: 'Prepositional API',
+      post_api: 'Postposition API',
       graph: 'Dependencies Graph',
       selected: 'Selected Node',
       direct: 'Direct Link',
       indirect: 'Indirect Link',
-
     },
     project_setting: "Project Setting",
     table: {

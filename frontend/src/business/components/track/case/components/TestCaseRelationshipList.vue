@@ -33,6 +33,15 @@
         min-width="120">
       </ms-table-column>
 
+     <ms-table-column
+       prop="status"
+       min-width="100px"
+       :label="$t('api_test.definition.api_case_status')">
+       <template slot-scope="{row}">
+         {{$t(statusMap.get(row.status))}}
+       </template>
+     </ms-table-column>
+
     </ms-table>
 
     <relationship-functional-relevance
@@ -68,6 +77,7 @@ export default {
       ],
       condition: {},
       options: [],
+      statusMap: new Map,
       value: ''
     }
   },
@@ -78,6 +88,14 @@ export default {
   },
   computed: {
     isCustomNum() {
+      let template = this.$store.state.testCaseTemplate;
+      template.customFields.forEach(item => {
+        if (item.name === '用例状态') {
+          for (let i = 0; i < item.options.length; i++) {
+            this.statusMap.set(item.options[i].value, item.options[i].text);
+          }
+        }
+      });
       return this.$store.state.currentProjectIsCustomNum;
     },
   },
@@ -85,6 +103,7 @@ export default {
     getTableData() {
       getRelationshipCase(this.caseId, this.relationshipType, (data) => {
         this.data = data;
+        this.$emit('setCount', data.length);
       });
     },
     openRelevance() {
