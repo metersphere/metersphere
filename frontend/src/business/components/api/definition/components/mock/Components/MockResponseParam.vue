@@ -105,6 +105,12 @@ export default {
       if (!this.response || !this.response || !this.response.headers) {
         return;
       }
+      if(!this.response.httpCode || this.response.httpCode === ''){
+        this.$set(this.response,"httpCode","200");
+      }
+      if(!this.response.delayed){
+        this.response.delayed = 0;
+      }
       if (Object.prototype.toString.call(this.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
         this.response = JSON.parse(this.response);
       }
