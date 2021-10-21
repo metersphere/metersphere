@@ -25,7 +25,10 @@ import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.*;
-import io.metersphere.excel.domain.*;
+import io.metersphere.excel.domain.ExcelErrData;
+import io.metersphere.excel.domain.ExcelResponse;
+import io.metersphere.excel.domain.TestCaseExcelData;
+import io.metersphere.excel.domain.TestCaseExcelDataFactory;
 import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
 import io.metersphere.excel.listener.TestCaseNoModelDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
@@ -57,6 +60,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -104,8 +108,6 @@ public class TestCaseService {
 
     @Resource
     TestCaseIssueService testCaseIssueService;
-    @Resource
-    TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
     @Resource
     TestCaseCommentService testCaseCommentService;
     @Resource
