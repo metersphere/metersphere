@@ -300,8 +300,8 @@ export default {
             const index = this.runData.findIndex(d => d.name === apiCase.id);
             if (index !== -1) {
               apiCase.active = true;
-            }else {
-              if(this.condition.id && this.condition.id != ""){
+            } else {
+              if (this.condition.id && this.condition.id != "") {
                 apiCase.active = true;
               }
             }
@@ -378,7 +378,7 @@ export default {
         }
         let uuid = getUUID();
         request.id = uuid;
-        let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: [], uuid: uuid};
+        let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: [], uuid: uuid, caseStatus: "Underway"};
         obj.request = request;
         this.apiCaseList.unshift(obj);
       }
