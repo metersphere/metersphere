@@ -471,6 +471,7 @@ export default {
       if (this.api.saved) {
         this.addModule(row);
       } else {
+        this.api.source = "editCase";
         this.saveCase(row, hideAlert);
       }
     },
