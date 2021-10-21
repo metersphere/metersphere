@@ -1,9 +1,12 @@
 package io.metersphere.api.dto.mock;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
 import io.metersphere.api.dto.mockconfig.response.JsonSchemaReturnObj;
+import io.metersphere.api.dto.mockconfig.response.MockExpectConfigResponse;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.XMLUtils;
@@ -12,8 +15,10 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.samplers.SampleResult;
+import org.json.XML;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -434,5 +439,204 @@ public class MockApiUtils {
         jmeterScriptSampler.setScript(script);
         SampleResult result = jmeterScriptSampler.sample(null);
         System.out.println(result.getResponseData());
+    }
+
+    public  static RequestMockParams getParams(String urlParams, ApiDefinitionWithBLOBs api, HttpServletRequest request){
+        RequestMockParams returnParams = getGetParamMap(urlParams,api,request);
+        JSON paramJson = getPostParamMap(request);
+        if (paramJson instanceof JSONObject) {
+            JSONArray paramsArray = new JSONArray();
+            paramsArray.add(paramJson);
+            returnParams.setBodyParams(paramsArray);
+        } else if (paramJson instanceof JSONArray) {
+            JSONArray paramArray = (JSONArray) paramJson;
+            returnParams.setBodyParams(paramArray);
+        }
+        return returnParams;
+    }
+
+    private static RequestMockParams getGetParamMap(String urlParams, ApiDefinitionWithBLOBs api, HttpServletRequest request) {
+        RequestMockParams requestMockParams = new RequestMockParams();
+
+        JSONObject urlParamsObject = getSendRestParamMapByIdAndUrl(api, urlParams);
+
+        JSONObject queryParamsObject = new JSONObject();
+        Enumeration<String> paramNameItor = request.getParameterNames();
+        while (paramNameItor.hasMoreElements()) {
+            String key = paramNameItor.nextElement();
+            String value = request.getParameter(key);
+            queryParamsObject.put(key, value);
+        }
+
+        requestMockParams.setRestParamsObj(urlParamsObject);
+        requestMockParams.setQueryParamsObj(queryParamsObject);
+        return requestMockParams;
+    }
+
+    private static JSON getPostParamMap(HttpServletRequest request) {
+        if (StringUtils.equalsIgnoreCase("application/JSON", request.getContentType())) {
+            JSON returnJson = null;
+            try {
+                String param = getRequestPostStr(request);
+                JSONValidator jsonValidator = JSONValidator.from(param);
+                if (StringUtils.equalsIgnoreCase("Array", jsonValidator.getType().name())) {
+                    returnJson = JSONArray.parseArray(param);
+                } else if (StringUtils.equalsIgnoreCase("Object", jsonValidator.getType().name())) {
+                    returnJson = JSONObject.parseObject(param);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return returnJson;
+        } else if (StringUtils.equalsIgnoreCase("text/xml", request.getContentType())) {
+            String xmlString = readXml(request);
+            System.out.println(xmlString);
+
+            org.json.JSONObject xmlJSONObj = XML.toJSONObject(xmlString);
+            String jsonStr = xmlJSONObj.toString();
+            JSONObject object = null;
+            try {
+                object = JSONObject.parseObject(jsonStr);
+            } catch (Exception e) {
+            }
+            return object;
+        } else if (StringUtils.equalsIgnoreCase("application/x-www-form-urlencoded", request.getContentType())) {
+            JSONObject object = new JSONObject();
+            Enumeration<String> paramNameItor = request.getParameterNames();
+            while (paramNameItor.hasMoreElements()) {
+                String key = paramNameItor.nextElement();
+                String value = request.getParameter(key);
+                object.put(key, value);
+            }
+            return object;
+        } else {
+            JSONObject object = new JSONObject();
+            String bodyParam = readBody(request);
+            object.put("raw",bodyParam);
+
+            Enumeration<String> paramNameItor = request.getParameterNames();
+            while (paramNameItor.hasMoreElements()) {
+                String key = paramNameItor.nextElement();
+                String value = request.getParameter(key);
+                object.put(key, value);
+            }
+            return object;
+        }
+    }
+
+    private static JSONObject getSendRestParamMapByIdAndUrl(ApiDefinitionWithBLOBs api, String urlParams) {
+        JSONObject returnJson = new JSONObject();
+        if (api != null) {
+            String path = api.getPath();
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+            String[] pathArr = path.split("/");
+            String[] sendParamArr = urlParams.split("/");
+
+            //获取 url的<参数名-参数值>，通过匹配api的接口设置和实际发送的url
+            for (int i = 0; i < pathArr.length; i++) {
+                String param = pathArr[i];
+                if (param.startsWith("{") && param.endsWith("}")) {
+                    param = param.substring(1, param.length() - 1);
+                    String value = "";
+                    if (sendParamArr.length > i) {
+                        value = sendParamArr[i];
+                    }
+                    returnJson.put(param, value);
+                }
+            }
+
+        }
+        return returnJson;
+    }
+    private static String readBody(HttpServletRequest request) {
+        String result = "";
+        try {
+            InputStream inputStream = request.getInputStream();
+            ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = inputStream.read(buffer)) != -1) {
+                outSteam.write(buffer, 0, len);
+            }
+            outSteam.close();
+            inputStream.close();
+            result = new String(outSteam.toByteArray(), "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    /**
+     * 描述:获取 post 请求内容
+     * <pre>
+     * 举例：
+     * </pre>
+     *
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    private static String getRequestPostStr(HttpServletRequest request) throws IOException {
+        byte buffer[] = getRequestPostBytes(request);
+        String charEncoding = request.getCharacterEncoding();
+        if (charEncoding == null) {
+            charEncoding = "UTF-8";
+        }
+        return new String(buffer, charEncoding);
+    }
+
+    private static String readXml(HttpServletRequest request) {
+        String inputLine = null;
+        // 接收到的数据
+        StringBuffer recieveData = new StringBuffer();
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(
+                    request.getInputStream(), "UTF-8"));
+            while ((inputLine = in.readLine()) != null) {
+                recieveData.append(inputLine);
+            }
+        } catch (IOException e) {
+        } finally {
+            try {
+                if (null != in) {
+                    in.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+
+        return recieveData.toString();
+    }
+
+    /**
+     * 描述:获取 post 请求的 byte[] 数组
+     * <pre>
+     * 举例：
+     * </pre>
+     *
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    private static byte[] getRequestPostBytes(HttpServletRequest request) throws IOException {
+        int contentLength = request.getContentLength();
+        if (contentLength < 0) {
+            return null;
+        }
+        byte buffer[] = new byte[contentLength];
+        for (int i = 0; i < contentLength; ) {
+
+            int readlen = request.getInputStream().read(buffer, i,
+                    contentLength - i);
+            if (readlen == -1) {
+                break;
+            }
+            i += readlen;
+        }
+        return buffer;
     }
 }
