@@ -335,3 +335,6 @@ ALTER TABLE service_integration
 
 ALTER TABLE workspace
     DROP COLUMN organization_id;
+
+ALTER TABLE api_test_case ADD COLUMN case_status VARCHAR(100) comment '用例状态等同场景的status';
+UPDATE api_test_case set case_status ="Underway" where case_status is null;

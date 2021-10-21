@@ -89,7 +89,7 @@ export const REVIEW_STATUS = [
 export const API_STATUS = [
   {id: 'Prepare', label: 'test_track.plan.plan_status_prepare'},
   {id: 'Underway', label: 'test_track.plan.plan_status_running'},
-  {id: 'Completed', label: 'test_track.plan.plan_status_finished'}
+  {id: 'Completed', label: 'test_track.plan.plan_status_completed'}
 ];
 export const TEST = [
   {id: 'performance', name: '性能测试', module: 'performance'},

@@ -242,7 +242,7 @@
 
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
-        t1.id, t1.project_id, t1.name, t1.api_definition_id, t1.priority, t1.description, t1.create_user_id, t1.update_user_id, t1.create_time, t1.update_time, t1.num,
+        t1.id, t1.project_id, t1.name,t1.case_status, t1.api_definition_id, t1.priority, t1.description, t1.create_user_id, t1.update_user_id, t1.create_time, t1.update_time, t1.num,
         a.module_id, a.path, a.protocol, t1.tags,t1.status,t1.last_result_id as lastResultId,
         t1.delete_time, deleteUser.name AS deleteUser,CONCAT(FORMAT(SUM(IF (t2.`status`='success',1,0))/COUNT(t2.id)*100,2),'%') passRate
         from
@@ -307,6 +307,12 @@
                         </when>
                         <when test="key=='status'">
                             and t1.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='caseStatus' or key=='case_status'">
+                            and t1.case_status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
