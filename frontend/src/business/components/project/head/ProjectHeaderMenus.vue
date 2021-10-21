@@ -27,10 +27,10 @@
                         v-permission="['PROJECT_CUSTOM_CODE:READ']">
             {{ $t('project.code_segment.code_segment') }}
           </el-menu-item>
-          <el-menu-item :index="'/project/version'" popper-class="submenu" disabled class="hidden-sm-and-down">
+          <el-menu-item popper-class="submenu" @click="clickPlanMenu" class="hidden-sm-and-down">
             {{ $t('project.version_manage') }}
           </el-menu-item>
-          <el-menu-item :index="'/project/app/manage'" popper-class="submenu" disabled class="hidden-sm-and-down">
+          <el-menu-item popper-class="submenu" @click="clickPlanMenu" class="hidden-sm-and-down">
             {{ $t('project.app_manage') }}
           </el-menu-item>
         </el-menu>
@@ -64,6 +64,12 @@ export default {
       }
     }
   },
+  methods: {
+    clickPlanMenu() {
+      this.$info("功能正在规划中...");
+      return false;
+    }
+  }
 };
 
 </script>

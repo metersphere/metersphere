@@ -3,11 +3,11 @@
     <ms-main-container>
       <el-card class="card" v-loading="result.loading">
         <el-row type="flex" justify="space-around" :gutter="10">
-          <el-col :xs="12" :sm="12" :md="11" :lg="10" :xl="9" class="card-col">
+          <el-col :xs="12" :sm="12" :md="11" :lg="11" :xl="10" class="card-col">
             <el-card class="home-height" style="position: relative">
               <div style="position: absolute; top: 50%; left: 50%;transform: translate(-50%, -50%);">
                 <span class="project-name">{{ project.name }}</span>
-                <i class="el-icon-setting project-edit" style="font-size: 14px;margin-left: 8px;" @click="edit"
+                <i class="el-icon-edit project-edit" style="font-size: 14px;margin-left: 8px;" @click="edit"
                    v-permission="['PROJECT_MANAGER:READ+EDIT']"></i>
                 <el-row class="project-item">
                   <span class="project-item-title">{{ $t('project.desc') }}：</span><span
@@ -23,7 +23,7 @@
                 </el-row>
                 <el-row class="project-item">
                   <span class="project-item-title">{{ $t('project.member') }}：</span>
-                  <span class="number">{{ memberSize }}</span>
+                  <span class="number" @click="click('/project/member', ['PROJECT_USER:READ'])">{{ memberSize }}</span>
                 </el-row>
                 <el-row class="project-item">
                   <span class="project-item-title">{{ $t('project.create_time') }}：</span><span
@@ -32,7 +32,7 @@
               </div>
             </el-card>
           </el-col>
-          <el-col :xs="12" :sm="12" :md="11" :lg="10" :xl="9" class="card-col">
+          <el-col :xs="12" :sm="12" :md="11" :lg="11" :xl="10" class="card-col">
             <el-card class="home-height" style="position: relative">
               <div style="position: absolute; top: 50%; left: 50%;transform: translate(-50%, -50%);">
                 <div class="div-item">
@@ -207,6 +207,10 @@ export default {
   color: var(--primary_color);
 }
 
+.number:hover {
+  cursor: pointer;
+}
+
 .project-item-title {
   font-size: 15px;
   user-select: none;
@@ -227,5 +231,9 @@ export default {
 
 .project-edit:hover {
   cursor: pointer;
+}
+
+.desc {
+  color: #989292;
 }
 </style>
