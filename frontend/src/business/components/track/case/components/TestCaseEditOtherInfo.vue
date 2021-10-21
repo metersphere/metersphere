@@ -39,8 +39,8 @@
         :case-id="caseId" ref="issue"/>
     </el-tab-pane>
 
-    <el-tab-pane :label="$t('依赖关系')" name="relationship">
-      <dependencies-list :resource-id="caseId" resource-type="TEST_CASE" ref="relationship"/>
+    <el-tab-pane :label="$t('commons.relationship.name')" name="relationship">
+      <dependencies-list :read-only="readOnly" :resource-id="caseId" resource-type="TEST_CASE" ref="relationship"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">

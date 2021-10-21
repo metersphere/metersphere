@@ -324,8 +324,7 @@
                     </choose>
                 </if>
                 <if test="key=='status' and (values == null || values.size() == 0)">
-                    and test_case.status is null or test_case.status != 'Trash'
-
+                    and (test_case.status is null or test_case.status != 'Trash')
                 </if>
             </foreach>
         </if>

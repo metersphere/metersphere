@@ -186,6 +186,16 @@ export default {
     run_completed: "Run Completed",
     run_fail: "Run Fail",
     generate_test_data: "Generate test data",
+    relationship: {
+      name: 'Dependencies',
+      pre: 'Prepositional Object',
+      post: 'Postposition Object',
+      graph: 'Dependencies Graph',
+      selected: 'Selected Node',
+      direct: 'Direct Link',
+      indirect: 'Indirect Link',
+
+    },
     project_setting: "Project Setting",
     table: {
       select_tip: "Item {0} data is selected"

@@ -57,7 +57,7 @@ export default {
         {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
-          // permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
         }
       ],
       condition: {},
