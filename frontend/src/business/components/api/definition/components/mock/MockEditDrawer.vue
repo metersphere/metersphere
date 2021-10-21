@@ -100,10 +100,10 @@ export default {
         },
         response: {
           httpCode: "",
-          delayed: "",
           httpHeads: [],
           body: "",
           responseResult:{
+            delayed: 0,
             headers:[],
             arguments:[],
             rest:[],
@@ -234,6 +234,18 @@ export default {
     uploadMockExpectConfig(clearForm) {
       let url = "/mockConfig/updateMockExpectConfig";
       let param = this.mockExpectConfig;
+      if(!param.name || param.name === ''){
+        this.$error(this.$t('test_track.case.input_name'));
+        return false;
+      }else if(param.name.length > 100){
+        this.$error(this.$t('test_track.length_less_than')+100);
+        return false;
+      }
+
+      if(!param.response.responseResult.httpCode){
+        param.response.responseResult.httpCode = 200;
+      }
+
       if(!param.request.params.id){
         param.request.params.id = getUUID();
       }
