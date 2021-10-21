@@ -97,6 +97,8 @@ public class ApiTestCaseService {
     private APITestService apiTestService;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -1116,5 +1118,15 @@ public class ApiTestCaseService {
                 extApiTestCaseMapper::getPreOrder,
                 extApiTestCaseMapper::getLastOrder,
                 apiTestCaseMapper::updateByPrimaryKeySelective);
+    }
+
+    public ApiTestEnvironment getApiCaseEnvironment(String caseId) {
+        String environmentId = extApiTestCaseMapper.getApiCaseEnvironment(caseId);
+        if (StringUtils.isBlank(environmentId)) {
+            return null;
+        }
+        // "environmentId"
+        environmentId = environmentId.substring(1,environmentId.length()-1);
+        return apiTestEnvironmentMapper.selectByPrimaryKey(environmentId);
     }
 }

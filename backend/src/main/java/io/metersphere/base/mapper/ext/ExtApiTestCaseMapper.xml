@@ -709,6 +709,9 @@
         </if>
         order by `order` desc limit 1;
     </select>
+    <select id="getApiCaseEnvironment" resultType="java.lang.String">
+        select request -> '$.useEnvironment' from api_test_case where id = #{caseId}
+    </select>
     <update id="deleteToGc" parameterType="io.metersphere.api.dto.definition.ApiTestCaseRequest">
         update api_test_case
         set original_status=status,

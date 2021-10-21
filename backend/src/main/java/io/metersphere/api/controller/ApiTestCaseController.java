@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.ApiTestEnvironment;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -73,6 +74,11 @@ public class ApiTestCaseController {
     @PostMapping("/get/request")
     public Map<String, String> listSimple(@RequestBody ApiTestCaseRequest request) {
         return apiTestCaseService.getRequest(request);
+    }
+
+    @GetMapping("/get/env/{id}")
+    public ApiTestEnvironment getApiCaseEnvironment(@PathVariable("id") String caseId) {
+        return apiTestCaseService.getApiCaseEnvironment(caseId);
     }
 
     @PostMapping("/get/caseBLOBs/request")

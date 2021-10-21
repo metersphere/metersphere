@@ -57,6 +57,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'status', key: '5', label: 'test_track.plan_view.execute_result'},
     {id: 'caseStatus', key: '6', label: 'commons.status'},
     {id: 'tags', key: '7', label: 'commons.tag'},
+    {id: 'environment', key: '10', label: 'commons.environment'},
     {id: 'createUser', key: '8', label: 'api_test.creator'},
     {id: 'updateTime', key: '9', label: 'api_test.definition.api_last_time'},
     {id: 'createTime', key: 'a', label: 'commons.create_time'},
