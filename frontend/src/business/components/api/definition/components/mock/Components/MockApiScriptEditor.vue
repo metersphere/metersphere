@@ -46,27 +46,27 @@ export default {
           children: [
             {
               title: this.$t('api_test.request.address'),
-              value: '\nreturnMsg.add(@address)\n',
+              value: 'returnMsg.add(@address);',
             },
             {
               title: "Header "+this.$t('api_test.definition.document.request_param'),
-              value: '\nreturnMsg.add(@header(${param}))\n',
+              value: 'returnMsg.add(@header(${param}));',
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable'),
-              value: '\nreturnMsg.add(@body(${param}))\n',
+              value: 'returnMsg.add(@body(${param}));',
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable')+" (Raw)",
-              value: '\nreturnMsg.add(@bodyRaw)\n',
+              value: 'returnMsg.add(@bodyRaw);',
             },
             {
               title: "Query "+this.$t('api_test.definition.document.request_param'),
-              value: '\nreturnMsg.add(@query(${param}))\n',
+              value: 'returnMsg.add(@query(${param}));',
             },
             {
               title: "Rest "+this.$t('api_test.definition.document.request_param'),
-              value: '\nreturnMsg.add(@rest(${param}))\n',
+              value: 'returnMsg.add(@rest(${param}));',
             },
 
           ]
