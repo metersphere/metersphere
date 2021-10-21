@@ -337,6 +337,7 @@
       getTestTemplate()
         .then((template) => {
           this.testCaseTemplate = template;
+          this.$store.commit('setTestCaseTemplate', this.testCaseTemplate);
           initAddFuc();
         });
       if (this.selectNode && this.selectNode.data && !this.form.id) {
@@ -461,6 +462,7 @@
         getTemplate('field/template/case/get/relate/', this)
           .then((template) => {
             this.testCaseTemplate = template;
+            this.$store.commit('setTestCaseTemplate', this.testCaseTemplate);
             initFuc(testCase);
           });
       },

@@ -70,3 +70,7 @@ export function getTestCaseNodes(projectId, callback) {
 export function getRelationshipCase(id, relationshipType, callback) {
   return baseGet('/test/case/relationship/case/' + id + '/' + relationshipType, callback);
 }
+
+export function getRelationshipCountCase(id, callback) {
+  return baseGet('/test/case/relationship/case/count/' + id + '/', callback);
+}

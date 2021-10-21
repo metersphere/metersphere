@@ -28,7 +28,8 @@ const state = {
   pluginFiles: [],
   isTestCaseMinderChanged: false,
   // 当前项目是否勾选自定义ID
-  currentProjectIsCustomNum: false
+  currentProjectIsCustomNum: false,
+  testCaseTemplate: {},
 }
 
 const store = new Vuex.Store({

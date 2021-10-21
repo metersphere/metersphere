@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -97,6 +98,17 @@ public class RelationshipEdgeService {
         return relationshipEdgeMapper.selectByExample(example);
     }
 
+    public List<RelationshipEdge> getBySourceIdOrTargetId(String id) {
+        RelationshipEdgeExample example = new RelationshipEdgeExample();
+        example.createCriteria()
+                .andSourceIdEqualTo(id);
+        example.or(
+                example.createCriteria()
+                        .andTargetIdEqualTo(id)
+        );
+        return relationshipEdgeMapper.selectByExample(example);
+    }
+
     /**
      * 保存新的边
      * 校验是否存在环
@@ -128,11 +140,16 @@ public class RelationshipEdgeService {
             });
         }
 
-        // 判断是否有环, 两个方向都搜索一遍
-        if (directedCycle(request.getId(), relationshipEdges, new HashSet<>(), true) ||
-                directedCycle(request.getId(), relationshipEdges, new HashSet<>(), false)) {
-            MSException.throwException("关联后存在循环依赖，请检查依赖关系");
-        };
+        HashSet<String> nodeIds = new HashSet<>();
+        nodeIds.addAll(relationshipEdges.stream().map(RelationshipEdge::getSourceId).collect(Collectors.toSet()));
+        nodeIds.addAll(relationshipEdges.stream().map(RelationshipEdge::getTargetId).collect(Collectors.toSet()));
+        // 判断是否有环
+        HashSet<String> visitedSet = new HashSet<>();
+        nodeIds.forEach(nodeId -> {
+            if (!visitedSet.contains(nodeId) && directedCycle(nodeId, relationshipEdges, new HashSet<>(), visitedSet)) {
+                MSException.throwException("关联后存在循环依赖，请检查依赖关系");
+            };
+        });
 
         relationshipEdges.forEach(item -> {
             if (addEdgesIds.contains(item.getSourceId() + item.getTargetId())) {
@@ -186,11 +203,11 @@ public class RelationshipEdgeService {
      * 给定一点，深度搜索该连通图中是否存在环
      * @param id
      * @param edges
-     * @param markSet
-     * @param isForwardDirection
+     * @param markSet     标记该路径上经过的节点
+     * @param visitedSet  标记访问过的节点
      * @return
      */
-    public boolean directedCycle(String id, List<RelationshipEdge> edges, Set<String> markSet, Boolean isForwardDirection) {
+    public boolean directedCycle(String id, List<RelationshipEdge> edges, Set<String> markSet, Set<String> visitedSet) {
 
         if (markSet.contains(id)) {
             // 如果已经访问过该节点，则说明存在环
@@ -198,23 +215,19 @@ public class RelationshipEdgeService {
         }
 
         markSet.add(id);
+        visitedSet.add(id);
+
         ArrayList<String> nextLevelNodes = new ArrayList();
         for (RelationshipEdge relationshipEdge : edges) {
-            if (isForwardDirection) {// 正向则搜索 sourceId 是当前节点的边
-                if (id.equals(relationshipEdge.getSourceId())) {
-                    nextLevelNodes.add(relationshipEdge.getTargetId());
-                }
-            } else {
-                if (id.equals(relationshipEdge.getTargetId())) {
-                    nextLevelNodes.add(relationshipEdge.getSourceId());
-                }
+            if (id.equals(relationshipEdge.getSourceId())) {
+                nextLevelNodes.add(relationshipEdge.getTargetId());
             }
         }
 
         for (String nextNode : nextLevelNodes) {
-            if (directedCycle(nextNode, edges, markSet, isForwardDirection)) {
+            if (directedCycle(nextNode, edges, markSet, visitedSet)) {
                 return true;
-            };
+            }
         }
 
         // 关键，递归完这一条路径要把这个标记去掉，否则会误判为有环
@@ -225,17 +238,24 @@ public class RelationshipEdgeService {
     }
 
     /**
-     * 给定一个节点获取跟他关联的所有节点的id
+     * 给定一个节点获取直接关联的节点的id
      * @param nodeId
      * @return
      */
     public List<String> getRelationshipIds(String nodeId) {
-        List<RelationshipEdge> sourceRelationshipEdges = getBySourceId(nodeId);
-        List<RelationshipEdge> targetRelationshipEdges = getByTargetId(nodeId);
+        List<RelationshipEdge> sourceRelationshipEdges = getBySourceIdOrTargetId(nodeId);
         List<String> ids = sourceRelationshipEdges.stream().map(RelationshipEdge::getTargetId).collect(Collectors.toList());
-        ids.addAll(targetRelationshipEdges.stream().map(RelationshipEdge::getSourceId).collect(Collectors.toList()));
+        ids.addAll(sourceRelationshipEdges.stream().map(RelationshipEdge::getSourceId).collect(Collectors.toList()));
         ids.add(nodeId);
         return ids;
     }
 
+    public int getRelationshipCount(String id, Function<List<String>, Integer> countByIdsFunc) {
+        List<String> ids = getRelationshipIds(id);
+        ids = ids.stream().filter(i -> !i.equals(id)).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            return countByIdsFunc.apply(ids);
+        }
+        return 0;
+    }
 }

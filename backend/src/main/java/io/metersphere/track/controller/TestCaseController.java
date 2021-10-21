@@ -105,6 +105,11 @@ public class TestCaseController {
         return testCaseService.getRelationshipCase(id, relationshipType);
     }
 
+    @GetMapping("/relationship/case/count/{id}")
+    public int getRelationshipCase(@PathVariable("id") String id) {
+        return testCaseService.getRelationshipCount(id);
+    }
+
     @GetMapping("recent/{count}")
     public List<TestCase> recentTestPlans(@PathVariable int count) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();

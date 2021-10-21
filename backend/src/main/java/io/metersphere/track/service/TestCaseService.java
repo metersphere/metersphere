@@ -10,6 +10,7 @@ import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
@@ -1973,8 +1974,9 @@ public class TestCaseService {
 
         if (CollectionUtils.isNotEmpty(ids)) {
             TestCaseExample example = new TestCaseExample();
-            example.createCriteria().andIdIn(ids);
-            List<TestCase> testCaseList = testCaseMapper.selectByExample(example);
+            example.createCriteria().andIdIn(ids).andStatusNotEqualTo("Trash");
+            List<TestCaseWithBLOBs> testCaseList = testCaseMapper.selectByExampleWithBLOBs(example);
+            buildUserInfo(testCaseList);
             Map<String, TestCase> caseMap = testCaseList.stream().collect(Collectors.toMap(TestCase::getId, i -> i));
             List<RelationshipEdgeDTO> results = new ArrayList<>();
             for (RelationshipEdge relationshipEdge : relationshipEdges) {
@@ -1990,10 +1992,30 @@ public class TestCaseService {
                 relationshipEdgeDTO.setCreator(testCase.getCreateUser());
                 relationshipEdgeDTO.setTargetNum(testCase.getNum());
                 relationshipEdgeDTO.setTargetCustomNum(testCase.getCustomNum());
+                relationshipEdgeDTO.setStatus(testCase.getStatus());
                 results.add(relationshipEdgeDTO);
             }
             return results;
         }
         return new ArrayList<>();
+    }
+
+    public void buildUserInfo(List<? extends TestCase> testCases) {
+        List<String> userIds = new ArrayList();
+        userIds.addAll(testCases.stream().map(TestCase::getCreateUser).collect(Collectors.toList()));
+        userIds.addAll(testCases.stream().map(TestCase::getDeleteUserId).collect(Collectors.toList()));
+        userIds.addAll(testCases.stream().map(TestCase::getMaintainer).collect(Collectors.toList()));
+        if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
+            Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
+            testCases.forEach(caseResult -> {
+                caseResult.setCreateUser(userMap.get(caseResult.getCreateUser()));
+                caseResult.setDeleteUserId(userMap.get(caseResult.getDeleteUserId()));
+                caseResult.setMaintainer(userMap.get(caseResult.getMaintainer()));
+            });
+        }
+    }
+
+    public int getRelationshipCount(String id) {
+        return relationshipEdgeService.getRelationshipCount(id, extTestCaseMapper::countByIds);
     }
 }

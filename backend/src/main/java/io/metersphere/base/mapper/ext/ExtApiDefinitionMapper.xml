@@ -720,5 +720,13 @@
         where t3.api_definition_id = #{apiDefinitionId}
           and t3.`status`!='Trash'
     </select>
+    <select id="countByIds" resultType="java.lang.Integer">
+        select count(id) from  api_definition
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and api_definition.status != 'Trash';
+    </select>
 
 </mapper>
