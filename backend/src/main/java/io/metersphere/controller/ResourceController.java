@@ -1,10 +1,7 @@
 package io.metersphere.controller;
 
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.controller.request.MdUploadRequest;
 import io.metersphere.service.ResourceService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

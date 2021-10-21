@@ -5,9 +5,6 @@ import io.metersphere.api.dto.ApiMonitorSearch;
 import io.metersphere.api.dto.ApiResponseCodeMonitor;
 import io.metersphere.api.dto.ApiResponseTimeMonitor;
 import io.metersphere.api.service.APIMonitorService;
-import io.metersphere.commons.constants.RoleConstants;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

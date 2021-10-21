@@ -2,12 +2,9 @@ package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.TestCaseReportTemplate;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.request.testCaseReport.QueryTemplateRequest;
 import io.metersphere.track.service.TestCaseReportTemplateService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

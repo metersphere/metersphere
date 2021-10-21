@@ -6,12 +6,11 @@ import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
+import io.metersphere.dto.WorkspaceResource;
 import io.metersphere.log.annotation.MsAuditLog;
-import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +24,11 @@ public class WorkspaceController {
     @Resource
     private WorkspaceService workspaceService;
     @Resource
-    private OrganizationService organizationService;
-    @Resource
     private UserService userService;
 
     @PostMapping("add")
     @MsAuditLog(module = "system_workspace", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public Workspace addWorkspace(@RequestBody Workspace workspace) {
-        organizationService.checkOrgOwner(workspace.getOrganizationId());
         return workspaceService.saveWorkspace(workspace);
     }
 
@@ -92,21 +88,14 @@ public class WorkspaceController {
         return workspaceService.getWorkspaceListByUserId(userId);
     }
 
-    @GetMapping("/list/orgworkspace/{userId}/{orgId}")
-    public List<Workspace> getWorkspaceListByOrgId(@PathVariable String userId, @PathVariable String orgId) {
-        return workspaceService.getWorkspaceListByOrgIdAndUserId(userId, orgId);
-    }
-
     @PostMapping("/member/update")
     @MsAuditLog(module = "workspace_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = WorkspaceService.class)
     public void updateOrgMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         workspaceService.updateWorkspaceMember(memberDTO);
     }
 
-    @GetMapping("/list/{orgId}")
-    public List<Workspace> getWorkspaceByOrgId(@PathVariable String orgId) {
-        WorkspaceRequest request = new WorkspaceRequest();
-        request.setOrganizationId(orgId);
-        return workspaceService.getWorkspaceList(request);
+    @GetMapping("/list/resource/{groupId}/{type}")
+    public WorkspaceResource listResource(@PathVariable String groupId, @PathVariable String type) {
+        return workspaceService.listResource(groupId, type);
     }
 }

@@ -18,7 +18,7 @@ public class ServiceIntegrationController {
     private IntegrationService integrationService;
 
     @PostMapping("/save")
-    @MsAuditLog(module = "organization_service_integration", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#service.id)", msClass = IntegrationService.class)
+    @MsAuditLog(module = "workspace_service_integration", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#service.id)", msClass = IntegrationService.class)
     public ServiceIntegration save(@RequestBody ServiceIntegration service) {
         return integrationService.save(service);
     }
@@ -29,14 +29,14 @@ public class ServiceIntegrationController {
     }
 
     @PostMapping("/delete")
-    @MsAuditLog(module = "organization_service_integration", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = IntegrationService.class)
+    @MsAuditLog(module = "workspace_service_integration", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = IntegrationService.class)
     public void delete(@RequestBody IntegrationRequest request) {
         integrationService.delete(request);
     }
 
-    @GetMapping("/all/{orgId}")
-    public List<ServiceIntegration> getAll(@PathVariable String orgId) {
-        return integrationService.getAll(orgId);
+    @GetMapping("/all/{workspaceId}")
+    public List<ServiceIntegration> getAll(@PathVariable String workspaceId) {
+        return integrationService.getAll(workspaceId);
     }
 
 }

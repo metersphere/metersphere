@@ -25,34 +25,6 @@ export function hasRole(role) {
   return roles.indexOf(role) > -1;
 }
 
-// 是否含有某个角色
-export function hasRoles(...roles) {
-  let user = getCurrentUser();
-  let rs = user.roles.map(r => r.id);
-  for (let item of roles) {
-    if (rs.indexOf(item) > -1) {
-      return true;
-    }
-  }
-  return false;
-}
-
-export function hasRolePermission(role) {
-  let user = getCurrentUser();
-  for (let ur of user.userRoles) {
-    if (role === ur.roleId) {
-      if (ur.roleId === ROLE_ADMIN) {
-        return true;
-      } else if (ur.roleId === ROLE_ORG_ADMIN && user.lastOrganizationId === ur.sourceId) {
-        return true;
-      } else if (user.lastWorkspaceId === ur.sourceId) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 export function hasPermission(permission) {
   let user = getCurrentUser();
 
@@ -102,24 +74,6 @@ export function hasPermission(permission) {
     }
   }
 
-  let currentOrganizationPermissions = user.userGroups.filter(ug => ug.group.type === 'ORGANIZATION')
-    .filter(ug => ug.sourceId === getCurrentOrganizationId())
-    .map(ug => ug.userGroupPermissions)
-    .reduce((total, current) => {
-      return total.concat(current);
-    }, [])
-    .map(g => g.permissionId)
-    .reduce((total, current) => {
-      total.add(current);
-      return total;
-    }, new Set);
-
-  for (const p of currentOrganizationPermissions) {
-    if (p === permission) {
-      return true;
-    }
-  }
-
   let systemPermissions = user.userGroups.filter(gp => gp.group.type === 'SYSTEM')
     .filter(ug => ug.sourceId === 'system' || ug.sourceId === 'adminSourceId')
     .map(ug => ug.userGroupPermissions)
@@ -146,15 +100,6 @@ export function hasLicense() {
   return v && v === 'valid';
 }
 
-export function hasRolePermissions(...roles) {
-  for (let role of roles) {
-    if (hasRolePermission(role)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export function hasPermissions(...permissions) {
   for (let p of permissions) {
     if (hasPermission(p)) {
@@ -162,24 +107,6 @@ export function hasPermissions(...permissions) {
     }
   }
   return false;
-}
-
-export function checkoutCurrentOrganization() {
-  // 查看当前用户是否是 lastOrganizationId 的组织管理员
-  return hasRolePermissions(ROLE_ORG_ADMIN);
-}
-
-export function checkoutCurrentWorkspace() {
-  // 查看当前用户是否是 lastWorkspaceId 的工作空间用户
-  return hasRolePermissions(ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER);
-}
-
-export function checkoutTestManagerOrTestUser() {
-  return hasRolePermissions(ROLE_TEST_MANAGER, ROLE_TEST_USER);
-}
-
-export function getCurrentOrganizationId() {
-  return sessionStorage.getItem(ORGANIZATION_ID);
 }
 
 export function getCurrentWorkspaceId() {
@@ -215,16 +142,9 @@ export function saveLocalStorage(response) {
   if (!sessionStorage.getItem(PROJECT_ID)) {
     sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
   }
-  if (!sessionStorage.getItem(ORGANIZATION_ID)) {
-    sessionStorage.setItem(ORGANIZATION_ID, response.data.lastOrganizationId);
-  }
   if (!sessionStorage.getItem(WORKSPACE_ID)) {
     sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
   }
-  let rolesArray = response.data.roles;
-  let roles = rolesArray.map(r => r.id);
-  // 保存角色
-  localStorage.setItem("roles", roles);
 }
 
 export function saveLicense(data) {

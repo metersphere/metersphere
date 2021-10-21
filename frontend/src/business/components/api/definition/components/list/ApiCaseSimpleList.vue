@@ -187,7 +187,7 @@
 
     <api-case-batch-run :project-id="projectId" @batchRun="runBatch" ref="batchRun"/>
 
-    <ms-task-center ref="taskCenter"/>
+    <ms-task-center ref="taskCenter" :show-menu="false"/>
 
     <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
                :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">

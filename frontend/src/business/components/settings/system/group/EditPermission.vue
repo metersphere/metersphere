@@ -50,10 +50,12 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-button type="primary" @click="onSubmit" size="small" style="margin-top: 10px;margin-left: 5px;">
-      {{ $t('commons.confirm') }}
-    </el-button>
-    <el-button @click="cancel" size="small">{{ $t('commons.cancel') }}</el-button>
+    <template v-slot:footer>
+      <el-button @click="cancel" size="medium">{{ $t('commons.cancel') }}</el-button>
+      <el-button type="primary" @click="onSubmit" size="medium" style="margin-top: 10px;margin-left: 5px;">
+        {{ $t('commons.confirm') }}
+      </el-button>
+    </template>
   </el-dialog>
 </template>
 
@@ -125,7 +127,7 @@ export default {
       }
     },
     _computedMenuName(resource) {
-      return PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] ? PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] : '项目';
+      return PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] ? PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] : '项目设置';
     },
     onSubmit() {
       let param = {};

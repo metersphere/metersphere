@@ -50,26 +50,6 @@ public class UserExcelDataUs extends UserExcelData {
 
     @NotBlank(message = "{cannot_be_null}")
     @ColumnWidth(30)
-    @ExcelProperty("User is organization manager(Yes/No)")
-    private String userIsOrgAdmin;
-
-    @Length(max = 100)
-    @ColumnWidth(30)
-    @ExcelProperty("Manager in witch organization")
-    private String orgAdminOrganization;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ColumnWidth(30)
-    @ExcelProperty("User is organization member(Yes/No)")
-    private String userIsOrgMember;
-
-    @Length(max = 100)
-    @ColumnWidth(30)
-    @ExcelProperty("Member in witch organization")
-    private String orgMemberOrganization;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ColumnWidth(30)
     @ExcelProperty("User is test manager(Yes/No)")
     private String userIsTestManager;
 

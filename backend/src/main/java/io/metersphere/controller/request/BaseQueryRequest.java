@@ -16,8 +16,6 @@ public class BaseQueryRequest {
 
     private String workspaceId;
 
-    private String organizationId;
-
     private List<String> ids;
 
     private List<String> moduleIds;

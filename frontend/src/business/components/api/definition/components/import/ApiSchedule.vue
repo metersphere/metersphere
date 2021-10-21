@@ -1,6 +1,6 @@
 <template>
   <el-main>
-    <div  class="api-schedule-form">
+    <div class="api-schedule-form">
       <el-form :model="formData" :rules="rules" v-loading="result.loading" label-width="80px" ref="form">
         <el-row>
           <el-col :span="12">
@@ -21,11 +21,11 @@
                            :defaultKey="formData.moduleId"
                            @getValue="setModule"
                            :obj="moduleObj" clearable checkStrictly ref="selectTree"/>
-<!--              <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"-->
-<!--                              @getValue="setModule" clearable checkStrictly size="small"/>-->
+              <!--              <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"-->
+              <!--                              @getValue="setModule" clearable checkStrictly size="small"/>-->
             </el-form-item>
             <el-form-item :label-width="labelWith" :label="$t('commons.import_mode')" prop="modeId">
-              <el-select size="small" v-model="formData.modeId" clearable >
+              <el-select size="small" v-model="formData.modeId" clearable>
                 <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
               </el-select>
             </el-form-item>
@@ -97,16 +97,14 @@ import SwaggerTaskList from "@/business/components/api/definition/components/imp
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import Crontab from "@/business/components/common/cron/Crontab";
 import {cronValidate} from "@/common/js/cron";
-import {getCurrentOrganizationId, getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import SelectTree from "@/business/components/common/select-tree/SelectTree";
-import ScheduleTaskNotification from "@/business/components/settings/organization/components/ScheduleTaskNotification";
 import SwaggerTaskNotification from "@/business/components/api/definition/components/import/SwaggerTaskNotification";
 
 export default {
   name: "ApiSchedule",
   components: {
-    SwaggerTaskNotification,
-    ScheduleTaskNotification, SelectTree, MsFormDivider, SwaggerTaskList, CrontabResult, Crontab
+    SwaggerTaskNotification, SelectTree, MsFormDivider, SwaggerTaskList, CrontabResult, Crontab
   },
   props: {
     customValidate: {
@@ -182,7 +180,7 @@ export default {
         id: 'id',
         label: 'name',
       },
-    }
+    };
   },
 
   methods: {
@@ -197,11 +195,7 @@ export default {
     },
 
     initUserList() {
-      let param = {
-        name: '',
-        organizationId: getCurrentOrganizationId()
-      };
-      this.result = this.$post('user/org/member/list/all', param, response => {
+      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
         this.scheduleReceiverOptions = response.data;
       });
     },
@@ -296,7 +290,7 @@ export default {
       return this.selectedPlatformValue === 'Swagger2';
     },
   }
-}
+};
 </script>
 
 <style scoped>
@@ -305,7 +299,7 @@ export default {
   display: inline-block;
 }
 
-.api-schedule-form,.task-list {
+.api-schedule-form, .task-list {
   border: #DCDFE6 solid 1px;
   padding: 10px;
 }

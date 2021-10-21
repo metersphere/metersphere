@@ -123,13 +123,13 @@
 </template>
 
 <script>
-  import MsTablePagination from "../../common/pagination/TablePagination";
-  import MsTableOperator from "../../common/components/MsTableOperator";
-  import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasRoles} from "@/common/js/utils";
-  import {LOG_TYPE, LOG_TYPE_MAP, sysList, getUrl} from "./config";
-  import MsLogDetail from "./LogDetail";
+import MsTablePagination from "../../common/pagination/TablePagination";
+import MsTableOperator from "../../common/components/MsTableOperator";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getUrl, LOG_TYPE, LOG_TYPE_MAP, sysList} from "./config";
+import MsLogDetail from "./LogDetail";
 
-  export default {
+export default {
     name: "OperatingLog",
     components: {
       MsTablePagination, MsTableOperator, MsLogDetail

@@ -29,8 +29,8 @@
 
 import MsCodeEdit from "@/business/components/api/definition/components/MsCodeEdit";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
-import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
-import ApiFuncRelevance from "@/business/components/settings/project/function/ApiFuncRelevance";
+import CustomFunctionRelate from "@/business/components/project/menu/function/CustomFunctionRelate";
+import ApiFuncRelevance from "@/business/components/project/menu/function/ApiFuncRelevance";
 import MockScriptNavMenu from "@/business/components/api/definition/components/mock/Components/MockScriptNavMenu";
 
 export default {

@@ -31,14 +31,13 @@
 import MsRecentList from "../../common/head/RecentList";
 import MsShowAll from "../../common/head/ShowAll";
 import MsCreateButton from "../../common/head/CreateButton";
-import MsCreateTest from "../../common/head/CreateTest";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 import {mapGetters} from "vuex";
 
 export default {
   name: "MsApiHeaderMenus",
-  components: {SearchList, MsCreateTest, MsCreateButton, MsShowAll, MsRecentList, ProjectChange},
+  components: {SearchList, MsCreateButton, MsShowAll, MsRecentList, ProjectChange},
   data() {
     return {
       testRecent: {

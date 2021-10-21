@@ -41,7 +41,6 @@ export const ZEN_TAO = 'Zentao';
 export const AZURE_DEVOPS = 'AzureDevops';
 
 export const GROUP_SYSTEM = 'SYSTEM';
-export const GROUP_ORGANIZATION = 'ORGANIZATION';
 export const GROUP_WORKSPACE = 'WORKSPACE';
 export const GROUP_PROJECT = 'PROJECT';
 

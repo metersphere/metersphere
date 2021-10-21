@@ -66,9 +66,9 @@ public class IssuesController {
         return issuesService.getIssuesByPlanoId(planId);
     }
 
-    @GetMapping("/auth/{orgId}/{platform}")
-    public void testAuth(@PathVariable String orgId, @PathVariable String platform) {
-        issuesService.testAuth(orgId, platform);
+    @GetMapping("/auth/{workspaceId}/{platform}")
+    public void testAuth(@PathVariable String workspaceId, @PathVariable String platform) {
+        issuesService.testAuth(workspaceId, platform);
     }
 
     @PostMapping("/user/auth")

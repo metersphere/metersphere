@@ -16,7 +16,7 @@ public class NoticeController {
     private NoticeService noticeService;
 
     @PostMapping("save/message/task")
-    @MsAuditLog(module = "organization_message_settings", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#messageDetail.id)", content = "#msClass.getLogDetails(#messageDetail.id)", msClass = NoticeService.class)
+    @MsAuditLog(module = "workspace_message_settings", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#messageDetail.id)", content = "#msClass.getLogDetails(#messageDetail.id)", msClass = NoticeService.class)
     public void saveMessage(@RequestBody MessageDetail messageDetail) {
         noticeService.saveMessageTask(messageDetail);
     }
@@ -32,7 +32,7 @@ public class NoticeController {
     }
 
     @GetMapping("/delete/message/{identification}")
-    @MsAuditLog(module = "organization_message_settings", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#identification)", msClass = NoticeService.class)
+    @MsAuditLog(module = "workspace_message_settings", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#identification)", msClass = NoticeService.class)
     public int deleteMessage(@PathVariable String identification) {
         return noticeService.delMessage(identification);
     }

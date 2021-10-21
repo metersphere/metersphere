@@ -68,6 +68,10 @@ public class ProjectController {
     public Project getProject(@PathVariable String id) {
         return projectService.getProjectById(id);
     }
+    @GetMapping("/member/size/{id}")
+    public long getProjectMemberSize(@PathVariable String id) {
+        return projectService.getProjectMemberSize(id);
+    }
 
     @PostMapping("/add")
     @MsAuditLog(module = "project_project_manager", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#project.id)", msClass = ProjectService.class)

@@ -11,18 +11,6 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-submenu index="2"
-                v-permission="['ORGANIZATION_USER:READ', 'ORGANIZATION_WORKSPACE:READ','ORGANIZATION_SERVICE:READ','ORGANIZATION_MESSAGE:READ', 'ORGANIZATION_OPERATING_LOG:READ']">
-      <template v-slot:title>
-        <font-awesome-icon class="icon organization" :icon="['far', 'building']" size="lg"/>
-        <span>{{ $t('commons.organization') }}</span>
-      </template>
-      <el-menu-item v-for="menu in organizations" v-permission="menu.permissions" :key="menu.index" :index="menu.index"
-                    class="setting-item">
-        {{ $t(menu.title) }}
-      </el-menu-item>
-    </el-submenu>
-
     <el-submenu index="3"
                 v-permission="['WORKSPACE_USER:READ']">
       <template v-slot:title>
@@ -41,25 +29,6 @@
         </el-menu-item>
       </el-submenu>
     </el-submenu>
-
-    <el-submenu index="4" v-permission="['PROJECT_USER:READ']">
-      <template v-slot:title>
-        <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>
-        <span>{{ $t('commons.project') }}</span>
-      </template>
-      <el-menu-item v-for="menu in project" v-permission="menu.permissions" :key="menu.index" :index="menu.index"
-                    class="setting-item">
-        {{ $t(menu.title) }}
-      </el-menu-item>
-    </el-submenu>
-
-    <!--    <el-menu-item v-for="menu in project" :key="menu.index" :index="'/setting/project/all'" class="setting-item"-->
-    <!--                  v-roles="['test_user','test_manager', 'org_admin', 'admin']">-->
-    <!--      <template v-slot:title>-->
-    <!--        <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>-->
-    <!--        <span>{{ $t(menu.title) }}</span>-->
-    <!--      </template>-->
-    <!--    </el-menu-item>-->
 
     <el-submenu index="5">
       <template v-slot:title>

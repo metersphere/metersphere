@@ -153,7 +153,7 @@ public class TestResultService {
             if (reportTask != null) {
                 if (StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode())
                         || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
-                    sendTask(reportTask, reportUrl, testResult);
+                    sendTask(reportTask, testResult);
                 }
             }
         } catch (Exception e) {
@@ -194,7 +194,7 @@ public class TestResultService {
         }
     }
 
-    private void sendTask(ApiTestReportVariable report, String reportUrl, TestResult testResult) {
+    private void sendTask(ApiTestReportVariable report, TestResult testResult) {
         if (report == null) {
             return;
         }
@@ -203,21 +203,17 @@ public class TestResultService {
         assert systemParameterService != null;
         assert noticeSendService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        String url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
-        String url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
+        String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
 
-        String successContext = "";
-        String failedContext = "";
         String subject = "";
         String event = "";
+        String successContext = "${operator}执行接口测成功: ${name}" + ", 报告: ${reportUrl}";
+        String failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: ${reportUrl}";
+
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-            successContext = "接口测试 API任务通知:jenkins所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
-            failedContext = "接口测试 API任务通知:jenkins所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
             subject = Translator.get("task_notification_jenkins");
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            successContext = "接口测试定时任务通知:定时任务所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
-            failedContext = "接口测试定时任务通知:定时任务所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
             subject = Translator.get("task_notification");
         }
         if (StringUtils.equals("Success", report.getStatus())) {
@@ -235,6 +231,7 @@ public class TestResultService {
         Map paramMap = new HashMap<>();
         paramMap.put("type", "api");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
+        paramMap.put("reportUrl", reportUrl);
         paramMap.put("operator", report.getExecutor());
         paramMap.putAll(new BeanMap(report));
         NoticeModel noticeModel = NoticeModel.builder()

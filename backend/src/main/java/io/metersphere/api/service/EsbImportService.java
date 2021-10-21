@@ -54,18 +54,14 @@ public class EsbImportService {
             }
             data.setUserIsAdmin(Translator.get("options_no"));
             data.setUserIsTester(Translator.get("options_no"));
-            data.setUserIsOrgMember(Translator.get("options_no"));
             data.setUserIsViewer(Translator.get("options_no"));
             data.setUserIsTestManager(Translator.get("options_no"));
-            data.setUserIsOrgAdmin(Translator.get("options_yes"));
-            data.setOrgAdminOrganization(workspace);
             list.add(data);
         }
 
         list.add(new UserExcelData());
         UserExcelData explain = new UserExcelData();
         explain.setName(Translator.get("do_not_modify_header_order"));
-        explain.setOrgAdminOrganization("多个工作空间请换行展示");
         list.add(explain);
         return list;
     }

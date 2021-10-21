@@ -28,6 +28,7 @@ import formCreate from "@form-create/element-ui"
 
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
+import 'element-ui/lib/theme-chalk/display.css';
 Vue.use(mavonEditor)
 
 Vue.use(vueMinderEditor)
@@ -57,9 +58,6 @@ Vue.use(VueClipboard)
 
 // v-permission
 Vue.directive('permission', permission);
-
-// v-roles
-Vue.directive('roles', roles);
 
 Vue.directive('xpack', xpack);
 

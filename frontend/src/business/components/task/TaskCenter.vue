@@ -1,6 +1,8 @@
 <template>
   <div v-permission="['PROJECT_API_SCENARIO:READ']">
-    <el-menu :unique-opened="true" class="header-user-menu align-right header-top-menu"
+    <el-menu v-if="showMenu"
+             :unique-opened="true"
+             class="header-user-menu align-right header-top-menu"
              mode="horizontal"
              :background-color="color"
              text-color="#fff"
@@ -82,7 +84,8 @@
             <el-card class="ms-card-task" @click.native="showReport(item)">
             <span class="ms-task-name-width"><el-link type="primary">
               {{ getModeName(item.executionModule) }} </el-link>: {{ item.name }} </span>
-              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)" v-if="showStop(item.executionStatus)">
+              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)"
+                         v-if="showStop(item.executionStatus)">
                 {{ $t('report.stop_btn') }}
               </el-button>
               <br/>
@@ -97,16 +100,20 @@
                   <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
                 </el-col>
                 <el-col :span="4">
-                  <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'" class="ms-task-error">
+                  <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'"
+                        class="ms-task-error">
                      error
                   </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'" class="ms-task-success">
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'"
+                        class="ms-task-success">
                      success
                 </span>
                   <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'">
                     stopped
                   </span>
-                  <span v-else>{{ item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus }}</span>
+                  <span v-else>{{
+                      item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus
+                    }}</span>
                 </el-col>
               </el-row>
             </el-card>
@@ -168,7 +175,11 @@ export default {
     };
   },
   props: {
-    color: String
+    color: String,
+    showMenu: {
+      type: Boolean,
+      default: true
+    }
   },
   created() {
     if (hasPermissions('PROJECT_API_SCENARIO:READ')) {
@@ -200,7 +211,7 @@ export default {
             let request = {type: item.executionModule, reportId: item.id};
             array.push(request);
           }
-        })
+        });
       }
       if (array.length === 0) {
         this.$warning("没有需要停止的任务");
@@ -357,7 +368,7 @@ export default {
           if (this.getPercentage(item.executionStatus) !== 100 && this.getPercentage(item.executionStatus) !== 0) {
             total++;
           }
-        })
+        });
         this.runningTotal = total;
       }
     },

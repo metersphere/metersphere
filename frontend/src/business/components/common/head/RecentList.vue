@@ -15,8 +15,6 @@
 </template>
 
 <script>
-import {hasRoles} from "@/common/js/utils";
-import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "@/common/js/constants";
 
 export default {
   name: "MsRecentList",

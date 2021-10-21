@@ -151,7 +151,7 @@
 
       <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="testPlanCaseIds" :type="'apiCase'"/>
     </el-card>
-    <ms-task-center ref="taskCenter"/>
+    <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
 
 </template>
