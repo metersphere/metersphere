@@ -1373,6 +1373,76 @@ public class ApiTestCaseExample {
             addCriterion("`order` not between", value1, value2, "order");
             return (Criteria) this;
         }
+
+        public Criteria andCaseStatusIsNull() {
+            addCriterion("case_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusIsNotNull() {
+            addCriterion("case_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusEqualTo(String value) {
+            addCriterion("case_status =", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusNotEqualTo(String value) {
+            addCriterion("case_status <>", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusGreaterThan(String value) {
+            addCriterion("case_status >", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusGreaterThanOrEqualTo(String value) {
+            addCriterion("case_status >=", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusLessThan(String value) {
+            addCriterion("case_status <", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusLessThanOrEqualTo(String value) {
+            addCriterion("case_status <=", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusLike(String value) {
+            addCriterion("case_status like", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusNotLike(String value) {
+            addCriterion("case_status not like", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusIn(List<String> values) {
+            addCriterion("case_status in", values, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusNotIn(List<String> values) {
+            addCriterion("case_status not in", values, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusBetween(String value1, String value2) {
+            addCriterion("case_status between", value1, value2, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusNotBetween(String value1, String value2) {
+            addCriterion("case_status not between", value1, value2, "caseStatus");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

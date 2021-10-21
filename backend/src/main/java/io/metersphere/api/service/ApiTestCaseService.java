@@ -328,25 +328,30 @@ public class ApiTestCaseService {
             request = esbApiParamService.handleEsbRequest(request);
         }
 
-        final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
-        test.setId(request.getId());
-        test.setName(request.getName());
-        test.setApiDefinitionId(request.getApiDefinitionId());
-        test.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-        test.setProjectId(request.getProjectId());
-        test.setRequest(JSONObject.toJSONString(request.getRequest()));
-        test.setPriority(request.getPriority());
-        test.setUpdateTime(System.currentTimeMillis());
-        test.setDescription(request.getDescription());
-        test.setVersion(request.getVersion() == null ? 0 : request.getVersion() + 1);
-        test.setFollowPeople(request.getFollowPeople());
-        if (StringUtils.equals("[]", request.getTags())) {
-            test.setTags("");
-        } else {
-            test.setTags(request.getTags());
+        final ApiTestCaseWithBLOBs test = apiTestCaseMapper.selectByPrimaryKey(request.getId());
+        if (test != null) {
+            test.setName(request.getName());
+            test.setCaseStatus(request.getCaseStatus());
+            if (StringUtils.isEmpty(request.getCaseStatus())) {
+                test.setCaseStatus(APITestStatus.Underway.name());
+            }
+            test.setApiDefinitionId(request.getApiDefinitionId());
+            test.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+            test.setProjectId(request.getProjectId());
+            test.setRequest(JSONObject.toJSONString(request.getRequest()));
+            test.setPriority(request.getPriority());
+            test.setUpdateTime(System.currentTimeMillis());
+            test.setDescription(request.getDescription());
+            test.setVersion(request.getVersion() == null ? 0 : request.getVersion() + 1);
+            test.setFollowPeople(request.getFollowPeople());
+            if (StringUtils.equals("[]", request.getTags())) {
+                test.setTags("");
+            } else {
+                test.setTags(request.getTags());
+            }
+            apiTestCaseMapper.updateByPrimaryKeySelective(test);
         }
-        apiTestCaseMapper.updateByPrimaryKeySelective(test);
-        return apiTestCaseMapper.selectByPrimaryKey(request.getId());
+        return test;
     }
 
     private ApiTestCase createTest(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
@@ -362,6 +367,10 @@ public class ApiTestCaseService {
         test.setId(request.getId());
         test.setName(request.getName());
         test.setStatus("");
+        test.setCaseStatus(request.getCaseStatus());
+        if (StringUtils.isEmpty(request.getCaseStatus())) {
+            test.setCaseStatus(APITestStatus.Underway.name());
+        }
         test.setApiDefinitionId(request.getApiDefinitionId());
         test.setCreateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         test.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());

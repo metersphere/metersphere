@@ -88,6 +88,18 @@
           </ms-table-column>
 
           <ms-table-column
+            prop="caseStatus"
+            :filters="STATUS_FILTERS"
+            :field="item"
+            :fields-width="fieldsWidth"
+            min-width="120px"
+            :label="$t('commons.status')">
+            <template v-slot:default="scope">
+              <plan-status-table-item :value="scope.row.caseStatus"/>
+            </template>
+          </ms-table-column>
+
+          <ms-table-column
             prop="status"
             :filters="statusFilters"
             :field="item"
@@ -238,6 +250,7 @@ import ApiCaseBatchRun from "@/business/components/api/definition/components/lis
 import MsRequestResultTail from "../../../../api/definition/components/response/RequestResultTail";
 import {editApiTestCaseOrder} from "@/network/api";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import i18n from "@/i18n/i18n";
 
 export default {
   name: "ApiCaseSimpleList",
@@ -263,6 +276,7 @@ export default {
     MsTable,
     MsTableColumn,
     MsRequestResultTail,
+    PlanStatusTableItem: () => import("../../../../track/common/tableItems/plan/PlanStatusTableItem"),
     MsTaskCenter: () => import("../../../../task/TaskCenter"),
   },
   data() {
@@ -338,6 +352,11 @@ export default {
         {text: 'P1', value: 'P1'},
         {text: 'P2', value: 'P2'},
         {text: 'P3', value: 'P3'}
+      ],
+      STATUS_FILTERS: [
+        {text: i18n.t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+        {text: i18n.t('test_track.plan.plan_status_running'), value: 'Underway'},
+        {text: i18n.t('test_track.plan.plan_status_completed'), value: 'Completed'}
       ],
       statusFilters: [
         {text: this.$t('api_test.automation.success'), value: 'success'},
