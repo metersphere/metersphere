@@ -109,7 +109,8 @@
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" label="TCP Mock Port">
-          <el-input-number v-model="form.mockTcpPort" :controls="false" style="width: 30%;margin-right: 30px"></el-input-number>
+          <el-input-number v-model="form.mockTcpPort" :controls="false"
+                           style="width: 30%;margin-right: 30px"></el-input-number>
           <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
         </el-form-item>
 
@@ -213,8 +214,10 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.group')" prop="groupIds" :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
-          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" style="width: 100%">
+        <el-form-item :label="$t('commons.group')" prop="groupIds"
+                      :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')"
+                     style="width: 100%">
             <el-option
               v-for="item in form.allgroups"
               :key="item.id"
@@ -231,7 +234,7 @@
       </template>
     </el-dialog>
 
-    <add-member :group-type="'PROJECT'" :group-scope-id="orgId" ref="addMember" @submit="submitForm"/>
+    <add-member :group-type="'PROJECT'" :group-scope-id="workspaceId" ref="addMember" @submit="submitForm"/>
 
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
@@ -251,9 +254,9 @@ import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
-  getCurrentOrganizationId,
   getCurrentProjectID,
-  getCurrentUser, getCurrentUserId,
+  getCurrentUser,
+  getCurrentUserId,
   getCurrentWorkspaceId,
   listenGoBack,
   removeGoBackListener
@@ -361,8 +364,8 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
-    orgId() {
-      return getCurrentOrganizationId();
+    workspaceId() {
+      return getCurrentWorkspaceId();
     }
   },
   destroyed() {
@@ -426,7 +429,7 @@ export default {
       this.createVisible = true;
       listenGoBack(this.handleClose);
       this.form = Object.assign({}, row);
-      this.$get("/service/integration/all/" + getCurrentOrganizationId(), response => {
+      this.$get("/service/integration/all/" + getCurrentWorkspaceId(), response => {
         let data = response.data;
         let platforms = data.map(d => d.platform);
         if (platforms.indexOf("Tapd") !== -1) {
@@ -596,7 +599,10 @@ export default {
       this.updateVisible = true;
       this.form = Object.assign({}, row);
       let groupIds = this.form.groups.map(r => r.id);
-      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: getCurrentOrganizationId()}, response => {
+      this.result = this.$post('/user/group/list', {
+        type: GROUP_PROJECT,
+        resourceId: getCurrentWorkspaceId()
+      }, response => {
         this.$set(this.form, "allgroups", response.data);
       });
       // 编辑使填充角色信息
@@ -666,12 +672,12 @@ export default {
         return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
       };
     },
-    chengeMockTcpSwitch(value){
-      if(value && this.form.mockTcpPort === 0){
+    chengeMockTcpSwitch(value) {
+      if (value && this.form.mockTcpPort === 0) {
         this.result = this.$get('/project/genTcpMockPort/' + this.form.id, res => {
           let port = res.data;
           this.form.mockTcpPort = port;
-        })
+        });
       }
     },
   },
@@ -709,7 +715,7 @@ pre {
   font-size: 13px;
 }
 
-.el-input,.el-textarea {
+.el-input, .el-textarea {
   width: 95%;
 }
 </style>

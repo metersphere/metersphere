@@ -17,8 +17,6 @@ public class Quota implements Serializable {
 
     private String resourcePool;
 
-    private String organizationId;
-
     private String workspaceId;
 
     private Boolean useDefault;

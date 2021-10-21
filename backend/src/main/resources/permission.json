@@ -31,26 +31,6 @@
       "resourceId": "SYSTEM_USER"
     },
     {
-      "id": "SYSTEM_ORGANIZATION:READ",
-      "name": "查询组织",
-      "resourceId": "SYSTEM_ORGANIZATION"
-    },
-    {
-      "id": "SYSTEM_ORGANIZATION:READ+CREATE",
-      "name": "创建组织",
-      "resourceId": "SYSTEM_ORGANIZATION"
-    },
-    {
-      "id": "SYSTEM_ORGANIZATION:READ+EDIT",
-      "name": "编辑组织",
-      "resourceId": "SYSTEM_ORGANIZATION"
-    },
-    {
-      "id": "SYSTEM_ORGANIZATION:READ+DELETE",
-      "name": "删除组织",
-      "resourceId": "SYSTEM_ORGANIZATION"
-    },
-    {
       "id": "SYSTEM_WORKSPACE:READ",
       "name": "查询工作空间",
       "resourceId": "SYSTEM_WORKSPACE"
@@ -156,94 +136,24 @@
       "resourceId": "SYSTEM_OPERATING_LOG"
     },
     {
-      "id": "ORGANIZATION_USER:READ",
-      "name": "查询成员",
-      "resourceId": "ORGANIZATION_USER"
-    },
-    {
-      "id": "ORGANIZATION_USER:READ+CREATE",
-      "name": "添加成员",
-      "resourceId": "ORGANIZATION_USER"
-    },
-    {
-      "id": "ORGANIZATION_USER:READ+EDIT",
-      "name": "编辑成员",
-      "resourceId": "ORGANIZATION_USER"
-    },
-    {
-      "id": "ORGANIZATION_USER:READ+DELETE",
-      "name": "移除成员",
-      "resourceId": "ORGANIZATION_USER"
-    },
-    {
-      "id": "ORGANIZATION_WORKSPACE:READ",
-      "name": "查询工作空间",
-      "resourceId": "ORGANIZATION_WORKSPACE"
-    },
-    {
-      "id": "ORGANIZATION_WORKSPACE:READ+CREATE",
-      "name": "创建工作空间",
-      "resourceId": "ORGANIZATION_WORKSPACE"
-    },
-    {
-      "id": "ORGANIZATION_WORKSPACE:READ+EDIT",
-      "name": "编辑工作空间",
-      "resourceId": "ORGANIZATION_WORKSPACE"
-    },
-    {
-      "id": "ORGANIZATION_WORKSPACE:READ+DELETE",
-      "name": "删除工作空间",
-      "resourceId": "ORGANIZATION_WORKSPACE"
-    },
-    {
-      "id": "ORGANIZATION_GROUP:READ",
-      "name": "查询用户组与权限",
-      "resourceId": "ORGANIZATION_GROUP"
-    },
-    {
-      "id": "ORGANIZATION_GROUP:READ+CREATE",
-      "name": "创建",
-      "resourceId": "ORGANIZATION_GROUP"
-    },
-    {
-      "id": "ORGANIZATION_GROUP:READ+EDIT",
-      "name": "编辑",
-      "resourceId": "ORGANIZATION_GROUP"
-    },
-    {
-      "id": "ORGANIZATION_GROUP:READ+SETTING_PERMISSION",
-      "name": "设置权限",
-      "resourceId": "ORGANIZATION_GROUP"
-    },
-    {
-      "id": "ORGANIZATION_GROUP:READ+DELETE",
-      "name": "删除",
-      "resourceId": "ORGANIZATION_GROUP"
-    },
-    {
-      "id": "ORGANIZATION_SERVICE:READ",
+      "id": "WORKSPACE_SERVICE:READ",
       "name": "查询",
-      "resourceId": "ORGANIZATION_SERVICE"
+      "resourceId": "WORKSPACE_SERVICE"
     },
     {
-      "id": "ORGANIZATION_SERVICE:READ+EDIT",
+      "id": "WORKSPACE_SERVICE:READ+EDIT",
       "name": "编辑",
-      "resourceId": "ORGANIZATION_SERVICE"
+      "resourceId": "WORKSPACE_SERVICE"
     },
     {
-      "id": "ORGANIZATION_MESSAGE:READ",
+      "id": "WORKSPACE_MESSAGE:READ",
       "name": "查询",
-      "resourceId": "ORGANIZATION_MESSAGE"
+      "resourceId": "WORKSPACE_MESSAGE"
     },
     {
-      "id": "ORGANIZATION_MESSAGE:READ+EDIT",
+      "id": "WORKSPACE_MESSAGE:READ+EDIT",
       "name": "编辑",
-      "resourceId": "ORGANIZATION_MESSAGE"
-    },
-    {
-      "id": "ORGANIZATION_OPERATING_LOG:READ",
-      "name": "查询操作日志",
-      "resourceId": "ORGANIZATION_OPERATING_LOG"
+      "resourceId": "WORKSPACE_MESSAGE"
     },
     {
       "id": "WORKSPACE_USER:READ",
@@ -419,6 +329,61 @@
       "id": "PROJECT_OPERATING_LOG:READ",
       "name": "查询操作日志",
       "resourceId": "PROJECT_OPERATING_LOG"
+    },
+    {
+      "id": "PROJECT_FILE:READ+JAR",
+      "name": "查询jar包",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+UPLOAD+JAR",
+      "name": "上传jar包",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+DELETE+JAR",
+      "name": "删除jar包",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+FILE",
+      "name": "查询文件",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+UPLOAD+FILE",
+      "name": "上传文件",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_FILE:READ+DELETE+FILE",
+      "name": "删除文件",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ",
+      "name": "查询",
+      "resourceId": "PROJECT_CUSTOM_CODE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ+CREATE",
+      "name": "创建",
+      "resourceId": "PROJECT_CUSTOM_CODE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ+EDIT",
+      "name": "编辑",
+      "resourceId": "PROJECT_CUSTOM_CODE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ+DELETE",
+      "name": "删除",
+      "resourceId": "PROJECT_CUSTOM_CODE"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE:READ+COPY",
+      "name": "复制",
+      "resourceId": "PROJECT_CUSTOM_CODE"
     },
     {
       "id": "PROJECT_TRACK_CASE:READ",
@@ -836,10 +801,6 @@
       "name": "用户"
     },
     {
-      "id": "SYSTEM_ORGANIZATION",
-      "name": "组织"
-    },
-    {
       "id": "SYSTEM_WORKSPACE",
       "name": "工作空间"
     },
@@ -868,32 +829,16 @@
       "name": "操作日志"
     },
     {
-      "id": "ORGANIZATION_USER",
+      "id": "WORKSPACE_USER",
       "name": "成员"
     },
     {
-      "id": "ORGANIZATION_WORKSPACE",
-      "name": "工作空间"
-    },
-    {
-      "id": "ORGANIZATION_GROUP",
-      "name": "用户组与权限"
-    },
-    {
-      "id": "ORGANIZATION_SERVICE",
+      "id": "WORKSPACE_SERVICE",
       "name": "服务集成"
     },
     {
-      "id": "ORGANIZATION_MESSAGE",
+      "id": "WORKSPACE_MESSAGE",
       "name": "消息设置"
-    },
-    {
-      "id": "ORGANIZATION_OPERATING_LOG",
-      "name": "操作日志"
-    },
-    {
-      "id": "WORKSPACE_USER",
-      "name": "成员"
     },
     {
       "id": "WORKSPACE_TEMPLATE",
@@ -926,6 +871,14 @@
     {
       "id": "PROJECT_OPERATING_LOG",
       "name": "操作日志"
+    },
+    {
+      "id": "PROJECT_CUSTOM_CODE",
+      "name": "自定义代码片段"
+    },
+    {
+      "id": "PROJECT_FILE",
+      "name": "文件管理"
     },
     {
       "id": "PROJECT_TRACK_CASE",

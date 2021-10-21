@@ -101,7 +101,7 @@
 <script>
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import {GROUP_ORGANIZATION, GROUP_PROJECT, GROUP_SYSTEM, GROUP_WORKSPACE} from "@/common/js/constants";
+import {GROUP_PROJECT, GROUP_SYSTEM, GROUP_WORKSPACE} from "@/common/js/constants";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
 
 export default {
@@ -140,9 +140,6 @@ export default {
   computed: {
     typeLabel() {
       let type = this.group.type;
-      if (type === GROUP_ORGANIZATION) {
-        return this.$t('group.belong_organization');
-      }
       if (type === GROUP_WORKSPACE) {
         return this.$t('group.belong_workspace');
       }
@@ -271,9 +268,6 @@ export default {
     },
     _setResource(type, data) {
       switch (type) {
-        case GROUP_ORGANIZATION:
-          this.sourceData = data.organizations;
-          break;
         case GROUP_WORKSPACE:
           this.sourceData = data.workspaces;
           break;

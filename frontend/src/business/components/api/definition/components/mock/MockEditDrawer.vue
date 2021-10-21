@@ -15,7 +15,11 @@
           <div class="card">
             <div class="base-info">
               <el-row>
+                <tcp-params
+                    v-if="isTcp"
+                    :request="mockExpectConfig.request" style="margin: 10px 10px;" ref="tcpParam"></tcp-params>
                 <mock-request-param
+                    v-else
                   :isShowEnable="true"
                   :referenced="true"
                   :is-read-only="false"
@@ -26,7 +30,7 @@
                 <p class="tip">{{ $t('api_test.mock.rsp_param') }}</p>
               </el-row>
               <el-row>
-                <mock-response-param :api-id="apiId"
+                <mock-response-param :api-id="apiId" :is-tcp="isTcp"
                   :response="mockExpectConfig.response.responseResult"/>
               </el-row>
               <el-row>
@@ -51,20 +55,24 @@ import {REQUEST_HEADERS} from "@/common/js/constants";
 import MockRowVariables from "@/business/components/api/definition/components/mock/MockRowVariables";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MockConfigHeader from "@/business/components/api/definition/components/mock/MockConfigHeader";
-import MockRequestParam from "@/business/components/api/definition/components/mock/MockRequestParam";
-import MockResponseParam from "@/business/components/api/definition/components/mock/MockResponseParam";
+import MockRequestParam from "@/business/components/api/definition/components/mock/Components/MockRequestParam";
+import MockResponseParam from "@/business/components/api/definition/components/mock/Components/MockResponseParam";
 import {getUUID} from "@/common/js/utils";
+import TcpParams from "@/business/components/api/definition/components/request/tcp/TcpParams";
 
 export default {
   name: 'MockEditDrawer',
   components: {
-    MsDrawer,MockConfigHeader,MockRowVariables,MsCodeEdit,MockRequestParam,MockResponseParam
+    MsDrawer,MockConfigHeader,MockRowVariables,MsCodeEdit,MockRequestParam,MockResponseParam,TcpParams
   },
   props: {
     apiParams: Array,
     apiId:String,
     mockConfigId:String,
-    // mockConfigData: Object,
+    isTcp:{
+      type:Boolean,
+      default: false,
+    }
   },
   data() {
     return {

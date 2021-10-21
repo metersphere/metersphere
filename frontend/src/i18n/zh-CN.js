@@ -197,6 +197,7 @@ export default {
 
     },
     generate_test_data: "生成测试数据",
+    project_setting: '项目设置',
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -546,7 +547,23 @@ export default {
       exception_handle: "异常处理",
       stop_test: "终止测试",
       report_handle: "报文处理"
-    }
+    },
+    info: '项目信息',
+    member: '项目成员',
+    env: '项目环境',
+    file_manage: '文件管理',
+    log: '操作日志',
+    version_manage: '版本管理',
+    app_manage: '应用管理',
+    desc: '项目描述',
+    manage_people: '管理员',
+    creator: '创建人',
+    create_time: '创建时间',
+    member_desc: '添加项目成员以及项目成员管理',
+    env_desc: '项目运行环境以及全局配置',
+    file_desc: 'jar包以及资源文件管理',
+    log_desc: '项目全部操作过程',
+    code_segment_desc: '自定义代码片段'
   },
   member: {
     create: '添加成员',
@@ -827,11 +844,13 @@ export default {
     copy: "复制测试",
     batch_add_parameter: "格式：参数名:参数值 <br/> 如：Accept-Encoding:utf-8",
     jar_config: {
-      title: "jar包管理",
+      title: "上传jar包",
       jar_file: "jar包",
       delete_tip: "删除需重启服务后生效",
       file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
+      upload_limit_size_warn: "上传文件大小不能超过 {0} MB!",
+      upload_limit: "上传文件大小不能超过",
     },
     batch_menus: {
       select_all_data: "选择所有数据(共{0}条)",
@@ -1798,7 +1817,7 @@ export default {
       add_issue: "添加缺陷",
       issue_list: "缺陷列表",
       search_name: "根据标题搜索",
-      platform_tip: "在系统设置-组织-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台",
+      platform_tip: "在系统设置-工作空间-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台",
       input_title: "请输入标题",
       id: "缺陷ID",
       title: "缺陷标题",

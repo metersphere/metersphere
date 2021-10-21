@@ -196,6 +196,7 @@ export default {
       indirect: 'Indirect Link',
 
     },
+    project_setting: "Project Setting",
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -542,7 +543,23 @@ export default {
       exception_handle: "Exception handling",
       stop_test: "Terminate the test",
       report_handle: "Message processing"
-    }
+    },
+    info: 'INFO',
+    member: 'Member',
+    env: 'ENVIRONMENT',
+    file_manage: 'FILE',
+    log: 'LOG',
+    version_manage: 'VERSION',
+    app_manage: 'APPLICATION',
+    desc: 'Project Description',
+    manage_people: 'Project Manager',
+    creator: 'Creator',
+    create_time: 'CreateTime',
+    member_desc: 'Project member management',
+    env_desc: 'Project operating environment',
+    file_desc: 'Jar package and resource file management',
+    log_desc: 'The whole operation process of the project',
+    code_segment_desc: 'Custom code snippet'
   },
   member: {
     create: 'Create',
@@ -821,11 +838,13 @@ export default {
     enable_validate_tip: "No request available",
     copy: "Copy Test",
     jar_config: {
-      title: "The Jar Package Management",
+      title: "Upload jar package",
       jar_file: "Jar package",
       delete_tip: "The deletion takes effect after the service is restarted",
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
+      upload_limit_size_warn: "Upload file size cannot exceed {0} MB!",
+      upload_limit: "Upload file size cannot exceed",
     },
     batch_menus: {
       select_all_data: "Select all datas({0})",
@@ -1789,7 +1808,7 @@ export default {
       add_issue: "Add Issue",
       issue_list: "Issue List",
       search_name: "Search for title",
-      platform_tip: "Integrated defect management platform in the system setting-organization-service integration can automatically submit defects to the designated defect management platform",
+      platform_tip: "Integrated defect management platform in the system setting-workspace-service integration can automatically submit defects to the designated defect management platform",
       input_title: "Please enter title",
       id: "Issue ID",
       title: "Issue Title",

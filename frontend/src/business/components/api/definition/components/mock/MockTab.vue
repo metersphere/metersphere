@@ -61,7 +61,7 @@
         </ms-table-column>
       </ms-table>
     </div>
-    <mock-edit-drawer :api-id="this.baseMockConfigData.mockConfig.apiId" @refreshMockInfo="refreshMockInfo" :mock-config-id="mockConfigData.mockConfig.id" ref="mockEditDrawer"/>
+    <mock-edit-drawer :is-tcp="isTcp" :api-id="this.baseMockConfigData.mockConfig.apiId" @refreshMockInfo="refreshMockInfo" :mock-config-id="mockConfigData.mockConfig.id" ref="mockEditDrawer"/>
   </div>
 </template>
 
@@ -80,7 +80,11 @@ export default {
     MsTable,MsTableColumn,MsTag
   },
   props: {
-    baseMockConfigData: {}
+    baseMockConfigData: {},
+    isTcp:{
+      type:Boolean,
+      default:false,
+    },
   },
   data() {
     return {

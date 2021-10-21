@@ -27,6 +27,11 @@
       {{ $t('commons.report_statistics.title') }}
     </el-menu-item>
 
+    <el-menu-item index="/project" onselectstart="return false"
+                  v-permission="['PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ']">
+      {{$t('commons.project_setting')}}
+    </el-menu-item>
+
     <el-menu-item index="/setting" onselectstart="return false">
       {{ $t('commons.system_setting') }}
     </el-menu-item>

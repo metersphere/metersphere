@@ -322,7 +322,7 @@
       <ms-change-history ref="changeHistory"/>
       <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
     </div>
-    <ms-task-center ref="taskCenter"/>
+    <ms-task-center ref="taskCenter" :show-menu="false"/>
   </el-card>
 </template>
 

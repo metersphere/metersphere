@@ -7,10 +7,14 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.controller.request.HeaderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.SystemStatisticData;
 import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.domain.MailInfo;
+import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.UserService;
+import io.metersphere.service.WorkspaceService;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +29,12 @@ public class SystemParameterController {
     private SystemParameterService SystemParameterService;
     @Resource
     private Environment env;
+    @Resource
+    private UserService userService;
+    @Resource
+    private WorkspaceService workspaceService;
+    @Resource
+    private ProjectService projectService;
 
     @PostMapping("/edit/email")
     @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "邮件设置", beforeEvent = "#msClass.getMailLogDetails()", content = "#msClass.getMailLogDetails()", msClass = SystemParameterService.class)
@@ -99,4 +109,29 @@ public class SystemParameterController {
     public UserHeader getHeaderInfo(@RequestBody HeaderRequest headerRequest) {
         return SystemParameterService.queryUserHeader(headerRequest);
     }
+
+    @GetMapping("/statistics/data")
+    public SystemStatisticData getStatisticsData() {
+        SystemStatisticData systemStatisticData = new SystemStatisticData();
+        long userSize = userService.getUserSize();
+        long workspaceSize = workspaceService.getWorkspaceSize();
+        long projectSize = projectService.getProjectSize();
+        systemStatisticData.setUserSize(userSize);
+        systemStatisticData.setWorkspaceSize(workspaceSize);
+        systemStatisticData.setProjectSize(projectSize);
+        return systemStatisticData;
+    }
+
+    @GetMapping("/get/info/{key}")
+    public SystemParameter getInfo(@PathVariable String key) {
+        return SystemParameterService.getInfo(key);
+    }
+
+    @PostMapping("/edit/info")
+    public SystemParameter editInfo(@RequestBody SystemParameter systemParameter) {
+        SystemParameterService.editInfo(systemParameter);
+        return systemParameter;
+    }
+
+
 }

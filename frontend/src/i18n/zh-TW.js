@@ -200,6 +200,7 @@ export default {
     table: {
       select_tip: "已選中 {0} 條數據"
     },
+    project_setting: '項目設置',
     selector: {
       required: "必填",
       not_required: "非必填",
@@ -546,7 +547,23 @@ export default {
       exception_handle: "異常處理",
       stop_test: "終止測試",
       report_handle: "報文處理"
-    }
+    },
+    info: '項目信息',
+    member: '項目成員',
+    env: '項目環境',
+    file_manage: '文件管理',
+    log: '操作日誌',
+    version_manage: '版本管理',
+    app_manage: '應用管理',
+    desc: '項目描述',
+    manage_people: '管理員',
+    creator: '創建人',
+    create_time: '創建時間',
+    member_desc: '添加項目成員以及項目成員管理',
+    env_desc: '項目運行環境以及全局配置',
+    file_desc: 'jar包以及資源文件管理',
+    log_desc: '項目全部操作過程',
+    code_segment_desc: '自定義代碼片段'
   },
   member: {
     create: '添加成員',
@@ -827,11 +844,13 @@ export default {
     copy: "復製測試",
     batch_add_parameter: "格式：參數名:參數值 <br/> 如：Accept-Encoding:utf-8",
     jar_config: {
-      title: "jar包管理",
+      title: "上傳jar包",
       jar_file: "jar包",
       delete_tip: "刪除需重啟服務後生效",
       file_exist: "該項目下已存在該jar包",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
+      upload_limit_size_warn: "上傳文件大小不能超過 {0} MB!",
+      upload_limit: "上傳文件大小不能超過",
     },
     batch_menus: {
       select_all_data: "選擇所有數據(共{0}條)",
@@ -1798,7 +1817,7 @@ export default {
       add_issue: "添加缺陷",
       issue_list: "缺陷列表",
       search_name: "根據標題搜索",
-      platform_tip: "在系統設置-組織-服務集成中集成缺陷管理平臺可以自動提交缺陷到指定缺陷管理平臺",
+      platform_tip: "在系統設置-工作空間-服務集成中集成缺陷管理平臺可以自動提交缺陷到指定缺陷管理平臺",
       input_title: "請輸入標題",
       id: "缺陷ID",
       title: "缺陷標題",

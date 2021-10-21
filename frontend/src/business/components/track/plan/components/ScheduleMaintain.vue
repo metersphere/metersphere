@@ -120,9 +120,9 @@
 
 <script>
 import {
-  getCurrentOrganizationId,
   getCurrentProjectID,
-  getCurrentUser, getCurrentWorkspaceId,
+  getCurrentUser,
+  getCurrentWorkspaceId,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -253,15 +253,9 @@ export default {
       });
     },
     initUserList() {
-      let param = {
-        name: '',
-        organizationId: getCurrentOrganizationId()
-      };
-
-      this.result = this.$post('user/org/member/list/all', param, response => {
+      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
         this.scheduleReceiverOptions = response.data;
       });
-
     },
     buildParam() {
       let param = {};
@@ -295,7 +289,7 @@ export default {
       this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" + taskType, response => {
         if (response.data != null) {
           this.schedule = response.data;
-          if(response.data.config){
+          if (response.data.config) {
             this.runConfig = JSON.parse(response.data.config);
           }
         } else {

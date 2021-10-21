@@ -18,7 +18,7 @@
       <el-col :span="menuSpan" class="script-index">
         <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" style="margin-bottom: 5px;margin-left: 15px;"
                      @command="languageChange"/>
-        <mock-script-nav-menu ref="scriptNavMenu" :language="jsr223ProcessorData.scriptLanguage" :menus="codeTemplates"
+        <mock-script-nav-menu ref="scriptNavMenu" :language="jsr223ProcessorData.scriptLanguage" :menus="baseCodeTemplates"
                          @handleCode="handleCodeTemplate"/>
       </el-col>
     </el-row>
@@ -29,8 +29,8 @@
 
 import MsCodeEdit from "@/business/components/api/definition/components/MsCodeEdit";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
-import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
-import ApiFuncRelevance from "@/business/components/settings/project/function/ApiFuncRelevance";
+import CustomFunctionRelate from "@/business/components/project/menu/function/CustomFunctionRelate";
+import ApiFuncRelevance from "@/business/components/project/menu/function/ApiFuncRelevance";
 import MockScriptNavMenu from "@/business/components/api/definition/components/mock/Components/MockScriptNavMenu";
 
 export default {
@@ -39,7 +39,8 @@ export default {
   data() {
     return {
       jsr223ProcessorData: {},
-      codeTemplates: [
+      baseCodeTemplates: [],
+      httpCodeTemplates: [
         {
           title: "API"+this.$t('api_test.definition.document.request_info'),
           children: [
@@ -80,6 +81,17 @@ export default {
           ]
         },
       ],
+      tcpCodeTemplates: [
+        {
+          title: this.$t('project.code_segment.code_segment'),
+          children: [
+            {
+              title: this.$t('project.code_segment.insert_segment'),
+              command: "custom_function",
+            }
+          ]
+        },
+      ],
       isCodeEditAlive: true,
       languages: [
         'beanshell',"groovy"
@@ -99,6 +111,11 @@ export default {
   },
   created() {
     this.jsr223ProcessorData = this.jsr223Processor;
+    if(this.showApi){
+      this.baseCodeTemplates = this.httpCodeTemplates;
+    }else {
+      this.baseCodeTemplates = this.tcpCodeTemplates;
+    }
   },
   props: {
     isReadOnly: {
@@ -108,6 +125,10 @@ export default {
     },
     jsr223Processor: {
       type: Object,
+    },
+    showApi:{
+      type:Boolean,
+      default:true,
     },
     node: {},
   },

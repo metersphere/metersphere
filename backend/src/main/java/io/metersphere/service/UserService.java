@@ -5,7 +5,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.*;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
+import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -15,14 +17,16 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
+import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
 import io.metersphere.controller.request.member.EditPassWordRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.member.UserRequest;
-import io.metersphere.controller.request.organization.AddOrgMemberRequest;
-import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
-import io.metersphere.dto.*;
+import io.metersphere.dto.GroupResourceDTO;
+import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserGroupPermissionDTO;
+import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.UserDataListener;
@@ -64,22 +68,12 @@ public class UserService {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private RoleMapper roleMapper;
-    @Resource
-    private UserRoleMapper userRoleMapper;
-    @Resource
-    private ExtUserRoleMapper extUserRoleMapper;
-    @Resource
-    private OrganizationMapper organizationMapper;
-    @Resource
     private WorkspaceMapper workspaceMapper;
     @Resource
     private ExtUserMapper extUserMapper;
     @Lazy
     @Resource
     private WorkspaceService workspaceService;
-    @Resource
-    private ExtOrganizationMapper extOrganizationMapper;
     @Resource
     private UserGroupMapper userGroupMapper;
     @Resource
@@ -89,7 +83,7 @@ public class UserService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
-    private UserRoleService userRoleService;
+    private UserGroupService userGroupService;
     @Resource
     private ExtUserGroupMapper extUserGroupMapper;
     @Resource
@@ -174,36 +168,6 @@ public class UserService {
         }
         return user;
 
-    }
-
-    private void insertUserRole(List<Map<String, Object>> roles, String userId) {
-        for (int i = 0; i < roles.size(); i++) {
-            Map<String, Object> map = roles.get(i);
-            String role = (String) map.get("id");
-            if (StringUtils.equals(role, RoleConstants.ADMIN)) {
-                UserRole userRole = new UserRole();
-                userRole.setId(UUID.randomUUID().toString());
-                userRole.setUserId(userId);
-                userRole.setUpdateTime(System.currentTimeMillis());
-                userRole.setCreateTime(System.currentTimeMillis());
-                userRole.setRoleId(role);
-                // TODO 修改
-                userRole.setSourceId("adminSourceId");
-                userRoleMapper.insertSelective(userRole);
-            } else {
-                List<String> list = (List<String>) map.get("ids");
-                for (int j = 0; j < list.size(); j++) {
-                    UserRole userRole1 = new UserRole();
-                    userRole1.setId(UUID.randomUUID().toString());
-                    userRole1.setUserId(userId);
-                    userRole1.setRoleId(role);
-                    userRole1.setUpdateTime(System.currentTimeMillis());
-                    userRole1.setCreateTime(System.currentTimeMillis());
-                    userRole1.setSourceId(list.get(j));
-                    userRoleMapper.insertSelective(userRole1);
-                }
-            }
-        }
     }
 
     private void checkUserParam(User user) {
@@ -340,30 +304,6 @@ public class UserService {
         return getUserDTO(users.get(0).getId());
     }
 
-    public UserRoleDTO getUserRole(String userId) {
-        UserRoleDTO userRoleDTO = new UserRoleDTO();
-        //
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andUserIdEqualTo(userId);
-        List<UserRole> userRoleList = userRoleMapper.selectByExample(userRoleExample);
-
-        if (CollectionUtils.isEmpty(userRoleList)) {
-            return userRoleDTO;
-        }
-        // 设置 user_role
-        userRoleDTO.setUserRoles(userRoleList);
-
-        List<String> roleIds = userRoleList.stream().map(UserRole::getRoleId).collect(Collectors.toList());
-
-        RoleExample roleExample = new RoleExample();
-        roleExample.createCriteria().andIdIn(roleIds);
-
-        List<Role> roleList = roleMapper.selectByExample(roleExample);
-        userRoleDTO.setRoles(roleList);
-
-        return userRoleDTO;
-    }
-
     public List<User> getUserList() {
         UserExample example = new UserExample();
         example.setOrderByClause("update_time desc");
@@ -395,8 +335,7 @@ public class UserService {
         List<String> list = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(list)) {
-            if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
-                user.setLastOrganizationId(null);
+            if (list.contains(user.getLastWorkspaceId())) {
                 user.setLastWorkspaceId(null);
                 userMapper.updateByPrimaryKeySelective(user);
             }
@@ -445,25 +384,8 @@ public class UserService {
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
 
-        if (StringUtils.equals("organization", sign)) {
-            user.setLastOrganizationId(sourceId);
-            List<Workspace> workspaces = workspaceService.getWorkspaceListByOrgIdAndUserId(user.getId(), sourceId);
-            if (workspaces.size() > 0) {
-                user.setLastWorkspaceId(workspaces.get(0).getId());
-                List<Project> projects = getProjectListByWsAndUserId(workspaces.get(0).getId());
-                if (projects.size() > 0) {
-                    user.setLastProjectId(projects.get(0).getId());
-                } else {
-                    user.setLastProjectId("");
-                }
-            } else {
-                user.setLastWorkspaceId("");
-                user.setLastProjectId("");
-            }
-        }
         if (StringUtils.equals("workspace", sign)) {
             Workspace workspace = workspaceMapper.selectByPrimaryKey(sourceId);
-            user.setLastOrganizationId(workspace.getOrganizationId());
             user.setLastWorkspaceId(sourceId);
             List<Project> projects = getProjectListByWsAndUserId(sourceId);
             if (projects.size() > 0) {
@@ -548,65 +470,10 @@ public class UserService {
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(workspaceId, user.getLastWorkspaceId())) {
             user.setLastWorkspaceId("");
-            user.setLastOrganizationId("");
             userMapper.updateByPrimaryKeySelective(user);
         }
 
         userGroupMapper.deleteByExample(userGroupExample);
-    }
-
-    public void addOrganizationMember(AddOrgMemberRequest request) {
-        if (!CollectionUtils.isEmpty(request.getUserIds())) {
-            for (String userId : request.getUserIds()) {
-                UserGroupExample userGroupExample = new UserGroupExample();
-                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
-                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-                if (userGroups.size() > 0) {
-                    MSException.throwException(Translator.get("user_already_exists") + ": " + userId);
-                } else {
-                    for (String groupId : request.getGroupIds()) {
-                        UserGroup userGroup = new UserGroup();
-                        userGroup.setId(UUID.randomUUID().toString());
-                        userGroup.setUserId(userId);
-                        userGroup.setGroupId(groupId);
-                        userGroup.setSourceId(request.getOrganizationId());
-                        userGroup.setCreateTime(System.currentTimeMillis());
-                        userGroup.setUpdateTime(System.currentTimeMillis());
-                        userGroupMapper.insertSelective(userGroup);
-                    }
-                }
-            }
-        }
-    }
-
-    public void delOrganizationMember(String organizationId, String userId) {
-
-        GroupExample groupExample = new GroupExample();
-        groupExample.createCriteria().andTypeEqualTo(UserGroupType.ORGANIZATION);
-        List<Group> groups = groupMapper.selectByExample(groupExample);
-        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
-
-        if (CollectionUtils.isEmpty(groupIds)) {
-            return;
-        }
-
-        UserGroupExample userGroupExample = new UserGroupExample();
-        userGroupExample.createCriteria().andUserIdEqualTo(userId)
-                .andGroupIdIn(groupIds)
-                .andSourceIdEqualTo(organizationId);
-
-        User user = userMapper.selectByPrimaryKey(userId);
-        if (StringUtils.equals(organizationId, user.getLastOrganizationId())) {
-            user.setLastWorkspaceId("");
-            user.setLastOrganizationId("");
-            userMapper.updateByPrimaryKeySelective(user);
-        }
-
-        userGroupMapper.deleteByExample(userGroupExample);
-    }
-
-    public List<User> getOrgMemberList(QueryOrgMemberRequest request) {
-        return extUserGroupMapper.getOrgMemberList(request);
     }
 
     public boolean checkUserPassword(String userId, String password) {
@@ -619,13 +486,6 @@ public class UserService {
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
         return userMapper.countByExample(example) > 0;
-    }
-
-    /**
-     * 查询该组织外的其他用户列表
-     */
-    public List<User> getBesideOrgMemberList(String orgId) {
-        return extUserRoleMapper.getBesideOrgMemberList(orgId);
     }
 
     public void setLanguage(String lang) {
@@ -643,8 +503,7 @@ public class UserService {
         // 获取最新UserDTO
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
-        if (StringUtils.equals("organization", sign) && StringUtils.equals(sourceId, user.getLastOrganizationId())) {
-            user.setLastOrganizationId("");
+        if (StringUtils.equals("organization", sign)) {
             user.setLastWorkspaceId("");
         }
         if (StringUtils.equals("workspace", sign) && StringUtils.equals(sourceId, user.getLastWorkspaceId())) {
@@ -697,10 +556,6 @@ public class UserService {
     public String getDefaultLanguage() {
         final String key = "default.language";
         return extUserMapper.getDefaultLanguage(key);
-    }
-
-    public List<User> getTestManagerAndTestUserList(QueryMemberRequest request) {
-        return extUserRoleMapper.getTestManagerAndTestUserList(request);
     }
 
     public ResultHolder login(LoginRequest request) {
@@ -757,27 +612,16 @@ public class UserService {
         List<UserGroup> project = userGroups.stream().filter(ug -> projectGroupIds.contains(ug.getGroupId()))
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(project)) {
-            // 项目用户组为空切换工作空间
-            List<String> orgIds = user.getGroups()
-                    .stream()
-                    .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.ORGANIZATION))
-                    .map(Group::getId)
-                    .collect(Collectors.toList());
-            List<String> testIds = user.getGroups()
+            List<String> workspaceIds = user.getGroups()
                     .stream()
                     .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.WORKSPACE))
                     .map(Group::getId)
                     .collect(Collectors.toList());
-            List<UserGroup> org = userGroups.stream().filter(ug -> orgIds.contains(ug.getGroupId()))
+            List<UserGroup> workspaces = userGroups.stream().filter(ug -> workspaceIds.contains(ug.getGroupId()))
                     .collect(Collectors.toList());
-            List<UserGroup> test = userGroups.stream().filter(ug -> testIds.contains(ug.getGroupId()))
-                    .collect(Collectors.toList());
-            if (test.size() > 0) {
-                String wsId = test.get(0).getSourceId();
+            if (workspaces.size() > 0) {
+                String wsId = workspaces.get(0).getSourceId();
                 switchUserRole("workspace", wsId);
-            } else if (org.size() > 0) {
-                String orgId = org.get(0).getSourceId();
-                switchUserRole("organization", orgId);
             }
         } else {
             UserGroup userGroup = project.stream().filter(p -> StringUtils.isNotBlank(p.getSourceId()))
@@ -785,16 +629,12 @@ public class UserService {
             String projectId = userGroup.getSourceId();
             Project p = projectMapper.selectByPrimaryKey(projectId);
             String wsId = p.getWorkspaceId();
-            Workspace workspace = workspaceMapper.selectByPrimaryKey(wsId);
-            String orgId = workspace.getOrganizationId();
             user.setId(user.getId());
             user.setLastProjectId(projectId);
             user.setLastWorkspaceId(wsId);
-            user.setLastOrganizationId(orgId);
             updateUser(user);
             SessionUtils.putUser(SessionUser.fromUser(user));
         }
-
     }
 
     public List<User> searchUser(String condition) {
@@ -827,20 +667,16 @@ public class UserService {
             data.setEmail(Translator.get("required"));
             data.setUserIsAdmin(Translator.get("options_no"));
             data.setUserIsTester(Translator.get("options_no"));
-            data.setUserIsOrgMember(Translator.get("options_no"));
             data.setUserIsViewer(Translator.get("options_no"));
             data.setUserIsTestManager(Translator.get("options_no"));
             data.setUserIsProjectAdmin(Translator.get("options_no"));
             data.setUserIsProjectMember(Translator.get("options_no"));
-            data.setUserIsOrgAdmin(Translator.get("options_yes"));
-            data.setOrgAdminOrganization("默认组织");
             list.add(data);
         }
         list.add(new UserExcelData());
         UserExcelData explain = new UserExcelData();
         explain.setId("ID不支持中文");
         explain.setName(Translator.get("do_not_modify_header_order"));
-        explain.setOrgAdminOrganization("多个组织请换行展示");
         explain.setPassword(Translator.get("required") + ";" + Translator.get("password_format_is_incorrect"));
         list.add(explain);
         return list;
@@ -856,15 +692,10 @@ public class UserService {
         try {
             Class clazz = new UserExcelDataFactory().getExcelDataByLocal();
 
-            Map<String, String> orgNameMap = new HashMap<>();
             Map<String, String> workspaceNameMap = new HashMap<>();
             Map<String, String> projectNameMap = new HashMap<>();
 
-            List<OrganizationMemberDTO> organizationList = extOrganizationMapper.findIdAndNameByOrganizationId("All");
-            for (OrganizationMemberDTO model : organizationList) {
-                orgNameMap.put(model.getName(), model.getId());
-            }
-            List<WorkspaceDTO> workspaceList = workspaceService.findIdAndNameByOrganizationId("All");
+            List<WorkspaceDTO> workspaceList = workspaceService.getAllWorkspaceList(new WorkspaceRequest());
             for (WorkspaceDTO model : workspaceList) {
                 workspaceNameMap.put(model.getName(), model.getId());
             }
@@ -873,7 +704,7 @@ public class UserService {
                 projectNameMap.put(pro.getName(), pro.getId());
             }
 
-            EasyExcelListener easyExcelListener = new UserDataListener(clazz, workspaceNameMap, orgNameMap, projectNameMap);
+            EasyExcelListener easyExcelListener = new UserDataListener(clazz, workspaceNameMap, projectNameMap);
             EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
             if (CollectionUtils.isNotEmpty(((UserDataListener) easyExcelListener).getNames())) {
                 request.setAttribute("ms-req-title", String.join(",", ((UserDataListener) easyExcelListener).getNames()));
@@ -1012,11 +843,8 @@ public class UserService {
 
         if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             List<String> userIdList = new ArrayList<>();
-            if (StringUtils.isEmpty(request.getOrganizationId())) {
+            if (StringUtils.isEmpty(request.getWorkspaceId())) {
                 userIdList = extUserMapper.selectIdsByQuery(request.getCondition());
-            } else {
-                //组织->成员 页面发起的请求
-                userIdList = extUserRoleMapper.selectIdsByQuery(request.getOrganizationId(), request.getCondition());
             }
 
             return userIdList;
@@ -1024,86 +852,6 @@ public class UserService {
             return request.getIds();
         }
 
-    }
-
-    private Map<String, List<String>> genRoleResourceMap(List<String> batchProcessValue) {
-        Map<String, List<String>> returnMap = new HashMap<>();
-        Map<String, String> workspaceToOrgMap = new HashMap<>();
-        for (String string : batchProcessValue) {
-            String[] stringArr = string.split("<->");
-            // string格式： 资源ID<->权限<->workspace/org
-            if (stringArr.length == 3) {
-                String resourceID = stringArr[0];
-                String role = stringArr[1];
-                String sourceType = stringArr[2];
-                String finalResourceId = resourceID;
-                if (StringUtils.equalsIgnoreCase(sourceType, "workspace")) {
-                    if (StringUtils.equalsAnyIgnoreCase(role, RoleConstants.ORG_ADMIN, RoleConstants.ORG_MEMBER)) {
-                        finalResourceId = workspaceToOrgMap.get(resourceID);
-                        if (finalResourceId == null) {
-                            finalResourceId = workspaceService.getOrganizationIdById(resourceID);
-                            workspaceToOrgMap.put(resourceID, finalResourceId);
-                        }
-                    }
-                }
-                if (StringUtils.isNotEmpty(finalResourceId)) {
-                    if (returnMap.containsKey(role)) {
-                        if (!returnMap.get(role).contains(finalResourceId)) {
-                            returnMap.get(role).add(finalResourceId);
-                        }
-
-                    } else {
-                        List<String> list = new ArrayList<>();
-                        list.add(finalResourceId);
-                        returnMap.put(role, list);
-                    }
-                }
-            }
-        }
-        return returnMap;
-    }
-
-    private UserRequest convert2UserRequest(String userID, Map<String, List<String>> roleIdMap, List<UserRole> userRoles) {
-        Map<String, List<String>> userRoleAndResourceMap = userRoles.stream().collect(
-                Collectors.groupingBy(UserRole::getRoleId, Collectors.mapping(UserRole::getSourceId, Collectors.toList())));
-        List<Map<String, Object>> roles = new ArrayList<>();
-        for (Map.Entry<String, List<String>> entry : roleIdMap.entrySet()) {
-            String role = entry.getKey();
-            List<String> rawResourceIDList = entry.getValue();
-            List<String> resourceIDList = new ArrayList<>();
-            for (String resourceID : rawResourceIDList) {
-                if (userRoleAndResourceMap.containsKey(role) && userRoleAndResourceMap.get(role).contains(resourceID)) {
-                    continue;
-                }
-                resourceIDList.add(resourceID);
-            }
-            if (resourceIDList.isEmpty()) {
-                continue;
-            }
-            Map<String, Object> roleMap = new HashMap<>();
-            roleMap.put("id", role);
-            roleMap.put("ids", resourceIDList);
-            roles.add(roleMap);
-        }
-        UserRequest request = new UserRequest();
-        request.setId(userID);
-        request.setRoles(roles);
-        return request;
-    }
-
-    public void addUserWorkspaceAndRole(UserRequest user, List<UserRole> userRoles) {
-        List<Map<String, Object>> roles = user.getRoles();
-        if (!roles.isEmpty()) {
-            insertUserRole(roles, user.getId());
-        }
-        List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(list)) {
-            if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
-                user.setLastOrganizationId("");
-                user.setLastWorkspaceId("");
-                userMapper.updateByPrimaryKeySelective(user);
-            }
-        }
     }
 
     public Set<String> getUserPermission(String userId) {
@@ -1190,18 +938,12 @@ public class UserService {
     }
 
     private String getRoles(String userId) {
-        List<Map<String, Object>> maps = userRoleService.getUserGroup(userId);
+        List<Map<String, Object>> maps = userGroupService.getUserGroup(userId);
         List<String> colNames = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(maps)) {
             for (Map<String, Object> map : maps) {
                 String id = map.get("id").toString();
-                OrganizationExample example = new OrganizationExample();
-                example.createCriteria().andIdIn((List<String>) map.get("ids"));
-                List<Organization> list = organizationMapper.selectByExample(example);
                 List<String> names = new LinkedList<>();
-                if (CollectionUtils.isNotEmpty(list)) {
-                    names = list.stream().map(Organization::getName).collect(Collectors.toList());
-                }
                 WorkspaceExample workspaceExample = new WorkspaceExample();
                 workspaceExample.createCriteria().andIdIn((List<String>) map.get("ids"));
                 List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
@@ -1322,29 +1064,17 @@ public class UserService {
         return extUserGroupMapper.getProjectMemberList(request);
     }
 
-    public List<User> getOrgAllMember(QueryOrgMemberRequest request) {
-        String orgId = request.getOrganizationId();
-        if (StringUtils.isBlank(orgId)) {
+    public List<User> getWsAllMember(String workspaceId) {
+        List<String> sourceIds = new ArrayList<>();
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        if (CollectionUtils.isEmpty(projectList)) {
             return new ArrayList<>();
         }
-        List<String> sourceIds = new ArrayList<>();
-        sourceIds.add(orgId);
 
-        WorkspaceExample workspaceExample = new WorkspaceExample();
-        workspaceExample.createCriteria().andOrganizationIdEqualTo(orgId);
-        List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
-        if (CollectionUtils.isNotEmpty(workspaces)) {
-            List<String> wsIds = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
-            sourceIds.addAll(wsIds);
-            ProjectExample projectExample = new ProjectExample();
-            projectExample.createCriteria().andWorkspaceIdIn(wsIds);
-            List<Project> projectList = projectMapper.selectByExample(projectExample);
-            if (CollectionUtils.isNotEmpty(projectList)) {
-                List<String> proIds = projectList.stream().map(Project::getId).collect(Collectors.toList());
-                sourceIds.addAll(proIds);
-            }
-        }
-
+        List<String> proIds = projectList.stream().map(Project::getId).collect(Collectors.toList());
+        sourceIds.addAll(proIds);
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria().andSourceIdIn(sourceIds);
         List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
@@ -1366,8 +1096,7 @@ public class UserService {
         List<String> list = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(list)) {
-            if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
-                user.setLastOrganizationId("");
+            if (list.contains(user.getLastWorkspaceId())) {
                 user.setLastWorkspaceId("");
                 userMapper.updateByPrimaryKeySelective(user);
             }
@@ -1446,14 +1175,14 @@ public class UserService {
         return SessionUtils.getUser();
     }
 
-    public UserDTO.PlatformInfo getCurrentPlatformInfo(String orgId) {
+    public UserDTO.PlatformInfo getCurrentPlatformInfo(String workspaceId) {
         User user = userMapper.selectByPrimaryKey(SessionUtils.getUserId());
         String platformInfoStr = user.getPlatformInfo();
-        if (StringUtils.isBlank(orgId) || StringUtils.isBlank(platformInfoStr)) {
+        if (StringUtils.isBlank(workspaceId) || StringUtils.isBlank(platformInfoStr)) {
             return null;
         }
         JSONObject platformInfos = JSONObject.parseObject(platformInfoStr);
-        JSONObject platformInfo = platformInfos.getJSONObject(orgId);
+        JSONObject platformInfo = platformInfos.getJSONObject(workspaceId);
         if (platformInfo == null) {
             return null;
         }
@@ -1465,11 +1194,13 @@ public class UserService {
         if (project == null) {
             return;
         }
-        Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
         SessionUser user = SessionUtils.getUser();
         user.setLastProjectId(project.getId());
         user.setLastWorkspaceId(project.getWorkspaceId());
-        user.setLastOrganizationId(workspace.getOrganizationId());
         userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    public long getUserSize() {
+        return userMapper.countByExample(new UserExample());
     }
 }

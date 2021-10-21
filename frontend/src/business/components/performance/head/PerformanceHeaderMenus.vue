@@ -2,7 +2,7 @@
   <div id="menu-bar">
     <el-row type="flex">
       <project-change :project-name="currentProject"/>
-      <el-col :span="9">
+      <el-col :span="12">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active="pathName">
           <el-menu-item :index="'/performance/home'">
             {{ $t("i18n.home") }}
@@ -15,19 +15,13 @@
           </el-menu-item>
         </el-menu>
       </el-col>
-      <el-col :span="4">
-        <el-row type="flex" justify="center" v-permission="['PROJECT_PERFORMANCE_TEST:READ+CREATE']">
-          <ms-create-test :to="'/performance/test/create'"/>
-        </el-row>
-      </el-col>
-      <el-col :span="11"/>
+      <el-col :span="12"/>
     </el-row>
   </div>
 </template>
 
 <script>
 
-import MsCreateTest from "../../common/head/CreateTest";
 import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
 import MsShowAll from "../../common/head/ShowAll";
@@ -42,7 +36,6 @@ export default {
     MsCreateButton,
     MsShowAll,
     MsRecentList,
-    MsCreateTest
   },
   data() {
     return {

@@ -828,17 +828,13 @@ public class TestPlanReportService {
         assert noticeSendService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url = baseSystemConfigDTO.getUrl() + "/#/track/testPlan/reportList";
-        String successContext = "";
-        String failedContext = "";
         String subject = "";
         String event = "";
+        String successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
+        String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
         if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.API.name())) {
-            successContext = "测试计划jenkins任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "测试计划jenkins任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification_jenkins");
         } else {
-            successContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification");
         }
 

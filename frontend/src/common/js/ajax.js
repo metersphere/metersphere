@@ -2,7 +2,7 @@ import {Message, MessageBox} from 'element-ui';
 import axios from "axios";
 import i18n from '../../i18n/i18n';
 import {TokenKey} from "@/common/js/constants";
-import {getCurrentOrganizationId, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export function registerRequestHeaders() {
   axios.interceptors.request.use(config => {
@@ -10,8 +10,7 @@ export function registerRequestHeaders() {
     if (user && user.csrfToken) {
       config.headers['CSRF-TOKEN'] = user.csrfToken;
     }
-    // 包含 组织 工作空间 项目的标识
-    config.headers['ORGANIZATION_ID'] = getCurrentOrganizationId();
+    // 包含 工作空间 项目的标识
     config.headers['WORKSPACE_ID'] = getCurrentWorkspaceId();
     config.headers['PROJECT_ID'] = getCurrentProjectID();
     return config;

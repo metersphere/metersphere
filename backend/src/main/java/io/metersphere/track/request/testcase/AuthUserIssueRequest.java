@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AuthUserIssueRequest extends UserDTO.PlatformInfo {
-    private String orgId;
+    private String workspaceId;
     private String platform;
 }

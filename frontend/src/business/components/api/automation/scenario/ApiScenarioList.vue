@@ -237,7 +237,7 @@
     <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
     <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
             :run-data="debugData" ref="runTest"/>
-    <ms-task-center ref="taskCenter"/>
+    <ms-task-center ref="taskCenter" :show-menu="false"/>
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
 
   </div>

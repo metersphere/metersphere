@@ -51,7 +51,6 @@
 
 <script>
 import {
-  getCurrentOrganizationId,
   getCurrentProjectID,
   getCurrentUser, getCurrentWorkspaceId,
   listenGoBack,
@@ -175,12 +174,7 @@ export default {
       });
     },
     initUserList() {
-      let param = {
-        name: '',
-        organizationId: getCurrentOrganizationId()
-      };
-
-      this.result = this.$post('user/org/member/list/all', param, response => {
+      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
         this.scheduleReceiverOptions = response.data;
       });
 
