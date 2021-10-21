@@ -574,6 +574,15 @@
         </foreach>
         and (test_case.status != 'Trash' or test_case.status is NULL);
     </select>
+    <select id="countByIds" resultType="java.lang.Integer">
+        select count(id)
+        from test_case
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and (test_case.status != 'Trash' or test_case.status is NULL);
+    </select>
 
     <update id="deleteToGc">
         update test_case set original_status=status,

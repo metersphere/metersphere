@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.service.CustomFieldService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.JiraClientV2;
 import io.metersphere.track.issue.domain.Jira.JiraAddIssueResponse;
@@ -109,7 +110,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     public String parseIssueCustomField(String customFieldsStr, JiraIssue jiraIssue) {
-        List<CustomFieldItemDTO> customFields = getCustomFields(customFieldsStr);
+        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
         JSONObject fields = jiraIssue.getFields();
 
         customFields.forEach(item -> {
@@ -286,7 +287,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject addJiraIssueParam = new JSONObject();
         addJiraIssueParam.put("fields", fields);
 
-        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
+        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
         jiraClientV2.setConfig(config);
 
         customFields.forEach(item -> {

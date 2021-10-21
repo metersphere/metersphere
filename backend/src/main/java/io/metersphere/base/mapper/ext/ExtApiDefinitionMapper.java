@@ -76,4 +76,6 @@ public interface ExtApiDefinitionMapper {
     long countQuotedApiByProjectId(String projectId);
 
     List<RelationshipGraphData.Node> getForGraph(@Param("ids") Set<String> ids);
+
+    int countByIds(@Param("ids") List<String> ids);
 }

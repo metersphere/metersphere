@@ -26,6 +26,17 @@
         min-width="120">
       </ms-table-column>
 
+     <ms-table-column
+       prop="status"
+       min-width="120px"
+       :label="$t('api_test.definition.api_status')">
+       <template v-slot:default="scope">
+          <span class="el-dropdown-link">
+            <api-status :value="scope.row.status"/>
+          </span>
+       </template>
+     </ms-table-column>
+
     </ms-table>
 
     <api-relationship-relevance
@@ -46,9 +57,12 @@ import RelationshipFunctionalRelevance
 import {getRelationshipApi} from "@/network/api";
 import ApiRelationshipRelevance
   from "@/business/components/api/definition/components/complete/ApiRelationshipRelevance";
+import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 export default {
   name: "ApiRelationshipList",
-  components: {ApiRelationshipRelevance, RelationshipFunctionalRelevance, MsTableSearchBar, MsTableColumn, MsTable},
+  components: {
+    ApiStatus,
+    ApiRelationshipRelevance, RelationshipFunctionalRelevance, MsTableSearchBar, MsTableColumn, MsTable},
   data() {
     return {
       result: {},
@@ -74,6 +88,7 @@ export default {
     getTableData() {
       getRelationshipApi(this.apiDefinitionId, this.relationshipType, (data) => {
         this.data = data;
+        this.$emit('setCount', data.length);
       });
     },
     openRelevance() {

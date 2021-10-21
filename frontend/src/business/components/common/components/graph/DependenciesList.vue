@@ -1,11 +1,23 @@
 <template>
   <div class="dependencies-container">
-    <el-main v-xpack>
-      <i class="el-icon-view" @click="openGraph"></i>
-    </el-main>
 
-    <relationship-list :read-only="readOnly" :title="$t('commons.relationship.pre')" relationship-type="PRE" :resource-id="resourceId" :resource-type="resourceType" ref="preRelationshipList"/>
-    <relationship-list :read-only="readOnly" :title="$t('commons.relationship.post')" relationship-type="POST" :resource-id="resourceId" :resource-type="resourceType" ref="postRelationshipList"/>
+    <el-tooltip v-xpack class="item" effect="dark" :content="$t('commons.relationship.graph')" placement="left">
+      <font-awesome-icon class="graph-icon" :icon="['fas', 'sitemap']" size="lg" @click="openGraph"/>
+    </el-tooltip>
+
+    <relationship-list
+      class="pre-list"
+      :read-only="readOnly" :title="resourceType === 'TEST_CASE' ? $t('commons.relationship.pre_case') : $t('commons.relationship.pre_api')"
+      relationship-type="PRE" :resource-id="resourceId"
+      @setCount="setPreCount"
+      :resource-type="resourceType" ref="preRelationshipList"/>
+    <relationship-list
+      class="post-list"
+      :read-only="readOnly"
+      :title="resourceType === 'TEST_CASE' ? $t('commons.relationship.post_case') : $t('commons.relationship.post_api')"
+      relationship-type="POST" :resource-id="resourceId"
+      @setCount="setPostCount"
+      :resource-type="resourceType" ref="postRelationshipList"/>
 
     <relationship-graph-drawer v-permission :graph-data="graphData" ref="relationshipGraph"/>
 
@@ -26,7 +38,9 @@ export default {
   ],
   data() {
     return {
-      graphData: {}
+      graphData: {},
+      preCount: 0,
+      postCount: 0,
     }
   },
   methods: {
@@ -39,13 +53,26 @@ export default {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
       });
-    }
+    },
+    setPreCount(count) {
+      this.preCount = count;
+      this.$emit('setCount', this.preCount + this.postCount);
+    },
+    setPostCount(count) {
+      this.postCount = count;
+      this.$emit('setCount', this.preCount + this.postCount);
+    },
   }
 }
 </script>
 
 <style scoped>
-.dependencies-container .el-main {
+.post-list {
   margin-top: 20px;
+}
+
+.graph-icon {
+  float: right;
+  margin-right: 20px;
 }
 </style>
