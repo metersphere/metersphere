@@ -5,20 +5,22 @@
       <i class="el-icon-caret-bottom el-icon--right"/>
     </span>
     <template v-slot:dropdown>
-      <el-dropdown-menu class="ws-content" v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
+      <el-dropdown-menu v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
                   'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
                   'PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_CUSTOM_CODE:READ',
-                  'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ']">
+                  'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ']" style="margin-top: 5px;">
         <el-input :placeholder="$t('project.search_by_name')"
                   prefix-icon="el-icon-search"
                   v-model="searchString"
                   clearable
                   class="search-input"
                   size="small"/>
-        <el-dropdown-item :command="item" v-for="(item, index) in workspaceList" :key="index">
-          {{ item.name }}
-          <i class="el-icon-check" v-if="getCurrentWorkspaceId() === item.id"/>
-        </el-dropdown-item>
+        <div class="dropdown-content">
+          <el-dropdown-item :command="item" v-for="(item, index) in workspaceList" :key="index">
+            {{ item.name }}
+            <i class="el-icon-check" v-if="getCurrentWorkspaceId() === item.id"/>
+          </el-dropdown-item>
+        </div>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
@@ -170,29 +172,29 @@ export default {
   float: right;
 }
 
-.ws-content {
+.dropdown-content {
   height: 240px;
   overflow: auto;
-  margin-top: 5px;
+  /*margin-top: 5px;*/
 }
 
 /* 设置滚动条的样式 */
-.ws-content::-webkit-scrollbar {
+.dropdown-content::-webkit-scrollbar {
   width: 8px;
 }
 
 /* 滚动槽 */
-.ws-content::-webkit-scrollbar-track {
+.dropdown-content::-webkit-scrollbar-track {
   border-radius: 10px;
 }
 
 /* 滚动条滑块 */
-.ws-content::-webkit-scrollbar-thumb {
+.dropdown-content::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background: rgba(0, 0, 0, 0.2);
 }
 
-.ws-content::-webkit-scrollbar-thumb:window-inactive {
+.dropdown-content::-webkit-scrollbar-thumb:window-inactive {
   background: rgba(255, 0, 0, 0.4);
 }
 
