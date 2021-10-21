@@ -45,7 +45,7 @@ export default {
 </script>
 
 <style scoped>
-.dependencies-container .el-main:nth-child(3) {
+.dependencies-container .el-main {
   margin-top: 20px;
 }
 </style>
