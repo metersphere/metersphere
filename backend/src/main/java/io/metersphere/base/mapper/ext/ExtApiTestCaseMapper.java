@@ -64,4 +64,6 @@ public interface ExtApiTestCaseMapper {
      * @return ApiEnvironment
      */
     String getApiCaseEnvironment(@Param("caseId") String caseId);
+
+    int moduleCount(@Param("request")ApiTestCaseRequest request);
 }

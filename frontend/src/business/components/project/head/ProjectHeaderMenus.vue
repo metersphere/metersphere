@@ -20,12 +20,12 @@
                         popper-class="submenu">
             {{ $t('project.file_manage') }}
           </el-menu-item>
-          <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
-            {{ $t('project.log') }}
-          </el-menu-item>
           <el-menu-item :index="'/project/code/segment'" popper-class="submenu"
                         v-permission="['PROJECT_CUSTOM_CODE:READ']">
             {{ $t('project.code_segment.code_segment') }}
+          </el-menu-item>
+          <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
+            {{ $t('project.log') }}
           </el-menu-item>
           <el-menu-item popper-class="submenu" @click="clickPlanMenu" class="hidden-sm-and-down">
             {{ $t('project.version_manage') }}
