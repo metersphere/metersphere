@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row type="flex" :gutter="10">
+    <el-row type="flex">
       <el-col :span="codeSpan" class="script-content">
         <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223ProcessorData.scriptLanguage]"
                       :read-only="isReadOnly"
@@ -15,10 +15,10 @@
              @click="switchMenu"></i>
         </div>
       </div>
-      <el-col :span="menuSpan" class="script-index">
+      <el-col :span="menuSpan" style="width: 200px" class="script-index">
         <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" style="margin-bottom: 5px;margin-left: 15px;"
                      @command="languageChange"/>
-        <mock-script-nav-menu ref="scriptNavMenu" :language="jsr223ProcessorData.scriptLanguage" :menus="baseCodeTemplates"
+        <mock-script-nav-menu ref="scriptNavMenu" style="width: 90%" :language="jsr223ProcessorData.scriptLanguage" :menus="baseCodeTemplates"
                          @handleCode="handleCodeTemplate"/>
       </el-col>
     </el-row>
@@ -46,27 +46,27 @@ export default {
           children: [
             {
               title: this.$t('api_test.request.address'),
-              value: '\nreturnMsg.add(@address)\n',
+              value: 'returnMsg.add(@address);',
             },
             {
               title: "Header "+this.$t('api_test.definition.document.request_param'),
-              value: '\nreturnMsg.add(@header(${param}))\n',
+              value: 'returnMsg.add(@header(${param}));',
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable'),
-              value: '\nreturnMsg.add(@body(${param}))\n',
+              value: 'returnMsg.add(@body(${param}));',
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable')+" (Raw)",
-              value: '\nreturnMsg.add(@bodyRaw)\n',
+              value: 'returnMsg.add(@bodyRaw);',
             },
             {
               title: "Query "+this.$t('api_test.definition.document.request_param'),
-              value: '\nreturnMsg.add(@query(${param}))\n',
+              value: 'returnMsg.add(@query(${param}));',
             },
             {
               title: "Rest "+this.$t('api_test.definition.document.request_param'),
-              value: '\nreturnMsg.add(@rest(${param}))\n',
+              value: 'returnMsg.add(@rest(${param}));',
             },
 
           ]

@@ -5,7 +5,7 @@
       <el-collapse-transition>
         <el-tabs v-model="activeName" v-show="isActive" style="margin: 20px">
           <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-            <ms-api-key-value :isShowEnable="false" :suggestions="headerSuggestions" :items="response.headers"/>
+            <ms-api-key-value style="width: 95%" :isShowEnable="false" :suggestions="headerSuggestions" :items="response.headers"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
             <mock-api-response-body :isReadOnly="false" :isShowEnable="false" :api-id="apiId" :body="response.body" :headers="response.headers"/>
@@ -15,7 +15,7 @@
             <el-row>
               <el-col :span="2"/>
               <el-col :span="20">
-                <el-input class="ms-http-input" size="small" v-model="response.httpCode"/>
+                <el-input size="small" style="width: 180px;margin-top: 10px" v-model="response.httpCode"/>
               </el-col>
               <el-col :span="2"/>
             </el-row>
@@ -104,6 +104,12 @@ export default {
     setBodyType() {
       if (!this.response || !this.response || !this.response.headers) {
         return;
+      }
+      if(!this.response.httpCode || this.response.httpCode === ''){
+        this.$set(this.response,"httpCode","200");
+      }
+      if(!this.response.delayed){
+        this.response.delayed = 0;
       }
       if (Object.prototype.toString.call(this.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
         this.response = JSON.parse(this.response);

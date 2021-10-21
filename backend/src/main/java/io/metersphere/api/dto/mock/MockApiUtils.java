@@ -351,10 +351,13 @@ public class MockApiUtils {
                         String script = scriptObj.getString("script");
                         String scriptLanguage =scriptObj.getString("scriptLanguage");
 
-                        returnStr = parseScript(script,url,headerMap,requestMockParams);
-
-
-
+                        Map<String,String> scrpitParseMap = parseScript(script,url,headerMap,requestMockParams);
+                        if(scrpitParseMap.containsKey("returnMsg")){
+                            returnStr = scrpitParseMap.get("returnMsg");
+                        }
+                        if(scrpitParseMap.containsKey("script")){
+                            script = scrpitParseMap.get("script");
+                        }
                         runScript(script,scriptLanguage);
                     }
                 }
@@ -364,54 +367,65 @@ public class MockApiUtils {
         }
     }
 
-    private static String parseScript(String script,String url,Map<String,String> headerMap,RequestMockParams requestMockParams) {
+    private static Map<String,String> parseScript(String script,String url,Map<String,String> headerMap,RequestMockParams requestMockParams) {
+        Map<String,String> returnMap = new HashMap<>();
         String returnMsg = "";
+        String newScript = "";
         if(StringUtils.isNotEmpty(script)){
             String [] scriptRowArr = StringUtils.split(script,"\n");
-            for (String scriptRow : scriptRowArr) {
-                scriptRow = scriptRow.trim();
-                if(StringUtils.startsWith(scriptRow,"returnMsg.add(") && StringUtils.endsWith(scriptRow,")")){
-                    scriptRow = scriptRow.substring(14,scriptRow.length()-1).trim();
-                    if(StringUtils.equalsIgnoreCase(scriptRow,"@address")){
-                        returnMsg += url;
-                    }else if(StringUtils.startsWith(scriptRow,"@header(${") && StringUtils.endsWith(scriptRow,"})")){
-                        String paramName = scriptRow.substring(10,scriptRow.length()-2);
-                        if(headerMap.containsKey(paramName)){
-                            returnMsg += headerMap.get(paramName);
-                        }
-                    }else if(StringUtils.startsWith(scriptRow,"@body(${") && StringUtils.endsWith(scriptRow,"})")){
-                        String paramName = scriptRow.substring(8,scriptRow.length()-2);
-                        if(requestMockParams.getBodyParams() != null && requestMockParams.getBodyParams().size() > 0){
-                            JSONObject bodyParamObj = requestMockParams.getBodyParams().getJSONObject(0);
-                            if(bodyParamObj.containsKey(paramName)){
-                                returnMsg += String.valueOf(bodyParamObj.get(paramName));
+            for (String scriptItemRows : scriptRowArr) {
+                String [] scriptItemArr = scriptItemRows.split(";");
+                for (String scriptRow :scriptItemArr) {
+                    scriptRow = scriptRow.trim();
+                    if(StringUtils.startsWith(scriptRow,"returnMsg.add(") && StringUtils.endsWith(scriptRow,")")){
+                        scriptRow = scriptRow.substring(14,scriptRow.length()-1).trim();
+                        if(StringUtils.equalsIgnoreCase(scriptRow,"@address")){
+                            returnMsg += url;
+                        }else if(StringUtils.startsWith(scriptRow,"@header(${") && StringUtils.endsWith(scriptRow,"})")){
+                            String paramName = scriptRow.substring(10,scriptRow.length()-2);
+                            if(headerMap.containsKey(paramName)){
+                                returnMsg += headerMap.get(paramName);
                             }
-                        }
-                    }else if(StringUtils.equalsIgnoreCase(scriptRow,"@bodyRaw")){
-                        if(requestMockParams.getBodyParams() != null && requestMockParams.getBodyParams().size() > 0){
-                            JSONObject bodyParamObj = requestMockParams.getBodyParams().getJSONObject(0);
-                            if(bodyParamObj.containsKey("raw")){
-                                returnMsg += String.valueOf(bodyParamObj.get("raw"));
+                        }else if(StringUtils.startsWith(scriptRow,"@body(${") && StringUtils.endsWith(scriptRow,"})")){
+                            String paramName = scriptRow.substring(8,scriptRow.length()-2);
+                            if(requestMockParams.getBodyParams() != null && requestMockParams.getBodyParams().size() > 0){
+                                JSONObject bodyParamObj = requestMockParams.getBodyParams().getJSONObject(0);
+                                if(bodyParamObj.containsKey(paramName)){
+                                    returnMsg += String.valueOf(bodyParamObj.get(paramName));
+                                }
                             }
-                        }
-                    }else if(StringUtils.startsWith(scriptRow,"@query(${") && StringUtils.endsWith(scriptRow,"})")){
-                        String paramName = scriptRow.substring(9,scriptRow.length()-2);
-                        if(requestMockParams.getQueryParamsObj() != null && requestMockParams.getQueryParamsObj().containsKey(paramName)){
-                            returnMsg += String.valueOf(requestMockParams.getQueryParamsObj().get(paramName));
-                        }
-                    }else if(StringUtils.startsWith(scriptRow,"@rest(${") && StringUtils.endsWith(scriptRow,"})")){
-                        String paramName = scriptRow.substring(8,scriptRow.length()-2);
-                        if(requestMockParams.getRestParamsObj() != null && requestMockParams.getRestParamsObj().containsKey(paramName)){
-                            returnMsg += String.valueOf(requestMockParams.getRestParamsObj().get(paramName));
+                        }else if(StringUtils.equalsIgnoreCase(scriptRow,"@bodyRaw")){
+                            if(requestMockParams.getBodyParams() != null && requestMockParams.getBodyParams().size() > 0){
+                                JSONObject bodyParamObj = requestMockParams.getBodyParams().getJSONObject(0);
+                                if(bodyParamObj.containsKey("raw")){
+                                    returnMsg += String.valueOf(bodyParamObj.get("raw"));
+                                }
+                            }
+                        }else if(StringUtils.startsWith(scriptRow,"@query(${") && StringUtils.endsWith(scriptRow,"})")){
+                            String paramName = scriptRow.substring(9,scriptRow.length()-2);
+                            if(requestMockParams.getQueryParamsObj() != null && requestMockParams.getQueryParamsObj().containsKey(paramName)){
+                                returnMsg += String.valueOf(requestMockParams.getQueryParamsObj().get(paramName));
+                            }
+                        }else if(StringUtils.startsWith(scriptRow,"@rest(${") && StringUtils.endsWith(scriptRow,"})")){
+                            String paramName = scriptRow.substring(8,scriptRow.length()-2);
+                            if(requestMockParams.getRestParamsObj() != null && requestMockParams.getRestParamsObj().containsKey(paramName)){
+                                returnMsg += String.valueOf(requestMockParams.getRestParamsObj().get(paramName));
+                            }
+                        }else {
+                            returnMsg += scriptRow;
                         }
                     }else {
-                        returnMsg += scriptRow;
+                        newScript += scriptRow +";";
                     }
                 }
-
+                if(StringUtils.isNotEmpty(newScript)){
+                    newScript += "\n";
+                }
             }
         }
-        return returnMsg;
+        returnMap.put("script",newScript);
+        returnMap.put("returnMsg",returnMsg);
+        return returnMap;
     }
 
     private static void runScript(String script, String scriptLanguage) {
