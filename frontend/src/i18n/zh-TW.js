@@ -548,7 +548,7 @@ export default {
       update: "更新代碼片段",
       delete: "刪除自定義代碼片段",
       language: "腳本語言",
-      relate_tip: "在 系統設置->項目->自定義代碼片段 菜單中創建",
+      relate_tip: "在 項目設置->自定義代碼片段 菜單中創建",
       select_tip: "請選擇自定義代碼片段!",
       none_content: "自定義代碼片段為空！",
       segment: "代碼片段",
