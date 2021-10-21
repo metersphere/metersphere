@@ -298,31 +298,55 @@ public class MockConfigService {
             }
         }
 
-        JSONArray jsonArray = requestMockParams.getBodyParams();
-        if (jsonArray == null) {
-            //url or get 参数
-            JSONArray argumentsArray = expectParamsObj.getJSONArray("arguments");
-            JSONArray restArray = expectParamsObj.getJSONArray("rest");
-
-            JSONObject urlRequestParamObj = MockApiUtils.getParams(argumentsArray);
-            JSONObject restRequestParamObj = MockApiUtils.getParams(restArray);
-
-            if (requestMockParams.getQueryParamsObj() == null || requestMockParams.getQueryParamsObj().isEmpty()) {
-                return JsonStructUtils.checkJsonObjCompliance(requestMockParams.getRestParamsObj(), restRequestParamObj);
-            } else if (requestMockParams.getRestParamsObj() == null || requestMockParams.getRestParamsObj().isEmpty()) {
-                return JsonStructUtils.checkJsonObjCompliance(requestMockParams.getQueryParamsObj(), urlRequestParamObj);
-            } else {
-                return JsonStructUtils.checkJsonObjCompliance(requestMockParams.getQueryParamsObj(), urlRequestParamObj)
-                        && JsonStructUtils.checkJsonObjCompliance(requestMockParams.getRestParamsObj(), restRequestParamObj);
-            }
-
-        } else {
-            // body参数
+        if(expectParamsObj.containsKey("body")){
             JSONObject expectBodyObject = expectParamsObj.getJSONObject("body");
             JSONArray mockExpectJsonArray = MockApiUtils.getExpectBodyParams(expectBodyObject);
-
-            return JsonStructUtils.checkJsonArrayCompliance(jsonArray, mockExpectJsonArray);
+            JSONArray jsonArray = requestMockParams.getBodyParams();
+            if(!JsonStructUtils.checkJsonArrayCompliance(jsonArray, mockExpectJsonArray)){
+                return false;
+            }
         }
+
+        if(expectParamsObj.containsKey("arguments")){
+            JSONArray argumentsArray = expectParamsObj.getJSONArray("arguments");
+            JSONObject urlRequestParamObj = MockApiUtils.getParams(argumentsArray);
+            if(!JsonStructUtils.checkJsonObjCompliance(requestMockParams.getQueryParamsObj(), urlRequestParamObj)){
+                return false;
+            }
+        }
+
+        if(expectParamsObj.containsKey("rest")){
+            JSONArray restArray = expectParamsObj.getJSONArray("rest");
+            JSONObject restRequestParamObj = MockApiUtils.getParams(restArray);
+            if(!JsonStructUtils.checkJsonObjCompliance(requestMockParams.getRestParamsObj(), restRequestParamObj)){
+                return false;
+            }
+        }
+//        JSONArray jsonArray = requestMockParams.getBodyParams();
+//        if (jsonArray == null) {
+//            //url or get 参数
+//            JSONArray argumentsArray = expectParamsObj.getJSONArray("arguments");
+//            JSONArray restArray = expectParamsObj.getJSONArray("rest");
+//
+//            JSONObject urlRequestParamObj = MockApiUtils.getParams(argumentsArray);
+//            JSONObject restRequestParamObj = MockApiUtils.getParams(restArray);
+//
+//            if (requestMockParams.getQueryParamsObj() == null || requestMockParams.getQueryParamsObj().isEmpty()) {
+//                return JsonStructUtils.checkJsonObjCompliance(requestMockParams.getRestParamsObj(), restRequestParamObj);
+//            } else if (requestMockParams.getRestParamsObj() == null || requestMockParams.getRestParamsObj().isEmpty()) {
+//                return JsonStructUtils.checkJsonObjCompliance(requestMockParams.getQueryParamsObj(), urlRequestParamObj);
+//            } else {
+//                return JsonStructUtils.checkJsonObjCompliance(requestMockParams.getQueryParamsObj(), urlRequestParamObj)
+//                        && JsonStructUtils.checkJsonObjCompliance(requestMockParams.getRestParamsObj(), restRequestParamObj);
+//            }
+//
+//        } else {
+//            // body参数
+//            JSONObject expectBodyObject = expectParamsObj.getJSONObject("body");
+//            JSONArray mockExpectJsonArray = MockApiUtils.getExpectBodyParams(expectBodyObject);
+//
+//            return JsonStructUtils.checkJsonArrayCompliance(jsonArray, mockExpectJsonArray);
+//        }
 
 //        JSONObject mockExpectJson = new JSONObject();
 //        if (isJsonParam) {
@@ -357,7 +381,7 @@ public class MockConfigService {
 //        }
 
 //        boolean isMatching = JsonStructUtils.checkJsonObjCompliance(mockExpectRequestObj, mockExpectJson);
-//        return isMatching;
+        return true;
     }
 
     private boolean isRequestMockExpectMatching(JSONObject mockExpectRequestObj, JSONObject reqJsonObj) {
@@ -869,156 +893,6 @@ public class MockConfigService {
         }
         mockConfigMapper.deleteByExample(configExample);
     }
-
-    public RequestMockParams getGetParamMap(String urlParams, ApiDefinitionWithBLOBs api, HttpServletRequest request) {
-        RequestMockParams requestMockParams = new RequestMockParams();
-
-        JSONObject urlParamsObject = this.getSendRestParamMapByIdAndUrl(api, urlParams);
-
-        JSONObject queryParamsObject = new JSONObject();
-        Enumeration<String> paramNameItor = request.getParameterNames();
-        while (paramNameItor.hasMoreElements()) {
-            String key = paramNameItor.nextElement();
-            String value = request.getParameter(key);
-            queryParamsObject.put(key, value);
-        }
-
-        requestMockParams.setRestParamsObj(urlParamsObject);
-        requestMockParams.setQueryParamsObj(queryParamsObject);
-        return requestMockParams;
-    }
-
-    public JSON getPostParamMap(HttpServletRequest request) {
-        if (StringUtils.equalsIgnoreCase("application/JSON", request.getContentType())) {
-            JSON returnJson = null;
-            try {
-                String param = this.getRequestPostStr(request);
-                JSONValidator jsonValidator = JSONValidator.from(param);
-                if (StringUtils.equalsIgnoreCase("Array", jsonValidator.getType().name())) {
-                    returnJson = JSONArray.parseArray(param);
-                } else if (StringUtils.equalsIgnoreCase("Object", jsonValidator.getType().name())) {
-                    returnJson = JSONObject.parseObject(param);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return returnJson;
-        } else if (StringUtils.equalsIgnoreCase("text/xml", request.getContentType())) {
-            String xmlString = this.readXml(request);
-            System.out.println(xmlString);
-
-            org.json.JSONObject xmlJSONObj = XML.toJSONObject(xmlString);
-            String jsonStr = xmlJSONObj.toString();
-            JSONObject object = null;
-            try {
-                object = JSONObject.parseObject(jsonStr);
-            } catch (Exception e) {
-            }
-            return object;
-        } else if (StringUtils.equalsIgnoreCase("application/x-www-form-urlencoded", request.getContentType())) {
-            JSONObject object = new JSONObject();
-            Enumeration<String> paramNameItor = request.getParameterNames();
-            while (paramNameItor.hasMoreElements()) {
-                String key = paramNameItor.nextElement();
-                String value = request.getParameter(key);
-                object.put(key, value);
-            }
-            return object;
-        } else {
-            JSONObject object = new JSONObject();
-            String bodyParam = this.readBody(request);
-            object.put("raw",bodyParam);
-//            if (!StringUtils.isEmpty(bodyParam)) {
-//                try {
-//                    object = JSONObject.parseObject(bodyParam);
-//                } catch (Exception e) {
-//                    object.put("raw",bodyParam);
-//                }
-//            }
-
-            Enumeration<String> paramNameItor = request.getParameterNames();
-            while (paramNameItor.hasMoreElements()) {
-                String key = paramNameItor.nextElement();
-                String value = request.getParameter(key);
-                object.put(key, value);
-            }
-            return object;
-        }
-    }
-
-    private String readXml(HttpServletRequest request) {
-        {
-            String inputLine = null;
-            // 接收到的数据
-            StringBuffer recieveData = new StringBuffer();
-            BufferedReader in = null;
-            try {
-                in = new BufferedReader(new InputStreamReader(
-                        request.getInputStream(), "UTF-8"));
-                while ((inputLine = in.readLine()) != null) {
-                    recieveData.append(inputLine);
-                }
-            } catch (IOException e) {
-            } finally {
-                try {
-                    if (null != in) {
-                        in.close();
-                    }
-                } catch (IOException e) {
-                }
-            }
-
-            return recieveData.toString();
-        }
-    }
-
-    private String readBody(HttpServletRequest request) {
-        String result = "";
-        try {
-            InputStream inputStream = request.getInputStream();
-            ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = inputStream.read(buffer)) != -1) {
-                outSteam.write(buffer, 0, len);
-            }
-            outSteam.close();
-            inputStream.close();
-            result = new String(outSteam.toByteArray(), "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    public JSONObject getSendRestParamMapByIdAndUrl(ApiDefinitionWithBLOBs api, String urlParams) {
-//        ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
-        JSONObject returnJson = new JSONObject();
-        if (api != null) {
-            String path = api.getPath();
-            if (path.startsWith("/")) {
-                path = path.substring(1);
-            }
-            String[] pathArr = path.split("/");
-            String[] sendParamArr = urlParams.split("/");
-
-            //获取 url的<参数名-参数值>，通过匹配api的接口设置和实际发送的url
-            for (int i = 0; i < pathArr.length; i++) {
-                String param = pathArr[i];
-                if (param.startsWith("{") && param.endsWith("}")) {
-                    param = param.substring(1, param.length() - 1);
-                    String value = "";
-                    if (sendParamArr.length > i) {
-                        value = sendParamArr[i];
-                    }
-                    returnJson.put(param, value);
-                }
-            }
-
-        }
-        return returnJson;
-    }
-
     public List<Map<String, String>> getApiParamsByApiDefinitionBLOBs(ApiDefinitionWithBLOBs apiModel) {
         if (apiModel == null) {
             return new ArrayList<>();
@@ -1110,30 +984,6 @@ public class MockConfigService {
                                             }
                                         }
                                     }
-                                    //Binary的先不处理
-//                                } else if (StringUtils.equals(type, "BINARY")) {
-//                                    if (bodyObj.containsKey("binary")) {
-//                                        List<Map<String, String>> bodyParamList = new ArrayList<>();
-//                                        JSONArray kvsArr = bodyObj.getJSONArray("binary");
-//
-//                                        for (int i = 0; i < kvsArr.size(); i++) {
-//                                            JSONObject kv = kvsArr.getJSONObject(i);
-//                                            if (kv.containsKey("description") && kv.containsKey("files")) {
-//                                                String name = kv.getString("description");
-//                                                JSONArray fileArr = kv.getJSONArray("files");
-//                                                String value = "";
-//                                                for (int j = 0; j < fileArr.size(); j++) {
-//                                                    JSONObject fileObj = fileArr.getJSONObject(j);
-//                                                    if (fileObj.containsKey("name")) {
-//                                                        value += fileObj.getString("name") + " ;";
-//                                                    }
-//                                                }
-//                                                if (!paramNameList.contains(name)) {
-//                                                    paramNameList.add(name);
-//                                                }
-//                                            }
-//                                        }
-//                                    }
                                 }
                             }
                         } catch (Exception e) {
@@ -1185,36 +1035,51 @@ public class MockConfigService {
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
             aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, urlSuffix);
-            List<String> apiIdList = aualifiedApiList.stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
-            MockConfigResponse mockConfigData = this.findByApiIdList(apiIdList);
 
-            if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
-                JSON paramJson = this.getPostParamMap(request);
-                if (paramJson instanceof JSONObject) {
-                    JSONArray paramsArray = new JSONArray();
-                    paramsArray.add(paramJson);
-                    RequestMockParams mockParams = new RequestMockParams();
-                    mockParams.setBodyParams(paramsArray);
-                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
-                    if (finalExpectConfig != null) {
-                        isMatch = true;
-                        returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
-                    }
-                } else if (paramJson instanceof JSONArray) {
-                    JSONArray paramArray = (JSONArray) paramJson;
-                    RequestMockParams mockParams = new RequestMockParams();
-                    mockParams.setBodyParams(paramArray);
-                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
-                    if (finalExpectConfig != null) {
-                        isMatch = true;
-                        returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
-                    }
+            for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
+                RequestMockParams mockParams = MockApiUtils.getParams(urlSuffix, api, request);
+
+                MockConfigResponse mockConfigData = this.findByApiId(api.getId());
+                MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
+                if (finalExpectConfig != null) {
+                    isMatch = true;
+                    returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
+                    break;
                 }
             }
+
+
+//            List<String> apiIdList = aualifiedApiList.stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+//            MockConfigResponse mockConfigData = this.findByApiIdList(apiIdList);
+
+//            if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
+//                String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
+//                aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, null, urlSuffix);
+//                JSON paramJson = MockApiUtils.getParams(request);
+//                if (paramJson instanceof JSONObject) {
+//                    JSONArray paramsArray = new JSONArray();
+//                    paramsArray.add(paramJson);
+//                    RequestMockParams mockParams = new RequestMockParams();
+//                    mockParams.setBodyParams(paramsArray);
+//                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
+//                    if (finalExpectConfig != null) {
+//                        isMatch = true;
+//                        returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
+//                    }
+//                } else if (paramJson instanceof JSONArray) {
+//                    JSONArray paramArray = (JSONArray) paramJson;
+//                    RequestMockParams mockParams = new RequestMockParams();
+//                    mockParams.setBodyParams(paramArray);
+//                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
+//                    if (finalExpectConfig != null) {
+//                        isMatch = true;
+//                        returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
+//                    }
+//                }
+//            }
         }
 
         if (!isMatch) {
-//            returnStr = this.updateHttpServletResponse(aualifiedApiList, response);
             response.setStatus(404);
         }
         return returnStr;
@@ -1239,7 +1104,7 @@ public class MockConfigService {
              */
 
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-                RequestMockParams paramMap = this.getGetParamMap(urlSuffix, api, request);
+                RequestMockParams paramMap = MockApiUtils.getParams(urlSuffix, api, request);
 
                 MockConfigResponse mockConfigData = this.findByApiId(api.getId());
                 if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
@@ -1254,57 +1119,9 @@ public class MockConfigService {
         }
 
         if (!isMatch) {
-//            returnStr = this.updateHttpServletResponse(aualifiedApiList, response);
             response.setStatus(404);
         }
         return returnStr;
-    }
-
-    /**
-     * 描述:获取 post 请求的 byte[] 数组
-     * <pre>
-     * 举例：
-     * </pre>
-     *
-     * @param request
-     * @return
-     * @throws IOException
-     */
-    public byte[] getRequestPostBytes(HttpServletRequest request) throws IOException {
-        int contentLength = request.getContentLength();
-        if (contentLength < 0) {
-            return null;
-        }
-        byte buffer[] = new byte[contentLength];
-        for (int i = 0; i < contentLength; ) {
-
-            int readlen = request.getInputStream().read(buffer, i,
-                    contentLength - i);
-            if (readlen == -1) {
-                break;
-            }
-            i += readlen;
-        }
-        return buffer;
-    }
-
-    /**
-     * 描述:获取 post 请求内容
-     * <pre>
-     * 举例：
-     * </pre>
-     *
-     * @param request
-     * @return
-     * @throws IOException
-     */
-    public String getRequestPostStr(HttpServletRequest request) throws IOException {
-        byte buffer[] = getRequestPostBytes(request);
-        String charEncoding = request.getCharacterEncoding();
-        if (charEncoding == null) {
-            charEncoding = "UTF-8";
-        }
-        return new String(buffer, charEncoding);
     }
 
     private List<String> parseByJsonDataStruct(String dataString) {
