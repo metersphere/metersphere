@@ -73,17 +73,6 @@
                 </div>
                 <div class="div-item">
                   <div style="float: left">
-                    <i class="el-icon-s-flag icon-color"
-                       @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])"></i>
-                  </div>
-                  <div style="float: left">
-                    <span class="title" @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])">
-                      {{ $t('project.log') }}</span><br/>
-                    <span class="desc">{{ $t('project.log_desc') }}</span>
-                  </div>
-                </div>
-                <div class="div-item">
-                  <div style="float: left">
                     <i class="el-icon-document icon-color"
                        @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])"></i>
                   </div>
@@ -92,6 +81,17 @@
                           @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])">
                       {{ $t('project.code_segment.code_segment') }}</span><br/>
                     <span class="desc">{{ $t('project.code_segment_desc') }}</span>
+                  </div>
+                </div>
+                <div class="div-item">
+                  <div style="float: left">
+                    <i class="el-icon-s-flag icon-color"
+                       @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])"></i>
+                  </div>
+                  <div style="float: left">
+                    <span class="title" @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])">
+                      {{ $t('project.log') }}</span><br/>
+                    <span class="desc">{{ $t('project.log_desc') }}</span>
                   </div>
                 </div>
               </div>

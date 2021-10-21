@@ -168,7 +168,7 @@ public class ApiTestCaseService {
                     filters.put("status", new ArrayList<>());
                 }
             }
-            if(request.isToUpdate()){
+            if (request.isToUpdate()) {
                 Long timestamp = DateUtils.getTimestamp(-3);
                 request.setUpdateTime(timestamp);
             }
@@ -1126,7 +1126,12 @@ public class ApiTestCaseService {
             return null;
         }
         // "environmentId"
-        environmentId = environmentId.substring(1,environmentId.length()-1);
-        return apiTestEnvironmentMapper.selectByPrimaryKey(environmentId);
+        try {
+            environmentId = environmentId.substring(1, environmentId.length() - 1);
+            return apiTestEnvironmentMapper.selectByPrimaryKey(environmentId);
+        } catch (Exception e) {
+            LogUtil.error("api case environmentId incorrect parsing. api case id: " +  caseId);
+        }
+        return null;
     }
 }
