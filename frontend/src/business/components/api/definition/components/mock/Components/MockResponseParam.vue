@@ -4,14 +4,14 @@
 
       <el-collapse-transition>
         <el-tabs v-model="activeName" v-show="isActive" style="margin: 20px">
-          <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
+          <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
             <ms-api-key-value :isShowEnable="false" :suggestions="headerSuggestions" :items="response.headers"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
             <mock-api-response-body :isReadOnly="false" :isShowEnable="false" :api-id="apiId" :body="response.body" :headers="response.headers"/>
           </el-tab-pane>
 
-          <el-tab-pane :label="$t('api_test.definition.request.status_code')" name="status_code" class="pane">
+          <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.status_code')" name="status_code" class="pane">
             <el-row>
               <el-col :span="2"/>
               <el-col :span="20">
@@ -67,6 +67,10 @@ export default {
   props: {
     response: {},
     apiId:String,
+    isTcp:{
+      type: Boolean,
+      default: false,
+    }
   },
   data() {
     return {

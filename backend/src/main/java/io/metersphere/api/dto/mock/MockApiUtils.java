@@ -289,6 +289,12 @@ public class MockApiUtils {
     }
 
     public static String getResultByResponseResult(JSONObject bodyObj,String url, Map<String,String> headerMap,RequestMockParams requestMockParams) {
+        if(headerMap == null){
+            headerMap = new HashMap<>();
+        }
+        if(requestMockParams == null){
+            requestMockParams = new RequestMockParams();
+        }
         if(bodyObj == null && bodyObj.isEmpty()){
             return "";
         }else {
