@@ -138,6 +138,14 @@
           </ms-table-column>
 
           <ms-table-column
+            prop="environment"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="'运行环境'"
+          >
+          </ms-table-column>
+
+          <ms-table-column
             prop="createUser"
             :field="item"
             :fields-width="fieldsWidth"
@@ -589,6 +597,10 @@ export default {
             if (item.status === 'Running') {
               isNext = true;
             }
+            this.$get('/api/testcase/get/env/' + item.id, res => {
+              let environment = res.data ? res.data.name : '-';
+              this.$set(item, 'environment', environment);
+            })
           });
           this.$nextTick(() => {
             if (this.$refs.caseTable) {
