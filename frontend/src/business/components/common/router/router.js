@@ -8,7 +8,6 @@ import Track from "@/business/components/track/router";
 import ReportStatistics from "@/business/components/reportstatistics/router";
 import Project from "@/business/components/project/router";
 import {getCurrentUserId} from "@/common/js/utils";
-import {workstation} from "@/business/components/xpack/router";
 
 // const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 // const Report = requireContext.keys().map(key => requireContext(key).report);
