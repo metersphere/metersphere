@@ -1126,7 +1126,8 @@ export default {
       test_name: "Test Name",
       reference: "Reference",
       clone: "Copy",
-      cant_reference: 'Historical test files, can be referenced after re-saving'
+      cant_reference: 'Historical test files, can be referenced after re-saving',
+      share_cookie: 'share cookie'
     },
     request: {
       debug: "Debug",
