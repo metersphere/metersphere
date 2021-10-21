@@ -1149,7 +1149,8 @@ export default {
       test_name: "測試名稱",
       reference: "引用",
       clone: "復製",
-      cant_reference: '歷史測試文件，重新保存後才可被引用'
+      cant_reference: '歷史測試文件，重新保存後才可被引用',
+      share_cookie: '共享cookie'
     },
     request: {
       debug: "調試",
