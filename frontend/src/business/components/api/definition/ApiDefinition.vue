@@ -561,7 +561,6 @@ export default {
       this.apiDefaultTab = newTabName;
     },
     handleTabsEdit(targetName, action, api) {
-      debugger
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
@@ -592,7 +591,6 @@ export default {
       }
     },
     editApi(row) {
-      debugger
       let name = "";
       if (row.isCopy) {
         name = "copy" + "-" + row.name;

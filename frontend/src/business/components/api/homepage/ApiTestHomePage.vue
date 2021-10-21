@@ -233,7 +233,6 @@ export default {
     },
     search() {
       let selectProjectId = getCurrentProjectID();
-        debugger
       this.$get("/api/apiCount/" + selectProjectId, response => {
         this.apiCountData = response.data;
       });
