@@ -4,10 +4,10 @@
       <i class="el-icon-view" @click="openGraph"></i>
     </el-main>
 
-    <relationship-list :title="'前置对象'" relationship-type="PRE" :resource-id="resourceId" :resource-type="resourceType" ref="preRelationshipList"/>
-    <relationship-list :title="'后置对象'" relationship-type="POST" :resource-id="resourceId" :resource-type="resourceType" ref="postRelationshipList"/>
+    <relationship-list :read-only="readOnly" :title="$t('commons.relationship.pre')" relationship-type="PRE" :resource-id="resourceId" :resource-type="resourceType" ref="preRelationshipList"/>
+    <relationship-list :read-only="readOnly" :title="$t('commons.relationship.post')" relationship-type="POST" :resource-id="resourceId" :resource-type="resourceType" ref="postRelationshipList"/>
 
-    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer v-permission :graph-data="graphData" ref="relationshipGraph"/>
 
   </div>
 </template>
@@ -21,7 +21,8 @@ export default {
   components: {RelationshipList, RelationshipGraphDrawer},
   props: [
     'resourceId',
-    'resourceType'
+    'resourceType',
+    'readOnly'
   ],
   data() {
     return {

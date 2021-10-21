@@ -1,18 +1,20 @@
 <template>
   <el-main>
     <span>{{ title }}</span>
-    <el-button class="add-btn"
-               :disabled="readOnly" type="primary" size="mini" @click="openRelevance">{{ $t('添加') }}</el-button>
+    <el-button class="add-btn" v-permission="relationshipType == 'TEST_CASE' ? ['PROJECT_TRACK_CASE:READ+EDIT'] : ['PROJECT_API_DEFINITION:READ+EDIT_API']"
+               :disabled="readOnly" type="primary" size="mini" @click="openRelevance">{{ $t($t('commons.add')) }}</el-button>
 
     <test-case-relationship-list
       v-if="resourceType === 'TEST_CASE'"
       :case-id="resourceId"
+      :read-only="readOnly"
       :relationship-type="relationshipType"
       @deleteRelationship="handleDelete"
       ref="testCaseRelationshipList"/>
 
     <api-relationship-list
       v-if="resourceType === 'API'"
+      :read-only="readOnly"
       :api-definition-id="resourceId"
       :relationship-type="relationshipType"
       @deleteRelationship="handleDelete"

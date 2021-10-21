@@ -186,6 +186,16 @@ export default {
     run_success: "执行成功",
     run_completed: "执行完成",
     run_fail: "执行失败",
+    relationship: {
+      name: '依赖关系',
+      pre: '前置对象',
+      post: '后置置对象',
+      graph: '依赖图',
+      selected: '选中节点',
+      direct: '直接关联',
+      indirect: '间接关联',
+
+    },
     generate_test_data: "生成测试数据",
     table: {
       select_tip: "已选中 {0} 条数据"
@@ -244,7 +254,7 @@ export default {
         not_equals: "不等于",
         between: "之间",
         current_user: "是当前用户"
-      }
+      },
     },
     monitor: "监控",
     all_label: {
