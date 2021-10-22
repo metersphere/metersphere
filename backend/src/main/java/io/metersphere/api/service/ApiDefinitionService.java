@@ -152,6 +152,7 @@ public class ApiDefinitionService {
             List<ApiDefinitionResult> resList = extApiDefinitionMapper.weekList(request, startTime.getTime());
             calculateResult(resList, request.getProjectId());
             calculateResultSce(resList);
+            resList.stream().forEach(item -> item.setApiType("api"));
             return resList;
         }
     }
