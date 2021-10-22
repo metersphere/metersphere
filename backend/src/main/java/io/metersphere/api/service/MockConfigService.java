@@ -29,6 +29,7 @@ import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.kafka.clients.producer.MockProducer;
 import org.json.XML;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -309,7 +310,7 @@ public class MockConfigService {
 
         if(expectParamsObj.containsKey("arguments")){
             JSONArray argumentsArray = expectParamsObj.getJSONArray("arguments");
-            JSONObject urlRequestParamObj = MockApiUtils.getParams(argumentsArray);
+            JSONObject urlRequestParamObj = MockApiUtils.getParamsByJSONArray(argumentsArray);
             if(!JsonStructUtils.checkJsonObjCompliance(requestMockParams.getQueryParamsObj(), urlRequestParamObj)){
                 return false;
             }
@@ -317,7 +318,7 @@ public class MockConfigService {
 
         if(expectParamsObj.containsKey("rest")){
             JSONArray restArray = expectParamsObj.getJSONArray("rest");
-            JSONObject restRequestParamObj = MockApiUtils.getParams(restArray);
+            JSONObject restRequestParamObj = MockApiUtils.getParamsByJSONArray(restArray);
             if(!JsonStructUtils.checkJsonObjCompliance(requestMockParams.getRestParamsObj(), restRequestParamObj)){
                 return false;
             }
@@ -1036,8 +1037,11 @@ public class MockConfigService {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
             aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, urlSuffix);
 
+            JSON paramJson = MockApiUtils.getPostParamMap(request);
+            JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
+
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-                RequestMockParams mockParams = MockApiUtils.getParams(urlSuffix, api, request);
+                RequestMockParams mockParams = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject,paramJson);
 
                 MockConfigResponse mockConfigData = this.findByApiId(api.getId());
                 MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
@@ -1102,9 +1106,11 @@ public class MockConfigService {
              *
              *  匹配预期Mock的逻辑为： 循环apiId进行筛选，直到筛选到预期Mock。如果筛选不到，则取Api的响应模版来进行返回
              */
+            JSON paramJson = MockApiUtils.getPostParamMap(request);
+            JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
 
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-                RequestMockParams paramMap = MockApiUtils.getParams(urlSuffix, api, request);
+                RequestMockParams paramMap = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject,paramJson);
 
                 MockConfigResponse mockConfigData = this.findByApiId(api.getId());
                 if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
