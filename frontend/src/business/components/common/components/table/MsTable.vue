@@ -224,6 +224,8 @@ export default {
     rowOrderGroupId: String,
     rowOrderFunc: Function
   },
+  created() {
+  },
   mounted() {
     this.setDefaultOrders();
   },
