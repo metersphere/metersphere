@@ -10,7 +10,19 @@
       :screen-height="null"
       @refresh="getTableData">
 
-      <ms-table-column
+     <ms-table-column
+       min-width="100px"
+       v-if="relationshipType === 'POST'"
+       :label="$t('commons.relationship.type')">
+       <template>
+         <span>{{ $t('commons.relationship.current_case') }}</span>
+         <span class="type-type">{{ $t('commons.relationship.after_finish') }}</span>
+         <font-awesome-icon class="type-type" :icon="['fas', 'arrow-right']" size="lg"/>
+       </template>
+     </ms-table-column>
+
+
+     <ms-table-column
         prop="targetCustomNum"
         v-if="isCustomNum"
         :label="$t('commons.id')"
@@ -39,6 +51,17 @@
        :label="$t('api_test.definition.api_case_status')">
        <template slot-scope="{row}">
          {{$t(statusMap.get(row.status))}}
+       </template>
+     </ms-table-column>
+
+     <ms-table-column
+       min-width="100px"
+       v-if="relationshipType === 'PRE'"
+       :label="$t('commons.relationship.type')">
+       <template>
+         <span class="type-type">{{ $t('commons.relationship.after_finish') }}</span>
+         <font-awesome-icon class="type-type" :icon="['fas', 'arrow-right']" size="lg"/>
+         <span>{{ $t('commons.relationship.current_case') }}</span>
        </template>
      </ms-table-column>
 
@@ -117,4 +140,12 @@ export default {
 </script>
 
 <style scoped>
+.type-type {
+  color: var(--primary_color);
+  font-style: var(--primary_color);
+}
+
+.type-type:nth-child(2) {
+  margin: 0px 10px;
+}
 </style>
