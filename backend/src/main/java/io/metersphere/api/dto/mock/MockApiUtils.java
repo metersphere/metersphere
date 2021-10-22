@@ -112,9 +112,11 @@ public class MockApiUtils {
             } else if (StringUtils.equalsIgnoreCase(type,  "Raw")) {
                 if (bodyObj.containsKey("raw")) {
                     String raw = bodyObj.getString("raw");
-                    JSONObject rawObject = new JSONObject();
-                    rawObject.put("raw",raw);
-                    returnJsonArray.add(rawObject);
+                    if(StringUtils.isNotEmpty(raw)){
+                        JSONObject rawObject = new JSONObject();
+                        rawObject.put("raw",raw);
+                        returnJsonArray.add(rawObject);
+                    }
                 }
             } else if (StringUtils.equalsAnyIgnoreCase(type, "Form Data", "WWW_FORM")) {
                 if (bodyObj.containsKey("kvs")) {
@@ -511,7 +513,9 @@ public class MockApiUtils {
         } else {
             JSONObject object = new JSONObject();
             String bodyParam = readBody(request);
-            object.put("raw",bodyParam);
+            if(StringUtils.isNotEmpty(bodyParam)){
+                object.put("raw",bodyParam);
+            }
 
             Enumeration<String> paramNameItor = request.getParameterNames();
             while (paramNameItor.hasMoreElements()) {
