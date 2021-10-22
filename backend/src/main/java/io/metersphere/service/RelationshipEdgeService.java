@@ -153,7 +153,9 @@ public class RelationshipEdgeService {
 
         relationshipEdges.forEach(item -> {
             if (addEdgesIds.contains(item.getSourceId() + item.getTargetId())) {
-                batchMapper.insert(item);
+                if(batchMapper.selectByPrimaryKey(item) == null ) {
+                    batchMapper.insert(item);
+                }
             } else {
                 item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
                 batchMapper.updateByPrimaryKey(item);
