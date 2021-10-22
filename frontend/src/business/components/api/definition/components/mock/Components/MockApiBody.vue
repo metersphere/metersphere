@@ -30,6 +30,7 @@
         :is-read-only="isReadOnly"
         :parameters="body.kvs"
         :isShowEnable="isShowEnable"
+        :append-dialog-to-body="true"
         type="body"/>
     </div>
     <div v-if="body.type == 'JSON'">
