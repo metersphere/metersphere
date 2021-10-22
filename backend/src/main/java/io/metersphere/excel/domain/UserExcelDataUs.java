@@ -34,7 +34,7 @@ public class UserExcelDataUs extends UserExcelData {
     @Length(max = 255)
     @ExcelProperty("Password")
     @ColumnWidth(30)
-    @Pattern(regexp = "^(?![0-9]+$)(?![^0-9]+$)(?![a-zA-Z]+$)(?![^a-zA-Z]+$)(?![a-zA-Z0-9]+$)[a-zA-Z0-9\\S]{8,30}$", message = "{user_import_format_wrong}")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[\\s\\S]{8,30}$", message = "{user_import_format_wrong}")
     private String password;
 
     @ExcelProperty("Phone")
