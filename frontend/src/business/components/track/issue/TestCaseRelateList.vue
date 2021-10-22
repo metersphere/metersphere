@@ -115,7 +115,6 @@ export default {
       this.initTableData();
     },
     projectId() {
-      this.getProjectNode();
       this.initTableData();
     },
   },
@@ -134,6 +133,7 @@ export default {
         this.condition.nodeIds = [];
       }
       if (this.projectId) {
+        this.getProjectNode();
         this.condition.projectId = this.projectId;
         this.condition.testCaseContainIds = Array.from(this.testCaseContainIds)
         this.result = this.$post('/test/case/relate/issue/' + +this.currentPage + '/' + this.pageSize, this.condition, response => {
@@ -155,10 +155,10 @@ export default {
         {projectId: this.projectId}, response => {
           this.treeNodes = response.data;
         });
-      this.selectNodeIds = [];
     },
     open() {
       this.$refs.baseRelevance.open();
+      this.selectNodeIds = [];
       this.initTableData();
     },
     save() {
