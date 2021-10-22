@@ -86,9 +86,6 @@ public class MockApiUtils {
                     if (bodyObj.containsKey("jsonSchema") && bodyObj.getJSONObject("jsonSchema").containsKey("properties")) {
                         String bodyRetunStr = bodyObj.getJSONObject("jsonSchema").getJSONObject("properties").toJSONString();
                         jsonString = JSONSchemaGenerator.getJson(bodyRetunStr);
-//                        JSONObject bodyReturnObj = JSONObject.parseObject(bodyRetunStr);
-//                        JSONObject returnObj = parseJsonSchema(bodyReturnObj);
-//                        returnStr = returnObj.toJSONString();
                     }
                 } else {
                     if (bodyObj.containsKey("raw")) {
@@ -112,9 +109,11 @@ public class MockApiUtils {
             } else if (StringUtils.equalsIgnoreCase(type,  "Raw")) {
                 if (bodyObj.containsKey("raw")) {
                     String raw = bodyObj.getString("raw");
-                    JSONObject rawObject = new JSONObject();
-                    rawObject.put("raw",raw);
-                    returnJsonArray.add(rawObject);
+                    if(StringUtils.isNotEmpty(raw)){
+                        JSONObject rawObject = new JSONObject();
+                        rawObject.put("raw",raw);
+                        returnJsonArray.add(rawObject);
+                    }
                 }
             } else if (StringUtils.equalsAnyIgnoreCase(type, "Form Data", "WWW_FORM")) {
                 if (bodyObj.containsKey("kvs")) {
@@ -209,7 +208,7 @@ public class MockApiUtils {
         return values;
     }
 
-    public static JSONObject getParams(JSONArray array) {
+    public static JSONObject getParamsByJSONArray(JSONArray array) {
         JSONObject returnObject = new JSONObject();
         for(int i = 0; i < array.size();i ++){
             JSONObject obj = array.getJSONObject(i);
@@ -440,25 +439,22 @@ public class MockApiUtils {
         System.out.println(result.getResponseData());
     }
 
-    public  static RequestMockParams getParams(String urlParams, ApiDefinitionWithBLOBs api, HttpServletRequest request){
-        RequestMockParams returnParams = getGetParamMap(urlParams,api,request);
-        JSON paramJson = getPostParamMap(request);
-        if (paramJson instanceof JSONObject) {
-            JSONArray paramsArray = new JSONArray();
-            paramsArray.add(paramJson);
-            returnParams.setBodyParams(paramsArray);
-        } else if (paramJson instanceof JSONArray) {
-            JSONArray paramArray = (JSONArray) paramJson;
-            returnParams.setBodyParams(paramArray);
+    public  static RequestMockParams getParams(String urlParams, String apiPath, JSONObject queryParamsObject,JSON paramJson){
+        RequestMockParams returnParams = getGetParamMap(urlParams,apiPath,queryParamsObject);
+        if(paramJson != null){
+            if (paramJson instanceof JSONObject) {
+                JSONArray paramsArray = new JSONArray();
+                paramsArray.add(paramJson);
+                returnParams.setBodyParams(paramsArray);
+            } else if (paramJson instanceof JSONArray) {
+                JSONArray paramArray = (JSONArray) paramJson;
+                returnParams.setBodyParams(paramArray);
+            }
         }
         return returnParams;
     }
 
-    private static RequestMockParams getGetParamMap(String urlParams, ApiDefinitionWithBLOBs api, HttpServletRequest request) {
-        RequestMockParams requestMockParams = new RequestMockParams();
-
-        JSONObject urlParamsObject = getSendRestParamMapByIdAndUrl(api, urlParams);
-
+    public static JSONObject getParameterJsonObject(HttpServletRequest request){
         JSONObject queryParamsObject = new JSONObject();
         Enumeration<String> paramNameItor = request.getParameterNames();
         while (paramNameItor.hasMoreElements()) {
@@ -466,13 +462,20 @@ public class MockApiUtils {
             String value = request.getParameter(key);
             queryParamsObject.put(key, value);
         }
+        return queryParamsObject;
+    }
+
+    private static RequestMockParams getGetParamMap(String urlParams, String apiPath, JSONObject queryParamsObject) {
+        RequestMockParams requestMockParams = new RequestMockParams();
+
+        JSONObject urlParamsObject = getSendRestParamMapByIdAndUrl(apiPath, urlParams);
 
         requestMockParams.setRestParamsObj(urlParamsObject);
         requestMockParams.setQueryParamsObj(queryParamsObject);
         return requestMockParams;
     }
 
-    private static JSON getPostParamMap(HttpServletRequest request) {
+    public static JSON getPostParamMap(HttpServletRequest request) {
         if (StringUtils.equalsIgnoreCase("application/JSON", request.getContentType())) {
             JSON returnJson = null;
             try {
@@ -511,7 +514,9 @@ public class MockApiUtils {
         } else {
             JSONObject object = new JSONObject();
             String bodyParam = readBody(request);
-            object.put("raw",bodyParam);
+            if(StringUtils.isNotEmpty(bodyParam)){
+                object.put("raw",bodyParam);
+            }
 
             Enumeration<String> paramNameItor = request.getParameterNames();
             while (paramNameItor.hasMoreElements()) {
@@ -523,10 +528,9 @@ public class MockApiUtils {
         }
     }
 
-    private static JSONObject getSendRestParamMapByIdAndUrl(ApiDefinitionWithBLOBs api, String urlParams) {
+    private static JSONObject getSendRestParamMapByIdAndUrl(String path, String urlParams) {
         JSONObject returnJson = new JSONObject();
-        if (api != null) {
-            String path = api.getPath();
+        if (StringUtils.isNotEmpty(path)) {
             if (path.startsWith("/")) {
                 path = path.substring(1);
             }
