@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -24,4 +25,9 @@ public class ApiScenarioDTO extends ApiScenarioWithBLOBs {
 
     private String caseId;
     private String environment;
+    /**
+     * 场景列表 环境
+     */
+    private String env;
+    private Map<String, String> environmentMap;
 }
