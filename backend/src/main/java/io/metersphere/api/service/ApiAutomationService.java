@@ -355,7 +355,7 @@ public class ApiAutomationService {
             scenario.setVersion(version + 1);
         }
 
-        deleteUpdateBodyFile(scenario);
+        deleteUpdateBodyFile(scenario,beforeScenario);
         List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
@@ -376,8 +376,7 @@ public class ApiAutomationService {
      *
      * @param scenario
      */
-    public void deleteUpdateBodyFile(ApiScenarioWithBLOBs scenario) {
-        ApiScenarioWithBLOBs oldScenario = apiScenarioMapper.selectByPrimaryKey(scenario.getId());
+    public void deleteUpdateBodyFile(ApiScenarioWithBLOBs scenario,ApiScenarioWithBLOBs oldScenario) {
         Set<String> newRequestIds = getRequestIds(scenario.getScenarioDefinition());
         MsTestElement msTestElement = parseScenarioDefinition(oldScenario.getScenarioDefinition());
         List<MsHTTPSamplerProxy> oldRequests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
