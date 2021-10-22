@@ -503,7 +503,7 @@ export default {
       });
     },
     generateGraph() {
-      getGraphByCondition('API', buildBatchParam(this, this.$refs.table.selectIds),(data) => {
+      getGraphByCondition('API', buildBatchParam(this, this.$refs.table.selectIds), (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
       });
@@ -602,7 +602,7 @@ export default {
     },
     handleCopy(row) {
       row.isCopy = true;
-      this.$emit('editApi', row);
+      this.$emit('editApi', JSON.parse(JSON.stringify(row)));
     },
     runApi(row) {
 
@@ -723,7 +723,7 @@ export default {
       });
     },
     handleTestCase(api) {
-      this.$emit("handleTestCase",api)
+      this.$emit("handleTestCase", api)
       // this.$refs.caseList.open(this.selectApi);
     },
     handleDelete(api) {
