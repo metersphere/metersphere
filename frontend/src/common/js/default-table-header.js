@@ -61,7 +61,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createUser', key: '8', label: 'api_test.creator'},
     {id: 'updateTime', key: '9', label: 'api_test.definition.api_last_time'},
     {id: 'createTime', key: 'a', label: 'commons.create_time'},
-    {id: 'projectName', key: 'a', label: 'commons.project'},
+    {id: 'projectName', key: 'c', label: 'commons.project'},
     {id: 'passRate', key: 'b', label: 'commons.pass_rate'},
   ],
   //场景测试
