@@ -190,6 +190,7 @@ public class CustomFieldService {
             CustomFieldExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(customField.getName());
             criteria.andWorkspaceIdEqualTo(customField.getWorkspaceId());
+            criteria.andSceneEqualTo(customField.getScene());
             if (StringUtils.isNotBlank(customField.getId())) {
                 criteria.andIdNotEqualTo(customField.getId());
             }
