@@ -1477,11 +1477,7 @@ public class TestCaseService {
             });
         }
         List<String> ids = request.getIds();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            TestCaseBatchRequest deleteRequest = new TestCaseBatchRequest();
-            deleteRequest.setIds(ids);
-            deleteTestCaseBath(deleteRequest);
-        }
+        deleteToGcBatch(ids);
     }
 
     private void changeOrder(TestCaseMinderEditRequest.TestCaseMinderEditItem item, String projectId) {
@@ -1823,9 +1819,9 @@ public class TestCaseService {
         }
     }
 
-    public void deleteToGcBatch(TestCaseBatchRequest request) {
-        if (CollectionUtils.isNotEmpty(request.getIds())) {
-            for (String id : request.getIds()) {
+    public void deleteToGcBatch(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            for (String id : ids) {
                 this.deleteTestCaseToGc(id);
             }
         }
@@ -1986,6 +1982,9 @@ public class TestCaseService {
                     testCase = caseMap.get(relationshipEdge.getTargetId());
                 } else {
                     testCase = caseMap.get(relationshipEdge.getSourceId());
+                }
+                if (testCase == null) {
+                    continue; // 用例可能在回收站
                 }
                 relationshipEdgeDTO.setTargetName(testCase.getName());
                 relationshipEdgeDTO.setCreator(testCase.getCreateUser());

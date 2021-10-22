@@ -112,13 +112,15 @@ export default {
   computed: {
     isCustomNum() {
       let template = this.$store.state.testCaseTemplate;
-      template.customFields.forEach(item => {
-        if (item.name === '用例状态') {
-          for (let i = 0; i < item.options.length; i++) {
-            this.statusMap.set(item.options[i].value, item.options[i].text);
+      if (template && template.customFields) {
+        template.customFields.forEach(item => {
+          if (item.name === '用例状态') {
+            for (let i = 0; i < item.options.length; i++) {
+              this.statusMap.set(item.options[i].value, item.options[i].text);
+            }
           }
-        }
-      });
+        });
+      }
       return this.$store.state.currentProjectIsCustomNum;
     },
   },

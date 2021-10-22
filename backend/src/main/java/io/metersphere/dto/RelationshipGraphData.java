@@ -29,6 +29,7 @@ public class RelationshipGraphData {
         private Integer category; // 分组
         private Integer x;
         private Integer y;
+        private Boolean visited = false;
     }
 
     @Getter
