@@ -197,7 +197,9 @@ export default {
       selected: '選中節點',
       direct: '直接關聯',
       indirect: '間接關聯',
-
+      type: '關系類型',
+      after_finish: '結束後執行',
+      current_case: '本用例',
     },
     generate_test_data: "生成測試數據",
     table: {
