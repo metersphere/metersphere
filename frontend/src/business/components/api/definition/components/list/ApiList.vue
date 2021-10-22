@@ -561,6 +561,7 @@ export default {
       if (currentProtocol) {
         this.condition.moduleIds = [];
       }
+
       if (this.condition.projectId) {
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           getProtocolFilter(this.condition.protocol);
@@ -767,6 +768,14 @@ export default {
         this.selectDataRange = dataRange;
       } else {
         this.selectDataRange = 'all';
+      }
+      if (this.selectDataRange != null) {
+        let selectParamArr = this.selectDataRange.split(":");
+        if (selectParamArr.length === 2) {
+          if (selectParamArr[0] === "apiList") {
+            this.condition.name = selectParamArr[1];
+          }
+        }
       }
     },
     changeSelectDataRangeAll() {
