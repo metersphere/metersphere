@@ -349,7 +349,7 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
         if (param.files) {
           param.files.forEach(item => {
             if (item.file) {
-              item.name = item.file.name;
+              item.name = item.file.name ? item.file.name : item.name;
               bodyUploadFiles.push(item.file);
             }
           });
@@ -361,7 +361,7 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
         if (param.files) {
           param.files.forEach(item => {
             if (item.file) {
-              item.name = item.file.name;
+              item.name = item.file.name ? item.file.name : item.name;
               bodyUploadFiles.push(item.file);
             }
           });
