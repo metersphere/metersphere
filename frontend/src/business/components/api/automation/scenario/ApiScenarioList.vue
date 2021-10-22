@@ -132,6 +132,39 @@
                            :field="item"
                            :fields-width="fieldsWidth"
                            sortable="custom"/>
+
+          <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="environmentMap"
+            :label="$t('commons.environment')"
+            min-width="180">
+            <template v-slot:default="{row}">
+              <div v-if="row.environmentMap">
+                <span v-for="(k, v, index) in row.environmentMap" :key="index">
+                  <span v-if="index===0">
+                    <span class="project-name" :title="v">{{v}}</span>:
+                    <el-tag type="success" size="mini" effect="plain">
+                      <span class="project-env">{{k}}</span>
+                    </el-tag>
+                    <br/>
+                  </span>
+                  <el-popover
+                    placement="top"
+                    width="350"
+                    trigger="click">
+                    <div v-for="(k, v, index) in row.environmentMap" :key="index">
+                      <span class="plan-case-env">{{v}}:
+                        <el-tag type="success" size="mini" effect="plain">{{k}}</el-tag><br/>
+                      </span>
+                    </div>
+                    <el-link v-if="index === 1" slot="reference" type="info" :underline="false" icon="el-icon-more"/>
+                  </el-popover>
+                </span>
+              </div>
+            </template>
+          </ms-table-column>
+
           <ms-table-column prop="updateTime"
                            :field="item"
                            :fields-width="fieldsWidth"
@@ -1196,4 +1229,34 @@ export default {
   border-color: #dd3636;
   color: white;
 }
+
+.plan-case-env {
+  display: inline-block;
+  padding: 0 0;
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+  margin-left: 5px;
+}
+
+.project-name {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 80px;
+  vertical-align: middle;
+}
+
+.project-env{
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 50px;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
 </style>
