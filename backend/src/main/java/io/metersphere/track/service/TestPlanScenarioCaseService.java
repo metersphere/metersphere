@@ -341,7 +341,7 @@ public class TestPlanScenarioCaseService {
         return testPlanApiScenarioMapper.countByExample(example) > 0 ? true : false;
     }
 
-    public Map<String, String> getScenarioCaseEnv(HashMap<String, String> map) {
+    public Map<String, String> getScenarioCaseEnv(Map<String, String> map) {
         Set<String> set = map.keySet();
         HashMap<String, String> envMap = new HashMap<>(16);
         if (set.isEmpty()) {
