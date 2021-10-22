@@ -1,6 +1,6 @@
 <template>
 
-  <el-dialog
+  <el-dialog :append-to-body="appendToBody"
     :visible.sync="dialogVisible" destroy-on-close @close="close">
     <div style="padding: 10px">
       <el-switch active-text="JSON-SCHEMA" v-model="item.jsonType" @change="formatChange" active-value="JSON-SCHEMA"/>
@@ -35,6 +35,12 @@ export default {
     isReadOnly: {
       type: Boolean,
       default: false
+    },
+    appendToBody: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     },
   },
   data() {
