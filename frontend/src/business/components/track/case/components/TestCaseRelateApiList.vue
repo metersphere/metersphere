@@ -72,6 +72,7 @@ import TableSelectCountBar from "@/business/components/api/automation/scenario/a
 import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import MsTag from "@/business/components/common/components/MsTag";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestCaseRelateApiList",
@@ -141,6 +142,9 @@ export default {
         this.condition.projectId = projectId;
       } else if (this.projectId != null) {
         this.condition.projectId = this.projectId;
+      }
+      if (this.condition.projectId === '') {
+        this.condition.projectId = getCurrentProjectID();
       }
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
