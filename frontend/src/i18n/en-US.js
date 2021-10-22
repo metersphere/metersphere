@@ -197,6 +197,9 @@ export default {
       selected: 'Selected Node',
       direct: 'Direct Link',
       indirect: 'Indirect Link',
+      type: 'Relationship Type',
+      after_finish: 'Execution after completion',
+      current_case: 'Current case',
     },
     project_setting: "Project Setting",
     table: {

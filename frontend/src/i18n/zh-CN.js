@@ -197,7 +197,9 @@ export default {
       selected: '选中节点',
       direct: '直接关联',
       indirect: '间接关联',
-
+      type: '关系类型',
+      after_finish: '结束后执行',
+      current_case: '本用例',
     },
     generate_test_data: "生成测试数据",
     project_setting: '项目设置',
