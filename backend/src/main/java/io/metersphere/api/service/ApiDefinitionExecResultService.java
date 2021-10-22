@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.MessageCache;
+import io.metersphere.api.jmeter.RequestResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
@@ -73,58 +74,60 @@ public class ApiDefinitionExecResultService {
             result.getScenarios().forEach(scenarioResult -> {
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                     scenarioResult.getRequestResults().forEach(item -> {
-                        ApiDefinitionExecResult saveResult = MessageCache.batchTestCases.get(result.getTestId());
-                        if (saveResult == null) {
-                            saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(result.getTestId());
-                        }
-                        item.getResponseResult().setConsole(result.getConsole());
-                        boolean saved = true;
-                        if (saveResult == null || scenarioResult.getRequestResults().size() > 1) {
-                            saveResult = new ApiDefinitionExecResult();
-                            if (isFirst[0]) {
-                                isFirst[0] = false;
-                                saveResult.setId(result.getTestId());
-                            } else {
-                                saveResult.setId(UUID.randomUUID().toString());
+                        if(!StringUtils.equalsIgnoreCase(item.getMethod(),"Request") && !StringUtils.startsWithAny(item.getName(),"PRE_PROCESSOR_ENV_","POST_PROCESSOR_ENV_")){
+                            ApiDefinitionExecResult saveResult = MessageCache.batchTestCases.get(result.getTestId());
+                            if (saveResult == null) {
+                                saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(result.getTestId());
                             }
-                            saveResult.setActuator("LOCAL");
-                            saveResult.setName(item.getName());
-                            saveResult.setTriggerMode(triggerMode);
-                            saveResult.setType(type);
-                            saveResult.setCreateTime(item.getStartTime());
-                            if (StringUtils.isNotEmpty(result.getUserId())) {
-                                saveResult.setUserId(result.getUserId());
-                            } else {
-                                saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                            item.getResponseResult().setConsole(result.getConsole());
+                            boolean saved = true;
+                            if (saveResult == null || scenarioResult.getRequestResults().size() > 1) {
+                                saveResult = new ApiDefinitionExecResult();
+                                if (isFirst[0]) {
+                                    isFirst[0] = false;
+                                    saveResult.setId(result.getTestId());
+                                } else {
+                                    saveResult.setId(UUID.randomUUID().toString());
+                                }
+                                saveResult.setActuator("LOCAL");
+                                saveResult.setName(item.getName());
+                                saveResult.setTriggerMode(triggerMode);
+                                saveResult.setType(type);
+                                saveResult.setCreateTime(item.getStartTime());
+                                if (StringUtils.isNotEmpty(result.getUserId())) {
+                                    saveResult.setUserId(result.getUserId());
+                                } else {
+                                    saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                                }
+                                saved = false;
                             }
-                            saved = false;
-                        }
-                        String status = item.isSuccess() ? "success" : "error";
-                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
-                        saveResult.setStatus(status);
-                        saveResult.setResourceId(item.getName());
-                        saveResult.setContent(JSON.toJSONString(item));
-                        saveResult.setStartTime(item.getStartTime());
-                        saveResult.setEndTime(item.getResponseResult().getResponseTime());
+                            String status = item.isSuccess() ? "success" : "error";
+                            saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
+                            saveResult.setStatus(status);
+                            saveResult.setResourceId(item.getName());
+                            saveResult.setContent(JSON.toJSONString(item));
+                            saveResult.setStartTime(item.getStartTime());
+                            saveResult.setEndTime(item.getResponseResult().getResponseTime());
 
-                        // 清空上次执行结果的内容，只保留近五条结果
-                        ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
-                        if (prevResult != null) {
-                            prevResult.setContent(null);
-                            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
-                        }
+                            // 清空上次执行结果的内容，只保留近五条结果
+                            ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
+                            if (prevResult != null) {
+                                prevResult.setContent(null);
+                                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+                            }
 
-                        if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
-                            saveResult.setTriggerMode(TriggerMode.MANUAL.name());
+                            if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
+                                saveResult.setTriggerMode(TriggerMode.MANUAL.name());
+                            }
+                            if (!saved) {
+                                apiDefinitionExecResultMapper.insert(saveResult);
+                            } else {
+                                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
+                            }
+                            apiDefinitionService.removeCache(result.getTestId());
+                            // 发送通知
+                            sendNotice(saveResult);
                         }
-                        if (!saved) {
-                            apiDefinitionExecResultMapper.insert(saveResult);
-                        } else {
-                            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
-                        }
-                        apiDefinitionService.removeCache(result.getTestId());
-                        // 发送通知
-                        sendNotice(saveResult);
                     });
                 }
             });
