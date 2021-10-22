@@ -78,6 +78,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'lastResult', key: 'a', label: 'api_test.automation.last_result'},
     {id: 'passRate', key: 'b', label: 'api_test.automation.passing_rate'},
     {id: 'createTime', key: 'c', label: 'commons.create_time'},
+    {id: 'projectName', key: 'd', label: 'commons.project'},
   ],
   //用例评审
   TEST_CASE_REVIEW: [
@@ -172,6 +173,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'updateTime', key: '6', label: 'api_test.automation.update_time'},
     {id: 'createTime', key: 'b', label: 'commons.create_time'},
     {id: 'lastResult', key: 'c', label: 'api_test.automation.last_result'},
+    {id: 'projectName', key: 'd', label: 'commons.project'},
   ],
   //测试用例
   TRACK_TEST_CASE: [
@@ -185,6 +187,8 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createTime', key: '8', label: 'commons.create_time'},
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
     {id: 'status', key: '10', label: 'api_test.definition.api_case_status'},
+    {id: 'projectName', key: 'c', label: 'commons.project'},
+    {id: 'caseStatus', key: 'd', label: 'commons.status'},
   ],
   //缺陷列表
   ISSUE_LIST: [
