@@ -47,7 +47,8 @@ public class ApiAutomationController {
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public Pager<List<ApiScenarioDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-
+        // 查询场景环境
+        request.setSelectEnvironment(true);
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
@@ -367,5 +368,6 @@ public class ApiAutomationController {
     public List<String> getFollows(@PathVariable String scenarioId) {
         return apiAutomationService.getFollows(scenarioId);
     }
+
 }
 

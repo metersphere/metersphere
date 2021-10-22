@@ -64,6 +64,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -174,7 +175,56 @@ public class ApiAutomationService {
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
+        if (BooleanUtils.isTrue(request.isSelectEnvironment())) {
+            this.setApiScenarioEnv(list);
+        }
         return list;
+    }
+
+    private void setApiScenarioEnv(List<ApiScenarioDTO> list) {
+        List<Project> projectList = projectMapper.selectByExample(new ProjectExample());
+        List<ApiTestEnvironmentWithBLOBs> apiTestEnvironments = apiTestEnvironmentMapper.selectByExampleWithBLOBs(new ApiTestEnvironmentExample());
+        for (int i = 0; i < list.size(); i++) {
+            String env = list.get(i).getEnv();
+            // 环境属性为空 跳过
+            if (StringUtils.isBlank(env)) {
+                continue;
+            }
+            try {
+                Map map = JSON.parseObject(env, Map.class);
+                Set<String> set = map.keySet();
+                HashMap<String, String> envMap = new HashMap<>(16);
+                // 项目为空 跳过
+                if (set.isEmpty()) {
+                    continue;
+                }
+                for (String projectId : set) {
+                    String envId = (String) map.get(projectId);
+                    if (StringUtils.isBlank(envId)) {
+                        continue;
+                    }
+                    List<Project> projects = projectList.stream().filter(p -> StringUtils.equals(p.getId(), projectId)).collect(Collectors.toList());
+                    if (CollectionUtils.isEmpty(projects)) {
+                        continue;
+                    }
+                    Project project = projects.get(0);
+                    List<ApiTestEnvironmentWithBLOBs> envs = apiTestEnvironments.stream().filter(e -> StringUtils.equals(e.getId(), envId)).collect(Collectors.toList());
+                    if (CollectionUtils.isEmpty(envs)) {
+                        continue;
+                    }
+                    ApiTestEnvironmentWithBLOBs environment = envs.get(0);
+                    String projectName = project.getName();
+                    String envName = environment.getName();
+                    if (StringUtils.isBlank(projectName) || StringUtils.isBlank(envName)) {
+                        continue;
+                    }
+                    envMap.put(projectName, envName);
+                }
+                list.get(i).setEnvironmentMap(envMap);
+            } catch (Exception e) {
+                LogUtil.error("api scenario environment map incorrect parsing. api scenario id:" + list.get(i).getId());
+            }
+        }
     }
 
     public List<ApiScenarioWithBLOBs> listAll(ApiScenarioBatchRequest request) {
