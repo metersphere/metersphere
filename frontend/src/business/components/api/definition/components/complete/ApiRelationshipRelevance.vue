@@ -22,8 +22,6 @@
       :select-node-ids="selectNodeIds"
       :result="result"
       :current-protocol="currentProtocol"
-      :current-page="currentPage"
-      :page-size="pageSize"
       @refreshTable="initTable"
       ref="apitable"/>
 
@@ -55,8 +53,6 @@
         currentRow: {},
         projectId: "",
         result: {},
-        currentPage: 1,
-        pageSize: 10,
         tableData: []
       };
     },
@@ -91,21 +87,23 @@
           this.condition.protocol = "HTTP";
         }
 
-        if (this.apiDefinitionId) {
-          this.condition.id = this.apiDefinitionId;
-          this.result = this.$post(this.buildPagePath('/api/definition/relationship/relate'), this.condition, response => {
-            this.total = response.data.itemCount;
-            this.tableData = response.data.listObject;
-            this.tableData.forEach(item => {
-              if (item.tags && item.tags.length > 0) {
-                item.tags = JSON.parse(item.tags);
-              }
+        this.$nextTick(() => {
+          if (this.apiDefinitionId) {
+            this.condition.id = this.apiDefinitionId;
+            this.result = this.$post(this.buildPagePath('/api/definition/relationship/relate'), this.condition, response => {
+              this.total = response.data.itemCount;
+              this.tableData = response.data.listObject;
+              this.tableData.forEach(item => {
+                if (item.tags && item.tags.length > 0) {
+                  item.tags = JSON.parse(item.tags);
+                }
+              });
             });
-          });
-        }
+          }
+        });
       },
       buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
+        return path + "/" + this.$refs.apitable.currentPage + "/" + this.$refs.apitable.pageSize;
       },
       setProject(projectId) {
         this.projectId = projectId;

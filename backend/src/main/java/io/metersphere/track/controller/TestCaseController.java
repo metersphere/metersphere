@@ -127,8 +127,7 @@ public class TestCaseController {
 
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
     public Pager<List<TestCase>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, testCaseService.getRelationshipRelateList(request));
+        return testCaseService.getRelationshipRelateList(request, goPage, pageSize);
     }
 
     @PostMapping("/relate/issue/{goPage}/{pageSize}")
