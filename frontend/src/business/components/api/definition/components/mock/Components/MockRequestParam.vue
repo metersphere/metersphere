@@ -17,7 +17,7 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <ms-api-key-value :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="request.headers" :need-mock="true"/>
+              <ms-api-key-value :append-to-body="true" :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="request.headers" :need-mock="true"/>
             </el-tab-pane>
 
             <!--query 参数-->
@@ -31,7 +31,7 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
+              <ms-api-variable :append-dialog-to-body="true" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
             </el-tab-pane>
 
             <!--REST 参数-->
@@ -47,7 +47,7 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
+              <ms-api-variable :append-dialog-to-body="true" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
             </el-tab-pane>
 
             <!--请求体-->
