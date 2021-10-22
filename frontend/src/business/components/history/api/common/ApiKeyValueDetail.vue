@@ -20,6 +20,7 @@
         <el-col class="item" v-if="showDesc">
           <input class="el-input el-input__inner" v-model="item.description" size="small" maxlength="200"
                  :style="item.style"
+                 :disabled="isReadOnly"
                  :placeholder="$t('commons.description')" show-word-limit/>
         </el-col>
       </el-row>
@@ -43,7 +44,7 @@ export default {
     items: Array,
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: true
     },
     suggestions: Array,
     needMock: {
