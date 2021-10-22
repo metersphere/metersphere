@@ -38,7 +38,7 @@ export function hasPermission(permission) {
   });
 
   // todo 权限验证
-  let currentProjectPermissions = user.userGroups.filter(ug => ug.group.type === 'PROJECT')
+  let currentProjectPermissions = user.userGroups.filter(ug => ug.group && ug.group.type === 'PROJECT')
     .filter(ug => ug.sourceId === getCurrentProjectID())
     .map(ug => ug.userGroupPermissions)
     .reduce((total, current) => {
@@ -56,7 +56,7 @@ export function hasPermission(permission) {
     }
   }
 
-  let currentWorkspacePermissions = user.userGroups.filter(ug => ug.group.type === 'WORKSPACE')
+  let currentWorkspacePermissions = user.userGroups.filter(ug => ug.group && ug.group.type === 'WORKSPACE')
     .filter(ug => ug.sourceId === getCurrentWorkspaceId())
     .map(ug => ug.userGroupPermissions)
     .reduce((total, current) => {
@@ -74,7 +74,7 @@ export function hasPermission(permission) {
     }
   }
 
-  let systemPermissions = user.userGroups.filter(gp => gp.group.type === 'SYSTEM')
+  let systemPermissions = user.userGroups.filter(gp => gp.group && gp.group.type === 'SYSTEM')
     .filter(ug => ug.sourceId === 'system' || ug.sourceId === 'adminSourceId')
     .map(ug => ug.userGroupPermissions)
     .reduce((total, current) => {
