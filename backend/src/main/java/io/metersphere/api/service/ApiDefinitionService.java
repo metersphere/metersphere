@@ -2,6 +2,8 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
@@ -58,6 +60,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import sun.security.util.Cache;
 
@@ -1663,11 +1666,12 @@ public class ApiDefinitionService {
         }
     }
 
-    public List<ApiDefinitionResult> getRelationshipRelateList(ApiDefinitionRequest request) {
+    public Pager<List<ApiDefinitionResult>> getRelationshipRelateList(ApiDefinitionRequest request, int goPage, @PathVariable int pageSize) {
         request = this.initRequest(request, true, true);
         List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
         request.setNotInIds(relationshipIds);
         request.setId(null); // 去掉id的查询条件
-        return extApiDefinitionMapper.list(request);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, extApiDefinitionMapper.list(request));
     }
 }
