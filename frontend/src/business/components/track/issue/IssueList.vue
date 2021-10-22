@@ -327,6 +327,9 @@ export default {
       });
     },
     btnDisable(row) {
+      if (this.issueTemplate.platform == "metersphere" && row.platform == 'Local') {
+        return false;
+      }
       if (this.issueTemplate.platform !== row.platform) {
         return true;
       }
