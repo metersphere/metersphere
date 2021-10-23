@@ -354,3 +354,17 @@ SELECT id, follow_people
 FROM load_test
 WHERE follow_people IS NOT NULL;
 ALTER TABLE load_test DROP COLUMN follow_people;
+
+-- 自动化关注人
+CREATE TABLE IF NOT EXISTS `api_scenario_follow` (
+    `scenario_id`   VARCHAR(50) DEFAULT NULL,
+    `follow_id` VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY `api_scenario_follow_scenario_id_follow_id_pk` (`scenario_id`, `follow_id`),
+    KEY `api_scenario_follow_id_index` (`follow_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- 自动化关注人数据迁移
+INSERT INTO api_scenario_follow
+SELECT id, follow_people
+FROM api_scenario
+WHERE follow_people IS NOT NULL;
+ALTER TABLE api_scenario DROP COLUMN follow_people;

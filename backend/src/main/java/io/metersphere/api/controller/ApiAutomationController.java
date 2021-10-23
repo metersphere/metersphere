@@ -359,6 +359,9 @@ public class ApiAutomationController {
         return apiAutomationService.checkScenarioEnv(request);
     }
 
-
+    @GetMapping("/follow/{scenarioId}")
+    public List<String> getFollows(@PathVariable String scenarioId) {
+        return apiAutomationService.getFollows(scenarioId);
+    }
 }
 
