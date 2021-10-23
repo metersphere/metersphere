@@ -340,3 +340,17 @@ ALTER TABLE workspace
 
 ALTER TABLE api_test_case ADD COLUMN case_status VARCHAR(100) comment '用例状态等同场景的status';
 UPDATE api_test_case set case_status ="Underway" where case_status is null;
+
+-- 性能测试关注人
+CREATE TABLE IF NOT EXISTS `load_test_follow` (
+    `test_id`   VARCHAR(50) DEFAULT NULL,
+    `follow_id` VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY `load_test_follow_test_id_follow_id_pk` (`test_id`, `follow_id`),
+    KEY `load_test_follow_follow_id_index` (`follow_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- 性能测试关注人数据迁移
+INSERT INTO load_test_follow
+SELECT id, follow_people
+FROM load_test
+WHERE follow_people IS NOT NULL;
+ALTER TABLE load_test DROP COLUMN follow_people;
