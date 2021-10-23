@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiTestCase implements Serializable {
@@ -39,8 +38,6 @@ public class ApiTestCase implements Serializable {
     private String deleteUserId;
 
     private Integer version;
-
-    private String followPeople;
 
     private Long order;
 
