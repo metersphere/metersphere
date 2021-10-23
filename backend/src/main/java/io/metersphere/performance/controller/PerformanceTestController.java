@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -241,5 +242,10 @@ public class PerformanceTestController {
     @GetMapping("test/report-count/{testId}")
     public Long getReportCount(@PathVariable String testId) {
         return performanceTestService.getReportCountByTestId(testId);
+    }
+
+    @GetMapping("test/follow/{testId}")
+    public List<String> getFollows(@PathVariable String testId) {
+        return performanceTestService.getFollows(testId);
     }
 }
