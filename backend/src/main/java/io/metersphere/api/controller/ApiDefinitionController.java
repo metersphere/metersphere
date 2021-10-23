@@ -324,4 +324,9 @@ public class ApiDefinitionController {
     public Pager< List<ApiDefinitionResult>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         return apiDefinitionService.getRelationshipRelateList(request, goPage, pageSize);
     }
+
+    @GetMapping("/follow/{definitionId}")
+    public List<String> getFollows(@PathVariable String definitionId) {
+        return apiDefinitionService.getFollows(definitionId);
+    }
 }
