@@ -71,8 +71,8 @@
             </el-col>
             <el-col :span="8">
               <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
-                <el-select v-model="httpForm.followPeople"
-                           clearable
+                <el-select v-model="httpForm.follows"
+                           clearable multiple
                            :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                            class="ms-http-textarea">
                   <el-option
@@ -359,7 +359,9 @@
         this.basisData.environmentId = "";
       }
       this.httpForm = JSON.parse(JSON.stringify(this.basisData));
-
+      this.$get('/api/definition/follow/' + this.basisData.id, response => {
+        this.httpForm.follows = response.data;
+      });
       this.initMockEnvironment();
     }
   }
