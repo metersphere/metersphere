@@ -368,3 +368,17 @@ SELECT id, follow_people
 FROM api_scenario
 WHERE follow_people IS NOT NULL;
 ALTER TABLE api_scenario DROP COLUMN follow_people;
+
+-- 接口定义关注人
+CREATE TABLE IF NOT EXISTS `api_definition_follow` (
+    `definition_id`   VARCHAR(50) DEFAULT NULL,
+    `follow_id` VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY `api_definition_follow_scenario_id_follow_id_pk` (`definition_id`, `follow_id`),
+    KEY `api_definition_follow_id_index` (`follow_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- 接口定义数据迁移
+INSERT INTO api_definition_follow
+SELECT id, follow_people
+FROM api_definition
+WHERE follow_people IS NOT NULL;
+ALTER TABLE api_definition DROP COLUMN follow_people;
