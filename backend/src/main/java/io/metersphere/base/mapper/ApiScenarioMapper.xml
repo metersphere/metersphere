@@ -13,7 +13,6 @@
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="principal" jdbcType="VARCHAR" property="principal" />
     <result column="step_total" jdbcType="INTEGER" property="stepTotal" />
-    <result column="follow_people" jdbcType="VARCHAR" property="followPeople" />
     <result column="schedule" jdbcType="VARCHAR" property="schedule" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
@@ -95,9 +94,9 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, tags, user_id, api_scenario_module_id, module_path, `name`, `level`, 
-    `status`, principal, step_total, follow_people, schedule, create_time, update_time, 
-    pass_rate, last_result, report_id, num, original_state, custom_num, create_user, 
-    version, delete_time, delete_user_id, execute_times, `order`
+    `status`, principal, step_total, schedule, create_time, update_time, pass_rate, last_result, 
+    report_id, num, original_state, custom_num, create_user, version, delete_time, delete_user_id, 
+    execute_times, `order`
   </sql>
   <sql id="Blob_Column_List">
     scenario_definition, description, use_url
@@ -154,25 +153,23 @@
     insert into api_scenario (id, project_id, tags, 
       user_id, api_scenario_module_id, module_path, 
       `name`, `level`, `status`, 
-      principal, step_total, follow_people, 
-      schedule, create_time, update_time, 
-      pass_rate, last_result, report_id, 
-      num, original_state, custom_num, 
-      create_user, version, delete_time, 
-      delete_user_id, execute_times, `order`, 
-      scenario_definition, description, 
-      use_url)
+      principal, step_total, schedule, 
+      create_time, update_time, pass_rate, 
+      last_result, report_id, num, 
+      original_state, custom_num, create_user, 
+      version, delete_time, delete_user_id, 
+      execute_times, `order`, scenario_definition, 
+      description, use_url)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{followPeople,jdbcType=VARCHAR}, 
-      #{schedule,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{passRate,jdbcType=VARCHAR}, #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
-      #{num,jdbcType=INTEGER}, #{originalState,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{version,jdbcType=INTEGER}, #{deleteTime,jdbcType=BIGINT}, 
-      #{deleteUserId,jdbcType=VARCHAR}, #{executeTimes,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, 
-      #{scenarioDefinition,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
-      #{useUrl,jdbcType=LONGVARCHAR})
+      #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{schedule,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{passRate,jdbcType=VARCHAR}, 
+      #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
+      #{originalState,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{version,jdbcType=INTEGER}, #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, 
+      #{executeTimes,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, 
+      #{description,jdbcType=LONGVARCHAR}, #{useUrl,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
     insert into api_scenario
@@ -209,9 +206,6 @@
       </if>
       <if test="stepTotal != null">
         step_total,
-      </if>
-      <if test="followPeople != null">
-        follow_people,
       </if>
       <if test="schedule != null">
         schedule,
@@ -301,9 +295,6 @@
       </if>
       <if test="stepTotal != null">
         #{stepTotal,jdbcType=INTEGER},
-      </if>
-      <if test="followPeople != null">
-        #{followPeople,jdbcType=VARCHAR},
       </if>
       <if test="schedule != null">
         #{schedule,jdbcType=VARCHAR},
@@ -403,9 +394,6 @@
       <if test="record.stepTotal != null">
         step_total = #{record.stepTotal,jdbcType=INTEGER},
       </if>
-      <if test="record.followPeople != null">
-        follow_people = #{record.followPeople,jdbcType=VARCHAR},
-      </if>
       <if test="record.schedule != null">
         schedule = #{record.schedule,jdbcType=VARCHAR},
       </if>
@@ -478,7 +466,6 @@
       `status` = #{record.status,jdbcType=VARCHAR},
       principal = #{record.principal,jdbcType=VARCHAR},
       step_total = #{record.stepTotal,jdbcType=INTEGER},
-      follow_people = #{record.followPeople,jdbcType=VARCHAR},
       schedule = #{record.schedule,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
@@ -514,7 +501,6 @@
       `status` = #{record.status,jdbcType=VARCHAR},
       principal = #{record.principal,jdbcType=VARCHAR},
       step_total = #{record.stepTotal,jdbcType=INTEGER},
-      follow_people = #{record.followPeople,jdbcType=VARCHAR},
       schedule = #{record.schedule,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
@@ -566,9 +552,6 @@
       </if>
       <if test="stepTotal != null">
         step_total = #{stepTotal,jdbcType=INTEGER},
-      </if>
-      <if test="followPeople != null">
-        follow_people = #{followPeople,jdbcType=VARCHAR},
       </if>
       <if test="schedule != null">
         schedule = #{schedule,jdbcType=VARCHAR},
@@ -639,7 +622,6 @@
       `status` = #{status,jdbcType=VARCHAR},
       principal = #{principal,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},
-      follow_people = #{followPeople,jdbcType=VARCHAR},
       schedule = #{schedule,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
@@ -672,7 +654,6 @@
       `status` = #{status,jdbcType=VARCHAR},
       principal = #{principal,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},
-      follow_people = #{followPeople,jdbcType=VARCHAR},
       schedule = #{schedule,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
