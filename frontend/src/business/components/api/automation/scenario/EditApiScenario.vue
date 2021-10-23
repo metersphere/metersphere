@@ -60,8 +60,8 @@
             </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
-                <el-select v-model="currentScenario.followPeople"
-                           clearable
+                <el-select v-model="currentScenario.follows"
+                           clearable multiple
                            :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                            class="ms-scenario-input">
                   <el-option
@@ -1368,6 +1368,10 @@ export default {
             if (this.currentScenario.copy) {
               this.path = "/api/automation/create";
             }
+            this.$get('/api/automation/follow/' + this.currentScenario.id, response => {
+              // this.$set(this.currentScenario, 'follows', response.data);
+              this.currentScenario.follows = response.data;
+            });
           }
           this.loading = false;
           this.setDomain();
