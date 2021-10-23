@@ -16,9 +16,9 @@
           <el-col :span="6">
             <el-form>
               <el-form-item :label="$t('api_test.automation.follow_people')">
-                <el-select v-model="test.followPeople"
+                <el-select v-model="test.follows"
                            clearable
-                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small">
+                           :placeholder="$t('api_test.automation.follow_people')" multiple filterable size="small">
                   <el-option
                     v-for="item in maintainerOptions"
                     :key="item.id"
@@ -115,7 +115,7 @@ export default {
   data() {
     return {
       result: {},
-      test: {schedule: {}},
+      test: {schedule: {}, follows: []},
       savePath: "/performance/save",
       editPath: "/performance/edit",
       runPath: "/performance/run",
@@ -255,6 +255,9 @@ export default {
             if (!this.test.schedule) {
               this.test.schedule = {};
             }
+            this.$get('/performance/test/follow/' + testId, response => {
+              this.$set(this.test, 'follows', response.data);
+            });
           }
         });
       }
