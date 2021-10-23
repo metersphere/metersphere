@@ -63,7 +63,8 @@
             </el-col>
             <el-col :span="16">
               <div class="tag-item" @click.stop>
-                <el-select v-model="apiCase.followPeople" clearable :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
+                <el-select v-model="apiCase.follows" multiple clearable
+                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                            @change="saveTestCase(apiCase,true)" style="width: 100%">
                   <el-option
                     v-for="item in maintainerOptions"
@@ -279,6 +280,9 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
     }
+    this.$get('/api/testcase/follow/' + this.apiCase.id, response => {
+      this.apiCase.follows = response.data;
+    });
   },
   watch: {
     'apiCase.selected'() {
