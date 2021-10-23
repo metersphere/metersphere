@@ -916,7 +916,7 @@ public class PerformanceTestService {
         }
         LoadTestFollowExample example = new LoadTestFollowExample();
         example.createCriteria().andTestIdEqualTo(testId);
-        List<LoadTestFollow> testPlanFollow = loadTestFollowMapper.selectByExample(example);
-        return testPlanFollow.stream().map(LoadTestFollow::getFollowId).distinct().collect(Collectors.toList());
+        List<LoadTestFollow> follows = loadTestFollowMapper.selectByExample(example);
+        return follows.stream().map(LoadTestFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 }

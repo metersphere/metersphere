@@ -142,6 +142,8 @@ public class ApiAutomationService {
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
     private RelationshipEdgeService relationshipEdgeService;
+    @Resource
+    private ApiScenarioFollowMapper apiScenarioFollowMapper;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -355,7 +357,7 @@ public class ApiAutomationService {
             scenario.setVersion(version + 1);
         }
 
-        deleteUpdateBodyFile(scenario,beforeScenario);
+        deleteUpdateBodyFile(scenario, beforeScenario);
         List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
@@ -376,7 +378,7 @@ public class ApiAutomationService {
      *
      * @param scenario
      */
-    public void deleteUpdateBodyFile(ApiScenarioWithBLOBs scenario,ApiScenarioWithBLOBs oldScenario) {
+    public void deleteUpdateBodyFile(ApiScenarioWithBLOBs scenario, ApiScenarioWithBLOBs oldScenario) {
         Set<String> newRequestIds = getRequestIds(scenario.getScenarioDefinition());
         MsTestElement msTestElement = parseScenarioDefinition(oldScenario.getScenarioDefinition());
         List<MsHTTPSamplerProxy> oldRequests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
@@ -414,7 +416,6 @@ public class ApiAutomationService {
         scenario.setApiScenarioModuleId(request.getApiScenarioModuleId());
         scenario.setModulePath(request.getModulePath());
         scenario.setLevel(request.getLevel());
-        scenario.setFollowPeople(request.getFollowPeople());
         scenario.setPrincipal(request.getPrincipal());
         scenario.setStepTotal(request.getStepTotal());
         scenario.setUpdateTime(System.currentTimeMillis());
@@ -442,7 +443,22 @@ public class ApiAutomationService {
                 scenario.setModulePath(modules.get(0).getName());
             }
         }
+        saveFollows(scenario.getId(), request.getFollows());
         return scenario;
+    }
+
+    private void saveFollows(String scenarioId, List<String> follows) {
+        ApiScenarioFollowExample example = new ApiScenarioFollowExample();
+        example.createCriteria().andScenarioIdEqualTo(scenarioId);
+        apiScenarioFollowMapper.deleteByExample(example);
+        if (!org.springframework.util.CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                ApiScenarioFollow apiScenarioFollow = new ApiScenarioFollow();
+                apiScenarioFollow.setScenarioId(scenarioId);
+                apiScenarioFollow.setFollowId(follow);
+                apiScenarioFollowMapper.insert(apiScenarioFollow);
+            }
+        }
     }
 
     public void delete(String id) {
@@ -2669,4 +2685,14 @@ public class ApiAutomationService {
         return this.checkScenarioEnv(request, null);
     }
 
+    public List<String> getFollows(String scenarioId) {
+        List<String> result = new ArrayList<>();
+        if (StringUtils.isBlank(scenarioId)) {
+            return result;
+        }
+        ApiScenarioFollowExample example = new ApiScenarioFollowExample();
+        example.createCriteria().andScenarioIdEqualTo(scenarioId);
+        List<ApiScenarioFollow> follows = apiScenarioFollowMapper.selectByExample(example);
+        return follows.stream().map(ApiScenarioFollow::getFollowId).distinct().collect(Collectors.toList());
+    }
 }
