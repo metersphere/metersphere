@@ -34,7 +34,7 @@ public class SaveApiScenarioRequest {
 
     private Integer stepTotal;
 
-    private String followPeople;
+    private List<String> follows;
 
     private String schedule;
 
