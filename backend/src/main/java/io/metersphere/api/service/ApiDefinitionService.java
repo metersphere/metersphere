@@ -123,6 +123,8 @@ public class ApiDefinitionService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private RelationshipEdgeService relationshipEdgeService;
+    @Resource
+    private ApiDefinitionFollowMapper apiDefinitionFollowMapper;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600);
 
@@ -475,7 +477,6 @@ public class ApiDefinitionService {
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
         test.setRemark(request.getRemark());
-        test.setFollowPeople(request.getFollowPeople());
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
@@ -487,8 +488,22 @@ public class ApiDefinitionService {
         List<String> ids = new ArrayList<>();
         ids.add(request.getId());
         apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol());
-
+        saveFollows(test.getId(), request.getFollows());
         return test;
+    }
+
+    private void saveFollows(String definitionId, List<String> follows) {
+        ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
+        example.createCriteria().andDefinitionIdEqualTo(definitionId);
+        apiDefinitionFollowMapper.deleteByExample(example);
+        if (!org.springframework.util.CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                ApiDefinitionFollow item = new ApiDefinitionFollow();
+                item.setDefinitionId(definitionId);
+                item.setFollowId(follow);
+                apiDefinitionFollowMapper.insert(item);
+            }
+        }
     }
 
     private ApiDefinitionWithBLOBs createTest(SaveApiDefinitionRequest request) {
@@ -512,7 +527,6 @@ public class ApiDefinitionService {
         test.setStatus(APITestStatus.Underway.name());
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
-        test.setFollowPeople(request.getFollowPeople());
         test.setRemark(request.getRemark());
         test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiDefinitionMapper::getLastOrder));
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
@@ -539,6 +553,7 @@ public class ApiDefinitionService {
             test.setTags("");
         }
         apiDefinitionMapper.insert(test);
+        saveFollows(test.getId(), request.getFollows());
         return test;
     }
 
@@ -869,8 +884,8 @@ public class ApiDefinitionService {
     public void addResult(TestResult res) {
         if (res != null && CollectionUtils.isNotEmpty(res.getScenarios()) && res.getScenarios().get(0) != null && CollectionUtils.isNotEmpty(res.getScenarios().get(0).getRequestResults())) {
             RequestResult result = null;
-            for(RequestResult itemResult : res.getScenarios().get(0).getRequestResults()){
-                if(!StringUtils.equalsIgnoreCase(itemResult.getMethod(),"Request") && !StringUtils.startsWithAny(itemResult.getName(),"PRE_PROCESSOR_ENV_","POST_PROCESSOR_ENV_")){
+            for (RequestResult itemResult : res.getScenarios().get(0).getRequestResults()) {
+                if (!StringUtils.equalsIgnoreCase(itemResult.getMethod(), "Request") && !StringUtils.startsWithAny(itemResult.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                     result = itemResult;
                     break;
                 }
@@ -1673,5 +1688,16 @@ public class ApiDefinitionService {
         request.setId(null); // 去掉id的查询条件
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, extApiDefinitionMapper.list(request));
+    }
+
+    public List<String> getFollows(String definitionId) {
+        List<String> result = new ArrayList<>();
+        if (StringUtils.isBlank(definitionId)) {
+            return result;
+        }
+        ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
+        example.createCriteria().andDefinitionIdEqualTo(definitionId);
+        List<ApiDefinitionFollow> follows = apiDefinitionFollowMapper.selectByExample(example);
+        return follows.stream().map(ApiDefinitionFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 }
