@@ -468,6 +468,12 @@ public class ApiAutomationService {
         apiScenarioMapper.deleteByPrimaryKey(id);
     }
 
+    private void deleteFollows(String id) {
+        ApiScenarioFollowExample example = new ApiScenarioFollowExample();
+        example.createCriteria().andScenarioIdEqualTo(id);
+        apiScenarioFollowMapper.deleteByExample(example);
+    }
+
     public void preDelete(String scenarioId) {
         //删除引用
         apiScenarioReferenceIdService.deleteByScenarioId(scenarioId);
@@ -495,6 +501,7 @@ public class ApiAutomationService {
         // 删除引用关系
         relationshipEdgeService.delete(scenarioId);
         deleteBodyFileByScenarioId(scenarioId);
+        deleteFollows(scenarioId);
     }
 
     public void deleteBodyFileByScenarioId(String scenarioId) {
@@ -552,6 +559,7 @@ public class ApiAutomationService {
             }
 
             scheduleService.deleteByResourceId(id, ScheduleGroup.API_SCENARIO_TEST.name());
+            deleteFollows(id);
         }
         if (!testPlanApiScenarioIdList.isEmpty()) {
             TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
