@@ -87,10 +87,12 @@
             </include>
         </if>
         <if test="${condition}.followPeople != null">
-            and api_scenario.follow_people
+            and api_scenario.id in (
+            select scenario_id from api_scenario_follow where follow_id
             <include refid="condition">
                 <property name="object" value="${condition}.followPeople"/>
             </include>
+            )
         </if>
         <if test="${condition}.updateTime != null">
             and api_scenario.update_time
