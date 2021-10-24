@@ -98,7 +98,7 @@ public class PerformanceTestService {
     @Resource
     private TestCaseService testCaseService;
     @Resource
-    private TestResourcePoolMapper testResourcePoolMapper;
+    private LoadTestFollowMapper loadTestFollowMapper;
     @Resource
     private ApiAutomationService apiAutomationService;
     @Resource
@@ -250,11 +250,11 @@ public class PerformanceTestService {
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTest.setNum(getNextNum(request.getProjectId()));
-        loadTest.setFollowPeople(request.getFollowPeople());
         loadTest.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extLoadTestMapper::getLastOrder));
         List<ApiLoadTest> apiList = request.getApiList();
         apiPerformanceService.add(apiList, loadTest.getId());
         loadTestMapper.insert(loadTest);
+        saveFollows(loadTest.getId(), request.getFollows());
         return loadTest;
     }
 
@@ -300,10 +300,24 @@ public class PerformanceTestService {
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
-        loadTest.setFollowPeople(request.getFollowPeople());
+        saveFollows(loadTest.getId(), request.getFollows());
         loadTestMapper.updateByPrimaryKeySelective(loadTest);
 
         return loadTest;
+    }
+
+    private void saveFollows(String testId, List<String> follows) {
+        LoadTestFollowExample example = new LoadTestFollowExample();
+        example.createCriteria().andTestIdEqualTo(testId);
+        loadTestFollowMapper.deleteByExample(example);
+        if (!CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                LoadTestFollow loadTestFollow = new LoadTestFollow();
+                loadTestFollow.setTestId(testId);
+                loadTestFollow.setFollowId(follow);
+                loadTestFollowMapper.insert(loadTestFollow);
+            }
+        }
     }
 
     @Transactional(noRollbackFor = MSException.class)//  保存失败的信息
@@ -893,5 +907,16 @@ public class PerformanceTestService {
         example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId)
                 .andStatusIn(Arrays.asList(PerformanceTestStatus.Running.name(), PerformanceTestStatus.Starting.name()));
         return loadTestReportMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public List<String> getFollows(String testId) {
+        List<String> result = new ArrayList<>();
+        if (StringUtils.isBlank(testId)) {
+            return result;
+        }
+        LoadTestFollowExample example = new LoadTestFollowExample();
+        example.createCriteria().andTestIdEqualTo(testId);
+        List<LoadTestFollow> follows = loadTestFollowMapper.selectByExample(example);
+        return follows.stream().map(LoadTestFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 }

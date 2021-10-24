@@ -322,7 +322,11 @@ public class ApiDefinitionController {
 
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
     public Pager< List<ApiDefinitionResult>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, apiDefinitionService.getRelationshipRelateList(request));
+        return apiDefinitionService.getRelationshipRelateList(request, goPage, pageSize);
+    }
+
+    @GetMapping("/follow/{definitionId}")
+    public List<String> getFollows(@PathVariable String definitionId) {
+        return apiDefinitionService.getFollows(definitionId);
     }
 }

@@ -30,6 +30,7 @@
         :is-read-only="isReadOnly"
         :parameters="body.kvs"
         :isShowEnable="isShowEnable"
+        :append-dialog-to-body="true"
         type="body"/>
     </div>
     <div v-if="body.type == 'JSON'">
@@ -213,20 +214,20 @@ export default {
     modeChange(mode) {
       switch (this.body.type) {
         case "JSON":
-          this.setContentType("application/json");
+          // this.setContentType("application/json");
           break;
         case "XML":
-          this.setContentType("text/xml");
+          // this.setContentType("text/xml");
           break;
         case "WWW_FORM":
-          this.setContentType("application/x-www-form-urlencoded");
+          // this.setContentType("application/x-www-form-urlencoded");
           break;
         // todo from data
         // case "BINARY":
         //   this.setContentType("application/octet-stream");
         //   break;
         default:
-          this.removeContentType();
+          // this.removeContentType();
           break;
       }
     },

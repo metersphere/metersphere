@@ -27,4 +27,6 @@ public class ApiDefinitionResult extends ApiDefinitionWithBLOBs {
     private String caseType;
 
     private String scenarioType;
+
+    private String apiType;
 }

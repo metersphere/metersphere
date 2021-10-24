@@ -2,8 +2,19 @@
   <div class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <el-table border :data="tableData" class="adjust-table table-content" height="300px">
       <el-table-column prop="num" :label="$t('api_test.home_page.new_case_list.table_coloum.index')" width="100"
-                       show-overflow-tooltip/>
+                       show-overflow-tooltip>
+        <template v-slot:default="{row}">
+          <el-link type="num" @click="redirect(row.apiType,row.num)">
+            {{ row.num }}
+          </el-link>
+        </template>
+      </el-table-column>
       <el-table-column prop="name" :label="$t('api_test.home_page.new_case_list.table_coloum.api_name')" width="150">
+        <template v-slot:default="{row}">
+          <el-link type="name" @click="redirect(row.apiType,row.name)">
+            {{ row.name }}
+          </el-link>
+        </template>
       </el-table-column>
       <el-table-column prop="path" :label="$t('api_test.home_page.new_case_list.table_coloum.path')" width="150">
 
@@ -184,11 +195,14 @@ export default {
     },
     redirect(pageType, param) {
       switch (pageType) {
+        case "api":
+          this.$emit('redirectPage', 'api', 'api', 'apiList:' + param);
+          break;
         case "apiCase":
           this.$emit('redirectPage', 'api', 'apiTestCase', 'singleList:' + param);
           break;
         case "scenario":
-          if(param) {
+          if (param) {
             this.$emit('redirectPage', 'scenario', 'scenario', 'list:' + param);
             break;
           }

@@ -90,6 +90,7 @@ public class MsDubboSampler extends MsTestElement {
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.setRefElement();
+            hashTree = this.getHashTree();
         }
 
         final HashTree testPlanTree = tree.add(dubboSample(config));

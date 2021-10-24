@@ -33,7 +33,7 @@ public class UserExcelDataTw extends TestCaseExcelData {
     @Length(max = 255)
     @ExcelProperty("密碼")
     @ColumnWidth(30)
-    @Pattern(regexp = "^(?![0-9]+$)(?![^0-9]+$)(?![a-zA-Z]+$)(?![^a-zA-Z]+$)(?![a-zA-Z0-9]+$)[a-zA-Z0-9\\S]{8,30}$", message = "{user_import_format_wrong}")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[\\s\\S]{8,30}$", message = "{user_import_format_wrong}")
     private String password;
 
     @ExcelProperty("電話")

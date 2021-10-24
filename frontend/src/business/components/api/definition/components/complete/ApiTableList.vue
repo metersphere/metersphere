@@ -143,7 +143,9 @@
         ],
         methodColorMap: new Map(API_METHOD_COLOUR),
         methodFilters: [],
-        userFilters: []
+        userFilters: [],
+        currentPage: 1,
+        pageSize: 10,
       }
     },
     props: {
@@ -152,8 +154,8 @@
       result: Object,
       tableData: Array,
       condition: Object,
-      currentPage: Number,
-      pageSize: Number,
+      // currentPage: Number,
+      // pageSize: Number,
       screenHeight: {
         type: [Number, String],
         default() {

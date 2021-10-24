@@ -127,8 +127,7 @@ public class TestCaseController {
 
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
     public Pager<List<TestCase>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, testCaseService.getRelationshipRelateList(request));
+        return testCaseService.getRelationshipRelateList(request, goPage, pageSize);
     }
 
     @PostMapping("/relate/issue/{goPage}/{pageSize}")
@@ -302,7 +301,7 @@ public class TestCaseController {
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.DELETE, mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
     public void deleteToGcBatch(@RequestBody TestCaseBatchRequest request) {
-        testCaseService.deleteToGcBatch(request);
+        testCaseService.deleteToGcBatch(request.getIds());
     }
 
     @PostMapping("/reduction")
@@ -337,9 +336,9 @@ public class TestCaseController {
 
     @PostMapping("/save")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#testCaseWithBLOBs.name", content = "#msClass.getLogDetails(#testCaseWithBLOBs.id)", msClass = TestCaseService.class)
-    public TestCaseWithBLOBs saveTestCase(@RequestBody TestCaseWithBLOBs testCaseWithBLOBs) {
-        testCaseWithBLOBs.setId(UUID.randomUUID().toString());
-        return testCaseService.addTestCase(testCaseWithBLOBs);
+    public TestCaseWithBLOBs saveTestCase(@RequestBody EditTestCaseRequest request) {
+        request.setId(UUID.randomUUID().toString());
+        return testCaseService.addTestCase(request);
     }
 
     @PostMapping("/minder/edit")
@@ -347,5 +346,10 @@ public class TestCaseController {
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_UPDATE, project = "#request.projectId", beforeEvent = "#msClass.getCaseLogDetails(#request)", content = "#msClass.getCaseLogDetails(#request)", msClass = TestCaseService.class)
     public void minderEdit(@RequestBody TestCaseMinderEditRequest request) {
         testCaseService.minderEdit(request);
+    }
+
+    @GetMapping("/follow/{caseId}")
+    public List<String> getFollows(@PathVariable String caseId) {
+        return testCaseService.getFollows(caseId);
     }
 }

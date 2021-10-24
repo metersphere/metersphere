@@ -4,6 +4,8 @@ import io.metersphere.base.domain.Schedule;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class TestPlanRequest {
@@ -30,7 +32,7 @@ public class TestPlanRequest {
 
     private String testResourcePoolId;
 
-    private String followPeople;
+    private List<String> follows;
 
     private static final long serialVersionUID = 1L;
 
