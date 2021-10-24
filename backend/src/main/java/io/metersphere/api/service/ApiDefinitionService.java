@@ -293,6 +293,13 @@ public class ApiDefinitionService {
         mockConfigService.deleteMockConfigByApiId(apiId);
         relationshipEdgeService.delete(apiId); // 删除关系图
         FileUtils.deleteBodyFiles(apiId);
+        deleteFollows(apiId);
+    }
+
+    private void deleteFollows(String apiId) {
+        ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
+        example.createCriteria().andDefinitionIdEqualTo(apiId);
+        apiDefinitionFollowMapper.deleteByExample(example);
     }
 
     public void deleteBatch(List<String> apiIds) {
@@ -305,6 +312,7 @@ public class ApiDefinitionService {
         relationshipEdgeService.delete(apiIds); // 删除关系图
         for (String apiId : apiIds) {
             mockConfigService.deleteMockConfigByApiId(apiId);
+            deleteFollows(apiId);
         }
     }
 
