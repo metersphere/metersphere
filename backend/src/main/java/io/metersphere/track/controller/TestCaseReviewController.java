@@ -63,6 +63,11 @@ public class TestCaseReviewController {
         return testCaseReviewService.getUserByReviewId(request);
     }
 
+    @PostMapping("/follow")
+    public List<User> getFollowByReviewId(@RequestBody TestCaseReview request) {
+        return testCaseReviewService.getFollowByReviewId(request);
+    }
+
     @GetMapping("/recent/{count}")
     public List<TestCaseReviewDTO> recentTestPlans(@PathVariable int count) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();

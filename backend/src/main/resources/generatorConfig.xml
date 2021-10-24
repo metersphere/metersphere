@@ -67,7 +67,7 @@
         <!--<table tableName="test_plan_test_case"/>-->
         <!--<table tableName="swagger_url_project"/>
         <table tableName="user_header"/>-->
-        <!--<table tableName="test_plan_api_scenario"/>-->
+        <!--<table tableName="test_plan"/>-->
         <!--<table tableName="test_plan"/>-->
         <!--<table tableName="api_scenario_report"/>-->
         <!--<table tableName="test_case_review"/>-->

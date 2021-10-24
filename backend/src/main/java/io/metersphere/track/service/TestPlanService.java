@@ -47,10 +47,7 @@ import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.IssueTemplateService;
-import io.metersphere.service.ScheduleService;
-import io.metersphere.service.SystemParameterService;
-import io.metersphere.service.TestPlanPrincipalService;
+import io.metersphere.service.*;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.*;
@@ -188,6 +185,10 @@ public class TestPlanService {
     private TestPlanPrincipalService testPlanPrincipalService;
     @Resource
     private TestPlanPrincipalMapper testPlanPrincipalMapper;
+    @Resource
+    private TestPlanFollowService testPlanFollowService;
+    @Resource
+    private TestPlanFollowMapper testPlanFollowMapper;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -211,6 +212,15 @@ public class TestPlanService {
             }
         }
 
+        List<String> follows = testPlan.getFollows();
+        if (!CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                TestPlanFollow testPlanFollow = new TestPlanFollow();
+                testPlanFollow.setTestPlanId(planId);
+                testPlanFollow.setFollowId(follow);
+                testPlanFollowService.insert(testPlanFollow);
+            }
+        }
         if (StringUtils.isBlank(testPlan.getProjectId())) {
             testPlan.setProjectId(SessionUtils.getCurrentProjectId());
         }
@@ -241,6 +251,18 @@ public class TestPlanService {
                     testPlanPrincipal.setTestPlanId(request.getId());
                     testPlanPrincipal.setPrincipalId(principal);
                     testPlanPrincipalService.insert(testPlanPrincipal);
+                }
+            }
+        }
+        List<String> follows = request.getFollows();
+        if (!CollectionUtils.isEmpty(follows)) {
+            if (StringUtils.isNotBlank(request.getId())) {
+                testPlanFollowService.deleteTestPlanFollowByPlanId(request.getId());
+                for (String follow : follows) {
+                    TestPlanFollow testPlanFollow = new TestPlanFollow();
+                    testPlanFollow.setTestPlanId(request.getId());
+                    testPlanFollow.setFollowId(follow);
+                    testPlanFollowService.insert(testPlanFollow);
                 }
             }
         }
@@ -360,6 +382,7 @@ public class TestPlanService {
 
     public int deleteTestPlan(String planId) {
         testPlanPrincipalService.deleteTestPlanPrincipalByPlanId(planId);
+        testPlanFollowService.deleteTestPlanFollowByPlanId(planId);
         deleteTestCaseByPlanId(planId);
         testPlanApiCaseService.deleteByPlanId(planId);
         testPlanScenarioCaseService.deleteByPlanId(planId);
@@ -2043,6 +2066,23 @@ public class TestPlanService {
         example.createCriteria().andTestPlanIdEqualTo(planId);
         List<TestPlanPrincipal> testPlanPrincipals = testPlanPrincipalMapper.selectByExample(example);
         List<String> userIds = testPlanPrincipals.stream().map(TestPlanPrincipal::getPrincipalId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(userIds)) {
+            return result;
+        }
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(userIds);
+        return userMapper.selectByExample(userExample);
+    }
+
+    public List<User> getPlanFollow(String planId) {
+        List<User> result = new ArrayList<>();
+        if (StringUtils.isBlank(planId)) {
+            return result;
+        }
+        TestPlanFollowExample example = new TestPlanFollowExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanFollow> testPlanFollow = testPlanFollowMapper.selectByExample(example);
+        List<String> userIds = testPlanFollow.stream().map(TestPlanFollow::getFollowId).distinct().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(userIds)) {
             return result;
         }
