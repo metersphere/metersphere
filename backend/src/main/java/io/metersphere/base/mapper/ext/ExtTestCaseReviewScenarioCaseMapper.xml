@@ -17,7 +17,7 @@
         select
         t.id, t.environment, t.create_time, t.update_time, t.last_result, t.pass_rate, t.report_id, c.scenario_definition,
         c.id as case_id, c.project_id, c.user_id,c.api_scenario_module_id, c.module_path, c.name, c.level,
-        c.status, c.principal, c.step_total, c.follow_people, c.schedule, c.description, c.tags, c.num,
+        c.status, c.principal, c.step_total, c.schedule, c.description, c.tags, c.num,
         p.name as project_name, p.id as project_id, u.name as user_name
         from
         test_case_review_scenario t
