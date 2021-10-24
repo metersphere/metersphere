@@ -336,9 +336,9 @@ public class TestCaseController {
 
     @PostMapping("/save")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#testCaseWithBLOBs.name", content = "#msClass.getLogDetails(#testCaseWithBLOBs.id)", msClass = TestCaseService.class)
-    public TestCaseWithBLOBs saveTestCase(@RequestBody TestCaseWithBLOBs testCaseWithBLOBs) {
-        testCaseWithBLOBs.setId(UUID.randomUUID().toString());
-        return testCaseService.addTestCase(testCaseWithBLOBs);
+    public TestCaseWithBLOBs saveTestCase(@RequestBody EditTestCaseRequest request) {
+        request.setId(UUID.randomUUID().toString());
+        return testCaseService.addTestCase(request);
     }
 
     @PostMapping("/minder/edit")
@@ -346,5 +346,10 @@ public class TestCaseController {
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_UPDATE, project = "#request.projectId", beforeEvent = "#msClass.getCaseLogDetails(#request)", content = "#msClass.getCaseLogDetails(#request)", msClass = TestCaseService.class)
     public void minderEdit(@RequestBody TestCaseMinderEditRequest request) {
         testCaseService.minderEdit(request);
+    }
+
+    @GetMapping("/follow/{caseId}")
+    public List<String> getFollows(@PathVariable String caseId) {
+        return testCaseService.getFollows(caseId);
     }
 }
