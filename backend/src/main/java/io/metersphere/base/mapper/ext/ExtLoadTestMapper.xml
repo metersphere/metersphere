@@ -19,10 +19,12 @@
             </include>
         </if>
         <if test="${condition}.followPeople != null">
-            and load_test.follow_people
+            and load_test.id in (
+            select test_id from load_test_follow where follow_id
             <include refid="condition">
                 <property name="object" value="${condition}.followPeople"/>
             </include>
+            )
         </if>
         <if test="${condition}.updateTime != null">
             AND load_test.update_time
@@ -64,10 +66,12 @@
             </include>
         </if>
         <if test="${condition}.followPeople != null">
-            and load_test.follow_people
+            and load_test.id in (
+            select test_id from load_test_follow where follow_id
             <include refid="condition">
                 <property name="object" value="${condition}.followPeople"/>
             </include>
+            )
         </if>
         <if test="${condition}.updateTime != null">
             AND load_test.update_time
