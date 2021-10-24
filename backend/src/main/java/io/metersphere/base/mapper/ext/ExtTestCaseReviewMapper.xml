@@ -23,10 +23,12 @@
 
     <sql id="combine">
         <if test="${condition}.followPeople != null">
-            and test_case_review.follow_people
+            and test_case_review.id in (
+            select review_id from test_case_review_follow where follow_id
             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
                 <property name="object" value="${condition}.followPeople"/>
             </include>
+            )
         </if>
         <if test="${condition}.creator != null">
             and test_case_review.create_user
