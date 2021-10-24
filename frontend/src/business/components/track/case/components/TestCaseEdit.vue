@@ -51,8 +51,8 @@
             <el-col :span="6">
               <el-form-item :label="$t('api_test.automation.follow_people')" :label-width="formLabelWidth"
                             prop="followPeople">
-                <el-select v-model="form.followPeople"
-                           clearable
+                <el-select v-model="form.follows"
+                           clearable multiple
                            :placeholder="$t('api_test.automation.follow_people')" filterable size="small">
                   <el-option
                       v-for="item in maintainerOptions"
@@ -354,6 +354,9 @@
         this.form.module = this.treeNodes[0].id;
         this.form.nodePath = this.treeNodes[0].path;
       }
+      this.$get('/test/case/follow/' + this.currentTestCaseInfo.id, response=>{
+        this.form.follows = response.data;
+      })
     },
     methods: {
       openHis() {
