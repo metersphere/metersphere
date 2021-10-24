@@ -71,14 +71,14 @@
         <!--<table tableName="test_plan"/>-->
         <!--<table tableName="api_scenario_report"/>-->
         <!--<table tableName="test_case_review"/>-->
-        <!--<table tableName="test_case"/>-->
+        <table tableName="test_case_follow"/>
         <!--<table tableName="test_case_review_api_case"/>
         <table tableName="test_case_review_load"/>
         <table tableName="test_case_review_scenario"/>
         <table tableName="test_plan"/>
         <table tableName="test_case_test"/>-->
 <!--        <table tableName="api_test_environment"></table>-->
-        <table tableName="api_scenario">
+        <table tableName="test_case">
             <ignoreColumn column="follow_people"/>
         </table>
 <!--        <table tableName="custom_field"></table>-->
