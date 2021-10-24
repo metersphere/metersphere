@@ -397,3 +397,19 @@ SELECT id, follow_people
 FROM api_test_case
 WHERE follow_people IS NOT NULL;
 ALTER TABLE api_test_case DROP COLUMN follow_people;
+
+
+-- 测试用例关注人
+CREATE TABLE IF NOT EXISTS `test_case_follow`
+(
+    `case_id`   VARCHAR(50) DEFAULT NULL,
+    `follow_id` VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY `test_case_follow_scenario_id_follow_id_pk` (`case_id`, `follow_id`),
+    KEY `test_case_follow_id_index` (`follow_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- 测试用例数据迁移
+INSERT INTO test_case_follow
+SELECT id, follow_people
+FROM test_case
+WHERE follow_people IS NOT NULL AND follow_people != '';
+ALTER TABLE test_case DROP COLUMN follow_people;
