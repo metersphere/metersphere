@@ -346,7 +346,14 @@ public class TestCaseService {
         testCaseTestMapper.deleteByExample(examples);
         relateDelete(testCaseId);
         relationshipEdgeService.delete(testCaseId); // 删除关系图
+        deleteFollows(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
+    }
+
+    private void deleteFollows(String testCaseId) {
+        TestCaseFollowExample example = new TestCaseFollowExample();
+        example.createCriteria().andCaseIdEqualTo(testCaseId);
+        testCaseFollowMapper.deleteByExample(example);
     }
 
     public int deleteTestCaseToGc(String testCaseId) {
@@ -1267,6 +1274,7 @@ public class TestCaseService {
             examples.createCriteria().andTestCaseIdEqualTo(testCaseId);
             testCaseTestMapper.deleteByExample(examples);
             relateDelete(testCaseId);
+            deleteFollows(testCaseId);
         });
 
         testCaseMapper.deleteByExample(example);

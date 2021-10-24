@@ -249,6 +249,13 @@ public class ApiTestCaseService {
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
         deleteBodyFiles(testId);
+        deleteFollows(testId);
+    }
+
+    private void deleteFollows(String testId) {
+        ApiTestCaseFollowExample example = new ApiTestCaseFollowExample();
+        example.createCriteria().andCaseIdEqualTo(testId);
+        apiTestCaseFollowMapper.deleteByExample(example);
     }
 
     public void deleteTestCase(String apiId) {
@@ -472,6 +479,7 @@ public class ApiTestCaseService {
     public void deleteBatch(List<String> ids) {
         for (String testId : ids) {
             extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
+            deleteFollows(testId);
         }
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);

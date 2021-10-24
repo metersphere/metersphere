@@ -146,6 +146,14 @@ public class PerformanceTestService {
         testPlanLoadCaseService.deleteByTestId(testId);
 
         detachFileByTestId(request.getId());
+
+        deleteFollows(request.getId());
+    }
+
+    private void deleteFollows(String testId) {
+        LoadTestFollowExample example = new LoadTestFollowExample();
+        example.createCriteria().andTestIdEqualTo(testId);
+        loadTestFollowMapper.deleteByExample(example);
     }
 
     public void detachFileByTestId(String testId) {
