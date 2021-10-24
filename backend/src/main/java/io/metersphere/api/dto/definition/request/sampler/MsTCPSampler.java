@@ -11,7 +11,6 @@ import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -122,6 +121,7 @@ public class MsTCPSampler extends MsTestElement {
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.setRefElement();
+            hashTree = this.getHashTree();
         }
         if (config.getConfig() == null) {
             // 单独接口执行

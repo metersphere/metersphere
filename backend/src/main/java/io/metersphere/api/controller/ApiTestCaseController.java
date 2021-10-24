@@ -204,4 +204,9 @@ public class ApiTestCaseController {
         return apiTestCaseService.getExecResult(id);
 
     }
+
+    @GetMapping("follow/{testId}")
+    public List<String> getFollows(@PathVariable String testId) {
+        return apiTestCaseService.getFollows(testId);
+    }
 }

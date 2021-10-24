@@ -47,8 +47,8 @@
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
-            <el-select v-model="basicForm.followPeople"
-                       clearable
+            <el-select v-model="basicForm.follows"
+                       clearable multiple
                        :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                        class="ms-http-textarea">
               <el-option
@@ -95,6 +95,9 @@
     created() {
       this.getMaintainerOptions();
       this.basicForm = this.basisData;
+      this.$get('/api/definition/follow/' + this.basisData.id, response => {
+        this.basicForm.follows = response.data;
+      });
     },
     data() {
       return {

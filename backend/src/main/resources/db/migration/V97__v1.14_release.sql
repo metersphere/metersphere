@@ -323,6 +323,8 @@ delete from user_group_permission where module_id = 'ORGANIZATION_MESSAGE';
 delete from user_group_permission where module_id = 'ORGANIZATION_SERVICE';
 delete from user_group_permission where module_id = 'ORGANIZATION_GROUP';
 delete from user_group_permission where module_id = 'ORGANIZATION_WORKSPACE';
+delete from user_group_permission where module_id = 'ORGANIZATION_USER';
+delete from user_group_permission where module_id = 'SYSTEM_ORGANIZATION';
 
 
 insert into system_parameter (param_key, param_value, type, sort) values ('project.jar.limit.size', 1, 'text', 1);
@@ -339,19 +341,6 @@ ALTER TABLE workspace
 DROP
 COLUMN organization_id;
 
-ALTER TABLE api_test_case
-    ADD COLUMN case_status VARCHAR(100) comment '用例状态等同场景的status';
-UPDATE api_test_case
-set case_status ="Underway"
-where case_status is null;
-
-ALTER TABLE test_plan
-DROP
-COLUMN follow_people;
-
-ALTER TABLE test_case_review
-DROP
-COLUMN follow_people;
 
 DROP TABLE IF EXISTS `test_plan_follow`;
 CREATE TABLE `test_plan_follow`
@@ -361,8 +350,14 @@ CREATE TABLE `test_plan_follow`
     UNIQUE KEY `test_plan_principal_pk` (`test_plan_id`,`follow_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-SET
-FOREIGN_KEY_CHECKS = 1;
+INSERT INTO test_plan_follow
+SELECT id, follow_people
+FROM test_plan
+WHERE follow_people IS NOT NULL;
+
+ALTER TABLE test_plan
+DROP
+COLUMN follow_people;
 
 DROP TABLE IF EXISTS `test_case_review_follow`;
 CREATE TABLE `test_case_review_follow`
@@ -372,5 +367,88 @@ CREATE TABLE `test_case_review_follow`
     UNIQUE KEY `test_case_review_users_pk` (`review_id`,`follow_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT=' review and user association table';
 
-SET
-FOREIGN_KEY_CHECKS = 1;
+INSERT INTO test_case_review_follow
+SELECT id, follow_people
+FROM test_case_review
+WHERE follow_people IS NOT NULL;
+
+ALTER TABLE test_case_review
+DROP
+COLUMN follow_people;
+
+ALTER TABLE api_test_case ADD COLUMN case_status VARCHAR(100) comment '用例状态等同场景的status';
+UPDATE api_test_case set case_status ="Underway" where case_status is null;
+
+-- 性能测试关注人
+CREATE TABLE IF NOT EXISTS `load_test_follow` (
+    `test_id`   VARCHAR(50) DEFAULT NULL,
+    `follow_id` VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY `load_test_follow_test_id_follow_id_pk` (`test_id`, `follow_id`),
+    KEY `load_test_follow_follow_id_index` (`follow_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- 性能测试关注人数据迁移
+INSERT INTO load_test_follow
+SELECT id, follow_people
+FROM load_test
+WHERE follow_people IS NOT NULL;
+ALTER TABLE load_test DROP COLUMN follow_people;
+
+-- 自动化关注人
+CREATE TABLE IF NOT EXISTS `api_scenario_follow` (
+    `scenario_id`   VARCHAR(50) DEFAULT NULL,
+    `follow_id` VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY `api_scenario_follow_scenario_id_follow_id_pk` (`scenario_id`, `follow_id`),
+    KEY `api_scenario_follow_id_index` (`follow_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- 自动化关注人数据迁移
+INSERT INTO api_scenario_follow
+SELECT id, follow_people
+FROM api_scenario
+WHERE follow_people IS NOT NULL;
+ALTER TABLE api_scenario DROP COLUMN follow_people;
+
+-- 接口定义关注人
+CREATE TABLE IF NOT EXISTS `api_definition_follow` (
+    `definition_id`   VARCHAR(50) DEFAULT NULL,
+    `follow_id` VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY `api_definition_follow_scenario_id_follow_id_pk` (`definition_id`, `follow_id`),
+    KEY `api_definition_follow_id_index` (`follow_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- 接口定义数据迁移
+INSERT INTO api_definition_follow
+SELECT id, follow_people
+FROM api_definition
+WHERE follow_people IS NOT NULL;
+ALTER TABLE api_definition DROP COLUMN follow_people;
+
+-- 接口定义关注人
+CREATE TABLE IF NOT EXISTS `api_test_case_follow`
+(
+    `case_id`   VARCHAR(50) DEFAULT NULL,
+    `follow_id` VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY `api_case_follow_scenario_id_follow_id_pk` (`case_id`, `follow_id`),
+    KEY `api_case_follow_id_index` (`follow_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- 接口定义数据迁移
+INSERT INTO api_test_case_follow
+SELECT id, follow_people
+FROM api_test_case
+WHERE follow_people IS NOT NULL;
+ALTER TABLE api_test_case DROP COLUMN follow_people;
+
+
+-- 测试用例关注人
+CREATE TABLE IF NOT EXISTS `test_case_follow`
+(
+    `case_id`   VARCHAR(50) DEFAULT NULL,
+    `follow_id` VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY `test_case_follow_scenario_id_follow_id_pk` (`case_id`, `follow_id`),
+    KEY `test_case_follow_id_index` (`follow_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- 测试用例数据迁移
+INSERT INTO test_case_follow
+SELECT id, follow_people
+FROM test_case
+WHERE follow_people IS NOT NULL AND follow_people != '';
+ALTER TABLE test_case DROP COLUMN follow_people;
+
