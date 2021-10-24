@@ -576,7 +576,7 @@ export default {
         type: action,
         api: api,
       });
-      if(action === "ADD") {
+      if (action === "ADD") {
         this.activeTab = "api";
       }
       this.apiDefaultTab = newTabName;
