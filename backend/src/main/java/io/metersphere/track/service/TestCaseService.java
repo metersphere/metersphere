@@ -140,6 +140,8 @@ public class TestCaseService {
     @Resource
     @Lazy
     private PerformanceTestService performanceTestService;
+    @Resource
+    private TestCaseFollowMapper testCaseFollowMapper;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -153,25 +155,40 @@ public class TestCaseService {
         }
     }
 
-    public TestCaseWithBLOBs addTestCase(TestCaseWithBLOBs testCase) {
-        testCase.setName(testCase.getName());
-        checkTestCaseExist(testCase);
-        testCase.setId(testCase.getId());
-        testCase.setCreateTime(System.currentTimeMillis());
-        testCase.setUpdateTime(System.currentTimeMillis());
-        checkTestCustomNum(testCase);
-        testCase.setNum(getNextNum(testCase.getProjectId()));
-        if (StringUtils.isBlank(testCase.getCustomNum())) {
-            testCase.setCustomNum(testCase.getNum().toString());
+    public TestCaseWithBLOBs addTestCase(EditTestCaseRequest request) {
+        request.setName(request.getName());
+        checkTestCaseExist(request);
+        request.setId(request.getId());
+        request.setCreateTime(System.currentTimeMillis());
+        request.setUpdateTime(System.currentTimeMillis());
+        checkTestCustomNum(request);
+        request.setNum(getNextNum(request.getProjectId()));
+        if (StringUtils.isBlank(request.getCustomNum())) {
+            request.setCustomNum(request.getNum().toString());
         }
-        testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-        testCase.setDemandId(testCase.getDemandId());
-        testCase.setDemandName(testCase.getDemandName());
-        testCase.setCreateUser(SessionUtils.getUserId());
-        this.setNode(testCase);
-        testCase.setOrder(ServiceUtils.getNextOrder(testCase.getProjectId(), extTestCaseMapper::getLastOrder));
-        testCaseMapper.insert(testCase);
-        return testCase;
+        request.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+        request.setDemandId(request.getDemandId());
+        request.setDemandName(request.getDemandName());
+        request.setCreateUser(SessionUtils.getUserId());
+        this.setNode(request);
+        request.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extTestCaseMapper::getLastOrder));
+        testCaseMapper.insert(request);
+        saveFollows(request.getId(), request.getFollows());
+        return request;
+    }
+
+    private void saveFollows(String caseId, List<String> follows) {
+        TestCaseFollowExample example = new TestCaseFollowExample();
+        example.createCriteria().andCaseIdEqualTo(caseId);
+        testCaseFollowMapper.deleteByExample(example);
+        if (!CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                TestCaseFollow caseFollow = new TestCaseFollow();
+                caseFollow.setCaseId(caseId);
+                caseFollow.setFollowId(follow);
+                testCaseFollowMapper.insert(caseFollow);
+            }
+        }
     }
 
     private void checkTestCustomNum(TestCaseWithBLOBs testCase) {
@@ -1465,7 +1482,9 @@ public class TestCaseService {
                 if (StringUtils.isBlank(item.getId()) || item.getId().length() < 20) {
                     item.setId(UUID.randomUUID().toString());
                     item.setMaintainer(SessionUtils.getUserId());
-                    addTestCase(item);
+                    EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
+                    BeanUtils.copyBean(editTestCaseRequest, item);
+                    addTestCase(editTestCaseRequest);
                     changeOrder(item, request.getProjectId());
                 } else {
                     TestCaseWithBLOBs dbCase = finalTestCaseMap.get(item.getId());
@@ -2017,5 +2036,16 @@ public class TestCaseService {
 
     public int getRelationshipCount(String id) {
         return relationshipEdgeService.getRelationshipCount(id, extTestCaseMapper::countByIds);
+    }
+
+    public List<String> getFollows(String caseId) {
+        List<String> result = new ArrayList<>();
+        if (StringUtils.isBlank(caseId)) {
+            return result;
+        }
+        TestCaseFollowExample example = new TestCaseFollowExample();
+        example.createCriteria().andCaseIdEqualTo(caseId);
+        List<TestCaseFollow> follows = testCaseFollowMapper.selectByExample(example);
+        return follows.stream().map(TestCaseFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 }
