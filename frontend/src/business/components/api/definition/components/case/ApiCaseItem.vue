@@ -432,6 +432,7 @@ export default {
       } else {
         tmp.request.id = getUUID();
         tmp.id = tmp.request.id;
+        row.request.id = tmp.request.id;
         tmp.request.path = this.api.path;
         if (tmp.request.protocol != "dubbo://" && tmp.request.protocol != "DUBBO") {
           tmp.request.method = this.api.method;
