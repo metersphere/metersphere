@@ -236,12 +236,12 @@ import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
 import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
-import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
 
 export default {
   name: "TestCaseList",
   components: {
-    RelationshipGraphDrawer,
     TestCasePreview,
     BatchMove,
     MsTableColumn,
@@ -265,7 +265,8 @@ export default {
     StatusTableItem,
     TestCaseDetail,
     ReviewStatus,
-    MsTag,ApiStatus
+    MsTag,ApiStatus,
+    "relationshipGraphDrawer": relationshipGraphDrawer.default,
   },
   data() {
     return {

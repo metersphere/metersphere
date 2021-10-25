@@ -25,12 +25,16 @@
 </template>
 
 <script>
-import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
+
 import {getRelationshipGraph} from "@/network/graph";
 import RelationshipList from "@/business/components/common/components/graph/RelationshipList";
 export default {
   name: "DependenciesList",
-  components: {RelationshipList, RelationshipGraphDrawer},
+  components: {RelationshipList,
+    "relationshipGraphDrawer": relationshipGraphDrawer.default,
+  },
   props: [
     'resourceId',
     'resourceType',

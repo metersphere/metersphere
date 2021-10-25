@@ -204,7 +204,7 @@ import MsBottomContainer from "../BottomContainer";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
-import {API_LIST, PROJECT_NAME, WORKSPACE_ID} from '@/common/js/constants';
+import {API_LIST} from '@/common/js/constants';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
@@ -220,13 +220,14 @@ import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {editApiDefinitionOrder} from "@/network/api";
 import {getProtocolFilter} from "@/business/components/api/definition/api-definition";
 import {getGraphByCondition} from "@/network/graph";
-import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
 
 
 export default {
   name: "ApiList",
   components: {
-    RelationshipGraphDrawer,
     HeaderLabelOperate,
     CaseBatchMove,
     ApiStatus,
@@ -244,7 +245,8 @@ export default {
     MsTipButton,
     MsTableAdvSearchBar,
     MsTable,
-    MsTableColumn
+    MsTableColumn,
+    "relationshipGraphDrawer": relationshipGraphDrawer.default,
   },
   data() {
     return {
