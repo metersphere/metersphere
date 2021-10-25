@@ -194,7 +194,7 @@
     </div>
 
     <api-case-list @showExecResult="showExecResult" @refreshCase="setRunning" :currentApi="selectCase" ref="caseList"
-                   @stop="stop"/>
+                   @stop="stop" @reLoadCase="initTable"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0"
                    @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>

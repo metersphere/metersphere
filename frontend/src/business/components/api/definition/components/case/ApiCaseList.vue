@@ -33,6 +33,7 @@
                            @batchRun="batchRun"
                            @apiCaseSelected="apiCaseSelected"
                            @showHistory="showHistory"
+                           @reLoadCase="reLoadCase"
                            :environment="environment"
                            :select-size="selectSize"
                            :is-case-edit="isCaseEdit"
@@ -267,6 +268,9 @@ export default {
     },
     refresh() {
       this.$emit('refresh');
+    },
+    reLoadCase(){
+      this.$emit('reLoadCase');
     },
     selectAll(isSelectAll) {
       this.apiCaseList.forEach(item => {
