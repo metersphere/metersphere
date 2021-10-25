@@ -12,7 +12,7 @@
     </el-submenu>
 
     <el-submenu index="3"
-                v-permission="['WORKSPACE_USER:READ']">
+                v-permission="workspacePermission">
       <template v-slot:title>
         <font-awesome-icon class="icon workspace" :icon="['far', 'list-alt']" size="lg"/>
         <span>{{ $t('commons.workspace') }}</span>
@@ -79,7 +79,10 @@ export default {
         'SYSTEM_USER:READ','SYSTEM_ORGANIZATION:READ', 'SYSTEM_GROUP:READ',
         'ORGANIZATION_GROUP:READ', 'SYSTEM_WORKSPACE:READ','SYSTEM_TEST_POOL:READ',
         'SYSTEM_SETTING:READ','SYSTEM_QUOTA:READ','SYSTEM_AUTH:READ'
-      ]
+      ],
+      workspacePermission: ['WORKSPACE_USER:READ','WORKSPACE_SERVICE:READ','WORKSPACE_MESSAGE:READ',
+        'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ',
+        'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ']
     };
   },
   methods: {
