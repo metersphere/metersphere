@@ -259,7 +259,8 @@ export default {
         let currentScenario = {
           status: "Underway", principal: getCurrentUser().id,
           apiScenarioModuleId: "default-module", id: getUUID(),
-          modulePath: "/" + this.$t("commons.module_title")
+          modulePath: "/" + this.$t("commons.module_title"),
+          level: "P0"
         };
         if (this.nodeTree && this.nodeTree.length > 0) {
           currentScenario.apiScenarioModuleId = this.nodeTree[0].id;
@@ -279,6 +280,9 @@ export default {
         let name = getUUID().substring(0, 8);
         this.activeName = name;
         label = tab.currentScenario.name;
+        if (!tab.currentScenario.level) {
+          tab.currentScenario.level = "P0";
+        }
         this.tabs.push({label: label, name: name, currentScenario: tab.currentScenario});
       }
       if (this.$refs && this.$refs.autoScenarioConfig) {

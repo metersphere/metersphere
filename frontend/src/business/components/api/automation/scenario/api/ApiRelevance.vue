@@ -133,12 +133,6 @@ export default {
     },
     open() {
       this.buttonIsWorking = false;
-      if (this.$refs.apiList) {
-        this.$refs.apiList.clearSelection();
-      }
-      if (this.$refs.apiCaseList) {
-        this.$refs.apiCaseList.clearSelection();
-      }
       this.$refs.baseRelevance.open();
     },
     isApiListEnableChange(data) {
