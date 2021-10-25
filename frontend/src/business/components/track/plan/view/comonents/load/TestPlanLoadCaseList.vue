@@ -182,7 +182,7 @@ export default {
           tip: '修改压力配置',
           icon: "el-icon-setting",
           exec: this.changeLoadConfig,
-          type: 'danger',
+          type: 'success',
           isDisable: this.isReadOnly,
         },
         {
