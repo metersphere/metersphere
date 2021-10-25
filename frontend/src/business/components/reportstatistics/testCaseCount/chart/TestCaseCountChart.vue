@@ -174,7 +174,8 @@
         }
         this.dataOption.series.forEach(item => {
           item.type = this.chartType;
-        })
+        });
+        console.info(JSON.stringify(this.dataOption));
         this.reload();
       },
       reload() {
