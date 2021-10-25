@@ -247,7 +247,7 @@
 <script>
 import {downloadFile, getCurrentProjectID, getUUID, setDefaultTheme, strMapToObj} from "@/common/js/utils";
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {API_SCENARIO_LIST, ORIGIN_COLOR} from "../../../../../common/js/constants";
+import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
 import {
   buildBatchParam,
@@ -263,9 +263,11 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import {editApiScenarioCaseOrder} from "@/business/components/api/automation/api-automation";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import axios from "axios";
-import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
+
 import {getGraphByCondition} from "@/network/graph";
-import {hasLicense} from "@/common/js/utils";
 
 export default {
   name: "MsApiScenarioList",
@@ -273,7 +275,7 @@ export default {
     MsTable,
     MsTableColumn,
     HeaderLabelOperate,
-    RelationshipGraphDrawer,
+    "relationshipGraphDrawer": relationshipGraphDrawer.default,
     HeaderCustom: () => import("@/business/components/common/head/HeaderCustom"),
     BatchMove: () => import("../../../track/case/components/BatchMove"),
     EnvironmentSelect: () => import("../../definition/components/environment/EnvironmentSelect"),
