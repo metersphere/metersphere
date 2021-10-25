@@ -18,6 +18,7 @@
 
     <api-table-list
       :table-data="tableData"
+      :total="total"
       :condition="condition"
       :select-node-ids="selectNodeIds"
       :result="result"
@@ -53,6 +54,7 @@
         currentRow: {},
         projectId: "",
         result: {},
+        total: 0,
         tableData: []
       };
     },
