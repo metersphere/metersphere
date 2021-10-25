@@ -3,6 +3,7 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.RelationshipEdge;
 import io.metersphere.base.domain.RelationshipEdgeExample;
+import io.metersphere.base.domain.RelationshipEdgeKey;
 import io.metersphere.base.mapper.RelationshipEdgeMapper;
 import io.metersphere.base.mapper.ext.ExtRelationshipEdgeMapper;
 import io.metersphere.commons.exception.MSException;
@@ -41,7 +42,83 @@ public class RelationshipEdgeService {
         example.createCriteria()
                 .andSourceIdEqualTo(sourceId)
                 .andTargetIdEqualTo(targetId);
+
+        String graphId = relationshipEdgeMapper.selectByExample(example).get(0).getGraphId();
+        updateGraphId(graphId, sourceId, targetId);
+
         relationshipEdgeMapper.deleteByExample(example);
+    }
+
+    /**
+     * 删除边后，若形成两个不连通子图，则拆分图
+     * @param graphId
+     * @param sourceId
+     * @param targetId
+     */
+    public void updateGraphId(String graphId, String sourceId, String targetId) {
+        RelationshipEdgeExample graphExample = new RelationshipEdgeExample();
+        graphExample.createCriteria()
+                .andGraphIdEqualTo(graphId);
+        List<RelationshipEdge> edges = relationshipEdgeMapper.selectByExample(graphExample);
+
+        // 去掉要删除的边
+        edges = edges.stream()
+                .filter(i -> i.getSourceId() != sourceId || i.getTargetId() != targetId)
+                .collect(Collectors.toList());
+
+        Set<String> nodes = new HashSet<>();
+        Set<String> markSet = new HashSet<>();
+        nodes.addAll(edges.stream().map(RelationshipEdgeKey::getSourceId).collect(Collectors.toSet()));
+        nodes.addAll(edges.stream().map(RelationshipEdgeKey::getTargetId).collect(Collectors.toSet()));
+
+        dfsForMark(sourceId, edges, markSet, true);
+        dfsForMark(sourceId, edges, markSet, false);
+
+        // 如果连通的点减少，说明形成了两个不连通子图，重新设置graphId
+        if (markSet.size() != nodes.size()) {
+            List<String> updateIds = new ArrayList<>(markSet);
+            RelationshipEdgeExample updateGraphExample = new RelationshipEdgeExample();
+            updateGraphExample.createCriteria()
+                    .andSourceIdIn(updateIds);
+            updateGraphExample.or(
+                    updateGraphExample.createCriteria().andTargetIdIn(updateIds)
+            );
+            RelationshipEdge edge = new RelationshipEdge();
+            edge.setGraphId(UUID.randomUUID().toString());
+            relationshipEdgeMapper.updateByExampleSelective(edge, updateGraphExample);
+        }
+    }
+
+    /**
+     * 遍历标记经过的节点
+     * @param node
+     * @param edges
+     * @param markSet
+     * @param isForwardDirection
+     */
+    public void dfsForMark(String node, List<RelationshipEdge> edges, Set<String> markSet, boolean isForwardDirection) {
+        markSet.add(node);
+
+        Set<String> nextLevelNodes = new HashSet<>();
+
+        for (RelationshipEdge edge : edges) {
+            if (isForwardDirection) {
+                if (node.equals(edge.getSourceId())) {
+                    nextLevelNodes.add(edge.getTargetId());
+                }
+            } else {
+                if (node.equals(edge.getTargetId())) {
+                    nextLevelNodes.add(edge.getSourceId());
+                }
+            }
+        }
+
+        nextLevelNodes.forEach(nextNode -> {
+            if (!markSet.contains(node)) {
+                dfsForMark(nextNode, edges, markSet, true);
+                dfsForMark(nextNode, edges, markSet, false);
+            }
+        });
     }
 
     public void delete(String sourceIdOrTargetId) {
