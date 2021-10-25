@@ -8,6 +8,7 @@ import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.impl.*;
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -66,7 +67,9 @@ public class NoticeSendService {
             messageDetails.stream()
                     .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))
                     .forEach(messageDetail -> {
-                        this.getNoticeSender(messageDetail).send(messageDetail, noticeModel);
+                        MessageDetail m = SerializationUtils.clone(messageDetail);
+                        NoticeModel n =  SerializationUtils.clone(noticeModel);
+                        this.getNoticeSender(m).send(m, n);
                     });
 
         } catch (Exception e) {
@@ -102,7 +105,9 @@ public class NoticeSendService {
             messageDetails.stream()
                     .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))
                     .forEach(messageDetail -> {
-                        this.getNoticeSender(messageDetail).send(messageDetail, noticeModel);
+                        MessageDetail m = SerializationUtils.clone(messageDetail);
+                        NoticeModel n =  SerializationUtils.clone(noticeModel);
+                        this.getNoticeSender(m).send(m, n);
                     });
 
         } catch (Exception e) {
@@ -133,7 +138,9 @@ public class NoticeSendService {
             messageDetails.stream()
                     .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))
                     .forEach(messageDetail -> {
-                        this.getNoticeSender(messageDetail).send(messageDetail, noticeModel);
+                        MessageDetail m = SerializationUtils.clone(messageDetail);
+                        NoticeModel n =  SerializationUtils.clone(noticeModel);
+                        this.getNoticeSender(m).send(m, n);
                     });
 
         } catch (Exception e) {
