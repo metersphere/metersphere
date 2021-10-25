@@ -805,7 +805,11 @@ public class TestPlanReportService {
 //                    testPlan.setStatus(TestPlanStatus.Completed.name());
                     testPlanMapper.updateByPrimaryKeySelective(testPlan);
                 }
-                if (testPlan != null && StringUtils.equalsAny(report.getTriggerMode(), ReportTriggerMode.API.name(), ReportTriggerMode.SCHEDULE.name())) {
+                if (testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
+                        ReportTriggerMode.MANUAL.name(),
+                        ReportTriggerMode.API.name(),
+                        ReportTriggerMode.SCHEDULE.name())
+                ) {
                     //发送通知
                     sendMessage(report, testPlan.getProjectId());
                 }
