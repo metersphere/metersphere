@@ -30,6 +30,7 @@ const state = {
   // 当前项目是否勾选自定义ID
   currentProjectIsCustomNum: false,
   testCaseTemplate: {},
+  scenarioMap: new Map(),
 }
 
 const store = new Vuex.Store({
