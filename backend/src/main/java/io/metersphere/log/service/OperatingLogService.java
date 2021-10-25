@@ -47,9 +47,8 @@ public class OperatingLogService {
         return dto;
     }
 
-    public List<OperatingLogDTO> findBySourceId(String id) {
-        OperatingLogRequest request = new OperatingLogRequest();
-        request.setSourceId("%" + id + "%");
+    public List<OperatingLogDTO> findBySourceId(OperatingLogRequest request) {
+        request.setSourceId("%" + request.getSourceId() + "%");
         List<OperatingLogDTO> logWithBLOBs = extOperatingLogMapper.findBySourceId(request);
         List<OperatingLogDTO> dtos = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(logWithBLOBs)) {

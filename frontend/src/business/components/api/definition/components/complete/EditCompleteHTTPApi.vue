@@ -254,7 +254,7 @@
     },
     methods: {
       openHis(){
-        this.$refs.changeHistory.open(this.httpForm.id);
+        this.$refs.changeHistory.open(this.httpForm.id,["接口定义" , "接口定義" , "Api definition"]);
       },
       mockSetting() {
         if(this.basisData.id){

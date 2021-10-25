@@ -865,7 +865,7 @@ export default {
       })
     },
     openHis() {
-      this.$refs.changeHistory.open(this.currentScenario.id);
+      this.$refs.changeHistory.open(this.currentScenario.id, ["接口自动化", "Api automation", "接口自動化"]);
     },
     setModule(id, data) {
       this.currentScenario.apiScenarioModuleId = id;
