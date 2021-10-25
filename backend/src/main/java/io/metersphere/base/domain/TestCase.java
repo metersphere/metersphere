@@ -59,7 +59,5 @@ public class TestCase implements Serializable {
 
     private Long order;
 
-    private String demandPlatform;
-
     private static final long serialVersionUID = 1L;
 }
