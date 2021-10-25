@@ -17,4 +17,5 @@ public class Series {
     private String stack;
     private JSONObject encode;
     private List<String> center;
+    private String barWidth = null;
 }
