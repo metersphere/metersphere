@@ -360,7 +360,7 @@
     },
     methods: {
       openHis() {
-        this.$refs.changeHistory.open(this.form.id);
+        this.$refs.changeHistory.open(this.form.id,["测试用例" , "測試用例" , "Test case"]);
       },
       setModule(id, data) {
         this.form.module = id;

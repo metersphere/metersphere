@@ -74,8 +74,8 @@ export default {
     handleClose() {
       this.infoVisible = false;
     },
-    getDetails(id) {
-      this.result = this.$get("/operating/log/get/source/" + id, response => {
+    getDetails(id, modules) {
+      this.result = this.$post("/operating/log/get/source/", {sourceId: id, modules: modules}, response => {
         let data = response.data;
         this.loading = false;
         if (data) {
@@ -83,17 +83,17 @@ export default {
         }
       })
     },
-    open(id) {
+    open(id, modules) {
       this.infoVisible = true;
       this.loading = true;
-      this.getDetails(id);
+      this.getDetails(id, modules);
     },
     openDetail(row, value) {
       value.createUser = row.details.createUser;
       value.operTime = row.operTime;
       if (value.columnName === "tags") {
         this.$refs.tagsHistoryDetail.open(value);
-      } else if ((value.columnName === "request" || value.columnName === "response")&&
+      } else if ((value.columnName === "request" || value.columnName === "response") &&
         (row.operModule === "接口定义" || row.operModule === "接口定義" || row.operModule === "Api definition")) {
         this.$refs.apiHistoryDetail.open(value);
       } else {

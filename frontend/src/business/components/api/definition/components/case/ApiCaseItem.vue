@@ -294,7 +294,7 @@ export default {
   methods: {
     hasPermission,
     openHis(row) {
-      this.$refs.changeHistory.open(row.id);
+      this.$refs.changeHistory.open(row.id,["接口定义用例" , "接口定義用例" , "Api definition case"]);
     },
     handleRunBatch() {
       this.$emit('batchRun');
