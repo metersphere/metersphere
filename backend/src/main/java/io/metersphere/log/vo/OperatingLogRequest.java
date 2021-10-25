@@ -30,4 +30,6 @@ public class OperatingLogRequest implements Serializable {
 
     private List<String> projectIds;
 
+    private List<String> modules;
+
 }

@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     openHis(){
-      this.$refs.changeHistory.open(this.basisData.id);
+      this.$refs.changeHistory.open(this.basisData.id,["接口定义" , "接口定義" , "Api definition"]);
     },
     callback() {
       this.validated = true;
