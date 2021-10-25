@@ -280,9 +280,11 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
     }
-    this.$get('/api/testcase/follow/' + this.apiCase.id, response => {
-      this.apiCase.follows = response.data;
-    });
+    if (this.apiCase && this.apiCase.id) {
+      this.$get('/api/testcase/follow/' + this.apiCase.id, response => {
+        this.apiCase.follows = response.data;
+      });
+    }
   },
   watch: {
     'apiCase.selected'() {
@@ -463,7 +465,7 @@ export default {
           this.reload();
           // 刷新编辑后用例列表
           if (this.api.source === "editCase") {
-            this.$store.state.currentApiCase = {refresh: "true"};
+            this.$emit('reLoadCase');
           }
           if (!hideAlert) {
             this.$emit('refresh');
