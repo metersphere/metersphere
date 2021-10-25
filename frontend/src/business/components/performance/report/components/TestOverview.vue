@@ -65,14 +65,6 @@
         <ms-chart ref="chart2" :options="resOption" class="chart-config" :autoresize="true"></ms-chart>
       </el-col>
     </el-row>
-    <el-row>
-      <el-col :span="12">
-        <ms-chart ref="chart3" :options="errorOption" class="chart-config" :autoresize="true"></ms-chart>
-      </el-col>
-      <el-col :span="12">
-        <ms-chart ref="chart3" :options="resCodeOption" class="chart-config" :autoresize="true"></ms-chart>
-      </el-col>
-    </el-row>
   </div>
 </template>
 
@@ -136,8 +128,6 @@ export default {
       }
       this.getLoadChart();
       this.getResChart();
-      this.getErrorChart();
-      this.getResponseCodeChart();
     },
     buildInfo(data) {
       this.maxUsers = data ? data.maxUsers : '0';
