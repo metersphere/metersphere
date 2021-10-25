@@ -462,6 +462,28 @@ export default {
       runScenario: undefined,
     }
   },
+  watch: {
+    currentScenario: {
+      handler(val) {
+        if (val && this.$store.state.scenarioMap) {
+          let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
+          change = change + 1;
+          this.$store.state.scenarioMap.set(this.currentScenario.id, change);
+        }
+      },
+      deep: true
+    },
+    scenarioDefinition: {
+      handler(newObj, oldObj) {
+        if (this.$store.state.scenarioMap) {
+          let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
+          change = change + 1;
+          this.$store.state.scenarioMap.set(this.currentScenario.id, change);
+        }
+      },
+      deep: true
+    },
+  },
   created() {
     if (!this.currentScenario.apiScenarioModuleId) {
       this.currentScenario.apiScenarioModuleId = "";
@@ -486,6 +508,10 @@ export default {
     if (!this.currentScenario.name) {
       this.$refs.refFab.openMenu();
     }
+    if (!(this.$store.state.scenarioMap instanceof Map)) {
+      this.$store.state.scenarioMap = new Map();
+    }
+    this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
   },
   directives: {OutsideClick},
   computed: {
@@ -494,7 +520,7 @@ export default {
     },
   },
   methods: {
-    setDomain() {
+    setDomain(flag) {
       if (this.projectEnvMap && this.projectEnvMap.size > 0) {
         let scenario = {
           id: this.currentScenario.id,
@@ -514,6 +540,9 @@ export default {
           if (res.data) {
             let data = JSON.parse(res.data);
             this.scenarioDefinition = data.hashTree;
+            if (!flag) {
+              this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
+            }
           }
         })
       }
@@ -1186,7 +1215,7 @@ export default {
               if (scenario && scenario.environmentEnable) {
                 this.debugData.environmentEnable = scenario.environmentEnable;
                 this.debugLoading = false;
-              }else{
+              } else {
                 this.debugLoading = true;
               }
               this.reportId = getUUID().substring(0, 8);
@@ -1276,6 +1305,7 @@ export default {
             this.setParameter();
             saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
+              this.$store.state.scenarioMap.delete(this.currentScenario.id);
               this.path = "/api/automation/update";
               this.$store.state.pluginFiles = [];
               if (response.data) {
@@ -1380,6 +1410,7 @@ export default {
           if (this.scenarioDefinition) {
             this.resetResourceId(this.scenarioDefinition);
           }
+          this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
         })
       }
     },
@@ -1475,7 +1506,7 @@ export default {
     },
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
-      this.setDomain();
+      this.setDomain(true);
     },
     getWsProjects() {
       this.$get("/project/listAll", res => {
