@@ -591,13 +591,13 @@ export default {
           this.condition.caseCoverage = 'coverage';
           break;
         case 'Prepare':
-          this.condition.filters.reviewStatus = [this.selectDataRange];
+          this.condition.filters.review_status = [this.selectDataRange];
           break;
         case 'Pass':
-          this.condition.filters.reviewStatus = [this.selectDataRange];
+          this.condition.filters.review_status = [this.selectDataRange];
           break;
         case 'UnPass':
-          this.condition.filters.reviewStatus = [this.selectDataRange];
+          this.condition.filters.review_status = [this.selectDataRange];
           break;
       }
       this.condition.filters.priority = this.condition.filters['用例等级'];
