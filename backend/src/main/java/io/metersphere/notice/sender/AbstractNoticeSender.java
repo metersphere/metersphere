@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.springframework.context.annotation.Lazy;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -38,18 +39,25 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     @Resource
     private UserService userService;
     @Resource
+    @Lazy
     private PerformanceTestService performanceTestService;
     @Resource
+    @Lazy
     private ApiAutomationService apiAutomationService;
     @Resource
+    @Lazy
     private ApiDefinitionService apiDefinitionService;
     @Resource
+    @Lazy
     private ApiTestCaseService apiTestCaseService;
     @Resource
+    @Lazy
     private TestCaseService testCaseService;
     @Resource
+    @Lazy
     private TestPlanService testPlanService;
     @Resource
+    @Lazy
     private TestCaseReviewService testCaseReviewService;
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
