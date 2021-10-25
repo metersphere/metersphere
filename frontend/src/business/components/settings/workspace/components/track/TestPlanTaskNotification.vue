@@ -291,19 +291,31 @@ export default {
     },
     handleTestPlanReceivers(row) {
       let testPlanReceivers = JSON.parse(JSON.stringify(this.testPlanReceiverOptions));
+      let i = row.userIds.indexOf('FOLLOW_PEOPLE');
       let i2 = row.userIds.indexOf('CREATOR');
       switch (row.event) {
         case  "CREATE":
           testPlanReceivers.unshift({id: 'EXECUTOR', name: this.$t('test_track.plan_view.executor')});
+          if (i2 > -1) {
+            row.userIds.splice(i2, 1);
+          }
+          if (i > -1) {
+            row.userIds.splice(i, 1);
+          }
           break;
         case "UPDATE":
         case "DELETE":
         case "COMMENT":
         case "COMPLETE":
           testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          testPlanReceivers.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
+
           if (row.isSet) {
             if (i2 < 0) {
               row.userIds.unshift('CREATOR');
+            }
+            if (i < 0) {
+              row.userIds.unshift('FOLLOW_PEOPLE');
             }
           }
           break;
