@@ -1,6 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" :visible.sync="visible" :title="$t('load_test.pressure_config')"
-             width="61%" top="8vh" @close="close" v-loading="result.loading" :destroy-on-close="true">
+             width="85%" top="8vh" @close="close" v-loading="result.loading" :destroy-on-close="true">
     <performance-load-config :test-id="loadTestId" :load-case-id="loadCaseId" :resource-pool="poolId"
                              @fileChange="fileChange" ref="pressureConfig" style="height: 50vh; overflow-y: auto;"/>
     <template v-slot:footer>
