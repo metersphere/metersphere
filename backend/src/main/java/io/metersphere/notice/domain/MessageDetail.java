@@ -2,11 +2,12 @@ package io.metersphere.notice.domain;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class MessageDetail {
+public class MessageDetail implements Serializable {
     private List<String> userIds = new ArrayList<>();
     private String id;
     private String event;
