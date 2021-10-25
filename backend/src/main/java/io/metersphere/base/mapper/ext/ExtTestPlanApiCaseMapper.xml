@@ -74,7 +74,10 @@
       </foreach>
     </if>
     <if test="request.name != null and request.name!=''">
-      and (c.name like CONCAT('%', #{request.name},'%') or c.tags like CONCAT('%', #{request.name},'%'))
+      and (c.name like CONCAT('%', #{request.name},'%')
+                or c.tags like CONCAT('%', #{request.name},'%')
+                or c.num like CONCAT('%', #{request.name},'%')
+          )
     </if>
     <if test="request.moduleIds != null and request.moduleIds.size() > 0">
       and a.module_id in
