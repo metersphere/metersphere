@@ -59,9 +59,15 @@ public class JsonStructUtils {
     }
 
     public static boolean checkJsonArrayCompliance(JSONArray sourceArray, JSONArray matchArray) {
-        if (sourceArray == null && matchArray == null) {
+        if(sourceArray == null){
+            sourceArray = new JSONArray();
+        }
+        if(matchArray == null){
+            matchArray = new JSONArray();
+        }
+        if (sourceArray.isEmpty() && matchArray.isEmpty()) {
             return true;
-        } else if (sourceArray != null && matchArray != null && sourceArray.size() >= matchArray.size()) {
+        } else if (!sourceArray.isEmpty() && !matchArray.isEmpty() && sourceArray.size() >= matchArray.size()) {
             try {
                 for (int i = 0; i < matchArray.size(); i++) {
                     Object obj = matchArray.get(i);

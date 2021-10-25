@@ -1032,7 +1032,7 @@ public class MockConfigService {
         List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, urlSuffix);
+            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix);
 
             JSON paramJson = MockApiUtils.getPostParamMap(request);
             JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
@@ -1094,7 +1094,7 @@ public class MockConfigService {
         List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, null, urlSuffix);
+            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix);
 
             /**
              * GET/DELETE 这种通过url穿参数的接口，在接口路径相同的情况下可能会出现这样的情况：

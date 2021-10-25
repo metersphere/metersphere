@@ -605,7 +605,6 @@ public class ApiScenarioReportService {
                     if (obj != null) {
                         ReportCounter counter = (ReportCounter) obj;
                         counter.setNumber(counter.getNumber() + 1);
-                        System.out.println("得到统计数量：" + counter.getNumber());
                         MessageCache.cache.put(report.getScenarioId(), counter);
                     }
                 }
