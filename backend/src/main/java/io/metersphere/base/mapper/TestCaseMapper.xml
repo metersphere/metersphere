@@ -29,7 +29,6 @@
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="delete_user_id" jdbcType="VARCHAR" property="deleteUserId" />
     <result column="order" jdbcType="BIGINT" property="order" />
-    <result column="demand_platform" jdbcType="VARCHAR" property="demandPlatform" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseWithBLOBs">
     <result column="prerequisite" jdbcType="LONGVARCHAR" property="prerequisite" />
@@ -101,7 +100,7 @@
     id, node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`, 
     create_time, update_time, test_id, sort, num, other_test_name, review_status, tags, 
     demand_id, demand_name, `status`, custom_num, step_model, create_user, original_status, 
-    delete_time, delete_user_id, `order`, demand_platform
+    delete_time, delete_user_id, `order`
   </sql>
   <sql id="Blob_Column_List">
     prerequisite, remark, steps, step_description, expected_result, custom_fields
@@ -164,8 +163,8 @@
       demand_name, `status`, custom_num, 
       step_model, create_user, original_status, 
       delete_time, delete_user_id, `order`, 
-      demand_platform, prerequisite, remark, 
-      steps, step_description, expected_result, 
+      prerequisite, remark, steps, 
+      step_description, expected_result, 
       custom_fields)
     values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
@@ -176,8 +175,8 @@
       #{demandName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, 
       #{stepModel,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{originalStatus,jdbcType=VARCHAR}, 
       #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, 
-      #{demandPlatform,jdbcType=VARCHAR}, #{prerequisite,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR}, 
-      #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
+      #{prerequisite,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR}, 
+      #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
       #{customFields,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
@@ -263,9 +262,6 @@
       </if>
       <if test="order != null">
         `order`,
-      </if>
-      <if test="demandPlatform != null">
-        demand_platform,
       </if>
       <if test="prerequisite != null">
         prerequisite,
@@ -367,9 +363,6 @@
       </if>
       <if test="order != null">
         #{order,jdbcType=BIGINT},
-      </if>
-      <if test="demandPlatform != null">
-        #{demandPlatform,jdbcType=VARCHAR},
       </if>
       <if test="prerequisite != null">
         #{prerequisite,jdbcType=LONGVARCHAR},
@@ -481,9 +474,6 @@
       <if test="record.order != null">
         `order` = #{record.order,jdbcType=BIGINT},
       </if>
-      <if test="record.demandPlatform != null">
-        demand_platform = #{record.demandPlatform,jdbcType=VARCHAR},
-      </if>
       <if test="record.prerequisite != null">
         prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
       </if>
@@ -536,7 +526,6 @@
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
-      demand_platform = #{record.demandPlatform,jdbcType=VARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
       remark = #{record.remark,jdbcType=LONGVARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR},
@@ -575,8 +564,7 @@
       original_status = #{record.originalStatus,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
-      `order` = #{record.order,jdbcType=BIGINT},
-      demand_platform = #{record.demandPlatform,jdbcType=VARCHAR}
+      `order` = #{record.order,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -662,9 +650,6 @@
       <if test="order != null">
         `order` = #{order,jdbcType=BIGINT},
       </if>
-      <if test="demandPlatform != null">
-        demand_platform = #{demandPlatform,jdbcType=VARCHAR},
-      </if>
       <if test="prerequisite != null">
         prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
       </if>
@@ -714,7 +699,6 @@
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
-      demand_platform = #{demandPlatform,jdbcType=VARCHAR},
       prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
       remark = #{remark,jdbcType=LONGVARCHAR},
       steps = #{steps,jdbcType=LONGVARCHAR},
@@ -750,8 +734,7 @@
       original_status = #{originalStatus,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
-      `order` = #{order,jdbcType=BIGINT},
-      demand_platform = #{demandPlatform,jdbcType=VARCHAR}
+      `order` = #{order,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
