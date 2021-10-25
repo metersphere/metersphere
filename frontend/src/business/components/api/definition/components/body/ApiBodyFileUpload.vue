@@ -57,6 +57,7 @@
         }
       },
       upload(file) {
+        file.name = file.file.name;
         this.parameter.files.push(file);
       },
       uploadValidate(file) {
