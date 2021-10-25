@@ -154,8 +154,7 @@
       result: Object,
       tableData: Array,
       condition: Object,
-      // currentPage: Number,
-      // pageSize: Number,
+      total: Number,
       screenHeight: {
         type: [Number, String],
         default() {
@@ -188,9 +187,6 @@
         }else{
           return this.$t('api_test.definition.api_type');
         }
-      },
-      total() {
-        return this.tableData ? this.tableData.length : 0;
       },
     },
     methods: {
