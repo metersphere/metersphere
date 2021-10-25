@@ -41,6 +41,7 @@
         :api-data="currentApi"
         :project-id="projectId"
         @saveAsApi="editApi"
+        @saveAsCase="saveAsCase"
         @refresh="refresh"
         v-if="currentProtocol==='HTTP'"
       />
@@ -50,6 +51,7 @@
         :api-data="currentApi"
         :project-id="projectId"
         @saveAsApi="editApi"
+        @saveAsCase="saveAsCase"
         @refresh="refresh"
         v-if="currentProtocol==='TCP'"
       />
@@ -59,6 +61,7 @@
         :api-data="currentApi"
         :project-id="projectId"
         @saveAsApi="editApi"
+        @saveAsCase="saveAsCase"
         @refresh="refresh"
         v-if="currentProtocol==='SQL'"
       />
@@ -68,18 +71,19 @@
         :api-data="currentApi"
         :project-id="projectId"
         @saveAsApi="editApi"
+        @saveAsCase="saveAsCase"
         @refresh="refresh"
         v-if="currentProtocol==='DUBBO'"
       />
     </div>
 
     <div v-if="showMock && (currentProtocol === 'HTTP')" class="ms-api-div">
-<!--      <mock-config :base-mock-config-data="baseMockConfigData" type="http"/>-->
+      <!--      <mock-config :base-mock-config-data="baseMockConfigData" type="http"/>-->
       <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="false"/>
     </div>
     <div v-if="showMock && (currentProtocol === 'TCP')" class="ms-api-div">
       <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="true"/>
-<!--      <tcp-mock-config :base-mock-config-data="baseMockConfigData" type="tcp"/>-->
+      <!--      <tcp-mock-config :base-mock-config-data="baseMockConfigData" type="tcp"/>-->
     </div>
     <div v-if="showTestCaseList">
       <!--测试用例列表-->
@@ -96,6 +100,7 @@
     <ms-api-case-list
       :createCase="createCase"
       :currentApi="api"
+      @reLoadCase="reLoadCase"
       ref="caseList"/>
   </el-card>
 </template>
@@ -178,6 +183,9 @@ export default {
     }
   },
   methods: {
+    reLoadCase() {
+      this.$refs.trashCaseList.initTable();
+    },
     sort(stepArray) {
       if (stepArray) {
         for (let i in stepArray) {
@@ -281,17 +289,21 @@ export default {
         this.loading = false
       });
     },
+    saveAsCase(api) {
+      this.showApiList = false;
+      this.showTestCaseList = true;
+      this.showTest = false;
+      this.showMock = false;
+      this.createCase = getUUID();
+      this.api = api;
+      this.$refs.caseList.open();
+    },
     refreshButtonActiveClass(tabType) {
       if (tabType === "testCase") {
         this.showApiList = false;
         this.showTestCaseList = true;
         this.showTest = false;
         this.showMock = false;
-        if (this.$store.state.currentApiCase && this.$store.state.currentApiCase.api) {
-          this.createCase = getUUID();
-          this.api = this.$store.state.currentApiCase.api;
-          this.$refs.caseList.open();
-        }
         this.$store.state.currentApiCase = {case: true};
       } else if (tabType === "test") {
         this.showApiList = false;
