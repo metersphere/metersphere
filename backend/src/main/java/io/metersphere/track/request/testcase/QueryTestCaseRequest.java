@@ -38,4 +38,16 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
     private long createTime = 0;
     private long relevanceCreateTime = 0;
     private List<String> testCaseContainIds;
+
+
+    // 补充场景条件
+    private String excludeId;
+    private String moduleId;
+    private boolean recent = false;
+    private String executeStatus;
+    private boolean notInTestPlan;
+    //操作人
+    private String operator;
+    //操作时间
+    private Long operationTime;
 }
