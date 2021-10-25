@@ -63,7 +63,7 @@
             <if test="request.name != null">
                 and (
                       issues.title LIKE CONCAT('%', #{request.name}, '%')
-                      or issues.id LIKE CONCAT('%', #{request.name}, '%')
+                      or issues.num LIKE CONCAT('%', #{request.name}, '%')
                     )
             </if>
 
