@@ -9,6 +9,7 @@
         :condition="condition"
         :select-node-ids="selectNodeIds"
         :result="result"
+        :total="total"
         :current-protocol="currentProtocol"
         :screen-height="screenHeight"
         @setSelectRow="setSelectRow"
@@ -57,6 +58,7 @@
         screenHeight: 'calc(100vh - 400px)',//屏幕高度,
         tableData: [],
         environmentId: "",
+        total: 0,
         selectRows: new Set()
       }
     },
