@@ -3,13 +3,21 @@ package io.metersphere.notice.sender;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.base.domain.TestCaseReview;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.NotificationConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.domain.UserDetail;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.UserService;
+import io.metersphere.track.service.TestCaseReviewService;
+import io.metersphere.track.service.TestCaseService;
+import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
@@ -29,11 +37,25 @@ import java.util.stream.Collectors;
 public abstract class AbstractNoticeSender implements NoticeSender {
     @Resource
     private UserService userService;
+    @Resource
+    private PerformanceTestService performanceTestService;
+    @Resource
+    private ApiAutomationService apiAutomationService;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private TestCaseService testCaseService;
+    @Resource
+    private TestPlanService testPlanService;
+    @Resource
+    private TestCaseReviewService testCaseReviewService;
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
 
         // 处理 userIds 中包含的特殊值
-        noticeModel.setReceivers(getRealUserIds(messageDetail.getUserIds(), noticeModel, messageDetail.getEvent()));
+        noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
 
         // 如果配置了模版就直接使用模版
         if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
@@ -61,7 +83,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
 
     protected String getHtmlContext(MessageDetail messageDetail, NoticeModel noticeModel) {
         // 处理 userIds 中包含的特殊值
-        noticeModel.setReceivers(getRealUserIds(messageDetail.getUserIds(), noticeModel, messageDetail.getEvent()));
+        noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
 
         // 如果配置了模版就直接使用模版
         if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
@@ -127,10 +149,10 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return userService.queryTypeByIds(userIds);
     }
 
-    private List<Receiver> getRealUserIds(List<String> userIds, NoticeModel noticeModel, String event) {
+    private List<Receiver> getRealUserIds(MessageDetail messageDetail, NoticeModel noticeModel, String event) {
         List<Receiver> toUsers = new ArrayList<>();
         Map<String, Object> paramMap = noticeModel.getParamMap();
-        for (String userId : userIds) {
+        for (String userId : messageDetail.getUserIds()) {
             switch (userId) {
                 case NoticeConstants.RelatedUser.EXECUTOR:
                     if (StringUtils.equals(NoticeConstants.Event.CREATE, event)) {
@@ -171,10 +193,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     }
                     break;
                 case NoticeConstants.RelatedUser.FOLLOW_PEOPLE:
-                    String followPeople = (String) paramMap.get("followPeople");
-                    if (StringUtils.isNotBlank(followPeople)) {
-                        toUsers.add(new Receiver(followPeople, NotificationConstants.Type.SYSTEM_NOTICE.name()));
-                    }
+                    toUsers.addAll(handleFollows(messageDetail, noticeModel));
                     break;
                 case NoticeConstants.RelatedUser.PROCESSOR:
                     String customFields = (String) paramMap.get("customFields");
@@ -197,5 +216,59 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return toUsers.stream()
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    private List<Receiver> handleFollows(MessageDetail messageDetail, NoticeModel noticeModel) {
+        List<Receiver> receivers = new ArrayList<>();
+        String id = (String) noticeModel.getParamMap().get("id");
+        String taskType = messageDetail.getTaskType();
+        switch (taskType) {
+            case NoticeConstants.TaskType.TEST_PLAN_TASK:
+                receivers = testPlanService.getPlanFollow(id)
+                        .stream()
+                        .map(user -> new Receiver(user.getId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            case NoticeConstants.TaskType.REVIEW_TASK:
+                TestCaseReview request = new TestCaseReview();
+                request.setId(id);
+                receivers = testCaseReviewService.getFollowByReviewId(request).stream()
+                        .map(user -> new Receiver(user.getId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            case NoticeConstants.TaskType.API_AUTOMATION_TASK:
+                receivers = apiAutomationService.getFollows(id)
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            case NoticeConstants.TaskType.API_DEFINITION_TASK:
+                receivers = apiDefinitionService.getFollows(id)
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                List<Receiver> caseFollows = apiTestCaseService.getFollows(id)
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                receivers.addAll(caseFollows);
+                break;
+            case NoticeConstants.TaskType.PERFORMANCE_TEST_TASK:
+                receivers = performanceTestService.getFollows(id)
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            case NoticeConstants.TaskType.TRACK_TEST_CASE_TASK:
+                receivers = testCaseService.getFollows(id)
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            default:
+                break;
+        }
+        LogUtil.info("FOLLOW_PEOPLE: {}", receivers);
+        return receivers;
     }
 }
