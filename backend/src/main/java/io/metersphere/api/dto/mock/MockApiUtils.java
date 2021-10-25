@@ -424,6 +424,9 @@ public class MockApiUtils {
                 if(StringUtils.isNotEmpty(newScript)){
                     newScript += "\n";
                 }
+                if(StringUtils.isNotEmpty(returnMsg)){
+                    returnMsg += "\n";
+                }
             }
         }
         returnMap.put("script",newScript);
@@ -435,8 +438,8 @@ public class MockApiUtils {
         JSR223Sampler jmeterScriptSampler = new JSR223Sampler();
         jmeterScriptSampler.setScriptLanguage(scriptLanguage);
         jmeterScriptSampler.setScript(script);
-        SampleResult result = jmeterScriptSampler.sample(null);
-        System.out.println(result.getResponseData());
+        jmeterScriptSampler.sample(null);
+
     }
 
     public  static RequestMockParams getParams(String urlParams, String apiPath, JSONObject queryParamsObject,JSON paramJson){
@@ -492,7 +495,6 @@ public class MockApiUtils {
             return returnJson;
         } else if (StringUtils.equalsIgnoreCase("text/xml", request.getContentType())) {
             String xmlString = readXml(request);
-            System.out.println(xmlString);
 
             org.json.JSONObject xmlJSONObj = XML.toJSONObject(xmlString);
             String jsonStr = xmlJSONObj.toString();
@@ -511,6 +513,14 @@ public class MockApiUtils {
                 object.put(key, value);
             }
             return object;
+        } else if (StringUtils.equalsIgnoreCase("text/plain", request.getContentType())) {
+            JSONObject object = new JSONObject();
+            String bodyParam = readBody(request);
+            if(StringUtils.isNotEmpty(bodyParam)){
+                object.put("raw",bodyParam);
+            }
+            return object;
+
         } else {
             JSONObject object = new JSONObject();
             String bodyParam = readBody(request);
