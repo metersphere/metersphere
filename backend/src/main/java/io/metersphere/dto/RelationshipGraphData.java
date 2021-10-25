@@ -37,6 +37,7 @@ public class RelationshipGraphData {
     public static class Edge {
         private Integer source;
         private Integer target;
+        private float curveness;
     }
 
     /**
