@@ -894,7 +894,7 @@ public class ApiDefinitionService {
         if (res != null && CollectionUtils.isNotEmpty(res.getScenarios()) && res.getScenarios().get(0) != null && CollectionUtils.isNotEmpty(res.getScenarios().get(0).getRequestResults())) {
             RequestResult result = null;
             for (RequestResult itemResult : res.getScenarios().get(0).getRequestResults()) {
-                if (!StringUtils.equalsIgnoreCase(itemResult.getMethod(), "Request") && !StringUtils.startsWithAny(itemResult.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
+                if (!StringUtils.startsWithAny(itemResult.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                     result = itemResult;
                     break;
                 }
