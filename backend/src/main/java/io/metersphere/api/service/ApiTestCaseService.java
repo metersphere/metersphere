@@ -238,7 +238,12 @@ public class ApiTestCaseService {
         deleteFileByTestId(request.getId());
         request.setBodyUploadIds(null);
         ApiTestCase test = updateTest(request);
-        FileUtils.createBodyFiles(request.getId(), bodyFiles);
+        if (request.getRequest() != null) {
+            // requestID 跟接口id 不一致的情况
+            FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
+        } else {
+            FileUtils.createBodyFiles(request.getId(), bodyFiles);
+        }
         return test;
     }
 
