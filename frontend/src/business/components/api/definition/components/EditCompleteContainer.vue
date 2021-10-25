@@ -111,7 +111,6 @@ import TcpMockConfig from "@/business/components/api/definition/components/mock/
 import ApiCaseSimpleList from "./list/ApiCaseSimpleList";
 import MsApiCaseList from "./case/ApiCaseList";
 import {getUUID} from "@/common/js/utils";
-import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
@@ -252,6 +251,9 @@ export default {
       this.$emit("refresh");
     },
     changeTab(tabType) {
+      if (this.$refs.apiConfig) {
+        this.$refs.apiConfig.handleSave();
+      }
       this.refreshButtonActiveClass(tabType);
     },
     removeListener() {
