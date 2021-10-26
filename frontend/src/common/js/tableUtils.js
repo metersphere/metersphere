@@ -469,7 +469,12 @@ export function getCustomFieldValue(row, field, members) {
         else if (['multipleSelect', 'checkbox'].indexOf(field.type) > -1) {
           if (item.value) {
             let values = '';
-            if (item.value instanceof Array) {
+            try {
+              if (field.type === 'multipleSelect') {
+                if (typeof (item.value) === 'string' || item.value instanceof String) {
+                  item.value = JSON.parse(item.value);
+                }
+              }
               item.value.forEach(v => {
                 for (let j = 0; j < field.options.length; j++) {
                   let option = field.options[j];
@@ -480,6 +485,8 @@ export function getCustomFieldValue(row, field, members) {
                   }
                 }
               });
+            } catch (e) {
+              values = '';
             }
             return values;
           }
