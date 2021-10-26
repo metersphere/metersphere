@@ -4,19 +4,21 @@
       <el-table-column prop="num" :label="$t('api_test.home_page.new_case_list.table_coloum.index')" width="100"
                        show-overflow-tooltip>
         <template v-slot:default="{row}">
-          <el-link type="num" @click="redirect(row.apiType,row.num)">
+          <span type="num" @click="redirect(row.apiType,row.id)">
             {{ row.num }}
-          </el-link>
+          </span>
         </template>
       </el-table-column>
-      <el-table-column prop="name" :label="$t('api_test.home_page.new_case_list.table_coloum.api_name')" width="150">
+      <el-table-column prop="name" :label="$t('api_test.home_page.new_case_list.table_coloum.api_name')"
+                       show-overflow-tooltip width="170">
         <template v-slot:default="{row}">
-          <el-link type="name" @click="redirect(row.apiType,row.name)">
+          <span type="name" @click="redirect(row.apiType,row.id)">
             {{ row.name }}
-          </el-link>
+          </span>
         </template>
       </el-table-column>
-      <el-table-column prop="path" :label="$t('api_test.home_page.new_case_list.table_coloum.path')" width="150">
+      <el-table-column prop="path" :label="$t('api_test.home_page.new_case_list.table_coloum.path')" width="170"
+                       show-overflow-tooltip>
 
       </el-table-column>
       <el-table-column prop="status" :label="$t('api_test.home_page.new_case_list.table_coloum.api_status')">
@@ -32,7 +34,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="caseTotal" :label="$t('api_test.home_page.new_case_list.table_coloum.relation_case')"
-                       width="150">
+                       width="100">
         <template v-slot:default="{row}">
           <el-link type="info" @click="redirect(row.caseType,row.id)">
             {{ row.caseTotal }}
@@ -40,7 +42,8 @@
         </template>
       </el-table-column>
       <el-table-column prop="scenarioTotal"
-                       :label="$t('api_test.home_page.new_case_list.table_coloum.relation_scenario')">
+                       :label="$t('api_test.home_page.new_case_list.table_coloum.relation_scenario')"
+                       width="100">
         <template v-slot:default="{row}">
           <el-link type="info" @click="redirect(row.scenarioType,row.ids)">
             {{ row.scenarioTotal }}
@@ -196,7 +199,7 @@ export default {
     redirect(pageType, param) {
       switch (pageType) {
         case "api":
-          this.$emit('redirectPage', 'api', 'api', 'apiList:' + param);
+          this.$router.push('/api/definition?resourceId=' + param)
           break;
         case "apiCase":
           this.$emit('redirectPage', 'api', 'apiTestCase', 'singleList:' + param);
