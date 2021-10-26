@@ -1,9 +1,8 @@
 <template>
   <div>
 
-    <el-container v-loading="loading" id="reportAnalysis" style="overflow: scroll">
-      <el-container class="ms-row">
-        <el-aside  v-if="!isHide" :width="!isHide ?'235px':'0px'" :style="{ 'max-height': h-50 + 'px', 'margin-left': '5px'}" >
+    <el-container v-loading="loading" id="reportAnalysis" :style="{ 'max-height': (h-50) + 'px', 'overflow': 'auto'}" >
+        <el-aside  v-if="!isHide" :width="!isHide ?'235px':'0px'" :style="{  'margin-left': '5px'}" >
           <history-report-data report-type="TEST_CASE_COUNT"
                                @selectReport="selectReport" @removeHistoryReportId="removeHistoryReportId"
                                ref="historyReport"/>
@@ -20,7 +19,6 @@
         <el-aside  v-if="!isHide" style="height: 100%" :width="!isHide ?'485px':'0px'">
           <test-case-count-filter @filterCharts="filterCharts" ref="countFilter"/>
         </el-aside>
-      </el-container>
     </el-container>
   </div>
 </template>
@@ -137,8 +135,9 @@ export default {
       this.options.order = order;
       this.filterCharts(this.options);
     },
-    saveReport() {
+    saveReport(reportName) {
       let obj = {};
+      obj.name = reportName;
       obj.projectId = getCurrentProjectID();
       obj.selectOption = JSON.stringify(this.options);
       let dataOptionObj = {
@@ -197,10 +196,17 @@ export default {
         return "";
       }
     },
-    selectAndSaveReport(){
+    selectAndSaveReport(reportName){
       let opt = this.$refs.countFilter.getOption();
       this.options = opt;
-      this.saveReport();
+      this.saveReport(reportName);
+    },
+    saveAndSaveAsReport(reportName,saveType){
+      if(saveType === 'save'){
+        this.saveReport(reportName);
+      }else if(saveType === 'saveAs'){
+        this.selectAndSaveReport(reportName);
+      }
     }
   },
 };

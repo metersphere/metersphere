@@ -18,7 +18,7 @@
     <ms-drawer :visible="testCaseTrendDrawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
       <template v-slot:header>
         <report-header :title="$t('commons.report_statistics.test_case_analysis')" :history-report-id="historyReportId"
-                       @closePage="close" @saveReport="saveReport" @selectAndSaveReport="selectAndSaveReport"/>
+                       @closePage="close" @saveReport="openSaveReportDialog('save')" @selectAndSaveReport="openSaveReportDialog('saveAs')"/>
       </template>
       <test-analysis-container @initHistoryReportId="initHistoryReportId" ref="testAnalysisContainer"/>
     </ms-drawer>
@@ -27,10 +27,26 @@
     <ms-drawer :visible="testCaseCountDrawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
       <template v-slot:header>
         <report-header :title="$t('commons.report_statistics.test_case_count')" :history-report-id="historyReportId"
-                       @closePage="close" @saveReport="saveReport" @selectAndSaveReport="selectAndSaveReport"/>
+                       @closePage="close" @saveReport="openSaveReportDialog('save')" @selectAndSaveReport="openSaveReportDialog('saveAs')"/>
       </template>
       <test-case-count-container @initHistoryReportId="initHistoryReportId" ref="testCaseCountContainer"/>
     </ms-drawer>
+
+    <el-dialog
+      :title="$t('commons.save')"
+      :visible.sync="dialogFormVisible"
+      width="30%"
+      :before-close="handleCloseSaveReportDialog">
+
+      <el-form :model="form" :rules="saveReportRules" ref="saveReportRuleForm">
+        <el-form-item :label="$t('commons.input_name')" prop="reportName" label-width="120px">
+          <el-input v-model="form.reportName" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="saveReport">{{$t('commons.confirm')}}</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -51,6 +67,17 @@
         testCaseCountDrawer: false,
         historyReportId:"",
         reportTypes: [{id: 'track', name: this.$t('test_track.test_track')}],
+        dialogFormVisible: false,
+        form: {
+          reportName: "",
+          saveType: "",
+        },
+        saveReportRules: {
+          reportName: [
+            { required: true, message: this.$t('commons.input_name'), trigger: 'blur' },
+            { min: 1, max: 20, message: '长度不大于20个字符', trigger: 'blur' }
+          ],
+        }
       }
     },
     methods: {
@@ -65,23 +92,34 @@
         this.testCaseTrendDrawer = false;
         this.testCaseCountDrawer = false;
       },
-      saveReport(){
-        if(this.testCaseTrendDrawer){
-          this.$refs.testAnalysisContainer.saveReport();
-        }else if(this.testCaseCountDrawer){
-          this.$refs.testCaseCountContainer.saveReport();
-        }
+      openSaveReportDialog(saveType){
+        this.form.saveType = saveType;
+        this.dialogFormVisible = true;
       },
-      selectAndSaveReport(){
-        if(this.testCaseTrendDrawer){
-          this.$refs.testAnalysisContainer.selectAndSaveReport();
-        }else if(this.testCaseCountDrawer){
-          this.$refs.testCaseCountContainer.selectAndSaveReport();
-        }
+      saveReport(){
+        this.$refs['saveReportRuleForm'].validate((valid) => {
+          if (valid) {
+            if(this.testCaseTrendDrawer){
+              this.$refs.testAnalysisContainer.saveAndSaveAsReport(this.form.reportName,this.form.saveType);
+            }else if(this.testCaseCountDrawer){
+              this.$refs.testCaseCountContainer.saveAndSaveAsReport(this.form.reportName,this.form.saveType);
+            }
+            this.form.reportName = "";
+            this.form.saveType = "";
+            this.dialogFormVisible = false;
+          } else {
+            return false;
+          }
+        });
       },
       initHistoryReportId(reportId){
         this.historyReportId = reportId;
       },
+      handleCloseSaveReportDialog(){
+        this.form.reportName = "";
+        this.form.saveType = "";
+        this.dialogFormVisible = false;
+      }
     },
   }
 </script>
