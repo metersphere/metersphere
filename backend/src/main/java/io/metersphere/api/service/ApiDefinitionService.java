@@ -239,6 +239,10 @@ public class ApiDefinitionService {
                 }
             }
         }
+        //update userId
+        if(request.getUserId().equals("currentUserId")){
+            request.setUserId(SessionUtils.getUserId());
+        }
         return request;
     }
 
