@@ -240,7 +240,7 @@ public class ApiDefinitionService {
             }
         }
         //update userId
-        if(request.getUserId().equals("currentUserId")){
+        if(request.getUserId()!=null&&request.getUserId().equals("currentUserId")){
             request.setUserId(SessionUtils.getUserId());
         }
         return request;
