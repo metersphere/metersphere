@@ -44,6 +44,7 @@ public class LocalPlatform extends LocalAbstractPlatform {
         IssuesWithBLOBs issues = new IssuesWithBLOBs();
         BeanUtils.copyBean(issues, issuesRequest);
         issues.setId(id);
+        issues.setPlatformId(id);
         issues.setStatus("new");
         issues.setReporter(user.getId());
         issues.setCreateTime(System.currentTimeMillis());
