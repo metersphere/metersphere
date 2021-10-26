@@ -2,24 +2,6 @@
   <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)" v-loading="saveLoading">
     <div @click="active(apiCase)" v-if="type!=='detail'">
       <el-row>
-        <el-col :span="3">
-          <el-row>
-            <el-col :span="2" style="margin-top: 5px">
-              <el-checkbox class="item-select" v-model="apiCase.selected"/>
-            </el-col>
-            <el-col :span="2" style="margin-top: 2px">
-              <show-more-btn :is-show="apiCase.selected" :buttons="buttons" :size="selectSize"/>
-            </el-col>
-            <el-col :span="20">
-              <div class="el-step__icon is-text ms-api-col">
-                <div class="el-step__icon-inner">{{ index + 1 }}</div>
-              </div>
-              <el-select size="mini" v-model="apiCase.priority" class="ms-api-select" @change="changePriority(apiCase)">
-                <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
-              </el-select>
-            </el-col>
-          </el-row>
-        </el-col>
         <el-col :span="api.protocol==='HTTP'?4:8" v-loading="loading && !(apiCase.active||type==='detail')">
           <span @click.stop>
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
@@ -43,6 +25,11 @@
           </span>
           </div>
         </el-col>
+        <el-col :span="2">
+          <el-select size="mini" v-model="apiCase.priority" class="ms-api-select" @change="changePriority(apiCase)" :disabled="loaded">
+            <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
+          </el-select>
+        </el-col>
         <el-col :span="api.protocol==='HTTP'?4:0">
           <span v-if="api.protocol==='HTTP'">
             <el-tag size="mini" :style="{'background-color': getColor(true, apiCase.request.method), border: getColor(true, apiCase.request.method)}"
@@ -54,10 +41,10 @@
             </el-tooltip>
          </span>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="5">
           <el-row>
             <el-col :span="8">
-              <el-select size="small" v-model="apiCase.caseStatus" style="margin-right: 5px" @change="saveTestCase(apiCase,true)">
+              <el-select size="small" v-model="apiCase.caseStatus" style="margin-right: 5px" @change="saveTestCase(apiCase,true)" :disabled="loaded">
                 <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
               </el-select>
             </el-col>
@@ -65,7 +52,7 @@
               <div class="tag-item" @click.stop>
                 <el-select v-model="apiCase.follows" multiple clearable
                            :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
-                           @change="saveTestCase(apiCase,true)" style="width: 100%">
+                           @change="saveTestCase(apiCase,true)" style="width: 100%" :disabled="loaded">
                   <el-option
                     v-for="item in maintainerOptions"
                     :key="item.id"
@@ -78,7 +65,7 @@
           </el-row>
           <el-row style="margin-top: 5px">
             <div class="tag-item" @click.stop>
-              <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase,true)"/>
+              <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase,true)" :disabled="loaded"/>
             </div>
           </el-row>
         </el-col>
@@ -86,7 +73,7 @@
         <el-col :span="3">
           <span @click.stop>
             <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
-                           class="run-button" size="mini" :disabled="!apiCase.id" circle v-if="!loading"/>
+                           class="run-button" size="mini" :disabled="!apiCase.id || loaded" circle v-if="!loading"/>
             <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
               <el-button :disabled="!apiCase.id" @click.once="stop(apiCase)" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;" class="stop-btn" circle>
                 <div style="transform: scale(0.72)">
@@ -95,14 +82,14 @@
               </el-button>
             </el-tooltip>
             <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy" v-permission="['PROJECT_API_DEFINITION:READ+COPY_CASE']"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
+                           size="mini" :disabled="!apiCase.id || isCaseEdit || loaded" circle/>
             <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete" v-permission="['PROJECT_API_SCENARIO:READ+DELETE_CASE']"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase"/>
           </span>
         </el-col>
 
-        <el-col :span="2">
+        <el-col :span="4">
           <el-link @click.stop type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
             {{ getResult(apiCase.execResult) }}
           </el-link>
@@ -128,16 +115,16 @@
       <div v-if="apiCase.active||type==='detail'" v-loading="loading">
         <el-divider></el-divider>
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-api-request-form :isShowEnable="true" :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
+        <ms-api-request-form :isShowEnable="true" :showScript="true" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
         <tcp-format-parameters :showScript="true" :request="apiCase.request" v-if="api.method==='TCP' && apiCase.request.esbDataStruct == null"/>
-        <esb-definition v-xpack :request="apiCase.request" :showScript="true" v-if="showXpackCompnent&&api.method==='ESB'" ref="esbDefinition"/>
+        <esb-definition v-xpack :request="apiCase.request" :showScript="true" v-if="isXpack&&api.method==='ESB'" ref="esbDefinition"/>
         <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
         <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-        <div v-if="showXpackCompnent&&api.method==='ESB'">
-          <esb-definition-response v-xpack v-if="showXpackCompnent" :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
+        <div v-if="isXpack&&api.method==='ESB'">
+          <esb-definition-response v-xpack v-if="isXpack" :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
         </div>
         <div v-else>
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
@@ -225,8 +212,7 @@ export default {
         ['error', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('api_test.home_page.detail_card.execution_failed')],
         ['default', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('api_test.home_page.detail_card.unexecute')]
       ]),
-      showXpackCompnent: false,
-      isReadOnly: false,
+      isXpack: false,
       selectedEvent: Object,
       priorities: PRIORITY,
       runData: [],
@@ -236,17 +222,17 @@ export default {
       condition: {},
       responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
       isShowInput: false,
-      buttons: [
-        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch},
-        {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch}
-      ],
       methodColorMap: new Map(API_METHOD_COLOUR),
       saveLoading: false,
+      beforeRequest: {},
     }
   },
   props: {
     runResult: {},
-    selectSize: Number,
+    loaded: {
+      type: Boolean,
+      default: false,
+    },
     apiCase: {
       type: Object,
       default() {
@@ -266,6 +252,7 @@ export default {
         return {}
       }
     },
+    currentApi: {},
     type: String,
     isCaseEdit: Boolean,
     loading: {
@@ -278,34 +265,26 @@ export default {
   },
   created() {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
-      this.showXpackCompnent = true;
+      this.isXpack = true;
     }
     if (this.apiCase && this.apiCase.id) {
       this.$get('/api/testcase/follow/' + this.apiCase.id, response => {
         this.apiCase.follows = response.data;
       });
     }
-  },
-  watch: {
-    'apiCase.selected'() {
-      this.$emit('apiCaseSelected');
+    if (this.currentApi && this.currentApi.request) {
+      this.beforeRequest = JSON.parse(JSON.stringify(this.currentApi.request));
     }
   },
   methods: {
     hasPermission,
     openHis(row) {
-      this.$refs.changeHistory.open(row.id,["接口定义用例" , "接口定義用例" , "Api definition case"]);
-    },
-    handleRunBatch() {
-      this.$emit('batchRun');
+      this.$refs.changeHistory.open(row.id, ["接口定义用例", "接口定義用例", "Api definition case"]);
     },
     getColor(enable, method) {
       if (enable) {
         return this.methodColorMap.get(method);
       }
-    },
-    handleEditBatch() {
-      this.$emit('batchEditCase');
     },
     deleteCase(index, row) {
       this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + row.name + " ？", '', {
@@ -348,14 +327,14 @@ export default {
       }
       if ($event.currentTarget.className.indexOf('is-selected') > 0) {
         $event.currentTarget.className = "el-card is-always-shadow";
-        this.$emit('selectTestCase', null);
+        this.currentApi.request = this.beforeRequest;
       } else {
         if (this.selectedEvent.currentTarget != undefined) {
           this.selectedEvent.currentTarget.className = "el-card is-always-shadow";
         }
         this.selectedEvent.currentTarget = $event.currentTarget;
         $event.currentTarget.className = "el-card is-always-shadow is-selected";
-        this.$emit('selectTestCase', item);
+        this.currentApi.request = item.request;
       }
     },
     changePriority(row) {

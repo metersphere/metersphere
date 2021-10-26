@@ -11,8 +11,6 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
-import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
-import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
@@ -284,6 +282,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
     }
+
     private void initConnectAndResponseTimeout(ParameterConfig config) {
         if (config.isEffective(this.getProjectId())) {
             String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
@@ -604,7 +603,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         stringBuffer.append(path);
         stringBuffer.append("/");
         Map<String, String> keyValueMap = new HashMap<>();
-        this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
+        this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).filter(KeyValue::valueIsNotEmpty).forEach(keyValue ->
                 keyValueMap.put(keyValue.getName(), keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
                         ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue())
         );
@@ -613,7 +612,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             Matcher m = p.matcher(path);
             while (m.find()) {
                 String group = m.group(2);
-                if (!isVariable(path, group)) {
+                if (!isVariable(path, group) && keyValueMap.containsKey(group)) {
                     path = path.replace("{" + group + "}", keyValueMap.get(group));
                 }
             }
