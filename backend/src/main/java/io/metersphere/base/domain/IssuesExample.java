@@ -983,6 +983,76 @@ public class IssuesExample {
             addCriterion("platform_status not between", value1, value2, "platformStatus");
             return (Criteria) this;
         }
+
+        public Criteria andPlatformIdIsNull() {
+            addCriterion("platform_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdIsNotNull() {
+            addCriterion("platform_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdEqualTo(String value) {
+            addCriterion("platform_id =", value, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdNotEqualTo(String value) {
+            addCriterion("platform_id <>", value, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdGreaterThan(String value) {
+            addCriterion("platform_id >", value, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdGreaterThanOrEqualTo(String value) {
+            addCriterion("platform_id >=", value, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdLessThan(String value) {
+            addCriterion("platform_id <", value, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdLessThanOrEqualTo(String value) {
+            addCriterion("platform_id <=", value, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdLike(String value) {
+            addCriterion("platform_id like", value, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdNotLike(String value) {
+            addCriterion("platform_id not like", value, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdIn(List<String> values) {
+            addCriterion("platform_id in", values, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdNotIn(List<String> values) {
+            addCriterion("platform_id not in", values, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdBetween(String value1, String value2) {
+            addCriterion("platform_id between", value1, value2, "platformId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIdNotBetween(String value1, String value2) {
+            addCriterion("platform_id not between", value1, value2, "platformId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

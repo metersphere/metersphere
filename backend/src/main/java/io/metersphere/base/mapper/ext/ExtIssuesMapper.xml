@@ -13,7 +13,7 @@
     </select>
 
     <select id="getIssues" resultType="io.metersphere.base.domain.IssuesDao">
-        select issues.id, issues.num, ifnull(issues.title, '') as title, issues.project_id, issues.create_time, issues.update_time,
+        select issues.id, issues.platform_id, issues.num, ifnull(issues.title, '') as title, issues.project_id, issues.create_time, issues.update_time,
                ifnull(issues.description, '') as description, issues.status, issues.platform, issues.custom_fields, issues.reporter,
                issues.creator,issues.resource_id,issues.platform_status,
                issues.lastmodify
@@ -43,7 +43,7 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="getIssueForSync" resultType="io.metersphere.base.domain.IssuesDao">
-        select id,platform
+        select id,platform, platform_id
         from issues
         where project_id = #{projectId} and platform != 'Local';
     </select>
