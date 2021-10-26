@@ -74,31 +74,26 @@ name: "TestReviewMinder",
   methods: {
     handleAfterMount() {
       listenNodeSelected(() => {
-        let param = {
-          request: {
-            reviewId: this.reviewId,
-            orders: this.condition.orders
-          },
-          result: this.result,
-          isDisable: true
-        }
-        loadSelectNodes(param,  getReviewCasesForMinder, this.setParamCallback);
+        loadSelectNodes(this.getParam(),  getReviewCasesForMinder, this.setParamCallback);
       });
       listenBeforeExecCommand((even) => {
         if (even.commandName === 'expandtolevel') {
           let level = Number.parseInt(even.commandArgs);
-          let param = {
-            request: {
-              reviewId: this.reviewId,
-            },
-            result: this.result,
-            isDisable: true
-          }
-          handleExpandToLevel(level, even.minder.getRoot(), param, getReviewCasesForMinder, this.setParamCallback);
+          handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getReviewCasesForMinder, this.setParamCallback);
         }
       });
 
       tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')]);
+    },
+    getParam() {
+      return {
+        request: {
+          reviewId: this.reviewId,
+          orders: this.condition.orders
+        },
+        result: this.result,
+        isDisable: true
+      }
     },
     setParamCallback(data, item) {
       if (item.reviewStatus === 'Pass') {
