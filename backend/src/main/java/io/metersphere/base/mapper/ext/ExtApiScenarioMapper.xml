@@ -275,6 +275,9 @@
                     </if>
                 </foreach>
             </if>
+            <if test="request.filters == null || request.filters.size() == 0 ">
+                and (api_scenario.status is null or api_scenario.status != 'Trash')
+            </if>
             <if test="request.executeStatus == 'unExecute'">
                 and api_scenario.last_result IS NULL
             </if>

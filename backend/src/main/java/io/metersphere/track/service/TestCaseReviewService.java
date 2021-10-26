@@ -157,6 +157,10 @@ public class TestCaseReviewService {
         if (StringUtils.isBlank(projectId)) {
             return new ArrayList<>();
         }
+        //update   reviewerId
+        if(request.getReviewerId().equals("currentUserId")){
+            request.setReviewerId(SessionUtils.getUserId());
+        }
         return extTestCaseReviewMapper.list(request);
     }
 
