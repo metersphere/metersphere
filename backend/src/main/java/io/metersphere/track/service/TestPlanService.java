@@ -611,7 +611,6 @@ public class TestPlanService {
                                 t.setId(UUID.randomUUID().toString());
                                 t.setTestPlanId(request.getPlanId());
                                 t.setApiScenarioId(l.getTestId());
-                                t.setLastResult(testPlanApiScenario.getLastResult());
                                 t.setPassRate(testPlanApiScenario.getPassRate());
                                 t.setReportId(testPlanApiScenario.getReportId());
                                 t.setStatus(testPlanApiScenario.getStatus());
