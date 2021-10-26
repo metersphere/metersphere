@@ -14,7 +14,9 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.EsbApiParamService;
 import io.metersphere.api.service.EsbImportService;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -27,7 +29,6 @@ import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
-import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -43,8 +44,6 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/definition")
 public class ApiDefinitionController {
-    @Resource
-    private ScheduleService scheduleService;
     @Resource
     private ApiDefinitionService apiDefinitionService;
     @Resource
