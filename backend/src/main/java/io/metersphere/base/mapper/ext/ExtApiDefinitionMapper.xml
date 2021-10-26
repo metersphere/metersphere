@@ -717,8 +717,9 @@
     <select id="scenarioList" resultType="io.metersphere.api.dto.scenario.Scenario">
         select DISTINCT t1.id
         from api_scenario t1
-                 join api_scenario_reference_id t2 on t1.id = t2.api_scenario_id
-                 join api_test_case t3 on t2.reference_id = t3.id and t2.reference_type = 'REF'
+                 join api_scenario_reference_id t2 on t1.id = t2.api_scenario_id and t1.`status` !='Trash'
+                 join api_test_case t3
+        on t2.reference_id = t3.id and t2.reference_type = 'REF'
         where t3.api_definition_id = #{apiDefinitionId}
           and t3.`status`!='Trash'
     </select>

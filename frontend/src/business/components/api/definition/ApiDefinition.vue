@@ -383,6 +383,7 @@ export default {
       });
     },
     '$route'(to, from) {  //  路由改变时，把接口定义界面中的 ctrl s 保存快捷键监听移除
+      window.location.reload();
       if (to.path.indexOf('/api/definition') === -1) {
         if (this.$refs && this.$refs.apiConfig) {
           this.$refs.apiConfig.forEach(item => {
@@ -390,7 +391,7 @@ export default {
           });
         }
       }
-    }
+    },
   },
   created() {
     this.getEnv();
