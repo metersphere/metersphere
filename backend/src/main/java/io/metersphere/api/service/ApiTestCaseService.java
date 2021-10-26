@@ -506,6 +506,9 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(request.getSelectIds())) {
             return;
         }
+        // 尽量保持与用例顺序一致
+        Collections.reverse(request.getSelectIds());
+
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andApiDefinitionIdIn(request.getSelectIds());
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
@@ -517,6 +520,9 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
+        // 尽量保持与用例顺序一致
+        Collections.reverse(ids);
+
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);

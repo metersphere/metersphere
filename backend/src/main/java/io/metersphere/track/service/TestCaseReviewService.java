@@ -348,6 +348,7 @@ public class TestCaseReviewService {
         if (testCaseIds.isEmpty()) {
             return;
         }
+
         // 如果是关联全部指令则根据条件查询未关联的案例
         if (testCaseIds.get(0).equals("all")) {
             List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
@@ -355,6 +356,9 @@ public class TestCaseReviewService {
                 testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());
             }
         }
+
+        // 尽量保持与用例顺序一致
+        Collections.reverse(testCaseIds);
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseReviewTestCaseMapper batchMapper = sqlSession.getMapper(TestCaseReviewTestCaseMapper.class);
