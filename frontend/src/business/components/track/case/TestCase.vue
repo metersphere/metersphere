@@ -66,6 +66,7 @@
               :project-id="projectId"
               :condition="condition"
               v-if="activeDom === 'right'"
+              @refresh="refreshTable"
               ref="minder"/>
           </ms-tab-button>
         </el-tab-pane>
