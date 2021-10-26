@@ -158,7 +158,7 @@ public class TestCaseReviewService {
             return new ArrayList<>();
         }
         //update   reviewerId
-        if(request.getReviewerId().equals("currentUserId")){
+        if(request.getReviewerId()!=null&&request.getReviewerId().equals("currentUserId")){
             request.setReviewerId(SessionUtils.getUserId());
         }
         return extTestCaseReviewMapper.list(request);
