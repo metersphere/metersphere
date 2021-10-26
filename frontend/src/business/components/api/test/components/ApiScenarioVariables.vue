@@ -76,7 +76,13 @@ export default {
     change: function () {
       let isNeedCreate = true;
       let removeIndex = -1;
+      let repeatKey = "";
       this.items.forEach((item, index) => {
+        this.items.forEach((row, rowIndex) => {
+          if (item.name === row.name && index !== rowIndex) {
+            repeatKey = item.name;
+          }
+        });
         if (!item.name && !item.value) {
           // 多余的空行
           if (index !== this.items.length - 1) {
@@ -86,11 +92,15 @@ export default {
           isNeedCreate = false;
         }
       });
-      if (isNeedCreate) {
+      if (repeatKey !== "") {
+        this.$warning(this.$t('api_test.environment.common_config') + "【" + repeatKey + "】" + this.$t('load_test.param_is_duplicate'));
+      }
+      if (isNeedCreate && !repeatKey) {
         this.items.push(new KeyValue({enable: true}));
       }
       this.$emit('change', this.items);
       // TODO 检查key重复
+
     },
     isDisable: function (index) {
       return this.items.length - 1 === index;
