@@ -397,7 +397,7 @@
             and (t1.status is null or t1.status != 'Trash')
         </if>
         <if test="request.toUpdate !=null and request.toUpdate == true">
-            and (t1.update_time >= 'request.updateTime' or t2.status = 'error')
+            and (t1.update_time >= #{request.updateTime} or t2.status = 'error')
         </if>
         GROUP BY  t1.id,
         t1.project_id,

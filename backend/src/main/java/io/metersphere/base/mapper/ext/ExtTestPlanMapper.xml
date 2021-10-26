@@ -119,6 +119,10 @@
         from test_plan
         LEFT JOIN schedule ON schedule.resource_id = test_plan.id
         JOIN project on project.id = test_plan.project_id
+        <if test="request.executorOrPrincipal != null">
+            JOIN test_plan_principal ON test_plan_principal.test_plan_id = test_plan.id
+            JOIN test_plan_test_case on test_plan_test_case.plan_id = test_plan.id
+        </if>
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -159,13 +163,19 @@
                     </if>
                 </foreach>
             </if>
+            <if test="request.executorOrPrincipal != null">
+                AND ( test_plan.creator = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' or  test_plan_principal.principal_id  = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' or  test_plan_test_case.executor = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}')
+            </if>
         </where>
+
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
                 test_plan.${order.name} ${order.type}
             </foreach>
         </if>
+
+
     </select>
     <select id="planList" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
