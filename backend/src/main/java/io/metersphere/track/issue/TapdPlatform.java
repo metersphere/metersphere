@@ -3,10 +3,7 @@ package io.metersphere.track.issue;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.base.domain.Issues;
-import io.metersphere.base.domain.IssuesDao;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
@@ -37,6 +34,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TapdPlatform extends AbstractIssuePlatform {
@@ -91,18 +89,20 @@ public class TapdPlatform extends AbstractIssuePlatform {
         Map<String, String> statusMap = tapdClient.getStatusMap(getProjectId(this.projectId));
         issuesRequest.setPlatformStatus(statusMap.get(bug.getStatus()));
 
-        issuesRequest.setId(bug.getId());
-        // 用例与第三方缺陷平台中的缺陷关联
-        handleTestCaseIssues(issuesRequest);
+        issuesRequest.setPlatformId(bug.getId());
+        issuesRequest.setId(UUID.randomUUID().toString());
 
         // 插入缺陷表
-        insertIssues(bug.getId(), issuesRequest);
+        insertIssues(issuesRequest);
+
+        // 用例与第三方缺陷平台中的缺陷关联
+        handleTestCaseIssues(issuesRequest);
     }
 
     @Override
     public void updateIssue(IssuesUpdateRequest request) {
         MultiValueMap<String, Object> param = buildUpdateParam(request);
-        param.add("id", request.getId());
+        param.add("id", request.getPlatformId());
         handleIssueUpdate(request);
         tapdClient.updateIssue(param);
     }
@@ -199,8 +199,11 @@ public class TapdPlatform extends AbstractIssuePlatform {
         int limit = 50;
         int count = 50;
 
+        Map<String, String> idMap = tapdIssues.stream()
+                .collect(Collectors.toMap(IssuesDao::getPlatformId, IssuesDao::getId));
+
         List<String> ids = tapdIssues.stream()
-                .map(Issues::getId)
+                .map(IssuesDao::getPlatformId)
                 .collect(Collectors.toList());
 
         LogUtil.info("ids: " + ids);
@@ -214,7 +217,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
         Map<String, String> statusMap = tapdClient.getStatusMap(project.getTapdId());
 
         while (count == limit) {
-            count = 0;
             TapdGetIssueResponse result = tapdClient.getIssueForPageByIds(project.getTapdId(), pageNum, limit, ids);
             List<TapdGetIssueResponse.Data> data = result.getData();
             count = data.size();
@@ -223,6 +225,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 TapdBug bug = issue.getBug();
                 IssuesDao issuesDao = new IssuesDao();
                 BeanUtils.copyBean(issuesDao, bug);
+                issuesDao.setId(idMap.get(issuesDao.getId()));
                 issuesDao.setPlatformStatus(statusMap.get(bug.getStatus()));
                 issuesDao.setDescription(htmlDesc2MsDesc(issuesDao.getDescription()));
                 issuesMapper.updateByPrimaryKeySelective(issuesDao);
@@ -231,10 +234,12 @@ public class TapdPlatform extends AbstractIssuePlatform {
         }
         // 查不到的就置为删除
         ids.forEach((id) -> {
-            IssuesDao issuesDao = new IssuesDao();
-            issuesDao.setId(id);
-            issuesDao.setPlatformStatus(IssuesStatus.DELETE.toString());
-            issuesMapper.updateByPrimaryKeySelective(issuesDao);
+            if (StringUtils.isNotBlank(idMap.get(id))) {
+                IssuesDao issuesDao = new IssuesDao();
+                issuesDao.setId(idMap.get(id));
+                issuesDao.setPlatformStatus(IssuesStatus.DELETE.toString());
+                issuesMapper.updateByPrimaryKeySelective(issuesDao);
+            }
         });
     }
 

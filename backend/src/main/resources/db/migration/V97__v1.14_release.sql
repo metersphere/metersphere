@@ -452,3 +452,6 @@ WHERE follow_people IS NOT NULL AND follow_people != '';
 ALTER TABLE test_case DROP COLUMN follow_people;
 -- 操作日志类型增加普通索引
 ALTER TABLE `operating_log` ADD INDEX oper_module_index ( `oper_module` );
+
+ALTER TABLE issues ADD platform_id varchar(50) NOT NULL;
+UPDATE issues SET platform_id = id WHERE 1;

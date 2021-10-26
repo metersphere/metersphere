@@ -194,10 +194,11 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issuesMapper.insert(issues);
     }
 
-    protected void insertIssues(String id, IssuesUpdateRequest issuesRequest) {
+    protected void insertIssues(IssuesUpdateRequest issuesRequest) {
         IssuesWithBLOBs issues = new IssuesWithBLOBs();
         BeanUtils.copyBean(issues, issuesRequest);
-        issues.setId(id);
+        issues.setId(issuesRequest.getId());
+        issues.setPlatformId(issuesRequest.getPlatformId());
         issues.setCreateTime(System.currentTimeMillis());
         issues.setUpdateTime(System.currentTimeMillis());
         issues.setNum(getNextNum(issuesRequest.getProjectId()));
