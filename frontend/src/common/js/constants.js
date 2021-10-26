@@ -190,5 +190,7 @@ export const CONFIG_TYPE = {
 export const WORKSTATION={
   UPCOMING:"upcoming",
   FOCUS:"focus",
+  NODE:"node"
 }
+
 
