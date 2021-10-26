@@ -201,7 +201,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'description', key: '7', label: 'test_track.issue.description'},
     {id: 'caseCount', key: '9', label: 'api_test.definition.api_case_number'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
-    {id: 'projectName', key: '10', label: 'test_track.issue.project_came'},
+    {id: 'projectName', key: 'a', label: 'test_track.issue.project_came'},
   ]
 
 }
