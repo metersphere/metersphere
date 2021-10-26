@@ -34,6 +34,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class JiraPlatform extends AbstractIssuePlatform {
 
@@ -99,7 +100,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
         if (assignee != null) {
             lastmodify = assignee.getString("displayName");
         }
-        item.setId(jiraIssue.getKey());
         item.setTitle(fields.getString("summary"));
         item.setCreateTime(fields.getLong("created"));
         item.setLastmodify(lastmodify);
@@ -247,15 +247,18 @@ public class JiraPlatform extends AbstractIssuePlatform {
         imageFiles.forEach(img -> {
             jiraClientV2.uploadAttachment(result.getKey(), img);
         });
+
         String status = getStatus(issues.getFields());
         issuesRequest.setPlatformStatus(status);
 
-        issuesRequest.setId(result.getKey());
-        // 用例与第三方缺陷平台中的缺陷关联
-        handleTestCaseIssues(issuesRequest);
+        issuesRequest.setPlatformId(result.getKey());
+        issuesRequest.setId(UUID.randomUUID().toString());
 
         // 插入缺陷表
-        insertIssues(result.getKey(), issuesRequest);
+        insertIssues(issuesRequest);
+
+        // 用例与第三方缺陷平台中的缺陷关联
+        handleTestCaseIssues(issuesRequest);
     }
 
     private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest) {
@@ -329,14 +332,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public void updateIssue(IssuesUpdateRequest request) {
         JSONObject param = buildUpdateParam(request);
         handleIssueUpdate(request);
-        jiraClientV2.updateIssue(request.getId(), JSONObject.toJSONString(param));
+        jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
     }
 
     @Override
     public void deleteIssue(String id) {
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
         super.deleteIssue(id);
         setConfig();
-        jiraClientV2.deleteIssue(id);
+        jiraClientV2.deleteIssue(issuesWithBLOBs.getPlatformId());
     }
 
     @Override
@@ -367,7 +371,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             setConfig();
             try {
                 IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
-                parseIssue(item, jiraClientV2.getIssues(item.getId()), issuesWithBLOBs.getCustomFields());
+                parseIssue(item, jiraClientV2.getIssues(item.getPlatformId()), issuesWithBLOBs.getCustomFields());
                 String desc = htmlDesc2MsDesc(item.getDescription());
                 // 保留之前上传的图片
                 String images = getImages(issuesWithBLOBs.getDescription());
