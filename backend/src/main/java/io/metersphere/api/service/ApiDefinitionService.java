@@ -339,14 +339,22 @@ public class ApiDefinitionService {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
         if (request.getIds() != null || !request.getIds().isEmpty()) {
-            //检查模块是否还在
-
             //检查原来模块是否还在
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(request.getIds());
             List<ApiDefinition> reductionCaseList = apiDefinitionMapper.selectByExample(example);
             Map<String, List<ApiDefinition>> nodeMap = new HashMap<>();
             for (ApiDefinition api : reductionCaseList) {
+                //检查是否同名
+                SaveApiDefinitionRequest apiDefinitionRequest = new SaveApiDefinitionRequest();
+                apiDefinitionRequest.setProjectId(request.getProjectId());
+                apiDefinitionRequest.setMethod(api.getMethod());
+                apiDefinitionRequest.setProtocol(api.getProtocol());
+                apiDefinitionRequest.setPath(api.getPath());
+                apiDefinitionRequest.setName(api.getName());
+                apiDefinitionRequest.setId(api.getId());
+                checkNameExist(apiDefinitionRequest);
+
                 String moduleId = api.getModuleId();
                 if (StringUtils.isEmpty(moduleId)) {
                     moduleId = "";
@@ -359,7 +367,6 @@ public class ApiDefinitionService {
                     nodeMap.put(moduleId, list);
                 }
             }
-//            Map<String,List<ApiDefinition>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(ApiDefinition :: getModuleId));
             ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
             for (Map.Entry<String, List<ApiDefinition>> entry : nodeMap.entrySet()) {
                 String nodeId = entry.getKey();
@@ -367,8 +374,7 @@ public class ApiDefinitionService {
                 if (nodeCount <= 0) {
                     String projectId = request.getProjectId();
                     ApiModule node = apiModuleService.getDefaultNode(projectId, request.getProtocol());
-                    List<ApiDefinition> testCaseList = entry.getValue();
-                    for (ApiDefinition apiDefinition : testCaseList) {
+                    for (ApiDefinition apiDefinition : entry.getValue()) {
                         ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
                         updateCase.setId(apiDefinition.getId());
                         updateCase.setModuleId(node.getId());
