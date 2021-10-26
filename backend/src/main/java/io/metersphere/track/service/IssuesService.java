@@ -86,7 +86,7 @@ public class IssuesService {
 
 
     public void addIssues(IssuesUpdateRequest issuesRequest) {
-        List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
+        List<AbstractIssuePlatform> platformList = getAddPlatforms(issuesRequest);
         platformList.forEach(platform -> {
             platform.addIssue(issuesRequest);
         });
@@ -97,6 +97,7 @@ public class IssuesService {
 
 
     public void updateIssues(IssuesUpdateRequest issuesRequest) {
+        issuesRequest.getId();
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
         platformList.forEach(platform -> {
             platform.updateIssue(issuesRequest);
@@ -104,7 +105,7 @@ public class IssuesService {
         // todo 缺陷更新事件？
     }
 
-    public List<AbstractIssuePlatform> getUpdatePlatforms(IssuesUpdateRequest updateRequest) {
+    public List<AbstractIssuePlatform> getAddPlatforms(IssuesUpdateRequest updateRequest) {
         List<String> platforms = new ArrayList<>();
         if (StringUtils.isNotBlank(updateRequest.getTestCaseId())) {
             // 测试计划关联
@@ -118,6 +119,21 @@ public class IssuesService {
 
         if (CollectionUtils.isEmpty(platforms)) {
             platforms.add(IssuesManagePlatform.Local.toString());
+        }
+        IssuesRequest issuesRequest = new IssuesRequest();
+        BeanUtils.copyBean(issuesRequest, updateRequest);
+        return IssueFactory.createPlatforms(platforms, issuesRequest);
+    }
+
+    public List<AbstractIssuePlatform> getUpdatePlatforms(IssuesUpdateRequest updateRequest) {
+        String id = updateRequest.getId();
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
+        String platform = issuesWithBLOBs.getPlatform();
+        List<String> platforms = new ArrayList<>();
+        if (StringUtils.isBlank(platform)) {
+            platforms.add(IssuesManagePlatform.Local.toString());
+        } else {
+            platforms.add(platform);
         }
         IssuesRequest issuesRequest = new IssuesRequest();
         BeanUtils.copyBean(issuesRequest, updateRequest);
