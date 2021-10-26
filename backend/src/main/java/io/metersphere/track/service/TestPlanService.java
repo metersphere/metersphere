@@ -525,6 +525,9 @@ public class TestPlanService {
             return;
         }
 
+        // 尽量保持与用例顺序一致
+        Collections.reverse(testCaseIds);
+
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andIdIn(testCaseIds);
         List<TestCase> testCaseList = testCaseMapper.selectByExample(testCaseExample);
