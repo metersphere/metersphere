@@ -86,8 +86,9 @@
         this.options.order = order;
         this.filterCharts(this.options);
       },
-      saveReport() {
+      saveReport(reportName) {
         let obj = {};
+        obj.name = reportName;
         obj.projectId = getCurrentProjectID();
         obj.selectOption = JSON.stringify(this.options);
         let dataOptionObj = {
@@ -148,10 +149,17 @@
       removeHistoryReportId(){
         this.$emit('initHistoryReportId',"");
       },
-      selectAndSaveReport(){
+      selectAndSaveReport(reportName){
         let opt = this.$refs.analysisFilter.getOption();
         this.options = opt;
-        this.saveReport();
+        this.saveReport(reportName);
+      },
+      saveAndSaveAsReport(reportName,saveType){
+        if(saveType === 'save'){
+          this.saveReport(reportName);
+        }else if(saveType === 'saveAs'){
+          this.selectAndSaveReport(reportName);
+        }
       }
     },
   }

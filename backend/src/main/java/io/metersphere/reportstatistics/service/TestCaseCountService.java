@@ -547,7 +547,7 @@ public class TestCaseCountService {
         List<User> userList = userService.getUserList();
         Map<String, String> userIdMap = new HashMap<>();
         for (User model : userList) {
-            userIdMap.put(model.getId(), model.getId() + "\n(" + model.getName() + ")");
+            userIdMap.put(model.getId(), model.getName() + "\n(" + model.getId() + ")");
         }
         return userIdMap;
     }
@@ -608,6 +608,11 @@ public class TestCaseCountService {
 
         Map<String, String> caseDescMap = this.getCaseDescMap();
 
+        //柱状图上显示数字
+        Map<String,Object> labelMap = new HashMap<>();
+        labelMap.put("show",true);
+        labelMap.put("position","inside");
+
         Series tetcaseSeries = new Series();
         tetcaseSeries.setName(caseDescMap.get("testCaseDesc"));
         tetcaseSeries.setColor("#F38F1F");
@@ -616,6 +621,7 @@ public class TestCaseCountService {
         tetcaseSeries.setStack("total");
         tetcaseSeries.setData(testCaseCountList);
         tetcaseSeries.setBarWidth("50");
+        tetcaseSeries.setLabel(labelMap);
         seriesList.add(tetcaseSeries);
 
         Series apiSeries = new Series();
@@ -624,6 +630,7 @@ public class TestCaseCountService {
         apiSeries.setType("bar");
         apiSeries.setStack("total");
         apiSeries.setData(apiCaseCountList);
+        apiSeries.setLabel(labelMap);
         seriesList.add(apiSeries);
 
         Series scenarioSeries = new Series();
@@ -632,6 +639,7 @@ public class TestCaseCountService {
         scenarioSeries.setType("bar");
         scenarioSeries.setStack("total");
         scenarioSeries.setData(scenarioCaseCountList);
+        scenarioSeries.setLabel(labelMap);
         seriesList.add(scenarioSeries);
 
         Series loadSeries = new Series();
@@ -640,11 +648,16 @@ public class TestCaseCountService {
         loadSeries.setType("bar");
         loadSeries.setStack("total");
         loadSeries.setData(loadCaseCountList);
+        loadSeries.setLabel(labelMap);
         seriesList.add(loadSeries);
 
         dto.setXAxis(xAxis);
         dto.setYAxis(new YAxis());
         dto.setSeries(seriesList);
+
+        Legend legend = new Legend();
+        legend.setY("top");
+        dto.setLegend(legend);
     }
 
     private void formatLegend(Legend legend, List<String> datas, TestCaseCountRequest yrequest) {
@@ -682,7 +695,7 @@ public class TestCaseCountService {
         for (User user : userList) {
             Map<String, String> map = new HashMap<>();
             map.put("id", user.getId());
-            map.put("label", user.getId() + "(" + user.getName() + ")");
+            map.put("label", user.getName() + "(" + user.getId() + ")");
             returnUserList.add(map);
         }
 
