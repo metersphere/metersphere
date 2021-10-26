@@ -407,8 +407,10 @@ export default {
     clearSelectRows() {
       this.selectRows.clear();
       this.selectIds = [];
-      this.condition.selectAll = false;
-      this.condition.unSelectIds = [];
+      if(!this.condition.selectAll){
+        this.condition.selectAll = false;
+        this.condition.unSelectIds = [];
+      }
       this.selectDataCounts = 0;
       if (this.$refs.table) {
         this.$refs.table.clearSelection();

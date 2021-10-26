@@ -11,7 +11,7 @@ import java.util.Map;
 @Setter
 public class Legend {
     private final String x = "center";
-    private final String y = "bottom";
+    private String y = "bottom";
     private final String type = "scroll";
     private final List<Integer> padding = Arrays.asList(0, 40, 0, 0);
     private Map<String, Boolean> selected;
