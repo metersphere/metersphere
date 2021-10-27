@@ -371,7 +371,7 @@ export default {
   },
   watch: {
     currentProtocol() {
-      if(this.activeDom === 'right'){
+      if (this.activeDom === 'right') {
         this.activeDom = 'left';
       }
       this.handleCommand("CLOSE_ALL");
@@ -407,7 +407,7 @@ export default {
       // });
     }
   },
-  mounted(){
+  mounted() {
     this.init();
   },
   methods: {
@@ -422,8 +422,8 @@ export default {
       this.$post('/api/definition/env/create', {userId: getCurrentUserId(), envId: envId}, response => {
       });
     },
-    getTrashApi(){
-      this.$get("/api/module/trashCount/"+this.projectId +"/"+this.currentProtocol, response => {
+    getTrashApi() {
+      this.$get("/api/module/trashCount/" + this.projectId + "/" + this.currentProtocol, response => {
         this.total = response.data;
       });
     },
@@ -594,32 +594,37 @@ export default {
     debug(id) {
       this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
     },
-    init(){
+    init() {
       let routeTestCase = this.$route.params.apiDefinition;
-      if(routeTestCase){
+      if (routeTestCase) {
         this.editApi(routeTestCase)
       }
     },
     editApi(row) {
-      let name = "";
-      if (row.isCopy) {
-        name = "copy" + "-" + row.name;
-        row.name = "copy" + "-" + row.name;
-      } else {
-        if (row.name) {
-          name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
+      const index = this.apiTabs.find(p => p.api && p.api.id === row.id);
+      if (!index) {
+        let name = "";
+        if (row.isCopy) {
+          name = "copy" + "-" + row.name;
+          row.name = "copy" + "-" + row.name;
         } else {
-          name = this.$t('api_test.definition.request.title');
+          if (row.name) {
+            name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
+          } else {
+            name = this.$t('api_test.definition.request.title');
+          }
         }
-      }
-      this.activeTab = "api";
-      if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
-        if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
-          && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
-          row.tags = JSON.parse(row.tags);
+        this.activeTab = "api";
+        if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
+          if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
+            && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+            row.tags = JSON.parse(row.tags);
+          }
         }
+        this.handleTabsEdit(name, "ADD", row);
+      } else {
+        this.apiDefaultTab = index.name;
       }
-      this.handleTabsEdit(name, "ADD", row);
     },
     handleCase(api) {
       this.currentApi = api;

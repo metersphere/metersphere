@@ -203,7 +203,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsBottomContainer from "../BottomContainer";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {API_LIST} from '@/common/js/constants';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -605,11 +605,12 @@ export default {
       this.$emit('editApi', row);
     },
     handleCopy(row) {
-      row.isCopy = true;
-      this.$emit('editApi', JSON.parse(JSON.stringify(row)));
+      let obj = JSON.parse(JSON.stringify(row));
+      obj.isCopy = true;
+      obj.id =getUUID();
+      this.$emit('editApi', obj);
     },
     runApi(row) {
-
       let request = row ? JSON.parse(row.request) : {};
       if (row.tags instanceof Array) {
         row.tags = JSON.stringify(row.tags);
