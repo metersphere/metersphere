@@ -8,7 +8,8 @@ import 'echarts/lib/component/title'
 import 'echarts/lib/component/toolbox';
 import 'echarts/lib/component/dataZoom';
 import 'echarts/lib/component/legend';
-import 'zrender/lib/svg/svg'
+import 'zrender/lib/svg/svg' // initOption 支持使用svg
+import 'zrender/lib/canvas/canvas'  // initOption 支持使用canvas
 import 'echarts/lib/component/grid'
 
 export default {

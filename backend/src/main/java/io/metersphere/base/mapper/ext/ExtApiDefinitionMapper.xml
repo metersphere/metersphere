@@ -624,6 +624,11 @@
             <if test="request.protocol != null">
                 AND api_definition.protocol = #{request.protocol}
             </if>
+
+            <if test="request.notEqStatus != null">
+                and (api_definition.status is null or api_definition.status != #{request.notEqStatus})
+            </if>
+
             <if test="request.id != null">
                 AND api_definition.id = #{request.id}
             </if>
