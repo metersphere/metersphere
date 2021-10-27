@@ -153,10 +153,10 @@ public class TestCaseReviewService {
 
     public List<TestCaseReviewDTO> listCaseReview(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        String projectId = request.getProjectId();
+        /*String projectId = request.getProjectId();
         if (StringUtils.isBlank(projectId)) {
             return new ArrayList<>();
-        }
+        }*/
         //update   reviewerId
         if(StringUtils.equalsIgnoreCase(request.getReviewerId(),"currentUserId")){
             request.setReviewerId(SessionUtils.getUserId());
