@@ -223,7 +223,6 @@
 </template>
 
 <script>
-import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 import {hasPermission} from "@/common/js/utils";
@@ -516,11 +515,9 @@ export default {
           symbolSize: 5,
           showSymbol: false,
           itemStyle: {
-            normal: {
-              color: hexToRgb(color[i % color.length]),
-              borderColor: 'rgba(137,189,2,0.27)',
-              borderWidth: 12
-            }
+            color: hexToRgb(color[i % color.length]),
+            borderColor: 'rgba(137,189,2,0.27)',
+            borderWidth: 12
           },
         };
 

@@ -448,16 +448,12 @@ export default {
           symbolSize: 5,
           showSymbol: false,
           lineStyle: {
-            normal: {
-              width: 1
-            }
+            width: 1
           },
           itemStyle: {
-            normal: {
-              color: hexToRgb(color[i % color.length]),
-              borderColor: 'rgba(137,189,2,0.27)',
-              borderWidth: 12
-            }
+            color: hexToRgb(color[i % color.length]),
+            borderColor: 'rgba(137,189,2,0.27)',
+            borderWidth: 12
           },
         };
 
@@ -565,16 +561,12 @@ export default {
           symbolSize: 5,
           showSymbol: false,
           lineStyle: {
-            normal: {
-              width: 1
-            }
+            width: 1
           },
           itemStyle: {
-            normal: {
-              color: 'rgb(137,189,27)',
-              borderColor: 'rgba(137,189,2,0.27)',
-              borderWidth: 12
-            }
+            color: 'rgb(137,189,27)',
+            borderColor: 'rgba(137,189,2,0.27)',
+            borderWidth: 12
           },
         }]
       };
