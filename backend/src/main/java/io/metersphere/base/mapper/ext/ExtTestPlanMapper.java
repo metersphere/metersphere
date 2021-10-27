@@ -35,4 +35,6 @@ public interface ExtTestPlanMapper {
     List<String> findIdByPerformanceReportId(String reportId);
 
     List<TestPlan> listRecent(@Param("userId") String userId, @Param("projectId") String currentProjectId);
+
+    int updateActualEndTimeIsNullById(String testPlanID);
 }
