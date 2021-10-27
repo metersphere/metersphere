@@ -108,6 +108,7 @@ public class TaskService {
                         result.setStatus("STOP");
                         apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
                         actuator = result.getActuator();
+                        MessageCache.batchTestCases.remove(result.getId());
                     }
                 } else if (StringUtils.equals(request.getType(), "SCENARIO")) {
                     ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
