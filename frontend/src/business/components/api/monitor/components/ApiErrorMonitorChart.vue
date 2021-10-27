@@ -2,7 +2,7 @@
   <common-monitor-chart>
     <template>
       <div id="response-time-chart" :style="{ width:'100%',height:'100%' }">
-        <chart :options="getOptions()" :style="{ width:'100%' }" v-on:click="click"></chart>
+        <chart :option="getOptions()" :style="{ width:'100%' }" v-on:click="click"></chart>
       </div>
     </template>
   </common-monitor-chart>
