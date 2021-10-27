@@ -55,7 +55,7 @@
   import TestAnalysisContainer from "./track/TestAnalysisContainer";
   import MsDrawer from "@/business/components/common/components/MsDrawer";
   import ReportHeader from './base/ReportHeader';
-  import TestCaseCountContainer from "./testCaseCount/TestCaseCountContainer";
+  import TestCaseCountContainer from "./testcasecount/TestCaseCountContainer";
 
   export default {
     name: "ReportAnalysis",
