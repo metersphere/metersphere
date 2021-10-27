@@ -96,7 +96,7 @@ class Convert {
     let result = {};
     // 判断传入object是对象还是数组。
     if (isArray(object)) {
-      result.items = {};
+      result.items = [];
     } else {
       result.properties = {};
     }
@@ -112,7 +112,6 @@ class Convert {
         // 判断当前 element 的值 是否也是对象，如果是就继续递归，不是就赋值给result
         if (isObject(element)) {
           // 创建当前属性的基本信息
-          result["properties"][key] = this._value2object(element, $id, key)
           if (isArray(element)) {
             // 针对空数组和有值的数组做不同处理
             if (element.length > 0) {
@@ -129,7 +128,16 @@ class Convert {
                 }
                 itemArr.push(item);
               }
-              result["properties"][key]["items"] = itemArr;
+              let itemObj = {
+                items: itemArr,
+                type: 'array'
+              }
+              if (isArray(object)) {
+                result["items"][key] = itemObj;
+              }else {
+                result["properties"][key] = itemObj;
+              }
+
             }
           } else {
             // 不是数组，递归遍历获取，然后合并对象属性
