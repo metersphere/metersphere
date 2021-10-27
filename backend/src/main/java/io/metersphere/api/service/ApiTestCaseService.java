@@ -783,7 +783,8 @@ public class ApiTestCaseService {
             batchMapper.insert(report);
             executeQueue.add(runCaseRequest);
         }
-        sqlSession.flushStatements();
+        sqlSession.commit();
+
         for (RunCaseRequest runCaseRequest : executeQueue) {
             run(runCaseRequest);
             MessageCache.batchTestCases.put(runCaseRequest.getReportId(), runCaseRequest.getReport());

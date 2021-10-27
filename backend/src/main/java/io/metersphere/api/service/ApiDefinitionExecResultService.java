@@ -25,9 +25,6 @@ import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -73,7 +70,7 @@ public class ApiDefinitionExecResultService {
             result.getScenarios().forEach(scenarioResult -> {
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                     scenarioResult.getRequestResults().forEach(item -> {
-                        if(!StringUtils.startsWithAny(item.getName(),"PRE_PROCESSOR_ENV_","POST_PROCESSOR_ENV_")){
+                        if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                             ApiDefinitionExecResult saveResult = MessageCache.batchTestCases.get(result.getTestId());
                             if (saveResult == null) {
                                 saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(result.getTestId());
@@ -96,10 +93,13 @@ public class ApiDefinitionExecResultService {
                                 if (StringUtils.isNotEmpty(result.getUserId())) {
                                     saveResult.setUserId(result.getUserId());
                                 } else {
-                                    saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                                    if (SessionUtils.getUser() != null) {
+                                        saveResult.setUserId(SessionUtils.getUser().getId());
+                                    }
                                 }
                                 saved = false;
                             }
+
                             String status = item.isSuccess() ? "success" : "error";
                             saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
                             saveResult.setStatus(status);
@@ -124,6 +124,9 @@ public class ApiDefinitionExecResultService {
                                 apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
                             }
                             apiDefinitionService.removeCache(result.getTestId());
+                            if (StringUtils.isNotEmpty(result.getTestId())) {
+                                MessageCache.batchTestCases.remove(result.getTestId());
+                            }
                             // 发送通知
                             sendNotice(saveResult);
                         }
