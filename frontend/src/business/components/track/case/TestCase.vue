@@ -19,7 +19,7 @@
     </ms-aside-container>
 
     <ms-main-container>
-      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
+      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
         <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')">
           <test-case-list
             :checkRedirectID="checkRedirectID"
@@ -313,9 +313,48 @@ export default {
       }
     },
     handleTabClose() {
-      this.tabs = [];
-      this.activeName = "default";
-      this.refresh();
+      let message = "";
+      this.tabs.forEach(t => {
+        if (t && this.$store.state.testCaseMap.has(t.testCaseInfo.id) && this.$store.state.testCaseMap.get(t.testCaseInfo.id) > 1) {
+          message += t.testCaseInfo.name + "，";
+        }
+      })
+      if (message !== "") {
+        this.$alert("用例[ " + message.substr(0, message.length - 1) + " ]未保存，是否确认关闭全部？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.testCaseMap.clear();
+              this.tabs = [];
+              this.activeName = "default";
+              this.refresh();
+            }
+          }
+        });
+      } else {
+        this.tabs = [];
+        this.activeName = "default";
+        this.refresh();
+      }
+    },
+    closeConfirm(targetName) {
+      let t = this.tabs.filter(tab => tab.name === targetName);
+      if (t && this.$store.state.testCaseMap.has(t[0].testCaseInfo.id) && this.$store.state.testCaseMap.get(t[0].testCaseInfo.id) > 1) {
+        this.$alert("用例[ " + t[0].testCaseInfo.name + " ]未保存，是否确认关闭？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.testCaseMap.delete(t[0].testCaseInfo.id);
+              this.removeTab(targetName);
+            }
+          }
+        });
+      } else {
+        this.$store.state.testCaseMap.delete(t[0].testCaseInfo.id);
+        this.removeTab(targetName);
+      }
     },
     removeTab(targetName) {
       this.tabs = this.tabs.filter(tab => tab.name !== targetName);

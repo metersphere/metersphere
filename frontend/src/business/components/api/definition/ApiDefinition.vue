@@ -29,7 +29,7 @@
           class="ms-api-button"
           ref="environmentSelect"/>
         <!-- 主框架列表 -->
-        <el-tabs v-model="apiDefaultTab" @edit="handleTabRemove" @tab-click="addTab">
+        <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab">
           <el-tab-pane
             name="trash"
             :label="$t('commons.trash')" v-if="trashEnable">
@@ -527,9 +527,58 @@ export default {
     },
     handleTabClose() {
       let tabs = this.apiTabs[0];
-      this.apiTabs = [];
-      this.apiDefaultTab = tabs.name;
-      this.apiTabs.push(tabs);
+      let message = "";
+      let tab = this.apiTabs;
+      delete tab[0];
+      tab.forEach(t => {
+        if (t.api && this.$store.state.apiMap.has(t.api.id) && (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
+          this.$store.state.apiMap.get(t.api.id).get("fromChange") === true)) {
+          message += t.api.name + "，";
+        }
+      })
+      if (message !== "") {
+        this.$alert("接口[ " + message.substr(0, message.length - 1) + " ]未保存，是否确认关闭全部？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.apiMap.clear();
+              this.apiTabs = [];
+              this.apiDefaultTab = tabs.name;
+              this.apiTabs.push(tabs);
+            }
+          }
+        });
+      } else {
+        this.apiTabs = [];
+        this.apiDefaultTab = tabs.name;
+        this.apiTabs.push(tabs);
+      }
+    },
+    closeConfirm(targetName) {
+      let tabs = this.apiTabs;
+      if(!tabs[1].api) {
+        this.handleTabRemove(targetName);
+      }
+       if (tabs[1].api && this.$store.state.apiMap.size > 0) {
+        if (this.$store.state.apiMap.get(tabs[1].api.id).get("responseChange") === true || this.$store.state.apiMap.get(tabs[1].api.id).get("requestChange") === true ||
+          this.$store.state.apiMap.get(tabs[1].api.id).get("fromChange") === true) {
+          this.$alert("接口[ " + tabs[1].api.name + " ]未保存，是否确认关闭？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$store.state.apiMap.delete(tabs[1].api.id);
+                this.handleTabRemove(targetName);
+              }
+            }
+          });
+        }
+      } else{
+        this.$store.state.apiMap.delete(tabs[1].api.id);
+        this.handleTabRemove(targetName);
+      }
+
     },
     handleTabRemove(targetName) {
       let tabs = this.apiTabs;

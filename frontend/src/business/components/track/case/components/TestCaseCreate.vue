@@ -96,7 +96,7 @@ export default {
   watch: {
     treeNodes() {
       this.getModuleOptions();
-    }
+    },
   },
   computed: {
     projectId() {
@@ -142,7 +142,7 @@ export default {
       // this.treeNodes.forEach(node => {
       //   buildNodePath(node, {path: ''}, moduleOptions);
       // });
-      if(this.currentModule!==undefined){
+      if (this.currentModule !== undefined) {
         this.moduleOptions.forEach(item => {
           if (this.currentModule.id === item.id) {
             this.currentModule.path = item.path;
