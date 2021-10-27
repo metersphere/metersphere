@@ -220,7 +220,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parseResponseCode(String response, HttpResponse msResponse) {
         if (StringUtils.isNotEmpty(response)) {
-            msResponse.setStatusCode(JSON.parseObject(response, List.class));
+            try {
+                msResponse.setStatusCode(JSON.parseObject(response, List.class));
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
         }
     }
 
@@ -761,14 +765,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         statusCodeInfo.put("headers", headers);
 
-        // 返回code
-        JSONArray statusCode = response.getJSONArray("statusCode");
-        //  build 请求体
-        if (statusCode == null || statusCode.size() < 1 || statusCode.getJSONObject(0).getString("name") == null) {
-            return response;
-        }
         statusCodeInfo.put("content", buildContent(response));
         statusCodeInfo.put("description", "");
+        // 返回code
+        JSONArray statusCode = response.getJSONArray("statusCode");
         responseBody.put(JSON.toJSONString(statusCode), statusCodeInfo);
         return responseBody;
     }
@@ -799,12 +799,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             String bodyType = body.getString("type");
             if (bodyType == null) {
 
-            } else if (bodyType.equals("JSON")) {
+            } else if (bodyType.equalsIgnoreCase("JSON")) {
                 try {
                     if (StringUtils.equals(body.getString("format"), "JSON-SCHEMA")) {
-//                        String jsonSchema = JSONSchemaGenerator.getJson(body.getString("jsonSchema"));
                         String jsonSchema = body.getString("jsonSchema");
-//                            bodyInfo = buildRequestBodyJsonInfo(JSONObject.parseObject(jsonSchema));
                         if (StringUtils.isNotBlank(jsonSchema)) {
                             JSONObject jsonObject = JSONObject.parseObject(jsonSchema);
                             JSONArray required = new JSONArray();
@@ -833,11 +831,15 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                         ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
                     }
                 }
-            } else if (bodyType.equals("XML")) {
+            } else if (bodyType.equalsIgnoreCase("RAW")) {
+                bodyInfo = new JSONObject();
+                ((JSONObject) bodyInfo).put("type", "string");
+                ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
+            } else if (bodyType.equalsIgnoreCase("XML")) {
                 String xmlText = body.getString("raw");
                 JSONObject xmlToJson = XMLUtils.XmlToJson(xmlText);
                 bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
-            } else if (bodyType.equals("WWW_FORM") || bodyType.equals("Form Data") || bodyType.equals("BINARY")) {    //  key-value 类格式
+            } else if (bodyType.equalsIgnoreCase("WWW_FORM") || bodyType.equalsIgnoreCase("Form Data") || bodyType.equalsIgnoreCase("BINARY")) {    //  key-value 类格式
                 JSONObject formData = getformDataProperties(body.getJSONArray("kvs"));
                 bodyInfo = buildformDataSchema(formData);
             }
