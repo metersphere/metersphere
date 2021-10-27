@@ -413,7 +413,6 @@ export default {
       this.condition.filters = {status: ["Trash"]};
     }else {
       this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
-      this.condition.filters = {status: ["Prepare" , "Underway" , "Completed"]}
     }
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
@@ -568,9 +567,6 @@ export default {
           // param.nodeIds = this.selectNodeIds;
           this.condition.nodeIds = this.selectNodeIds;
         }
-      }
-      if(this.condition.filters.status===null) {
-        this.condition.filters.status = ["Prepare", "Underway", "Completed"];
       }
       this.getData();
     },
