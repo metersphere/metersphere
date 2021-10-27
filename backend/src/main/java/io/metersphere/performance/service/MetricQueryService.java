@@ -32,6 +32,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -216,17 +217,29 @@ public class MetricQueryService {
 
     private void getRequest(Monitor monitor, List<MetricDataRequest> list) {
         if (CollectionUtils.isNotEmpty(monitor.getMonitorConfig())) {
-            monitor.getMonitorConfig().forEach(c -> {
-                if (StringUtils.isBlank(c.getValue())) {
-                    return;
-                }
-                MetricDataRequest request = new MetricDataRequest();
-                String promQL = c.getValue();
-                request.setPromQL(promQL);
-                request.setSeriesName(c.getName());
-                request.setInstance(monitor.getIp() + ":" + monitor.getPort());
-                list.add(request);
-            });
+            List<MonitorItem> collect = monitor.getMonitorConfig().stream()
+                    .filter(c -> StringUtils.isNotBlank(c.getValue())).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                collect.forEach(c -> {
+                    MetricDataRequest request = new MetricDataRequest();
+                    String promQL = c.getValue();
+                    request.setPromQL(promQL);
+                    request.setSeriesName(c.getName());
+                    request.setInstance(monitor.getIp() + ":" + monitor.getPort());
+                    list.add(request);
+                });
+            } else {
+                Map<String, String> map = MetricQuery.getMetricQueryMap();
+                Set<String> set = map.keySet();
+                set.forEach(s -> {
+                    MetricDataRequest request = new MetricDataRequest();
+                    String promQL = map.get(s);
+                    request.setPromQL(promQL);
+                    request.setSeriesName(s);
+                    request.setInstance(monitor.getIp() + ":" + monitor.getPort());
+                    list.add(request);
+                });
+            }
         } else {
             Map<String, String> map = MetricQuery.getMetricQueryMap();
             Set<String> set = map.keySet();
