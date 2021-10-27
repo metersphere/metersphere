@@ -255,7 +255,6 @@ public class TestPlanService {
             }
         }
         List<String> follows = request.getFollows();
-        if (!CollectionUtils.isEmpty(follows)) {
             if (StringUtils.isNotBlank(request.getId())) {
                 testPlanFollowService.deleteTestPlanFollowByPlanId(request.getId());
                 for (String follow : follows) {
@@ -265,7 +264,7 @@ public class TestPlanService {
                     testPlanFollowService.insert(testPlanFollow);
                 }
             }
-        }
+
         return this.editTestPlan(request);
     }
 
