@@ -1,6 +1,6 @@
 <template>
   <chart
-    :style="{'height': height + 'px'}"
+    :style="{'height': chartHeight, 'width': width}"
     class="ms-chart"
     :init-options="defaultInitOptions"
     :option="options"
@@ -19,25 +19,52 @@ export default {
   props: {
     options: Object,
     theme: [String, Object],
-    initOptions: Object,
+    initOptions: {
+      type: Object,
+      default() {
+        return {
+          renderer: 'canvas'
+        }
+      }
+    },
     group: String,
     autoresize: Boolean,
     watchShallow: Boolean,
     manualUpdate: Boolean,
     height: {
-      type: Number,
+      type: [Number, String],
       default() {
         return 400
       }
-    }
+    },
+    width: [Number, String],
   },
   data() {
     return {
       defaultInitOptions: this.initOptions
     };
   },
+  computed: {
+    chartHeight() {
+      if (this.height instanceof String) {
+        return this.height;
+      } else {
+        return this.height + 'px';
+      }
+    },
+    chartWidth() {
+      if (!this.width) {
+        return this.width;
+      }
+      if (this.width instanceof String) {
+        return this.width;
+      } else {
+        return this.width + 'px';
+      }
+    }
+  },
   mounted() {
-    this.defaultInitOptions = this.defaultInitOptions || {};
+    // this.defaultInitOptions = this.defaultInitOptions || {};
     // 默认渲染svg
     // BUG: 渲染svg之后 图上的legend 太多会不显示
     // if (!this.defaultInitOptions.renderer) {
@@ -49,8 +76,8 @@ export default {
       this.$emit('onClick', params.data);
     },
     exportCharts(fileName, type) {
-      if (document.getElementById('chartsShow')) {
-        let chartsCanvas = document.getElementById('chartsShow').querySelectorAll('canvas')[0];
+      if (document.getElementsByClassName('ms-chart')) {
+        let chartsCanvas = document.getElementsByClassName('ms-chart')[0].querySelectorAll('canvas')[0];
         let mime = 'image/png';
         if (chartsCanvas) {
           // toDataURL()是canvas对象的一种方法，用于将canvas对象转换为base64位编码
