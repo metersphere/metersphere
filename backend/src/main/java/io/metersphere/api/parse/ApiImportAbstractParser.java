@@ -111,8 +111,9 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
                 headers = new ArrayList<>();
                 request.setHeaders(headers);
             }
-            addContentType(request.getHeaders(), contentType);
-
+            if (StringUtils.isNotEmpty(contentType)) {
+                addContentType(request.getHeaders(), contentType);
+            }
         }
     }
 
