@@ -146,17 +146,8 @@
           </template>
         </ms-table-column >
 
-<!--         <ms-table-column-->
-<!--           prop="status"-->
-<!--           :filters="statusFilters"-->
-<!--           :field="item"-->
-<!--           :fields-width="fieldsWidth"-->
-<!--           min-width="100px"-->
-<!--           :label="$t('api_test.definition.api_case_status')">-->
-<!--        </ms-table-column>-->
-
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
-                         :filters="field.name === '用例等级' ? priorityFilters : null"
+                         :filters="getCustomFieldFilter(field)"
                          :field="item"
                          :fields-width="fieldsWidth"
                          :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
@@ -165,6 +156,9 @@
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
                 <priority-table-item :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
+            </span>
+            <span v-else-if="field.name === '用例状态'">
+                {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.status}}
             </span>
             <span v-else>
               {{getCustomFieldValue(scope.row, field)}}
@@ -522,6 +516,14 @@ export default {
       }
       return value;
     },
+    getCustomFieldFilter(field) {
+      if (field.name === '用例等级') {
+        return this.priorityFilters;
+      } else if (field.name === '用例状态') {
+        return this.statusFilters;
+      }
+       return null;
+    },
     checkRedirectEditPage(redirectParam) {
       if (redirectParam != null) {
         this.$get('test/case/get/' + redirectParam, response => {
@@ -601,6 +603,7 @@ export default {
           break;
       }
       this.condition.filters.priority = this.condition.filters['用例等级'];
+      this.condition.filters.status = this.condition.filters['用例状态'];
       if (this.projectId) {
         this.condition.projectId = this.projectId;
         this.$emit('setCondition', this.condition);
