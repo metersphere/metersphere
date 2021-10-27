@@ -198,7 +198,6 @@ export default {
         'casePassingRate',
         'deleteTime',
         'deleteUserId',
-        'followPeople',
         'order'
       ]
     };

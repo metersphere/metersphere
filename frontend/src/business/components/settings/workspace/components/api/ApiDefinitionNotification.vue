@@ -206,7 +206,6 @@ export default {
         'casePassingRate',
         'deleteTime',
         'deleteUserId',
-        'followPeople',
         'order'
       ],
       caseVariables: [
@@ -228,7 +227,6 @@ export default {
         'deleteTime',
         'deleteUserId',
         'version',
-        'followPeople',
         'order'
       ]
     };
