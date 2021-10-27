@@ -9,6 +9,7 @@ import 'echarts/lib/component/toolbox';
 import 'echarts/lib/component/dataZoom';
 import 'echarts/lib/component/legend';
 import 'zrender/lib/svg/svg'
+import 'echarts/lib/component/grid'
 
 export default {
   install(Vue) {
