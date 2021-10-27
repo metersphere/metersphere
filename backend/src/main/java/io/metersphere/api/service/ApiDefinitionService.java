@@ -282,6 +282,8 @@ public class ApiDefinitionService {
             request.setMethod("dubbo://");
         }
         ApiDefinitionWithBLOBs returnModel = updateTest(request);
+        MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+        mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
         return returnModel;
     }
