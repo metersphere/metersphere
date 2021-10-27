@@ -574,6 +574,7 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
+          this.$emit('getTrashApi');
         });
       }
       if (this.needRefreshModule()) {

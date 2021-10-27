@@ -622,6 +622,7 @@ export default {
 
           });
         });
+        this.$emit("getTrashList");
       }
     },
     search() {

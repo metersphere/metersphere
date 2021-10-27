@@ -764,4 +764,10 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         }
         return returnList;
     }
+
+    public long trashCount(String projectId) {
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo("Trash");
+        return testCaseMapper.countByExample(testCaseExample);
+    }
 }

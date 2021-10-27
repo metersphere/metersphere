@@ -446,12 +446,16 @@ public class MockApiUtils {
         RequestMockParams returnParams = getGetParamMap(urlParams,apiPath,queryParamsObject);
         if(paramJson != null){
             if (paramJson instanceof JSONObject) {
-                JSONArray paramsArray = new JSONArray();
-                paramsArray.add(paramJson);
-                returnParams.setBodyParams(paramsArray);
+                if(!((JSONObject) paramJson).isEmpty()){
+                    JSONArray paramsArray = new JSONArray();
+                    paramsArray.add(paramJson);
+                    returnParams.setBodyParams(paramsArray);
+                }
             } else if (paramJson instanceof JSONArray) {
                 JSONArray paramArray = (JSONArray) paramJson;
-                returnParams.setBodyParams(paramArray);
+                if(!paramArray.isEmpty()){
+                    returnParams.setBodyParams(paramArray);
+                }
             }
         }
         return returnParams;
@@ -526,13 +530,6 @@ public class MockApiUtils {
             String bodyParam = readBody(request);
             if(StringUtils.isNotEmpty(bodyParam)){
                 object.put("raw",bodyParam);
-            }
-
-            Enumeration<String> paramNameItor = request.getParameterNames();
-            while (paramNameItor.hasMoreElements()) {
-                String key = paramNameItor.nextElement();
-                String value = request.getParameter(key);
-                object.put(key, value);
             }
             return object;
         }

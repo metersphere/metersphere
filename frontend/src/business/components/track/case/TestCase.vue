@@ -13,6 +13,7 @@
         @refreshAll="refreshAll"
         @enableTrash="enableTrash"
         :type="'edit'"
+        :total='total'
         ref="nodeTree"
       />
     </ms-aside-container>
@@ -29,6 +30,7 @@
             @testCaseEdit="editTestCase"
             @testCaseCopy="copyTestCase"
             @testCaseDetail="showTestCaseDetail"
+            @getTrashList="getTrashList"
             @refresh="refresh"
             @refreshAll="refreshAll"
             @setCondition="setCondition"
@@ -55,6 +57,7 @@
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
               @testCaseDetail="showTestCaseDetail"
+              @getTrashList="getTrashList"
               @refresh="refresh"
               @refreshAll="refreshAll"
               @setCondition="setCondition"
@@ -163,6 +166,7 @@ export default {
       type: '',
       activeDom: 'left',
       tmpActiveDom: null,
+      total: 0
     };
   },
   mounted() {
@@ -245,6 +249,11 @@ export default {
           this.addTab({name: 'add'});
           break;
       }
+    },
+    getTrashList(){
+      this.$get("/case/node/trashCount/"+this.projectId , response => {
+        this.total = response.data;
+      });
     },
     updateActiveDom(activeDom) {
       let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
