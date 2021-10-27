@@ -279,5 +279,9 @@
         </where>
         order by test_plan.update_time desc
     </select>
-
+    <update id="updateActualEndTimeIsNullById">
+        update test_plan
+        set actual_end_time = null
+        where id = #{0}
+    </update>
 </mapper>
