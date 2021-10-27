@@ -146,14 +146,14 @@
           </template>
         </ms-table-column >
 
-         <ms-table-column
-           prop="status"
-           :filters="statusFilters"
-           :field="item"
-           :fields-width="fieldsWidth"
-           min-width="100px"
-           :label="$t('api_test.definition.api_case_status')">
-        </ms-table-column>
+<!--         <ms-table-column-->
+<!--           prop="status"-->
+<!--           :filters="statusFilters"-->
+<!--           :field="item"-->
+<!--           :fields-width="fieldsWidth"-->
+<!--           min-width="100px"-->
+<!--           :label="$t('api_test.definition.api_case_status')">-->
+<!--        </ms-table-column>-->
 
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
                          :filters="field.name === '用例等级' ? priorityFilters : null"
