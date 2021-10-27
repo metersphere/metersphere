@@ -31,6 +31,9 @@ const state = {
   currentProjectIsCustomNum: false,
   testCaseTemplate: {},
   scenarioMap: new Map(),
+  apiMap: new Map(),
+  apiStatus: new Map(),
+  testCaseMap: new Map()
 }
 
 const store = new Vuex.Store({

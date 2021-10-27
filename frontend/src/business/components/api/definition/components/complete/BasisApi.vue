@@ -92,6 +92,48 @@
       moduleOptions: Array,
       basisData: {},
     },
+    watch: {
+      'basicForm.name': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'basicForm.moduleId': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'basicForm.status': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'basicForm.follows': {
+        handler(v, v1) {
+          if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'basicForm.description': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+    },
     created() {
       this.getMaintainerOptions();
       this.basicForm = this.basisData;
