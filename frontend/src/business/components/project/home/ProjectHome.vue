@@ -146,7 +146,7 @@ export default {
       return getCurrentProjectID();
     }
   },
-  created() {
+  activated() {
     this.result = this.$get('/project/get/' + this.projectId, res => {
       this.project = res.data;
     })
