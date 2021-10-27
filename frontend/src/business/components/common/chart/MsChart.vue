@@ -1,8 +1,9 @@
 <template>
   <chart
+    :style="{'height': height + 'px'}"
     class="ms-chart"
     :init-options="defaultInitOptions"
-    :options="options"
+    :option="options"
     :theme="theme"
     :group="group"
     @click="onClick"
@@ -22,7 +23,13 @@ export default {
     group: String,
     autoresize: Boolean,
     watchShallow: Boolean,
-    manualUpdate: Boolean
+    manualUpdate: Boolean,
+    height: {
+      type: Number,
+      default() {
+        return 400
+      }
+    }
   },
   data() {
     return {
