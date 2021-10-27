@@ -191,6 +191,62 @@
     },
     props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
     watch: {
+      'httpForm.name': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'httpForm.path': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'httpForm.userId': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'httpForm.moduleId': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'httpForm.status': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'httpForm.follows': {
+        handler(v, v1) {
+          if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
+      'httpForm.description': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.$store.state.apiStatus.set("fromChange", true);
+            this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+          }
+        }
+      },
       syncTabs() {
         if (this.basisData && this.syncTabs && this.syncTabs.includes(this.basisData.id)) {
           // 标示接口在其他地方更新过，当前页面需要同步

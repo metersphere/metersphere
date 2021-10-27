@@ -308,6 +308,18 @@
           !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
       }
     },
+    watch: {
+      form: {
+        handler(val) {
+          if (this.$store.state.testCaseMap) {
+            let change = this.$store.state.testCaseMap.get(this.form.id);
+            change = change + 1;
+            this.$store.state.testCaseMap.set(this.form.id, change);
+          }
+        },
+        deep: true
+      }
+    },
     mounted() {
       this.getSelectOptions();
       if (this.type === 'edit' || this.type === 'copy') {
@@ -330,6 +342,10 @@
         this.form.module = this.treeNodes[0].id;
         this.form.nodePath = this.treeNodes[0].path;
       }
+      if (!(this.$store.state.testCaseMap instanceof Map)) {
+        this.$store.state.testCaseMap = new Map();
+      }
+      this.$store.state.testCaseMap.set(this.form.id, 0);
     },
     created() {
       this.projectId = this.projectIds;
@@ -557,7 +573,7 @@
           this.$nextTick(() => {
             this.showInputTag = true;
           });
-
+          this.$store.state.testCaseMap.set(this.form.id, 0);
         });
       },
       async setFormData(testCase) {
@@ -645,6 +661,7 @@
             // 保存用例后刷新附件
             this.$refs.otherInfo.getFileMetaData(this.form.id);
           });
+          this.$store.state.testCaseMap.set(this.form.id, 0);
         }
       },
       buildParam() {
