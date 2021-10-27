@@ -5,6 +5,7 @@
       <div class="editors_div_style">
         <div id="editorsDiv">
           <mavon-editor :disabled="isReadOnly"
+                        :xss-options="xssOptions"
                         @imgAdd="imgAdd" :default-open="'edit'" class="review-mavon-editor" :imageFilter="imageFilter"
                         :toolbars="richDataToolbars" @imgDel="imgDel" v-model="textarea" ref="md"/>
         </div>
@@ -36,6 +37,12 @@ export default {
       textarea: '',
       isReadOnly: false,
       dialogTableVisible: false,
+      xssOptions: {
+        whiteList: {
+          img: ["src", "alt", "width", "height"],
+        },
+        stripIgnoreTagBody: true
+      },
       richDataToolbars: {
         bold: false, // 粗体
         italic: false, // 斜体
@@ -73,8 +80,10 @@ export default {
       }
     };
   },
-  created() {
-
+  mounted() {
+    if (this.$refs.md) {
+      this.$refs.md.markdownIt.set({html: false});
+    }
   },
   methods: {
     open() {

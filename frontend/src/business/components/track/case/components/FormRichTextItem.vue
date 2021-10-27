@@ -1,6 +1,7 @@
 <template>
   <el-form-item v-loading="result.loading" :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
     <mavon-editor :id="id" v-if="active" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpen" class="mavon-editor"
+                  :xss-options="xssOptions"
                   :subfield="false" :toolbars="toolbars" :language="language" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
   </el-form-item>
 </template>
@@ -15,6 +16,12 @@ export default {
     return {
       result: {loading: false},
       id: getUUID(),
+      xssOptions: {
+        whiteList: {
+          img: ["src", "alt", "width", "height"],
+        },
+        stripIgnoreTagBody: true
+      },
       defaultOpen: 'preview',
       toolbars: {
         bold: true, // 粗体
@@ -76,6 +83,9 @@ export default {
     }
   },
   mounted() {
+    if (this.$refs.md) {
+      this.$refs.md.markdownIt.set({html: false});
+    }
     // 点击编辑，失去焦点展示
     let el = document.getElementById(this.id);
     if (el) {
