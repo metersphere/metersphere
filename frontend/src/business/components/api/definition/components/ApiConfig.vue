@@ -51,6 +51,8 @@
         config: {},
         response: {},
         maintainerOptions: [],
+        count: 0,
+        responseCount: 0,
       }
     },
     props: {
@@ -59,6 +61,28 @@
       currentProtocol: String,
       syncTabs: Array,
       projectId: String
+    },
+    watch: {
+      request: {
+        handler(newObj, oldObj) {
+          this.count++
+          if (this.count > 2) {
+            this.$store.state.apiStatus.set("requestChange", true);
+            this.$store.state.apiMap.set(this.currentApi.id, this.$store.state.apiStatus);
+          }
+        },
+        deep: true
+      },
+    },
+    response: {
+      handler(newObj, oldObj) {
+        this.responseCount++;
+        if (this.responseCount > 1) {
+          this.$store.state.apiStatus.set("responseChange", true);
+          this.$store.state.apiMap.set(this.currentApi.id, this.$store.state.apiStatus);
+        }
+      },
+      deep: true
     },
     created() {
       this.getMaintainerOptions();
@@ -78,6 +102,12 @@
       }
       this.formatApi();
       this.addListener();
+      if (!(this.$store.state.apiMap instanceof Map)) {
+        this.$store.state.apiMap = new Map();
+      }
+      if (!(this.$store.state.apiStatus instanceof Map)) {
+        this.$store.state.apiStatus = new Map();
+      }
     },
     methods: {
       changeTab(type){
@@ -233,6 +263,7 @@
           this.currentApi.isCopy = false;
           this.$emit('saveApi', data);
         });
+        this.$store.state.apiMap.delete(this.currentApi.id);
       },
       handleSave() {
         if (this.$refs.httpApi) {
