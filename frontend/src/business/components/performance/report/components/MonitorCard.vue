@@ -4,7 +4,7 @@
       <el-col :span="4">
         <div>
           <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
-                     @change="handleChecked(currentInstance)">
+                     @change="getResource(currentInstance)">
             <el-option
                 v-for="item in instances"
                 :key="item.ip+item.port"
@@ -173,20 +173,22 @@ export default {
     this.getResource();
   },
   methods: {
-    getResource() {
+    getResource(currentInstance) {
       // this.init = true;
       if (this.planReportTemplate) {
         this.instances = this.planReportTemplate.reportResource;
-        this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
+        this.currentInstance = currentInstance || this.instances[0].ip + ":" + this.instances[0].port;
         this.data = this.planReportTemplate.metricData;
         this.totalOption = this.getOption(this.currentInstance);
       } else if (this.isShare) {
         getSharePerformanceMetricQueryResource(this.shareId, this.id).then(response => {
           this.instances = response.data.data;
-          if (!this.currentInstance) {
-            this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
-            this.handleChecked(this.currentInstance);
+          if (currentInstance) {
+            this.currentInstance = currentInstance;
+          } else {
+            this.currentInstance = this.currentInstance || this.instances[0].ip + ":" + this.instances[0].port;
           }
+          this.handleChecked(this.currentInstance);
           getSharePerformanceMetricQuery(this.shareId, this.id).then(result => {
             if (result) {
               this.data = result.data.data;
@@ -198,10 +200,12 @@ export default {
       } else {
         getPerformanceMetricQueryResource(this.id).then(response => {
           this.instances = response.data.data;
-          if (!this.currentInstance) {
-            this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
-            this.handleChecked(this.currentInstance);
+          if (currentInstance) {
+            this.currentInstance = currentInstance;
+          } else {
+            this.currentInstance = this.currentInstance || this.instances[0].ip + ":" + this.instances[0].port;
           }
+          this.handleChecked(this.currentInstance);
           getPerformanceMetricQuery(this.id).then(result => {
             if (result) {
               this.data = result.data.data;
