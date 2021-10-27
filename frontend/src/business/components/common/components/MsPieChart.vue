@@ -48,12 +48,9 @@ export default {
               data: this.data,
               animation: false,
               label: {
-                normal: {
-                  show: true,
-                  position: 'outside',
-                  formatter: '{b}:{c}'
-
-                }
+                show: true,
+                position: 'outside',
+                formatter: '{b}:{c}'
               }
             }
           ]
