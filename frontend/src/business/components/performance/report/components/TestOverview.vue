@@ -498,6 +498,7 @@ export default {
           data: d,
           smooth: true,
           sampling: 'lttb',
+          showSymbol: false,
           animation: !this.export,
           yAxisIndex: yAxisIndex[name]
         };

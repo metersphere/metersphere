@@ -286,6 +286,7 @@ export default {
               yAxisIndex: yAxisIndex,
               smooth: true,
               sampling: 'lttb',
+              showSymbol: false,
             });
 
             this.seriesData = series;
