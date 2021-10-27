@@ -186,7 +186,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createUser', key: '7', label: 'commons.create_user'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
-    {id: 'status', key: '10', label: 'api_test.definition.api_case_status'},
+    // {id: 'status', key: 'a', label: 'api_test.definition.api_case_status'},
     {id: 'projectName', key: 'c', label: 'commons.project'},
     {id: 'caseStatus', key: 'd', label: 'commons.status'},
   ],

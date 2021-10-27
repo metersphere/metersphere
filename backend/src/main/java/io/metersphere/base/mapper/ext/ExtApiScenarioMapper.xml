@@ -183,6 +183,11 @@
                 or api_scenario.num like CONCAT('%', #{request.name},'%')
                 or api_scenario.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
+
+            <if test="request.notEqStatus != null">
+                and (api_scenario.status is null or api_scenario.status != #{request.notEqStatus})
+            </if>
+
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>
