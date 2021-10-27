@@ -155,14 +155,12 @@ export default {
         "</head>\n" +
         "<body>\n" +
         "<div>\n" +
-        "    <p style=\"text-align: left\">${operator} 创建测试计划: ${name}<br>\n" +
+        "    <p style=\"text-align: left\">${operator} 创建了测试计划: ${name}<br>\n" +
         "        </p>\n" +
         "</div>\n" +
         "</body>\n" +
         "</html>",
-      robotTitle:
-        "${operator} 创建的:${name} " +
-        "点击下面链接进入测试计划页面${url}/#/track/plan/all",
+      robotTitle: "${operator} 创建了测试计划:${name} ",
       testCasePlanTask: [{
         taskType: "testPlanTask",
         event: "",
