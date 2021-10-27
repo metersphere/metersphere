@@ -38,8 +38,8 @@ export default {
             },
             label: {
               show: true,
-              position:'inner',
-              formatter: '{d}%',
+              position:'outside',
+              formatter: '{c}, {d}%',
             },
             labelLine: {
               show: true

@@ -238,10 +238,6 @@ public class ApiDefinitionService {
                 }
             }
         }
-        //update userId
-        if(StringUtils.equalsIgnoreCase(request.getUserId(),"currentUserId")){
-            request.setUserId(SessionUtils.getUserId());
-        }
         return request;
     }
 

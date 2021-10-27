@@ -127,8 +127,10 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
         apiDefinition.setProjectId(this.projectId);
         if (StringUtils.equalsIgnoreCase("schedule", importRequest.getType())) {
             apiDefinition.setUserId(importRequest.getUserId());
+            apiDefinition.setCreateUser(importRequest.getUserId());
         } else {
             apiDefinition.setUserId(SessionUtils.getUserId());
+            apiDefinition.setCreateUser(SessionUtils.getUserId());
         }
         return apiDefinition;
     }
