@@ -30,6 +30,7 @@
           :is-read-only="isReadOnly"
           :moduleOptions="data"
           :options="options"
+          :total="total"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
@@ -88,6 +89,7 @@
       relevanceProjectId: String,
       reviewId: String,
       pageSource:String,
+      total: Number,
       options: {
         type: Array,
         default() {

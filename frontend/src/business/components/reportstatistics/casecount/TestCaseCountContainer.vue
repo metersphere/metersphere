@@ -25,7 +25,7 @@
 
 <script>
 import TestCaseCountChart from "./chart/TestCaseCountChart";
-import TestCaseCountTable from "@/business/components/reportstatistics/testCaseCount/table/TestCaseCountTable";
+import TestCaseCountTable from "@/business/components/reportstatistics/casecount/table/TestCaseCountTable";
 import TestCaseCountFilter from "./filter/TestCaseCountFilter";
 import {exportPdf,getCurrentProjectID} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
