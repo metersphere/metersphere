@@ -58,6 +58,7 @@ import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -331,37 +332,9 @@ public class TestPlanService {
 
     //计划内容
     private Map<String, Object> getTestPlanParamMap(TestPlan testPlan) {
-        Long startTime = testPlan.getPlannedStartTime();
-        Long endTime = testPlan.getPlannedEndTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String start = null;
-        String sTime = String.valueOf(startTime);
-        String eTime = String.valueOf(endTime);
-        if (!sTime.equals("null")) {
-            start = sdf.format(new Date(Long.parseLong(sTime)));
-        }
-        String end = null;
-        if (!eTime.equals("null")) {
-            end = sdf.format(new Date(Long.parseLong(eTime)));
-        }
-
-        Map<String, Object> context = new HashMap<>();
+        Map context = new HashMap();
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        context.put("url", baseSystemConfigDTO.getUrl());
-        context.put("name", testPlan.getName());
-        context.put("start", start);
-        context.put("end", end);
-        context.put("id", testPlan.getId());
-        String status = "";
-        if (StringUtils.equals(TestPlanStatus.Underway.name(), testPlan.getStatus())) {
-            status = "进行中";
-        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), testPlan.getStatus())) {
-            status = "未开始";
-        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
-            status = "已完成";
-        }
-        context.put("status", status);
-        context.put("creator", testPlan.getCreator());
+        context.putAll(new BeanMap(testPlan));
         return context;
     }
 
@@ -757,7 +730,7 @@ public class TestPlanService {
         if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
             try {
                 String context = getTestPlanContext(testPlan, NoticeConstants.Event.UPDATE);
-                Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
+                Map paramMap = getTestPlanParamMap(testPlan);
                 SessionUser user = SessionUtils.getUser();
                 if (user != null) {
                     paramMap.put("operator", user.getName());
