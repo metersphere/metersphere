@@ -16,6 +16,7 @@
           @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
           :type="'edit'"
           page-source="definition"
+          :total='total'
           ref="nodeTree"/>
       </ms-aside-container>
 
@@ -46,6 +47,7 @@
                 v-if="trashActiveDom==='left'"
                 @runTest="runTest"
                 @refreshTree="refreshTree"
+                @getTrashApi="getTrashApi"
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
                 :current-protocol="currentProtocol"
@@ -101,6 +103,7 @@
               <!-- 列表集合 -->
               <ms-api-list
                 v-if="activeDom==='left'"
+                @getTrashApi="getTrashApi"
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
                 :current-protocol="currentProtocol"
@@ -305,6 +308,7 @@ export default {
   data() {
     return {
       redirectID: '',
+      total: 0,
       renderComponent: true,
       selectDataRange: 'all',
       showCasePage: true,
@@ -416,6 +420,11 @@ export default {
     },
     addEnv(envId) {
       this.$post('/api/definition/env/create', {userId: getCurrentUserId(), envId: envId}, response => {
+      });
+    },
+    getTrashApi(){
+      this.$get("/api/module/trashCount/"+this.projectId +"/"+this.currentProtocol, response => {
+        this.total = response.data;
       });
     },
     getEnv() {

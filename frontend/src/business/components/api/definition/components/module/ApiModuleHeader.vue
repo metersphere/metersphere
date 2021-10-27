@@ -20,7 +20,7 @@
       </el-col>
     </el-row>
 
-    <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
+    <module-trash-button v-if="!isReadOnly" :condition="condition" :total="total" :exe="enableTrash"/>
 
     <ms-add-basis-api
       :current-protocol="condition.protocol"
@@ -110,6 +110,7 @@ export default {
     },
     showOperator: Boolean,
     moduleOptions: Array,
+    total: Number,
     currentModule: {
       type: Object,
       default() {
