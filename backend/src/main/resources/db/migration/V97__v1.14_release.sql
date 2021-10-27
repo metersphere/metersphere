@@ -456,3 +456,5 @@ ALTER TABLE `operating_log` ADD INDEX oper_module_index ( `oper_module` );
 
 ALTER TABLE issues ADD platform_id varchar(50) NOT NULL;
 UPDATE issues SET platform_id = id WHERE 1;
+
+UPDATE test_case SET status = 'Prepare' WHERE status IS NULL;
