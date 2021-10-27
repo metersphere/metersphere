@@ -28,7 +28,8 @@
       <el-col :span="20">
         <el-row>
           <el-col :span="24">
-            <ms-chart ref="chart2" class="chart-config" @datazoom="changeDataZoom" :options="totalOption"
+            <ms-chart v-if="showChart" ref="chart2" class="chart-config" @datazoom="changeDataZoom"
+                      :options="totalOption"
                       :autoresize="true"></ms-chart>
           </el-col>
         </el-row>
@@ -123,6 +124,7 @@ export default {
       tableData: [],
       checkList: checkList,
       checkOptions: checkOptions,
+      showChart: true,
       baseOption: {
         color: color,
         grid: {
@@ -236,14 +238,18 @@ export default {
         this.checkList = checkList;
       }
       this.totalOption = {};
+      this.showChart = false;
       this.$nextTick(() => {
+        this.showChart = true;
         this.totalOption = this.getOption(id);
         this.changeDataZoom({start: 0, end: 100});
       });
     },
     handleCheckListChange(id) {
       this.totalOption = {};
+      this.showChart = false;
       this.$nextTick(() => {
+        this.showChart = true;
         this.totalOption = this.getOption(id);
         this.changeDataZoom({start: 0, end: 100});
       });
