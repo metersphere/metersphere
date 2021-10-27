@@ -40,6 +40,10 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
     private List<String> testCaseContainIds;
 
 
+    // 接口定义
+    private String protocol;
+    private String apiCaseCoverage;
+
     // 补充场景条件
     private String excludeId;
     private String moduleId;

@@ -1,6 +1,6 @@
 <template>
   <chart
-    :style="{'height': chartHeight, 'width': width}"
+    :style="{'height': chartHeight, 'width': chartWidth}"
     class="ms-chart"
     :init-options="defaultInitOptions"
     :option="options"
@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     chartHeight() {
-      if (this.height instanceof String) {
+      if (this.height.indexOf('px') > -1 || this.height.indexOf('calc') > -1) {
         return this.height;
       } else {
         return this.height + 'px';
@@ -56,7 +56,7 @@ export default {
       if (!this.width) {
         return this.width;
       }
-      if (this.width instanceof String) {
+      if (this.width.indexOf('px') > -1 || this.width.indexOf('calc') > -1) {
         return this.width;
       } else {
         return this.width + 'px';
