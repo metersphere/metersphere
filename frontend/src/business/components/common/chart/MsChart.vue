@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     chartHeight() {
-      if (this.height.indexOf('px') > -1 || this.height.indexOf('calc') > -1) {
+      if (this.height.indexOf) {
         return this.height;
       } else {
         return this.height + 'px';
@@ -56,7 +56,7 @@ export default {
       if (!this.width) {
         return this.width;
       }
-      if (this.width.indexOf('px') > -1 || this.width.indexOf('calc') > -1) {
+      if (this.width.indexOf) {
         return this.width;
       } else {
         return this.width + 'px';
