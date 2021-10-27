@@ -266,25 +266,29 @@ public class TestCaseReviewService {
     private void editCaseRevieweFollow(SaveTestCaseReviewRequest testCaseReview) {
         // 要更新的follows
         List<String> follows = testCaseReview.getFollowIds();
+        if (CollectionUtils.isNotEmpty(follows)) {
+            String id = testCaseReview.getId();
+            TestCaseReviewFollowExample testCaseReviewfollowExample = new TestCaseReviewFollowExample();
+            testCaseReviewfollowExample.createCriteria().andReviewIdEqualTo(id);
+            List<TestCaseReviewFollow> testCaseReviewFollows = testCaseReviewFollowMapper.selectByExample(testCaseReviewfollowExample);
+            List<String> dbReviewIds = testCaseReviewFollows.stream().map(TestCaseReviewFollow::getFollowId).collect(Collectors.toList());
+            follows.forEach(followId -> {
+                if (!dbReviewIds.contains(followId)) {
+                    TestCaseReviewFollow caseReviewFollow = new TestCaseReviewFollow();
+                    caseReviewFollow.setFollowId(followId);
+                    caseReviewFollow.setReviewId(id);
+                    testCaseReviewFollowMapper.insertSelective(caseReviewFollow);
+                }
+            });
+            TestCaseReviewFollowExample example = new TestCaseReviewFollowExample();
+            example.createCriteria().andReviewIdEqualTo(id).andFollowIdNotIn(follows);
+            testCaseReviewFollowMapper.deleteByExample(example);
+        }else {
+            TestCaseReviewFollowExample example = new TestCaseReviewFollowExample();
+            example.createCriteria().andReviewIdEqualTo(testCaseReview.getId());
+            testCaseReviewFollowMapper.deleteByExample(example);
+        }
 
-        String id = testCaseReview.getId();
-        TestCaseReviewFollowExample testCaseReviewfollowExample = new TestCaseReviewFollowExample();
-        testCaseReviewfollowExample.createCriteria().andReviewIdEqualTo(id);
-        List<TestCaseReviewFollow> testCaseReviewFollows = testCaseReviewFollowMapper.selectByExample(testCaseReviewfollowExample);
-        List<String> dbReviewIds = testCaseReviewFollows.stream().map(TestCaseReviewFollow::getFollowId).collect(Collectors.toList());
-
-        follows.forEach(followId -> {
-            if (!dbReviewIds.contains(followId)) {
-                TestCaseReviewFollow caseReviewFollow = new TestCaseReviewFollow();
-                caseReviewFollow.setFollowId(followId);
-                caseReviewFollow.setReviewId(id);
-                testCaseReviewFollowMapper.insertSelective(caseReviewFollow);
-            }
-        });
-
-        TestCaseReviewFollowExample example = new TestCaseReviewFollowExample();
-        example.createCriteria().andReviewIdEqualTo(id).andFollowIdNotIn(follows);
-        testCaseReviewFollowMapper.deleteByExample(example);
     }
 
     private void checkCaseReviewExist(TestCaseReview testCaseReview) {
