@@ -42,6 +42,7 @@ public class WorkstationService {
         operatorValue.put("operator","current user");
         operatorValue.put("value","current user");
         combine.put("creator",operatorValue);
+        testPlanRequest.setCombine(combine);
         apiTestCaseRequest.setCombine(combine);
         ApiScenarioRequest apiScenarioRequest = new ApiScenarioRequest();
         apiScenarioRequest.setCombine(combine);
