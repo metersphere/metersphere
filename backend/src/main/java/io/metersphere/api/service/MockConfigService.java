@@ -27,6 +27,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
@@ -1330,6 +1331,35 @@ public class MockConfigService {
                 }
             }
 
+        }
+    }
+
+    public void updateMockReturnMsgByApi(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
+        if(apiDefinitionWithBLOBs == null){
+            return;
+        }
+        Map<String, String> returnMap = MockApiUtils.getApiResponse(apiDefinitionWithBLOBs.getResponse());
+        if(MapUtils.isEmpty(returnMap) || !returnMap.containsKey("returnMsg")){
+            return;
+        }
+        List<MockExpectConfigWithBLOBs> updateList = this.selectMockExpectConfigByApiId(apiDefinitionWithBLOBs.getId());
+        if(CollectionUtils.isNotEmpty(updateList)){
+            for (MockExpectConfigWithBLOBs model: updateList) {
+                if(StringUtils.isNotEmpty(model.getResponse())){
+                    try {
+                        JSONObject responseObj = JSONObject.parseObject(model.getResponse());
+                        if(responseObj.containsKey("responseResult")){
+                            JSONObject responseResultObject = responseObj.getJSONObject("responseResult");
+                            if(responseResultObject.containsKey("body")){
+                                responseResultObject.getJSONObject("body").put("apiRspRaw",returnMap.get("returnMsg"));
+
+                                model.setResponse(responseObj.toJSONString());
+                                mockExpectConfigMapper.updateByPrimaryKeySelective(model);
+                            }
+                        }
+                    }catch (Exception e){}
+                }
+            }
         }
     }
 }
