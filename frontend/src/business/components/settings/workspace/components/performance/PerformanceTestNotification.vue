@@ -191,7 +191,6 @@ export default {
         'createUser',
         'scenarioVersion',
         'scenarioId',
-        'followPeople',
         'order'
       ]
     };

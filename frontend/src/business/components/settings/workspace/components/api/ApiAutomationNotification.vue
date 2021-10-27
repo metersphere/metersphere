@@ -190,7 +190,6 @@ export default {
         'status',
         'principal',
         'stepTotal',
-        'followPeople',
         'schedule',
         'createTime',
         'updateTime',
