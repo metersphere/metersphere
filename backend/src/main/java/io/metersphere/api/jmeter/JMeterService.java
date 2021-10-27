@@ -174,11 +174,6 @@ public class JMeterService {
             }
         } else {
             try {
-//                SendResult result = kafkaTemplate.send(KafkaConfig.EXEC_TOPIC, JSON.toJSONString(runRequest)).get();
-//                if (result != null) {
-//                    LogUtil.debug("获取ack 结果：" + result.getRecordMetadata());
-//                }
-//                kafkaTemplate.flush();
                 this.send(runRequest, config, reportId);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -186,6 +181,7 @@ public class JMeterService {
                         && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
                     MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
                 }
+                MessageCache.batchTestCases.remove(reportId);
             }
         }
     }
@@ -216,6 +212,7 @@ public class JMeterService {
                     && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
                 MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
             }
+            MessageCache.batchTestCases.remove(reportId);
         }
     }
 }
