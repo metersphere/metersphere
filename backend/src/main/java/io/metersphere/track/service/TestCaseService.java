@@ -1416,6 +1416,7 @@ public class TestCaseService {
         }
         this.setNode(request);
         editTestCase(request);
+        saveFollows(request.getId(), request.getFollows());
         return testCaseWithBLOBs;
     }
 
