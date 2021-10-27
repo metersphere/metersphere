@@ -99,6 +99,11 @@ public class TestPlanLoadCaseService {
             t.setCreateTime(System.currentTimeMillis());
             t.setUpdateTime(System.currentTimeMillis());
             t.setOrder(nextOrder);
+            LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(id);
+            if (loadTest != null) {
+                t.setTestResourcePoolId(loadTest.getTestResourcePoolId());
+                t.setLoadConfiguration(loadTest.getLoadConfiguration());
+            }
             nextOrder += 5000;
             testPlanLoadCaseMapper.insert(t);
         }
