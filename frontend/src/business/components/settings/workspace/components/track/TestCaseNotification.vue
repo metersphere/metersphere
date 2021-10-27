@@ -197,7 +197,6 @@ export default {
         'tags',
         'demandId',
         'demandName',
-        'followPeople',
         'status',
         'stepModel',
         'customNum',
