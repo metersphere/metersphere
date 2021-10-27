@@ -509,6 +509,43 @@ public class TestPlanService {
         }
     }
 
+    public void checkStatus(TestPlanWithBLOBs testPlanWithBLOBs) { //  检查执行结果，自动更新计划状态
+        List<String> statusList = new ArrayList<>();
+        statusList.addAll(extTestPlanTestCaseMapper.getExecResultByPlanId(testPlanWithBLOBs.getId()));
+        statusList.addAll(testPlanApiCaseService.getExecResultByPlanId(testPlanWithBLOBs.getId()));
+        statusList.addAll(testPlanScenarioCaseService.getExecResultByPlanId(testPlanWithBLOBs.getId()));
+        statusList.addAll(testPlanLoadCaseService.getStatus(testPlanWithBLOBs.getId()));
+        if (statusList.size() == 0) { //  原先status不是prepare, 但删除所有关联用例的情况
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Prepare.name());
+            editTestPlan(testPlanWithBLOBs);
+            return;
+        }
+        int passNum = 0, prepareNum = 0, failNum = 0;
+        for (String res : statusList) {
+            if (StringUtils.equals(res, TestPlanTestCaseStatus.Pass.name())
+                    || StringUtils.equals(res, "success")
+                    || StringUtils.equals(res, ScenarioStatus.Success.name())) {
+                passNum++;
+            } else if (res == null || StringUtils.equals(TestPlanStatus.Prepare.name(), res)) {
+                prepareNum++;
+            } else {
+                failNum++;
+            }
+        }
+        if (passNum == statusList.size()) {   //  全部通过
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
+            this.editTestPlan(testPlanWithBLOBs);
+            // 发送成功通知
+//            sendCompletedNotice(testPlanWithBLOBs);
+        } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
+            editTestPlan(testPlanWithBLOBs);
+        } else if (prepareNum != 0) {    //  进行中
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Underway.name());
+            editTestPlan(testPlanWithBLOBs);
+        }
+    }
+
     public List<TestPlanDTOWithMetric> listTestPlanByProject(QueryTestPlanRequest request) {
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
         return testPlans;
@@ -1086,6 +1123,7 @@ public class TestPlanService {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public String run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
+        extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, testPlanID, userId, triggerMode);
 
