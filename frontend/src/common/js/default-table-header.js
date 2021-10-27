@@ -46,7 +46,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'casePassingRate', key: 'a', label: 'api_test.definition.api_case_passing_rate'},
     {id: 'status', key: 'b', label: 'api_test.definition.api_status'},
     {id: 'createTime', key: 'c', label: 'commons.create_time'},
-    {id: 'projectName', key: '10', label: 'api_test.definition.api_project'},
+    {id: 'projectName', key: 'd', label: 'api_test.definition.api_project'},
   ],
 //接口用例
   API_CASE: [
