@@ -29,6 +29,12 @@ public class TestCaseNodeController {
         return testCaseNodeService.getNodeTreeByProjectId(projectId);
     }
 
+    @GetMapping("/trashCount/{projectId}")
+    public long trashCount(@PathVariable String projectId) {
+        checkPermissionService.checkProjectOwner(projectId);
+        return testCaseNodeService.trashCount(projectId);
+    }
+
     /*模块列表列表*/
     @PostMapping("/list/all/plan")
     public List<TestCaseNodeDTO> getAllNodeByPlanId(@RequestBody QueryNodeRequest request) {

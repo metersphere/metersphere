@@ -43,6 +43,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
     private TestPlanProjectService testPlanProjectService;
     @Resource
     private ProjectService projectService;
@@ -538,5 +540,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }else {
             return list.get(0);
         }
+    }
+
+    public long countTrashApiData(String projectId, String protocol) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andStatusEqualTo("Trash");
+        return apiDefinitionMapper.countByExample(example);
     }
 }

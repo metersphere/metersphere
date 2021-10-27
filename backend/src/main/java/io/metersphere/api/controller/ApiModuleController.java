@@ -31,6 +31,13 @@ public class ApiModuleController {
         return apiModuleService.getNodeTreeByProjectId(projectId, protocol);
     }
 
+    @GetMapping("/trashCount/{projectId}/{protocol}")
+    public long trashCount(@PathVariable String projectId, @PathVariable String protocol) {
+        String userId = SessionUtils.getUserId();
+        ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
+        return apiModuleService.countTrashApiData(projectId, protocol);
+    }
+
     @GetMapping("/getModuleByName/{projectId}/{protocol}")
     public ApiModule getModuleByName(@PathVariable String projectId, @PathVariable String protocol) {
 //        checkPermissionService.checkProjectOwner(projectId);
