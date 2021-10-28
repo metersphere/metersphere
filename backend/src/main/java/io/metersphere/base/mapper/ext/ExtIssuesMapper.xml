@@ -18,6 +18,10 @@
                issues.creator,issues.resource_id,issues.platform_status,
                issues.lastmodify
         from issues
+        <if test="request.projectId != null||request.workspaceId != null">
+            left join
+            project on issues.project_id = project.id
+        </if>
         <include refid="queryWhereCondition"/>
         and (issues.platform_status != 'delete' or issues.platform_status is NULL)
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
@@ -66,7 +70,9 @@
                       or issues.num LIKE CONCAT('%', #{request.name}, '%')
                     )
             </if>
-
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
+            </if>
             <if test="request.projectId != null and request.projectId != ''">
                 and issues.project_id = #{request.projectId}
             </if>

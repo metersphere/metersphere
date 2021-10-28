@@ -8,7 +8,7 @@
            @select="handleSelect"
            :key="menuKey"
            router>
-    <el-menu-item index="/workstation" v-xpack onselectstart="return false"
+    <el-menu-item index="/workstation"  onselectstart="return false"
                   v-permission="['PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ']">
       {{ $t('commons.my_workstation') }}
     </el-menu-item>
