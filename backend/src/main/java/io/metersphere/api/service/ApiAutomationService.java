@@ -144,6 +144,8 @@ public class ApiAutomationService {
     private RelationshipEdgeService relationshipEdgeService;
     @Resource
     private ApiScenarioFollowMapper apiScenarioFollowMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -1058,11 +1060,16 @@ public class ApiAutomationService {
         }
         // 资源池
         if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-            List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
-            request.getConfig().setTestResources(testResources);
-            String status = nodeKafkaService.createKafkaProducer(request.getConfig());
-            if ("ERROR".equals(status)) {
-                MSException.throwException("执行节点的kafka 启动失败，无法执行");
+            TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(request.getConfig().getResourcePoolId());
+            if (pool != null && pool.getApi() && pool.getType().equals(ResourcePoolTypeEnum.K8S.name())) {
+                LogUtil.info("K8S 暂时不做校验 ");
+            } else {
+                List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
+                request.getConfig().setTestResources(testResources);
+                String status = nodeKafkaService.createKafkaProducer(request.getConfig());
+                if ("ERROR".equals(status)) {
+                    MSException.throwException("执行节点的kafka 启动失败，无法执行");
+                }
             }
         }
         // 环境检查
