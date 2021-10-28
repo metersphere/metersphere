@@ -242,4 +242,9 @@ public class PerformanceTestController {
     public Long getReportCount(@PathVariable String testId) {
         return performanceTestService.getReportCountByTestId(testId);
     }
+
+    @GetMapping("test/follow/{testId}")
+    public List<String> getFollows(@PathVariable String testId) {
+        return performanceTestService.getFollows(testId);
+    }
 }

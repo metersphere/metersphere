@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <ms-chart :options="options" @onClick="onClick">
+    <ms-chart :options="options" @onClick="onClick" :height="height">
     </ms-chart>
   </div>
 
@@ -48,12 +48,9 @@ export default {
               data: this.data,
               animation: false,
               label: {
-                normal: {
-                  show: true,
-                  position: 'outside',
-                  formatter: '{b}:{c}'
-
-                }
+                show: true,
+                position: 'outside',
+                formatter: '{b}:{c}'
               }
             }
           ]
@@ -73,6 +70,12 @@ export default {
       subtext: {
         type: String,
         default: ''
+      },
+      height: {
+        type: Number,
+        default() {
+          return 400
+        }
       },
       data: {
         type: Array,

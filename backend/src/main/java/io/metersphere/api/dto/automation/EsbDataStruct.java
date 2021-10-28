@@ -123,7 +123,6 @@ public class EsbDataStruct {
                 element.addAttribute("attr", attrString);
             }
         } catch (Exception e) {
-            System.out.println(this.name);
             e.printStackTrace();
         }
 
@@ -163,7 +162,6 @@ public class EsbDataStruct {
                 element.addAttribute("attr", attrString);
             }
         } catch (Exception e) {
-            System.out.println(this.name);
             e.printStackTrace();
         }
 

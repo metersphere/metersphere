@@ -35,3 +35,7 @@ export function editApiTestCaseOrder(request, callback) {
 export function getRelationshipApi(id, relationshipType, callback) {
   return baseGet('/api/definition/relationship/' + id + '/' + relationshipType, callback);
 }
+
+export function getRelationshipCountApi(id, callback) {
+  return baseGet('/api/definition/relationship/count/' + id + '/', callback);
+}

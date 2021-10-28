@@ -119,7 +119,7 @@
              :fields-width="fieldsWidth"
              min-width="100px"
              :label="$t('commons.pass_rate')">
-          </ms-table-column>
+           </ms-table-column>
 
           <ms-table-column
             sortable="custom"
@@ -135,6 +135,14 @@
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
               <span/>
             </template>
+          </ms-table-column>
+
+          <ms-table-column
+            prop="environment"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="'运行环境'"
+          >
           </ms-table-column>
 
           <ms-table-column
@@ -186,7 +194,7 @@
     </div>
 
     <api-case-list @showExecResult="showExecResult" @refreshCase="setRunning" :currentApi="selectCase" ref="caseList"
-                   @stop="stop"/>
+                   @stop="stop" @reLoadCase="initTable"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0"
                    @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
@@ -589,6 +597,10 @@ export default {
             if (item.status === 'Running') {
               isNext = true;
             }
+            this.$get('/api/testcase/get/env/' + item.id, res => {
+              let environment = res.data ? res.data.name : '-';
+              this.$set(item, 'environment', environment);
+            })
           });
           this.$nextTick(() => {
             if (this.$refs.caseTable) {
@@ -637,9 +649,13 @@ export default {
       if (this.selectDataRange == 'thisWeekCount') {
         this.condition.selectThisWeedData = true;
       } else if (this.selectDataRange != null) {
-        let selectParamArr = this.selectDataRange.split("single:");
+        let selectParamArr = this.selectDataRange.split(":");
         if (selectParamArr.length === 2) {
-          this.condition.id = selectParamArr[1];
+          if(selectParamArr[0] === "single") {
+            this.condition.id = selectParamArr[1];
+          }else {
+            this.condition.apiDefinitionId = selectParamArr[1];
+          }
         }
       }
     },

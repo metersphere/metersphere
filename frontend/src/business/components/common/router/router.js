@@ -12,9 +12,8 @@ import {getCurrentUserId} from "@/common/js/utils";
 // const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 // const Report = requireContext.keys().map(key => requireContext(key).report);
 // const ReportObj = Report && Report != null && Report.length > 0 && Report[0] != undefined ? Report : [{path: "/sidebar"}];
-
 Vue.use(VueRouter);
-
+const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 const router = new VueRouter({
   routes: [
     {path: "/", redirect: '/setting/personsetting'},
@@ -24,6 +23,7 @@ const router = new VueRouter({
         sidebar: RouterSidebar
       }
     },
+    ...requireContext.keys().map(key => requireContext(key).workstation),
     Setting,
     API,
     Performance,

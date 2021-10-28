@@ -97,6 +97,10 @@ public class ApiTestCaseService {
     private APITestService apiTestService;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
+    @Resource
+    private ApiTestCaseFollowMapper apiTestCaseFollowMapper;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -166,6 +170,10 @@ public class ApiTestCaseService {
                     filters.put("status", new ArrayList<>());
                 }
             }
+            if (request.isToUpdate()) {
+                Long timestamp = DateUtils.getTimestamp(-3);
+                request.setUpdateTime(timestamp);
+            }
             request.setOrders(orders);
         }
         if (checkThisWeekData) {
@@ -230,7 +238,12 @@ public class ApiTestCaseService {
         deleteFileByTestId(request.getId());
         request.setBodyUploadIds(null);
         ApiTestCase test = updateTest(request);
-        FileUtils.createBodyFiles(request.getId(), bodyFiles);
+        if (request.getRequest() != null) {
+            // requestID 跟接口id 不一致的情况
+            FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
+        } else {
+            FileUtils.createBodyFiles(request.getId(), bodyFiles);
+        }
         return test;
     }
 
@@ -241,6 +254,13 @@ public class ApiTestCaseService {
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
         deleteBodyFiles(testId);
+        deleteFollows(testId);
+    }
+
+    private void deleteFollows(String testId) {
+        ApiTestCaseFollowExample example = new ApiTestCaseFollowExample();
+        example.createCriteria().andCaseIdEqualTo(testId);
+        apiTestCaseFollowMapper.deleteByExample(example);
     }
 
     public void deleteTestCase(String apiId) {
@@ -343,16 +363,31 @@ public class ApiTestCaseService {
             test.setUpdateTime(System.currentTimeMillis());
             test.setDescription(request.getDescription());
             test.setVersion(request.getVersion() == null ? 0 : request.getVersion() + 1);
-            test.setFollowPeople(request.getFollowPeople());
             if (StringUtils.equals("[]", request.getTags())) {
                 test.setTags("");
             } else {
                 test.setTags(request.getTags());
             }
             apiTestCaseMapper.updateByPrimaryKeySelective(test);
+            saveFollows(test.getId(), request.getFollows());
         }
         return test;
     }
+
+    private void saveFollows(String testId, List<String> follows) {
+        ApiTestCaseFollowExample example = new ApiTestCaseFollowExample();
+        example.createCriteria().andCaseIdEqualTo(testId);
+        apiTestCaseFollowMapper.deleteByExample(example);
+        if (!org.springframework.util.CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                ApiTestCaseFollow caseFollow = new ApiTestCaseFollow();
+                caseFollow.setCaseId(testId);
+                caseFollow.setFollowId(follow);
+                apiTestCaseFollowMapper.insert(caseFollow);
+            }
+        }
+    }
+
 
     private ApiTestCase createTest(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         checkNameExist(request);
@@ -381,7 +416,6 @@ public class ApiTestCaseService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
         test.setNum(getNextNum(request.getApiDefinitionId()));
-        test.setFollowPeople(request.getFollowPeople());
         test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiTestCaseMapper::getLastOrder));
         if (StringUtils.equals("[]", request.getTags())) {
             test.setTags("");
@@ -391,6 +425,7 @@ public class ApiTestCaseService {
         ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(test.getId());
         if (apiTestCaseWithBLOBs == null) {
             apiTestCaseMapper.insert(test);
+            saveFollows(test.getId(), request.getFollows());
         }
         return test;
     }
@@ -449,6 +484,7 @@ public class ApiTestCaseService {
     public void deleteBatch(List<String> ids) {
         for (String testId : ids) {
             extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
+            deleteFollows(testId);
         }
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
@@ -470,6 +506,9 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(request.getSelectIds())) {
             return;
         }
+        // 尽量保持与用例顺序一致
+        Collections.reverse(request.getSelectIds());
+
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andApiDefinitionIdIn(request.getSelectIds());
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
@@ -481,6 +520,9 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
+        // 尽量保持与用例顺序一致
+        Collections.reverse(ids);
+
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
@@ -741,7 +783,8 @@ public class ApiTestCaseService {
             batchMapper.insert(report);
             executeQueue.add(runCaseRequest);
         }
-        sqlSession.flushStatements();
+        sqlSession.commit();
+
         for (RunCaseRequest runCaseRequest : executeQueue) {
             run(runCaseRequest);
             MessageCache.batchTestCases.put(runCaseRequest.getReportId(), runCaseRequest.getReport());
@@ -1112,5 +1155,31 @@ public class ApiTestCaseService {
                 extApiTestCaseMapper::getPreOrder,
                 extApiTestCaseMapper::getLastOrder,
                 apiTestCaseMapper::updateByPrimaryKeySelective);
+    }
+
+    public ApiTestEnvironment getApiCaseEnvironment(String caseId) {
+        String environmentId = extApiTestCaseMapper.getApiCaseEnvironment(caseId);
+        if (StringUtils.isBlank(environmentId)) {
+            return null;
+        }
+        // "environmentId"
+        try {
+            environmentId = environmentId.substring(1, environmentId.length() - 1);
+            return apiTestEnvironmentMapper.selectByPrimaryKey(environmentId);
+        } catch (Exception e) {
+            LogUtil.error("api case environmentId incorrect parsing. api case id: " + caseId);
+        }
+        return null;
+    }
+
+    public List<String> getFollows(String testId) {
+        List<String> result = new ArrayList<>();
+        if (StringUtils.isBlank(testId)) {
+            return result;
+        }
+        ApiTestCaseFollowExample example = new ApiTestCaseFollowExample();
+        example.createCriteria().andCaseIdEqualTo(testId);
+        List<ApiTestCaseFollow> follows = apiTestCaseFollowMapper.selectByExample(example);
+        return follows.stream().map(ApiTestCaseFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 }

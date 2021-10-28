@@ -142,6 +142,10 @@ public class ApiAutomationService {
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
     private RelationshipEdgeService relationshipEdgeService;
+    @Resource
+    private ApiScenarioFollowMapper apiScenarioFollowMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -355,7 +359,7 @@ public class ApiAutomationService {
             scenario.setVersion(version + 1);
         }
 
-        deleteUpdateBodyFile(scenario);
+        deleteUpdateBodyFile(scenario, beforeScenario);
         List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
@@ -376,8 +380,7 @@ public class ApiAutomationService {
      *
      * @param scenario
      */
-    public void deleteUpdateBodyFile(ApiScenarioWithBLOBs scenario) {
-        ApiScenarioWithBLOBs oldScenario = apiScenarioMapper.selectByPrimaryKey(scenario.getId());
+    public void deleteUpdateBodyFile(ApiScenarioWithBLOBs scenario, ApiScenarioWithBLOBs oldScenario) {
         Set<String> newRequestIds = getRequestIds(scenario.getScenarioDefinition());
         MsTestElement msTestElement = parseScenarioDefinition(oldScenario.getScenarioDefinition());
         List<MsHTTPSamplerProxy> oldRequests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
@@ -415,7 +418,6 @@ public class ApiAutomationService {
         scenario.setApiScenarioModuleId(request.getApiScenarioModuleId());
         scenario.setModulePath(request.getModulePath());
         scenario.setLevel(request.getLevel());
-        scenario.setFollowPeople(request.getFollowPeople());
         scenario.setPrincipal(request.getPrincipal());
         scenario.setStepTotal(request.getStepTotal());
         scenario.setUpdateTime(System.currentTimeMillis());
@@ -443,7 +445,22 @@ public class ApiAutomationService {
                 scenario.setModulePath(modules.get(0).getName());
             }
         }
+        saveFollows(scenario.getId(), request.getFollows());
         return scenario;
+    }
+
+    private void saveFollows(String scenarioId, List<String> follows) {
+        ApiScenarioFollowExample example = new ApiScenarioFollowExample();
+        example.createCriteria().andScenarioIdEqualTo(scenarioId);
+        apiScenarioFollowMapper.deleteByExample(example);
+        if (!org.springframework.util.CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                ApiScenarioFollow apiScenarioFollow = new ApiScenarioFollow();
+                apiScenarioFollow.setScenarioId(scenarioId);
+                apiScenarioFollow.setFollowId(follow);
+                apiScenarioFollowMapper.insert(apiScenarioFollow);
+            }
+        }
     }
 
     public void delete(String id) {
@@ -451,6 +468,12 @@ public class ApiAutomationService {
         this.preDelete(id);
         testPlanScenarioCaseService.deleteByScenarioId(id);
         apiScenarioMapper.deleteByPrimaryKey(id);
+    }
+
+    private void deleteFollows(String id) {
+        ApiScenarioFollowExample example = new ApiScenarioFollowExample();
+        example.createCriteria().andScenarioIdEqualTo(id);
+        apiScenarioFollowMapper.deleteByExample(example);
     }
 
     public void preDelete(String scenarioId) {
@@ -480,6 +503,7 @@ public class ApiAutomationService {
         // 删除引用关系
         relationshipEdgeService.delete(scenarioId);
         deleteBodyFileByScenarioId(scenarioId);
+        deleteFollows(scenarioId);
     }
 
     public void deleteBodyFileByScenarioId(String scenarioId) {
@@ -537,6 +561,7 @@ public class ApiAutomationService {
             }
 
             scheduleService.deleteByResourceId(id, ScheduleGroup.API_SCENARIO_TEST.name());
+            deleteFollows(id);
         }
         if (!testPlanApiScenarioIdList.isEmpty()) {
             TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
@@ -1035,11 +1060,16 @@ public class ApiAutomationService {
         }
         // 资源池
         if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-            List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
-            request.getConfig().setTestResources(testResources);
-            String status = nodeKafkaService.createKafkaProducer(request.getConfig());
-            if ("ERROR".equals(status)) {
-                MSException.throwException("执行节点的kafka 启动失败，无法执行");
+            TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(request.getConfig().getResourcePoolId());
+            if (pool != null && pool.getApi() && pool.getType().equals(ResourcePoolTypeEnum.K8S.name())) {
+                LogUtil.info("K8S 暂时不做校验 ");
+            } else {
+                List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
+                request.getConfig().setTestResources(testResources);
+                String status = nodeKafkaService.createKafkaProducer(request.getConfig());
+                if ("ERROR".equals(status)) {
+                    MSException.throwException("执行节点的kafka 启动失败，无法执行");
+                }
             }
         }
         // 环境检查
@@ -2670,4 +2700,14 @@ public class ApiAutomationService {
         return this.checkScenarioEnv(request, null);
     }
 
+    public List<String> getFollows(String scenarioId) {
+        List<String> result = new ArrayList<>();
+        if (StringUtils.isBlank(scenarioId)) {
+            return result;
+        }
+        ApiScenarioFollowExample example = new ApiScenarioFollowExample();
+        example.createCriteria().andScenarioIdEqualTo(scenarioId);
+        List<ApiScenarioFollow> follows = apiScenarioFollowMapper.selectByExample(example);
+        return follows.stream().map(ApiScenarioFollow::getFollowId).distinct().collect(Collectors.toList());
+    }
 }

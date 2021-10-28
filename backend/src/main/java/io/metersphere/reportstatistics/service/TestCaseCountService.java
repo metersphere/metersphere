@@ -265,6 +265,31 @@ public class TestCaseCountService {
             loadCaseCount = extTestCaseCountMapper.getLoadCaseCount(request);
         }
 
+        //默认值判断。 如：用例类型为 接口、功能、性能， 但是只查出了接口用例，那么功能、性能
+        if(request.getFilterSearchList() != null){
+            List<String> xaxisColumnsList = new ArrayList<>();
+            if(request.getFilterSearchList().containsKey(request.getXaxis())){
+                xaxisColumnsList = request.getFilterSearchList().get(request.getXaxis());
+
+                if(CollectionUtils.isNotEmpty(xaxisColumnsList)){
+                    for (String xcolum : xaxisColumnsList) {
+                        functionCaseCountResult = this.checkCountChartResultHasColumn(xcolum,functionCaseCountResult);
+                        apiCaseCountResult = this.checkCountChartResultHasColumn(xcolum,apiCaseCountResult);
+                        scenarioCaseCount = this.checkCountChartResultHasColumn(xcolum,scenarioCaseCount);
+                        loadCaseCount = this.checkCountChartResultHasColumn(xcolum,loadCaseCount);
+                    }
+                }
+            }else if(StringUtils.equalsIgnoreCase(request.getXaxis(),"caseType")){
+                functionCaseCountResult = this.checkCountChartResultHasColumn("功能用例",functionCaseCountResult);
+                apiCaseCountResult = this.checkCountChartResultHasColumn("接口用例",apiCaseCountResult);
+                scenarioCaseCount = this.checkCountChartResultHasColumn("场景用例",scenarioCaseCount);
+                loadCaseCount = this.checkCountChartResultHasColumn("性能用例",loadCaseCount);
+            }
+        }
+
+
+
+
         Map<String, TestCaseCountSummary> summaryMap = this.summaryCountResult(parseUser, parseStatus,request.getProjectId(),request.getOrder(),
                 functionCaseCountResult, apiCaseCountResult, scenarioCaseCount, loadCaseCount);
 
@@ -278,6 +303,23 @@ public class TestCaseCountService {
         testCaseCountResult.setTableDTOs(dtos);
         testCaseCountResult.setPieChartDTO(pieChartDTO);
         return testCaseCountResult;
+    }
+
+    private List<TestCaseCountChartResult> checkCountChartResultHasColumn(String xcolumn,List<TestCaseCountChartResult> resultList) {
+        boolean hasResult = false;
+        for (TestCaseCountChartResult result: resultList) {
+            if(StringUtils.equals(result.getGroupName(),xcolumn)){
+                hasResult = true;
+                break;
+            }
+        }
+        if(!hasResult){
+            TestCaseCountChartResult result = new TestCaseCountChartResult();
+            result.setCountNum(0);
+            result.setGroupName(xcolumn);
+            resultList.add(result);
+        }
+        return resultList;
     }
 
     private void formatPieChart(PieChartDTO pieChartDTO, String groupName, Map<String, TestCaseCountSummary> summaryMap,
@@ -505,7 +547,7 @@ public class TestCaseCountService {
         List<User> userList = userService.getUserList();
         Map<String, String> userIdMap = new HashMap<>();
         for (User model : userList) {
-            userIdMap.put(model.getId(), model.getId() + "\n(" + model.getName() + ")");
+            userIdMap.put(model.getId(), model.getName() + "\n(" + model.getId() + ")");
         }
         return userIdMap;
     }
@@ -566,6 +608,11 @@ public class TestCaseCountService {
 
         Map<String, String> caseDescMap = this.getCaseDescMap();
 
+        //柱状图上显示数字
+        Map<String,Object> labelMap = new HashMap<>();
+        labelMap.put("show",true);
+        labelMap.put("position","inside");
+
         Series tetcaseSeries = new Series();
         tetcaseSeries.setName(caseDescMap.get("testCaseDesc"));
         tetcaseSeries.setColor("#F38F1F");
@@ -573,6 +620,8 @@ public class TestCaseCountService {
         tetcaseSeries.setType("bar");
         tetcaseSeries.setStack("total");
         tetcaseSeries.setData(testCaseCountList);
+        tetcaseSeries.setBarWidth("50");
+        tetcaseSeries.setLabel(labelMap);
         seriesList.add(tetcaseSeries);
 
         Series apiSeries = new Series();
@@ -581,6 +630,7 @@ public class TestCaseCountService {
         apiSeries.setType("bar");
         apiSeries.setStack("total");
         apiSeries.setData(apiCaseCountList);
+        apiSeries.setLabel(labelMap);
         seriesList.add(apiSeries);
 
         Series scenarioSeries = new Series();
@@ -589,6 +639,7 @@ public class TestCaseCountService {
         scenarioSeries.setType("bar");
         scenarioSeries.setStack("total");
         scenarioSeries.setData(scenarioCaseCountList);
+        scenarioSeries.setLabel(labelMap);
         seriesList.add(scenarioSeries);
 
         Series loadSeries = new Series();
@@ -597,11 +648,16 @@ public class TestCaseCountService {
         loadSeries.setType("bar");
         loadSeries.setStack("total");
         loadSeries.setData(loadCaseCountList);
+        loadSeries.setLabel(labelMap);
         seriesList.add(loadSeries);
 
         dto.setXAxis(xAxis);
         dto.setYAxis(new YAxis());
         dto.setSeries(seriesList);
+
+        Legend legend = new Legend();
+        legend.setY("top");
+        dto.setLegend(legend);
     }
 
     private void formatLegend(Legend legend, List<String> datas, TestCaseCountRequest yrequest) {
@@ -639,7 +695,7 @@ public class TestCaseCountService {
         for (User user : userList) {
             Map<String, String> map = new HashMap<>();
             map.put("id", user.getId());
-            map.put("label", user.getId() + "(" + user.getName() + ")");
+            map.put("label", user.getName() + "(" + user.getId() + ")");
             returnUserList.add(map);
         }
 

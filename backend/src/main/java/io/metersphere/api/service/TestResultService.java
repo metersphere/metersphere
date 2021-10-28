@@ -55,7 +55,6 @@ public class TestResultService {
         try {
             ApiTestReport report = null;
             ApiTestReportVariable reportTask = null;
-            String reportUrl = null;
             String planScenarioId = null;
             // 这部分后续优化只留 DEFINITION 和 SCENARIO 两部分
             if (StringUtils.equals(runMode, ApiRunMode.DEBUG.name())) {
@@ -129,9 +128,6 @@ public class TestResultService {
                         reportTask.setExecutionEnvironment(name);
                         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
                         assert systemParameterService != null;
-                        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-                        reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
-
                     }
                     testResult.setTestId(scenarioReport.getScenarioId());
                     planScenarioId = scenarioReport.getTestPlanScenarioId();

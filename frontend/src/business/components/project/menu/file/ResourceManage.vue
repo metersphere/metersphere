@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card v-loading="result.loading">
     <template v-slot:header>
       <ms-table-header title="" :condition.sync="condition" @search="getProjectFiles"
                        :show-create="false">
@@ -105,6 +105,7 @@ export default {
   data() {
     return {
       loadFileVisible: false,
+      result: {},
       projectLoadingResult: {},
       currentPage: 1,
       pageSize: 5,
@@ -164,7 +165,7 @@ export default {
           'Content-Type': undefined
         }
       };
-      this.$request(options, (response) => {
+      this.result = this.$request(options, () => {
         this.$success(this.$t('commons.save_success'));
         this.getProjectFiles();
       });
@@ -191,7 +192,7 @@ export default {
           'Content-Type': undefined
         }
       };
-      this.$request(options, (response) => {
+      this.result = this.$request(options, () => {
         this.$success(this.$t('commons.save_success'));
         this.currentRow = null;
         this.getProjectFiles();

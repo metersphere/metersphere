@@ -106,17 +106,31 @@ public class DateUtils {
 
     }
 
+    /**
+     * 获取当前时间或者当前时间+- 任意天数 时间的时间戳
+     * @param countDays
+     * @return
+     */
+    public static Long getTimestamp(int countDays){
+        Date now = new Date();
+        return dateSum (now,countDays).getTime()/1000*1000;
+    }
 
     public static void main(String[] args) throws Exception {
         Date now = new Date();
-        System.out.println(getTimeString(now));
+        long time = dateSum(now, -3).getTime()/1000*1000;
+        long time1 = dateSum(now, 0).getTime()/1000*1000;
+        Date afterDate = dateSum(now,-3);
+        System.out.println(getTimeString(afterDate));
+        /*System.out.println(getTimeString(now));
         Date afterDate = dateSum(now,-30,Calendar.DAY_OF_MONTH);
         System.out.println(getTimeString(afterDate));
         afterDate = dateSum(now,-17,Calendar.MONTH);
         System.out.println(getTimeString(afterDate));
         afterDate = dateSum(now,-20,Calendar.YEAR);
-        System.out.println(getTimeString(afterDate));
-
+        System.out.println(getTimeString(afterDate));*/
+        System.out.println(time);
+        System.out.println(time1);
     }
 
 

@@ -195,11 +195,9 @@
               avoidLabelOverlap: false,
               hoverAnimation: false,
               itemStyle: {
-                normal: {
-                  borderColor: "#FFF",
-                  shadowColor: '#E1E1E1',
-                  shadowBlur: 10
-                }
+                borderColor: "#FFF",
+                shadowColor: '#E1E1E1',
+                shadowBlur: 10
               },
               labelLine: {
                 show: false

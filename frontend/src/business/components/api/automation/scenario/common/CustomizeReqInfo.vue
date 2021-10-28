@@ -2,24 +2,24 @@
   <div>
     <div v-if="request.protocol === 'HTTP'">
       <div v-if="request.url || isCustomizeReq">
-        <el-select v-model="request.method" style="width: 100px;margin-right: 10px" size="small">
+        <el-select v-model="request.method" class="ms-select" size="small" :disabled="request.disabled">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
-        <el-input v-model="request.domain" v-if="request.isRefEnvironment  && request.domain" size="small" readonly style="width: 150px;margin-right: 10px"/>
+        <el-input v-model="request.domain" v-if="request.isRefEnvironment  && request.domain" size="small" readonly class="ms-input"/>
         <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.url"
-                  style="width: 50%" size="small" @blur="urlChange">
+                  style="width: 50%" size="small" @blur="urlChange" :disabled="request.disabled">
         </el-input>
         <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment">
           {{ $t('api_test.request.refer_to_environment') }}
         </el-checkbox>
       </div>
       <div v-else>
-        <el-select v-model="request.method" style="width: 100px;margin-right: 10px" size="small">
+        <el-select v-model="request.method" class="ms-select" size="small" :disabled="request.disabled">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
-        <el-input v-model="request.domain" v-if="request.domain" size="small" readonly style="width: 150px;margin-right: 10px"/>
+        <el-input v-model="request.domain" v-if="request.domain" size="small" readonly class="ms-input" :disabled="request.disabled"/>
         <el-input :placeholder="$t('api_test.definition.request.path_all_info')" style="width: 50%"
-                  v-model="request.path" size="small" @blur="pathChange"/>
+                  v-model="request.path" size="small" @blur="pathChange" :disabled="request.disabled"/>
       </div>
     </div>
 
@@ -141,6 +141,16 @@ export default {
   vertical-align: middle;
   white-space: nowrap;
   width: 120px;
+}
+
+.ms-select {
+  width: 100px;
+  margin-right: 10px;
+}
+
+.ms-input {
+  width: 150px;
+  margin-right: 10px;
 }
 
 .is-ref-environment {

@@ -382,9 +382,8 @@ public class ApiTestEnvironmentService {
 
     private String getSystemIdByProjectId(String projectId){
         ProjectService projectService = CommonBeanFactory.getBean(ProjectService.class);
-
-        if(projectService != null){
-            Project project = projectService.getProjectById(projectId);
+        Project project = projectService.getProjectById(projectId);
+        if(project != null){
             project = projectService.checkSystemId(project);
             return  projectService.getSystemIdByProjectId(projectId);
         }else {

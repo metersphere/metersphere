@@ -71,29 +71,26 @@ name: "TestPlanMinder",
   methods: {
     handleAfterMount() {
       listenNodeSelected(() => {
-        let param = {
-          request: {
-            planId: this.planId,
-            orders: this.condition.orders
-          },
-          result: this.result,
-          isDisable: true
-        }
-        loadSelectNodes(param,  getPlanCasesForMinder, this.setParamCallback);
+        loadSelectNodes(this.getParam(),  getPlanCasesForMinder, this.setParamCallback);
       });
       listenBeforeExecCommand((even) => {
         if (even.commandName === 'expandtolevel') {
           let level = Number.parseInt(even.commandArgs);
-          let param = {
-            request: {planId: this.planId},
-            result: this.result,
-            isDisable: true
-          }
-          handleExpandToLevel(level, even.minder.getRoot(), param, getPlanCasesForMinder, this.setParamCallback);
+          handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getPlanCasesForMinder, this.setParamCallback);
         }
       });
 
       tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')]);
+    },
+    getParam() {
+      return {
+        request: {
+          planId: this.planId,
+          orders: this.condition.orders
+        },
+        result: this.result,
+        isDisable: true
+      }
     },
     setParamCallback(data, item) {
       if (item.status === 'Pass') {

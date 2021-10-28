@@ -19,7 +19,7 @@
         </if>
     </sql>
 
-    <sql id="condition">
+<sql id="condition">
         <choose>
             <when test='${object}.operator == "like"'>
                 like CONCAT('%', #{${object}.value},'%')

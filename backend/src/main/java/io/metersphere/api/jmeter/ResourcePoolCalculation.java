@@ -43,7 +43,7 @@ public class ResourcePoolCalculation {
     public TestResource getPool(String resourcePoolId) {
         // 获取可以执行的资源池
         TestResourcePoolExample example = new TestResourcePoolExample();
-        example.createCriteria().andStatusEqualTo("VALID").andTypeEqualTo("NODE").andIdEqualTo(resourcePoolId);
+        example.createCriteria().andStatusEqualTo("VALID").andIdEqualTo(resourcePoolId);
         List<TestResourcePool> pools = testResourcePoolMapper.selectByExample(example);
         // 按照NODE节点的可用内存空间大小排序
         List<JvmInfoDTO> availableNodes = new ArrayList<>();

@@ -57,4 +57,13 @@ public interface ExtApiTestCaseMapper {
     Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
     Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    /**
+     * 获取接口用例的环境
+     * @param caseId 用例ID
+     * @return ApiEnvironment
+     */
+    String getApiCaseEnvironment(@Param("caseId") String caseId);
+
+    int moduleCount(@Param("request")ApiTestCaseRequest request);
 }

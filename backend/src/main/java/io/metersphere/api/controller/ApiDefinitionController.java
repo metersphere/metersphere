@@ -14,7 +14,9 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.EsbApiParamService;
 import io.metersphere.api.service.EsbImportService;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -27,7 +29,6 @@ import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
-import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -44,8 +45,6 @@ import java.util.List;
 @RequestMapping(value = "/api/definition")
 public class ApiDefinitionController {
     @Resource
-    private ScheduleService scheduleService;
-    @Resource
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private CheckPermissionService checkPermissionService;
@@ -61,6 +60,12 @@ public class ApiDefinitionController {
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
+    }
+    @PostMapping("/week/list/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
+    public Pager<List<ApiDefinitionResult>> weekList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, apiDefinitionService.weekList(request));
     }
 
     @PostMapping("/list/relevance/{goPage}/{pageSize}")
@@ -309,9 +314,18 @@ public class ApiDefinitionController {
         return apiDefinitionService.getRelationshipApi(id, relationshipType);
     }
 
+    @GetMapping("/relationship/count/{id}/")
+    public int getRelationshipApi(@PathVariable("id") String id) {
+        return apiDefinitionService.getRelationshipCount(id);
+    }
+
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
     public Pager< List<ApiDefinitionResult>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, apiDefinitionService.getRelationshipRelateList(request));
+        return apiDefinitionService.getRelationshipRelateList(request, goPage, pageSize);
+    }
+
+    @GetMapping("/follow/{definitionId}")
+    public List<String> getFollows(@PathVariable String definitionId) {
+        return apiDefinitionService.getFollows(definitionId);
     }
 }

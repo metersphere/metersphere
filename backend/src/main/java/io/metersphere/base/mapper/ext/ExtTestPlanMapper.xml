@@ -58,6 +58,14 @@
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
+        <if test="${condition}.followPeople != null">
+            and test_plan.id in (
+            select test_plan_id from test_plan_follow where follow_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
         <if test="${condition}.projectName != null">
             and project.name
             <include refid="condition">
@@ -88,6 +96,19 @@
                 <property name="object" value="${condition}.stage"/>
             </include>
         </if>
+        <if test="${condition}.creator != null">
+            and test_plan.creator
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test="${condition}.principal != null">
+            and test_plan.id in (SELECT test_plan_id FROM test_plan_principal  WHERE principal_id
+            <include refid="condition">
+                <property name="object" value="${condition}.principal"/>
+            </include>
+            )
+        </if>
     </sql>
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
@@ -98,6 +119,10 @@
         from test_plan
         LEFT JOIN schedule ON schedule.resource_id = test_plan.id
         JOIN project on project.id = test_plan.project_id
+        <if test="request.executorOrPrincipal != null">
+            LEFT JOIN test_plan_principal ON test_plan_principal.test_plan_id = test_plan.id
+            LEFT JOIN test_plan_test_case on test_plan_test_case.plan_id = test_plan.id
+        </if>
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -138,13 +163,19 @@
                     </if>
                 </foreach>
             </if>
+            <if test="request.executorOrPrincipal != null">
+                AND ( test_plan.creator = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' or  test_plan_principal.principal_id  = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' or  test_plan_test_case.executor = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}')
+            </if>
         </where>
+
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
                 test_plan.${order.name} ${order.type}
             </foreach>
         </if>
+
+
     </select>
     <select id="planList" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
@@ -248,5 +279,9 @@
         </where>
         order by test_plan.update_time desc
     </select>
-
+    <update id="updateActualEndTimeIsNullById">
+        update test_plan
+        set actual_end_time = null
+        where id = #{0}
+    </update>
 </mapper>

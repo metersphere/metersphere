@@ -90,14 +90,14 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('test_track.plan.follow_people')" :label-width="formLabelWidth"
-                          prop="followPeople">
-              <el-select v-model="form.followPeople"
+                          prop="follows">
+              <el-select v-model="form.follows"
                          clearable
-                         :placeholder="$t('test_track.plan.follow_people')" filterable size="small">
+                         :placeholder="$t('test_track.plan.follow_people')" filterable multiple size="small">
                 <el-option
-                  v-for="item in maintainerOptions"
+                  v-for="(item) in principalOptions"
                   :key="item.id"
-                  :label="item.id + ' (' + item.name + ')'"
+                  :label="item.name + '(' + item.id + ')'"
                   :value="item.id">
                 </el-option>
               </el-select>
@@ -174,7 +174,8 @@ export default {
         description: '',
         plannedStartTime: '',
         plannedEndTime: '',
-        automaticStatusUpdate: false
+        automaticStatusUpdate: false,
+        follows: []
       },
       rules: {
         name: [
@@ -188,23 +189,13 @@ export default {
       formLabelWidth: "100px",
       operationType: '',
       principalOptions: [],
-      maintainerOptions: [],
     };
   },
   created() {
     //设置“测试阶段”和“负责人”的默认值
     this.form.stage = 'smoke';
-    this.getSelectOptions();
   },
   methods: {
-    getMaintainerOptions() {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
-        this.maintainerOptions = response.data;
-      });
-    },
-    getSelectOptions() {
-      this.getMaintainerOptions();
-    },
     reload() {
       this.isStepTableAlive = false;
       this.$nextTick(() => (this.isStepTableAlive = true));
@@ -224,7 +215,6 @@ export default {
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;
-      this.getSelectOptions();
       this.reload();
     },
     testPlanInfo() {
@@ -309,6 +299,7 @@ export default {
           this.form.name = '';
           this.form.projectIds = [];
           this.form.principals = [];
+          this.form.follows = [];
           this.form.automaticStatusUpdate = false;
           this.form.stage = 'smoke';
           this.form.description = '';

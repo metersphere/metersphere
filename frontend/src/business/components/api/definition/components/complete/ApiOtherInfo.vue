@@ -9,7 +9,10 @@
                 <form-rich-text-item class="remark-item" :disabled="readOnly && !hasPermissions" :data="api" prop="remark" label-width="0"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
-              <dependencies-list :read-only="readOnly" :resource-id="api.id" resource-type="API" ref="dependencies"/>
+              <template v-slot:label>
+                <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
+              </template>
+              <dependencies-list @setCount="setCount" :read-only="readOnly" :resource-id="api.id" resource-type="API" ref="dependencies"/>
             </el-tab-pane>
           </el-tabs>
         </el-collapse-transition>
@@ -24,13 +27,16 @@ import ApiInfoContainer from "@/business/components/api/definition/components/co
 import DependenciesList from "@/business/components/common/components/graph/DependenciesList";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import {hasPermissions} from "@/common/js/utils";
+import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
+import {getRelationshipCountApi} from "@/network/api";
 export default {
   name: "ApiOtherInfo",
-  components: {FormRichTextItem, DependenciesList, ApiInfoContainer, MsFormDivider},
+  components: {TabPaneCount, FormRichTextItem, DependenciesList, ApiInfoContainer, MsFormDivider},
   props: ['api','readOnly'],
   data() {
     return {
-      activeName: 'remark'
+      activeName: 'remark',
+      relationshipCount: 0
     }
   },
   computed: {
@@ -43,8 +49,18 @@ export default {
      if (this.activeName === 'dependencies') {
         this.$refs.dependencies.open();
       }
-    }
+    },
   },
+  mounted() {
+    getRelationshipCountApi(this.api.id, (data) => {
+      this.relationshipCount = data;
+    });
+  },
+  methods: {
+    setCount(count) {
+      this.relationshipCount = count;
+    },
+  }
 }
 </script>
 

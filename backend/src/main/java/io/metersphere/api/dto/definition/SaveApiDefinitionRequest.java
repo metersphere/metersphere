@@ -42,7 +42,7 @@ public class SaveApiDefinitionRequest {
 
     private String userId;
 
-    private String followPeople;
+    private List<String> follows;
 
     private String remark;
 

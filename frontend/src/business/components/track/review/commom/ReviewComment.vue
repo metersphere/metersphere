@@ -18,6 +18,7 @@
       <div class="editors_div_style">
         <div id="editorsDiv" >
           <mavon-editor v-if="showEditor" @imgAdd="imgAdd" :default-open="'edit'" class="review-mavon-editor" :imageFilter="imageFilter"
+                        :xss-options="xssOptions"
                         :toolbars="richDataToolbars"  @imgDel="imgDel" v-model="textarea"  ref="md"/>
         </div>
       </div>
@@ -53,6 +54,12 @@ export default {
       labelWidth: '120px',
       showEditor:true,
       isReadOnly: false,
+      xssOptions: {
+        whiteList: {
+          img: ["src", "alt", "width", "height"],
+        },
+        stripIgnoreTagBody: true
+      },
       richDataToolbars: {
         bold: false, // 粗体
         italic: false, // 斜体

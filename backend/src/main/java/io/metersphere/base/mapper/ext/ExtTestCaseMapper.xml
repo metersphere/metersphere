@@ -9,6 +9,14 @@
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
+        <if test="${condition}.followPeople != null">
+            and test_case.id in (
+            select case_id from test_case_follow where follow_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
         <if test="${condition}.module != null">
             and test_case.node_path
             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
@@ -46,7 +54,7 @@
             </include>
         </if>
         <if test="${condition}.creator != null">
-            and test_case.maintainer
+            and test_case.create_user
             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
                 <property name="object" value="${condition}.creator"/>
             </include>
@@ -166,12 +174,13 @@
             test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
             test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
             test_case.other_test_name, test_case.review_status, test_case.tags,
-            test_case.demand_id, test_case.demand_name, test_case.follow_people, test_case.`status`,
+            test_case.demand_id, test_case.demand_name, test_case.`status`,
             test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName,
-            test_case.custom_fields
+            test_case.custom_fields, project.name as projectName
         </if>
         from test_case left join user u on test_case.create_user=u.id
         left join user deleteUser on test_case.delete_user_id=deleteUser.id
+        left join project project on test_case.project_id = project.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -345,6 +354,10 @@
 
             <if test="request.statusIsNot != null">
                 and (test_case.status is null or test_case.status != #{request.statusIsNot})
+            </if>
+
+            <if test="request.notEqStatus != null">
+                and (test_case.status is null or test_case.status != #{request.notEqStatus})
             </if>
             <if test="request.name != null">
                 and (test_case.name like CONCAT('%', #{request.name},'%')
@@ -553,7 +566,7 @@
     </select>
     <select id="getTestCase" resultType="io.metersphere.base.domain.TestCase">
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,
-        test_case.num, test_case.custom_num, test_case.priority, test_case.tags, test_case.create_time, test_case.update_time
+        test_case.num, test_case.custom_num, test_case.tags, test_case.create_time, test_case.update_time
         from test_case as test_case
         <include refid="notInQueryWhereCondition"></include>
         ORDER BY test_case.order DESC
@@ -561,6 +574,15 @@
 
     <select id="getTestCaseForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
         select id,num,custom_num,`name`
+        from test_case
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and (test_case.status != 'Trash' or test_case.status is NULL);
+    </select>
+    <select id="countByIds" resultType="java.lang.Integer">
+        select count(id)
         from test_case
         where id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">

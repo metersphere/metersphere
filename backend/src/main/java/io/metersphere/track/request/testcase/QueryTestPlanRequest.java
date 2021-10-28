@@ -31,4 +31,7 @@ public class QueryTestPlanRequest extends TestPlan {
     private String projectId;
 
     private String projectName;
+
+    //执行人或者负责人
+    private String executorOrPrincipal;
 }

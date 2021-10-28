@@ -15,6 +15,7 @@ export default {
     execution_times: 'Execution times',
     cover: 'Cover',
     module_title: 'Default module',
+    save_data_when_page_change: 'Save when page change',
     not_cover: 'Not Cover',
     import: 'Import',
     import_success: 'Import success',
@@ -86,6 +87,7 @@ export default {
     test_resource_pool: 'Resource Pool',
     system_setting: 'Settings',
     api: 'API',
+    my_workstation:'MyWorkstation',
     performance: 'Performance',
     functional: 'Functional test',
     input_content: 'Please enter content',
@@ -188,13 +190,17 @@ export default {
     generate_test_data: "Generate test data",
     relationship: {
       name: 'Dependencies',
-      pre: 'Prepositional Object',
-      post: 'Postposition Object',
+      pre_case: 'Prepositional Case',
+      post_case: 'Postposition Case',
+      pre_api: 'Prepositional API',
+      post_api: 'Postposition API',
       graph: 'Dependencies Graph',
       selected: 'Selected Node',
       direct: 'Direct Link',
       indirect: 'Indirect Link',
-
+      type: 'Relationship Type',
+      after_finish: 'Execution after completion',
+      current_case: 'Current case',
     },
     project_setting: "Project Setting",
     table: {
@@ -331,6 +337,22 @@ export default {
     valid: 'valid',
     invalid: 'invalid',
     expired: 'expired',
+  },
+  workstation:{
+    dash_board: 'My DashBoard',
+    upcoming: 'My Upcoming',
+    focus: 'My Focus',
+    creation: 'My Creation',
+    table_name:{
+      track_case:'Track Case',
+      track_plan:'Track Plan',
+      track_review:'Track Review',
+      track_issue:'Track issue',
+      api_definition:'Api Definition',
+      api_automation:'Api Automation',
+      api_case:'Api Case',
+      performance:'Performance',
+    }
   },
   display: {
     title: 'Theme',
@@ -527,7 +549,7 @@ export default {
       update: "Update Custom Code",
       delete: "Delete Custom Code",
       language: "language",
-      relate_tip: "Create in the System Settings -> Project -> Custom Code Snippet menu",
+      relate_tip: "Create in the Project Settings -> Custom Code Snippet menu",
       select_tip: "Please select a custom code!",
       none_content: "The custom code snippet is empty！",
       segment: "code segment",
@@ -888,6 +910,7 @@ export default {
       create_tip: "Note: Detailed interface information can be filled out on the edit page",
       api_import: "Api Import",
       check_select: "Please check the API",
+      api_project:"Project",
       select_comp: {
         no_data: "No Data",
         add_data: "Add Data"
@@ -1126,7 +1149,8 @@ export default {
       test_name: "Test Name",
       reference: "Reference",
       clone: "Copy",
-      cant_reference: 'Historical test files, can be referenced after re-saving'
+      cant_reference: 'Historical test files, can be referenced after re-saving',
+      share_cookie: 'share cookie'
     },
     request: {
       debug: "Debug",
@@ -1258,6 +1282,7 @@ export default {
         pool_max: "Max Number of Configuration",
         query_timeout: "Max Wait(ms)",
         name_cannot_be_empty: "SQL request name cannot be empty",
+        tips: "Tips: Allowmultiqueries = true should be configured to execute multiple SQL statements",
         dataSource_cannot_be_empty: "SQL request datasource cannot be empty",
         result_variable: "Result variable",
         variable_names: "Variable names",
@@ -1403,6 +1428,18 @@ export default {
             functional: "Functional case"
           }
         }
+      },
+      new_case_list: {
+        title: "Updated interfaces in the past 7 days",
+        table_coloum: {
+          index: "ID",
+          api_name: "Api name",
+          path: "path",
+          api_status: "Api status",
+          update_time: "Update time",
+          relation_case: "Relation CASE",
+          relation_scenario: "Relation Scenario"
+        },
       },
       running_task_list: {
         title: "Running schedule task",
@@ -1815,6 +1852,7 @@ export default {
       description: "Issue Description",
       status: "Issue Status",
       platform: "Platform",
+      issue_project:"Project",
       operate: "Operate",
       close: "Close",
       delete: "Delete",

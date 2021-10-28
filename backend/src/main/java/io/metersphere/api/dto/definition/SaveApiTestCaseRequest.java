@@ -21,6 +21,8 @@ public class SaveApiTestCaseRequest extends ApiTestCase {
 
     private List<String> bodyUploadIds;
 
+    private List<String> follows;
+
     //ESB参数。  可为null
     private String esbDataStruct;
     private String backEsbDataStruct;

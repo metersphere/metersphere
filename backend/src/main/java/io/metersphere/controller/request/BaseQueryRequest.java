@@ -14,6 +14,11 @@ public class BaseQueryRequest {
 
     private String name;
 
+    /**
+     * 状态不等于 notEqStatus
+     */
+    private String notEqStatus;
+
     private String workspaceId;
 
     private List<String> ids;

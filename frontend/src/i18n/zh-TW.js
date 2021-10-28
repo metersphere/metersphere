@@ -15,6 +15,7 @@ export default {
     execution_times: '執行次數',
     cover: '覆蓋',
     module_title: '默認模塊',
+    save_data_when_page_change: '翻頁保存勾選項',
     not_cover: '不覆蓋',
     import: '導入',
     import_success: '導入成功',
@@ -90,6 +91,7 @@ export default {
     performance: '性能測試',
     functional: '功能測試',
     input_content: '請輸入內容',
+    my_workstation:'我的工作台',
     create: '新建',
     edit: '編輯',
     copy: '復製',
@@ -188,13 +190,17 @@ export default {
     run_fail: "執行失敗",
     relationship: {
       name: '依賴關系',
-      pre: '前置對象',
-      post: '後置置對象',
-      graph: '依賴圖',
+      pre_case: '前置用例',
+      post_case: '後置用例',
+      pre_api: '前置接口',
+      post_api: '後置接口',
+      graph: '依賴關系圖',
       selected: '選中節點',
       direct: '直接關聯',
       indirect: '間接關聯',
-
+      type: '關系類型',
+      after_finish: '結束後執行',
+      current_case: '本用例',
     },
     generate_test_data: "生成測試數據",
     table: {
@@ -332,6 +338,22 @@ export default {
     valid: '有效',
     invalid: '無效',
     expired: '已過期',
+  },
+  workstation:{
+    dash_board: '我的儀錶盤',
+    upcoming: '我的待辦',
+    focus: '我關注的',
+    creation: '我創建的',
+    table_name:{
+      track_case:'功能用例',
+      track_plan:'測試計劃',
+      track_review:'用例評審',
+      track_issue:'缺陷管理',
+      api_definition:'接口定義',
+      api_automation:'接口自動化',
+      api_case:'接口用例',
+      performance:'性能測試',
+    }
   },
   display: {
     title: '顯示設置',
@@ -531,7 +553,7 @@ export default {
       update: "更新代碼片段",
       delete: "刪除自定義代碼片段",
       language: "腳本語言",
-      relate_tip: "在 系統設置->項目->自定義代碼片段 菜單中創建",
+      relate_tip: "在 項目設置->自定義代碼片段 菜單中創建",
       select_tip: "請選擇自定義代碼片段!",
       none_content: "自定義代碼片段為空！",
       segment: "代碼片段",
@@ -894,6 +916,7 @@ export default {
       create_tip: "註: 詳細的接口信息可以在編輯頁面填寫",
       api_import: "接口導入",
       check_select: "請勾選接口",
+      api_project:"所屬項目",
       select_comp: {
         no_data: "無數據",
         add_data: "去添加"
@@ -1103,6 +1126,7 @@ export default {
       common_config: "通用配置",
       http_config: "HTTP配置",
       database_config: "數據庫配置",
+      tips: "Tips: 執行多條SQL語句需配寘allowMultiQueries=true",
       tcp_config: "TCP配置",
       import: "導入環境",
       request_timeout: "鏈接超時",
@@ -1130,7 +1154,8 @@ export default {
       test_name: "測試名稱",
       reference: "引用",
       clone: "復製",
-      cant_reference: '歷史測試文件，重新保存後才可被引用'
+      cant_reference: '歷史測試文件，重新保存後才可被引用',
+      share_cookie: '共享cookie'
     },
     request: {
       debug: "調試",
@@ -1412,6 +1437,18 @@ export default {
             functional: "功能用例"
           }
         }
+      },
+      new_case_list: {
+        title: "過去7天有更新的接口",
+        table_coloum: {
+          index: "ID",
+          api_name: "接口名稱",
+          path: "路徑",
+          api_status: "狀態",
+          update_time: "更新時間",
+          relation_case: "關聯CASE",
+          relation_scenario: "關聯場景"
+        },
       },
       running_task_list: {
         title: "運行中的定時任務",
@@ -1823,6 +1860,7 @@ export default {
       title: "缺陷標題",
       description: "缺陷描述",
       status: "缺陷狀態",
+      issue_project:"所屬項目",
       platform: "平臺",
       operate: "操作",
       close: "關閉缺陷",

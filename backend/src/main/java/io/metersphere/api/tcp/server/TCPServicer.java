@@ -45,10 +45,12 @@ public class TCPServicer {
         if(matchdMockExpect != null){
             String response = matchdMockExpect.getResponse();
             JSONObject responseObj = JSONObject.parseObject(response);
+            int delayed = 0;
             try {
-                int delayed = responseObj.getInteger("delayed");
-                Thread.sleep(delayed);
-            } catch (InterruptedException e) {
+                if(responseObj.containsKey("delayed")){
+                    delayed = responseObj.getInteger("delayed");
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             if(responseObj.containsKey("responseResult")){
@@ -56,8 +58,22 @@ public class TCPServicer {
                 if(respResultObj.containsKey("body")){
                     returnMsg = MockApiUtils.getResultByResponseResult(respResultObj.getJSONObject("body"),"",null,null);
                 }
+                try {
+                    if(respResultObj.containsKey("delayed")){
+                        delayed = respResultObj.getInteger("delayed");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }else {
                 returnMsg = responseObj.getString("body");
+            }
+
+
+            try {
+                Thread.sleep(delayed);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return returnMsg;

@@ -47,10 +47,7 @@ import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.IssueTemplateService;
-import io.metersphere.service.ScheduleService;
-import io.metersphere.service.SystemParameterService;
-import io.metersphere.service.TestPlanPrincipalService;
+import io.metersphere.service.*;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.*;
@@ -61,6 +58,7 @@ import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -188,6 +186,10 @@ public class TestPlanService {
     private TestPlanPrincipalService testPlanPrincipalService;
     @Resource
     private TestPlanPrincipalMapper testPlanPrincipalMapper;
+    @Resource
+    private TestPlanFollowService testPlanFollowService;
+    @Resource
+    private TestPlanFollowMapper testPlanFollowMapper;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -211,6 +213,15 @@ public class TestPlanService {
             }
         }
 
+        List<String> follows = testPlan.getFollows();
+        if (!CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                TestPlanFollow testPlanFollow = new TestPlanFollow();
+                testPlanFollow.setTestPlanId(planId);
+                testPlanFollow.setFollowId(follow);
+                testPlanFollowService.insert(testPlanFollow);
+            }
+        }
         if (StringUtils.isBlank(testPlan.getProjectId())) {
             testPlan.setProjectId(SessionUtils.getCurrentProjectId());
         }
@@ -244,6 +255,17 @@ public class TestPlanService {
                 }
             }
         }
+        List<String> follows = request.getFollows();
+            if (StringUtils.isNotBlank(request.getId())) {
+                testPlanFollowService.deleteTestPlanFollowByPlanId(request.getId());
+                for (String follow : follows) {
+                    TestPlanFollow testPlanFollow = new TestPlanFollow();
+                    testPlanFollow.setTestPlanId(request.getId());
+                    testPlanFollow.setFollowId(follow);
+                    testPlanFollowService.insert(testPlanFollow);
+                }
+            }
+
         return this.editTestPlan(request);
     }
 
@@ -310,37 +332,9 @@ public class TestPlanService {
 
     //计划内容
     private Map<String, Object> getTestPlanParamMap(TestPlan testPlan) {
-        Long startTime = testPlan.getPlannedStartTime();
-        Long endTime = testPlan.getPlannedEndTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String start = null;
-        String sTime = String.valueOf(startTime);
-        String eTime = String.valueOf(endTime);
-        if (!sTime.equals("null")) {
-            start = sdf.format(new Date(Long.parseLong(sTime)));
-        }
-        String end = null;
-        if (!eTime.equals("null")) {
-            end = sdf.format(new Date(Long.parseLong(eTime)));
-        }
-
-        Map<String, Object> context = new HashMap<>();
+        Map context = new HashMap();
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        context.put("url", baseSystemConfigDTO.getUrl());
-        context.put("name", testPlan.getName());
-        context.put("start", start);
-        context.put("end", end);
-        context.put("id", testPlan.getId());
-        String status = "";
-        if (StringUtils.equals(TestPlanStatus.Underway.name(), testPlan.getStatus())) {
-            status = "进行中";
-        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), testPlan.getStatus())) {
-            status = "未开始";
-        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
-            status = "已完成";
-        }
-        context.put("status", status);
-        context.put("creator", testPlan.getCreator());
+        context.putAll(new BeanMap(testPlan));
         return context;
     }
 
@@ -360,6 +354,7 @@ public class TestPlanService {
 
     public int deleteTestPlan(String planId) {
         testPlanPrincipalService.deleteTestPlanPrincipalByPlanId(planId);
+        testPlanFollowService.deleteTestPlanFollowByPlanId(planId);
         deleteTestCaseByPlanId(planId);
         testPlanApiCaseService.deleteByPlanId(planId);
         testPlanScenarioCaseService.deleteByPlanId(planId);
@@ -486,6 +481,43 @@ public class TestPlanService {
         }
     }
 
+    public void checkStatus(TestPlanWithBLOBs testPlanWithBLOBs) { //  检查执行结果，自动更新计划状态
+        List<String> statusList = new ArrayList<>();
+        statusList.addAll(extTestPlanTestCaseMapper.getExecResultByPlanId(testPlanWithBLOBs.getId()));
+        statusList.addAll(testPlanApiCaseService.getExecResultByPlanId(testPlanWithBLOBs.getId()));
+        statusList.addAll(testPlanScenarioCaseService.getExecResultByPlanId(testPlanWithBLOBs.getId()));
+        statusList.addAll(testPlanLoadCaseService.getStatus(testPlanWithBLOBs.getId()));
+        if (statusList.size() == 0) { //  原先status不是prepare, 但删除所有关联用例的情况
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Prepare.name());
+            editTestPlan(testPlanWithBLOBs);
+            return;
+        }
+        int passNum = 0, prepareNum = 0, failNum = 0;
+        for (String res : statusList) {
+            if (StringUtils.equals(res, TestPlanTestCaseStatus.Pass.name())
+                    || StringUtils.equals(res, "success")
+                    || StringUtils.equals(res, ScenarioStatus.Success.name())) {
+                passNum++;
+            } else if (res == null || StringUtils.equals(TestPlanStatus.Prepare.name(), res)) {
+                prepareNum++;
+            } else {
+                failNum++;
+            }
+        }
+        if (passNum == statusList.size()) {   //  全部通过
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
+            this.editTestPlan(testPlanWithBLOBs);
+            // 发送成功通知
+//            sendCompletedNotice(testPlanWithBLOBs);
+        } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
+            editTestPlan(testPlanWithBLOBs);
+        } else if (prepareNum != 0) {    //  进行中
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Underway.name());
+            editTestPlan(testPlanWithBLOBs);
+        }
+    }
+
     public List<TestPlanDTOWithMetric> listTestPlanByProject(QueryTestPlanRequest request) {
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
         return testPlans;
@@ -501,6 +533,9 @@ public class TestPlanService {
         if (testCaseIds.isEmpty()) {
             return;
         }
+
+        // 尽量保持与用例顺序一致
+        Collections.reverse(testCaseIds);
 
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andIdIn(testCaseIds);
@@ -588,7 +623,6 @@ public class TestPlanService {
                                 t.setId(UUID.randomUUID().toString());
                                 t.setTestPlanId(request.getPlanId());
                                 t.setApiScenarioId(l.getTestId());
-                                t.setLastResult(testPlanApiScenario.getLastResult());
                                 t.setPassRate(testPlanApiScenario.getPassRate());
                                 t.setReportId(testPlanApiScenario.getReportId());
                                 t.setStatus(testPlanApiScenario.getStatus());
@@ -696,7 +730,7 @@ public class TestPlanService {
         if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
             try {
                 String context = getTestPlanContext(testPlan, NoticeConstants.Event.UPDATE);
-                Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
+                Map paramMap = getTestPlanParamMap(testPlan);
                 SessionUser user = SessionUtils.getUser();
                 if (user != null) {
                     paramMap.put("operator", user.getName());
@@ -1061,6 +1095,7 @@ public class TestPlanService {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public String run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
+        extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, testPlanID, userId, triggerMode);
 
@@ -2043,6 +2078,23 @@ public class TestPlanService {
         example.createCriteria().andTestPlanIdEqualTo(planId);
         List<TestPlanPrincipal> testPlanPrincipals = testPlanPrincipalMapper.selectByExample(example);
         List<String> userIds = testPlanPrincipals.stream().map(TestPlanPrincipal::getPrincipalId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(userIds)) {
+            return result;
+        }
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(userIds);
+        return userMapper.selectByExample(userExample);
+    }
+
+    public List<User> getPlanFollow(String planId) {
+        List<User> result = new ArrayList<>();
+        if (StringUtils.isBlank(planId)) {
+            return result;
+        }
+        TestPlanFollowExample example = new TestPlanFollowExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanFollow> testPlanFollow = testPlanFollowMapper.selectByExample(example);
+        List<String> userIds = testPlanFollow.stream().map(TestPlanFollow::getFollowId).distinct().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(userIds)) {
             return result;
         }

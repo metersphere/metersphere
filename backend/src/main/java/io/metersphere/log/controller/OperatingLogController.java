@@ -30,9 +30,9 @@ public class OperatingLogController {
     }
 
 
-    @GetMapping("/get/source/{id}")
-    public List<OperatingLogDTO> findBySourceId(@PathVariable String id) {
-        return operatingLogService.findBySourceId(id);
+    @PostMapping("/get/source")
+    public List<OperatingLogDTO> findBySourceId(@RequestBody OperatingLogRequest request) {
+        return operatingLogService.findBySourceId(request);
     }
 
 }

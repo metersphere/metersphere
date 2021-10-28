@@ -23,6 +23,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.Factory.ReportComponentFactory;
@@ -92,6 +93,8 @@ public class TestPlanReportService {
     private TestPlanPrincipalMapper testPlanPrincipalMapper;
     @Resource
     private UserService userService;
+    @Resource
+    private ProjectService projectService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -802,10 +805,15 @@ public class TestPlanReportService {
                 //更新TestPlan状态为完成
                 TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
                 if (testPlan != null) {
+                    testPlanService.checkStatus(testPlan);
 //                    testPlan.setStatus(TestPlanStatus.Completed.name());
-                    testPlanMapper.updateByPrimaryKeySelective(testPlan);
+//                    testPlanMapper.updateByPrimaryKeySelective(testPlan);
                 }
-                if (testPlan != null && StringUtils.equalsAny(report.getTriggerMode(), ReportTriggerMode.API.name(), ReportTriggerMode.SCHEDULE.name())) {
+                if (testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
+                        ReportTriggerMode.MANUAL.name(),
+                        ReportTriggerMode.API.name(),
+                        ReportTriggerMode.SCHEDULE.name())
+                ) {
                     //发送通知
                     sendMessage(report, testPlan.getProjectId());
                 }
@@ -854,15 +862,12 @@ public class TestPlanReportService {
         if (userDTO != null) {
             paramMap.put("operator", userDTO.getName());
         }
-        paramMap.putAll(new BeanMap(testPlanReport));
+        paramMap.putAll(new BeanMap(testPlan));
 
-        String successfulMailTemplate = "";
-        String errfoMailTemplate = "";
 
-        if (StringUtils.equalsAny(testPlanReport.getTriggerMode(), ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())) {
-            successfulMailTemplate = "TestPlanSuccessfulNotification";
-            errfoMailTemplate = "TestPlanFailedNotification";
-        }
+        String successfulMailTemplate = "TestPlanSuccessfulNotification";
+        String errfoMailTemplate = "TestPlanFailedNotification";
+
 
         String testPlanShareUrl = shareInfoService.getTestPlanShareUrl(testPlanReport.getId());
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
@@ -879,7 +884,15 @@ public class TestPlanReportService {
                 .subject(subject)
                 .paramMap(paramMap)
                 .build();
-        noticeSendService.send(testPlanReport.getTriggerMode(), NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+
+        if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.MANUAL.name())) {
+            noticeModel.setEvent(NoticeConstants.Event.COMPLETE);
+            noticeSendService.send(projectService.getProjectById(projectId), NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+        }
+
+        if (StringUtils.equalsAny(testPlanReport.getTriggerMode(), ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())) {
+            noticeSendService.send(testPlanReport.getTriggerMode(), NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+        }
     }
 
     public TestPlanReport getTestPlanReport(String planId) {

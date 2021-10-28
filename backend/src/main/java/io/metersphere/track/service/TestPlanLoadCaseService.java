@@ -87,6 +87,9 @@ public class TestPlanLoadCaseService {
         TestPlanLoadCaseMapper testPlanLoadCaseMapper = sqlSession.getMapper(TestPlanLoadCaseMapper.class);
         Long nextOrder = ServiceUtils.getNextOrder(request.getTestPlanId(), extTestPlanLoadCaseMapper::getLastOrder);
 
+        // 尽量保持与用例顺序一致
+        Collections.reverse(caseIds);
+
         for (String id : caseIds) {
             TestPlanLoadCase t = new TestPlanLoadCase();
             t.setId(UUID.randomUUID().toString());
@@ -96,6 +99,11 @@ public class TestPlanLoadCaseService {
             t.setCreateTime(System.currentTimeMillis());
             t.setUpdateTime(System.currentTimeMillis());
             t.setOrder(nextOrder);
+            LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(id);
+            if (loadTest != null) {
+                t.setTestResourcePoolId(loadTest.getTestResourcePoolId());
+                t.setLoadConfiguration(loadTest.getLoadConfiguration());
+            }
             nextOrder += 5000;
             testPlanLoadCaseMapper.insert(t);
         }

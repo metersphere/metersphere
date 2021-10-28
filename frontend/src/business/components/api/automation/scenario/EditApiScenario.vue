@@ -53,15 +53,15 @@
             </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.case.priority')" prop="level">
-                <el-select class="ms-scenario-input" size="small" v-model="level">
+                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">
                   <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
-                <el-select v-model="currentScenario.followPeople"
-                           clearable
+                <el-select v-model="currentScenario.follows"
+                           clearable multiple
                            :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                            class="ms-scenario-input">
                   <el-option
@@ -132,7 +132,7 @@
                   ：{{ getVariableSize() }}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
-                  <el-checkbox v-model="enableCookieShare"><span style="font-size: 13px;">共享cookie</span></el-checkbox>
+                  <el-checkbox v-model="enableCookieShare"><span style="font-size: 13px;">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox>
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="onSampleError"><span style="font-size: 13px;">{{ $t('commons.failure_continues') }}</span></el-checkbox>
@@ -407,7 +407,6 @@ export default {
       value: API_STATUS[0].id,
       options: API_STATUS,
       levels: PRIORITY,
-      level: "P0",
       scenario: {},
       loading: false,
       showHideTree: true,
@@ -462,6 +461,28 @@ export default {
       runScenario: undefined,
     }
   },
+  watch: {
+    currentScenario: {
+      handler(val) {
+        if (val && this.$store.state.scenarioMap) {
+          let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
+          change = change + 1;
+          this.$store.state.scenarioMap.set(this.currentScenario.id, change);
+        }
+      },
+      deep: true
+    },
+    scenarioDefinition: {
+      handler(newObj, oldObj) {
+        if (this.$store.state.scenarioMap) {
+          let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
+          change = change + 1;
+          this.$store.state.scenarioMap.set(this.currentScenario.id, change);
+        }
+      },
+      deep: true
+    },
+  },
   created() {
     if (!this.currentScenario.apiScenarioModuleId) {
       this.currentScenario.apiScenarioModuleId = "";
@@ -486,6 +507,10 @@ export default {
     if (!this.currentScenario.name) {
       this.$refs.refFab.openMenu();
     }
+    if (!(this.$store.state.scenarioMap instanceof Map)) {
+      this.$store.state.scenarioMap = new Map();
+    }
+    this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
   },
   directives: {OutsideClick},
   computed: {
@@ -494,7 +519,7 @@ export default {
     },
   },
   methods: {
-    setDomain() {
+    setDomain(flag) {
       if (this.projectEnvMap && this.projectEnvMap.size > 0) {
         let scenario = {
           id: this.currentScenario.id,
@@ -514,6 +539,9 @@ export default {
           if (res.data) {
             let data = JSON.parse(res.data);
             this.scenarioDefinition = data.hashTree;
+            if (!flag) {
+              this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
+            }
           }
         })
       }
@@ -836,7 +864,7 @@ export default {
       })
     },
     openHis() {
-      this.$refs.changeHistory.open(this.currentScenario.id);
+      this.$refs.changeHistory.open(this.currentScenario.id, ["接口自动化", "Api automation", "接口自動化"]);
     },
     setModule(id, data) {
       this.currentScenario.apiScenarioModuleId = id;
@@ -1186,7 +1214,7 @@ export default {
               if (scenario && scenario.environmentEnable) {
                 this.debugData.environmentEnable = scenario.environmentEnable;
                 this.debugLoading = false;
-              }else{
+              } else {
                 this.debugLoading = true;
               }
               this.reportId = getUUID().substring(0, 8);
@@ -1276,6 +1304,7 @@ export default {
             this.setParameter();
             saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
+              this.$store.state.scenarioMap.delete(this.currentScenario.id);
               this.path = "/api/automation/update";
               this.$store.state.pluginFiles = [];
               if (response.data) {
@@ -1368,6 +1397,10 @@ export default {
             if (this.currentScenario.copy) {
               this.path = "/api/automation/create";
             }
+            this.$get('/api/automation/follow/' + this.currentScenario.id, response => {
+              // this.$set(this.currentScenario, 'follows', response.data);
+              this.currentScenario.follows = response.data;
+            });
           }
           this.loading = false;
           this.setDomain();
@@ -1376,6 +1409,7 @@ export default {
           if (this.scenarioDefinition) {
             this.resetResourceId(this.scenarioDefinition);
           }
+          this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
         })
       }
     },
@@ -1471,7 +1505,7 @@ export default {
     },
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
-      this.setDomain();
+      this.setDomain(true);
     },
     getWsProjects() {
       this.$get("/project/listAll", res => {

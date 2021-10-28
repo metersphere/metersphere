@@ -4,13 +4,13 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
             parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
-        select distinct  test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
+        select distinct test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
         test_case_review.tags,
         test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
-        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id,
-        test_case_review.follow_people
+        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id
+
         from test_case_review
-            join project on project.id = test_case_review.project_id
+        join project on project.id = test_case_review.project_id
         left join user on test_case_review.creator = user.id
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
@@ -21,17 +21,64 @@
         </if>
     </select>
 
+    <sql id="combine">
+        <if test="${condition}.followPeople != null">
+            and test_case_review.id in (
+            select review_id from test_case_review_follow where follow_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
+        <if test="${condition}.creator != null">
+            and test_case_review.create_user
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
     <sql id="queryWhereCondition">
         <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
             <if test="request.name != null">
                 and test_case_review.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.reviewerId != null">
+                and test_case_review.id in (select test_case_review_users.review_id from test_case_review_users where test_case_review_users.user_id = #{request.reviewerId})
             </if>
             <if test="request.projectId != null">
                 and test_case_review.project_id = #{request.projectId}
             </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+
+                            <when test="key=='stage'">
+                                and test_case_review.stage in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and test_case_review.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
         </where>
     </sql>
-
     <select id="listByWorkspaceId" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
             parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
         select distinct test_case_review.*

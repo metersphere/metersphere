@@ -57,6 +57,7 @@ export default {
           this.result = this.$fileUpload(url, file, null, config, () => {
             this.$success(this.$t('commons.save_success'));
             this.$emit("refresh")
+            this.visible = false;
             // this.getJarConfigs();
           });
         },

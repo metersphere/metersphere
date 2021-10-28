@@ -203,8 +203,8 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsBottomContainer from "../BottomContainer";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
-import {API_LIST, PROJECT_NAME, WORKSPACE_ID} from '@/common/js/constants';
+import {downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {API_LIST} from '@/common/js/constants';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
@@ -220,13 +220,14 @@ import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {editApiDefinitionOrder} from "@/network/api";
 import {getProtocolFilter} from "@/business/components/api/definition/api-definition";
 import {getGraphByCondition} from "@/network/graph";
-import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
 
 
 export default {
   name: "ApiList",
   components: {
-    RelationshipGraphDrawer,
     HeaderLabelOperate,
     CaseBatchMove,
     ApiStatus,
@@ -244,7 +245,8 @@ export default {
     MsTipButton,
     MsTableAdvSearchBar,
     MsTable,
-    MsTableColumn
+    MsTableColumn,
+    "relationshipGraphDrawer": relationshipGraphDrawer.default,
   },
   data() {
     return {
@@ -503,7 +505,7 @@ export default {
       });
     },
     generateGraph() {
-      getGraphByCondition('API', buildBatchParam(this, this.$refs.table.selectIds),(data) => {
+      getGraphByCondition('API', buildBatchParam(this, this.$refs.table.selectIds), (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
       });
@@ -561,6 +563,7 @@ export default {
       if (currentProtocol) {
         this.condition.moduleIds = [];
       }
+
       if (this.condition.projectId) {
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           getProtocolFilter(this.condition.protocol);
@@ -571,6 +574,7 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
+          this.$emit('getTrashApi');
         });
       }
       if (this.needRefreshModule()) {
@@ -601,11 +605,12 @@ export default {
       this.$emit('editApi', row);
     },
     handleCopy(row) {
-      row.isCopy = true;
-      this.$emit('editApi', row);
+      let obj = JSON.parse(JSON.stringify(row));
+      obj.isCopy = true;
+      obj.id =getUUID();
+      this.$emit('editApi', obj);
     },
     runApi(row) {
-
       let request = row ? JSON.parse(row.request) : {};
       if (row.tags instanceof Array) {
         row.tags = JSON.stringify(row.tags);
@@ -723,7 +728,7 @@ export default {
       });
     },
     handleTestCase(api) {
-      this.$emit("handleTestCase",api)
+      this.$emit("handleTestCase", api)
       // this.$refs.caseList.open(this.selectApi);
     },
     handleDelete(api) {
@@ -767,6 +772,14 @@ export default {
         this.selectDataRange = dataRange;
       } else {
         this.selectDataRange = 'all';
+      }
+      if (this.selectDataRange != null) {
+        let selectParamArr = this.selectDataRange.split(":");
+        if (selectParamArr.length === 2) {
+          if (selectParamArr[0] === "apiList") {
+            this.condition.name = selectParamArr[1];
+          }
+        }
       }
     },
     changeSelectDataRangeAll() {

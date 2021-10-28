@@ -163,6 +163,7 @@ name: "TestCaseMinder",
         .then(() => {
           this.$success(this.$t('commons.save_success'));
           handleAfterSave(window.minder.getRoot(), this.getParam());
+          this.$emit('refresh');
           this.setIsChange(false);
         });
     },

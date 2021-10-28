@@ -7,6 +7,7 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.jmeter.LocalRunner;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -97,7 +98,7 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/create")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
-    @RequiresPermissions(value={PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "api/AutomationCreate", subject = "接口自动化通知")
     public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
                               @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
@@ -106,7 +107,7 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/update")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
-    @RequiresPermissions(value={PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "api/AutomationUpdate", subject = "接口自动化通知")
     public ApiScenario update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
                               @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
@@ -323,7 +324,10 @@ public class ApiAutomationController {
 
     @GetMapping(value = "/stop/{reportId}")
     public void stop(@PathVariable String reportId) {
-        new LocalRunner().stop(reportId);
+        if (StringUtils.isNotEmpty(reportId)) {
+            MessageCache.batchTestCases.remove(reportId);
+            new LocalRunner().stop(reportId);
+        }
     }
 
     @PostMapping(value = "/stop/batch")
@@ -359,6 +363,9 @@ public class ApiAutomationController {
         return apiAutomationService.checkScenarioEnv(request);
     }
 
-
+    @GetMapping("/follow/{scenarioId}")
+    public List<String> getFollows(@PathVariable String scenarioId) {
+        return apiAutomationService.getFollows(scenarioId);
+    }
 }
 

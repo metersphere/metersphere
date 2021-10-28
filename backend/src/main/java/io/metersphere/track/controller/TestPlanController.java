@@ -256,4 +256,9 @@ public class TestPlanController {
     public List<User> getPlanPrincipal(@PathVariable String planId) {
         return testPlanService.getPlanPrincipal(planId);
     }
+
+    @GetMapping("/follow/{planId}")
+    public List<User> getPlanFollow(@PathVariable String planId) {
+        return testPlanService.getPlanFollow(planId);
+    }
 }

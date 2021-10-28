@@ -284,31 +284,55 @@ export default {
       switch (row.event) {
         case  "CREATE":
           reviewReceiverOptions.unshift({id: 'EXECUTOR', name: this.$t('test_track.review.reviewer')});
+          if (i2 > -1) {
+            row.userIds.splice(i2, 1);
+          }
+          if (i > -1) {
+            row.userIds.splice(i, 1);
+          }
           break;
         case "UPDATE":
+          reviewReceiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           reviewReceiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (row.isSet) {
             if (i2 < 0) {
               row.userIds.unshift('CREATOR');
             }
+            if (i < 0) {
+              row.userIds.unshift('FOLLOW_PEOPLE');
+            }
           }
           break;
         case "DELETE":
+          reviewReceiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           reviewReceiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (row.isSet) {
             if (i2 < 0) {
               row.userIds.unshift('CREATOR');
+            }
+            if (i < 0) {
+              row.userIds.unshift('FOLLOW_PEOPLE');
             }
           }
           break;
         case "COMMENT":
           reviewReceiverOptions.unshift({id: 'MAINTAINER', name: this.$t('test_track.case.maintainer')});
+          if (i2 > -1) {
+            row.userIds.splice(i2, 1);
+          }
+          if (i > -1) {
+            row.userIds.splice(i, 1);
+          }
           break;
         case "COMPLETE":
+          reviewReceiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           reviewReceiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (row.isSet) {
             if (i2 < 0) {
               row.userIds.unshift('CREATOR');
+            }
+            if (i < 0) {
+              row.userIds.unshift('FOLLOW_PEOPLE');
             }
           }
           break;

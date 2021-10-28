@@ -40,7 +40,10 @@
     </el-tab-pane>
 
     <el-tab-pane :label="$t('commons.relationship.name')" name="relationship">
-      <dependencies-list :read-only="readOnly" :resource-id="caseId" resource-type="TEST_CASE" ref="relationship"/>
+      <template v-slot:label>
+        <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
+      </template>
+      <dependencies-list @setCount="setRelationshipCount" :read-only="readOnly" :resource-id="caseId" resource-type="TEST_CASE" ref="relationship"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
@@ -83,10 +86,13 @@ import TestCaseIssueRelate from "@/business/components/track/case/components/Tes
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import TestCaseTestRelate from "@/business/components/track/case/components/TestCaseTestRelate";
 import DependenciesList from "@/business/components/common/components/graph/DependenciesList";
+import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
+import {getRelationshipCountCase} from "@/network/testCase";
 
 export default {
   name: "TestCaseEditOtherInfo",
   components: {
+    TabPaneCount,
     DependenciesList,
     TestCaseTestRelate,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
@@ -99,6 +105,7 @@ export default {
       fileList: [],
       tableData: [],
       demandOptions: [],
+      relationshipCount: 0,
       //sysList:this.sysList,//一级选择框的数据
       props: {
         multiple: true,
@@ -123,11 +130,19 @@ export default {
       } else if (this.tabActiveName === 'attachment') {
         this.getFileMetaData();
       }
+    },
+    caseId() {
+      getRelationshipCountCase(this.caseId, (data) => {
+        this.relationshipCount = data;
+      });
     }
   },
   methods: {
     updateRemark(text) {
       this.form.remark = text;
+    },
+    setRelationshipCount(count) {
+      this.relationshipCount = count;
     },
     reset() {
       this.tabActiveName = "remark";

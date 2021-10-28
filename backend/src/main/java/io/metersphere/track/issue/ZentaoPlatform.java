@@ -158,7 +158,6 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             LogUtil.error(e.getMessage(), e);
         }
         IssuesDao issues = new IssuesDao();
-        issues.setId(bug.getId());
         issues.setPlatformStatus(bug.getStatus());
         if (StringUtils.equals(bug.getDeleted(),"1")) {
             issues.setPlatformStatus(IssuesStatus.DELETE.toString());
@@ -179,17 +178,19 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
         String id = issue.getId();
         if (StringUtils.isNotBlank(id)) {
-            issuesRequest.setId(id);
-            // 用例与第三方缺陷平台中的缺陷关联
-            handleTestCaseIssues(issuesRequest);
+            issuesRequest.setPlatformId(id);
+            issuesRequest.setId(UUID.randomUUID().toString());
 
             IssuesExample issuesExample = new IssuesExample();
             issuesExample.createCriteria().andIdEqualTo(id)
                     .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
             if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
                 // 插入缺陷表
-                insertIssues(id, issuesRequest);
+                insertIssues(issuesRequest);
             }
+
+            // 用例与第三方缺陷平台中的缺陷关联
+            handleTestCaseIssues(issuesRequest);
         }
     }
 
@@ -198,7 +199,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         MultiValueMap<String, Object> param = buildUpdateParam(request);
         handleIssueUpdate(request);
         zentaoClient.setConfig(getUserConfig());
-        zentaoClient.updateIssue(request.getId(), param);
+        zentaoClient.updateIssue(request.getPlatformId(), param);
     }
 
     private MultiValueMap<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
@@ -242,9 +243,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public void deleteIssue(String id) {
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
         super.deleteIssue(id);
         zentaoClient.setConfig(getUserConfig());
-        zentaoClient.deleteIssue(id);
+        zentaoClient.deleteIssue(issuesWithBLOBs.getPlatformId());
     }
 
     @Override
@@ -327,7 +329,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     public void syncIssues(Project project, List<IssuesDao> issues) {
         issues.forEach(item -> {
             setConfig();
-            IssuesDao issuesDao = getZentaoIssues(item.getId());
+            IssuesDao issuesDao = getZentaoIssues(item.getPlatformId());
+            issuesDao.setId(item.getId());
             issuesMapper.updateByPrimaryKeySelective(issuesDao);
         });
     }

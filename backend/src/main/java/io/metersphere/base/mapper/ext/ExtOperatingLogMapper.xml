@@ -72,6 +72,12 @@
         LEFT JOIN workspace w on t2.workspace_id = w.id
         <where>
             t.oper_type in ('UPDATE','BATCH_UPDATE')
+            <if test="request.modules != null and request.modules.size > 0 ">
+               and t.oper_module in
+                <foreach collection="request.modules" item="module" separator="," open="(" close=")">
+                    #{module}
+                </foreach>
+            </if>
             and t.oper_content is not null
             <if test="request.sourceId != null and request.sourceId != ''">
                 and t.source_id like #{request.sourceId, jdbcType=VARCHAR}

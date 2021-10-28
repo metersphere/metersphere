@@ -1,6 +1,7 @@
 <template>
   <div v-loading="loading">
-    <el-card :style="{height: h + 'px'}" class="ms-card">
+<!--    <el-card :style="{height: h + 'px'}" class="ms-card">-->
+    <el-card class="ms-card">
       <el-row style="padding-top: 10px">
         <p class="tip"><span style="margin-left: 5px"></span> {{ $t('commons.report_statistics.options') }}</p>
       </el-row>
@@ -54,26 +55,26 @@
             <el-container>
               <el-aside width="73px" style="overflow: hidden">
                 <div v-if="option.filters.length > 1" style="height: 100%" id="moreOptionTypeDiv">
-                  <div class="top-line-box" :style="{ height:lineDivHeight+'px'}">
+                  <div class="top-line-box" :style="{ height:lineDivTopHeight+'px',marginTop:lineDivMarginTopHeight+'px'}">
                   </div>
                   <div>
                     <el-select class="ms-http-select" size="small" v-model="option.filterType" style="width: 70px">
                       <el-option v-for="item in filterTypes" :key="item.id" :label="item.label" :value="item.id"/>
                     </el-select>
                   </div>
-                  <div class="bottom-line-box" :style="{ height:lineDivHeight+'px'}">
+                  <div class="bottom-line-box" :style="{ height:lineDivBottomHeight+'px'}">
                   </div>
                 </div>
               </el-aside>
               <el-main  v-if="optionLoad" style="padding: 0px">
                 <el-row v-for="filterItem in option.filters" :key="filterItem.id" style="margin-bottom: 5px">
-                  <el-col :span="24">
+                  <el-col :span="24" name="itemOptions">
                     <el-select style="width: 100px" class="ms-http-select" size="small" v-model="filterItem.type">
                       <el-option v-for="item in getFilterOptionKey(filterItem.type)" :key="item.type" :label="item.name" :value="item.type"/>
                     </el-select>
                     <span style="margin-left:10px;margin-right:10px">{{ $t('commons.report_statistics.report_filter.belone') }}</span>
 
-                    <el-select style="width:173px" :collapse-tags="true" class="ms-http-select" size="small" multiple filterable v-model="filterItem.values" v-if="getFilterOptions(filterItem.type).length > 0">
+                    <el-select style="width:173px" class="ms-http-select" size="small" multiple filterable v-model="filterItem.values" v-if="getFilterOptions(filterItem.type).length > 0">
                       <el-option v-for="itemOption in getFilterOptions(filterItem.type)" :key="itemOption.id" :label="itemOption.label" :value="itemOption.id"/>
                     </el-select>
                     <el-input  style="width:173px" v-model="filterItem.value" size="small" v-else ></el-input>
@@ -146,7 +147,9 @@ export default {
         ],
       },
       h: document.documentElement.clientHeight + 80,
-      lineDivHeight: 0,
+      lineDivTopHeight: 0,
+      lineDivMarginTopHeight: 0,
+      lineDivBottomHeight: 0,
       disabled: false,
       loading: false,
       optionLoad: true,
@@ -237,13 +240,37 @@ export default {
       handler: function () {
         this.$nextTick(() => {
           this.lineDivHeight = 0;
-          // let elem = document.getElementById("moreOptionTypeDiv");
-          if(this.option.filters.length > 1){
-            let countPageHeight = (this.option.filters.length)* 32 + (this.option.filters.length-1)*5;
-            if(countPageHeight > 32){
-              this.lineDivHeight = (countPageHeight-32)/2-11;
-            }
-          }
+          setTimeout(() => {
+            let itemOptions = document.getElementsByName("itemOptions");
+            // let optionTypeDiv = document.getElementById("moreOptionTypeDiv");
+            // if(optionTypeDiv){
+              if(itemOptions && itemOptions.length > 1){
+                let optionTypeHeight = 0;
+                for(let i = 0; i < itemOptions.length; i ++){
+                  let itemHeight = itemOptions[i].offsetHeight;
+                  if(optionTypeHeight != 0){
+                    optionTypeHeight += 5;
+                  }
+                  optionTypeHeight+= itemHeight;
+                }
+                let firstHeight = itemOptions[0].offsetHeight;
+                let endHeight = itemOptions[itemOptions.length-1].offsetHeight;
+                this.lineDivMarginTopHeight = ((firstHeight-32)/2+16);
+                this.lineDivTopHeight = ((optionTypeHeight/2 - this.lineDivMarginTopHeight-16));
+                let divMarginBottom = ((endHeight-32)/2+16);
+                this.lineDivBottomHeight = ((optionTypeHeight - 32 - this.lineDivTopHeight - this.lineDivMarginTopHeight - divMarginBottom ));
+              }
+            // }
+
+          }, 100);
+          // moreOptionTypeDiv
+          // if(this.option.filters.length > 1){
+          //   let countPageHeight = (this.option.filters.length)* 32 + (this.option.filters.length-1)*5;
+          //   if(countPageHeight > 32){
+          //     this.lineDivHeight = (countPageHeight-32)/2-11;
+          //   }
+          // }
+
         });
       },
       deep: true
@@ -254,6 +281,9 @@ export default {
       this.loading = true;
       this.option = opt;
       this.$nextTick(() => {
+        if(this.option.timeType === "dynamicTime"){
+          this.init();
+        }
         this.loading = false;
       });
     },
@@ -374,13 +404,13 @@ export default {
 
 .ms-card {
   width: 480px;
+  overflow: auto;
 }
 
 .top-line-box{
   border-top: 1px solid;
   border-left: 1px solid;
   margin-left: 32px;
-  margin-top: 10px;
   border-top-left-radius: 10px;
 }
 
@@ -393,9 +423,9 @@ export default {
 
 /deep/ .el-select__tags-text {
   display: inline-block;
-  max-width: 50px;
+  max-width: 117px;
   overflow: hidden;
   text-overflow:ellipsis;
-  white-space: nowrap;
+  /*white-space: nowrap;*/
 }
 </style>

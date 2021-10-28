@@ -1,6 +1,7 @@
 <template>
   <el-dialog :title="$t('api_test.request.parameters_advance')"
              :visible.sync="itemValueVisible"
+             :append-to-body="appendToBody"
              class="advanced-item-value"
              width="70%">
     <el-tabs tab-position="top" style="height: 50vh;" @tab-click="selectTab">
@@ -100,6 +101,12 @@
       environment: Object,
       scenario: Scenario,
       currentItem: Object,
+      appendToBody: {
+        type: Boolean,
+        default() {
+          return false;
+        }
+      },
     },
     data() {
       return {

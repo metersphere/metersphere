@@ -31,5 +31,7 @@ public class Issues implements Serializable {
 
     private String platformStatus;
 
+    private String platformId;
+
     private static final long serialVersionUID = 1L;
 }

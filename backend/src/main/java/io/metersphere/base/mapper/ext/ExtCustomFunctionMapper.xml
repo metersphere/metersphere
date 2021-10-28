@@ -35,8 +35,10 @@
                     custom_function.${order.name} ${order.type}
                 </foreach>
             </if>
+            <if test="request.orders == null">
+               order by custom_function.create_time desc
+            </if>
         </where>
-        order by custom_function.create_time desc
 
     </select>
 

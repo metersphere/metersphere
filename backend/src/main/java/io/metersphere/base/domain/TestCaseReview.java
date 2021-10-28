@@ -25,8 +25,6 @@ public class TestCaseReview implements Serializable {
 
     private String createUser;
 
-    private String followPeople;
-
     private String description;
 
     private static final long serialVersionUID = 1L;

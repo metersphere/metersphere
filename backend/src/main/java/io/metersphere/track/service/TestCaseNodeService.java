@@ -259,7 +259,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         List<String> testCaseIdList = this.selectCaseIdByNodeIds(nodeIds);
         TestCaseBatchRequest request = new TestCaseBatchRequest();
         request.setIds(testCaseIdList);
-        testCaseService.deleteToGcBatch(request);
+        testCaseService.deleteToGcBatch(request.getIds());
 
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
         testCaseNodeExample.createCriteria().andIdIn(nodeIds);
@@ -763,5 +763,11 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             }
         }
         return returnList;
+    }
+
+    public long trashCount(String projectId) {
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo("Trash");
+        return testCaseMapper.countByExample(testCaseExample);
     }
 }

@@ -12,6 +12,7 @@
         popper-class="issues-popover"
       >
         <mavon-editor :editable="false" default-open="preview" class="mavon-editor"
+                      :xss-options="xssOptions"
                       :subfield="false" :toolbarsFlag="false" v-model="scope.row.description" ref="md"/>
         <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
       </el-popover>
@@ -27,6 +28,12 @@ export default {
   data() {
     return {
       readConfig: {toolbar: []},
+      xssOptions: {
+        whiteList: {
+          img: ["src", "alt", "width", "height"],
+        },
+        stripIgnoreTagBody: true
+      },
     };
   },
   props: {

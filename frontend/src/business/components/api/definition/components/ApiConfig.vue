@@ -234,6 +234,20 @@
           this.$emit('saveApi', data);
         });
       },
+      handleSave() {
+        if (this.$refs.httpApi) {
+          this.$refs.httpApi.saveApi();
+        }
+        else if (this.$refs.tcpApi) {
+          this.$refs.tcpApi.saveApi();
+        }
+        else if (this.$refs.dubboApi) {
+          this.$refs.dubboApi.saveApi();
+        }
+        else if (this.$refs.sqlApi) {
+          this.$refs.sqlApi.saveApi();
+        }
+      },
       setParameters(data) {
         data.projectId = this.projectId;
         this.request.name = this.currentApi.name;

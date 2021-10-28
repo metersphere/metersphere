@@ -146,17 +146,8 @@
           </template>
         </ms-table-column >
 
-         <ms-table-column
-           prop="status"
-           :filters="statusFilters"
-           :field="item"
-           :fields-width="fieldsWidth"
-           min-width="100px"
-           :label="$t('api_test.definition.api_case_status')">
-        </ms-table-column>
-
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
-                         :filters="field.name === '用例等级' ? priorityFilters : null"
+                         :filters="getCustomFieldFilter(field)"
                          :field="item"
                          :fields-width="fieldsWidth"
                          :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
@@ -165,6 +156,9 @@
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
                 <priority-table-item :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
+            </span>
+            <span v-else-if="field.name === '用例状态'">
+                {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.status}}
             </span>
             <span v-else>
               {{getCustomFieldValue(scope.row, field)}}
@@ -236,12 +230,12 @@ import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
 import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
-import RelationshipGraphDrawer from "@/business/components/xpack/graph/RelationshipGraphDrawer";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
 
 export default {
   name: "TestCaseList",
   components: {
-    RelationshipGraphDrawer,
     TestCasePreview,
     BatchMove,
     MsTableColumn,
@@ -265,7 +259,8 @@ export default {
     StatusTableItem,
     TestCaseDetail,
     ReviewStatus,
-    MsTag,ApiStatus
+    MsTag,ApiStatus,
+    "relationshipGraphDrawer": relationshipGraphDrawer.default,
   },
   data() {
     return {
@@ -418,7 +413,6 @@ export default {
       this.condition.filters = {status: ["Trash"]};
     }else {
       this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
-      this.condition.filters = {status: ["Prepare" , "Underway" , "Completed"]}
     }
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
@@ -521,6 +515,14 @@ export default {
       }
       return value;
     },
+    getCustomFieldFilter(field) {
+      if (field.name === '用例等级') {
+        return this.priorityFilters;
+      } else if (field.name === '用例状态') {
+        return this.statusFilters;
+      }
+       return null;
+    },
     checkRedirectEditPage(redirectParam) {
       if (redirectParam != null) {
         this.$get('test/case/get/' + redirectParam, response => {
@@ -566,9 +568,6 @@ export default {
           this.condition.nodeIds = this.selectNodeIds;
         }
       }
-      if(this.condition.filters.status===null) {
-        this.condition.filters.status = ["Prepare", "Underway", "Completed"];
-      }
       this.getData();
     },
     getData() {
@@ -590,16 +589,17 @@ export default {
           this.condition.caseCoverage = 'coverage';
           break;
         case 'Prepare':
-          this.condition.filters.reviewStatus = [this.selectDataRange];
+          this.condition.filters.review_status = [this.selectDataRange];
           break;
         case 'Pass':
-          this.condition.filters.reviewStatus = [this.selectDataRange];
+          this.condition.filters.review_status = [this.selectDataRange];
           break;
         case 'UnPass':
-          this.condition.filters.reviewStatus = [this.selectDataRange];
+          this.condition.filters.review_status = [this.selectDataRange];
           break;
       }
       this.condition.filters.priority = this.condition.filters['用例等级'];
+      this.condition.filters.status = this.condition.filters['用例状态'];
       if (this.projectId) {
         this.condition.projectId = this.projectId;
         this.$emit('setCondition', this.condition);
@@ -621,6 +621,7 @@ export default {
 
           });
         });
+        this.$emit("getTrashList");
       }
     },
     search() {

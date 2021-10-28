@@ -206,7 +206,6 @@ export default {
         'casePassingRate',
         'deleteTime',
         'deleteUserId',
-        'followPeople',
         'order'
       ],
       caseVariables: [
@@ -228,7 +227,6 @@ export default {
         'deleteTime',
         'deleteUserId',
         'version',
-        'followPeople',
         'order'
       ]
     };
@@ -383,6 +381,14 @@ export default {
       let i2 = row.userIds.indexOf('CREATOR');
 
       switch (row.event) {
+        case "CREATE":
+          if (i2 > -1) {
+            row.userIds.splice(i2, 1);
+          }
+          if (i > -1) {
+            row.userIds.splice(i, 1);
+          }
+          break;
         case "UPDATE":
         case "CASE_UPDATE":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});

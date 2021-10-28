@@ -5,6 +5,7 @@ import io.metersphere.base.domain.LoadTest;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import io.metersphere.performance.request.QueryTestPlanRequest;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -29,4 +30,6 @@ public interface ExtLoadTestMapper {
     Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
     Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    int moduleCount(@Param("request") QueryTestPlanRequest request);
 }

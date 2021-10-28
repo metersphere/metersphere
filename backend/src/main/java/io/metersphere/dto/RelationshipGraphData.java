@@ -29,6 +29,7 @@ public class RelationshipGraphData {
         private Integer category; // 分组
         private Integer x;
         private Integer y;
+        private Boolean visited = false;
     }
 
     @Getter
@@ -36,6 +37,7 @@ public class RelationshipGraphData {
     public static class Edge {
         private Integer source;
         private Integer target;
+        private float curveness;
     }
 
     /**

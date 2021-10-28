@@ -25,9 +25,6 @@ import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -73,58 +70,66 @@ public class ApiDefinitionExecResultService {
             result.getScenarios().forEach(scenarioResult -> {
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                     scenarioResult.getRequestResults().forEach(item -> {
-                        ApiDefinitionExecResult saveResult = MessageCache.batchTestCases.get(result.getTestId());
-                        if (saveResult == null) {
-                            saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(result.getTestId());
-                        }
-                        item.getResponseResult().setConsole(result.getConsole());
-                        boolean saved = true;
-                        if (saveResult == null || scenarioResult.getRequestResults().size() > 1) {
-                            saveResult = new ApiDefinitionExecResult();
-                            if (isFirst[0]) {
-                                isFirst[0] = false;
-                                saveResult.setId(result.getTestId());
-                            } else {
-                                saveResult.setId(UUID.randomUUID().toString());
+                        if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
+                            ApiDefinitionExecResult saveResult = MessageCache.batchTestCases.get(result.getTestId());
+                            if (saveResult == null) {
+                                saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(result.getTestId());
                             }
-                            saveResult.setActuator("LOCAL");
-                            saveResult.setName(item.getName());
-                            saveResult.setTriggerMode(triggerMode);
-                            saveResult.setType(type);
-                            saveResult.setCreateTime(item.getStartTime());
-                            if (StringUtils.isNotEmpty(result.getUserId())) {
-                                saveResult.setUserId(result.getUserId());
-                            } else {
-                                saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                            item.getResponseResult().setConsole(result.getConsole());
+                            boolean saved = true;
+                            if (saveResult == null || scenarioResult.getRequestResults().size() > 1) {
+                                saveResult = new ApiDefinitionExecResult();
+                                if (isFirst[0]) {
+                                    isFirst[0] = false;
+                                    saveResult.setId(result.getTestId());
+                                } else {
+                                    saveResult.setId(UUID.randomUUID().toString());
+                                }
+                                saveResult.setActuator("LOCAL");
+                                saveResult.setName(item.getName());
+                                saveResult.setTriggerMode(triggerMode);
+                                saveResult.setType(type);
+                                saveResult.setCreateTime(item.getStartTime());
+                                if (StringUtils.isNotEmpty(result.getUserId())) {
+                                    saveResult.setUserId(result.getUserId());
+                                } else {
+                                    if (SessionUtils.getUser() != null) {
+                                        saveResult.setUserId(SessionUtils.getUser().getId());
+                                    }
+                                }
+                                saved = false;
                             }
-                            saved = false;
-                        }
-                        String status = item.isSuccess() ? "success" : "error";
-                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
-                        saveResult.setStatus(status);
-                        saveResult.setResourceId(item.getName());
-                        saveResult.setContent(JSON.toJSONString(item));
-                        saveResult.setStartTime(item.getStartTime());
-                        saveResult.setEndTime(item.getResponseResult().getResponseTime());
 
-                        // 清空上次执行结果的内容，只保留近五条结果
-                        ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
-                        if (prevResult != null) {
-                            prevResult.setContent(null);
-                            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
-                        }
+                            String status = item.isSuccess() ? "success" : "error";
+                            saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
+                            saveResult.setStatus(status);
+                            saveResult.setResourceId(item.getName());
+                            saveResult.setContent(JSON.toJSONString(item));
+                            saveResult.setStartTime(item.getStartTime());
+                            saveResult.setEndTime(item.getResponseResult().getResponseTime());
 
-                        if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
-                            saveResult.setTriggerMode(TriggerMode.MANUAL.name());
+                            // 清空上次执行结果的内容，只保留近五条结果
+                            ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
+                            if (prevResult != null) {
+                                prevResult.setContent(null);
+                                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+                            }
+
+                            if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
+                                saveResult.setTriggerMode(TriggerMode.MANUAL.name());
+                            }
+                            if (!saved) {
+                                apiDefinitionExecResultMapper.insert(saveResult);
+                            } else {
+                                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
+                            }
+                            apiDefinitionService.removeCache(result.getTestId());
+                            if (StringUtils.isNotEmpty(result.getTestId())) {
+                                MessageCache.batchTestCases.remove(result.getTestId());
+                            }
+                            // 发送通知
+                            sendNotice(saveResult);
                         }
-                        if (!saved) {
-                            apiDefinitionExecResultMapper.insert(saveResult);
-                        } else {
-                            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
-                        }
-                        apiDefinitionService.removeCache(result.getTestId());
-                        // 发送通知
-                        sendNotice(saveResult);
                     });
                 }
             });

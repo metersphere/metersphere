@@ -145,9 +145,7 @@ export default {
           data: yAxis1,
           type: 'bar',
           itemStyle: {
-            normal: {
-              color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER
-            }
+            color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER
           }
         },
           {
@@ -155,9 +153,7 @@ export default {
             data: yAxis2,
             type: 'bar',
             itemStyle: {
-              normal: {
-                color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER_SHALLOW
-              }
+              color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER_SHALLOW
             }
           }]
       };

@@ -89,11 +89,12 @@
       </el-row>
     </div>
     <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario"
+                             :append-to-body="appendDialogToBody"
                              :parameters="parameters"
                              :current-item="currentItem"/>
-    <ms-api-variable-json ref="variableJson" @callback="callback"/>
+    <ms-api-variable-json :append-to-body="appendDialogToBody" ref="variableJson" @callback="callback"/>
 
-    <api-variable-setting
+    <api-variable-setting :append-to-body="appendDialogToBody"
       ref="apiVariableSetting"/>
 
   </div>
@@ -123,6 +124,12 @@ export default {
     type: {
       type: String,
       default: ''
+    },
+    appendDialogToBody: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     },
     isReadOnly: {
       type: Boolean,

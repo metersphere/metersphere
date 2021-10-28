@@ -31,7 +31,6 @@ import org.apache.jmeter.visualizers.backend.BackendListener;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -50,8 +49,6 @@ public class JMeterService {
     private JmeterProperties jmeterProperties;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
-    @Resource
-    private KafkaTemplate<String, Object> kafkaTemplate;
     @Resource
     private RestTemplate restTemplate;
 
@@ -174,11 +171,6 @@ public class JMeterService {
             }
         } else {
             try {
-//                SendResult result = kafkaTemplate.send(KafkaConfig.EXEC_TOPIC, JSON.toJSONString(runRequest)).get();
-//                if (result != null) {
-//                    LogUtil.debug("获取ack 结果：" + result.getRecordMetadata());
-//                }
-//                kafkaTemplate.flush();
                 this.send(runRequest, config, reportId);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -186,6 +178,7 @@ public class JMeterService {
                         && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
                     MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
                 }
+                MessageCache.batchTestCases.remove(reportId);
             }
         }
     }
@@ -216,6 +209,7 @@ public class JMeterService {
                     && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
                 MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
             }
+            MessageCache.batchTestCases.remove(reportId);
         }
     }
 }

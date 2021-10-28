@@ -13,10 +13,6 @@ public class ApiDefinition implements Serializable {
 
     private String method;
 
-    private String protocol;
-
-    private String path;
-
     private String modulePath;
 
     private String environmentId;
@@ -32,6 +28,10 @@ public class ApiDefinition implements Serializable {
     private Long createTime;
 
     private Long updateTime;
+
+    private String protocol;
+
+    private String path;
 
     private Integer num;
 
@@ -50,8 +50,6 @@ public class ApiDefinition implements Serializable {
     private Long deleteTime;
 
     private String deleteUserId;
-
-    private String followPeople;
 
     private Long order;
 

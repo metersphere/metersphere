@@ -53,6 +53,8 @@ public class TestCaseReviewService {
     @Resource
     private TestCaseReviewUsersMapper testCaseReviewUsersMapper;
     @Resource
+    private TestCaseReviewFollowMapper testCaseReviewFollowMapper;
+    @Resource
     private TestCaseReviewMapper testCaseReviewMapper;
     @Resource
     private ExtTestCaseReviewMapper extTestCaseReviewMapper;
@@ -89,6 +91,15 @@ public class TestCaseReviewService {
             testCaseReviewUsers.setReviewId(reviewId);
             testCaseReviewUsers.setUserId(userId);
             testCaseReviewUsersMapper.insert(testCaseReviewUsers);
+        });
+
+        List<String> follows = reviewRequest.getFollowIds();//关注人
+
+        follows.forEach(followId -> {
+            TestCaseReviewFollow testCaseReviewFollow = new TestCaseReviewFollow();
+            testCaseReviewFollow.setReviewId(reviewId);
+            testCaseReviewFollow.setFollowId(followId);
+            testCaseReviewFollowMapper.insert(testCaseReviewFollow);
         });
 
         reviewRequest.setId(reviewId);
@@ -142,9 +153,13 @@ public class TestCaseReviewService {
 
     public List<TestCaseReviewDTO> listCaseReview(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        String projectId = request.getProjectId();
+        /*String projectId = request.getProjectId();
         if (StringUtils.isBlank(projectId)) {
             return new ArrayList<>();
+        }*/
+        //update   reviewerId
+        if(StringUtils.equalsIgnoreCase(request.getReviewerId(),"currentUserId")){
+            request.setReviewerId(SessionUtils.getUserId());
         }
         return extTestCaseReviewMapper.list(request);
     }
@@ -190,12 +205,34 @@ public class TestCaseReviewService {
         return new ArrayList<>();
     }
 
+    public List<User> getFollowByReviewId(TestCaseReview request) {
+        String reviewId = request.getId();
+
+        TestCaseReviewFollowExample testCaseReviewFollowExample = new TestCaseReviewFollowExample();
+        testCaseReviewFollowExample.createCriteria().andReviewIdEqualTo(reviewId);
+        List<TestCaseReviewFollow> testCaseReviewFollows = testCaseReviewFollowMapper.selectByExample(testCaseReviewFollowExample);
+
+        List<String> userIds = testCaseReviewFollows
+                .stream()
+                .map(TestCaseReviewFollow::getFollowId)
+                .collect(Collectors.toList());
+
+        UserExample userExample = new UserExample();
+        UserExample.Criteria criteria = userExample.createCriteria();
+        if (!CollectionUtils.isEmpty(userIds)) {
+            criteria.andIdIn(userIds);
+            return userMapper.selectByExample(userExample);
+        }
+        return new ArrayList<>();
+    }
+
     public List<TestCaseReviewDTO> recent(String currentWorkspaceId) {
         return extTestCaseReviewMapper.listByWorkspaceId(currentWorkspaceId, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
 
     public TestCaseReview editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
         editCaseReviewer(testCaseReview);
+        editCaseRevieweFollow(testCaseReview);
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
@@ -226,6 +263,34 @@ public class TestCaseReviewService {
         testCaseReviewUsersMapper.deleteByExample(example);
     }
 
+    private void editCaseRevieweFollow(SaveTestCaseReviewRequest testCaseReview) {
+        // 要更新的follows
+        List<String> follows = testCaseReview.getFollowIds();
+        if (CollectionUtils.isNotEmpty(follows)) {
+            String id = testCaseReview.getId();
+            TestCaseReviewFollowExample testCaseReviewfollowExample = new TestCaseReviewFollowExample();
+            testCaseReviewfollowExample.createCriteria().andReviewIdEqualTo(id);
+            List<TestCaseReviewFollow> testCaseReviewFollows = testCaseReviewFollowMapper.selectByExample(testCaseReviewfollowExample);
+            List<String> dbReviewIds = testCaseReviewFollows.stream().map(TestCaseReviewFollow::getFollowId).collect(Collectors.toList());
+            follows.forEach(followId -> {
+                if (!dbReviewIds.contains(followId)) {
+                    TestCaseReviewFollow caseReviewFollow = new TestCaseReviewFollow();
+                    caseReviewFollow.setFollowId(followId);
+                    caseReviewFollow.setReviewId(id);
+                    testCaseReviewFollowMapper.insertSelective(caseReviewFollow);
+                }
+            });
+            TestCaseReviewFollowExample example = new TestCaseReviewFollowExample();
+            example.createCriteria().andReviewIdEqualTo(id).andFollowIdNotIn(follows);
+            testCaseReviewFollowMapper.deleteByExample(example);
+        }else {
+            TestCaseReviewFollowExample example = new TestCaseReviewFollowExample();
+            example.createCriteria().andReviewIdEqualTo(testCaseReview.getId());
+            testCaseReviewFollowMapper.deleteByExample(example);
+        }
+
+    }
+
     private void checkCaseReviewExist(TestCaseReview testCaseReview) {
         if (testCaseReview.getName() != null) {
             TestCaseReviewExample example = new TestCaseReviewExample();
@@ -247,6 +312,7 @@ public class TestCaseReviewService {
     public void deleteCaseReview(String reviewId) {
         deleteCaseReviewProject(reviewId);
         deleteCaseReviewUsers(reviewId);
+        deleteCaseReviewFollow(reviewId);
         deleteCaseReviewTestCase(reviewId);
         testCaseReviewMapper.deleteByPrimaryKey(reviewId);
     }
@@ -261,6 +327,12 @@ public class TestCaseReviewService {
         TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
         testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
         testCaseReviewUsersMapper.deleteByExample(testCaseReviewUsersExample);
+    }
+
+    private void deleteCaseReviewFollow(String reviewId) {
+        TestCaseReviewFollowExample testCaseReviewFollowExample = new TestCaseReviewFollowExample();
+        testCaseReviewFollowExample.createCriteria().andReviewIdEqualTo(reviewId);
+        testCaseReviewFollowMapper.deleteByExample(testCaseReviewFollowExample);
     }
 
     private void deleteCaseReviewTestCase(String reviewId) {
@@ -284,6 +356,7 @@ public class TestCaseReviewService {
         if (testCaseIds.isEmpty()) {
             return;
         }
+
         // 如果是关联全部指令则根据条件查询未关联的案例
         if (testCaseIds.get(0).equals("all")) {
             List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
@@ -291,6 +364,9 @@ public class TestCaseReviewService {
                 testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());
             }
         }
+
+        // 尽量保持与用例顺序一致
+        Collections.reverse(testCaseIds);
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseReviewTestCaseMapper batchMapper = sqlSession.getMapper(TestCaseReviewTestCaseMapper.class);
@@ -589,6 +665,19 @@ public class TestCaseReviewService {
 
             DetailColumn column = new DetailColumn("评审人", "reviewUser", String.join(",", userNames), null);
             columns.add(column);
+
+            TestCaseReviewFollowExample testCaseReviewFollowExample = new TestCaseReviewFollowExample();
+            testCaseReviewFollowExample.createCriteria().andReviewIdEqualTo(reviewId);
+            List<TestCaseReviewFollow> testCaseReviewFollows = testCaseReviewFollowMapper.selectByExample(testCaseReviewFollowExample);
+
+            List<String> follows = testCaseReviewFollows.stream().map(TestCaseReviewFollow::getFollowId).collect(Collectors.toList());
+            //UserExample example = new UserExample();
+            example.createCriteria().andIdIn(follows);
+            List<User> follow = userMapper.selectByExample(example);
+            List<String> followNames = follow.stream().map(User::getName).collect(Collectors.toList());
+
+            DetailColumn columnFollow = new DetailColumn("关注人", "reviewFollow", String.join(",", followNames), null);
+            columns.add(columnFollow);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), review.getProjectId(), review.getName(), review.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }

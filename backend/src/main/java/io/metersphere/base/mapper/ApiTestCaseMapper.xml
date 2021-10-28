@@ -19,7 +19,6 @@
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="delete_user_id" jdbcType="VARCHAR" property="deleteUserId" />
     <result column="version" jdbcType="INTEGER" property="version" />
-    <result column="follow_people" jdbcType="VARCHAR" property="followPeople" />
     <result column="order" jdbcType="BIGINT" property="order" />
     <result column="case_status" jdbcType="VARCHAR" property="caseStatus" />
   </resultMap>
@@ -88,7 +87,7 @@
   <sql id="Base_Column_List">
     id, project_id, `name`, priority, api_definition_id, create_user_id, update_user_id, 
     create_time, update_time, num, tags, last_result_id, `status`, original_status, delete_time, 
-    delete_user_id, version, follow_people, `order`, case_status
+    delete_user_id, version, `order`, case_status
   </sql>
   <sql id="Blob_Column_List">
     description, request
@@ -147,17 +146,17 @@
       update_user_id, create_time, update_time, 
       num, tags, last_result_id, 
       `status`, original_status, delete_time, 
-      delete_user_id, version, follow_people, 
-      `order`, case_status, description, 
-      request)
+      delete_user_id, version, `order`, 
+      case_status, description, request
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{priority,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{createUserId,jdbcType=VARCHAR}, 
       #{updateUserId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{lastResultId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{originalStatus,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
-      #{deleteUserId,jdbcType=VARCHAR}, #{version,jdbcType=INTEGER}, #{followPeople,jdbcType=VARCHAR}, 
-      #{order,jdbcType=BIGINT}, #{caseStatus,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
-      #{request,jdbcType=LONGVARCHAR})
+      #{deleteUserId,jdbcType=VARCHAR}, #{version,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, 
+      #{caseStatus,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     insert into api_test_case
@@ -212,9 +211,6 @@
       </if>
       <if test="version != null">
         version,
-      </if>
-      <if test="followPeople != null">
-        follow_people,
       </if>
       <if test="order != null">
         `order`,
@@ -280,9 +276,6 @@
       </if>
       <if test="version != null">
         #{version,jdbcType=INTEGER},
-      </if>
-      <if test="followPeople != null">
-        #{followPeople,jdbcType=VARCHAR},
       </if>
       <if test="order != null">
         #{order,jdbcType=BIGINT},
@@ -358,9 +351,6 @@
       <if test="record.version != null">
         version = #{record.version,jdbcType=INTEGER},
       </if>
-      <if test="record.followPeople != null">
-        follow_people = #{record.followPeople,jdbcType=VARCHAR},
-      </if>
       <if test="record.order != null">
         `order` = #{record.order,jdbcType=BIGINT},
       </if>
@@ -397,7 +387,6 @@
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       version = #{record.version,jdbcType=INTEGER},
-      follow_people = #{record.followPeople,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
       case_status = #{record.caseStatus,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
@@ -425,7 +414,6 @@
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       version = #{record.version,jdbcType=INTEGER},
-      follow_people = #{record.followPeople,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
       case_status = #{record.caseStatus,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -483,9 +471,6 @@
       <if test="version != null">
         version = #{version,jdbcType=INTEGER},
       </if>
-      <if test="followPeople != null">
-        follow_people = #{followPeople,jdbcType=VARCHAR},
-      </if>
       <if test="order != null">
         `order` = #{order,jdbcType=BIGINT},
       </if>
@@ -519,7 +504,6 @@
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       version = #{version,jdbcType=INTEGER},
-      follow_people = #{followPeople,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
       case_status = #{caseStatus,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
@@ -544,7 +528,6 @@
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       version = #{version,jdbcType=INTEGER},
-      follow_people = #{followPeople,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
       case_status = #{caseStatus,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}

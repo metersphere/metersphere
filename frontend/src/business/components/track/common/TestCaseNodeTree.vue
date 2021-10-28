@@ -23,7 +23,7 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
-          <module-trash-button :condition="condition" :exe="enableTrash"/>
+          <module-trash-button :condition="condition" :total="total" :exe="enableTrash"/>
       </template>
     </ms-node-tree>
     <test-case-import @refreshAll="refreshAll" ref="testCaseImport"/>
@@ -91,6 +91,7 @@ export default {
       default: "view"
     },
     showOperator: Boolean,
+    total: Number,
   },
   watch: {
     treeNodes() {

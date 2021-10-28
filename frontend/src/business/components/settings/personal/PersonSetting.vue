@@ -291,7 +291,7 @@ export default {
     },
     handleAuth(type) {
       let param = {...this.currentPlatformInfo};
-      param.orgId = getCurrentWorkspaceId();
+      param.workspaceId = getCurrentWorkspaceId();
       param.platform = type;
       this.$parent.result = this.$post("issues/user/auth", param, () => {
         this.$success(this.$t('organization.integration.verified'));

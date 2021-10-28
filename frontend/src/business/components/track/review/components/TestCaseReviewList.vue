@@ -66,8 +66,8 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.id=='followPeople'"
-          prop="followPeople"
+          v-if="item.id=='follow'"
+          prop="follow"
           :label="$t('test_track.review.review_follow_people')"
           show-overflow-tooltip
           :key="index"
@@ -230,6 +230,13 @@ export default {
             let userIds = arr.map(data => data.id);
             this.$set(this.tableData[i], "reviewer", reviewer);
             this.$set(this.tableData[i], "userIds", userIds);
+          });
+          this.$post('/test/case/review/follow', {id: this.tableData[i].id}, res => {
+            let arr = res.data;
+            let follow = arr.map(data => data.name).join("、");
+            let followIds = arr.map(data => data.id);
+            this.$set(this.tableData[i], "follow", follow);
+            this.$set(this.tableData[i], "followIds", followIds);
           });
         }
       });

@@ -412,11 +412,13 @@ public class ProjectService {
 
     public Project getProjectById(String id) {
         Project project = projectMapper.selectByPrimaryKey(id);
-        String createUser = project.getCreateUser();
-        if (StringUtils.isNotBlank(createUser)) {
-            User user = userMapper.selectByPrimaryKey(createUser);
-            if (user != null) {
-                project.setCreateUser(user.getName());
+        if(project != null){
+            String createUser = project.getCreateUser();
+            if (StringUtils.isNotBlank(createUser)) {
+                User user = userMapper.selectByPrimaryKey(createUser);
+                if (user != null) {
+                    project.setCreateUser(user.getName());
+                }
             }
         }
         return project;

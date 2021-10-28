@@ -4,6 +4,7 @@
     width="30%"
     :title="$t('run_mode.other_config')"
     :with-footer="false"
+    :append-to-body="appendToBody"
     :close-on-click-modal="true">
     <el-form>
       <el-row>
@@ -33,6 +34,14 @@
         visible: false,
         data: {}
       }
+    },
+    props:{
+      appendToBody: {
+        type: Boolean,
+        default() {
+          return false;
+        }
+      },
     },
     methods: {
       open(item) {

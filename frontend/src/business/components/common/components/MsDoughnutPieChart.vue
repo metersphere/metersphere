@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ms-chart v-if="visible && data.length > 0" :options="options"/>
+    <ms-chart v-if="visible && data.length > 0" :options="options" :height="height"/>
     <div v-if="visible && data.length <= 0" style="height: 300px">
 
     </div>
@@ -66,6 +66,12 @@ export default {
         return []
       }
     },
+    height: {
+      type: Number,
+      default() {
+        return 400
+      }
+    }
   },
   watch: {
     data() {

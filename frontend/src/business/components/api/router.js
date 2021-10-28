@@ -1,3 +1,5 @@
+
+
 export default {
   path: "/api",
   name: "api",
@@ -51,6 +53,11 @@ export default {
       path: 'monitor/view',
       name: 'ApiMonitor',
       component: () => import('@/business/components/api/monitor/ApiMonitor'),
+    },
+    {
+      path: 'definition/edit/:definitionId',
+      name: 'editCompleteContainer',
+      component: () => import('@/business/components/api/definition/ApiDefinition'),
     },
   ]
 };

@@ -1,6 +1,5 @@
 package io.metersphere.track.issue;
 
-import com.alibaba.fastjson.JSONArray;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.ProjectMapper;
@@ -11,10 +10,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
-import io.metersphere.service.IntegrationService;
-import io.metersphere.service.ProjectService;
-import io.metersphere.service.ResourceService;
-import io.metersphere.service.UserService;
+import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.TestCaseIssueService;
@@ -198,10 +194,11 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issuesMapper.insert(issues);
     }
 
-    protected void insertIssues(String id, IssuesUpdateRequest issuesRequest) {
+    protected void insertIssues(IssuesUpdateRequest issuesRequest) {
         IssuesWithBLOBs issues = new IssuesWithBLOBs();
         BeanUtils.copyBean(issues, issuesRequest);
-        issues.setId(id);
+        issues.setId(issuesRequest.getId());
+        issues.setPlatformId(issuesRequest.getPlatformId());
         issues.setCreateTime(System.currentTimeMillis());
         issues.setUpdateTime(System.currentTimeMillis());
         issues.setNum(getNextNum(issuesRequest.getProjectId()));
@@ -216,13 +213,6 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         } else {
             return Optional.of(issue.getNum() + 1).orElse(100001);
         }
-    }
-
-    protected List<CustomFieldItemDTO> getCustomFields(String customFieldsStr) {
-        if (StringUtils.isNotBlank(customFieldsStr)) {
-            return JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
-        }
-        return new ArrayList<>();
     }
 
     /**
@@ -347,7 +337,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     protected void addCustomFields(IssuesUpdateRequest issuesRequest, MultiValueMap<String, Object> paramMap) {
-        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
+        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
         customFields.forEach(item -> {
             if (StringUtils.isNotBlank(item.getCustomData())) {
                 paramMap.add(item.getCustomData(), item.getValue());

@@ -123,4 +123,10 @@ public class IssuesController {
     public void changeStatus(@RequestBody IssuesRequest request) {
         issuesService.changeStatus(request);
     }
+
+    @PostMapping("/status/count")
+    public List<IssuesDao> getCountByStatus(@RequestBody IssuesRequest request) {
+        return issuesService.getCountByStatus(request);
+    }
+
 }

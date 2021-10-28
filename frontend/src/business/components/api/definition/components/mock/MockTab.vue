@@ -12,10 +12,12 @@
         v-loading="result.loading"
         :data="mockConfigData.mockExpectConfigList.filter(data=>!tableSearch || data.name.toLowerCase().includes(tableSearch.toLowerCase()))"
         :operators="operators"
+        :page-size="pageSize"
+        :showSelectAll="false"
         :screen-height="screenHeight"
         @row-click="clickRow"
         row-key="id"
-        operator-width="80px"
+        operator-width="120px"
         ref="table"
       >
 
@@ -93,6 +95,7 @@ export default {
       mockConfigData: {},
       tableSearch:"",
       apiParams: [],
+      pageSize: 10,
       screenHeight:document.documentElement.clientHeight - 250,
       operators: [
         {

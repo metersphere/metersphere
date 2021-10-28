@@ -143,7 +143,9 @@
         ],
         methodColorMap: new Map(API_METHOD_COLOUR),
         methodFilters: [],
-        userFilters: []
+        userFilters: [],
+        currentPage: 1,
+        pageSize: 10,
       }
     },
     props: {
@@ -152,8 +154,7 @@
       result: Object,
       tableData: Array,
       condition: Object,
-      currentPage: Number,
-      pageSize: Number,
+      total: Number,
       screenHeight: {
         type: [Number, String],
         default() {
@@ -186,9 +187,6 @@
         }else{
           return this.$t('api_test.definition.api_type');
         }
-      },
-      total() {
-        return this.tableData ? this.tableData.length : 0;
       },
     },
     methods: {

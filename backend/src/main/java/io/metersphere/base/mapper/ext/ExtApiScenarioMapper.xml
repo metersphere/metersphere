@@ -86,6 +86,14 @@
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
+        <if test="${condition}.followPeople != null">
+            and api_scenario.id in (
+            select scenario_id from api_scenario_follow where follow_id
+            <include refid="condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
         <if test="${condition}.updateTime != null">
             and api_scenario.update_time
             <include refid="condition">
@@ -146,7 +154,7 @@
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
         api_scenario.custom_num, api_scenario.version,
         api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
-        api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
+        api_scenario.status, api_scenario.principal, api_scenario.step_total,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
         api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
         project.name as project_name, user.name as user_name,deleteUser.name AS delete_user,api_scenario.delete_time ,u2.name as principal_name
@@ -175,6 +183,11 @@
                 or api_scenario.num like CONCAT('%', #{request.name},'%')
                 or api_scenario.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
+
+            <if test="request.notEqStatus != null">
+                and (api_scenario.status is null or api_scenario.status != #{request.notEqStatus})
+            </if>
+
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>
@@ -266,6 +279,9 @@
                         </choose>
                     </if>
                 </foreach>
+            </if>
+            <if test="request.filters == null || request.filters.size() == 0 ">
+                and (api_scenario.status is null or api_scenario.status != 'Trash')
             </if>
             <if test="request.executeStatus == 'unExecute'">
                 and api_scenario.last_result IS NULL
@@ -413,7 +429,7 @@
     <select id="listReview" resultMap="BaseResultMap">
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
         api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
-        api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
+        api_scenario.status, api_scenario.principal, api_scenario.step_total,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
         api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
         project.name as project_name, user.name as user_name

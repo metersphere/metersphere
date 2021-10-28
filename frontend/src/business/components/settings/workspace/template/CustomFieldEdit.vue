@@ -141,6 +141,10 @@ export default {
       this.$refs.form.validate((valid) => {
         if (valid) {
           let param = {};
+          if (this.form.name.indexOf('.') > -1) {
+            this.$error("名称不能包含'.'号");
+            return;
+          }
           Object.assign(param, this.form);
           param.workspaceId = getCurrentWorkspaceId();
           if (['select','multipleSelect','radio','checkbox'].indexOf(param.type) > -1) {

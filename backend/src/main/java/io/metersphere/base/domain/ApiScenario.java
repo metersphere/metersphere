@@ -27,8 +27,6 @@ public class ApiScenario implements Serializable {
 
     private Integer stepTotal;
 
-    private String followPeople;
-
     private String schedule;
 
     private Long createTime;

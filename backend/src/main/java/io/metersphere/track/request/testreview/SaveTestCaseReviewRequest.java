@@ -11,4 +11,5 @@ import java.util.List;
 public class SaveTestCaseReviewRequest extends TestCaseReview {
     private List<String> projectIds;
     private List<String> userIds;
+    private List<String> followIds;
 }

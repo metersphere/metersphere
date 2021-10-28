@@ -448,29 +448,12 @@ export default {
           symbolSize: 5,
           showSymbol: false,
           lineStyle: {
-            normal: {
-              width: 1
-            }
-          },
-          areaStyle: {
-            normal: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                offset: 0,
-                color: hexToRgba(color[i % color.length], 0.3),
-              }, {
-                offset: 0.8,
-                color: hexToRgba(color[i % color.length], 0),
-              }], false),
-              shadowColor: 'rgba(0, 0, 0, 0.1)',
-              shadowBlur: 10
-            }
+            width: 1
           },
           itemStyle: {
-            normal: {
-              color: hexToRgb(color[i % color.length]),
-              borderColor: 'rgba(137,189,2,0.27)',
-              borderWidth: 12
-            }
+            color: hexToRgb(color[i % color.length]),
+            borderColor: 'rgba(137,189,2,0.27)',
+            borderWidth: 12
           },
         };
 
@@ -578,29 +561,12 @@ export default {
           symbolSize: 5,
           showSymbol: false,
           lineStyle: {
-            normal: {
-              width: 1
-            }
-          },
-          areaStyle: {
-            normal: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                offset: 0,
-                color: 'rgba(137, 189, 27, 0.3)'
-              }, {
-                offset: 0.8,
-                color: 'rgba(137, 189, 27, 0)'
-              }], false),
-              shadowColor: 'rgba(0, 0, 0, 0.1)',
-              shadowBlur: 10
-            }
+            width: 1
           },
           itemStyle: {
-            normal: {
-              color: 'rgb(137,189,27)',
-              borderColor: 'rgba(137,189,2,0.27)',
-              borderWidth: 12
-            }
+            color: 'rgb(137,189,27)',
+            borderColor: 'rgba(137,189,2,0.27)',
+            borderWidth: 12
           },
         }]
       };

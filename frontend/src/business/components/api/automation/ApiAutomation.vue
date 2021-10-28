@@ -19,7 +19,7 @@
     </ms-aside-container>
 
     <ms-main-container style="overflow: hidden">
-      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
+      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
         <el-tab-pane
           name="trash"
           :label="$t('commons.trash')" v-if="trashEnable">
@@ -152,6 +152,7 @@ export default {
   mounted() {
     this.getProject();
     this.getTrashCase();
+    this.init()
   },
   watch: {
     redirectID() {
@@ -258,7 +259,8 @@ export default {
         let currentScenario = {
           status: "Underway", principal: getCurrentUser().id,
           apiScenarioModuleId: "default-module", id: getUUID(),
-          modulePath: "/" + this.$t("commons.module_title")
+          modulePath: "/" + this.$t("commons.module_title"),
+          level: "P0"
         };
         if (this.nodeTree && this.nodeTree.length > 0) {
           currentScenario.apiScenarioModuleId = this.nodeTree[0].id;
@@ -278,6 +280,9 @@ export default {
         let name = getUUID().substring(0, 8);
         this.activeName = name;
         label = tab.currentScenario.name;
+        if (!tab.currentScenario.level) {
+          tab.currentScenario.level = "P0";
+        }
         this.tabs.push({label: label, name: name, currentScenario: tab.currentScenario});
       }
       if (this.$refs && this.$refs.autoScenarioConfig) {
@@ -296,9 +301,30 @@ export default {
       }
     },
     handleTabClose() {
-      this.tabs = [];
-      this.activeName = "default";
-      this.refresh();
+      let message = "";
+      this.tabs.forEach(t => {
+        if (t && this.$store.state.scenarioMap.has(t.currentScenario.id) && this.$store.state.scenarioMap.get(t.currentScenario.id) > 1) {
+          message += t.currentScenario.name + "，";
+        }
+      })
+      if (message !== "") {
+        this.$alert("场景[ " + message.substr(0, message.length - 1) + " ]未保存，是否确认关闭全部？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.scenarioMap.clear();
+              this.tabs = [];
+              this.activeName = "default";
+              this.refresh();
+            }
+          }
+        });
+      } else {
+        this.tabs = [];
+        this.activeName = "default";
+        this.refresh();
+      }
     },
     handleCommand(e) {
       switch (e) {
@@ -320,6 +346,24 @@ export default {
         this.addListener(); //  自动切换当前标签时，也添加监听
       } else {
         this.activeName = "default";
+      }
+    },
+    closeConfirm(targetName) {
+      let t = this.tabs.filter(tab => tab.name === targetName);
+      if (t && this.$store.state.scenarioMap.has(t[0].currentScenario.id) && this.$store.state.scenarioMap.get(t[0].currentScenario.id) > 1) {
+        this.$alert("场景[ " + t[0].currentScenario.name + " ]未保存，是否确认关闭？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.scenarioMap.delete(t[0].currentScenario.id);
+              this.removeTab(targetName);
+            }
+          }
+        });
+      } else {
+        this.$store.state.scenarioMap.delete(t[0].currentScenario.id);
+        this.removeTab(targetName);
       }
     },
     removeTab(targetName) {
@@ -374,6 +418,12 @@ export default {
           tab.label = data.name;
           break;
         }
+      }
+    },
+    init() {
+      let scenarioData = this.$route.params.scenarioData;
+      if (scenarioData) {
+        this.editScenario(scenarioData)
       }
     },
     editScenario(row) {

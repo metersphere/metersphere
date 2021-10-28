@@ -60,7 +60,7 @@
         </el-col>
       </el-row>
     </div>
-    <ms-api-variable-advance :current-item="currentItem" :parameters="keyValues" ref="variableAdvance"/>
+    <ms-api-variable-advance :append-to-body="appendToBody" :current-item="currentItem" :parameters="keyValues" ref="variableAdvance"/>
 
   </div>
 </template>
@@ -92,7 +92,13 @@
         type: Boolean,
         default: false
       },
-      showDesc: Boolean
+      showDesc: Boolean,
+      appendToBody: {
+        type: Boolean,
+        default() {
+          return false;
+        }
+      },
     },
     data() {
       return {

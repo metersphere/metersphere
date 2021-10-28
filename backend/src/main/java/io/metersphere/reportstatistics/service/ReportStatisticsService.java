@@ -28,6 +28,7 @@ public class ReportStatisticsService {
     public ReportStatisticsWithBLOBs saveByRequest(ReportStatisticsSaveRequest request) {
         ReportStatisticsWithBLOBs model = new ReportStatisticsWithBLOBs();
         model.setId(UUID.randomUUID().toString());
+
         String name = "用例分析报表";
         if(StringUtils.equalsIgnoreCase(ReportStatisticsType.TEST_CASE_COUNT.name(),request.getReportType())){
             name = "用例统计报表";
@@ -35,7 +36,10 @@ public class ReportStatisticsService {
         }else {
             model.setReportType(ReportStatisticsType.TEST_CASE_ANALYSIS.name());
         }
-        model.setName(name);
+        if(StringUtils.isEmpty(request.getName())){
+            request.setName(name);
+        }
+        model.setName(request.getName());
         model.setDataOption(request.getDataOption());
         model.setSelectOption(request.getSelectOption());
         model.setCreateTime(System.currentTimeMillis());

@@ -20,9 +20,6 @@
 <script>
 import {getCurrentUser} from "@/common/js/utils";
 import AboutUs from "./AboutUs";
-import axios from "axios";
-import {mapGetters} from "vuex";
-import {ORGANIZATION_ID, PROJECT_ID, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
 import {logout} from "@/network/user";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);

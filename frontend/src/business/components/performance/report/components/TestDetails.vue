@@ -648,6 +648,7 @@ export default {
           yAxisIndex: yAxisIndex,
           smooth: true,
           sampling: 'lttb',
+          showSymbol: false,
           animation: !this.export,
         };
         this.seriesData.push(items);

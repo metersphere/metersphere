@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row type="flex" :gutter="10">
+    <el-row type="flex">
       <el-col :span="codeSpan" class="script-content">
         <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223ProcessorData.scriptLanguage]"
                       :read-only="isReadOnly"
@@ -15,10 +15,10 @@
              @click="switchMenu"></i>
         </div>
       </div>
-      <el-col :span="menuSpan" class="script-index">
+      <el-col :span="menuSpan" style="width: 200px" class="script-index">
         <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" style="margin-bottom: 5px;margin-left: 15px;"
                      @command="languageChange"/>
-        <mock-script-nav-menu ref="scriptNavMenu" :language="jsr223ProcessorData.scriptLanguage" :menus="baseCodeTemplates"
+        <mock-script-nav-menu ref="scriptNavMenu" style="width: 90%" :language="jsr223ProcessorData.scriptLanguage" :menus="baseCodeTemplates"
                          @handleCode="handleCodeTemplate"/>
       </el-col>
     </el-row>

@@ -123,4 +123,6 @@ public interface ExtTestCaseMapper {
     List<TestCase> getTestCase(@Param("request") QueryTestCaseRequest request);
 
     List<RelationshipGraphData.Node> getTestCaseForGraph(@Param("ids") Set<String> ids);
+
+    int countByIds(@Param("ids") List<String> ids);
 }

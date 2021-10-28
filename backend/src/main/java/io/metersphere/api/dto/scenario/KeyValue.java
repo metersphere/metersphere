@@ -58,6 +58,10 @@ public class KeyValue {
         this(name, value, description, "", required);
     }
 
+    public boolean valueIsNotEmpty() {
+       return StringUtils.isNotEmpty(this.getValue());
+    }
+
     public boolean isValid() {
         return (StringUtils.isNotBlank(name) || "JSON-SCHEMA".equals(type)) && !StringUtils.equalsIgnoreCase(type, "file");
     }

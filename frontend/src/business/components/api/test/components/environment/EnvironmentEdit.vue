@@ -84,6 +84,7 @@
   import {getUUID} from "@/common/js/utils";
   import Jsr233ProcessorContent from "@/business/components/api/automation/scenario/common/Jsr233ProcessorContent";
   import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
+  import {KeyValue} from "@/business/components/api/test/model/ScenarioModel";
 
   export default {
     name: "EnvironmentEdit",
@@ -212,10 +213,28 @@
         }
         return uploadFiles;
       },
+      check (items) {
+        let repeatKey = "";
+        items.forEach((item, index) => {
+          items.forEach((row, rowIndex) => {
+            if (item.name === row.name && index !== rowIndex) {
+              repeatKey = item.name;
+            }
+          });
+        });
+        return repeatKey;
+      },
       _save(environment) {
         if(!this.projectId){
           this.$warning(this.$t('api_test.select_project'));
           return;
+        }
+        if(environment && environment.config && environment.config.commonConfig &&environment.config.commonConfig.variables){
+          let repeatKey = this.check(environment.config.commonConfig &&environment.config.commonConfig.variables);
+          if (repeatKey !== "") {
+            this.$warning(this.$t('api_test.environment.common_config') + "【" + repeatKey + "】" + this.$t('load_test.param_is_duplicate'));
+            return ;
+          }
         }
         let bodyFiles = this.geFiles(environment);
         let param = this.buildParam(environment);

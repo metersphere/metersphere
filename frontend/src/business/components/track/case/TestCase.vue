@@ -13,6 +13,7 @@
         @refreshAll="refreshAll"
         @enableTrash="enableTrash"
         :type="'edit'"
+        :total='total'
         ref="nodeTree"
       />
     </ms-aside-container>
@@ -29,6 +30,7 @@
             @testCaseEdit="editTestCase"
             @testCaseCopy="copyTestCase"
             @testCaseDetail="showTestCaseDetail"
+            @getTrashList="getTrashList"
             @refresh="refresh"
             @refreshAll="refreshAll"
             @setCondition="setCondition"
@@ -55,6 +57,7 @@
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
               @testCaseDetail="showTestCaseDetail"
+              @getTrashList="getTrashList"
               @refresh="refresh"
               @refreshAll="refreshAll"
               @setCondition="setCondition"
@@ -66,6 +69,7 @@
               :project-id="projectId"
               :condition="condition"
               v-if="activeDom === 'right'"
+              @refresh="refreshTable"
               ref="minder"/>
           </ms-tab-button>
         </el-tab-pane>
@@ -162,6 +166,7 @@ export default {
       type: '',
       activeDom: 'left',
       tmpActiveDom: null,
+      total: 0
     };
   },
   mounted() {
@@ -177,7 +182,6 @@ export default {
       });
     },
     '$route'(to, from) {
-      this.init(to);
       if (to.path.indexOf('/track/case/all') == -1) {
         if (this.$refs && this.$refs.autoScenarioConfig) {
           this.$refs.autoScenarioConfig.forEach(item => {
@@ -185,6 +189,7 @@ export default {
           });
         }
       }
+      this.init(to);
     },
     activeName(newVal, oldVal) {
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
@@ -244,6 +249,11 @@ export default {
           this.addTab({name: 'add'});
           break;
       }
+    },
+    getTrashList(){
+      this.$get("/case/node/trashCount/"+this.projectId , response => {
+        this.total = response.data;
+      });
     },
     updateActiveDom(activeDom) {
       let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
@@ -338,11 +348,14 @@ export default {
       if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0) {
         this.testCaseReadOnly = false;
         let caseId = this.$route.params.caseId;
+        let routeTestCase = this.$route.params.testCase;
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
-        if (caseId) {
+        if(routeTestCase){
+          this.editTestCase(routeTestCase);
+        }else if (caseId) {
           this.$get('test/case/get/' + caseId, response => {
             let testCase = response.data;
             this.editTestCase(testCase);

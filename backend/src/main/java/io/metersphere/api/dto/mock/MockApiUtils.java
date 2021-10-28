@@ -1,9 +1,11 @@
 package io.metersphere.api.dto.mock;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
 import io.metersphere.api.dto.mockconfig.response.JsonSchemaReturnObj;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.XMLUtils;
@@ -12,8 +14,10 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.samplers.SampleResult;
+import org.json.XML;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -82,9 +86,6 @@ public class MockApiUtils {
                     if (bodyObj.containsKey("jsonSchema") && bodyObj.getJSONObject("jsonSchema").containsKey("properties")) {
                         String bodyRetunStr = bodyObj.getJSONObject("jsonSchema").getJSONObject("properties").toJSONString();
                         jsonString = JSONSchemaGenerator.getJson(bodyRetunStr);
-//                        JSONObject bodyReturnObj = JSONObject.parseObject(bodyRetunStr);
-//                        JSONObject returnObj = parseJsonSchema(bodyReturnObj);
-//                        returnStr = returnObj.toJSONString();
                     }
                 } else {
                     if (bodyObj.containsKey("raw")) {
@@ -108,9 +109,11 @@ public class MockApiUtils {
             } else if (StringUtils.equalsIgnoreCase(type,  "Raw")) {
                 if (bodyObj.containsKey("raw")) {
                     String raw = bodyObj.getString("raw");
-                    JSONObject rawObject = new JSONObject();
-                    rawObject.put("raw",raw);
-                    returnJsonArray.add(rawObject);
+                    if(StringUtils.isNotEmpty(raw)){
+                        JSONObject rawObject = new JSONObject();
+                        rawObject.put("raw",raw);
+                        returnJsonArray.add(rawObject);
+                    }
                 }
             } else if (StringUtils.equalsAnyIgnoreCase(type, "Form Data", "WWW_FORM")) {
                 if (bodyObj.containsKey("kvs")) {
@@ -205,7 +208,7 @@ public class MockApiUtils {
         return values;
     }
 
-    public static JSONObject getParams(JSONArray array) {
+    public static JSONObject getParamsByJSONArray(JSONArray array) {
         JSONObject returnObject = new JSONObject();
         for(int i = 0; i < array.size();i ++){
             JSONObject obj = array.getJSONObject(i);
@@ -421,6 +424,9 @@ public class MockApiUtils {
                 if(StringUtils.isNotEmpty(newScript)){
                     newScript += "\n";
                 }
+                if(StringUtils.isNotEmpty(returnMsg)){
+                    returnMsg += "\n";
+                }
             }
         }
         returnMap.put("script",newScript);
@@ -432,7 +438,215 @@ public class MockApiUtils {
         JSR223Sampler jmeterScriptSampler = new JSR223Sampler();
         jmeterScriptSampler.setScriptLanguage(scriptLanguage);
         jmeterScriptSampler.setScript(script);
-        SampleResult result = jmeterScriptSampler.sample(null);
-        System.out.println(result.getResponseData());
+        jmeterScriptSampler.sample(null);
+
+    }
+
+    public  static RequestMockParams getParams(String urlParams, String apiPath, JSONObject queryParamsObject,JSON paramJson){
+        RequestMockParams returnParams = getGetParamMap(urlParams,apiPath,queryParamsObject);
+        if(paramJson != null){
+            if (paramJson instanceof JSONObject) {
+                if(!((JSONObject) paramJson).isEmpty()){
+                    JSONArray paramsArray = new JSONArray();
+                    paramsArray.add(paramJson);
+                    returnParams.setBodyParams(paramsArray);
+                }
+            } else if (paramJson instanceof JSONArray) {
+                JSONArray paramArray = (JSONArray) paramJson;
+                if(!paramArray.isEmpty()){
+                    returnParams.setBodyParams(paramArray);
+                }
+            }
+        }
+        return returnParams;
+    }
+
+    public static JSONObject getParameterJsonObject(HttpServletRequest request){
+        JSONObject queryParamsObject = new JSONObject();
+        Enumeration<String> paramNameItor = request.getParameterNames();
+        while (paramNameItor.hasMoreElements()) {
+            String key = paramNameItor.nextElement();
+            String value = request.getParameter(key);
+            queryParamsObject.put(key, value);
+        }
+        return queryParamsObject;
+    }
+
+    private static RequestMockParams getGetParamMap(String urlParams, String apiPath, JSONObject queryParamsObject) {
+        RequestMockParams requestMockParams = new RequestMockParams();
+
+        JSONObject urlParamsObject = getSendRestParamMapByIdAndUrl(apiPath, urlParams);
+
+        requestMockParams.setRestParamsObj(urlParamsObject);
+        requestMockParams.setQueryParamsObj(queryParamsObject);
+        return requestMockParams;
+    }
+
+    public static JSON getPostParamMap(HttpServletRequest request) {
+        if (StringUtils.equalsIgnoreCase("application/JSON", request.getContentType())) {
+            JSON returnJson = null;
+            try {
+                String param = getRequestPostStr(request);
+                JSONValidator jsonValidator = JSONValidator.from(param);
+                if (StringUtils.equalsIgnoreCase("Array", jsonValidator.getType().name())) {
+                    returnJson = JSONArray.parseArray(param);
+                } else if (StringUtils.equalsIgnoreCase("Object", jsonValidator.getType().name())) {
+                    returnJson = JSONObject.parseObject(param);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return returnJson;
+        } else if (StringUtils.equalsIgnoreCase("text/xml", request.getContentType())) {
+            String xmlString = readXml(request);
+
+            org.json.JSONObject xmlJSONObj = XML.toJSONObject(xmlString);
+            String jsonStr = xmlJSONObj.toString();
+            JSONObject object = null;
+            try {
+                object = JSONObject.parseObject(jsonStr);
+            } catch (Exception e) {
+            }
+            return object;
+        } else if (StringUtils.equalsIgnoreCase("application/x-www-form-urlencoded", request.getContentType())) {
+            JSONObject object = new JSONObject();
+            Enumeration<String> paramNameItor = request.getParameterNames();
+            while (paramNameItor.hasMoreElements()) {
+                String key = paramNameItor.nextElement();
+                String value = request.getParameter(key);
+                object.put(key, value);
+            }
+            return object;
+        } else if (StringUtils.equalsIgnoreCase("text/plain", request.getContentType())) {
+            JSONObject object = new JSONObject();
+            String bodyParam = readBody(request);
+            if(StringUtils.isNotEmpty(bodyParam)){
+                object.put("raw",bodyParam);
+            }
+            return object;
+
+        } else {
+            JSONObject object = new JSONObject();
+            String bodyParam = readBody(request);
+            if(StringUtils.isNotEmpty(bodyParam)){
+                object.put("raw",bodyParam);
+            }
+            return object;
+        }
+    }
+
+    private static JSONObject getSendRestParamMapByIdAndUrl(String path, String urlParams) {
+        JSONObject returnJson = new JSONObject();
+        if (StringUtils.isNotEmpty(path)) {
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+            String[] pathArr = path.split("/");
+            String[] sendParamArr = urlParams.split("/");
+
+            //获取 url的<参数名-参数值>，通过匹配api的接口设置和实际发送的url
+            for (int i = 0; i < pathArr.length; i++) {
+                String param = pathArr[i];
+                if (param.startsWith("{") && param.endsWith("}")) {
+                    param = param.substring(1, param.length() - 1);
+                    String value = "";
+                    if (sendParamArr.length > i) {
+                        value = sendParamArr[i];
+                    }
+                    returnJson.put(param, value);
+                }
+            }
+
+        }
+        return returnJson;
+    }
+    private static String readBody(HttpServletRequest request) {
+        String result = "";
+        try {
+            InputStream inputStream = request.getInputStream();
+            ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = inputStream.read(buffer)) != -1) {
+                outSteam.write(buffer, 0, len);
+            }
+            outSteam.close();
+            inputStream.close();
+            result = new String(outSteam.toByteArray(), "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    /**
+     * 描述:获取 post 请求内容
+     * <pre>
+     * 举例：
+     * </pre>
+     *
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    private static String getRequestPostStr(HttpServletRequest request) throws IOException {
+        byte buffer[] = getRequestPostBytes(request);
+        String charEncoding = request.getCharacterEncoding();
+        if (charEncoding == null) {
+            charEncoding = "UTF-8";
+        }
+        return new String(buffer, charEncoding);
+    }
+
+    private static String readXml(HttpServletRequest request) {
+        String inputLine = null;
+        // 接收到的数据
+        StringBuffer recieveData = new StringBuffer();
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(
+                    request.getInputStream(), "UTF-8"));
+            while ((inputLine = in.readLine()) != null) {
+                recieveData.append(inputLine);
+            }
+        } catch (IOException e) {
+        } finally {
+            try {
+                if (null != in) {
+                    in.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+
+        return recieveData.toString();
+    }
+
+    /**
+     * 描述:获取 post 请求的 byte[] 数组
+     * <pre>
+     * 举例：
+     * </pre>
+     *
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    private static byte[] getRequestPostBytes(HttpServletRequest request) throws IOException {
+        int contentLength = request.getContentLength();
+        if (contentLength < 0) {
+            return null;
+        }
+        byte buffer[] = new byte[contentLength];
+        for (int i = 0; i < contentLength; ) {
+
+            int readlen = request.getInputStream().read(buffer, i,
+                    contentLength - i);
+            if (readlen == -1) {
+                break;
+            }
+            i += readlen;
+        }
+        return buffer;
     }
 }

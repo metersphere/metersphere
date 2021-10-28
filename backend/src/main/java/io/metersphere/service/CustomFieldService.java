@@ -1,6 +1,8 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.CustomField;
@@ -13,6 +15,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryCustomFieldRequest;
 import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -187,6 +190,7 @@ public class CustomFieldService {
             CustomFieldExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(customField.getName());
             criteria.andWorkspaceIdEqualTo(customField.getWorkspaceId());
+            criteria.andSceneEqualTo(customField.getScene());
             if (StringUtils.isNotBlank(customField.getId())) {
                 criteria.andIdNotEqualTo(customField.getId());
             }
@@ -204,5 +208,14 @@ public class CustomFieldService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public static List<CustomFieldItemDTO> getCustomFields(String customFieldsStr) {
+        if (StringUtils.isNotBlank(customFieldsStr)) {
+            if (JSONObject.parse(customFieldsStr) instanceof JSONArray) {
+                return JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
+            }
+        }
+        return new ArrayList<>();
     }
 }

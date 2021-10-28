@@ -22,7 +22,8 @@
       </el-form-item>
 
       <el-form-item :label="$t('api_test.automation.scenario.follow_people')" prop="followPeople">
-        <el-select v-model="testCaseForm.followPeople"
+        <el-select v-model="testCaseForm.follows"
+                   multiple
                    :placeholder="$t('api_test.automation.scenario.follow_people')" filterable size="small"
                    style="width: 100%">
           <el-option

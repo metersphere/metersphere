@@ -186,3 +186,11 @@ export const CONFIG_TYPE = {
   NORMAL: "NORMAL",
   ABNORMAL: "ABNORMAL"
 }
+
+export const WORKSTATION={
+  UPCOMING:"upcoming",
+  FOCUS:"focus",
+  NODE:"node"
+}
+
+

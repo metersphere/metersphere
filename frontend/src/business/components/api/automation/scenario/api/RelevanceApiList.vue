@@ -9,9 +9,8 @@
         :condition="condition"
         :select-node-ids="selectNodeIds"
         :result="result"
+        :total="total"
         :current-protocol="currentProtocol"
-        :current-page="currentPage"
-        :page-size="pageSize"
         :screen-height="screenHeight"
         @setSelectRow="setSelectRow"
         @refreshTable="initTable"
@@ -58,9 +57,8 @@
         result: {},
         screenHeight: 'calc(100vh - 400px)',//屏幕高度,
         tableData: [],
-        currentPage: 1,
-        pageSize: 10,
         environmentId: "",
+        total: 0,
         selectRows: new Set()
       }
     },
@@ -133,13 +131,15 @@
           this.condition.planId = this.planId;
         }
 
-        this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
-          this.total = response.data.itemCount;
-          this.tableData = response.data.listObject;
-          this.tableData.forEach(item => {
-            if (item.tags && item.tags.length > 0) {
-              item.tags = JSON.parse(item.tags);
-            }
+        this.$nextTick(() => {
+          this.result = this.$post(url + this.$refs.apitable.currentPage + "/" + this.$refs.apitable.pageSize, this.condition, response => {
+            this.total = response.data.itemCount;
+            this.tableData = response.data.listObject;
+            this.tableData.forEach(item => {
+              if (item.tags && item.tags.length > 0) {
+                item.tags = JSON.parse(item.tags);
+              }
+            });
           });
         });
       },
