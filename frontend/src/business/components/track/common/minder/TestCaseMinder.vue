@@ -215,6 +215,12 @@ name: "TestCaseMinder",
         return;
       }
 
+      if (parent.isExtraNode) {
+        let tip = '无法在临时节点"' + parent.text + '"下创建用例';
+        this.$error(tip)
+        throw new Error(tip);
+      }
+
       if (data.isExtraNode) {
         // 如果是临时节点，打上了用例标签，则删除临时节点并新建用例节点
         let deleteData = {};
