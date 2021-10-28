@@ -594,6 +594,9 @@ export default {
 
       for (let i = 0; i < this.threadGroups.length; i++) {
         let tg = this.threadGroups[i];
+        if (tg.enabled === 'false' ) {
+          continue;
+        }
         tg.durationHours = tg.durationHours || 0;
         tg.durationMinutes = tg.durationMinutes || 0;
         tg.durationSeconds = tg.durationSeconds || 0;
