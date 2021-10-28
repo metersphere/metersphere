@@ -31,7 +31,6 @@ import org.apache.jmeter.visualizers.backend.BackendListener;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -50,8 +49,6 @@ public class JMeterService {
     private JmeterProperties jmeterProperties;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
-    @Resource
-    private KafkaTemplate<String, Object> kafkaTemplate;
     @Resource
     private RestTemplate restTemplate;
 
