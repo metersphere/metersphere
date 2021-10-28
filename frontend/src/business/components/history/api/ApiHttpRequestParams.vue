@@ -20,15 +20,15 @@
       </el-tab-pane>
 
       <!--请求体-->
-      <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="request.body && (request.body.jsonSchema ||request.body.raw_1 || request.body.raw_2 )">
+      <el-tab-pane :label="$t('api_test.request.body')" name="body" v-if="request.body && (request.body.form || request.body.jsonSchema ||request.body.raw_1 || request.body.raw_2 )">
         <el-radio-group v-model="activeBody" size="mini">
           <el-radio-button label="json" v-if="request.body.jsonSchema"/>
           <el-radio-button label="raw" v-if="request.body.raw_1 || request.body.raw_2"/>
-          <el-radio-button label="form" v-if="request.body.form"/>
+          <el-radio-button label="form-data" v-if="request.body.form"/>
         </el-radio-group>
         <ms-json-code-edit :body="request.body" ref="jsonCodeEdit" v-if="activeBody === 'json'"/>
         <pre v-html="getDiff(request.body.raw_2,request.body.raw_1)" v-if="activeBody === 'raw'"></pre>
-        <ms-api-key-value-detail :show-required="true" :items="request.body.form" :showDesc="true" :format="request.headerId" v-if="activeBody === 'form'"/>
+        <ms-api-key-value-detail :show-required="true" :items="request.body.form" :showDesc="true" :format="request.headerId" v-if="activeBody === 'form-data'"/>
       </el-tab-pane>
 
       <!--认证配置 -->
@@ -120,7 +120,7 @@ export default {
           this.activeBody = "json";
         }
         if (this.request.body.form) {
-          this.activeBody = "form";
+          this.activeBody = "form-data";
         }
         if (this.request.body.raw_1 || this.request.body.raw_2) {
           this.activeBody = "raw";
@@ -137,7 +137,7 @@ export default {
           this.activeBody = "json";
         }
         if (this.request.body.form) {
-          this.activeBody = "form";
+          this.activeBody = "form-data";
         }
         if (this.request.body.raw_1 || this.request.body.raw_2) {
           this.activeBody = "raw";
