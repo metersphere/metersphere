@@ -6,6 +6,7 @@ import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.NodeKafkaService;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
@@ -51,6 +52,8 @@ public class JMeterService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private RestTemplate restTemplate;
+    @Resource
+    private NodeKafkaService nodeKafkaService;
 
     @PostConstruct
     public void init() {
@@ -158,6 +161,8 @@ public class JMeterService {
         }
         runRequest.setUrl(platformUrl);
         runRequest.setRunMode(runMode);
+        runRequest.setKafka(nodeKafkaService.getKafka());
+
         // 如果是K8S调用
         TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
         if (pool != null && pool.getApi() && pool.getType().equals(ResourcePoolTypeEnum.K8S.name())) {

@@ -4,6 +4,8 @@ import io.metersphere.api.dto.automation.RunModeConfig;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
+
 @Getter
 @Setter
 public class RunRequest {
@@ -19,4 +21,6 @@ public class RunRequest {
     // 集成报告ID
     private String amassReport;
     private RunModeConfig config;
+
+    private Map<String, Object> kafka;
 }
