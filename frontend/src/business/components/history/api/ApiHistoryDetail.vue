@@ -119,7 +119,6 @@ export default {
       }
       if (diffValue.body_form) {
         let form = (JSON.parse(diffValue.body_form)).root;
-        this.removeBlankLines(form);
         this.detail.body.form = form;
         this.detail.headerId = getUUID();
       }
