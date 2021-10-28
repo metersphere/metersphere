@@ -1066,10 +1066,6 @@ public class ApiAutomationService {
             } else {
                 List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
                 request.getConfig().setTestResources(testResources);
-                String status = nodeKafkaService.createKafkaProducer(request.getConfig());
-                if ("ERROR".equals(status)) {
-                    MSException.throwException("执行节点的kafka 启动失败，无法执行");
-                }
             }
         }
         // 环境检查
@@ -1170,9 +1166,6 @@ public class ApiAutomationService {
                 MessageCache.cache.put(serialReportId, counter);
             }
         }
-
-        // 检查node的kafka
-        nodeKafkaService.createKafkaProducer(request.getConfig());
         // 开始执行
         if (executeQueue != null && executeQueue.size() > 0) {
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {

@@ -402,10 +402,6 @@ public class TestPlanApiCaseService {
             } else {
                 List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
                 request.getConfig().setTestResources(testResources);
-                String status = nodeKafkaService.createKafkaProducer(request.getConfig());
-                if ("ERROR".equals(status)) {
-                    MSException.throwException("执行节点的kafka 启动失败，无法执行");
-                }
             }
         }
         // 开始选择执行模式
