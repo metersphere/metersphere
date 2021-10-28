@@ -109,6 +109,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 if (operation != null) {
                     MsHTTPSamplerProxy request = buildRequest(operation, pathName, method);
                     ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method, importRequest);
+                    apiDefinition.setDescription(operation.getDescription());
                     parseParameters(operation, request);
                     parseRequestBody(operation.getRequestBody(), request.getBody());
                     addBodyHeader(request);
@@ -296,11 +297,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     private void parseKvBody(Schema schema, Body body, Object data, Map<String, Schema> infoMap) {
         if (data instanceof JSONObject) {
             ((JSONObject) data).forEach((k, v) -> {
-                KeyValue kv = new KeyValue(k, v.toString());
+                Schema dataSchema = (Schema) v;
+                KeyValue kv = new KeyValue(k, String.valueOf(dataSchema.getExample()), dataSchema.getDescription());
                 Schema schemaInfo = infoMap.get(k);
                 if (schemaInfo != null) {
-                    kv.setDescription(schemaInfo.getDescription());
-//                    kv.setRequired(schemaInfo.getRequired());
                     if (schemaInfo instanceof BinarySchema) {
                         kv.setType("file");
                     }
@@ -311,10 +311,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 body.getKvs().add(kv);
             });
         } else {
-            KeyValue kv = new KeyValue(schema.getName(), data.toString(), schema.getDescription());
+            Schema dataSchema = (Schema) data;
+            KeyValue kv = new KeyValue(schema.getName(), String.valueOf(dataSchema.getExample()), schema.getDescription());
             Schema schemaInfo = infoMap.get(schema.getName());
             if (schemaInfo != null) {
-                kv.setDescription(schemaInfo.getDescription());
                 if (schemaInfo instanceof BinarySchema) {
                     kv.setType("file");
                 }
@@ -370,18 +370,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return getDefaultValueByPropertyType(schema);
         } else {
             if (schema.getType() != null) {  //  特判属性不是对象的情况，直接将基本类型赋值进去
-                if (StringUtils.equals(schema.getType(), "string")) {
-                    Object exampleObj = schema.getExample();
-                    String example = null;
-                    if (exampleObj != null) {
-                        example = exampleObj.toString();
-                    }
-                    return example == null ? "" : example;
-                } else if (StringUtils.equals(schema.getType(), "boolean")) {
-                    return schema.getExample();
-                } else if (StringUtils.equals(schema.getType(), "double")) {
-                    return schema.getExample();
-                }
+                return schema;
             }
             Object propertiesResult = parseSchemaProperties(schema, refSet, infoMap);
             return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
@@ -490,6 +479,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             //  设置请求参数列表
             List<JSONObject> paramsList = buildParameters(requestObject);
             swaggerApiInfo.setParameters(paramsList);
+            swaggerApiInfo.setDescription(apiDefinition.getDescription());
             JSONObject methodDetail = JSON.parseObject(JSON.toJSONString(swaggerApiInfo));
             if (paths.getJSONObject(apiDefinition.getPath()) == null) {
                 paths.put(apiDefinition.getPath(), new JSONObject());
@@ -711,8 +701,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         JSONObject properties = new JSONObject();
         for (String key : kvs.keySet()) {
             JSONObject property = new JSONObject();
-            property.put("type", "string");
-            property.put("example", kvs.getString(key));
+            JSONObject obj = ((JSONObject) kvs.get(key));
+            property.put("type", StringUtils.isNotEmpty(obj.getString("type")) ? obj.getString("type") : "string");
+            String value = obj.getString("value");
+            property.put("example", value);
+            property.put("description", obj.getString("description"));
+            property.put("required", obj.getString("required"));
             properties.put(key, property);
         }
         schema.put("properties", properties);
@@ -724,9 +718,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         for (Object item : requestBody) {
             if (item instanceof JSONObject) {
                 String name = ((JSONObject) item).getString("name");
-                String value = ((JSONObject) item).getString("value");
                 if (name != null) {
-                    result.put(name, value);
+                    result.put(name, item);
                 }
             }
         }
@@ -755,7 +748,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             for (Object item : headValueList) {
                 if (item instanceof JSONObject && ((JSONObject) item).getString("name") != null) {
                     JSONObject head = new JSONObject(), headSchema = new JSONObject();
-                    head.put("description", "");
+                    head.put("description", ((JSONObject) item).getString("description"));
                     head.put("example", ((JSONObject) item).getString("value"));
                     headSchema.put("type", "string");
                     head.put("schema", headSchema);
