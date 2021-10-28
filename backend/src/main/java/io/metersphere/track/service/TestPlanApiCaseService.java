@@ -29,15 +29,9 @@ import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.api.service.NodeKafkaService;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
-import io.metersphere.base.mapper.TestPlanApiCaseMapper;
-import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.RunModeConstants;
-import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -97,6 +91,8 @@ public class TestPlanApiCaseService {
     private ResourcePoolCalculation resourcePoolCalculation;
     @Resource
     private NodeKafkaService nodeKafkaService;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
 
     public TestPlanApiCase getInfo(String caseId, String testPlanId) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -400,11 +396,16 @@ public class TestPlanApiCaseService {
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
         // 资源池
         if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-            List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
-            request.getConfig().setTestResources(testResources);
-            String status = nodeKafkaService.createKafkaProducer(request.getConfig());
-            if ("ERROR".equals(status)) {
-                MSException.throwException("执行节点的kafka 启动失败，无法执行");
+            TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(request.getConfig().getResourcePoolId());
+            if (pool != null && pool.getApi() && pool.getType().equals(ResourcePoolTypeEnum.K8S.name())) {
+                LogUtil.info("K8S 暂时不做校验 ");
+            } else {
+                List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
+                request.getConfig().setTestResources(testResources);
+                String status = nodeKafkaService.createKafkaProducer(request.getConfig());
+                if ("ERROR".equals(status)) {
+                    MSException.throwException("执行节点的kafka 启动失败，无法执行");
+                }
             }
         }
         // 开始选择执行模式
