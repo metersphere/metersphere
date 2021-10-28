@@ -1,6 +1,6 @@
 <template>
   <div class="table-card" v-loading="result.loading" body-style="padding:10px;">
-    <el-table border :data="tableData" class="adjust-table table-content" height="300px">
+    <el-table border :data="tableData" class="adjust-table table-content" height="260px">
       <el-table-column prop="num" :label="$t('api_test.home_page.new_case_list.table_coloum.index')" width="100"
                        show-overflow-tooltip>
         <template v-slot:default="{row}">
