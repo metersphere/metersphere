@@ -53,6 +53,9 @@
             <if test="request.reviewerId != null">
                 and test_case_review.id in (select test_case_review_users.review_id from test_case_review_users where test_case_review_users.user_id = #{request.reviewerId})
             </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
+            </if>
             <if test="request.projectId != null">
                 and test_case_review.project_id = #{request.projectId}
             </if>

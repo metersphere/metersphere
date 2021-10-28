@@ -180,7 +180,7 @@
         </if>
         from test_case left join user u on test_case.create_user=u.id
         left join user deleteUser on test_case.delete_user_id=deleteUser.id
-        left join project project on test_case.project_id = project.id
+        left join project on test_case.project_id = project.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -383,6 +383,9 @@
                 <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
                     #{nodeId}
                 </foreach>
+            </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
             </if>
             <if test="request.projectId != null">
                 and test_case.project_id = #{request.projectId}
