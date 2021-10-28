@@ -342,7 +342,7 @@ export default {
   workstation:{
     dash_board: '我的儀錶盤',
     upcoming: '我的待辦',
-    focus: '我關注的',
+    focus: '我的關注',
     creation: '我創建的',
     table_name:{
       track_case:'功能用例',
