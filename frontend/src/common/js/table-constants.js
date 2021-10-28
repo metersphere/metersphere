@@ -82,8 +82,8 @@ export const API_SCENARIO_FILTERS = {
     {text: 'P3', value: 'P3'}
   ],
   RESULT_FILTERS: [
-    {text: 'Fail', value: 'Fail'},
-    {text: 'Success', value: 'Success'}
+    {text: i18n.t('api_test.automation.fail'), value: 'Fail'},
+    {text: i18n.t('api_test.automation.success'), value: 'Success'}
   ],
   STATUS_FILTERS: [
     {text: i18n.t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
