@@ -406,7 +406,7 @@ public class PerformanceTestService {
                 if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getLoadConfiguration())) {
                     testReport.setLoadConfiguration(testPlanLoadCase.getLoadConfiguration());
                 }
-                if (StringUtils.isNotBlank(testPlanLoadCase.getTestResourcePoolId())) {
+                if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getTestResourcePoolId())) {
                     testReport.setTestResourcePoolId(testPlanLoadCase.getTestResourcePoolId());
                 }
             }
