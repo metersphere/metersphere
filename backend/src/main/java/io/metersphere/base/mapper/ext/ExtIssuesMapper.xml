@@ -102,8 +102,7 @@
                             </when>
                             <when test="key == 'platform'">
                                 AND issues.platform IN
-                                <foreach collection="values" item="
-" separator="," open="(" close=")">
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
                             </when>
