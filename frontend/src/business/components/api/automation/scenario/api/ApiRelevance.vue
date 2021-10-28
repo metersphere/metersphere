@@ -65,6 +65,7 @@ export default {
       buttonIsWorking:false,
       result: {},
       currentProtocol: null,
+      saveOtherPageData: false,
       selectNodeIds: [],
       moduleOptions: {},
       isApiListEnable: true,
