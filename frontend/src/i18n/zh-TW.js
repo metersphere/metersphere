@@ -15,6 +15,7 @@ export default {
     execution_times: '執行次數',
     cover: '覆蓋',
     module_title: '默認模塊',
+    save_data_when_page_change: '翻頁保存勾選項',
     not_cover: '不覆蓋',
     import: '導入',
     import_success: '導入成功',

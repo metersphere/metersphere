@@ -94,7 +94,8 @@ export default {
             rest:[],
             body:{
               type: 'JSON',
-              binary:[]
+              binary:[],
+              kvs: [],
             }
           }
         },
