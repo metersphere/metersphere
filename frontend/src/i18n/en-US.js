@@ -15,6 +15,7 @@ export default {
     execution_times: 'Execution times',
     cover: 'Cover',
     module_title: 'Default module',
+    save_data_when_page_change: 'Save when page change',
     not_cover: 'Not Cover',
     import: 'Import',
     import_success: 'Import success',
