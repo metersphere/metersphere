@@ -593,13 +593,13 @@ export default {
       }
       for (let i = 0; i < this.threadGroups.length; i++) {
         let tg = this.threadGroups[i];
-        if (tg.enabled === 'false' ) {
-          continue;
-        }
         tg.durationHours = tg.durationHours || 0;
         tg.durationMinutes = tg.durationMinutes || 0;
         tg.durationSeconds = tg.durationSeconds || 0;
         this.getDuration(tg);
+        if (tg.enabled === 'false' ) {
+          continue;
+        }
         if (!tg.threadNumber || !tg.duration
             || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
           this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
