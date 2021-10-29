@@ -840,6 +840,7 @@ public class TestPlanReportService {
         String event = "";
         String successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
         String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
+        String context = "${operator}完成了测试计划: ${name}";
         if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.API.name())) {
             subject = Translator.get("task_notification_jenkins");
         } else {
@@ -874,10 +875,12 @@ public class TestPlanReportService {
 
         NoticeModel noticeModel = NoticeModel.builder()
                 .operator(creator)
+                .context(context)
                 .successContext(successContext)
                 .successMailTemplate(successfulMailTemplate)
                 .failedContext(failedContext)
                 .failedMailTemplate(errfoMailTemplate)
+                .mailTemplate("track/TestPlanComplete")
                 .testId(testPlan.getId())
                 .status(testPlanReport.getStatus())
                 .event(event)
