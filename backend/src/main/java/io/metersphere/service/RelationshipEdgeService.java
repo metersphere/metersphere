@@ -63,7 +63,7 @@ public class RelationshipEdgeService {
 
         // 去掉要删除的边
         edges = edges.stream()
-                .filter(i -> i.getSourceId() != sourceId || i.getTargetId() != targetId)
+                .filter(i -> !i.getSourceId().equals(sourceId) && !i.getTargetId().equals(targetId))
                 .collect(Collectors.toList());
 
         Set<String> nodes = new HashSet<>();
@@ -114,7 +114,7 @@ public class RelationshipEdgeService {
         }
 
         nextLevelNodes.forEach(nextNode -> {
-            if (!markSet.contains(node)) {
+            if (!markSet.contains(nextNode)) {
                 dfsForMark(nextNode, edges, markSet, true);
                 dfsForMark(nextNode, edges, markSet, false);
             }
