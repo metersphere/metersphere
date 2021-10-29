@@ -4,14 +4,13 @@
       <el-card class="card" v-loading="result.loading">
         <el-row type="flex" justify="space-around" :gutter="10">
           <el-col :xs="12" :sm="12" :md="11" :lg="11" :xl="10" class="card-col">
-            <el-card class="home-height" style="position: relative">
-              <div style="position: absolute; top: 50%; left: 50%;transform: translate(-50%, -50%);">
+            <el-card class="project-info-card">
+              <div class="project-info-card-div">
                 <span class="project-name">{{ project.name }}</span>
-                <i class="el-icon-edit project-edit" style="font-size: 14px;margin-left: 8px;" @click="edit"
-                   v-permission="['PROJECT_MANAGER:READ+EDIT']"></i>
+                <i class="el-icon-edit project-edit" @click="edit" v-permission="['PROJECT_MANAGER:READ+EDIT']"></i>
                 <el-row class="project-item">
-                  <span class="project-item-title">{{ $t('project.desc') }}：</span><span
-                  class="project-item-desc">{{ project.description }}</span>
+                  <span class="project-item-title">{{ $t('project.desc') }}：</span>
+                  <span class="project-item-desc">{{ project.description }}</span>
                 </el-row>
                 <el-row class="project-item">
                   <span class="project-item-title">{{ $t('project.manage_people') }}：</span>
@@ -26,19 +25,20 @@
                   <span class="number" @click="click('/project/member', ['PROJECT_USER:READ'])">{{ memberSize }}</span>
                 </el-row>
                 <el-row class="project-item">
-                  <span class="project-item-title">{{ $t('project.create_time') }}：</span><span
-                  class="project-item-desc">{{ project.createTime | timestampFormatDate }}</span>
+                  <span class="project-item-title">{{ $t('project.create_time') }}：</span>
+                  <span class="project-item-desc">{{ project.createTime | timestampFormatDate }}</span>
                 </el-row>
               </div>
             </el-card>
           </el-col>
           <el-col :xs="12" :sm="12" :md="11" :lg="11" :xl="10" class="card-col">
-            <el-card class="home-height" style="position: relative">
-              <div style="position: absolute; top: 50%; left: 50%;transform: translate(-50%, -50%);">
+            <el-card class="project-menu-card">
+              <div class="project-menu-card-div">
                 <div class="div-item">
                   <div style="float: left">
                     <i class="el-icon-user-solid icon-color"
-                       @click="click('/project/member', ['PROJECT_USER:READ'])"></i>
+                       @click="click('/project/member', ['PROJECT_USER:READ'])">
+                    </i>
                   </div>
                   <div style="float: left">
                     <span class="title" @click="click('/project/member', ['PROJECT_USER:READ'])">
@@ -50,7 +50,8 @@
                 <div class="div-item">
                   <div style="float: left">
                     <i class="el-icon-s-platform icon-color"
-                       @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])"></i>
+                       @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])">
+                    </i>
                   </div>
                   <div style="float: left">
                     <span class="title" @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])">
@@ -62,35 +63,41 @@
                 <div class="div-item">
                   <div style="float: left">
                     <i class="el-icon-s-cooperation icon-color"
-                       @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])"></i>
+                       @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])">
+                    </i>
                   </div>
                   <div style="float: left">
                     <span class="title"
                           @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])">
-                      {{ $t('project.file_manage') }}</span><br/>
+                      {{ $t('project.file_manage') }}
+                    </span><br/>
                     <span class="desc">{{ $t('project.file_desc') }}</span>
                   </div>
                 </div>
                 <div class="div-item">
                   <div style="float: left">
                     <i class="el-icon-document icon-color"
-                       @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])"></i>
+                       @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])">
+                    </i>
                   </div>
                   <div style="float: left">
                     <span class="title"
                           @click="click('/project/code/segment', ['PROJECT_CUSTOM_CODE:READ'])">
-                      {{ $t('project.code_segment.code_segment') }}</span><br/>
+                      {{ $t('project.code_segment.code_segment') }}
+                    </span><br/>
                     <span class="desc">{{ $t('project.code_segment_desc') }}</span>
                   </div>
                 </div>
                 <div class="div-item">
                   <div style="float: left">
                     <i class="el-icon-s-flag icon-color"
-                       @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])"></i>
+                       @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])">
+                    </i>
                   </div>
                   <div style="float: left">
                     <span class="title" @click="click('/project/log', ['PROJECT_OPERATING_LOG:READ'])">
-                      {{ $t('project.log') }}</span><br/>
+                      {{ $t('project.log') }}
+                    </span><br/>
                     <span class="desc">{{ $t('project.log_desc') }}</span>
                   </div>
                 </div>
@@ -100,7 +107,7 @@
         </el-row>
       </el-card>
 
-      <project-list ref="projectList"/>
+      <edit-project ref="editProject"/>
     </ms-main-container>
   </ms-container>
 
@@ -110,11 +117,11 @@
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
-import ProjectList from "@/business/components/project/menu/ProjectList";
+import EditProject from "@/business/components/project/menu/EditProject";
 
 export default {
   name: "ProjectHome",
-  components: {MsMainContainer, MsContainer, ProjectList},
+  components: {MsMainContainer, MsContainer, EditProject},
   data() {
     return {
       project: {
@@ -138,7 +145,7 @@ export default {
       this.$warning("无操作权限！");
     },
     edit() {
-      this.$refs.projectList.edit(this.project);
+      this.$refs.editProject.edit(this.project);
     }
   },
   computed: {
@@ -158,7 +165,19 @@ export default {
 </script>
 
 <style scoped>
-.home-height {
+.project-info-card, .project-menu-card {
+  height: 500px;
+  position: relative;
+}
+
+.project-info-card-div, .project-menu-card-div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.project-menu-card {
   height: 500px;
 }
 
@@ -227,6 +246,8 @@ export default {
 
 .project-edit {
   color: var(--primary_color);
+  font-size: 14px;
+  margin-left: 8px;
 }
 
 .project-edit:hover {
