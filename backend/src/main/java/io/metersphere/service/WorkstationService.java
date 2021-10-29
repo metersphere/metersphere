@@ -35,7 +35,9 @@ public class WorkstationService {
         //build query condition object
         QueryTestPlanRequest testPlanRequest = new QueryTestPlanRequest();
         testPlanRequest.setUserId(userId);
+        testPlanRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         ApiTestCaseRequest apiTestCaseRequest = new ApiTestCaseRequest();
+        apiTestCaseRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         //@see io/metersphere/base/mapper/ext/ExtApiTestCaseMapper.xml:103
         Map<String, Object> combine = new HashMap<>(2);
         Map<String,String>operatorValue = new HashMap<>(2);
@@ -45,8 +47,10 @@ public class WorkstationService {
         testPlanRequest.setCombine(combine);
         apiTestCaseRequest.setCombine(combine);
         ApiScenarioRequest apiScenarioRequest = new ApiScenarioRequest();
+        apiScenarioRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         apiScenarioRequest.setCombine(combine);
         QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
+        testCaseRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         testCaseRequest.setCombine(combine);
         //query db
         int apiScenarioCaseCount = extApiScenarioMapper.listModule(apiScenarioRequest);
