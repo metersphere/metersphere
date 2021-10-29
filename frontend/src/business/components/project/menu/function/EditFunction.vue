@@ -90,7 +90,6 @@
 
 <script>
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
-import FunctionParams from "@/business/components/project/menu/function/FunctionParams";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
 import {FUNC_TEMPLATE} from "@/business/components/project/menu/function/custom-function";
@@ -109,7 +108,6 @@ export default {
     CustomFunctionRelate,
     FunctionRun,
     MsCodeEdit,
-    FunctionParams,
     MsInputTag,
     MsDropdown,
     MsRun,
