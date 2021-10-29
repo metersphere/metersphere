@@ -33,5 +33,8 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
     private String reviewId;
     private String deleteUserId;
     private long deleteTime;
+    /**
+     * 检查待更新的（近三天有更新的或者状态为error的）
+     */
     private boolean toUpdate;
 }
