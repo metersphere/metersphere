@@ -256,8 +256,9 @@ public class TestPlanService {
             }
         }
         List<String> follows = request.getFollows();
-            if (StringUtils.isNotBlank(request.getId())) {
-                testPlanFollowService.deleteTestPlanFollowByPlanId(request.getId());
+        if (StringUtils.isNotBlank(request.getId())) {
+            testPlanFollowService.deleteTestPlanFollowByPlanId(request.getId());
+            if (!CollectionUtils.isEmpty(follows)) {
                 for (String follow : follows) {
                     TestPlanFollow testPlanFollow = new TestPlanFollow();
                     testPlanFollow.setTestPlanId(request.getId());
@@ -265,6 +266,7 @@ public class TestPlanService {
                     testPlanFollowService.insert(testPlanFollow);
                 }
             }
+        }
 
         return this.editTestPlan(request);
     }
@@ -470,8 +472,6 @@ public class TestPlanService {
         if (passNum == statusList.size()) {   //  全部通过
             testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
             this.editTestPlan(testPlanWithBLOBs);
-            // 发送成功通知
-//            sendCompletedNotice(testPlanWithBLOBs);
         } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
             testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
             editTestPlan(testPlanWithBLOBs);
@@ -507,8 +507,6 @@ public class TestPlanService {
         if (passNum == statusList.size()) {   //  全部通过
             testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
             this.editTestPlan(testPlanWithBLOBs);
-            // 发送成功通知
-//            sendCompletedNotice(testPlanWithBLOBs);
         } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
             testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
             editTestPlan(testPlanWithBLOBs);
@@ -721,35 +719,7 @@ public class TestPlanService {
         String status = calcTestPlanStatus(planId);
         testPlan.setStatus(status);
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
-        TestPlan testPlans = getTestPlan(planId);
-
-        sendCompletedNotice(testPlans);
     }
-
-    private void sendCompletedNotice(TestPlan testPlan) {
-        if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
-            try {
-                String context = getTestPlanContext(testPlan, NoticeConstants.Event.COMPLETE);
-                Map paramMap = getTestPlanParamMap(testPlan);
-                SessionUser user = SessionUtils.getUser();
-                if (user != null) {
-                    paramMap.put("operator", user.getName());
-                }
-                NoticeModel noticeModel = NoticeModel.builder()
-                        .operator(SessionUtils.getUserId())
-                        .context(context)
-                        .subject(Translator.get("test_plan_notification"))
-                        .mailTemplate("track/TestPlanComplete")
-                        .paramMap(paramMap)
-                        .event(NoticeConstants.Event.COMPLETE)
-                        .build();
-                noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
-            } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
-            }
-        }
-    }
-
 
     private String calcTestPlanStatus(String planId) {
         // test-plan-functional-case status
