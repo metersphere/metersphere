@@ -56,7 +56,7 @@
     </el-dialog>
     <el-dialog :close-on-click-modal="false" :visible.sync="memberVisible" width="45%"
                :title="title" :destroy-on-close="true" v-loading="memberResult.loading" @close="memberDialogClose">
-      <el-form ref="memberFrom" label-position="right" :model="form" size="small" :rules="rules" label-width="100px"
+      <el-form ref="memberFrom" label-position="right" :model="form" size="small" :rules="rules" label-width="120px"
                style="margin-right: 40px;">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select
@@ -259,7 +259,7 @@ export default {
       })
     },
     getResource() {
-      this.memberResult = this.$get('/organization/list/resource/' + this.group.id + "/" + this.group.type, res => {
+      this.memberResult = this.$get('/workspace/list/resource/' + this.group.id + "/" + this.group.type, res => {
         let data = res.data;
         if (data) {
           this._setResource(this.group.type, data);
