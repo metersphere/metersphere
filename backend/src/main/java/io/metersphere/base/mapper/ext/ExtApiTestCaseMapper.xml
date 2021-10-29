@@ -391,8 +391,10 @@
                         </when>
                     </choose>
                 </if>
-                <if test="key=='status' and values.size == 0">
-                    and (t1.status is null or t1.status != 'Trash')
+                <if test="request.toUpdate == null || request.toUpdate == false ">
+                    <if test="key=='status' and values.size == 0">
+                        and (t1.status is null or t1.status != 'Trash')
+                    </if>
                 </if>
             </foreach>
         </if>

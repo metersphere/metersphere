@@ -146,7 +146,6 @@
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
                         <choose>
-
                             <when test="key=='stage'">
                                 and test_plan.stage in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
@@ -177,6 +176,12 @@
                                         </foreach>
                                     </otherwise>
                                 </choose>
+                                <if test="request.byFilter == true">
+                                    and test_plan.status in
+                                    <foreach collection="values" item="value" separator="," open="(" close=")">
+                                        #{value}
+                                    </foreach>
+                                </if>
                             </when>
                         </choose>
                     </if>
