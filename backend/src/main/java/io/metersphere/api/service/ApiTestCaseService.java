@@ -874,6 +874,7 @@ public class ApiTestCaseService {
         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
         if (environment != null && environment.getConfig() != null) {
             EnvironmentConfig environmentConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            environmentConfig.setApiEnvironmentid(environment.getId());
             envConfig.put(testCaseWithBLOBs.getProjectId(), environmentConfig);
             parameterConfig.setConfig(envConfig);
         }
