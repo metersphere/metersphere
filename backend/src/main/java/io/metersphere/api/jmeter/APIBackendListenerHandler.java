@@ -7,6 +7,8 @@ import io.metersphere.api.service.MsResultService;
 import io.metersphere.api.service.TestResultService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,8 @@ public class APIBackendListenerHandler {
     @Resource
     private MsResultService resultService;
 
+    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
+
     public void handleTeardownTest(List<SampleResult> queue, String runMode, String testId, String debugReportId) throws Exception {
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
@@ -42,7 +46,7 @@ public class APIBackendListenerHandler {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
             if (StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
                 String evnStr = result.getResponseDataAsString();
-                apiEnvironmentRunningParamService.parseEvn(evnStr);
+                ExecutedHandleSingleton.parseEnvironment(evnStr);
             } else {
                 resultService.formatTestResult(testResult, scenarios, result);
             }
