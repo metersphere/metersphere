@@ -143,11 +143,10 @@ function _beanshellTemplate(obj) {
   let {requestHeaders = new Map(), requestBody = "", requestPath = "/",
     requestMethod = "GET", protocol = "http", requestArguments = new Map(), domain = "", port = ""} = obj;
   let uri = `new URIBuilder()
-                  .setScheme("${protocol}")
-                  .setHost("${domain}")
-                  .setPort(${port}) // int类型端口
-                  .setPath("${requestPath}")
-                  `;
+                .setScheme("${protocol}")
+                .setHost("${domain}")
+                .setPath("${requestPath}")
+                `;
   // http 请求类型
   let method = requestMethod.toLowerCase().replace(/^\S/, s => s.toUpperCase());
   let httpMethodCode = `Http${method} request = new Http${method}(uri);`;
@@ -155,7 +154,15 @@ function _beanshellTemplate(obj) {
   for (let [k, v] of requestArguments) {
     uri = uri + `.setParameter("${k}", "${v}")`;
   }
-  uri = uri + ".build();";
+  if (port) {
+    uri += `.setPort(${port}) // int类型端口
+    `;
+    uri += `            .build();`;
+  } else {
+    uri += `// .setPort(${port}) // int类型端口
+    `;
+    uri += `            .build();`;
+  }
   // 设置请求头
   let setHeader = "";
   for (let [k, v] of requestHeaders) {
