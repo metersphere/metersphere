@@ -281,6 +281,12 @@ public class ElementUtil {
         }
     }
 
+    /**
+     * 只找出场景直接依赖
+     *
+     * @param hashTree
+     * @param referenceRelationships
+     */
     public static void relationships(JSONArray hashTree, List<String> referenceRelationships) {
         for (int i = 0; i < hashTree.size(); i++) {
             JSONObject element = hashTree.getJSONObject(i);
@@ -288,10 +294,11 @@ public class ElementUtil {
                 if (!referenceRelationships.contains(element.get("id").toString())) {
                     referenceRelationships.add(element.get("id").toString());
                 }
-            }
-            if (element.containsKey("hashTree")) {
-                JSONArray elementJSONArray = element.getJSONArray("hashTree");
-                relationships(elementJSONArray, referenceRelationships);
+            } else {
+                if (element.containsKey("hashTree")) {
+                    JSONArray elementJSONArray = element.getJSONArray("hashTree");
+                    relationships(elementJSONArray, referenceRelationships);
+                }
             }
         }
     }
