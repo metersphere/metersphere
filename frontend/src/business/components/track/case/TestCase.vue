@@ -171,7 +171,12 @@ export default {
   },
   mounted() {
     this.getProject();
-    this.init(this.$route);
+    let routeTestCase = this.$route.params.testCase;
+    if(routeTestCase && routeTestCase.add===true){
+      this.addTab({name: 'add'});
+    }else {
+      this.init(this.$route);
+    }
   },
   watch: {
     redirectID() {

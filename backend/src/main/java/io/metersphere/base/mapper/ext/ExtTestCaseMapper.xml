@@ -185,7 +185,8 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="moduleCount" resultType="java.lang.Integer">
-        select count(id) from test_case
+        select count(test_case.id) from test_case
+        left join project on test_case.project_id = project.id
         <include refid="queryWhereCondition"/>
     </select>
 
@@ -289,7 +290,7 @@
 
     <select id="selectIds" resultType="java.lang.String">
         select
-        id
+        test_case.id
         from test_case
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>

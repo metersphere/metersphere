@@ -141,7 +141,8 @@
 
     </sql>
     <select id="listModule" resultType="java.lang.Integer">
-        select count(id) from api_scenario
+        select count(api_scenario.id) from api_scenario
+        left join project on api_scenario.project_id = project.id
         <include refid="queryWhereCondition"/>
     </select>
 
