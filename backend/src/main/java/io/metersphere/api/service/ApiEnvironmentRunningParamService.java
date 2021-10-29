@@ -2,14 +2,29 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.definition.RunCaseRequest;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
+import io.metersphere.base.domain.ApiTestCaseExample;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ApiTestCaseMapper;
+import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author song.tianyang
@@ -20,8 +35,13 @@ import javax.annotation.Resource;
 public class ApiEnvironmentRunningParamService {
     @Resource
     ApiTestEnvironmentService apiTestEnvironmentService;
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
+
+    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
 
     public synchronized void addParam(String enviromentId, String key, String value) {
+
         if(StringUtils.isEmpty(key)){
             return;
         }
@@ -86,8 +106,22 @@ public class ApiEnvironmentRunningParamService {
             commonConfig.put("variables",variables);
             configObj.put("commonConfig",commonConfig);
         }
+
         apiTestEnvironmentWithBLOBs.setConfig(configObj.toJSONString());
-        apiTestEnvironmentService.update(apiTestEnvironmentWithBLOBs);
+
+        SqlSession sqlSession = null;
+        try {
+            sqlSession = sqlSessionFactory.openSession(ExecutorType.SIMPLE);
+            ApiTestEnvironmentMapper batchMapper = sqlSession.getMapper(ApiTestEnvironmentMapper.class);
+            batchMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironmentWithBLOBs);
+            sqlSession.commit();
+        }catch (Exception e){
+            sqlSession.rollback();
+        }finally {
+            sqlSession.close();
+        }
+
+        testPlanLog.info("update by sty: "+enviromentId + ":[" + key +":"+ value +"]");
     }
 
     public void parseEvn(String envStr) {
