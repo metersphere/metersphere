@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.share.*;
@@ -9,6 +10,7 @@ import io.metersphere.base.mapper.TestPlanReportMapper;
 import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
 import io.metersphere.commons.constants.ShareType;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
@@ -165,6 +167,10 @@ public class ShareInfoService {
                                     if (isJsonSchema) {
                                         apiInfoDTO.setRequestBodyParamType("JSON-SCHEMA");
                                         apiInfoDTO.setJsonSchemaBody(bodyObj);
+                                        if(bodyObj.containsKey("jsonSchema")){
+                                            JSONObject jsonSchemaObj = bodyObj.getJSONObject("jsonSchema");
+                                            apiInfoDTO.setRequestPreviewData(JSON.parse(JSONSchemaGenerator.getJson(jsonSchemaObj.toJSONString())));
+                                        }
                                     } else {
                                         if (bodyObj.containsKey("raw")) {
                                             String raw = bodyObj.getString("raw");
@@ -359,7 +365,9 @@ public class ShareInfoService {
                 }
             }
         }
-        apiInfoDTO.setRequestPreviewData(previewJsonArray);
+        if(!previewJsonArray.isEmpty()){
+            apiInfoDTO.setRequestPreviewData(previewJsonArray);
+        }
         apiInfoDTO.setSelectedFlag(true);
         return apiInfoDTO;
     }
