@@ -5,6 +5,7 @@
 
     <ignore-classes>
         <class template="class regex:io.metersphere.(?!xpack).*"/>
+        <class template="class regex:io.metersphere.xpack.*.*Controller"/>
         <class template="class org.*"/>
     </ignore-classes>
 
