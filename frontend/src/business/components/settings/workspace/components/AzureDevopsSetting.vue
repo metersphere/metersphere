@@ -18,7 +18,7 @@
           <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_azure_issuetype')"/>
           <ms-instructions-icon effect="light">
             <template>
-              <img class="jira-image" src="src/assets/azureDevops-type.png"/>
+              <img class="jira-image" src="@/assets/azureDevops-type.png"/>
             </template>
           </ms-instructions-icon>
         </el-form-item>
@@ -26,7 +26,7 @@
           <el-input v-model="form.storytype" :placeholder="$t('organization.integration.input_azure_storytype')"/>
           <ms-instructions-icon effect="light">
             <template>
-              <img class="jira-image" src="src/assets/azureDevops-type.png"/>
+              <img class="jira-image" src="@/assets/azureDevops-type.png"/>
             </template>
           </ms-instructions-icon>
         </el-form-item>
