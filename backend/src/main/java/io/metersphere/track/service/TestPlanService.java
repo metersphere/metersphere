@@ -729,7 +729,7 @@ public class TestPlanService {
     private void sendCompletedNotice(TestPlan testPlan) {
         if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
             try {
-                String context = getTestPlanContext(testPlan, NoticeConstants.Event.UPDATE);
+                String context = getTestPlanContext(testPlan, NoticeConstants.Event.COMPLETE);
                 Map paramMap = getTestPlanParamMap(testPlan);
                 SessionUser user = SessionUtils.getUser();
                 if (user != null) {
@@ -739,7 +739,7 @@ public class TestPlanService {
                         .operator(SessionUtils.getUserId())
                         .context(context)
                         .subject(Translator.get("test_plan_notification"))
-                        .mailTemplate("track/TestPlanEnd")
+                        .mailTemplate("track/TestPlanComplete")
                         .paramMap(paramMap)
                         .event(NoticeConstants.Event.COMPLETE)
                         .build();
