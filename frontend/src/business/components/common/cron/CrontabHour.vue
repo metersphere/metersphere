@@ -9,8 +9,8 @@
 		<el-form-item>
 			<el-radio v-model='radioValue' :label="2">
         {{$t('schedule.cron.period')}} {{$t('schedule.cron.from')}}
-				<el-input-number v-model='cycle01' :min="0" :max="24" /> -
-				<el-input-number v-model='cycle02' :min="0" :max="24" /> 小时
+				<el-input-number v-model='cycle01' :min="0" :max="23" /> -
+				<el-input-number v-model='cycle02' :min="0" :max="23" /> 小时
 			</el-radio>
 		</el-form-item>
 
@@ -18,7 +18,7 @@
 			<el-radio v-model='radioValue' :label="3">
         {{$t('schedule.cron.from')}}
 				<el-input-number v-model='average01' :min="0" :max="23" /> {{$t('schedule.cron.hours')}}{{$t('schedule.cron.start')}}，{{$t('schedule.cron.every')}}
-				<el-input-number v-model='average02' :min="1" :max="24" /> {{$t('schedule.cron.hours')}}{{$t('schedule.cron.execute_once')}}
+				<el-input-number v-model='average02' :min="1" :max="23" /> {{$t('schedule.cron.hours')}}{{$t('schedule.cron.execute_once')}}
 			</el-radio>
 		</el-form-item>
 
