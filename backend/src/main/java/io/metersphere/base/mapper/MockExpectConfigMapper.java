@@ -3,9 +3,7 @@ package io.metersphere.base.mapper;
 import io.metersphere.base.domain.MockExpectConfig;
 import io.metersphere.base.domain.MockExpectConfigExample;
 import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
-
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 
 public interface MockExpectConfigMapper {
