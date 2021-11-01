@@ -454,6 +454,9 @@ public class TestCaseService {
      */
     public List<TestCase> getTestCaseRelateList(QueryTestCaseRequest request) {
         setDefaultOrder(request);
+        request.getOrders().forEach(order -> {
+            order.setPrefix("test_case");
+        });
         return getTestCaseByNotInPlan(request);
     }
 
