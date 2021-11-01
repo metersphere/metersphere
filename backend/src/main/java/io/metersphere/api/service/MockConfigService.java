@@ -14,7 +14,6 @@ import io.metersphere.api.dto.mock.RequestMockParams;
 import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
-import io.metersphere.api.dto.mockconfig.response.JsonSchemaReturnObj;
 import io.metersphere.api.dto.mockconfig.response.MockConfigResponse;
 import io.metersphere.api.dto.mockconfig.response.MockExpectConfigResponse;
 import io.metersphere.base.domain.*;
@@ -44,6 +43,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -109,15 +109,38 @@ public class MockConfigService {
                 expectConfigResponseList.add(response);
 
             }
-            MockConfigResponse returnRsp = new MockConfigResponse(config, expectConfigResponseList);
-            return returnRsp;
+            return new MockConfigResponse(config, expectConfigResponseList);
         } else {
             return new MockConfigResponse(null, new ArrayList<>());
         }
     }
 
+    public void initExpectNum(){
+        MockExpectConfigExample example = new MockExpectConfigExample();
+        example.createCriteria().andExpectNumIsNull();
+        List<MockExpectConfigWithBLOBs> mockExpectConfigList = mockExpectConfigMapper.selectByExampleWithBLOBs(example);
+
+        Map<String,List<MockExpectConfigWithBLOBs>> mockConfigIdMap = mockExpectConfigList.stream().collect(Collectors.groupingBy(MockExpectConfig::getMockConfigId));
+        for (Map.Entry<String, List<MockExpectConfigWithBLOBs>> entry :
+                mockConfigIdMap.entrySet()) {
+            String mockConfigId = entry.getKey();
+            List<MockExpectConfigWithBLOBs> list = entry.getValue();
+            String apiNum = extMockExpectConfigMapper.selectApiNumberByMockConfigId(mockConfigId);
+            if(StringUtils.isEmpty(apiNum) || StringUtils.equalsIgnoreCase(apiNum,"null")){
+                continue;
+            }
+            int expectNumIndex = this.getMockExpectNumIndex(mockConfigId,apiNum);
+            for (MockExpectConfigWithBLOBs config : list) {
+                config.setExpectNum(apiNum+"_"+expectNumIndex);
+                mockExpectConfigMapper.updateByPrimaryKeySelective(config);
+                expectNumIndex ++;
+            }
+        }
+
+    }
+
     public MockConfigResponse genMockConfig(MockConfigRequest request) {
-        MockConfigResponse returnRsp = null;
+        MockConfigResponse returnRsp;
 
         MockConfigExample example = new MockConfigExample();
         MockConfigExample.Criteria criteria = example.createCriteria();
@@ -193,8 +216,11 @@ public class MockConfigService {
             this.checkNameIsExists(request);
         }
         long timeStmp = System.currentTimeMillis();
+
+        String expectNum = this.getMockExpectId(request.getMockConfigId());
         MockExpectConfigWithBLOBs model = new MockExpectConfigWithBLOBs();
         model.setId(request.getId());
+        model.setExpectNum(expectNum);
         model.setMockConfigId(request.getMockConfigId());
         model.setUpdateTime(timeStmp);
         model.setStatus(request.getStatus());
@@ -221,6 +247,54 @@ public class MockConfigService {
         }
         FileUtils.createBodyFiles(model.getId(), bodyFiles);
         return model;
+    }
+
+    private String getMockExpectId(String mockConfigId) {
+        List<String> savedExpectNumber = extMockExpectConfigMapper.selectExlectNumByMockConfigId(mockConfigId);
+        String apiNum = extMockExpectConfigMapper.selectApiNumberByMockConfigId(mockConfigId);
+        if(StringUtils.isEmpty(apiNum)){
+            apiNum = "";
+        }else {
+            apiNum = apiNum + "_";
+        }
+
+        int index = 1;
+        for(String expectNum : savedExpectNumber){
+            if(StringUtils.startsWith(expectNum,apiNum)){
+                String numStr = StringUtils.substringAfter(expectNum,apiNum);
+                try{
+                    int savedIndex = Integer.parseInt(numStr);
+                    if(index <= savedIndex){
+                        index = savedIndex+1;
+                    }
+                }catch (Exception ignored){}
+            }
+        }
+        return apiNum + index;
+    }
+
+    private int getMockExpectNumIndex(String mockConfigId,String apiNumber) {
+        List<String> savedExpectNumber = extMockExpectConfigMapper.selectExlectNumByMockConfigId(mockConfigId);
+        String apiNum = apiNumber;
+        if(StringUtils.isEmpty(apiNum)){
+            apiNum = "";
+        }else {
+            apiNum = apiNum + "_";
+        }
+
+        int index = 1;
+        for(String expectNum : savedExpectNumber){
+            if(StringUtils.startsWith(expectNum,apiNum)){
+                String numStr = StringUtils.substringAfter(expectNum,apiNum);
+                try{
+                    int savedIndex = Integer.parseInt(numStr);
+                    if(index <= savedIndex){
+                        index = savedIndex+1;
+                    }
+                }catch (Exception ignored ){}
+            }
+        }
+        return index;
     }
 
     private void checkNameIsExists(MockExpectConfigRequest request) {
@@ -259,14 +333,14 @@ public class MockConfigService {
                     continue;
                 }
                 JSONObject mockExpectRequestObj = model.getRequest();
-                boolean mathing = false;
+                boolean isMatch;
                 if (mockExpectRequestObj.containsKey("params")) {
-                    mathing = this.isRequestMockExpectMatchingByParams(requestHeaderMap, mockExpectRequestObj, requestMockParams);
+                    isMatch = this.isRequestMockExpectMatchingByParams(requestHeaderMap, mockExpectRequestObj, requestMockParams);
                 } else {
-                    mathing = this.isRequestMockExpectMatching(mockExpectRequestObj, requestMockParams.getQueryParamsObj());
+                    isMatch = this.isRequestMockExpectMatching(mockExpectRequestObj, requestMockParams.getQueryParamsObj());
                 }
 
-                if (mathing) {
+                if (isMatch) {
                     returnModel = model;
                     break;
                 }
