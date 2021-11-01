@@ -130,7 +130,7 @@
         left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
         <include refid="notInQueryWhereCondition"></include>
         and T2.case_id is null
-        ORDER BY test_case.update_time DESC
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
     <select id="getTestCaseNames" resultType="io.metersphere.base.domain.TestCase">
@@ -338,7 +338,7 @@
                 </if>
             </foreach>
         </if>
-        <if test="request.filters == null || request.filters.size() == 0 ">
+        <if test="request.filters == null || request.filters.size() == 0 || !request.filters.entrySet().contains('status')">
             and (test_case.status is null or test_case.status != 'Trash')
         </if>
     </sql>
