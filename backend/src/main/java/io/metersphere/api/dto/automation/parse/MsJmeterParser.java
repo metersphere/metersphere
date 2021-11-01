@@ -102,7 +102,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             jmterHashTree(testPlan, scenario);
             this.projectId = request.getProjectId();
             ScenarioImport scenarioImport = new ScenarioImport();
-            scenarioImport.setData(paseObj(scenario, request));
+            scenarioImport.setData(parseObj(scenario, request));
             scenarioImport.setProjectId(request.getProjectId());
             return scenarioImport;
         } catch (Exception e) {
@@ -112,7 +112,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         return null;
     }
 
-    private List<ApiScenarioWithBLOBs> paseObj(MsScenario msScenario, ApiTestImportRequest request) {
+    private List<ApiScenarioWithBLOBs> parseObj(MsScenario msScenario, ApiTestImportRequest request) {
         List<ApiScenarioWithBLOBs> scenarioWithBLOBsList = new ArrayList<>();
         ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
         ApiScenarioModule selectModule = null;
@@ -530,7 +530,9 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             RegexExtractor regexExtractor = (RegexExtractor) key;
             if (regexExtractor.useRequestHeaders()) {
                 regex.setUseHeaders("request_headers");
-            } else if (regexExtractor.useBody()) {
+            }if (regexExtractor.useHeaders()) {
+                regex.setUseHeaders("true");
+            } if (regexExtractor.useBody()) {
                 regex.setUseHeaders("false");
             } else if (regexExtractor.useUnescapedBody()) {
                 regex.setUseHeaders("unescaped");
