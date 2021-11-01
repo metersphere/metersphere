@@ -26,7 +26,7 @@ export const CASE_TYPE_OPTION = [
 ];
 
 export const ISSUE_PLATFORM_OPTION = [
-  {value: 'metersphere',text: 'Metersphere'},
+  {value: 'Local',text: 'Metersphere'},
   {value: 'Jira',text: 'JIRA'},
   {value: 'Tapd',text: 'Tapd'},
   {value: 'Zentao',text: '禅道'},
