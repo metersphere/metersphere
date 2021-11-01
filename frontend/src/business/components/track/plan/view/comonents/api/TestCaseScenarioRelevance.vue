@@ -115,7 +115,15 @@
           this.$success(this.$t('commons.save_success'));
           this.$emit('refresh');
           this.refresh();
+          this.autoCheckStatus();
           this.$refs.baseRelevance.close();
+        });
+      },
+      autoCheckStatus() { //  检查执行结果，自动更新计划状态
+        if (!this.planId) {
+          return;
+        }
+        this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
         });
       },
     }
