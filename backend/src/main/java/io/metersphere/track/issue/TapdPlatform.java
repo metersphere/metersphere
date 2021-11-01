@@ -3,7 +3,10 @@ package io.metersphere.track.issue;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
@@ -206,8 +209,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 .map(IssuesDao::getPlatformId)
                 .collect(Collectors.toList());
 
-        LogUtil.info("ids: " + ids);
-
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
@@ -218,21 +219,24 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
         while (count == limit) {
             TapdGetIssueResponse result = tapdClient.getIssueForPageByIds(project.getTapdId(), pageNum, limit, ids);
-            List<TapdGetIssueResponse.Data> data = result.getData();
-            count = data.size();
+            List<JSONObject> datas = result.getData();
+            count = datas.size();
             pageNum++;
-            data.forEach(issue -> {
-                TapdBug bug = issue.getBug();
+            datas.forEach(issue -> {
+                JSONObject bug = issue.getJSONObject("Bug");
+                String id = idMap.get(bug.getString("id"));
                 IssuesDao issuesDao = new IssuesDao();
                 BeanUtils.copyBean(issuesDao, bug);
-                issuesDao.setId(idMap.get(issuesDao.getId()));
-                issuesDao.setPlatformStatus(statusMap.get(bug.getStatus()));
+                issuesDao.setId(id);
+                issuesDao.setPlatformStatus(statusMap.get(bug.getString("status")));
                 issuesDao.setDescription(htmlDesc2MsDesc(issuesDao.getDescription()));
+                IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
+                issuesDao.setCustomFields(syncIssueCustomField(issuesWithBLOBs.getCustomFields(), bug));
                 issuesMapper.updateByPrimaryKeySelective(issuesDao);
-                ids.remove(issue.getBug().getId());
+                ids.remove(bug.getString("id"));
             });
         }
-        // 查不到的就置为删除
+        // 查不到的设置为删除
         ids.forEach((id) -> {
             if (StringUtils.isNotBlank(idMap.get(id))) {
                 IssuesDao issuesDao = new IssuesDao();

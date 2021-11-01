@@ -9,13 +9,11 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.ZentaoClient;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.zentao.AddIssueResponse;
-import io.metersphere.track.issue.domain.zentao.GetIssueResponse;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.issue.domain.zentao.ZentaoConfig;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -148,9 +146,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         return list;
     }
 
-    public IssuesDao getZentaoIssues(String bugId) {
-        GetIssueResponse.Issue bug = zentaoClient.getBugById(bugId);
-        String description = bug.getSteps();
+    public IssuesDao getZentaoIssues(IssuesDao issue) {
+        JSONObject bug = zentaoClient.getBugById(issue.getPlatformId());
+        String description = bug.getString("steps");
         String steps = description;
         try {
             steps = zentao2MsDescription(description);
@@ -158,14 +156,16 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             LogUtil.error(e.getMessage(), e);
         }
         IssuesDao issues = new IssuesDao();
-        issues.setPlatformStatus(bug.getStatus());
-        if (StringUtils.equals(bug.getDeleted(),"1")) {
+        issues.setPlatformStatus(bug.getString("status"));
+        if (StringUtils.equals(bug.getString("deleted"),"1")) {
             issues.setPlatformStatus(IssuesStatus.DELETE.toString());
             issuesMapper.updateByPrimaryKeySelective(issues);
         }
-        issues.setTitle(bug.getTitle());
+        issues.setTitle(bug.getString("title"));
         issues.setDescription(steps);
-        issues.setReporter(bug.getOpenedBy());
+        issues.setReporter(bug.getString("openedBy"));
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(issue.getId());
+        issuesWithBLOBs.setCustomFields(syncIssueCustomField(issuesWithBLOBs.getCustomFields(), bug));
         return issues;
     }
 
@@ -329,7 +329,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     public void syncIssues(Project project, List<IssuesDao> issues) {
         issues.forEach(item -> {
             setConfig();
-            IssuesDao issuesDao = getZentaoIssues(item.getPlatformId());
+            IssuesDao issuesDao = getZentaoIssues(item);
             issuesDao.setId(item.getId());
             issuesMapper.updateByPrimaryKeySelective(issuesDao);
         });

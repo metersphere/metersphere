@@ -1,5 +1,7 @@
 package io.metersphere.track.issue;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.ProjectMapper;
@@ -344,4 +346,40 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             }
         });
     }
+
+
+    protected String syncIssueCustomField(String customFieldsStr, JSONObject issue) {
+        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
+        customFields.forEach(item -> {
+            String fieldName = item.getCustomData();
+            Object value = issue.get(fieldName);
+            if (value != null) {
+                if (value instanceof JSONObject) {
+                    if (!fieldName.equals("assignee") && !fieldName.equals("reporter")) { // 获取不到账号名
+                        item.setValue(((JSONObject)value).getString("id"));
+                    }
+                } else {
+                    if (StringUtils.isNotBlank(item.getType()) &&
+                            StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
+                        List<String> values = new ArrayList<>();
+                        if (item.getValue() != null) {
+                            JSONArray attrs = (JSONArray) item.getValue();
+                            attrs.forEach(attr -> {
+                                if (attr instanceof JSONObject) {
+                                    values.add(((JSONObject)attr).getString("id"));
+                                } else {
+                                    values.add((String) attr);
+                                }
+                            });
+                        }
+                        item.setValue(values);
+                    } else {
+                        item.setValue(value);
+                    }
+                }
+            }
+        });
+        return JSONObject.toJSONString(customFields);
+    }
+
 }
