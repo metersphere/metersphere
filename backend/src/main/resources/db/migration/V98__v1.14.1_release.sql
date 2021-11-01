@@ -1,0 +1,1 @@
+ALTER TABLE mock_expect_config ADD COLUMN expect_num varchar(50);

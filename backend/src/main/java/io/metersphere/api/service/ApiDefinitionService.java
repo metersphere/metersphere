@@ -657,7 +657,7 @@ public class ApiDefinitionService {
             apiDefinition.setId(UUID.randomUUID().toString());
             apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
             reSetImportCasesApiId(cases, originId, apiDefinition.getId());
-            reSetImportMocksApiId(mocks, originId, apiDefinition.getId());
+            reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 batchMapper.insert(apiDefinition);
                 String request = setImportHashTree(apiDefinition);
@@ -716,13 +716,16 @@ public class ApiDefinitionService {
         }
     }
 
-    private void reSetImportMocksApiId(List<MockConfigImportDTO> mocks, String originId, String newId) {
+    private void reSetImportMocksApiId(List<MockConfigImportDTO> mocks, String originId, String newId, int apiNum) {
         if (CollectionUtils.isNotEmpty(mocks)) {
-            mocks.forEach(item -> {
+            int index = 1;
+            for(MockConfigImportDTO item : mocks){
                 if (StringUtils.equals(item.getApiId(), originId)) {
                     item.setApiId(newId);
                 }
-            });
+                item.setExpectNum(apiNum+"_"+index);
+                index++;
+            }
         }
     }
 
