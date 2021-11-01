@@ -101,7 +101,7 @@
               children: [
                 {
                   title: this.$t('project.code_segment.stop_test'),
-                  value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName())'
+                  value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());'
                 },
               ]
             },
