@@ -49,6 +49,13 @@ public class RelationshipEdgeService {
         relationshipEdgeMapper.deleteByExample(example);
     }
 
+    public void delete(String sourceId ,List<String> targetIds) {
+        RelationshipEdgeExample example = new RelationshipEdgeExample();
+        example.createCriteria().andSourceIdEqualTo(sourceId).andTargetIdIn(targetIds);
+
+        relationshipEdgeMapper.deleteByExample(example);
+    }
+
     /**
      * 删除边后，若形成两个不连通子图，则拆分图
      * @param graphId
