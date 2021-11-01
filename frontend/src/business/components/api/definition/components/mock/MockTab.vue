@@ -22,6 +22,12 @@
       >
 
         <ms-table-column
+          prop="expectNum"
+          :label="$t('commons.id')"
+          min-width="120px">
+        </ms-table-column>
+
+        <ms-table-column
           prop="name"
           :label="$t('api_test.mock.table.name')"
           min-width="160px">

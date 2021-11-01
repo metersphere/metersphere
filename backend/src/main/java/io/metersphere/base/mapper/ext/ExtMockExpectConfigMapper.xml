@@ -21,4 +21,14 @@
         </foreach>
         )
     </select>
+
+    <select id="selectExlectNumByMockConfigId" resultType="java.lang.String">
+        SELECT expect_num FROM mock_expect_config WHERE mock_config_id = #{0}
+    </select>
+
+    <select id="selectApiNumberByMockConfigId" resultType="java.lang.String">
+        SELECT num FROM api_definition WHERE id IN (
+            select api_id from  mock_config WHERE id = #{0}
+            )
+    </select>
 </mapper>
