@@ -106,13 +106,13 @@ public abstract class ZentaoClient extends BaseClient {
         }
     }
 
-    public GetIssueResponse.Issue getBugById(String id) {
+    public JSONObject getBugById(String id) {
         String sessionId = login();
         String bugGet = requestUrl.getBugGet();
         ResponseEntity<String> response = restTemplate.exchange(bugGet,
                 HttpMethod.GET, null, String.class, id, sessionId);
         GetIssueResponse getIssueResponse = (GetIssueResponse) getResultForObject(GetIssueResponse.class, response);
-        return JSONObject.parseObject(getIssueResponse.getData(), GetIssueResponse.Issue.class);
+        return JSONObject.parseObject(getIssueResponse.getData());
     }
 
     protected String getBaseUrl() {
