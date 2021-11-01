@@ -542,6 +542,9 @@ export default {
       const hashTree = parent.data.hashTree || parent.data;
       // 深度复制
       let obj = JSON.parse(JSON.stringify(row));
+      if (obj.hashTree && obj.hashTree.length > 0) {
+        this.resetResourceId(obj.hashTree);
+      }
       obj.resourceId = getUUID();
       if (obj.name) {
         obj.name = obj.name + '_copy';
@@ -554,6 +557,14 @@ export default {
       }
       this.sort();
       this.reload();
+    },
+    resetResourceId(hashTree) {
+      hashTree.forEach(item => {
+        item.resourceId = getUUID();
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.resetResourceId(item.hashTree);
+        }
+      })
     },
     showHide() {
       this.showHideTree = false
