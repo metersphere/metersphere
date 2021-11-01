@@ -12,4 +12,8 @@ public interface ExtMockExpectConfigMapper {
     List<MockExpectConfigWithBLOBs> selectByApiId(String apiId);
 
     List<MockExpectConfigWithBLOBs> selectByApiIdIn(@Param("values") List<String> apiIds);
+
+    List<String> selectExlectNumByMockConfigId(String mockConfigId);
+
+    String selectApiNumberByMockConfigId(String mockConfigId);
 }
