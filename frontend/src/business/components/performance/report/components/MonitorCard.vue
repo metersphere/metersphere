@@ -204,6 +204,10 @@ export default {
           this.instances = response.data.data;
           if (currentInstance) {
             this.currentInstance = currentInstance;
+            this.showChart = false;
+            this.$nextTick(() => {
+              this.showChart = true;
+            });
           } else {
             this.currentInstance = this.currentInstance || this.instances[0].ip + ":" + this.instances[0].port;
           }
@@ -238,9 +242,7 @@ export default {
         this.checkList = checkList;
       }
       this.totalOption = {};
-      this.showChart = false;
       this.$nextTick(() => {
-        this.showChart = true;
         this.totalOption = this.getOption(id);
         this.changeDataZoom({start: 0, end: 100});
       });
