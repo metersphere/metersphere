@@ -17,7 +17,7 @@
                 <span class="ms-req-span">  {{content.success? content.success+content.error :0}} 请求</span>
            </span>
           </div>
-          <ms-chart id="chart" ref="chart" :options="options" :autoresize="true" v-else/>
+          <ms-chart id="chart" ref="chart" :options="options" :height="220" :autoresize="true" v-else/>
           <el-row type="flex" justify="center" align="middle">
             <span class="ms-point-success"/>
             <div class="metric-box">
