@@ -106,43 +106,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         item.setDescription(description);
         item.setPlatformStatus(status);
         item.setPlatform(IssuesManagePlatform.Jira.toString());
-        item.setCustomFields(parseIssueCustomField(customFieldsStr, jiraIssue));
-    }
-
-    public String parseIssueCustomField(String customFieldsStr, JiraIssue jiraIssue) {
-        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
-        JSONObject fields = jiraIssue.getFields();
-
-        customFields.forEach(item -> {
-            String fieldName = item.getCustomData();
-            Object value = fields.get(fieldName);
-            if (value != null) {
-                if (value instanceof JSONObject) {
-                    if (!fieldName.equals("assignee") && !fieldName.equals("reporter")) { // 获取不到账号名
-                        item.setValue(((JSONObject)value).getString("id"));
-                    }
-                } else {
-                    if (StringUtils.isNotBlank(item.getType()) &&
-                            StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
-                        List<String> values = new ArrayList<>();
-                        if (item.getValue() != null) {
-                            JSONArray attrs = (JSONArray) item.getValue();
-                            attrs.forEach(attr -> {
-                                if (attr instanceof JSONObject) {
-                                    values.add(((JSONObject)attr).getString("id"));
-                                } else {
-                                    values.add((String) attr);
-                                }
-                            });
-                        }
-                        item.setValue(values);
-                    } else {
-                        item.setValue(value);
-                    }
-                }
-            }
-        });
-        return JSONObject.toJSONString(customFields);
+        item.setCustomFields(syncIssueCustomField(customFieldsStr, jiraIssue.getFields()));
     }
 
     private String getStatus(JSONObject fields) {
