@@ -643,6 +643,76 @@ public class MockExpectConfigExample {
             addCriterion("create_user_id not between", value1, value2, "createUserId");
             return (Criteria) this;
         }
+
+        public Criteria andExpectNumIsNull() {
+            addCriterion("expect_num is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumIsNotNull() {
+            addCriterion("expect_num is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumEqualTo(String value) {
+            addCriterion("expect_num =", value, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumNotEqualTo(String value) {
+            addCriterion("expect_num <>", value, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumGreaterThan(String value) {
+            addCriterion("expect_num >", value, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumGreaterThanOrEqualTo(String value) {
+            addCriterion("expect_num >=", value, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumLessThan(String value) {
+            addCriterion("expect_num <", value, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumLessThanOrEqualTo(String value) {
+            addCriterion("expect_num <=", value, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumLike(String value) {
+            addCriterion("expect_num like", value, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumNotLike(String value) {
+            addCriterion("expect_num not like", value, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumIn(List<String> values) {
+            addCriterion("expect_num in", values, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumNotIn(List<String> values) {
+            addCriterion("expect_num not in", values, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumBetween(String value1, String value2) {
+            addCriterion("expect_num between", value1, value2, "expectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpectNumNotBetween(String value1, String value2) {
+            addCriterion("expect_num not between", value1, value2, "expectNum");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

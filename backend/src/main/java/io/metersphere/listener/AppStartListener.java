@@ -5,6 +5,7 @@ import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.api.service.MockConfigService;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RunInterface;
@@ -63,6 +64,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private TestReviewTestCaseService testReviewTestCaseService;
+    @Resource
+    private MockConfigService mockConfigService;
 
     @Value("${jmeter.home}")
     private String jmeterHome;
@@ -132,7 +135,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(testPlanLoadCaseService::initOrderField, "init.sort.plan.api.load");
         initOnceOperate(testReviewTestCaseService::initOrderField, "init.sort.review.test.case");
         initOnceOperate(apiDefinitionService::initDefaultModuleId, "init.default.module.id");
-
+        initOnceOperate(mockConfigService::initExpectNum,"init.mock.expectNum");
     }
 
     /**

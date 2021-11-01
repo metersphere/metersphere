@@ -1,7 +1,6 @@
 package io.metersphere.base.domain;
 
 import java.io.Serializable;
-
 import lombok.Data;
 
 @Data
@@ -21,6 +20,8 @@ public class MockExpectConfig implements Serializable {
     private Long updateTime;
 
     private String createUserId;
+
+    private String expectNum;
 
     private static final long serialVersionUID = 1L;
 }
