@@ -6,10 +6,9 @@
           {{ $t('operating_log.title') }}
         </div>
         <div>
-          <el-form :model="condition" label-position="right" label-width="75px" size="small" ref="basicForm"
-                   style="margin-right: 20px">
+          <el-form :model="condition" label-position="right" label-width="auto" size="small" ref="basicForm">
             <el-row>
-              <el-col :span="5">
+              <el-col :span="8">
                 <el-form-item :label="$t('operating_log.time')" prop="times">
                   <el-date-picker
                     size="small"
@@ -18,11 +17,11 @@
                     value-format="timestamp"
                     :range-separator="$t('commons.date.range_separator')"
                     :start-placeholder="$t('schedule.cron.start')"
-                    :end-placeholder="$t('variables.end')" style="width: 100%">
+                    :end-placeholder="$t('variables.end')" style="width: 95%">
                   </el-date-picker>
                 </el-form-item>
               </el-col>
-              <el-col :span="4">
+              <el-col :span="8">
                 <el-form-item :label="$t('operating_log.user')" prop="user">
                   <el-autocomplete
                     class="input-with-autocomplete"
@@ -33,7 +32,7 @@
                     size="small"
                     highlight-first-item
                     value-key="email"
-                    @select="handleSelect">
+                    @select="handleSelect" style="width: 100%">
                     <template v-slot:default="scope">
                       <span class="ws-member-name">{{ scope.item.name }}</span>
                       <span class="ws-member-email">{{ scope.item.email }}</span>
@@ -42,23 +41,25 @@
                 </el-form-item>
               </el-col>
 
-              <el-col :span="4">
+              <el-col :span="8">
                 <el-form-item :label="$t('commons.project')" prop="project">
-                  <el-select size="small" v-model="condition.projectId" @change="initTableData" clearable>
+                  <el-select size="small" v-model="condition.projectId" @change="initTableData" clearable style="width: 100%">
                     <el-option v-for="o in items" :key="o.id" :label="$t(o.label)" :value="o.id"/>
                   </el-select>
                 </el-form-item>
               </el-col>
 
-              <el-col :span="4">
+            </el-row>
+            <el-row>
+              <el-col :span="8">
                 <el-form-item :label="$t('operating_log.type')" prop="type">
-                  <el-select size="small" v-model="condition.operType" clearable @change="initTableData">
+                  <el-select size="small" v-model="condition.operType" clearable @change="initTableData" style="width: 95%">
                     <el-option v-for="o in LOG_TYPE" :key="o.id" :label="$t(o.label)" :value="o.id"/>
                   </el-select>
                 </el-form-item>
               </el-col>
 
-              <el-col :span="4">
+              <el-col :span="8">
                 <el-form-item :label="$t('operating_log.object')" prop="module">
                   <el-cascader v-model="condition.operModules"
                                show-all-levels filterable
@@ -66,13 +67,13 @@
                                :placeholder="$t('operating_log.object')"
                                :props="props"
                                class="ms-case"
-                               @change="initTableData" ref="cascade"/>
+                               @change="initTableData" ref="cascade" style="width: 100%"/>
                 </el-form-item>
               </el-col>
 
-              <el-col :span="3">
-                <div style="width: 140px">
-                  <el-button type="primary" size="small" style="float: right" @click="search">
+              <el-col :span="8">
+                <div style="float: right">
+                  <el-button type="primary" size="small"  @click="search">
                     {{ $t('commons.adv_search.search') }}
                   </el-button>
                   <el-button size="small" @click="reset">
