@@ -28,8 +28,10 @@ import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.python.antlr.ast.Str;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,6 +46,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -114,6 +117,30 @@ public class MockConfigService {
         } else {
             return new MockConfigResponse(null, new ArrayList<>());
         }
+    }
+
+    public void initExpectNum(){
+        MockExpectConfigExample example = new MockExpectConfigExample();
+        example.createCriteria().andExpectNumIsNull();
+        List<MockExpectConfigWithBLOBs> mockExpectConfigList = mockExpectConfigMapper.selectByExampleWithBLOBs(example);
+
+        Map<String,List<MockExpectConfigWithBLOBs>> mockConfigIdMap = mockExpectConfigList.stream().collect(Collectors.groupingBy(MockExpectConfig::getMockConfigId));
+        for (Map.Entry<String, List<MockExpectConfigWithBLOBs>> entry :
+                mockConfigIdMap.entrySet()) {
+            String mockConfigId = entry.getKey();
+            List<MockExpectConfigWithBLOBs> list = entry.getValue();
+            String apiNum = extMockExpectConfigMapper.selectApiNumberByMockConfigId(mockConfigId);
+            if(StringUtils.isEmpty(apiNum) || StringUtils.equalsIgnoreCase(apiNum,"null")){
+                continue;
+            }
+            int expectNumIndex = this.getMockExpectNumIndex(mockConfigId,apiNum);
+            for (MockExpectConfigWithBLOBs config : list) {
+                config.setExpectNum(apiNum+"_"+expectNumIndex);
+                mockExpectConfigMapper.updateByPrimaryKeySelective(config);
+                expectNumIndex ++;
+            }
+        }
+
     }
 
     public MockConfigResponse genMockConfig(MockConfigRequest request) {
@@ -193,8 +220,11 @@ public class MockConfigService {
             this.checkNameIsExists(request);
         }
         long timeStmp = System.currentTimeMillis();
+
+        String expectNum = this.getMockExpectId(request.getMockConfigId());
         MockExpectConfigWithBLOBs model = new MockExpectConfigWithBLOBs();
         model.setId(request.getId());
+        model.setExpectNum(expectNum);
         model.setMockConfigId(request.getMockConfigId());
         model.setUpdateTime(timeStmp);
         model.setStatus(request.getStatus());
@@ -221,6 +251,54 @@ public class MockConfigService {
         }
         FileUtils.createBodyFiles(model.getId(), bodyFiles);
         return model;
+    }
+
+    private String getMockExpectId(String mockConfigId) {
+        List<String> savedExpectNumber = extMockExpectConfigMapper.selectExlectNumByMockConfigId(mockConfigId);
+        String apiNum = extMockExpectConfigMapper.selectApiNumberByMockConfigId(mockConfigId);
+        if(StringUtils.isEmpty(apiNum)){
+            apiNum = "";
+        }else {
+            apiNum = apiNum + "_";
+        }
+
+        int index = 1;
+        for(String expectNum : savedExpectNumber){
+            if(StringUtils.startsWith(expectNum,apiNum)){
+                String numStr = StringUtils.substringAfter(expectNum,apiNum);
+                try{
+                    int savedIndex = Integer.parseInt(numStr);
+                    if(index <= savedIndex){
+                        index = savedIndex+1;
+                    }
+                }catch (Exception e ){}
+            }
+        }
+        return apiNum + index;
+    }
+
+    private int getMockExpectNumIndex(String mockConfigId,String apiNumber) {
+        List<String> savedExpectNumber = extMockExpectConfigMapper.selectExlectNumByMockConfigId(mockConfigId);
+        String apiNum = apiNumber;
+        if(StringUtils.isEmpty(apiNum)){
+            apiNum = "";
+        }else {
+            apiNum = apiNum + "_";
+        }
+
+        int index = 1;
+        for(String expectNum : savedExpectNumber){
+            if(StringUtils.startsWith(expectNum,apiNum)){
+                String numStr = StringUtils.substringAfter(expectNum,apiNum);
+                try{
+                    int savedIndex = Integer.parseInt(numStr);
+                    if(index <= savedIndex){
+                        index = savedIndex+1;
+                    }
+                }catch (Exception e ){}
+            }
+        }
+        return index;
     }
 
     private void checkNameIsExists(MockExpectConfigRequest request) {
