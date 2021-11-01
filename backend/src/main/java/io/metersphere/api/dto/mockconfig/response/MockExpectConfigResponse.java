@@ -19,6 +19,8 @@ public class MockExpectConfigResponse {
 
     private String id;
 
+    private String expectNum;
+
     private String mockConfigId;
 
     private String name;
@@ -40,6 +42,7 @@ public class MockExpectConfigResponse {
     public MockExpectConfigResponse(MockExpectConfigWithBLOBs expectConfig) {
         this.id = expectConfig.getId();
         this.mockConfigId = expectConfig.getMockConfigId();
+        this.expectNum = expectConfig.getExpectNum();
         this.name = expectConfig.getName();
         this.status = Boolean.parseBoolean(expectConfig.getStatus());
         this.createTime = expectConfig.getCreateTime();
