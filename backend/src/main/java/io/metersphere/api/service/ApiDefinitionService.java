@@ -52,12 +52,14 @@ import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -125,6 +127,9 @@ public class ApiDefinitionService {
     private RelationshipEdgeService relationshipEdgeService;
     @Resource
     private ApiDefinitionFollowMapper apiDefinitionFollowMapper;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600);
 
@@ -1247,12 +1252,17 @@ public class ApiDefinitionService {
 //        extApiDefinitionMapper.removeToGcByExample(example);
     }
 
-    public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
+    public Pager<List<ApiDefinitionResult>> listRelevance(ApiDefinitionRequest request, int goPage, int pageSize) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
+        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+            request.setRepeatCase(true);
+        }
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
         calculateResult(resList, request.getProjectId());
-        return resList;
+        return PageUtils.setPageInfo(page, resList);
     }
+
 
     public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));

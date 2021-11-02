@@ -26,7 +26,6 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.IssueTemplateDao;
@@ -36,7 +35,6 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
-import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
@@ -2071,5 +2069,9 @@ public class TestPlanService {
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIds);
         return userMapper.selectByExample(userExample);
+    }
+
+    public boolean isAllowedRepeatCase(String planId) {
+        return testPlanMapper.selectByPrimaryKey(planId).getRepeatCase();
     }
 }
