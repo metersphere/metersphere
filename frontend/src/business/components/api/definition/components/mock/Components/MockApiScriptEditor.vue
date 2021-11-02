@@ -46,27 +46,27 @@ export default {
           children: [
             {
               title: this.$t('api_test.request.address'),
-              value: 'returnMsg.add(@address);',
+              value: 'var returnMsg = requestParams.get("address");\nreturn returnMsg;',
             },
             {
               title: "Header "+this.$t('api_test.definition.document.request_param'),
-              value: 'returnMsg.add(@header(${param}));',
+              value: 'var returnMsg = requestParams.get("header.${param}");\nreturn returnMsg;',
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable'),
-              value: 'returnMsg.add(@body(${param}));',
+              value: 'var returnMsg = requestParams.get("body.${param}");\nreturn returnMsg;',
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable')+" (Raw)",
-              value: 'returnMsg.add(@bodyRaw);',
+              value: 'var returnMsg = requestParams.get("bodyRaw");\nreturn returnMsg;',
             },
             {
               title: "Query "+this.$t('api_test.definition.document.request_param'),
-              value: 'returnMsg.add(@query(${param}));',
+              value: 'var returnMsg = requestParams.get("query.${param}");\nreturn returnMsg;',
             },
             {
               title: "Rest "+this.$t('api_test.definition.document.request_param'),
-              value: 'returnMsg.add(@rest(${param}));',
+              value: 'var returnMsg = requestParams.get("rest.${param}");\nreturn returnMsg;',
             },
 
           ]
@@ -94,7 +94,7 @@ export default {
       ],
       isCodeEditAlive: true,
       languages: [
-        'beanshell',"groovy"
+        'beanshell'
         // , "python",  "nashornScript", "rhinoScript"
       ],
       codeEditModeMap: {
