@@ -49,8 +49,7 @@ public class TestPlanScenarioCaseController {
 
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<ApiScenarioDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, testPlanScenarioCaseService.relevanceList(request));
+        return testPlanScenarioCaseService.relevanceList(request, goPage, pageSize);
     }
 
     @GetMapping("/delete/{id}")

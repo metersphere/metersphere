@@ -37,6 +37,7 @@ import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
+import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -95,6 +96,9 @@ public class ApiTestCaseService {
     @Resource
     @Lazy
     private APITestService apiTestService;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
@@ -544,6 +548,7 @@ public class ApiTestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
 
         ExtTestPlanApiCaseMapper batchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
+        TestPlanApiCaseMapper batchBaseMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
         Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanApiCaseMapper::getLastOrder);
 
         for (ApiTestCase apiTestCase : apiTestCases) {
@@ -557,7 +562,11 @@ public class ApiTestCaseService {
             testPlanApiCase.setUpdateTime(System.currentTimeMillis());
             testPlanApiCase.setOrder(nextOrder);
             nextOrder += 5000;
-            batchMapper.insertIfNotExists(testPlanApiCase);
+            if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+                batchBaseMapper.insert(testPlanApiCase);
+            } else {
+                batchMapper.insertIfNotExists(testPlanApiCase);
+            }
         }
 
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());

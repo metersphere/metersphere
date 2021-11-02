@@ -90,7 +90,8 @@ public class TestPlanApiCaseService {
     @Resource
     private ResourcePoolCalculation resourcePoolCalculation;
     @Resource
-    private NodeKafkaService nodeKafkaService;
+    @Lazy
+    private TestPlanService testPlanService;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
 
@@ -138,12 +139,14 @@ public class TestPlanApiCaseService {
     }
 
     public Pager<List<ApiTestCaseDTO>> relevanceList(int goPage, int pageSize, ApiTestCaseRequest request) {
-        List<String> ids = apiTestCaseService.selectIdsNotExistsInPlan(request.getProjectId(), request.getPlanId());
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        if (CollectionUtils.isEmpty(ids)) {
-            return PageUtils.setPageInfo(page, new ArrayList<>());
+        if (!testPlanService.isAllowedRepeatCase(request.getPlanId())) { // 不允许重复关联
+            List<String> ids = apiTestCaseService.selectIdsNotExistsInPlan(request.getProjectId(), request.getPlanId());
+            if (CollectionUtils.isEmpty(ids)) {
+                return PageUtils.setPageInfo(PageHelper.startPage(goPage, pageSize, true), new ArrayList<>());
+            }
+            request.setIds(ids);
         }
-        request.setIds(ids);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiTestCaseService.listSimple(request));
     }
