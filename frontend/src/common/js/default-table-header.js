@@ -54,7 +54,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'name', key: '2', label: 'test_track.case.name'},
     {id: 'priority', key: '3', label: 'test_track.case.priority'},
     {id: 'path', key: '4', label: 'api_test.definition.api_definition_path'},
-    {id: 'status', key: '5', label: 'test_track.plan_view.execute_result'},
+    {id: 'execResult', key: '5', label: 'test_track.plan_view.execute_result'},
     {id: 'caseStatus', key: '6', label: 'commons.status'},
     {id: 'tags', key: '7', label: 'commons.tag'},
     {id: 'createUser', key: '8', label: 'api_test.creator'},

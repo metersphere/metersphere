@@ -100,7 +100,7 @@
           </ms-table-column>
 
           <ms-table-column
-            prop="status"
+            prop="execResult"
             :filters="statusFilters"
             :field="item"
             :fields-width="fieldsWidth"
