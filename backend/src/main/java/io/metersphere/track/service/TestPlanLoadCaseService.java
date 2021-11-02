@@ -1,6 +1,8 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
@@ -10,9 +12,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.commons.utils.TestPlanUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,16 +58,23 @@ public class TestPlanLoadCaseService {
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
     private LoadTestMapper loadTestMapper;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
 
-    public List<LoadTest> relevanceList(LoadCaseRequest request) {
+    public Pager<List<LoadTest>> relevanceList(LoadCaseRequest request, int goPage, int pageSize) {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
         orders.forEach(i -> i.setPrefix("load_test"));
         request.setOrders(orders);
+        if (testPlanService.isAllowedRepeatCase(request.getTestPlanId())) {
+            request.setRepeatCase(true);
+        }
         List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request);
         if (CollectionUtils.isEmpty(ids)) {
-            return new ArrayList<>();
+            return PageUtils.setPageInfo(PageHelper.startPage(goPage, pageSize, true), new ArrayList<>());
         }
-        return performanceTestService.getLoadTestListByIds(ids);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, performanceTestService.getLoadTestListByIds(ids));
     }
 
     public List<TestPlanLoadCaseDTO> list(LoadCaseRequest request) {

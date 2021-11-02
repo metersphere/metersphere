@@ -142,6 +142,9 @@ public class TestCaseService {
     private PerformanceTestService performanceTestService;
     @Resource
     private TestCaseFollowMapper testCaseFollowMapper;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -452,12 +455,16 @@ public class TestCaseService {
      * @param request
      * @return
      */
-    public List<TestCase> getTestCaseRelateList(QueryTestCaseRequest request) {
+    public Pager<List<TestCase>> getTestCaseRelateList(QueryTestCaseRequest request, int goPage, int pageSize) {
         setDefaultOrder(request);
         request.getOrders().forEach(order -> {
             order.setPrefix("test_case");
         });
-        return getTestCaseByNotInPlan(request);
+        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+            request.setRepeatCase(true);
+        }
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, getTestCaseByNotInPlan(request));
     }
 
     public List<TestCase> getTestCaseByNotInPlan(QueryTestCaseRequest request) {

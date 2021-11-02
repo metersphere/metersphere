@@ -18,6 +18,9 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
 
     private List<String> testCaseIds;
 
+    // 测试计划是否允许重复
+    private boolean repeatCase;
+
     private String planId;
 
     private String issuesId;

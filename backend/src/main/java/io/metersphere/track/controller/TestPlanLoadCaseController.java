@@ -31,8 +31,7 @@ public class TestPlanLoadCaseController {
 
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<LoadTest>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, testPlanLoadCaseService.relevanceList(request));
+        return testPlanLoadCaseService.relevanceList(request, goPage, pageSize);
     }
 
     @PostMapping("/relevance")

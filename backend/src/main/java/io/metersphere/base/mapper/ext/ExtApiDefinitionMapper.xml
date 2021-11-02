@@ -427,17 +427,19 @@
                     </if>
                 </foreach>
             </if>
-            and exists (
-            select id
-            from api_test_case c
-            where c.api_definition_id = api_definition.id
-            and not exists (
-            select id
-            from test_plan_api_case t
-            where t.api_case_id = c.id
-            and t.test_plan_id = #{request.planId}
-            )
-            )
+            <if test="!request.repeatCase">
+                and exists (
+                select id
+                from api_test_case c
+                where c.api_definition_id = api_definition.id
+                and not exists (
+                select id
+                from test_plan_api_case t
+                where t.api_case_id = c.id
+                and t.test_plan_id = #{request.planId}
+                )
+                )
+            </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by

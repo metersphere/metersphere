@@ -2,6 +2,8 @@ package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
@@ -14,6 +16,8 @@ import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.TestPlanUtils;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -26,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +60,9 @@ public class TestPlanScenarioCaseService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -107,10 +115,13 @@ public class TestPlanScenarioCaseService {
         return idList;
     }
 
-    public List<ApiScenarioDTO> relevanceList(ApiScenarioRequest request) {
+    public Pager<List<ApiScenarioDTO>> relevanceList(ApiScenarioRequest request, int goPage, int pageSize) {
         request.setNotInTestPlan(true);
-        List<ApiScenarioDTO> list = apiAutomationService.list(request);
-        return list;
+        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+            request.setNotInTestPlan(false);
+        }
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
     public int delete(String id) {

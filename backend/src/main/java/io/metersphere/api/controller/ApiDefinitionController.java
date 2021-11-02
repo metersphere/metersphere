@@ -70,8 +70,7 @@ public class ApiDefinitionController {
 
     @PostMapping("/list/relevance/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> listRelevance(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, apiDefinitionService.listRelevance(request));
+        return apiDefinitionService.listRelevance(request, goPage, pageSize);
     }
 
     @PostMapping("/list/relevance/review/{goPage}/{pageSize}")
