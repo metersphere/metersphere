@@ -265,7 +265,7 @@ import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem"
 import MethodTableItem from "../../../../common/tableItems/planview/MethodTableItem";
 import MsTableOperator from "../../../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
-import {TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
+import {TEST_PLAN_TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
 import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
@@ -308,7 +308,7 @@ export default {
       result: {},
       deletePath: "/test/case/delete",
       condition: {
-        components: TEST_CASE_CONFIGS
+        components: TEST_PLAN_TEST_CASE_CONFIGS
       },
       enableOrderDrag: true,
       showMyTestCase: false,
@@ -508,7 +508,7 @@ export default {
       this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
     },
     refresh() {
-      this.condition = {components: TEST_CASE_CONFIGS};
+      this.condition = {components: TEST_PLAN_TEST_CASE_CONFIGS};
       this.$refs.table.clear();
       this.$emit('refresh');
     },
