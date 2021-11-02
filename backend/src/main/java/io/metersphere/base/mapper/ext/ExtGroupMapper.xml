@@ -25,7 +25,7 @@
             </if>
         </where>
         union distinct
-        select g.*, '全局' as scopeName from `group` g
+        select g.*, 'global' as scopeName from `group` g
         <where>
             g.scope_id = 'global'
             <if test="request.types != null and request.types.size() > 0">

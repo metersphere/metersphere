@@ -66,7 +66,7 @@ export default {
   },
   methods: {
     clickPlanMenu() {
-      this.$info("功能正在规划中...");
+      this.$info(this.$t('commons.function_planning'));
       return false;
     }
   }

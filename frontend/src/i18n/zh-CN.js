@@ -321,7 +321,16 @@ export default {
         cannot_add_more_options: "无法添加更多条件",
         end_time_cannot_over_than_start_time: "结束时间不能超过当前时间",
       },
-    }
+    },
+    enterprise_edition: "企业版",
+    open_source_version: "开源版",
+    function_planning: "功能正在规划中...",
+    system_data: "系统数据",
+    system_user: "系统用户",
+    system_workspace: "工作空间",
+    system_project: "项目",
+    user_unit: "人",
+    workspace_unit: "个"
   },
   license: {
     title: '授权管理',
@@ -431,6 +440,20 @@ export default {
     template_manage: "模版管理",
     case_template_manage: "用例模版",
     issue_template_manage: "缺陷模版",
+    custom_filed: {
+      input: '输入框',
+      textarea: '文本框',
+      select: '单选下拉列表',
+      multipleSelect: '多选下拉列表',
+      radio: '单选框',
+      checkbox: '多选框',
+      member: '单选成员',
+      multipleMember: '多选成员',
+      data: '日期',
+      int: '整型',
+      float: '浮点型',
+      multipleInput: '多值输入框'
+    }
   },
   organization: {
     create: '创建组织',
@@ -585,7 +608,9 @@ export default {
     env_desc: '项目运行环境以及全局配置',
     file_desc: 'jar包以及资源文件管理',
     log_desc: '项目全部操作过程',
-    code_segment_desc: '自定义代码片段'
+    code_segment_desc: '自定义代码片段',
+    test_case_custom_id: '测试用例自定义ID',
+    scenario_custom_id: '场景自定义ID',
   },
   member: {
     create: '添加成员',
@@ -664,7 +689,8 @@ export default {
     operation_object: '操作对象',
     check_all: '全选',
     permission: '权限',
-    please_select_group: '请选择用户组'
+    please_select_group: '请选择用户组',
+    global: '全局'
   },
   role: {
     please_choose_role: '请选择角色',
