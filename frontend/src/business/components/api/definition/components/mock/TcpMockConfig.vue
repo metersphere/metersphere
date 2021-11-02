@@ -183,15 +183,18 @@ export default {
   },
   created() {
     this.mockConfigData = this.baseMockConfigData;
-    this.searchApiParams(this.mockConfigData.mockConfig.apiId);
+    // this.searchApiParams(this.mockConfigData.mockConfig.apiId);
   },
   methods: {
-    searchApiParams(apiId) {
-      let selectUrl = "/mockConfig/getApiParams/" + apiId;
-      this.$get(selectUrl, response => {
-        this.apiParams = response.data;
-      });
-    },
+    // searchApiParams(apiId) {
+    //   let selectUrl = "/mockConfig/getApiParams/" + apiId;
+    //   this.$get(selectUrl, response => {
+    //     let respData = response.data;
+    //     if(respData.value){
+    //       this.apiParams = respData.value;
+    //     }
+    //   });
+    // },
     copyExpect(row) {
       let selectUrl = "/mockConfig/mockExpectConfig/" + row.id;
       this.$get(selectUrl, response => {
