@@ -20,9 +20,10 @@
                     :request="mockExpectConfig.request" style="margin: 10px 10px;" ref="tcpParam"></tcp-params>
                 <mock-request-param
                     v-else
-                  :isShowEnable="true"
+                  :isShowEnable="false"
                   :referenced="true"
                   :is-read-only="false"
+                  :api-params="apiParams"
                   :request="mockExpectConfig.request.params"/>
               </el-row>
 
@@ -66,7 +67,7 @@ export default {
     MsDrawer,MockConfigHeader,MockRowVariables,MsCodeEdit,MockRequestParam,MockResponseParam,TcpParams
   },
   props: {
-    apiParams: Array,
+    apiParams: Object,
     apiId:String,
     mockConfigId:String,
     isTcp:{
