@@ -196,6 +196,11 @@
       "resourceId": "WORKSPACE_PROJECT_MANAGER"
     },
     {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+UPLOAD_JAR",
+      "name": "上传jar包",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
       "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ",
       "name": "查询环境",
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
