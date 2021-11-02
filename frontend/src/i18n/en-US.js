@@ -320,7 +320,16 @@ export default {
         cannot_add_more_options: "Cannot add more options",
         end_time_cannot_over_than_start_time: "End time cannot before than start time",
       },
-    }
+    },
+    enterprise_edition: "ENTERPRISE",
+    open_source_version: "OPEN-SOURCE",
+    function_planning: "The function is being planned...",
+    system_data: "System Data",
+    system_user: "User",
+    system_workspace: "Workspace",
+    system_project: "Project",
+    user_unit: "",
+    workspace_unit: ""
   },
   license: {
     title: 'Authorization management',
@@ -430,6 +439,20 @@ export default {
     template_manage: "Template Manage",
     case_template_manage: "Case Template",
     issue_template_manage: "Issue Template",
+    custom_filed: {
+      input: 'Input',
+      textarea: 'Textarea',
+      select: 'Select',
+      multipleSelect: 'MultipleSelect',
+      radio: 'Radio',
+      checkbox: 'Checkbox',
+      member: 'Member',
+      multipleMember: 'MultipleMember',
+      data: 'Data',
+      int: 'Int',
+      float: 'Float',
+      multipleInput: 'MultipleInput'
+    }
   },
   organization: {
     create: 'Create Organization',
@@ -581,7 +604,9 @@ export default {
     env_desc: 'Project operating environment',
     file_desc: 'Jar package and resource file management',
     log_desc: 'The whole operation process of the project',
-    code_segment_desc: 'Custom code snippet'
+    code_segment_desc: 'Custom code snippet',
+    test_case_custom_id: 'Test Case Custom ID',
+    scenario_custom_id: 'Scenario Custom ID',
   },
   member: {
     create: 'Create',
@@ -660,7 +685,8 @@ export default {
     operation_object: 'Operation Object',
     check_all: 'ALL',
     permission: 'Permission',
-    please_select_group: 'Please Select Group'
+    please_select_group: 'Please Select Group',
+    global: 'Global'
   },
   role: {
     please_choose_role: 'Please Choose Role',
