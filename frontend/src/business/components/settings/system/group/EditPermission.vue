@@ -19,7 +19,7 @@
           width="180">
           <template v-slot:default="scope">
             <span v-if="scope.row.type !== 'PROJECT'">
-              {{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}
+              {{ userGroupType[scope.row.type] ? $t(userGroupType[scope.row.type]) : scope.row.type }}
             </span>
             <span v-else>{{ _computedMenuName(scope.row.resource) }}</span>
           </template>

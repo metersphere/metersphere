@@ -33,8 +33,8 @@
         </el-table-column>
         <el-table-column prop="license" :label="$t('license.licenseVersion')">
           <template v-slot:default="scope">
-            <span v-if="scope.row.license">企业版</span>
-            <span v-else>开源版</span>
+            <span v-if="scope.row.license">{{ $t('commons.enterprise_edition') }}</span>
+            <span v-else>{{ $t('commons.open_source_version') }}</span>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" min-width="30">
