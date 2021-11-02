@@ -69,7 +69,10 @@
         </ms-table-column>
       </ms-table>
     </div>
-    <mock-edit-drawer :is-tcp="isTcp" :api-id="this.baseMockConfigData.mockConfig.apiId" @refreshMockInfo="refreshMockInfo" :mock-config-id="mockConfigData.mockConfig.id" ref="mockEditDrawer"/>
+    <mock-edit-drawer :is-tcp="isTcp" :api-id="this.baseMockConfigData.mockConfig.apiId"
+                      :api-params="apiParams"
+                      @refreshMockInfo="refreshMockInfo"
+                      :mock-config-id="mockConfigData.mockConfig.id" ref="mockEditDrawer"/>
   </div>
 </template>
 
@@ -100,7 +103,7 @@ export default {
       visible: false,
       mockConfigData: {},
       tableSearch:"",
-      apiParams: [],
+      apiParams: {},
       pageSize: 10,
       screenHeight:document.documentElement.clientHeight - 250,
       operators: [
@@ -125,7 +128,6 @@ export default {
   },
   created() {
     this.mockConfigData = this.baseMockConfigData;
-    this.searchApiParams(this.mockConfigData.mockConfig.apiId);
   },
   computed: {
     projectId() {
@@ -136,7 +138,17 @@ export default {
     searchApiParams(apiId) {
       let selectUrl = "/mockConfig/getApiParams/" + apiId;
       this.$get(selectUrl, response => {
+
         this.apiParams = response.data;
+        if(!this.apiParams.query){
+          this.apiParams.query = [];
+        }
+        if(!this.apiParams.rest){
+          this.apiParams.rest = [];
+        }
+        if(!this.apiParams.form){
+          this.apiParams.form = [];
+        }
       });
     },
     changeStatus(row) {
@@ -196,6 +208,7 @@ export default {
       });
     },
     addApiMock(){
+      this.searchApiParams(this.mockConfigData.mockConfig.apiId);
       this.$refs.mockEditDrawer.open();
     },
     removeExpect(row) {
