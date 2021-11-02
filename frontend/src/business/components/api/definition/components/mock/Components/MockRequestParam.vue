@@ -17,7 +17,8 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <ms-api-key-value :append-to-body="true" :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="request.headers" :need-mock="true"/>
+              <ms-api-key-value :append-to-body="true" :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
+                                :suggestions="headerSuggestions" :items="request.headers" :need-mock="true"/>
             </el-tab-pane>
 
             <!--query 参数-->
@@ -31,7 +32,10 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <ms-api-variable :append-dialog-to-body="true" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
+              <mock-api-variable :append-dialog-to-body="true"
+                                 :suggestions="apiParams.query"
+                                 :with-mor-setting="true"
+                                 :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
             </el-tab-pane>
 
             <!--REST 参数-->
@@ -47,12 +51,18 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <ms-api-variable :append-dialog-to-body="true" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
+              <mock-api-variable :append-dialog-to-body="true"
+                                 :suggestions="apiParams.rest"
+                                 :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
             </el-tab-pane>
 
             <!--请求体-->
             <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body" style="overflow: auto">
-              <mock-api-body @headersChange="reloadBody" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :headers="request.headers" :body="request.body"/>
+              <mock-api-body @headersChange="reloadBody"
+                             :suggestions="apiParams.form"
+                             :is-read-only="isReadOnly"
+                             :isShowEnable="isShowEnable"
+                             :headers="request.headers" :body="request.body"/>
             </el-tab-pane>
             <el-tab-pane name="create" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense() && definitionTest">
               <template v-slot:label>
@@ -72,7 +82,7 @@ import MsApiKeyValue from "@/business/components/api/definition/components/ApiKe
 import MsApiAuthConfig from "@/business/components/api/definition/components/auth/ApiAuthConfig";
 import ApiRequestMethodSelect from "@/business/components/api/definition/components/collapse/ApiRequestMethodSelect";
 import {REQUEST_HEADERS} from "@/common/js/constants";
-import MsApiVariable from "@/business/components/api/definition/components/ApiVariable";
+import MockApiVariable from "@/business/components/api/definition/components/mock/Components/MockApiVariable";
 import MsApiAssertions from "@/business/components/api/definition/components/assertion/ApiAssertions";
 import MsApiExtract from "@/business/components/api/definition/components/extract/ApiExtract";
 import {Body, KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
@@ -92,7 +102,7 @@ export default {
     MsJsr233Processor,
     MsApiAdvancedConfig,
     BatchAddParameter,
-    MsApiVariable,
+    MockApiVariable,
     ApiRequestMethodSelect,
     MsApiExtract,
     MsApiAuthConfig,
@@ -120,6 +130,7 @@ export default {
     },
     isShowEnable: Boolean,
     jsonPathList: Array,
+    apiParams: Object,
     isReadOnly: {
       type: Boolean,
       default: false

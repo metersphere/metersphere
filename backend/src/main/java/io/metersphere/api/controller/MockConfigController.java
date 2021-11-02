@@ -1,6 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.dto.mock.MockApiUtils;
+import io.metersphere.api.dto.mock.MockParamSuggestions;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
 import io.metersphere.api.dto.mockconfig.response.MockConfigResponse;
@@ -69,9 +70,9 @@ public class MockConfigController {
     }
 
     @GetMapping("/getApiParams/{id}")
-    public List<Map<String, String>> getApiParams(@PathVariable String id) {
+    public Map<String, List<MockParamSuggestions>> getApiParams(@PathVariable String id) {
         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionService.getBLOBs(id);
-        List<Map<String, String>> apiParams = mockConfigService.getApiParamsByApiDefinitionBLOBs(apiDefinitionWithBLOBs);
+        Map<String, List<MockParamSuggestions>> apiParams = mockConfigService.getApiParamsByApiDefinitionBLOBs(apiDefinitionWithBLOBs);
         return apiParams;
     }
 

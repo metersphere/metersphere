@@ -21,12 +21,13 @@
         {{ $t('api_test.definition.request.body_raw') }}
       </el-radio>
     </el-radio-group>
-    <div style="min-width: 1200px;" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
+    <div style="width: 98%;" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
         <el-link class="ms-el-link" @click="batchAdd"> {{ $t("commons.batch_add") }}</el-link>
       </el-row>
-      <ms-api-variable
+      <mock-api-variable
         :with-mor-setting="true"
+        :suggestions="suggestions"
         :is-read-only="isReadOnly"
         :parameters="body.kvs"
         :isShowEnable="isShowEnable"
@@ -77,7 +78,7 @@ import {BODY_TYPE, KeyValue} from "@/business/components/api/definition/model/Ap
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
-import MsApiVariable from "@/business/components/api/definition/components/ApiVariable";
+import MockApiVariable from "@/business/components/api/definition/components/mock/Components/MockApiVariable";
 import MsApiFromUrlVariable from "@/business/components/api/definition/components/body/ApiFromUrlVariable";
 import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 import Convert from "@/business/components/common/json-schema/convert/convert";
@@ -86,7 +87,7 @@ import Convert from "@/business/components/common/json-schema/convert/convert";
 export default {
   name: "MockApiBody",
   components: {
-    MsApiVariable,
+    MockApiVariable,
     MsDropdown,
     MsCodeEdit,
     MsApiKeyValue,
@@ -97,6 +98,7 @@ export default {
   props: {
     body: {},
     headers: Array,
+    suggestions: Array,
     isReadOnly: {
       type: Boolean,
       default: false
