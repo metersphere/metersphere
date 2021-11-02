@@ -120,7 +120,7 @@ export default {
         if (data.length > 0) {
           data.forEach(d => {
             d.leaf = d.type === GROUP_SYSTEM;
-            d.showLabel = "[" + USER_GROUP_SCOPE[d.type] + "] " + d.name;
+            d.showLabel = "[" + this.$t(USER_GROUP_SCOPE[d.type]) + "] " + d.name;
           });
         }
         resolve(data);

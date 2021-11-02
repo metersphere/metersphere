@@ -45,7 +45,7 @@
           :fields-width="fieldsWidth"
           prop="scene">
           <template v-slot="scope">
-            <span>{{ sceneMap[scope.row.scene] }}</span>
+            <span>{{ $t(sceneMap[scope.row.scene]) }}</span>
           </template>
         </ms-table-column>
 
@@ -56,7 +56,7 @@
           :fields-width="fieldsWidth"
           prop="type">
           <template v-slot="scope">
-            <span>{{ fieldTypeMap[scope.row.type] }}</span>
+            <span>{{ $t(fieldTypeMap[scope.row.type]) }}</span>
           </template>
         </ms-table-column>
 

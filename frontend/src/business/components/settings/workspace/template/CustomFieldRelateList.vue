@@ -43,7 +43,7 @@
             :filters="fieldFilters"
             prop="type">
             <template v-slot="scope">
-              <span>{{ fieldTypeMap[scope.row.type] }}</span>
+              <span>{{ $t(fieldTypeMap[scope.row.type]) }}</span>
             </template>
           </ms-table-column>
 
@@ -100,7 +100,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import {CUSTOM_FIELD_TYPE_OPTION, FIELD_TYPE_MAP, SCENE_MAP, SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import {CUSTOM_FIELD_TYPE_OPTION, FIELD_TYPE_MAP, SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
 export default {
@@ -134,9 +134,6 @@ export default {
     },
     fieldTypeMap() {
       return FIELD_TYPE_MAP;
-    },
-    sceneMap() {
-      return SCENE_MAP;
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;

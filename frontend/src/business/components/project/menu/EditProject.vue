@@ -7,10 +7,10 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item :label-width="labelWidth" :label="$t('用例模板')" prop="caseTemplateId">
+        <el-form-item :label-width="labelWidth" :label="$t('workspace.case_template_manage')" prop="caseTemplateId">
           <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('缺陷模板')" prop="issueTemplateId">
+        <el-form-item :label-width="labelWidth" :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
           <template-select :data="form" scene="ISSUE" prop="issueTemplateId" ref="issueTemplate"/>
         </el-form-item>
 
@@ -50,10 +50,10 @@
         <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
         </el-form-item>
-        <el-form-item :label-width="labelWidth"  label="测试用例自定义ID" prop="customNum">
+        <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id')" prop="customNum">
           <el-switch v-model="form.customNum"></el-switch>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" label="场景自定义ID" prop="scenarioCustomNum">
+        <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id')" prop="scenarioCustomNum">
           <el-switch v-model="form.scenarioCustomNum"></el-switch>
         </el-form-item>
       </el-form>

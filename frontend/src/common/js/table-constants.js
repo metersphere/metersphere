@@ -2,23 +2,23 @@
 import i18n from "@/i18n/i18n";
 
 export const CUSTOM_FIELD_TYPE_OPTION = [
-  {value: 'input',text: '输入框'},
-  {value: 'textarea',text: '文本框'},
-  {value: 'select',text: '单选下拉列表'},
-  {value: 'multipleSelect',text: '多选下拉列表'},
-  {value: 'radio',text: '单选框'},
-  {value: 'checkbox',text: '多选框'},
-  {value: 'member',text: '单选成员'},
-  {value: 'multipleMember',text: '多选成员'},
-  {value: 'data',text: '日期'},
-  {value: 'int',text: '整型'},
-  {value: 'float',text: '浮点型'},
-  {value: 'multipleInput',text: '多值输入框'}
+  {value: 'input',text: i18n.t('workspace.custom_filed.input')},
+  {value: 'textarea',text: i18n.t('workspace.custom_filed.textarea')},
+  {value: 'select',text: i18n.t('workspace.custom_filed.select')},
+  {value: 'multipleSelect',text: i18n.t('workspace.custom_filed.multipleSelect')},
+  {value: 'radio',text: i18n.t('workspace.custom_filed.radio')},
+  {value: 'checkbox',text: i18n.t('workspace.custom_filed.checkbox')},
+  {value: 'member',text: i18n.t('workspace.custom_filed.member')},
+  {value: 'multipleMember',text: i18n.t('workspace.custom_filed.multipleMember')},
+  {value: 'data',text: i18n.t('workspace.custom_filed.data')},
+  {value: 'int',text: i18n.t('workspace.custom_filed.int')},
+  {value: 'float',text: i18n.t('workspace.custom_filed.float')},
+  {value: 'multipleInput',text: i18n.t('workspace.custom_filed.multipleInput')}
 ];
 
 export const CUSTOM_FIELD_SCENE_OPTION = [
-  {value: 'TEST_CASE',text: '用例模板'},
-  {value: 'ISSUE',text: '缺陷模板'},
+  {value: 'TEST_CASE',text: i18n.t('workspace.case_template_manage')},
+  {value: 'ISSUE',text: i18n.t('workspace.issue_template_manage')},
 ];
 
 export const CASE_TYPE_OPTION = [
@@ -34,23 +34,23 @@ export const ISSUE_PLATFORM_OPTION = [
 ];
 
 export const FIELD_TYPE_MAP = {
-  input: '输入框',
-  textarea: '文本框',
-  select: '单选下拉列表',
-  multipleSelect: '多选下拉列表',
-  radio: '单选框',
-  checkbox: '多选框',
-  member: '单选成员',
-  multipleMember: '多选成员',
-  data: '日期',
-  int: '整型',
-  float: '浮点型',
-  multipleInput: '多值输入框'
+  input: 'workspace.custom_filed.input',
+  textarea: 'workspace.custom_filed.textarea',
+  select: 'workspace.custom_filed.select',
+  multipleSelect: 'workspace.custom_filed.multipleSelect',
+  radio: 'workspace.custom_filed.radio',
+  checkbox: 'workspace.custom_filed.checkbox',
+  member: 'workspace.custom_filed.member',
+  multipleMember: 'workspace.custom_filed.multipleMember',
+  data: 'workspace.custom_filed.data',
+  int: 'workspace.custom_filed.int',
+  float: 'workspace.custom_filed.float',
+  multipleInput: 'workspace.custom_filed.multipleInput'
 };
 
 export const SCENE_MAP = {
-  ISSUE: '缺陷模板',
-  TEST_CASE: '用例模板'
+  ISSUE: 'workspace.case_template_manage',
+  TEST_CASE: 'workspace.issue_template_manage'
 };
 
 export const SYSTEM_FIELD_NAME_MAP = {
@@ -94,10 +94,9 @@ export const API_SCENARIO_FILTERS = {
 }
 
 export const USER_GROUP_SCOPE = {
-  // todo i18n
-  'SYSTEM': '系统',
-  'WORKSPACE': '工作空间',
-  'PROJECT': '项目'
+  'SYSTEM': 'group.system',
+  'WORKSPACE': 'group.workspace',
+  'PROJECT': 'group.project'
 }
 
 export const PROJECT_GROUP_SCOPE = {
