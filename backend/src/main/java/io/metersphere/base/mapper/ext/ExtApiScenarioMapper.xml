@@ -296,7 +296,7 @@
             <if test="request.executeStatus == 'executePass'">
                 and api_scenario.last_result = 'Success'
             </if>
-            <if test="request.notInTestPlan == true ">
+            <if test="request.notInTestPlan">
                 and api_scenario.id not in (
                 select pc.api_scenario_id
                 from test_plan_api_scenario pc

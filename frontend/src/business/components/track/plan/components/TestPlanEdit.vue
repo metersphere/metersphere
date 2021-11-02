@@ -89,6 +89,18 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item
+              :label="$t('允许关联重复用例')"
+              label-width="140px"
+              prop="automaticStatusUpdate">
+              <el-switch v-model="form.repeatCase"/>
+              <ms-instructions-icon :content="'是否允许同一个测试计划中多次关联相同用例'"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row type="flex" justify="left" :gutter="20">
+          <el-col :span="12">
             <el-form-item :label="$t('test_track.plan.follow_people')" :label-width="formLabelWidth"
                           prop="follows">
               <el-select v-model="form.follows"
@@ -175,6 +187,7 @@ export default {
         plannedStartTime: '',
         plannedEndTime: '',
         automaticStatusUpdate: false,
+        repeatCase: false,
         follows: []
       },
       rules: {
