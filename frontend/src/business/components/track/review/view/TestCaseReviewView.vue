@@ -29,7 +29,6 @@ import MsMainContainer from "../../../common/components/MsMainContainer";
 import MsAsideContainer from "../../../common/components/MsAsideContainer";
 import MsContainer from "../../../common/components/MsContainer";
 import NodeTree from "../../common/NodeTree";
-import TestReviewTestCaseList from "./components/TestReviewTestCaseList";
 import SelectMenu from "../../common/SelectMenu";
 import TestReviewRelevance from "./components/TestReviewRelevance";
 import MsTestPlanHeaderBar from "@/business/components/track/plan/view/comonents/head/TestPlanHeaderBar";
@@ -48,7 +47,6 @@ export default {
     MsAsideContainer,
     MsContainer,
     NodeTree,
-    TestReviewTestCaseList,
     TestReviewRelevance,
     SelectMenu
   },
