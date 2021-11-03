@@ -846,6 +846,7 @@ export class JSR223Processor extends BaseConfig {
     this.resourceId = uuid();
     this.active = false;
     this.type = "JSR223Processor";
+    this.label="";
     this.script = undefined;
     this.scriptLanguage = "beanshell";
     this.enable = true;

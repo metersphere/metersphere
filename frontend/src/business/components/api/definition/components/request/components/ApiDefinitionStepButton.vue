@@ -17,6 +17,7 @@
 <script>
     import {createComponent} from "../../jmeter/components";
     import {Assertions, Extract} from "../../../model/ApiTestModel";
+    import {getUUID} from "@/common/js/utils";
 
     export default {
       name: "ApiDefinitionStepButton",
@@ -58,14 +59,14 @@
           this.request.hashTree.push(jdbcPostProcessor);
         },
         addAssertions() {
-          let assertions = new Assertions();
+          let assertions = new Assertions({id:getUUID()});
           if (!this.request.hashTree) {
             this.request.hashTree = [];
           }
           this.request.hashTree.push(assertions);
         },
         addExtract() {
-          let jsonPostProcessor = new Extract();
+          let jsonPostProcessor = new Extract({id:getUUID()});
           if (!this.request.hashTree) {
             this.request.hashTree = [];
           }
