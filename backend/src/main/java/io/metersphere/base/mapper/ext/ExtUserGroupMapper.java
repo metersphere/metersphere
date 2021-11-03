@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface ExtUserGroupMapper {
 
-    List<UserGroupDTO> getUserGroup(@Param("userId") String userId);
+    List<UserGroupDTO> getUserGroup(@Param("userId") String userId , @Param("projectId") String projectId);
 
     List<Group> getWorkspaceMemberGroups(@Param("workspaceId") String workspaceId, @Param("userId") String userId);
 

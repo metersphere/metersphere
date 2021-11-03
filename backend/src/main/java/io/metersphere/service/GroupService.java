@@ -80,7 +80,7 @@ public class GroupService {
 
     public Pager<List<GroupDTO>> getGroupList(EditGroupRequest request) {
         SessionUser user = SessionUtils.getUser();
-        List<UserGroupDTO> userGroup = extUserGroupMapper.getUserGroup(Objects.requireNonNull(user).getId());
+        List<UserGroupDTO> userGroup = extUserGroupMapper.getUserGroup(Objects.requireNonNull(user).getId() , request.getProjectId());
         List<String> groupTypeList = userGroup.stream().map(UserGroupDTO::getType).collect(Collectors.toList());
         return getGroups(groupTypeList, request);
     }
@@ -521,4 +521,5 @@ public class GroupService {
         list = workspaceMapper.selectByExample(workspaceExample);
         return list;
     }
+
 }

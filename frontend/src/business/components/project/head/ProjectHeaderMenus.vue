@@ -11,6 +11,9 @@
           <el-menu-item :index="'/project/member'" v-permission="['PROJECT_USER:READ']">
             {{ $t('project.member') }}
           </el-menu-item>
+          <el-menu-item :index="'/project/usergroup'" v-permission="['SYSTEM_USER:READ+CREATE']">
+            {{ $t('project.group_permission') }}
+          </el-menu-item>
           <el-menu-item :index="'/project/env'" v-permission="['PROJECT_ENVIRONMENT:READ']"
                         popper-class="submenu">
             {{ $t('project.env') }}
