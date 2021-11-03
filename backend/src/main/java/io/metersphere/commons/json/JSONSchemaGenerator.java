@@ -155,7 +155,16 @@ public class JSONSchemaGenerator {
                 }
                 if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
                     String value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").toString());
-                    concept.put(propertyName, value);
+                    try {
+                        if (StringUtils.isNotEmpty(value)) {
+                            if (value.indexOf("\"") != -1) {
+                                value = value.replaceAll("\"", "");
+                            }
+                            concept.put(propertyName, Boolean.valueOf(value));
+                        }
+                    } catch (Exception e) {
+                        concept.put(propertyName, value);
+                    }
                 }
             } else if (propertyObjType.equals("array")) {
                 // 先设置空值
