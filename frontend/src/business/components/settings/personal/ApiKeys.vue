@@ -31,7 +31,14 @@
         </el-table-column>
         <el-table-column prop="secretKey" label="Secret Key">
           <template v-slot:default="scope">
-            <el-link type="primary" @click="showSecretKey(scope.row)">{{ $t('commons.show') }}</el-link>
+            <el-link type="primary" @click="showSecretKey(scope.row)" v-if="!apiKeysVisible">{{ $t('commons.show') }}</el-link>
+            <div v-if="apiKeysVisible" class="variable-combine">
+              <div class="variable">{{scope.row.secretKey}}</div>
+                <el-tooltip :content="$t('api_test.copied')" manual v-model="scope.row.visible2" placement="top"
+                            :visible-arrow="false">
+                  <i class="el-icon-copy-document copy" @click="copy(scope.row, 'secretKey', 'visible2')"/>
+                </el-tooltip>
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="status" :label="$t('commons.status')">
@@ -59,7 +66,7 @@
         </el-table-column>
       </el-table>
     </el-card>
-    <el-dialog title="Secret Key" :visible.sync="apiKeysVisible">
+<!--    <el-dialog title="Secret Key" :visible.sync="apiKeysVisible">
       <div class="variable">
         {{ currentRow.secretKey }}
         <el-tooltip :content="$t('api_test.copied')" manual v-model="currentRow.visible2" placement="top"
@@ -67,7 +74,7 @@
           <i class="el-icon-copy-document copy" @click="copy(currentRow, 'secretKey', 'visible2')"/>
         </el-tooltip>
       </div>
-    </el-dialog>
+    </el-dialog>-->
   </div>
 </template>
 
@@ -92,7 +99,7 @@ export default {
     }
   },
 
-  activated() {
+  created() {
     this.search();
   },
 
@@ -144,7 +151,9 @@ export default {
     },
     showSecretKey(row) {
       this.apiKeysVisible = true;
-      this.currentRow = row;
+      setTimeout(() => {
+        this.apiKeysVisible = false;
+      }, 5000);
     },
     copy(row, key, visible) {
       let input = document.createElement("input");
