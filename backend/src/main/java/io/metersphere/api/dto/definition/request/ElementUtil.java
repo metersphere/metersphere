@@ -3,6 +3,9 @@ package io.metersphere.api.dto.definition.request;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
@@ -330,6 +333,8 @@ public class ElementUtil {
 
     public static void dataSetDomain(JSONArray hashTree, MsParameter msParameter) {
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             for (int i = 0; i < hashTree.size(); i++) {
                 JSONObject element = hashTree.getJSONObject(i);
                 boolean isScenarioEnv = false;
@@ -357,6 +362,13 @@ public class ElementUtil {
                     MsHTTPSamplerProxy httpSamplerProxy = JSON.toJavaObject(element, MsHTTPSamplerProxy.class);
                     if (httpSamplerProxy != null
                             && (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq() && httpSamplerProxy.getIsRefEnvironment()))) {
+                        // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+                        if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                            LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
+                                    new TypeReference<LinkedList<MsTestElement>>() {
+                                    });
+                            httpSamplerProxy.setHashTree(elements);
+                        }
                         HashTree tmpHashTree = new HashTree();
                         httpSamplerProxy.toHashTree(tmpHashTree, null, msParameter);
                         if (tmpHashTree != null && tmpHashTree.getArray().length > 0) {
@@ -378,6 +390,48 @@ public class ElementUtil {
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage());
+        }
+    }
+
+    public static void mergeHashTree(List<MsTestElement> sourceHashTree, List<MsTestElement> targetHashTree) {
+        List<String> sourceIds = new ArrayList<>();
+        List<String> delIds = new ArrayList<>();
+        Map<String, MsTestElement> updateMap = new HashMap<>();
+        if (CollectionUtils.isEmpty(sourceHashTree)) {
+            sourceHashTree.addAll(targetHashTree);
+            return;
+        }
+        if (CollectionUtils.isNotEmpty(targetHashTree)) {
+            for (MsTestElement item : targetHashTree) {
+                updateMap.put(item.getId(), item);
+            }
+        }
+        // 找出待更新内容和源已经被删除的内容
+        if (CollectionUtils.isNotEmpty(sourceHashTree)) {
+            for (int i = 0; i < sourceHashTree.size(); i++) {
+                MsTestElement source = sourceHashTree.get(i);
+                if (source != null) {
+                    sourceIds.add(source.getId());
+                    if (!StringUtils.equals(source.getLabel(), "SCENARIO-REF-STEP")) {
+                        if (StringUtils.isNotEmpty(source.getId()) && updateMap.containsKey(source.getId())) {
+                            sourceHashTree.set(i, updateMap.get(source.getId()));
+                        } else {
+                            delIds.add(source.getId());
+                        }
+                    }
+                }
+            }
+        }
+
+        // 删除多余的步骤
+        sourceHashTree.removeIf(item -> item != null && delIds.contains(item.getId()));
+        // 补充新增的源引用步骤
+        if (CollectionUtils.isNotEmpty(targetHashTree)) {
+            for (MsTestElement item : targetHashTree) {
+                if (!sourceIds.contains(item.getId())) {
+                    sourceHashTree.add(item);
+                }
+            }
         }
     }
 }

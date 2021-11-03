@@ -948,7 +948,7 @@ export default {
       setComponent(type, this, plugin);
     },
     nodeClick(data, node) {
-      if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled && this.stepFilter) {
+      if ((data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled && this.stepFilter) || data.refType === 'CASE') {
         this.operatingElements = this.stepFilter.get(data.type);
       } else {
         this.operatingElements = [];

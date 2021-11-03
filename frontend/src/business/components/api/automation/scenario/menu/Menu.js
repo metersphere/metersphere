@@ -152,35 +152,35 @@ export function setComponent(type, _this, plugin) {
         _this.scenarioDefinition.push(new IfController());
       break;
     case ELEMENT_TYPE.ConstantTimer:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new ConstantTimer()) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new ConstantTimer({label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new ConstantTimer());
       break;
     case ELEMENT_TYPE.JSR223Processor:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor()) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new JSR223Processor());
       break;
     case ELEMENT_TYPE.JSR223PreProcessor:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PreProcessor"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PreProcessor",label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PreProcessor"}));
       break;
     case ELEMENT_TYPE.JSR223PostProcessor:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor",label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PostProcessor"}));
       break;
     case ELEMENT_TYPE.JDBCPreProcessor:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPreProcessor"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPreProcessor",label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new JDBCProcessor({type: "JDBCPreProcessor"}));
       break;
     case ELEMENT_TYPE.JDBCPostProcessor:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPostProcessor"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPostProcessor",label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new JDBCProcessor({type: "JDBCPostProcessor"}));
       break;
     case ELEMENT_TYPE.Assertions:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Assertions()) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Assertions({label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new Assertions());
       break;
     case ELEMENT_TYPE.Extract:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Extract()) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Extract({label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new Extract());
       break;
     case ELEMENT_TYPE.CustomizeReq:

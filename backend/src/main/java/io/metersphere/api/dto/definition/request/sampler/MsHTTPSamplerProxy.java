@@ -154,7 +154,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             }
             if (proxy != null) {
-                this.setHashTree(proxy.getHashTree());
+                if (StringUtils.equals(this.getRefType(), "CASE")) {
+                    ElementUtil.mergeHashTree(this.getHashTree(), proxy.getHashTree());
+                }else {
+                    this.setHashTree(proxy.getHashTree());
+                }
                 this.setMethod(proxy.getMethod());
                 this.setBody(proxy.getBody());
                 this.setRest(proxy.getRest());

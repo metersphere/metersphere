@@ -182,7 +182,11 @@ public class MsTCPSampler extends MsTestElement {
                 }
             }
             if (proxy != null) {
-                this.setHashTree(proxy.getHashTree());
+                if (StringUtils.equals(this.getRefType(), "CASE")) {
+                    ElementUtil.mergeHashTree(this.getHashTree(), proxy.getHashTree());
+                }else {
+                    this.setHashTree(proxy.getHashTree());
+                }
                 this.setClassname(proxy.getClassname());
                 this.setServer(proxy.getServer());
                 this.setPort(proxy.getPort());
