@@ -128,7 +128,11 @@ public class MsDubboSampler extends MsTestElement {
                 }
             }
             if (proxy != null) {
-                this.setHashTree(proxy.getHashTree());
+                if (StringUtils.equals(this.getRefType(), "CASE")) {
+                    ElementUtil.mergeHashTree(this.getHashTree(), proxy.getHashTree());
+                } else {
+                    this.setHashTree(proxy.getHashTree());
+                }
                 this.setMethod(proxy.getMethod());
                 this.set_interface(proxy.get_interface());
                 this.setAttachmentArgs(proxy.getAttachmentArgs());
