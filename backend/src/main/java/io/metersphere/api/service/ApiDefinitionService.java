@@ -1014,7 +1014,12 @@ public class ApiDefinitionService {
             apiImport = (ApiDefinitionImport) Objects.requireNonNull(apiImportParser).parse(file == null ? null : file.getInputStream(), request);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            MSException.throwException(Translator.get("parse_data_error"));
+            String returnThrowException =  e.getMessage();
+            if(StringUtils.contains(returnThrowException,"模块树最大深度为")){
+                MSException.throwException(returnThrowException);
+            }else {
+                MSException.throwException(Translator.get("parse_data_error"));
+            }
             // 发送通知
             if (StringUtils.equals(request.getType(), "schedule")) {
                 String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
