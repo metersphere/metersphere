@@ -66,7 +66,9 @@ export default {
       open(objStr) {
         this.data = {};
         try {
-          let param = JSON.parse(objStr);
+          // 解决精度丢失问题
+          let stringedJSON = objStr.replace(/:\s*([-+Ee0-9.]+)/g, ': "$1"');
+          let param = JSON.parse(stringedJSON);
           if (param instanceof Array) {
             this.$warning(this.$t('api_test.request.assertions.json_path_err'));
             return;
