@@ -7,6 +7,9 @@
         select ug.user_id, ug.group_id, ug.source_id, g.`name`, g.type
         from user_group ug join `group` g on ug.group_id = g.id
         where ug.user_id = #{userId}
+        <if test="projectId != null">
+            and ug.source_id = #{projectId}
+        </if>
     </select>
 
     <select id="getWorkspaceMemberGroups" resultType="io.metersphere.base.domain.Group">

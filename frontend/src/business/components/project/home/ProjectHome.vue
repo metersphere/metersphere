@@ -49,6 +49,19 @@
                 </div>
                 <div class="div-item">
                   <div style="float: left">
+                    <i class="el-icon-user icon-color"
+                       @click="click('/project/usergroup', ['PROJECT_USER:READ'])">
+                    </i>
+                  </div>
+                  <div style="float: left">
+                    <span class="title" @click="click('/project/usergroup', ['PROJECT_USER:READ'])">
+                      {{ $t('project.group_permission') }}
+                    </span><br/>
+                    <span class="desc">{{ $t('project.group_desc') }}</span>
+                  </div>
+                </div>
+                <div class="div-item">
+                  <div style="float: left">
                     <i class="el-icon-s-platform icon-color"
                        @click="click('/project/env', ['PROJECT_ENVIRONMENT:READ'])">
                     </i>
