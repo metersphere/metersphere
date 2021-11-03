@@ -214,21 +214,30 @@ public class ProjectService {
         userGroupMapper.deleteByExample(userGroupExample);
     }
 
-    public void updateIssueTemplate(String originId, String templateId) {
+    public void updateIssueTemplate(String originId, String templateId, String workspaceId) {
         Project project = new Project();
         project.setIssueTemplateId(templateId);
         ProjectExample example = new ProjectExample();
         example.createCriteria()
-                .andIssueTemplateIdEqualTo(originId);
+                .andIssueTemplateIdEqualTo(originId)
+                .andWorkspaceIdEqualTo(workspaceId);
         projectMapper.updateByExampleSelective(project, example);
     }
 
-    public void updateCaseTemplate(String originId, String templateId) {
+    /**
+     * 把原来为系统模板的项目模板设置成新的模板
+     * 只设置改工作空间下的
+     * @param originId
+     * @param templateId
+     * @param workspaceId
+     */
+    public void updateCaseTemplate(String originId, String templateId, String workspaceId) {
         Project project = new Project();
         project.setCaseTemplateId(templateId);
         ProjectExample example = new ProjectExample();
         example.createCriteria()
-                .andCaseTemplateIdEqualTo(originId);
+                .andCaseTemplateIdEqualTo(originId)
+                .andWorkspaceIdEqualTo(workspaceId);
         projectMapper.updateByExampleSelective(project, example);
     }
 
