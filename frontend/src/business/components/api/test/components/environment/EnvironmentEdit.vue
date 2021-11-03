@@ -1,9 +1,8 @@
 <template>
   <el-main v-loading="result.loading" class="environment-edit" style="margin-left: 0px">
-    <el-form :model="environment" :rules="rules" ref="environment">
+    <el-form :model="environment" :rules="rules" ref="environment" label-width="80px">
 
-      <span>{{$t('api_test.environment.name')}}</span>
-      <el-form-item prop="name">
+      <el-form-item prop="name" :label="$t('api_test.environment.name')">
         <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')" clearable/>
       </el-form-item>
 
