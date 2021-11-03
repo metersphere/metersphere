@@ -1,7 +1,8 @@
 <template>
   <div>
     <el-container v-loading="isLoading">
-      <el-main style="padding-top: 0px;padding-bottom: 0px">
+      <el-main style="padding-top: 0px;padding-bottom: 0px" >
+        <!--   筛选条件     -->
         <el-row v-if="sharePage" style="margin-top: 10px">
           <el-select size="small" :placeholder="$t('api_test.definition.document.order')"
                      v-model="apiSearch.orderCondition" style="float: right;width: 180px;margin-right: 5px"
@@ -75,250 +76,10 @@
                                     :project-id="projectId" :share-url="batchShareUrl"
                                     style="float: right;margin: 6px;font-size: 17px"/>
         </el-row>
-
         <el-divider></el-divider>
-        <div ref="apiDocInfoDiv" @scroll="handleScroll">
-          <div v-for="(apiInfo) in apiShowArray" :key="apiInfo.id" ref="apiDocInfoDivItem">
-            <div style="font-size: 17px">
-              <el-popover
-                v-if="projectId"
-                placement="right"
-                width="260"
-                @show="shareApiDocument('false')">
-                <p>{{ shareUrl }}</p>
-                <div style="text-align: right; margin: 0">
-                  <el-button type="primary" size="mini"
-                             v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}
-                  </el-button>
-                </div>
-                <i class="el-icon-share" slot="reference" style="margin-right: 10px;cursor: pointer"></i>
-              </el-popover>
-              {{ apiInfo.name }}
-              <span class="apiStatusTag">
-              <api-status :value="apiInfo.status"/>
-            </span>
-            </div>
-            <!--api请求信息-->
-            <el-row class="apiInfoRow">
-              <div class="tip">
-                {{ $t('api_test.definition.document.request_info') }}
-              </div>
-            </el-row>
-            <el-row class="apiInfoRow">
-              <div class="simpleFontClass">
-                <el-tag size="medium"
-                        :style="{'background-color': getColor(true,apiInfo.method), border: getColor(true,apiInfo.method),borderRadius:'0px', marginRight:'20px',color:'white'}">
-                  {{ apiInfo.method }}
-                </el-tag>
-                {{ apiInfo.uri }}
-              </div>
-            </el-row>
-            <!--api请求头-->
-            <el-row class="apiInfoRow">
-              <div class="blackFontClass">
-                {{ $t('api_test.definition.document.request_head') }}：
-                <div v-if="getJsonArr(apiInfo.requestHead).length==0">
-                  <div class="simpleFontClass" style="margin-top: 10px">
-                    {{ $t('api_test.definition.document.data_set.none') }}
-                  </div>
-                </div>
-                <div v-else>
-                  <el-table border :show-header="false"
-                            :data="getJsonArr(apiInfo.requestHead)" class="test-content document-table">
-                    <el-table-column prop="name"
-                                     :label="$t('api_test.definition.document.table_coloum.name')"
-                                     show-overflow-tooltip/>
-                    <el-table-column prop="value"
-                                     :label="$t('api_test.definition.document.table_coloum.value')"
-                                     show-overflow-tooltip/>
-                  </el-table>
-                </div>
-              </div>
-            </el-row>
-            <!--URL参数-->
-            <el-row class="apiInfoRow">
-              <div class="blackFontClass">
-                URL{{ $t('api_test.definition.document.request_param') }}：
-                <div v-if="getJsonArr(apiInfo.urlParams).length==0">
-                  <div class="simpleFontClass" style="margin-top: 10px">
-                    {{ $t('api_test.definition.document.data_set.none') }}
-                  </div>
-                </div>
-                <div v-else>
-                  <el-table border
-                            :data="getJsonArr(apiInfo.urlParams)" class="test-content document-table">
-                    <el-table-column prop="name"
-                                     :label="$t('api_test.definition.document.table_coloum.name')"
-                                     min-width="120px"
-                                     show-overflow-tooltip/>
-                    <el-table-column prop="required"
-                                     :label="$t('api_test.definition.document.table_coloum.is_required')"
-                                     :formatter="formatBoolean"
-                                     min-width="80px"
-                                     show-overflow-tooltip/>
-                    <el-table-column prop="value"
-                                     :label="$t('api_test.definition.document.table_coloum.value')"
-                                     min-width="120px"
-                                     show-overflow-tooltip/>
-                    <el-table-column prop="description"
-                                     :label="$t('api_test.definition.document.table_coloum.desc')"
-                                     min-width="280px"
-                                     show-overflow-tooltip/>
-                  </el-table>
-                </div>
-              </div>
-            </el-row>
-            <!--api请求体 以及表格-->
-            <el-row class="apiInfoRow">
-              <div class="blackFontClass">
-                {{ $t('api_test.definition.document.request_body') }}
-              </div>
-              <div class="smallFontClass">
-                {{ $t('api_test.definition.document.table_coloum.type') }}:{{ apiInfo.requestBodyParamType }}
-              </div>
-              <div>
-                <el-table border v-if="formParamTypes.includes(apiInfo.requestBodyParamType)"
-                          :data="getJsonArr(apiInfo.requestBodyFormData)"
-                          class="test-content document-table">
-                  <el-table-column prop="name"
-                                   :label="$t('api_test.definition.document.table_coloum.name')"
-                                   min-width="120px"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="contentType"
-                                   :label="$t('api_test.definition.document.table_coloum.type')"
-                                   min-width="120px"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="description"
-                                   :label="$t('api_test.definition.document.table_coloum.desc')"
-                                   min-width="280px"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="required"
-                                   :label="$t('api_test.definition.document.table_coloum.is_required')"
-                                   :formatter="formatBoolean"
-                                   min-width="80px"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="value"
-                                   :label="$t('api_test.definition.document.table_coloum.default_value')"
-                                   min-width="120px"
-                                   show-overflow-tooltip/>
-                </el-table>
-                <div v-else-if="apiInfo.requestBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
-                  <ms-json-code-edit :show-preview="false" :body="apiInfo.jsonSchemaBody" ref="jsonCodeEdit"/>
-                </div>
-                <div v-else-if="formatRowDataToJsonSchema(apiInfo,'request') " style="margin-left: 10px">
-                  <ms-json-code-edit :show-preview="false" :body="apiInfo.requestJsonSchema" ref="jsonCodeEdit"/>
-                </div>
-                <div v-else class="showDataDiv">
-                  <br/>
-                  <p style="margin: 0px 20px;"
-                     v-html="formatRowData(apiInfo.requestBodyParamType,apiInfo.requestBodyStrutureData)">
-                  </p>
-                  <br/>
-                </div>
-              </div>
-            </el-row>
-            <!--范例展示-->
-            <el-row class="apiInfoRow">
-              <div class="blackFontClass">
-                {{ $t('api_test.definition.document.example_presentation') }}
-              </div>
-              <div class="showDataDiv">
-                <br/>
-                <p style="margin: 0px 20px;"
-                   v-html="genPreviewData(apiInfo.requestPreviewData)">
-                </p>
-                <br/>
-              </div>
-            </el-row>
-            <!--响应信息-->
-            <el-row class="apiInfoRow">
-              <div class="tip">
-                {{ $t('api_test.definition.document.response_info') }}
-              </div>
-            </el-row>
-            <el-row class="apiInfoRow">
-
-            </el-row>
-            <!--响应头-->
-            <el-row class="apiInfoRow">
-              <div class="blackFontClass">
-                {{ $t('api_test.definition.document.response_head') }}:
-                <el-table border :show-header="false"
-                          :data="getJsonArr(apiInfo.responseHead)" class="test-content document-table">
-                  <el-table-column prop="name"
-                                   :label="$t('api_test.definition.document.table_coloum.name')"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="value"
-                                   :label="$t('api_test.definition.document.table_coloum.value')"
-                                   show-overflow-tooltip/>
-                </el-table>
-              </div>
-            </el-row>
-            <!--响应体-->
-            <el-row class="apiInfoRow">
-              <div class="blackFontClass">
-                {{ $t('api_test.definition.document.response_body') }}
-              </div>
-              <div class="smallFontClass">
-                {{ $t('api_test.definition.document.table_coloum.type') }}:{{ apiInfo.responseBodyParamType }}
-              </div>
-              <div>
-                <el-table border v-if="formParamTypes.includes(apiInfo.responseBodyParamType)"
-                          :data="getJsonArr(apiInfo.responseBodyFormData)"
-                          class="test-content document-table">
-                  <el-table-column prop="name"
-                                   :label="$t('api_test.definition.document.table_coloum.name')"
-                                   min-width="120px"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="contentType"
-                                   :label="$t('api_test.definition.document.table_coloum.type')"
-                                   min-width="120px"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="description"
-                                   :label="$t('api_test.definition.document.table_coloum.desc')"
-                                   min-width="280px"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="required"
-                                   :label="$t('api_test.definition.document.table_coloum.is_required')"
-                                   :formatter="formatBoolean"
-                                   min-width="80px"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="value"
-                                   :label="$t('api_test.definition.document.table_coloum.default_value')"
-                                   min-width="120px"
-                                   show-overflow-tooltip/>
-                </el-table>
-                <div v-else-if="apiInfo.responseBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
-                  <ms-json-code-edit :show-preview="false" :body="apiInfo.jsonSchemaResponseBody" ref="jsonCodeEdit"/>
-                </div>
-                <div v-else-if="formatRowDataToJsonSchema(apiInfo,'response') " style="margin-left: 10px">
-                  <ms-json-code-edit :show-preview="false" :body="apiInfo.responseJsonSchema" ref="jsonCodeEdit"/>
-                </div>
-                <div v-else class="showDataDiv">
-                  <br/>
-                  <p style="margin: 0px 20px;"
-                     v-html="formatRowData(apiInfo.responseBodyParamType,apiInfo.responseBodyStrutureData)">
-                  </p>
-                  <br/>
-                </div>
-              </div>
-            </el-row>
-            <!--响应状态码-->
-            <el-row class="apiInfoRow">
-              <div class="blackFontClass">
-                {{ $t('api_test.definition.document.response_code') }}:
-                <el-table border :show-header="false"
-                          :data="getJsonArr(apiInfo.responseCode)" class="test-content document-table">
-                  <el-table-column prop="name"
-                                   :label="$t('api_test.definition.document.table_coloum.name')"
-                                   show-overflow-tooltip/>
-                  <el-table-column prop="value"
-                                   :label="$t('api_test.definition.document.table_coloum.value')"
-                                   show-overflow-tooltip/>
-                </el-table>
-              </div>
-            </el-row>
-          </div>
+        <!--   展示区域     -->
+        <div ref="apiDocInfoDiv" @scroll="handleScroll" style="overflow: auto">
+          <api-information v-for="(apiInfo) in apiShowArray" :key="apiInfo.id" :api-info="apiInfo" :project-id="projectId"  ref="apiDocInfoDivItem"/>
         </div>
       </el-main>
       <!-- 右侧列表 -->
@@ -344,7 +105,7 @@ import {calculate} from "@/business/components/api/definition/model/ApiTestModel
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
 import Api from "@/business/components/api/router";
 import {generateApiDocumentShareInfo} from "@/network/share";
-import Convert from "@/business/components/common/json-schema/convert/convert";
+import ApiInformation from "@/business/components/api/definition/components/document/components/ApiInformation";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const apiDocumentBatchShare = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./share/ApiDocumentBatchShare.vue") : {};
@@ -354,7 +115,7 @@ export default {
   components: {
     Api,
     MsJsonCodeEdit,
-    ApiStatus, MsCodeEdit,
+    ApiStatus, MsCodeEdit, ApiInformation,
     "ApiDocumentBatchShare": apiDocumentBatchShare.default
   },
   data() {
@@ -458,34 +219,8 @@ export default {
     },
   },
   methods: {
-    formatRowDataToJsonSchema(api, jsonType) {
-      if (jsonType === 'request' && api.requestBodyStrutureData) {
-        try {
-          JSON.parse(api.requestBodyStrutureData);
-          api.requestJsonSchema = {'raw': api.requestBodyStrutureData};
-          return true;
-        } catch (e) {
-          return false;
-        }
-      } else if (jsonType === 'response' && api.responseBodyStrutureData) {
-        try {
-          JSON.parse(api.responseBodyStrutureData);
-          api.responseJsonSchema = {'raw': api.responseBodyStrutureData};
-          return true;
-        } catch (e) {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    },
-    formatRowData(dataType, data) {
-      var returnData = data;
-      if (data) {
-        returnData = "<xmp>" + returnData + "</xmp>";
-      }
-      return returnData;
-    },
+
+
     changeFixed(clientHeight) {
       if (this.$refs.apiDocInfoDiv) {
         let countPageHeight = 210;
@@ -618,91 +353,6 @@ export default {
       //检查数据
       this.checkApiInfoNode(this.apiStepIndex, true);
     },
-    getColor(enable, method) {
-      return this.methodColorMap.get(method);
-    },
-    formatBoolean(row, column, cellValue) {
-      var ret = '';  //你想在页面展示的值
-      if (cellValue) {
-        ret = "是";  //根据自己的需求设定
-      } else {
-        ret = "否";
-      }
-      return ret;
-    },
-    getJsonArr(jsonString) {
-      let returnJsonArr = [];
-      if (jsonString == '无' || jsonString == null) {
-        return returnJsonArr;
-      }
-
-      let jsonArr = JSON.parse(jsonString);
-      //遍历，把必填项空的数据去掉
-      for (var index = 0; index < jsonArr.length; index++) {
-        var item = jsonArr[index];
-        if (item.name != "" && item.name != null) {
-          returnJsonArr.push(item);
-        }
-      }
-      return returnJsonArr;
-    },
-    //构建预览数据
-    genPreviewData(previewData) {
-      if (previewData != null && previewData != '') {
-        let showDataObj = {};
-        for (var key in previewData) {
-          // showDataObj.set(key,previewData[key]);
-          let value = previewData[key];
-          if (typeof (value) == 'string') {
-            if (value.indexOf("@") >= 0) {
-              value = this.showPreview(value);
-            }
-          }
-          showDataObj[key] = value;
-        }
-        showDataObj = JSON.stringify(showDataObj);
-        previewData = formatJson(showDataObj);
-      }
-      return previewData;
-    },
-    showPreview(itemValue) {
-      // 找到变量本身
-      if (!itemValue) {
-        return;
-      }
-      let index = itemValue.indexOf("|");
-      if (index > -1) {
-        itemValue = itemValue.substring(0, index).trim();
-      }
-
-      this.mockVariableFuncs.forEach(f => {
-        if (!f.name) {
-          return;
-        }
-        itemValue += "|" + f.name;
-        if (f.params) {
-          itemValue += ":" + f.params.map(p => p.value).join(",");
-        }
-      });
-
-      itemValue = calculate(itemValue);
-      return itemValue;
-    },
-    onCopySuccess: function (e) {
-      if (this.apiStepIndex < this.apiInfoArray.length) {
-        this.apiInfoArray[this.apiStepIndex].sharePopoverVisible = false;
-      }
-      this.$message({
-        message: this.$t('commons.copy_success'),
-        type: 'success'
-      });
-    },
-    onCopyError: function (e) {
-      if (this.apiStepIndex < this.apiInfoArray.length) {
-        this.apiInfoArray[this.apiStepIndex].sharePopoverVisible = false;
-      }
-      this.$message.error(this.$t('api_report.error'));
-    },
     handleScroll() {
       if (!this.clickStepFlag && this.$refs.apiDocInfoDiv) {
         //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
@@ -717,7 +367,7 @@ export default {
           //判断移动到了第几个元素. 公式: 移动过的高度+页面显示高度-第index子元素的高度(含20px)>0 的 index最大值
           if (scrolledHeigh > 0) {
             lastIndex = index;
-            let itemHeight = this.$refs.apiDocInfoDivItem[index].offsetHeight + 10;
+            let itemHeight = this.$refs.apiDocInfoDivItem[index].getHeight() + 10;
             scrolledHeigh = scrolledHeigh - itemHeight;
           } else {
             break;
@@ -726,9 +376,8 @@ export default {
 
         if (lastIndex < this.currentApiIndexInApiShowArray) {
           //上移
-          // if(this.needAsyncSelect){
-          //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
-          //可得： apiStepIndex-1- 2 < apiInfoArray，需要添加数据
+          //进行判断：是否还需要为apiShowArray（已经查出来的api数据集） 增加数据。 由于在当前数据前后最多展现2条数据，
+          //若 apiStepIndex-1- 2 < apiInfoArray（已经查出来的api数据集），需要添加数据
           let dataIndex = this.apiStepIndex - 3;
           if (dataIndex >= 0) {
             let apiInfo = this.apiInfoArray[dataIndex];
@@ -785,7 +434,7 @@ export default {
             this.currentApiIndexInApiShowArray++;
           } else {
             this.apiShowArray.shift();
-            let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight + 10;
+            let itemHeight = this.$refs.apiDocInfoDivItem[0].getHeight() + 10;
             if (this.$refs.apiDocInfoDiv && this.$refs.apiDocInfoDiv.scrollTop) {
               this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop - itemHeight);
             }
@@ -805,7 +454,7 @@ export default {
       let itemHeightCount = 0;
       if (this.currentApiIndexInApiShowArray > 0) {
         for (let i = 0; i <= this.currentApiIndexInApiShowArray - 1; i++) {
-          let itemHeight = this.$refs.apiDocInfoDivItem[i].offsetHeight + 10;
+          let itemHeight = this.$refs.apiDocInfoDivItem[i].getHeight() + 10;
           itemHeightCount += itemHeight;
         }
       }

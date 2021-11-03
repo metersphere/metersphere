@@ -1474,7 +1474,7 @@ public class ApiDefinitionService {
             return new ArrayList<>();
         } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId);
+            example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP");
             List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
 
             List<String> apiIdList = new ArrayList<>();
@@ -1489,6 +1489,9 @@ public class ApiDefinitionService {
             }
             for (ApiDefinition api : apiList) {
                 String path = api.getPath();
+                if(StringUtils.isEmpty(path)){
+                    continue;
+                }
                 if (path.startsWith("/")) {
                     path = path.substring(1);
                 }
