@@ -82,7 +82,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
             String originId = request.getId();
             // 如果是全局字段，则创建对应工作空间字段
             String id = add(request);
-            projectService.updateCaseTemplate(originId, id);
+            projectService.updateCaseTemplate(originId, id, request.getWorkspaceId());
         } else {
             checkExist(request);
             customFieldTemplateService.deleteByTemplateId(request.getId());
