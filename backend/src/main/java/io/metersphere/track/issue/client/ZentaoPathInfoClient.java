@@ -20,8 +20,9 @@ public class ZentaoPathInfoClient extends ZentaoClient {
     private static final String REPLACE_IMG_URL = "<img src=\"/zentao/file-read-$1\"/>";
     private static final Pattern IMG_PATTERN = Pattern.compile("file-read-(.*?)\"/>");
 
+    RequestUrl request = new RequestUrl();
+
     {
-        RequestUrl request = new RequestUrl();
         request.setLogin(getUrl(LOGIN));
         request.setSessionGet(getUrl(SESSION_GET));
         request.setBugCreate(getUrl(BUG_CREATE));
