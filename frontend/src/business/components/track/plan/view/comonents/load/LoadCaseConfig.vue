@@ -49,6 +49,9 @@ export default {
       threadGroups.forEach(tg => {
         tg.threadNumber = tg.threadNumber || 10;
         tg.duration = tg.duration || 10;
+        tg.durationHours = Math.floor(tg.duration / 3600);
+        tg.durationMinutes = Math.floor((tg.duration / 60 % 60));
+        tg.durationSeconds = Math.floor((tg.duration % 60));
         tg.rampUpTime = tg.rampUpTime || 5;
         tg.step = tg.step || 5;
         tg.rpsLimit = tg.rpsLimit || 10;
