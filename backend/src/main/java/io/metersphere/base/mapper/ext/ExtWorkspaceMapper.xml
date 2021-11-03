@@ -124,4 +124,8 @@
         '4a890e41-e755-44fc-b734-d6a0ca25a65c', 0, #{workspaceId}, NULL, 1629790487682,
         NULL)
     </insert>
+
+    <select id="getWorkspaceByUserId" resultType="io.metersphere.base.domain.Workspace">
+        SELECT * from workspace where workspace.id in (SELECT user_group.source_id from user_group where user_group.user_id = #{userId})
+    </select>
 </mapper>

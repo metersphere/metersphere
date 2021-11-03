@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
+import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -90,6 +91,8 @@ public class UserService {
     private ProjectMapper projectMapper;
     @Resource
     private ExtProjectMapper extProjectMapper;
+    @Resource
+    private ExtWorkspaceMapper extWorkspaceMapper;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -1202,5 +1205,19 @@ public class UserService {
 
     public long getUserSize() {
         return userMapper.countByExample(new UserExample());
+    }
+
+
+    /**
+     * 根据userId 获取 user 所属工作空间和所属工作项目
+     * @param userId
+     */
+    public Map<Object,Object> getWSAndProjectByUserId(String userId){
+        Map<Object,Object>map = new HashMap<>(2);
+        List<Project> projects = extProjectMapper.getProjectByUserId(userId);
+        List<Workspace> workspaces = extWorkspaceMapper.getWorkspaceByUserId(userId);
+        map.put("project",projects);
+        map.put("workspace",workspaces);
+        return map;
     }
 }
