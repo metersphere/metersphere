@@ -5,6 +5,10 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
+          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="!showFollow"/>
+            <i class="el-icon-star-on" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px " @click="saveFollow" v-if="showFollow"/>
+          </el-tooltip>
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">{{$t('operating_log.change_history')}}</el-link>
           <ms-table-button v-if="this.path!='/test/case/add'"
                            id="inputDelay"
@@ -47,8 +51,7 @@
                 <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
               </el-form-item>
             </el-col>
-
-            <el-col :span="6">
+<!--            <el-col :span="6">
               <el-form-item :label="$t('api_test.automation.follow_people')" :label-width="formLabelWidth"
                             prop="followPeople">
                 <el-select v-model="form.follows"
@@ -62,7 +65,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-            </el-col>
+            </el-col>-->
           </el-row>
 
           <!-- 自定义字段 -->
@@ -199,6 +202,7 @@
         comments: [],
         result: {},
         dialogFormVisible: false,
+        showFollow:false,
         form: {
           name: '',
           module: 'default-module',
@@ -372,9 +376,18 @@
       }
       this.$get('/test/case/follow/' + this.currentTestCaseInfo.id, response =>{
         this.form.follows = response.data;
+        for (let i = 0; i < response.data.length; i++) {
+          if(response.data[i]===this.currentUser().id){
+            this.showFollow = true;
+            break;
+          }
+        }
       })
     },
     methods: {
+      currentUser: () => {
+        return getCurrentUser();
+      },
       openHis() {
         this.$refs.changeHistory.open(this.form.id,["测试用例" , "測試用例" , "Test case"]);
       },
@@ -814,6 +827,21 @@
       createCtrlSHandle(event) {
         handleCtrlSEvent(event, this.saveCase);
       },
+      saveFollow(){
+        if(this.showFollow){
+          this.showFollow = false;
+          for (let i = 0; i < this.form.follows.length; i++) {
+            if(this.form.follows[i]===this.currentUser().id){
+              this.form.follows.splice(i,1)
+              break;
+            }
+          }
+
+        }else {
+          this.showFollow = true;
+          this.form.follows.push(this.currentUser().id)
+        }
+      }
     }
   }
 </script>
@@ -880,5 +908,8 @@
     border-bottom-right-radius: 0;
     height: 32px;
     width: 56px;
+  }
+  .icon-style{
+
   }
 </style>
