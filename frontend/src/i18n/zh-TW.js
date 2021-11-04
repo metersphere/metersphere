@@ -960,6 +960,7 @@ export default {
         add_data: "去添加"
       },
       request: {
+        document_structure: "文檔結構校驗",
         grade_info: "按等級篩選",
         grade_order_asc: "按用例等級從低到高",
         grade_order_desc: "按用例等級從高到低",

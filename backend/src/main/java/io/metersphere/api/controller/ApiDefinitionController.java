@@ -8,6 +8,8 @@ import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
+import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
+import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.service.ApiDefinitionService;
@@ -21,6 +23,7 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.json.JSONSchemaGenerator;
+import io.metersphere.commons.json.JSONToDocumentUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -61,6 +64,7 @@ public class ApiDefinitionController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }
+
     @PostMapping("/week/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public Pager<List<ApiDefinitionResult>> weekList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
@@ -319,7 +323,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
-    public Pager< List<ApiDefinitionResult>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+    public Pager<List<ApiDefinitionResult>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         return apiDefinitionService.getRelationshipRelateList(request, goPage, pageSize);
     }
 
@@ -327,4 +331,15 @@ public class ApiDefinitionController {
     public List<String> getFollows(@PathVariable String definitionId) {
         return apiDefinitionService.getFollows(definitionId);
     }
+
+    @GetMapping("/getDocument/{id}/{type}")
+    public List<DocumentElement> getDocument(@PathVariable String id,@PathVariable String type) {
+        return apiDefinitionService.getDocument(id,type);
+    }
+
+    @PostMapping("/jsonGenerator")
+    public List<DocumentElement> jsonGenerator(@RequestBody Body body) {
+        return JSONToDocumentUtils.getDocument(body.getRaw(),body.getType());
+    }
+
 }

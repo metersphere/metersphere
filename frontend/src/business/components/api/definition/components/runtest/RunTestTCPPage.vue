@@ -47,7 +47,7 @@
         </div>
       </el-form>
 
-      <ms-jmx-step :request="api.request" :response="responseData"/>
+      <ms-jmx-step :request="api.request" :apiId="api.id" :response="responseData"/>
 
       <div v-if="api.method=='ESB'">
         <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>

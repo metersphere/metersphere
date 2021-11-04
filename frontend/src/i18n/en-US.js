@@ -954,6 +954,7 @@ export default {
         add_data: "Add Data"
       },
       request: {
+        document_structure: "Document structure verification",
         grade_info: "Filter by rank",
         grade_order_asc: "from low to high by use case level",
         grade_order_desc: "from high to low by use case level",

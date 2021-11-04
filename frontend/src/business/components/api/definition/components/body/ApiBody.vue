@@ -137,6 +137,8 @@ export default {
           let data = MsConvert.format(JSON.parse(this.body.raw));
           if (this.body.jsonSchema) {
             this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
+          }else{
+            this.body.jsonSchema = data;
           }
         } catch (ex) {
           this.body.jsonSchema = "";

@@ -27,7 +27,7 @@
         <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="runResult"/>
       </div>
 
-      <ms-jmx-step :request="api.request" :response="responseData"/>
+      <ms-jmx-step :request="api.request" :apiId="api.id" :response="responseData"/>
 
     </el-card>
 
