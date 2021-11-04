@@ -429,17 +429,22 @@ export default {
       this.$refs.nodeTree.decrease(id);
     },
     editTestCase(testCase) {
-      this.type = "edit";
-      this.testCaseReadOnly = false;
-      if (testCase.label !== "redirect") {
-        if (this.treeNodes.length < 1) {
-          this.$warning(this.$t('test_track.case.create_module_first'));
-          return;
+      const index = this.tabs.find(p => p.testCaseInfo && p.testCaseInfo.id === testCase.id);
+      if (!index) {
+        this.type = "edit";
+        this.testCaseReadOnly = false;
+        if (testCase.label !== "redirect") {
+          if (this.treeNodes.length < 1) {
+            this.$warning(this.$t('test_track.case.create_module_first'));
+            return;
+          }
         }
+        let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
+        this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
+        this.addTab({name: 'edit', testCaseInfo: testCase});
+      } else {
+        this.activeName = index.name;
       }
-      let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
-      this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
-      this.addTab({name: 'edit', testCaseInfo: testCase});
     },
     handleCaseCreateOrEdit(data, type) {
       if (this.$refs.minder) {
