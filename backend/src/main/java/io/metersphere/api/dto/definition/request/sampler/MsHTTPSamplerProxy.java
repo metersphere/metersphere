@@ -11,12 +11,16 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.CommonConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.environment.GlobalScriptConfig;
+import io.metersphere.api.dto.scenario.environment.GlobalScriptFilterRequest;
 import io.metersphere.api.dto.ssl.KeyStoreConfig;
 import io.metersphere.api.dto.ssl.KeyStoreFile;
 import io.metersphere.api.dto.ssl.MsKeyStore;
@@ -42,6 +46,7 @@ import io.metersphere.track.service.TestPlanApiCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.KeystoreConfig;
@@ -53,6 +58,7 @@ import org.apache.jmeter.protocol.http.util.HTTPConstants;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
+import org.python.antlr.ast.Str;
 
 import java.net.URL;
 import java.net.URLDecoder;
@@ -272,6 +278,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         addCertificate(config, httpSamplerTree);
 
+        //根据配置增加全局前后至脚本
+        if (httpConfig != null) {
+            this.setScript(httpConfig, httpSamplerTree, config, false);
+        }
+
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 if (el.getEnvironmentId() == null) {
@@ -285,6 +296,49 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
 
+        //根据配置增加全局前后至脚本
+        if (httpConfig != null) {
+            this.setScript(httpConfig, httpSamplerTree, config, true);
+        }
+    }
+
+    private void setScript(HttpConfig httpConfig, HashTree httpSamplerTree, ParameterConfig config, boolean isAfterPrivateScript) {
+        MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
+        MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
+        GlobalScriptConfig globalScriptConfig = httpConfig.getGlobalScriptConfig();
+        List<String> filterPreProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
+        List<String> filterPostProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
+
+        boolean filterPre = filterPreProtocal.contains(GlobalScriptFilterRequest.HTTP.name());
+        boolean filterPost = filterPostProtocal.contains(GlobalScriptFilterRequest.HTTP.name());
+
+        boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
+        boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
+
+        if (!filterPre && preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
+            if(isPreScriptExecAfterPrivateScript == isAfterPrivateScript){
+                if (preProcessor.getEnvironmentId() == null) {
+                    if (this.getEnvironmentId() == null) {
+                        preProcessor.setEnvironmentId(useEnvironment);
+                    } else {
+                        preProcessor.setEnvironmentId(this.getEnvironmentId());
+                    }
+                }
+                preProcessor.toHashTree(httpSamplerTree, preProcessor.getHashTree(), config);
+            }
+        }
+        if (!filterPost && postProcessor != null && StringUtils.isNotEmpty(postProcessor.getScript())) {
+            if(isPostScriptExecAfterPrivateScript == isAfterPrivateScript){
+                if (postProcessor.getEnvironmentId() == null) {
+                    if (this.getEnvironmentId() == null) {
+                        postProcessor.setEnvironmentId(useEnvironment);
+                    } else {
+                        postProcessor.setEnvironmentId(this.getEnvironmentId());
+                    }
+                }
+                postProcessor.toHashTree(httpSamplerTree, postProcessor.getHashTree(), config);
+            }
+        }
     }
 
     private void initConnectAndResponseTimeout(ParameterConfig config) {
@@ -331,6 +385,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     this.setEnvironmentId(useEvnId);
                 }
                 HttpConfig httpConfig = matchConfig(config);
+                httpConfig.setPreProcessor(environmentConfig.getPreProcessor());
+                httpConfig.setPostProcessor(environmentConfig.getPostProcessor());
+                httpConfig.setGlobalScriptConfig(environmentConfig.getGlobalScriptConfig());
                 return httpConfig;
             }
         }
