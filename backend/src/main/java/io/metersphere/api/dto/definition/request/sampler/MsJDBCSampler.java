@@ -9,9 +9,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.environment.GlobalScriptConfig;
+import io.metersphere.api.dto.scenario.environment.GlobalScriptFilterRequest;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
@@ -37,6 +41,7 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -148,39 +153,59 @@ public class MsJDBCSampler extends MsTestElement {
             tree.add(arguments);
         }
 
-//        MsJSR223PreProcessor preProcessor = null;
-//        MsJSR223PostProcessor postProcessor = null;
-//        if(envConfig != null){
-//            preProcessor = envConfig.getPreProcessor();
-//            postProcessor = envConfig.getPostProcessor();
-//        }
-//
-//        //增加全局前后至脚本
-//        if(preProcessor != null){
-//            if (preProcessor.getEnvironmentId() == null) {
-//                if (this.getEnvironmentId() == null) {
-//                    preProcessor.setEnvironmentId(useEnvironment);
-//                } else {
-//                    preProcessor.setEnvironmentId(this.getEnvironmentId());
-//                }
-//            }
-//            preProcessor.toHashTree(samplerHashTree, preProcessor.getHashTree(), config);
-//        }
-//        if(postProcessor != null){
-//            if (postProcessor.getEnvironmentId() == null) {
-//                if (this.getEnvironmentId() == null) {
-//                    postProcessor.setEnvironmentId(useEnvironment);
-//                } else {
-//                    postProcessor.setEnvironmentId(this.getEnvironmentId());
-//                }
-//            }
-//            postProcessor.toHashTree(samplerHashTree, postProcessor.getHashTree(), config);
-//        }
+        MsJSR223PreProcessor preProcessor = null;
+        MsJSR223PostProcessor postProcessor = null;
+        GlobalScriptConfig globalScriptConfig = null;
+        if(envConfig != null){
+            preProcessor = envConfig.getPreProcessor();
+            postProcessor = envConfig.getPostProcessor();
+            globalScriptConfig = envConfig.getGlobalScriptConfig();
+        }
+        boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
+        boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
+        boolean globalPreScriptIsFilter = false;
+        boolean globalPostScriptIsFilter = false;
+        List<String> preFilterProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
+        List<String> postFilterProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
+        if(preFilterProtocal.contains(GlobalScriptFilterRequest.JDBC.name())){
+            globalPreScriptIsFilter = true;
+        }
+        if(postFilterProtocal.contains(GlobalScriptFilterRequest.JDBC.name())){
+            globalPostScriptIsFilter = true;
+        }
+
+        if(!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter){
+            this.addItemHashTree(preProcessor,samplerHashTree,config);
+        }
+        if(!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter){
+            this.addItemHashTree(postProcessor,samplerHashTree,config);
+        }
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
+        }
+
+        if(isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter){
+            this.addItemHashTree(preProcessor,samplerHashTree,config);
+        }
+        if(isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter){
+            this.addItemHashTree(postProcessor,samplerHashTree,config);
+        }
+
+    }
+
+    private void addItemHashTree(MsTestElement element, HashTree samplerHashTree,ParameterConfig config){
+        if(element != null){
+            if (element.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    element.setEnvironmentId(useEnvironment);
+                } else {
+                    element.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            element.toHashTree(samplerHashTree, element.getHashTree(), config);
         }
     }
 
