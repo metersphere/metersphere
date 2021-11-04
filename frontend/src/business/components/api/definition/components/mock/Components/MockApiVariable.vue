@@ -3,16 +3,8 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
-<!--    <el-row>-->
-<!--      <el-checkbox v-model="isSelectAll" v-if="parameters.length > 1"/>-->
-<!--    </el-row>-->
     <div class="item kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
-<!--        <el-col class="kv-checkbox" v-if="isShowEnable">-->
-<!--          <el-checkbox v-if="!isDisable(index)" v-model="item.enable"-->
-<!--                       :disabled="isReadOnly"/>-->
-<!--        </el-col>-->
-<!--        <span style="margin-left: 10px" v-else></span>-->
         <span style="margin-left: 10px"></span>
         <i class="el-icon-top" style="cursor:pointer" @click="moveTop(index)"/>
         <i class="el-icon-bottom" style="cursor:pointer;" @click="moveBottom(index)"/>
@@ -31,15 +23,18 @@
           </el-input>
 
           <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
+                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit>
+            <template v-slot:prepend>
+              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
+                         @change="typeChange(item)">
+                <el-option value="text"/>
+                <el-option value="file"/>
+                <el-option value="json"/>
+              </el-select>
+            </template>
+          </el-autocomplete>
 
         </el-col>
-
-<!--        <el-col class="item kv-select">-->
-<!--          <el-select v-model="item.required" size="small">-->
-<!--            <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id"/>-->
-<!--          </el-select>-->
-<!--        </el-col>-->
 
         <el-col class="item" v-if="isActive && item.type !== 'file'">
           <el-autocomplete
@@ -60,10 +55,6 @@
           <el-input v-model="item.description" size="small" maxlength="200"
                     :placeholder="$t('commons.description')" show-word-limit>
           </el-input>
-
-          <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
-
         </el-col>
 
         <el-col v-if="isActive && item.type === 'file'" class="item">
@@ -75,12 +66,6 @@
                     @change="change" :placeholder="$t('api_test.request.content_type')" show-word-limit>
           </el-input>
         </el-col>
-
-<!--        <el-col v-if="withMorSetting" class="item kv-setting">-->
-<!--          <el-tooltip effect="dark" :content="$t('schema.adv_setting')" placement="top">-->
-<!--            <i class="el-icon-setting" @click="openApiVariableSetting(item)"/>-->
-<!--          </el-tooltip>-->
-<!--        </el-col>-->
 
         <el-col class="item kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
@@ -102,13 +87,10 @@
 </template>
 
 <script>
-// import {KeyValue, Scenario} from "../model/ApiTestModel";
 import {KeyValue,Scenario} from "@/business/components/api/definition/model/ApiTestModel";
 import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-// import MsApiVariableAdvance from "./ApiVariableAdvance";
 import MsApiVariableAdvance from "@/business/components/api/definition/components/ApiVariableAdvance";
 import MsApiVariableJson from "@/business/components/api/definition/components/ApiVariableJson";
-// import MsApiBodyFileUpload from "@/business/components/api/definition/body/ApiBodyFileUpload";
 import MsApiBodyFileUpload from "@/business/components/api/definition/components/body/ApiBodyFileUpload";
 import Vue from 'vue';
 import ApiVariableSetting from "@/business/components/api/definition/components/ApiVariableSetting";

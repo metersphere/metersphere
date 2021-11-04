@@ -625,6 +625,7 @@ public class ApiDefinitionService {
                 batchMapper.insert(apiDefinition);
                 String requestStr = setImportHashTree(apiDefinition);
                 reSetImportCasesApiId(cases, originId, apiDefinition.getId());
+                reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinition.setRequest(requestStr);
                 importApiCase(apiDefinition, apiTestImportRequest);
             }

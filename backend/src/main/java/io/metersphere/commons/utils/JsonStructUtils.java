@@ -30,7 +30,7 @@ public class JsonStructUtils {
         if(matchObj == null){
             matchObj = new JSONObject();
         }
-        if (sourceObj .isEmpty() && matchObj.isEmpty()) {
+        if (matchObj.isEmpty()) {
             return true;
         } else if (sourceObj != null && matchObj != null) {
             boolean lastMatchResultIsTrue = false;
