@@ -3,7 +3,6 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.*;
-import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
@@ -57,7 +56,7 @@ public class MsResultService {
         this.processCache.put(key, testResult);
     }
 
-    public TestResult sysnSampleResult(String key) {
+    public TestResult synSampleResult(String key) {
         if (key.startsWith("[") && key.endsWith("]")) {
             key = JSON.parseArray(key).get(0).toString();
         }
@@ -103,21 +102,18 @@ public class MsResultService {
 
     public void formatTestResult(TestResult testResult, Map<String, ScenarioResult> scenarios, SampleResult result) {
         String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
-        String index = StringUtils.substringAfterLast(result.getThreadName(), THREAD_SPLIT);
-        String scenarioId = StringUtils.substringBefore(index, ID_SPLIT);
         ScenarioResult scenarioResult;
-        if (!scenarios.containsKey(scenarioId)) {
+        if (!scenarios.containsKey(scenarioName)) {
             scenarioResult = new ScenarioResult();
-            try {
-                scenarioResult.setId(Integer.parseInt(scenarioId));
-            } catch (Exception e) {
-                scenarioResult.setId(0);
-                LogUtil.error("场景ID转换异常: " + e.getMessage());
+            scenarioResult.setId(1);
+            if (StringUtils.equals(testResult.getTestId(), scenarioName)) {
+                scenarioResult.setName(scenarioName);
+            } else {
+                scenarioResult.setName(testResult.getTestId());
             }
-            scenarioResult.setName(scenarioName);
-            scenarios.put(scenarioId, scenarioResult);
+            scenarios.put(scenarioName, scenarioResult);
         } else {
-            scenarioResult = scenarios.get(scenarioId);
+            scenarioResult = scenarios.get(scenarioName);
         }
         if (result.isSuccessful()) {
             scenarioResult.addSuccess();

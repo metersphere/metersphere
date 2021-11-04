@@ -31,11 +31,6 @@ import java.util.Map;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestResultService {
-
-    @Resource
-    private APITestService apiTestService;
-    @Resource
-    private APIReportService apiReportService;
     @Resource
     private ApiDefinitionService apiDefinitionService;
     @Resource
@@ -56,11 +51,7 @@ public class TestResultService {
             ApiTestReport report = null;
             ApiTestReportVariable reportTask = null;
             String planScenarioId = null;
-            // 这部分后续优化只留 DEFINITION 和 SCENARIO 两部分
-            if (StringUtils.equals(runMode, ApiRunMode.DEBUG.name())) {
-                report = apiReportService.get(debugReportId);
-                apiReportService.complete(testResult, report);
-            } else if (StringUtils.equals(runMode, ApiRunMode.DEFINITION.name())) {
+            if (StringUtils.equals(runMode, ApiRunMode.DEFINITION.name())) {
                 // 调试操作，不需要存储结果
                 apiDefinitionService.addResult(testResult);
                 if (StringUtils.isBlank(debugReportId)) {
@@ -132,10 +123,6 @@ public class TestResultService {
                     testResult.setTestId(scenarioReport.getScenarioId());
                     planScenarioId = scenarioReport.getTestPlanScenarioId();
                 }
-            } else {
-                apiTestService.changeStatus(testId, APITestStatus.Completed);
-                report = apiReportService.getRunningReport(testResult.getTestId());
-                apiReportService.complete(testResult, report);
             }
             updateTestCaseStates(testResult, planScenarioId, runMode);
             List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
@@ -154,7 +141,7 @@ public class TestResultService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.error(e.getMessage(), e);
+            LogUtil.error(e);
         }
     }
 
