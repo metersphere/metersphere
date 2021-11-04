@@ -49,8 +49,8 @@ export const FIELD_TYPE_MAP = {
 };
 
 export const SCENE_MAP = {
-  ISSUE: 'workspace.case_template_manage',
-  TEST_CASE: 'workspace.issue_template_manage'
+  ISSUE: 'workspace.issue_template_manage',
+  TEST_CASE: 'workspace.case_template_manage'
 };
 
 export const SYSTEM_FIELD_NAME_MAP = {
