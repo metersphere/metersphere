@@ -36,9 +36,6 @@ public class MsJSR223Processor extends MsTestElement {
     @JSONField(ordinal = 21)
     private String scriptLanguage;
 
-    @JSONField(ordinal = 22)
-    private boolean connScenario = true;
-
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;

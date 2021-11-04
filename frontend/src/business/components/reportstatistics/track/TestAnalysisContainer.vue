@@ -103,12 +103,12 @@
           this.$refs.historyReport.initReportData();
         });
       },
-      initPic(loadOption,tableData){
+      initPic(loadOptionParam,tableData){
         this.loading = true;
-        if (loadOption) {
-          this.loadOption.legend = loadOption.legend;
-          this.loadOption.xAxis = loadOption.xAxis;
-          this.loadOption.series = loadOption.series;
+        if (loadOptionParam) {
+          this.loadOption.legend = loadOptionParam.legend;
+          this.loadOption.xAxis = loadOptionParam.xaxis;
+          this.loadOption.series = loadOptionParam.series;
           this.loadOption.grid = {
             bottom: '75px',//距离下边距
           }

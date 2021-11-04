@@ -21,8 +21,14 @@ public class EnvironmentConfig {
     private List<DatabaseConfig> databaseConfigs;
     private TCPConfig tcpConfig;
     private KeyStoreConfig sslConfig;
-    private MsJSR223Processor postProcessor;
-    private MsJSR223Processor preProcessor;
+    //全局前后置脚本（每个请求都跑一遍）
+    private MsJSR223PreProcessor preProcessor;
+    private MsJSR223PostProcessor postProcessor;
+    //全局前后置脚本步骤（只在全部步骤都前后做处理）
+    private MsJSR223Processor preStepProcessor;
+    private MsJSR223Processor postStepProcessor;
+    //全局前后置脚本都配置
+    private GlobalScriptConfig globalScriptConfig;
     private JSONObject authManager;
 
     public EnvironmentConfig() {
