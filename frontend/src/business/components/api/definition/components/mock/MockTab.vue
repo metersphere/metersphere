@@ -181,7 +181,11 @@ export default {
             body: "",
           };
         }
-        this.$refs.mockEditDrawer.open(mockExpectConfig);
+        this.searchApiParams(this.mockConfigData.mockConfig.apiId);
+        this.$refs.mockEditDrawer.close();
+        this.$nextTick(() => {
+          this.$refs.mockEditDrawer.open(mockExpectConfig);
+        });
       });
     },
     clickRow(row, column, event) {
@@ -204,12 +208,19 @@ export default {
             body: "",
           };
         }
-        this.$refs.mockEditDrawer.open(mockExpectConfig);
+        this.searchApiParams(this.mockConfigData.mockConfig.apiId);
+        this.$refs.mockEditDrawer.close();
+        this.$nextTick(() => {
+          this.$refs.mockEditDrawer.open(mockExpectConfig);
+        });
       });
     },
     addApiMock(){
       this.searchApiParams(this.mockConfigData.mockConfig.apiId);
-      this.$refs.mockEditDrawer.open();
+      this.$refs.mockEditDrawer.close();
+      this.$nextTick(() => {
+        this.$refs.mockEditDrawer.open();
+      });
     },
     removeExpect(row) {
       this.$confirm(this.$t('api_test.mock.delete_mock_expect'), this.$t('commons.prompt'), {
