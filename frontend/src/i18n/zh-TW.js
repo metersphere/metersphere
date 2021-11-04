@@ -1148,6 +1148,7 @@ export default {
       condition_enable: "啟用條件",
       globalVariable: "全局變量",
       environment_list: "環境列表",
+      environment_group: "環境組",
       environment_config: "環境配置",
       config_environment: "配置環境",
       copy_environment: "復製環境",

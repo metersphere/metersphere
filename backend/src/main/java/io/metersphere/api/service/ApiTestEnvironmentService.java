@@ -4,12 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestEnvironmentDTO;
+import io.metersphere.api.dto.EnvironmentGroupDTO;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.tcp.TCPPool;
-import io.metersphere.base.domain.ApiTestEnvironmentExample;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.base.mapper.EnvGroupMapper;
+import io.metersphere.base.mapper.EnvGroupProjectMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
@@ -38,6 +39,12 @@ public class ApiTestEnvironmentService {
 
     @Resource
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
+
+    @Resource
+    private EnvGroupMapper envGroupMapper;
+
+    @Resource
+    private EnvGroupProjectMapper envGroupProjectMapper;
 
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
@@ -431,5 +438,25 @@ public class ApiTestEnvironmentService {
             }
         }
         return returnStr;
+    }
+
+    public void insert(EnvironmentGroupDTO request) {
+        request.setEnvGroupId(UUID.randomUUID().toString());
+        request.setCreateUser(SessionUtils.getUserId());
+        envGroupMapper.insert(request);
+        envGroupProjectMapper.insertSelective(request);
+
+    }
+
+    public List<EnvGroup> envGroupList() {
+        EnvGroupExample example = new EnvGroupExample();
+        example.createCriteria();
+        List<EnvGroup> list = envGroupMapper.selectByExample(example);
+        return list;
+    }
+
+    public List<EnvironmentGroupDTO> envGroupProject(String envGroupId) {
+        List<EnvironmentGroupDTO> list = envGroupMapper.selectByenvGroupId(envGroupId);
+        return list;
     }
 }

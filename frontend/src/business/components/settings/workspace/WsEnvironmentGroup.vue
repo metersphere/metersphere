@@ -5,34 +5,27 @@
       <template v-slot:header>
         <ms-table-header :create-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE']" :create-tip="btnTips"
                          :condition.sync="condition" @search="search" @create="createEnv">
-          <template v-slot:button>
-            <ms-table-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT']" icon="el-icon-box"
-                             :content="$t('commons.import')" @click="importJSON"/>
-            <ms-table-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT']" icon="el-icon-box"
-                             :content="$t('commons.export')" @click="exportJSON"/>
-          </template>
         </ms-table-header>
       </template>
-      <!-- 环境列表内容 -->
-      <el-table border :data="environments" @filter-change="filter"
-                @selection-change="handleSelectionChange" class="adjust-table" style="width: 100%" ref="table"
+      <!-- 环境组内容 -->
+      <el-table border :data="environments"
+                 class="adjust-table" style="width: 100%" ref="table"
                 :height="screenHeight"
       >
-        <el-table-column type="selection"></el-table-column>
-        <el-table-column :label="$t('commons.project')" width="250" :filters="projectFilters" column-key="projectId"
-                         show-overflow-tooltip>
-          <template v-slot="scope">
-            <span>{{ idNameMap.get(scope.row.projectId) }}</span>
+
+        <el-table-column :label="$t('api_test.environment.group_name')" width="250" prop="envGroupName" show-overflow-tooltip
+                       >
+          <template slot-scope="scope">
+            <span  @click="changeDisplay(scope.row.envGroupId)">{{ scope.row.envGroupName }}</span>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('api_test.environment.name')" prop="name" show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column :label="$t('api_test.environment.socket')" show-overflow-tooltip>
-          <template v-slot="scope">
-            <span v-if="parseDomainName(scope.row)!='SHOW_INFO'">{{ parseDomainName(scope.row) }}</span>
-            <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>查看域名详情</el-button>
+        <el-table-column type="expand">
+          <template v-slot:default="scope">
+            <edit-ws-environment-group
+                                :env-group-id="scope.row.envGroupId"/>
           </template>
         </el-table-column>
+
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <div>
@@ -53,6 +46,7 @@
                            :total="total"/>
     </el-card>
 
+
     <!-- 创建、编辑、复制环境时的对话框 -->
     <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :title="dialogTitle" width="66%">
       <div class="project-item">
@@ -63,40 +57,11 @@
           <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </div>
-      <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close"
-                        :project-id="currentProjectId" @refreshAfterSave="refresh">
-      </environment-edit>
+      <edit-ws-environment-group :environment="currentEnvironment" ref="environmentEdit" @close="close"
+                        :env-group-id="environments.envGroupId" @refreshAfterSave="refresh">
+      </edit-ws-environment-group>
     </el-dialog>
-    <environment-import :project-list="projectList" @refresh="refresh" ref="envImport"></environment-import>
 
-    <el-dialog title="域名列表" :visible.sync="domainVisible">
-      <el-table :data="conditions">
-        <el-table-column prop="socket" :label="$t('load_test.domain')" show-overflow-tooltip width="180">
-          <template v-slot:default="{row}">
-            {{getUrl(row)}}
-          </template>
-        </el-table-column>
-        <el-table-column prop="type" :label="$t('api_test.environment.condition_enable')" show-overflow-tooltip min-width="100px">
-          <template v-slot:default="{row}">
-            {{getName(row)}}
-          </template>
-        </el-table-column>
-        <el-table-column prop="details" show-overflow-tooltip min-width="120px" :label="$t('api_test.value')">
-          <template v-slot:default="{row}">
-            {{getDetails(row)}}
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" show-overflow-tooltip min-width="120px" :label="$t('commons.create_time')">
-          <template v-slot:default="{row}">
-            <span>{{ row.time | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-    <el-button @click="domainVisible = false" size="mini">{{$t('commons.cancel')}}</el-button>
-    <el-button type="primary" @click="domainVisible = false" size="mini">{{$t('commons.confirm')}}</el-button>
-  </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -115,9 +80,11 @@
   import SearchList from "@/business/components/common/head/SearchList";
   import {downloadFile} from "@/common/js/utils";
   import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
+  import EditWsEnvironmentGroup from "@/business/components/settings/workspace/EditWsEnvironmentGroup";
+  import WorkspaceQuota from "@/business/components/xpack/quota/WorkspaceQuota";
 
   export default {
-    name: "EnvironmentList",
+    name: "EnvironmentGroup",
     components: {
       EnvironmentImport,
       SearchList,
@@ -126,11 +93,15 @@
       MsAsideItem,
       EnvironmentEdit,
       ApiEnvironmentConfig,
-      MsTablePagination, MsTableOperatorButton, MsTableOperator, MsTableButton, MsTableHeader
+      MsTablePagination, MsTableOperatorButton, MsTableOperator, MsTableButton, MsTableHeader ,
+      EditWsEnvironmentGroup , WorkspaceQuota
+
     },
     data() {
       return {
-        btnTips: this.$t('api_test.environment.create'),
+        btnTips: this.$t('api_test.environment.create_group'),
+        envGroupId: '',
+        isDisplay:false,
         projectList: [],
         condition: {},   //封装传递给后端的查询条件
         environments: [],
@@ -157,7 +128,7 @@
     },
 
     activated() {
-      this.list();
+      this.getEnvironments();
     },
 
     watch: {
@@ -174,6 +145,17 @@
     },
 
     methods: {
+      changeDisplay(envGroupId){
+        console.log(envGroupId);
+        this.isDisplay = !this.isDisplay
+        console.log(this.isDisplay);
+          let url = '/api/environment/list/envGroupProject/' + envGroupId ;
+          this.result = this.$get(url, response => {
+            let data = response.data
+            console.log(data)
+          })
+        },
+
       showInfo(row) {
         const config = JSON.parse(row.config);
         this.conditions = config.httpConfig.conditions;
@@ -214,6 +196,7 @@
         if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
           this.$get("/project/listAll", (response) => {
             this.projectList = response.data;  //获取当前工作空间所拥有的项目,
+            console.log(this.projectList)
             this.projectList.forEach(project => {
               this.idNameMap.set(project.id, project.name);
               this.projectIds.push(project.id);
@@ -228,22 +211,18 @@
           this.getEnvironments()
         }
       },
-      getEnvironments(projectIds){
+      getEnvironments(){
         this.environments = [];
-        if (projectIds && projectIds.length > 0) {
-          this.condition.projectIds = projectIds;
-        } else {
-          this.condition.projectIds = this.projectIds;
-        }
-        let url = '/api/environment/list/' + this.currentPage + '/' + this.pageSize;
+        let url = '/api/environment/list/envGroup/' + this.currentPage + '/' + this.pageSize;
         this.result = this.$post(url, this.condition, response => {
           this.environments = response.data.listObject;
+          console.log(response.data);
           this.total = response.data.itemCount;
         })
       },
       createEnv() {
         this.currentProjectId = '';
-        this.dialogTitle = this.$t('api_test.environment.create');
+        this.dialogTitle = this.$t('api_test.environment.create_group');
         this.dialogVisible = true;
         this.currentEnvironment = new Environment();
       },
@@ -251,11 +230,10 @@
         this.list()
       },
       editEnv(environment) {
-        this.dialogTitle = this.$t('api_test.environment.config_environment');
+        this.dialogTitle = this.$t('api_test.environment.config_env_group');
         this.currentProjectId = environment.projectId;
         const temEnv = {};
         Object.assign(temEnv, environment);
-        parseEnvironment(temEnv);   //parseEnvironment会改变环境对象的内部结构，从而影响前端列表的显示，所以复制一个环境对象作为代替
         this.currentEnvironment = temEnv;
         this.dialogVisible = true;
       },
@@ -298,11 +276,6 @@
         return name;
       },
 
-      //筛选指定项目下的环境
-      filter(filters) {
-        this.getEnvironments(filters.projectId)
-      },
-
       //对话框取消按钮
       close() {
         this.dialogVisible = false;
@@ -310,9 +283,6 @@
       },
       refresh() {
         this.list();
-      },
-      handleSelectionChange(value) {
-        this.selectRows = value;
       },
       importJSON() {
         this.$refs.envImport.open();

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.EnvGroupMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.EnvGroup">
+    <result column="env_group_id" jdbcType="VARCHAR" property="envGroupId" />
+    <result column="env_group_name" jdbcType="VARCHAR" property="envGroupName" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    env_group_id, env_group_name
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.EnvGroupExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from env_group
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.EnvGroupExample">
+    delete from env_group
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.api.dto.EnvironmentGroupDTO">
+    insert into env_group (env_group_id, env_group_name)
+    values (#{envGroupId,jdbcType=VARCHAR}, #{envGroupName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.EnvGroup">
+    insert into env_group
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="envGroupId != null">
+        env_group_id,
+      </if>
+      <if test="envGroupName != null">
+        env_group_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="envGroupId != null">
+        #{envGroupId,jdbcType=VARCHAR},
+      </if>
+      <if test="envGroupName != null">
+        #{envGroupName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.base.domain.EnvGroupExample" resultType="java.lang.Long">
+    select count(*) from env_group
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <select id="selectByenvGroupId" resultType="io.metersphere.api.dto.EnvironmentGroupDTO">
+    SELECT b.* , c.name , c.config from env_group a join env_group_project b on a.env_group_id = b.env_group_id JOIN api_test_environment c
+    on b.project_id = c.project_id and b.env_id = c.id where a.env_group_id=#{envGroupId}
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update env_group
+    <set>
+      <if test="record.envGroupId != null">
+        env_group_id = #{record.envGroupId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.envGroupName != null">
+        env_group_name = #{record.envGroupName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update env_group
+    set env_group_id = #{record.envGroupId,jdbcType=VARCHAR},
+      env_group_name = #{record.envGroupName,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

@@ -3,10 +3,12 @@ package io.metersphere.api.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiTestEnvironmentDTO;
+import io.metersphere.api.dto.EnvironmentGroupDTO;
 import io.metersphere.api.dto.ssl.KeyStoreEntry;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.CommandService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.domain.EnvGroup;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -87,4 +89,28 @@ public class ApiTestEnvironmentController {
     public String getMockInfo(@PathVariable(value = "projectId") String projectId) {
         return apiTestEnvironmentService.getMockInfo(projectId);
     }
+
+    @PostMapping("/insert")
+    @MsAuditLog(module = "project_environment_setting", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#apiTestEnvironmentWithBLOBs.id)", msClass = ApiTestEnvironmentService.class)
+    public void insert(@RequestPart("request") EnvironmentGroupDTO environmentGroupDTO) {
+         apiTestEnvironmentService.insert(environmentGroupDTO);
+    }
+
+    @PostMapping("/list/envGroup/{goPage}/{pageSize}")
+    @MsAuditLog(module = "project_environment_setting", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#apiTestEnvironmentWithBLOBs.id)", msClass = ApiTestEnvironmentService.class)
+    public Pager<List<EnvGroup>>envGroupList(@PathVariable int goPage, @PathVariable int pageSize) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, apiTestEnvironmentService.envGroupList());
+    }
+
+    @GetMapping("/list/envGroupProject/{envGroupId}")
+    @MsAuditLog(module = "project_environment_setting", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#apiTestEnvironmentWithBLOBs.id)", msClass = ApiTestEnvironmentService.class)
+    public List<EnvironmentGroupDTO> envGroupProject(@PathVariable(value = "envGroupId") String envGroupId) {
+        return apiTestEnvironmentService.envGroupProject(envGroupId);
+    }
+
+
+
+
+
 }

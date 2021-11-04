@@ -1143,6 +1143,7 @@ export default {
       condition_enable: "Activation conditions",
       globalVariable: "Global Variable",
       environment_list: "Environment List",
+      environment_group: "Environment Group",
       environment_config: "Environment Config",
       config_environment: "Config Environment",
       copy_environment: "copy environment",
