@@ -274,10 +274,6 @@
           return this.mockBaseUrl;
         } else {
           let path = this.httpForm.path;
-          let prefix = "";
-          if (path.endsWith("/")) {
-            prefix = "/";
-          }
           let protocol = this.httpForm.method;
           if (protocol === 'GET' || protocol === 'DELETE') {
             if (this.httpForm.request != null && this.httpForm.request.rest != null) {
@@ -303,8 +299,7 @@
               }
             }
           }
-
-          return this.mockBaseUrl + path + prefix;
+          return this.mockBaseUrl + path;
         }
       }
     },
