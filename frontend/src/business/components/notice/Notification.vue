@@ -10,7 +10,7 @@
           <template v-slot:content>
             <span>{{ $t('commons.notice_center') }}</span>
           </template>
-          <div @click="showNoticeCenter" v-if="noticeCount > 0">
+          <div @click="showNoticeCenter" v-if="noticeCount > 0 || noticeShow">
             <el-badge is-dot class="item" type="danger">
               <font-awesome-icon class="icon global focusing" :icon="['fas', 'bell']"/>
             </el-badge>
@@ -78,6 +78,7 @@ export default {
       goPage: 1,
       totalPage: 0,
       totalCount: 0,
+      noticeShow: false,
     };
   },
   props: {
@@ -151,6 +152,7 @@ export default {
     },
     readAll() {
       this.$get('/notification/read/all');
+      this.noticeShow = false;
     },
     getNotifications() {
       this.initWebSocket();
@@ -172,6 +174,9 @@ export default {
               type: 'info',
               message: message,
             });
+            // 弹出之后标记成已读
+            this.$get('/notification/read/' + d.id);
+            this.noticeShow = true;
           });
         });
       });
