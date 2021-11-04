@@ -135,5 +135,8 @@
 </script>
 
 <style scoped>
-
+.ms-main-container {
+  padding: 5px 10px;
+  height: calc(100vh - 320px);
+}
 </style>
