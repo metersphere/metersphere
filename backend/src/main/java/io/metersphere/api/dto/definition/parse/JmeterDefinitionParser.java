@@ -59,6 +59,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
+
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -103,7 +104,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = buildApiDefinition(element);
                 if (apiDefinitionWithBLOBs != null) {
                     definitions.add(apiDefinitionWithBLOBs);
-                    ApiTestCaseWithBLOBs apiTestCase =  new ApiTestCaseWithBLOBs();
+                    ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                     BeanUtils.copyBean(apiTestCase, apiDefinitionWithBLOBs);
                     apiTestCase.setApiDefinitionId(apiDefinitionWithBLOBs.getId());
                     apiTestCase.setStatus("Prepare");
@@ -478,6 +479,8 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             RegexExtractor regexExtractor = (RegexExtractor) key;
             if (regexExtractor.useRequestHeaders()) {
                 regex.setUseHeaders("request_headers");
+            } else if (regexExtractor.useHeaders()) {
+                regex.setUseHeaders("true");
             } else if (regexExtractor.useBody()) {
                 regex.setUseHeaders("false");
             } else if (regexExtractor.useUnescapedBody()) {
@@ -693,7 +696,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 }
                 samplerProxy.getBody().initBinary();
             }
-             samplerProxy.setPath(source.getPath());
+            samplerProxy.setPath(source.getPath());
             samplerProxy.setMethod(source.getMethod());
             MsJmeterParser jmeterParser = new MsJmeterParser();
             if (jmeterParser.getUrl(source) != null) {
