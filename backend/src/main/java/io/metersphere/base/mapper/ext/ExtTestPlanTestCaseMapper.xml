@@ -171,6 +171,7 @@
             <if test="request.method != null">
                 and test_case.method = #{request.method}
             </if>
+            and test_case.status != 'Trash'
             <include refid="filter"/>
         </where>
     </sql>
@@ -467,7 +468,11 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
-        select id,status from test_plan_test_case where plan_id = #{planId};
+        select tptc.id, tptc.status
+        from test_plan_test_case tptc
+        inner join test_case tc
+        on tc.id = tptc.case_id and tc.status != 'Trash'
+        where tptc.plan_id = #{planId};
     </select>
     <select id="getCases" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select tptc.id, tc.id as caseId, tc.name, tc.priority, tc.num, tc.custom_num, tc.project_id,
