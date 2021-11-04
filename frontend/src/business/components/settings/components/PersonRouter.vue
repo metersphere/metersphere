@@ -42,6 +42,9 @@
   export default {
     name: "MsPersonRouter",
     components: {MsMainContainer,MsPersonFromSetting,MsApiKeys,PasswordInfo,ZentaoUserInfo, TapdUserInfo, JiraUserInfo, AzureDevopsUserInfo},
+    inject: [
+      'reload',
+    ],
     data(){
       let getMenus = function (group) {
         let menus = [];

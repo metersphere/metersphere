@@ -94,6 +94,7 @@ export default {
     create: 'Create',
     edit: 'Edit',
     copy: 'Copy',
+    follow:'Follow',
     refresh: 'Refresh',
     remark: 'Remark',
     delete: 'Delete',

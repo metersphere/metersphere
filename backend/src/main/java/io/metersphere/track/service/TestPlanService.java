@@ -228,6 +228,8 @@ public class TestPlanService {
         return testPlan;
     }
 
+
+
     public List<TestPlan> getTestPlanByName(String name) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria()
@@ -254,19 +256,22 @@ public class TestPlanService {
             }
         }
         List<String> follows = request.getFollows();
-        if (StringUtils.isNotBlank(request.getId())) {
-            testPlanFollowService.deleteTestPlanFollowByPlanId(request.getId());
+        editTestFollows(request.getId(),follows);
+        return this.editTestPlan(request);
+    }
+
+    public void editTestFollows(String planId, List<String> follows){
+        if (StringUtils.isNotBlank(planId)) {
+            testPlanFollowService.deleteTestPlanFollowByPlanId(planId);
             if (!CollectionUtils.isEmpty(follows)) {
                 for (String follow : follows) {
                     TestPlanFollow testPlanFollow = new TestPlanFollow();
-                    testPlanFollow.setTestPlanId(request.getId());
+                    testPlanFollow.setTestPlanId(planId);
                     testPlanFollow.setFollowId(follow);
                     testPlanFollowService.insert(testPlanFollow);
                 }
             }
         }
-
-        return this.editTestPlan(request);
     }
 
     public TestPlan editTestPlan(TestPlanWithBLOBs testPlan) {

@@ -95,6 +95,7 @@ export default {
     create: '新建',
     edit: '編輯',
     copy: '復製',
+    follow:'關注',
     refresh: '刷新',
     remark: '備註',
     delete: '刪除',
