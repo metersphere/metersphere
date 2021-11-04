@@ -10,6 +10,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.environment.GlobalScriptConfig;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.RunModeConstants;
@@ -59,6 +60,8 @@ public class MsThreadGroup extends MsTestElement {
         if (CollectionUtils.isNotEmpty(hashTree)) {
             MsJSR223Processor preProcessor = null;
             MsJSR223Processor postProcessor = null;
+            boolean isConnScenarioPre = false;
+            boolean isConnScenarioPost = false;
             //获取projectConfig
             String projectId = this.checkProjectId(hashTree);
             this.checkEnviromentConfig(projectId,config,hashTree);
@@ -66,8 +69,12 @@ public class MsThreadGroup extends MsTestElement {
                 if (config.isEffective(projectId)) {
                     EnvironmentConfig environmentConfig = config.getConfig().get(projectId);
                     if (environmentConfig != null) {
-                        preProcessor = environmentConfig.getPreProcessor();
-                        postProcessor = environmentConfig.getPostProcessor();
+                        preProcessor = environmentConfig.getPreStepProcessor();
+                        postProcessor = environmentConfig.getPostStepProcessor();
+                        if(environmentConfig.getGlobalScriptConfig() != null ){
+                            isConnScenarioPre = environmentConfig.getGlobalScriptConfig().isConnScenarioPreScript();
+                            isConnScenarioPost = environmentConfig.getGlobalScriptConfig().isConnScenarioPostScript();
+                        }
                     }
                 }
             }
@@ -75,7 +82,7 @@ public class MsThreadGroup extends MsTestElement {
             //检查全局前后置脚本
             if (preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
                 preProcessor.setType("JSR223Processor");
-                preProcessor.setName("PRE_PROCESSOR_ENV_"+preProcessor.isConnScenario());
+                preProcessor.setName("PRE_PROCESSOR_ENV_"+isConnScenarioPre);
                 preProcessor.setClazzName("io.metersphere.api.dto.definition.request.processors.MsJSR223Processor");
                 preProcessor.toHashTree(groupTree, preProcessor.getHashTree(), config);
             }
@@ -85,7 +92,7 @@ public class MsThreadGroup extends MsTestElement {
 
             if (postProcessor != null && StringUtils.isNotEmpty(postProcessor.getScript())) {
                 postProcessor.setType("JSR223Processor");
-                postProcessor.setName("POST_PROCESSOR_ENV_"+preProcessor.isConnScenario());
+                postProcessor.setName("POST_PROCESSOR_ENV_"+isConnScenarioPost);
                 postProcessor.setClazzName("io.metersphere.api.dto.definition.request.processors.MsJSR223Processor");
                 postProcessor.toHashTree(groupTree, postProcessor.getHashTree(), config);
             }
