@@ -55,6 +55,7 @@
             @copyRow="copyRow"
             @remove="remove"
             :response="response"
+            :apiId="apiId"
             :is-read-only="isReadOnly"
             :assertions="row"/>
         </div>
@@ -97,6 +98,7 @@ export default {
   props: {
     request: {},
     response: {},
+    apiId: String,
     showScript: {
       type: Boolean,
       default: true,

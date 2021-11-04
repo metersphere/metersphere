@@ -5,10 +5,14 @@
 
 package org.apache.jmeter.assertions;
 
+import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Predicate;
+import io.metersphere.api.dto.definition.request.assertions.document.Condition;
+import io.metersphere.api.dto.definition.request.assertions.document.ElementCondition;
 import net.minidev.json.JSONArray;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.AbstractTestElement;
@@ -45,6 +49,10 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
 
     public String getOption() {
         return getPropertyAsString("ASS_OPTION");
+    }
+
+    public String getElementCondition() {
+        return getPropertyAsString("ElementCondition");
     }
 
     public String getJsonPath() {
@@ -132,6 +140,9 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                         case "LT":
                             msg = "Value < '%s', but found '%s'";
                             break;
+                        case "DOCUMENT":
+                            msg = (StringUtils.isNotEmpty(this.getName()) ? this.getName().split("==")[1] : "") + "校验失败，返回数据：" + (value != null ? value.toString() : "");
+                            break;
                     }
                 } else {
                     msg = "Value expected to be '%s', but found '%s'";
@@ -202,12 +213,69 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                     case "LT":
                         refFlag = isLt(str, getExpectedValue());
                         break;
-
+                    case "DOCUMENT":
+                        refFlag = isDocument(str);
+                        break;
                 }
                 return refFlag;
             }
             return str.equals(this.getExpectedValue());
         }
+    }
+    private String ifValue(Object value) {
+        if (value != null) {
+            return value.toString();
+        }
+        return "";
+    }
+
+    private boolean isDocument(String resValue) {
+        String condition = this.getElementCondition();
+        if (StringUtils.isNotEmpty(condition)) {
+            ElementCondition elementCondition = JSON.parseObject(condition, ElementCondition.class);
+            boolean isTrue = true;
+            if (CollectionUtils.isNotEmpty(elementCondition.getConditions())) {
+                for (Condition item : elementCondition.getConditions()) {
+                    String expectedValue = ifValue(item.getValue());
+                    switch (item.getKey()) {
+                        case "value_eq":
+                            isTrue = StringUtils.equals(resValue, expectedValue);
+                            break;
+                        case "value_not_eq":
+                            isTrue = !StringUtils.equals(resValue, expectedValue);
+                            break;
+                        case "value_in":
+                            isTrue = StringUtils.contains(resValue, expectedValue);
+                            break;
+                        case "length_eq":
+                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() == expectedValue.length())
+                                    || (StringUtils.isEmpty(resValue) && StringUtils.isEmpty(expectedValue));
+                            break;
+                        case "length_not_eq":
+                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() != expectedValue.length())
+                                    || (StringUtils.isEmpty(resValue) || StringUtils.isEmpty(expectedValue));
+                            break;
+                        case "length_gt":
+                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() > expectedValue.length())
+                                    || (StringUtils.isNotEmpty(resValue) && StringUtils.isEmpty(expectedValue));
+                            break;
+                        case "length_lt":
+                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() < expectedValue.length())
+                                    || (StringUtils.isEmpty(resValue) || StringUtils.isEmpty(expectedValue));
+                            break;
+                        case "regular":
+                            Pattern pattern = JMeterUtils.getPatternCache().getPattern(this.getExpectedValue());
+                            isTrue = JMeterUtils.getMatcher().matches(resValue, pattern);
+                            break;
+                    }
+                    if (!isTrue) {
+                        break;
+                    }
+                }
+            }
+            return isTrue;
+        }
+        return true;
     }
 
     public AssertionResult getResult(SampleResult samplerResult) {

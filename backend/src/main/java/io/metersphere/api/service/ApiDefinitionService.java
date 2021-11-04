@@ -14,6 +14,7 @@ import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImportParserFactory;
 import io.metersphere.api.dto.definition.parse.Swagger3Parser;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
@@ -32,6 +33,8 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.json.JSONSchemaToDocumentUtils;
+import io.metersphere.commons.json.JSONToDocumentUtils;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
@@ -725,11 +728,11 @@ public class ApiDefinitionService {
     private void reSetImportMocksApiId(List<MockConfigImportDTO> mocks, String originId, String newId, int apiNum) {
         if (CollectionUtils.isNotEmpty(mocks)) {
             int index = 1;
-            for(MockConfigImportDTO item : mocks){
+            for (MockConfigImportDTO item : mocks) {
                 if (StringUtils.equals(item.getApiId(), originId)) {
                     item.setApiId(newId);
                 }
-                item.setExpectNum(apiNum+"_"+index);
+                item.setExpectNum(apiNum + "_" + index);
                 index++;
             }
         }
@@ -901,7 +904,7 @@ public class ApiDefinitionService {
         if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
             jMeterService.runTest(request.getId(), request.getId(), runMode, null, request.getConfig());
         } else {
-            jMeterService.runLocal(request.getId(),request.getConfig(), hashTree, request.getReportId(), runMode);
+            jMeterService.runLocal(request.getId(), request.getConfig(), hashTree, request.getReportId(), runMode);
         }
         return request.getId();
     }
@@ -1015,10 +1018,10 @@ public class ApiDefinitionService {
             apiImport = (ApiDefinitionImport) Objects.requireNonNull(apiImportParser).parse(file == null ? null : file.getInputStream(), request);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            String returnThrowException =  e.getMessage();
-            if(StringUtils.contains(returnThrowException,"模块树最大深度为")){
+            String returnThrowException = e.getMessage();
+            if (StringUtils.contains(returnThrowException, "模块树最大深度为")) {
                 MSException.throwException(returnThrowException);
-            }else {
+            } else {
                 MSException.throwException(Translator.get("parse_data_error"));
             }
             // 发送通知
@@ -1207,8 +1210,8 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinition> selectApiDefinitionBydIds(List<String> ids) {
-        if(CollectionUtils.isEmpty(ids)){
-            return  new ArrayList<>();
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
         }
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);
@@ -1493,7 +1496,7 @@ public class ApiDefinitionService {
             }
             for (ApiDefinition api : apiList) {
                 String path = api.getPath();
-                if(StringUtils.isEmpty(path)){
+                if (StringUtils.isEmpty(path)) {
                     continue;
                 }
                 if (path.startsWith("/")) {
@@ -1728,5 +1731,39 @@ public class ApiDefinitionService {
         example.createCriteria().andDefinitionIdEqualTo(definitionId);
         List<ApiDefinitionFollow> follows = apiDefinitionFollowMapper.selectByExample(example);
         return follows.stream().map(ApiDefinitionFollow::getFollowId).distinct().collect(Collectors.toList());
+    }
+
+    public List<DocumentElement> getDocument(String id, String type) {
+        ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
+        List<DocumentElement> list = new LinkedList<>();
+        if (bloBs != null && StringUtils.isNotEmpty(bloBs.getResponse())) {
+            JSONObject object = JSON.parseObject(bloBs.getResponse());
+            JSONObject body = (JSONObject) object.get("body");
+            if (body != null) {
+                if (StringUtils.equals(type, "JSON")) {
+                    String jsonSchema = body.getString("jsonSchema");
+                    String dataType = body.getString("type");
+                    if (StringUtils.equalsAny(dataType, "JSON", "JSON-SCHEMA") && StringUtils.isNotEmpty(jsonSchema)) {
+                        JSONObject obj = (JSONObject) body.get("jsonSchema");
+                        if (StringUtils.equals(obj.getString("type"), "array")) {
+                            list.add(new DocumentElement().newRoot("array", JSONSchemaToDocumentUtils.getDocument(jsonSchema)));
+                        } else {
+                            list.add(new DocumentElement().newRoot("object", JSONSchemaToDocumentUtils.getDocument(jsonSchema)));
+                        }
+                    } else {
+                        list.add(new DocumentElement().newRoot("object", null));
+                    }
+                } else {
+                    String xml = body.getString("raw");
+                    String dataType = body.getString("type");
+                    if (StringUtils.equals(dataType, "XML") && StringUtils.isNotEmpty(xml)) {
+                        list = JSONToDocumentUtils.getDocument(xml, type);
+                    } else {
+                        list.add(new DocumentElement().newRoot("root", null));
+                    }
+                }
+            }
+        }
+        return list;
     }
 }

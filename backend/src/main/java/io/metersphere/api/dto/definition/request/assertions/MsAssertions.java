@@ -2,6 +2,9 @@ package io.metersphere.api.dto.definition.request.assertions;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.assertions.document.MsAssertionDocument;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -27,6 +30,7 @@ public class MsAssertions extends MsTestElement {
     private List<MsAssertionXPath2> xpath2;
     private MsAssertionDuration duration;
     private String type = "Assertions";
+    private MsAssertionDocument document;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
@@ -39,6 +43,27 @@ public class MsAssertions extends MsTestElement {
     }
 
     private void addAssertions(HashTree hashTree) {
+        // 增加JSON文档结构校验
+        if (this.getDocument() != null && this.getDocument().getType().equals("JSON")) {
+            if (StringUtils.isNotEmpty(this.getDocument().getData().getJsonFollowAPI())) {
+                ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+                this.getDocument().getData().setJson(apiDefinitionService.getDocument(this.getDocument().getData().getJsonFollowAPI(), "JSON"));
+            }
+            if (CollectionUtils.isNotEmpty(this.getDocument().getData().getJson())) {
+                this.getDocument().getData().parseJson(hashTree, this.getName());
+            }
+        }
+        // 增加XML文档结构校验
+        if (this.getDocument() != null && this.getDocument().getType().equals("XML") && CollectionUtils.isNotEmpty(this.getDocument().getData().getXml())) {
+            if (StringUtils.isNotEmpty(this.getDocument().getData().getXmlFollowAPI())) {
+                ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+                this.getDocument().getData().setXml(apiDefinitionService.getDocument(this.getDocument().getData().getXmlFollowAPI(), "XML"));
+            }
+            if (CollectionUtils.isNotEmpty(this.getDocument().getData().getXml())) {
+                this.getDocument().getData().parseXml(hashTree, this.getName());
+            }
+        }
+
         if (CollectionUtils.isNotEmpty(this.getRegex())) {
             this.getRegex().stream().filter(MsAssertionRegex::isValid).forEach(assertion ->
                     hashTree.add(responseAssertion(assertion))

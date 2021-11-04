@@ -963,6 +963,7 @@ export default {
         add_data: "去添加"
       },
       request: {
+        document_structure: "文档结构校验",
         grade_info: "按等级筛选",
         grade_order_asc: "按用例等级从低到高",
         grade_order_desc: "按用例等级从高到低",
