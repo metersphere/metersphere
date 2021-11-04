@@ -1230,9 +1230,6 @@ public class TestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        TestCaseExample example = new TestCaseExample();
-        example.createCriteria().andIdIn(request.getIds());
-
         if (request.getCustomField() != null) {
             List<TestCaseWithBLOBs> testCases = extTestCaseMapper.getCustomFieldsByIds(ids);
             testCases.forEach((testCase) -> {
@@ -1261,7 +1258,8 @@ public class TestCaseService {
                 }
                 testCase.setCustomFields(JSONObject.toJSONString(fields));
                 testCase.setUpdateTime(System.currentTimeMillis());
-                testCase.setId(null);
+                TestCaseExample example = new TestCaseExample();
+                example.createCriteria().andIdEqualTo(testCase.getId());
                 testCaseMapper.updateByExampleSelective(testCase, example);
             });
         } else {
@@ -1269,6 +1267,8 @@ public class TestCaseService {
             TestCaseWithBLOBs batchEdit = new TestCaseWithBLOBs();
             BeanUtils.copyBean(batchEdit, request);
             batchEdit.setUpdateTime(System.currentTimeMillis());
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(request.getIds());
             testCaseMapper.updateByExampleSelective(batchEdit, example);
         }
     }
