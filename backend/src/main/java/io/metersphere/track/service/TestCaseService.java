@@ -1465,6 +1465,7 @@ public class TestCaseService {
             });
         }
         this.setNode(request);
+        request.setStatus(null); // 不更新状态
         editTestCase(request);
         return request.getId();
     }
