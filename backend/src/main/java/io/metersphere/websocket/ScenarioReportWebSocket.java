@@ -100,10 +100,10 @@ public class ScenarioReportWebSocket {
         @Override
         public void run() {
             try {
-                TestResult report = resultService.sysnSampleResult(reportId);
                 if (!session.isOpen()) {
                     return;
                 }
+                TestResult report = resultService.synSampleResult(reportId);
                 if (report != null) {
                     session.getBasicRemote().sendText(JSON.toJSONString(report));
                     if (report.isEnd()) {

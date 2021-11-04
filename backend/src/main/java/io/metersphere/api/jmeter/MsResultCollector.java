@@ -141,11 +141,11 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
             dto.setContent(e.getThreadGroup());
             dto.setReportId("send." + this.getName());
             dto.setToReport(this.getName());
+            LogUtil.debug("send. " + this.getName());
             if (client != null) {
                 client.send(JSON.toJSONString(dto));
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 
