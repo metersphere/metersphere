@@ -8,7 +8,9 @@
         </span>
         <span v-else class="el-dropdown-link">0/0</span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-for="i in totalPage" :key="i" :command="i">{{ i }}</el-dropdown-item>
+          <div class="dropdown-content">
+            <el-dropdown-item v-for="i in totalPage" :key="i" :command="i">{{ i }}</el-dropdown-item>
+          </div>
         </el-dropdown-menu>
       </el-dropdown>
       <el-button icon="el-icon-arrow-left" size="mini" :disabled="goPage === 1" @click="prevPage"/>
@@ -184,6 +186,32 @@ export default {
   text-align: center;
   border-radius: 30px;
   font-size: 14px;
+}
+
+.dropdown-content {
+  max-height: 240px;
+  overflow: auto;
+  /*margin-top: 5px;*/
+}
+
+/* 设置滚动条的样式 */
+.dropdown-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* 滚动槽 */
+.dropdown-content::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+/* 滚动条滑块 */
+.dropdown-content::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-content::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255, 0, 0, 0.4);
 }
 
 </style>
