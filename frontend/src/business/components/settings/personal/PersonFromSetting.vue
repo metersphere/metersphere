@@ -142,8 +142,6 @@ export default {
         let data = response.data;
         this.workspaceList = data.workspace;
         this.projectList = data.project
-        console.log("查看当前用户所属项目和空间")
-        console.log(response)
       });
     },
     handleClose() {
