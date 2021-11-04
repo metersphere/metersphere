@@ -55,7 +55,7 @@
                   </div>
                   <div style="float: left">
                     <span class="title" @click="click('/project/usergroup', ['PROJECT_USER:READ'])">
-                      {{ $t('project.group_permission') }}
+                      {{ $t('group.group_permission') }}
                     </span><br/>
                     <span class="desc">{{ $t('project.group_desc') }}</span>
                   </div>

@@ -12,7 +12,7 @@
         <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
         <el-table-column prop="type" :label="$t('group.type')">
           <template v-slot="scope">
-            <span>{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
+            <span>{{ userGroupType[scope.row.type] ? $t(userGroupType[scope.row.type]) : scope.row.type }}</span>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.member')" width="100">
@@ -22,7 +22,12 @@
             </el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="scopeName" :label="$t('group.scope')"/>
+        <el-table-column prop="scopeName" :label="$t('group.scope')">
+          <template v-slot="scope">
+            <span v-if="scope.row.scopeId ==='global'">{{ $t('group.global') }}</span>
+            <span v-else>{{ scope.row.scopeName }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -77,7 +82,7 @@ import GroupMember from "@/business/components/settings/system/group/GroupMember
 import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
-  name: "ProjectUserGroup",
+  name: "UserGroup",
   components: {
     GroupMember,
     EditUserGroup,
