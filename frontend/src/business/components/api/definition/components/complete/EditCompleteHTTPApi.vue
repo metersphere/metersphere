@@ -4,7 +4,7 @@
     <el-card class="card-content" v-loading="httpForm.loading">
       <el-form :model="httpForm" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
-        <div style="float: right;margin-right: 20px">
+        <div style="float: right;margin-right: 20px" class="ms-opt-btn">
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="httpForm.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
@@ -428,6 +428,11 @@
     margin: 20px 45px;
   }
 
+  .ms-opt-btn {
+    position: fixed;
+    right: 50px;
+    z-index: 1;
+  }
   /*.base-info .el-form-item >>> .el-form-item__content {*/
   /*  width: 80%;*/
   /*}*/
