@@ -4,7 +4,9 @@
       <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
         <el-form-item :label="$t('commons.title')" prop="title">
-          <el-input v-model="form.title" autocomplete="off"></el-input>
+          <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
+          <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-left: 15px;cursor: pointer" @click="saveFollow" v-if="!showFollow"/>
+          <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-top: 2px; margin-left: 15px; cursor: pointer" @click="saveFollow" v-if="showFollow"/>
         </el-form-item>
 
         <!-- 自定义字段 -->
@@ -99,6 +101,7 @@ export default {
       result: {},
       relateFields: [],
       isFormAlive: true,
+      showFollow:false,
       formLabelWidth: "150px",
       issueTemplate: {},
       customFieldForm: {},
@@ -278,12 +281,22 @@ export default {
         });
       }
     },
+    saveFollow(){
+      if(this.showFollow){
+        this.showFollow = false;
+      }else {
+        this.showFollow = true;
+
+      }
+    }
   }
 };
 </script>
 
 <style scoped>
-
+.top-input-class{
+  width: 95%;
+}
 
 .filed-list {
   margin-top: 30px;
