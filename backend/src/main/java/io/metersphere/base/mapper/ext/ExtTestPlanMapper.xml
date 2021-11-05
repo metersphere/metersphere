@@ -176,18 +176,17 @@
                                         </foreach>
                                     </otherwise>
                                 </choose>
-                                <if test="request.byFilter == true">
-                                    and test_plan.status in
-                                    <foreach collection="values" item="value" separator="," open="(" close=")">
-                                        #{value}
-                                    </foreach>
-                                </if>
                             </when>
                         </choose>
                     </if>
                 </foreach>
             </if>
-
+            <if test="request.byFilter == true">
+                and test_plan.status in
+                <foreach collection="request.filterStatus" item="value" separator="," open="(" close=")">
+                    #{value}
+                </foreach>
+            </if>
         </where>
 
         <if test="request.orders != null and request.orders.size() > 0">
