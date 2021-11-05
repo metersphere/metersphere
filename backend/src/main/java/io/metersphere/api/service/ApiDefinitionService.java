@@ -1260,7 +1260,7 @@ public class ApiDefinitionService {
 
     public Pager<List<ApiDefinitionResult>> listRelevance(ApiDefinitionRequest request, int goPage, int pageSize) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+        if (StringUtils.isNotBlank(request.getPlanId()) && testPlanService.isAllowedRepeatCase(request.getPlanId())) {
             request.setRepeatCase(true);
         }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
