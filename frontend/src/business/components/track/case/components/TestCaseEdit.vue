@@ -7,7 +7,7 @@
         <div class="ms-opt-btn">
           <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark">
             <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="!showFollow"/>
-            <i class="el-icon-star-on" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px " @click="saveFollow" v-if="showFollow"/>
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="showFollow"/>
           </el-tooltip>
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">{{$t('operating_log.change_history')}}</el-link>
           <ms-table-button v-if="this.path!='/test/case/add'"
