@@ -1188,7 +1188,7 @@ public class TestPlanService {
                 TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(planReportId, executeErrorMap, null, null);
             }
             if (!executeReportIdMap.isEmpty()) {
-                TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(planReportId, null, executeReportIdMap, null);
+                TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(planReportId, executeReportIdMap,null, null);
             }
         });
     }
