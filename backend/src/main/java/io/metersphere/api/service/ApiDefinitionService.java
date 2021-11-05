@@ -1207,6 +1207,9 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinition> selectApiDefinitionBydIds(List<String> ids) {
+        if(CollectionUtils.isEmpty(ids)){
+            return  new ArrayList<>();
+        }
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);
         return apiDefinitionMapper.selectByExample(example);

@@ -238,7 +238,7 @@ public class ApiDefinitionExecResultService {
         String finalSaveResultType = saveResultType;
 
         Map<String, String> apiIdResultMap = new HashMap<>();
-        Map<String, ApiDefinitionExecResult> caseReportMap = new HashMap<>();
+        Map<String, String> caseReportMap = new HashMap<>();
 
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
             result.getScenarios().forEach(scenarioResult -> {
@@ -318,7 +318,7 @@ public class ApiDefinitionExecResultService {
                             apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
                         }
                         apiDefinitionExecResultMapper.insert(saveResult);
-                        caseReportMap.put(caseId, saveResult);
+                        caseReportMap.put(caseId, saveResult.getId());
                     });
                 }
             });
