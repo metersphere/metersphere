@@ -18,4 +18,7 @@ public class TaskCenterRequest {
      * 执行人
      */
     private String executor;
+
+    private int goPage;
+    private int pageSize;
 }
