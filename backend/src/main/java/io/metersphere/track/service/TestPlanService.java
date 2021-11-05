@@ -21,6 +21,7 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.api.service.task.NamedThreadFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -189,7 +190,7 @@ public class TestPlanService {
     @Resource
     private TestPlanFollowMapper testPlanFollowMapper;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(20);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(20,new NamedThreadFactory("TestPlanService"));
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
