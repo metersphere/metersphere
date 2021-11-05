@@ -41,4 +41,6 @@ public class QueryTestPlanRequest extends TestPlan {
      * 是否通过筛选条件查询（这个字段针对我的工作台-页面列表上的筛选做特殊处理）
      */
     private boolean byFilter;
+
+    private List<String> filterStatus;
 }
