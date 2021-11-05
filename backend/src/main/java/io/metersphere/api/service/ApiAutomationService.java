@@ -25,6 +25,7 @@ import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.jmeter.ReportCounter;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
 import io.metersphere.api.parse.ApiImportParser;
+import io.metersphere.api.service.task.NamedThreadFactory;
 import io.metersphere.api.service.task.SerialScenarioExecTask;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -1167,9 +1168,9 @@ public class ApiAutomationService {
                     report = createScenarioReport(reportId, testPlanScenarioId, item.getName(), request.getTriggerMode(),
                             request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig(), item.getId());
                 }
-                if(report != null && StringUtils.isNotEmpty(request.getTestPlanReportId())){
-                    Map<String,String> scenarioReportIdMap = new HashMap<>();
-                    scenarioReportIdMap.put(item.getId(),report.getId());
+                if (report != null && StringUtils.isNotEmpty(request.getTestPlanReportId())) {
+                    Map<String, String> scenarioReportIdMap = new HashMap<>();
+                    scenarioReportIdMap.put(item.getId(), report.getId());
                     TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getTestPlanReportId(), null, scenarioReportIdMap, null);
                 }
             } else {
@@ -1241,7 +1242,6 @@ public class ApiAutomationService {
      * @param serialReportId
      */
     private void serial(Map<String, RunModeDataDTO> executeQueue, RunScenarioRequest request, String serialReportId) {
-        ExecutorService executorService = Executors.newFixedThreadPool(executeQueue.size());
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
         // 非集合报告，先生成执行队列
@@ -1251,73 +1251,82 @@ public class ApiAutomationService {
                 report.setStatus(APITestStatus.Waiting.name());
                 batchMapper.insert(report);
             }
-            sqlSession.flushStatements();
+            sqlSession.commit();
         }
         // 开始串行执行
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                List<String> reportIds = new LinkedList<>();
-                //记录串行执行中的环境参数，供下一个场景执行时使用。 <envId,<key,data>>
-                Map<String, Map<String, String>> executeEnvParams = new LinkedHashMap<>();
-                ApiTestEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-                HashTreeUtil hashTreeUtil = new HashTreeUtil();
-                for (String key : executeQueue.keySet()) {
-                    // 终止执行
-                    if (MessageCache.terminationOrderDeque.contains(key)) {
-                        MessageCache.terminationOrderDeque.remove(key);
-                        break;
-                    }
-                    MessageCache.executionQueue.put(key, System.currentTimeMillis());
-                    reportIds.add(key);
-                    APIScenarioReportResult report = executeQueue.get(key).getReport();
-                    if (StringUtils.isNotEmpty(serialReportId)) {
-                        report.setExecuteType(ExecuteType.Marge.name());
-                        apiScenarioReportMapper.insert(report);
-                    } else {
-                        report.setStatus(APITestStatus.Running.name());
-                        report.setCreateTime(System.currentTimeMillis());
-                        report.setUpdateTime(System.currentTimeMillis());
-                        apiScenarioReportMapper.updateByPrimaryKey(report);
-                    }
-                    try {
-                        if (!executeEnvParams.isEmpty()) {
-                            HashTree hashTree = executeQueue.get(key).getHashTree();
-                            hashTreeUtil.setEnvParamsMapToHashTree(hashTree, executeEnvParams);
-                            executeQueue.get(key).setHashTree(hashTree);
+                Thread.currentThread().setName("Scenario串行执行线程");
+                ExecutorService executorService = Executors.newFixedThreadPool(1, new NamedThreadFactory("串行执行等待线程池"));
+                try {
+                    List<String> reportIds = new LinkedList<>();
+                    //记录串行执行中的环境参数，供下一个场景执行时使用。 <envId,<key,data>>
+                    Map<String, Map<String, String>> executeEnvParams = new LinkedHashMap<>();
+                    ApiTestEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                    HashTreeUtil hashTreeUtil = new HashTreeUtil();
+                    for (String key : executeQueue.keySet()) {
+                        // 终止执行
+                        if (MessageCache.terminationOrderDeque.contains(key)) {
+                            MessageCache.terminationOrderDeque.remove(key);
+                            break;
                         }
-                        Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
-                        future.get();
-                        // 如果开启失败结束执行，则判断返回结果状态
-                        if (request.getConfig().isOnSampleError()) {
-                            ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(key);
-                            if (scenarioReport == null || !scenarioReport.getStatus().equals("Success")) {
-                                reportIds.remove(key);
-                                break;
+                        MessageCache.executionQueue.put(key, System.currentTimeMillis());
+                        reportIds.add(key);
+                        APIScenarioReportResult report = executeQueue.get(key).getReport();
+                        if (StringUtils.isNotEmpty(serialReportId)) {
+                            report.setExecuteType(ExecuteType.Marge.name());
+                            apiScenarioReportMapper.insert(report);
+                        } else {
+                            report.setStatus(APITestStatus.Running.name());
+                            report.setCreateTime(System.currentTimeMillis());
+                            report.setUpdateTime(System.currentTimeMillis());
+                            apiScenarioReportMapper.updateByPrimaryKey(report);
+                        }
+                        try {
+                            if (!executeEnvParams.isEmpty()) {
+                                HashTree hashTree = executeQueue.get(key).getHashTree();
+                                hashTreeUtil.setEnvParamsMapToHashTree(hashTree, executeEnvParams);
+                                executeQueue.get(key).setHashTree(hashTree);
                             }
-                        }
+                            Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
+                            future.get();
+                            // 如果开启失败结束执行，则判断返回结果状态
+                            if (request.getConfig().isOnSampleError()) {
+                                ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(key);
+                                if (scenarioReport == null || !scenarioReport.getStatus().equals("Success")) {
+                                    reportIds.remove(key);
+                                    break;
+                                }
+                            }
 
-                        Map<String, Map<String, String>> envParamsMap = hashTreeUtil.getEnvParamsDataByHashTree(executeQueue.get(key).getHashTree(), apiTestEnvironmentService);
-                        executeEnvParams = hashTreeUtil.mergeParamDataMap(executeEnvParams, envParamsMap);
-                    } catch (Exception e) {
-                        reportIds.remove(key);
-                        MessageCache.executionQueue.remove(key);
-                        LogUtil.error("执行终止：" + e.getMessage());
-                        break;
+                            Map<String, Map<String, String>> envParamsMap = hashTreeUtil.getEnvParamsDataByHashTree(executeQueue.get(key).getHashTree(), apiTestEnvironmentService);
+                            executeEnvParams = hashTreeUtil.mergeParamDataMap(executeEnvParams, envParamsMap);
+                        } catch (Exception e) {
+                            reportIds.remove(key);
+                            MessageCache.executionQueue.remove(key);
+                            LogUtil.error("执行终止：" + e.getMessage());
+                            break;
+                        }
                     }
-                }
-                // 清理未执行的队列
-                if (reportIds.size() < executeQueue.size()) {
-                    List<String> removeList = executeQueue.entrySet().stream().filter(map -> !reportIds.contains(map.getKey()))
-                            .map(map -> map.getKey()).collect(Collectors.toList());
-                    ApiScenarioReportExample example = new ApiScenarioReportExample();
-                    example.createCriteria().andIdIn(removeList);
-                    apiScenarioReportMapper.deleteByExample(example);
-                }
-                // 更新集成报告
-                if (StringUtils.isNotEmpty(serialReportId)) {
-                    apiScenarioReportService.margeReport(serialReportId, reportIds);
-                    executeQueue.clear();
+                    // 清理未执行的队列
+                    if (reportIds.size() < executeQueue.size()) {
+                        List<String> removeList = executeQueue.entrySet().stream().filter(map -> !reportIds.contains(map.getKey()))
+                                .map(map -> map.getKey()).collect(Collectors.toList());
+                        ApiScenarioReportExample example = new ApiScenarioReportExample();
+                        example.createCriteria().andIdIn(removeList);
+                        apiScenarioReportMapper.deleteByExample(example);
+                    }
+                    // 更新集成报告
+                    if (StringUtils.isNotEmpty(serialReportId)) {
+                        apiScenarioReportService.margeReport(serialReportId, reportIds);
+                        executeQueue.clear();
+                    }
+
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                } finally {
+                    executorService.shutdownNow();
                 }
             }
         });
@@ -1334,18 +1343,12 @@ public class ApiAutomationService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
         // 开始并发执行
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (String reportId : executeQueue.keySet()) {
-                    //存储报告
-                    APIScenarioReportResult report = executeQueue.get(reportId).getReport();
-                    batchMapper.insert(report);
-                }
-                sqlSession.flushStatements();
-            }
-        });
-        thread.start();
+        for (String reportId : executeQueue.keySet()) {
+            //存储报告
+            APIScenarioReportResult report = executeQueue.get(reportId).getReport();
+            batchMapper.insert(report);
+        }
+        sqlSession.commit();
 
         for (String reportId : executeQueue.keySet()) {
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
@@ -1568,9 +1571,9 @@ public class ApiAutomationService {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
             jMeterService.runLocal(reportIds.size() == 1 ? reportIds.get(0) : JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
 
-            Map<String,String> scenarioReportIdMap = new HashMap<>();
+            Map<String, String> scenarioReportIdMap = new HashMap<>();
             for (String id : ids) {
-                scenarioReportIdMap.put(id,request.getReportId());
+                scenarioReportIdMap.put(id, request.getReportId());
             }
             TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getTestPlanReportId(), null, scenarioReportIdMap, null);
 

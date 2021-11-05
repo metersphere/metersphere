@@ -3,6 +3,7 @@ package io.metersphere.track.service;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.service.task.NamedThreadFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
@@ -153,7 +154,7 @@ public class TestPlanLoadCaseService {
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
                 serialRun(request);
             } else {
-                ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
+                ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(),new NamedThreadFactory("TestPlanLoadCaseService"));
                 request.getRequests().forEach(item -> {
                     executorService.submit(new ParallelExecTask(performanceTestService, testPlanLoadCaseMapper, item));
                 });
@@ -168,7 +169,7 @@ public class TestPlanLoadCaseService {
     }
 
     private void serialRun(RunBatchTestPlanRequest request) throws Exception {
-        ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
+        ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(),new NamedThreadFactory("TestPlanLoadCaseService-serial"));
         for (RunTestPlanRequest runTestPlanRequest : request.getRequests()) {
             Future<LoadTestReportWithBLOBs> future = executorService.submit(new SerialExecTask(performanceTestService, testPlanLoadCaseMapper, loadTestReportMapper, runTestPlanRequest, request.getConfig()));
             LoadTestReportWithBLOBs report = future.get();
