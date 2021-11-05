@@ -656,8 +656,10 @@ export default {
     },
     select_project: 'please select project',
     select_group: 'please select group',
+    select_workspace: 'please select workspace',
     add_user_group_batch: 'Batch Add User Group',
     add_project_batch: 'Batch Add User To Project',
+    add_workspace_batch: "Batch Add User To Workspace",
     add_project_batch_tip: 'Add a read-only user group for members by default (system)',
   },
   group: {

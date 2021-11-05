@@ -99,6 +99,7 @@
     </el-dialog>
     <user-import ref="userImportDialog" @refreshAll="search"></user-import>
     <project-cascader :title="batchAddTitle" @confirm="cascaderConfirm" ref="cascaderDialog"></project-cascader>
+    <workspace-cascader :title="addToWorkspaceTitle" @confirm="cascaderConfirm" ref="workspaceCascader"></workspace-cascader>
     <group-cascader :title="$t('user.add_user_group_batch')" @confirm="cascaderConfirm" ref="groupCascaderDialog"></group-cascader>
     <edit-user ref="editUser" @refresh="search"/>
   </div>
@@ -130,10 +131,12 @@ import EditUser from "@/business/components/settings/system/EditUser";
 import ProjectCascader from "@/business/components/settings/system/components/ProjectCascader";
 import GroupCascader from "@/business/components/settings/system/components/GroupCascader";
 import {logout} from "@/network/user";
+import WorkspaceCascader from "@/business/components/settings/system/components/WorkspaceCascader";
 
 export default {
   name: "MsUser",
   components: {
+    WorkspaceCascader,
     GroupCascader,
     EditUser,
     MsCreateBox,
@@ -170,6 +173,7 @@ export default {
       updatePath: '/user/special/update',
       editPasswordPath: '/user/special/password',
       batchAddTitle: this.$t('user.add_project_batch'),
+      addToWorkspaceTitle: this.$t('user.add_workspace_batch'),
       result: {},
       currentUserId: '',
       createVisible: false,
@@ -200,6 +204,9 @@ export default {
         },
         {
           name: this.$t('user.add_user_group_batch'), handleClick: this.addUserGroupBatch
+        },
+        {
+          name: this.$t('user.add_workspace_batch'), handleClick: this.addToWorkspaceBatch
         }
       ],
       rule: {
@@ -444,6 +451,9 @@ export default {
     addToProjectBatch(){
       this.$refs.cascaderDialog.open();
     },
+    addToWorkspaceBatch(){
+      this.$refs.workspaceCascader.open();
+    },
     addUserGroupBatch(){
       this.$refs.groupCascaderDialog.open();
     },
@@ -465,12 +475,22 @@ export default {
       });
     },
     cascaderRequestError(type) {
-      type === "ADD_PROJECT" ? this.$refs.cascaderDialog.loading = false :
+      if (type === "ADD_PROJECT") {
+        this.$refs.cascaderDialog.loading = false;
+      } else if (type === "ADD_WORKSPACE") {
+        this.$refs.workspaceCascader.loading = false;
+      } else {
         this.$refs.groupCascaderDialog.loading = false;
+      }
     },
     cascaderClose(type) {
-      type === "ADD_PROJECT" ? this.$refs.cascaderDialog.close() :
+      if (type === "ADD_PROJECT") {
+        this.$refs.cascaderDialog.close();
+      } else if (type === "ADD_WORKSPACE") {
+        this.$refs.workspaceCascader.close();
+      } else {
         this.$refs.groupCascaderDialog.close();
+      }
     },
     buildBatchParam(param) {
       param.ids = Array.from(this.selectRows).map(row => row.id);
