@@ -1363,6 +1363,76 @@ public class ProjectExample {
             addCriterion("is_mock_tcp_open not between", value1, value2, "isMockTcpOpen");
             return (Criteria) this;
         }
+
+        public Criteria andAzureFilterIdIsNull() {
+            addCriterion("azure_filter_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdIsNotNull() {
+            addCriterion("azure_filter_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdEqualTo(String value) {
+            addCriterion("azure_filter_id =", value, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdNotEqualTo(String value) {
+            addCriterion("azure_filter_id <>", value, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdGreaterThan(String value) {
+            addCriterion("azure_filter_id >", value, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdGreaterThanOrEqualTo(String value) {
+            addCriterion("azure_filter_id >=", value, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdLessThan(String value) {
+            addCriterion("azure_filter_id <", value, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdLessThanOrEqualTo(String value) {
+            addCriterion("azure_filter_id <=", value, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdLike(String value) {
+            addCriterion("azure_filter_id like", value, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdNotLike(String value) {
+            addCriterion("azure_filter_id not like", value, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdIn(List<String> values) {
+            addCriterion("azure_filter_id in", values, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdNotIn(List<String> values) {
+            addCriterion("azure_filter_id not in", values, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdBetween(String value1, String value2) {
+            addCriterion("azure_filter_id between", value1, value2, "azureFilterId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureFilterIdNotBetween(String value1, String value2) {
+            addCriterion("azure_filter_id not between", value1, value2, "azureFilterId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
