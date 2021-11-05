@@ -1,12 +1,13 @@
 <template>
   <div v-permission="['PROJECT_API_SCENARIO:READ','WORKSPACE_USER:READ']">
-    <el-menu v-if="showMenu"
-             :unique-opened="true"
-             class="header-user-menu align-right header-top-menu"
-             mode="horizontal"
-             :background-color="color"
-             text-color="#fff"
-             active-text-color="#fff">
+    <el-menu
+      v-if="showMenu"
+      :unique-opened="true"
+      class="header-user-menu align-right header-top-menu"
+      mode="horizontal"
+      :background-color="color"
+      text-color="#fff"
+      active-text-color="#fff">
       <el-menu-item onselectstart="return false">
         <el-tooltip effect="light">
           <template v-slot:content>
@@ -14,8 +15,7 @@
           </template>
           <div @click="showTaskCenter" v-if="runningTotal > 0">
             <el-badge :value="runningTotal" class="item" type="primary">
-              <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']"
-                                 style="font-size: 18px"/>
+              <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']" style="font-size: 18px"/>
             </el-badge>
           </div>
           <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
@@ -23,11 +23,16 @@
       </el-menu-item>
     </el-menu>
 
-    <el-drawer :visible.sync="taskVisible" :destroy-on-close="true" direction="rtl"
-               :withHeader="true" :modal="false" :title="$t('commons.task_center')" :size="size.toString()"
-               custom-class="ms-drawer-task">
+    <el-drawer
+      :visible.sync="taskVisible"
+      :destroy-on-close="true"
+      direction="rtl"
+      :withHeader="true"
+      :modal="false"
+      :title="$t('commons.task_center')"
+      :size="size.toString()"
+      custom-class="ms-drawer-task">
       <el-card style="float: left;width: 850px" v-if="size > 550 ">
-
         <div class="ms-task-opt-btn" @click="packUp">收起</div>
         <!-- 接口用例结果 -->
         <ms-request-result-tail :response="response" ref="debugResult" v-if="reportType === 'API'"/>
@@ -35,9 +40,9 @@
         <ms-api-report-detail :reportId="reportId" v-if="reportType === 'SCENARIO'"/>
 
         <performance-report-view :perReportId="reportId" v-if="reportType === 'PERFORMANCE'"/>
-
       </el-card>
-      <el-card style="width: 550px;float: right">
+
+      <el-card style="width: 550px;float: right" v-loading="loading">
         <div style="color: #2B415C;margin: 0px 20px 0px;">
           <el-form label-width="68px" class="ms-el-form-item">
             <el-row>
@@ -78,48 +83,49 @@
             </el-row>
           </el-form>
         </div>
+        <el-divider direction="horizontal" style="width: 100%"/>
 
         <div class="report-container">
-          <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
+          <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px;">
             <el-card class="ms-card-task" @click.native="showReport(item)">
-            <span class="ms-task-name-width"><el-link type="primary">
-              {{ getModeName(item.executionModule) }} </el-link>: {{ item.name }} </span>
-              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)"
-                         v-if="showStop(item.executionStatus)">
+              <span class="ms-task-name-width"><el-link type="primary">
+                {{ getModeName(item.executionModule) }} </el-link>: {{ item.name }}
+              </span>
+              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)" v-if="showStop(item.executionStatus)">
                 {{ $t('report.stop_btn') }}
               </el-button>
               <br/>
               <span>
-              执行器：{{ item.actuator }} 由 {{ item.executor }}
-              {{ item.executionTime | timestampFormatDate }}
-              {{ getMode(item.triggerMode) }}
-            </span>
+                  执行器：{{ item.actuator }} 由 {{ item.executor }} {{ item.executionTime | timestampFormatDate }} {{ getMode(item.triggerMode) }}
+              </span>
               <br/>
               <el-row>
                 <el-col :span="20">
                   <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
                 </el-col>
                 <el-col :span="4">
-                  <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'"
-                        class="ms-task-error">
+                  <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'" class="ms-task-error">
                      error
                   </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'"
-                        class="ms-task-success">
-                     success
-                </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'">
-                    stopped
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'" class="ms-task-success">
+                       success
                   </span>
-                  <span v-else>{{
-                      item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus
-                    }}</span>
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'">
+                      stopped
+                  </span>
+                  <span v-else>
+                      {{ item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus }}
+                  </span>
                 </el-col>
               </el-row>
             </el-card>
           </div>
         </div>
+        <div class="report-bottom">
+          <ms-table-pagination :change="init" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total" small/>
+        </div>
       </el-card>
+
     </el-drawer>
   </div>
 </template>
@@ -134,7 +140,8 @@ export default {
     MsDrawer,
     MsRequestResultTail: () => import("../../components/api/definition/components/response/RequestResultTail"),
     MsApiReportDetail: () => import("../../components/api/automation/report/ApiReportDetail"),
-    PerformanceReportView: () => import("../../components/performance/report/PerformanceReportView")
+    PerformanceReportView: () => import("../../components/performance/report/PerformanceReportView"),
+    MsTablePagination: () => import("./TaskPagination"),
   },
   inject: [
     'reload'
@@ -144,11 +151,15 @@ export default {
       runningTotal: 0,
       taskVisible: false,
       result: {},
+      loading: false,
       taskData: [],
       response: {},
       initEnd: false,
       visible: false,
       showType: "",
+      pageSize: 10,
+      currentPage: 1,
+      total: 0,
       runMode: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
@@ -181,6 +192,12 @@ export default {
       default: true
     }
   },
+  computed: {
+    disabled() {
+      return this.loading
+    }
+  },
+
   created() {
     if (hasPermissions('PROJECT_API_SCENARIO:READ')) {
       this.condition.executor = getCurrentUser().id;
@@ -194,6 +211,10 @@ export default {
     }
   },
   methods: {
+    nextData() {
+      this.loading = true;
+      this.init();
+    },
     format(item) {
       return '';
     },
@@ -245,6 +266,8 @@ export default {
     onError(e) {
     },
     onMessage(e) {
+      this.currentPage = 1;
+      this.loading = false;
       let taskTotal = e.data;
       this.runningTotal = taskTotal;
       this.initIndex++;
@@ -267,6 +290,7 @@ export default {
       this.visible = false;
       this.size = 550;
       this.showType = "";
+      this.currentPage = 1;
       if (this.websocket && this.websocket.close instanceof Function) {
         this.websocket.close();
       }
@@ -274,6 +298,8 @@ export default {
     open() {
       this.showTaskCenter();
       this.initIndex = 0;
+      this.noMore = false;
+      this.currentPage = 1;
     },
     getPercentage(status) {
       if (status) {
@@ -376,12 +402,13 @@ export default {
       if (this.showType === "CASE" || this.showType === "SCENARIO") {
         return;
       }
-      this.result.loading = true;
       this.condition.projectId = getCurrentProjectID();
-      this.result = this.$post('/task/center/list', this.condition, response => {
-        this.taskData = response.data;
+      this.result = this.$post('/task/center/list/' + this.currentPage + '/' + this.pageSize, this.condition, response => {
+        this.total = response.data.itemCount;
+        this.taskData = response.data.listObject;
         this.calculationRunningTotal();
         this.initEnd = true;
+        this.loading = false;
       });
     },
     initCaseHistory(id) {
@@ -418,8 +445,7 @@ export default {
 }
 
 .report-container {
-  height: calc(100vh - 180px);
-  min-height: 550px;
+  height: calc(100vh - 270px);
   overflow-y: auto;
 }
 
@@ -557,5 +583,9 @@ export default {
 .ms-task-opt-btn:hover i {
   margin-left: 0;
   color: white;
+}
+
+.report-bottom {
+  margin-top: 10px;
 }
 </style>

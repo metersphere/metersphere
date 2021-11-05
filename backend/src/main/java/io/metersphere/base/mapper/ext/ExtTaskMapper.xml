@@ -48,7 +48,7 @@
                     and t.user_id = #{request.executor}
                 </if>
             )
-        )tt ORDER BY tt.executionTime DESC;
+        )tt ORDER BY tt.executionTime DESC
     </select>
 
     <select id="getCases" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
