@@ -139,7 +139,7 @@ public class TestPlanApiCaseService {
     }
 
     public Pager<List<ApiTestCaseDTO>> relevanceList(int goPage, int pageSize, ApiTestCaseRequest request) {
-        if (!testPlanService.isAllowedRepeatCase(request.getPlanId())) { // 不允许重复关联
+        if (StringUtils.isNotBlank(request.getPlanId()) && !testPlanService.isAllowedRepeatCase(request.getPlanId())) { // 不允许重复关联
             List<String> ids = apiTestCaseService.selectIdsNotExistsInPlan(request.getProjectId(), request.getPlanId());
             if (CollectionUtils.isEmpty(ids)) {
                 return PageUtils.setPageInfo(PageHelper.startPage(goPage, pageSize, true), new ArrayList<>());
