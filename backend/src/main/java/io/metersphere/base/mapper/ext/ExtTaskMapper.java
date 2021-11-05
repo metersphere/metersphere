@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface ExtTaskMapper {
 
-    void deleteByResourceId(String id);
-
     List<TaskCenterDTO> getTasks(@Param("request") TaskCenterRequest request);
 
     int getRunningTasks(@Param("request") TaskCenterRequest request);
@@ -18,6 +16,6 @@ public interface ExtTaskMapper {
 
     List<TaskCenterDTO> getScenario(@Param("id") String id);
 
-    int checkActuator (@Param("actuator") String actuator);
+    List<String> checkActuator (@Param("actuator") String actuator);
 
 }
