@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
@@ -1166,10 +1167,16 @@ public class ApiAutomationService {
                     report = createScenarioReport(reportId, testPlanScenarioId, item.getName(), request.getTriggerMode(),
                             request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig(), item.getId());
                 }
+                if(report != null && StringUtils.isNotEmpty(request.getTestPlanReportId())){
+                    Map<String,String> scenarioReportIdMap = new HashMap<>();
+                    scenarioReportIdMap.put(item.getId(),report.getId());
+                    TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId, null, scenarioReportIdMap, null);
+                }
             } else {
                 report = createScenarioReport(reportId, ExecuteType.Marge.name().equals(request.getExecuteType()) ? serialReportId : item.getId(), item.getName(), request.getTriggerMode(),
                         request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
             }
+
             try {
                 if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                     RunModeDataDTO runModeDataDTO = new RunModeDataDTO();
@@ -1560,6 +1567,13 @@ public class ApiAutomationService {
         try {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
             jMeterService.runLocal(reportIds.size() == 1 ? reportIds.get(0) : JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
+
+            Map<String,String> scenarioReportIdMap = new HashMap<>();
+            for (String id : ids) {
+                scenarioReportIdMap.put(id,request.getReportId());
+            }
+            TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getTestPlanReportId(), null, scenarioReportIdMap, null);
+
         } catch (Exception e) {
             LogUtil.error(e);
             MSException.throwException(e.getMessage());

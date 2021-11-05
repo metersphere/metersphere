@@ -5,6 +5,8 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * 执行结束后的处理(单例类）
  *
@@ -17,11 +19,19 @@ public class ExecutedHandleSingleton {
     private ExecutedHandleSingleton() {
     }
 
-    public synchronized static void parseEnvironment(String evnStr) {
-        try {
-         Thread.sleep(1000);
-        }catch (Exception e){
+    public synchronized static void parseEnvironment(List<String> evnStrList) {
+//        try {
+//         Thread.sleep(1000);
+//        }catch (Exception e){
+//        }
+        for (String evnStr: evnStrList) {
+            try {
+                Thread.sleep(1000);
+            }catch (Exception e){
+            }
+            System.out.println( "--------------------> \t\n" + evnStr);
+            System.out.println("---------------------<");
+            apiEnvironmentRunningParamService.parseEvn(evnStr);
         }
-        apiEnvironmentRunningParamService.parseEvn(evnStr);
     }
 }

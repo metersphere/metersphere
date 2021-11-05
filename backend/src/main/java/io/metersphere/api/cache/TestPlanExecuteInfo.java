@@ -2,6 +2,7 @@ package io.metersphere.api.cache;
 
 
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TestPlanResourceType;
@@ -26,8 +27,8 @@ public class TestPlanExecuteInfo {
     private Map<String, String> apiScenarioCaseExecInfo = new HashMap<>();
     private Map<String, String> loadCaseExecInfo = new HashMap<>();
 
-    private Map<String, ApiDefinitionExecResult> apiCaseExecuteReportMap = new HashMap<>();
-    private Map<String, APIScenarioReportResult> apiScenarioReportReportMap = new HashMap<>();
+    private Map<String, String> apiCaseExecuteReportMap = new HashMap<>();
+    private Map<String, String> apiScenarioReportReportMap = new HashMap<>();
     private Map<String,String> loadCaseReportIdMap = new HashMap<>();
 
     private boolean reportDataInDataBase;
@@ -58,7 +59,7 @@ public class TestPlanExecuteInfo {
         }
     }
 
-    public synchronized void updateExecuteResult(Map<String, ApiDefinitionExecResult> apiCaseExecResultInfo, Map<String, APIScenarioReportResult> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
+    public synchronized void updateExecuteResult(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
         if (MapUtils.isNotEmpty(apiCaseExecResultInfo)) {
             this.apiCaseExecuteReportMap.putAll(apiCaseExecResultInfo);
         }
@@ -165,6 +166,10 @@ public class TestPlanExecuteInfo {
             if (StringUtils.equalsIgnoreCase(executeResult, TestPlanApiExecuteStatus.RUNNING.name())) {
                 apiCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
             }
+
+            if(apiCaseExecuteReportMap.containsKey(resourceId)){
+                MessageCache.executionQueue.remove(apiCaseExecuteReportMap.get(resourceId));
+            }
         }
         for (Map.Entry<String, String> entry : apiScenarioCaseExecInfo.entrySet()) {
             String resourceId = entry.getKey();
@@ -172,12 +177,20 @@ public class TestPlanExecuteInfo {
             if (StringUtils.equalsIgnoreCase(executeResult, TestPlanApiExecuteStatus.RUNNING.name())) {
                 apiScenarioCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
             }
+
+            if(apiScenarioReportReportMap.containsKey(resourceId)){
+                MessageCache.executionQueue.remove(apiScenarioReportReportMap.get(resourceId));
+            }
         }
         for (Map.Entry<String, String> entry : loadCaseExecInfo.entrySet()) {
             String resourceId = entry.getKey();
             String executeResult = entry.getValue();
             if (StringUtils.equalsIgnoreCase(executeResult, TestPlanApiExecuteStatus.RUNNING.name())) {
                 loadCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
+            }
+
+            if(loadCaseReportIdMap.containsKey(resourceId)){
+                MessageCache.executionQueue.remove(loadCaseReportIdMap.get(resourceId));
             }
         }
 

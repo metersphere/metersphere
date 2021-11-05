@@ -1148,6 +1148,7 @@ public class TestPlanService {
     }
 
     private void listenTaskExecuteStatus(String planReportId) {
+
         executorService.submit(() -> {
             try {
                 Thread.sleep(30000);
@@ -1165,16 +1166,19 @@ public class TestPlanService {
     private void executeApiTestCase(String triggerMode, String planReportId, String testPlanId, Map<ApiTestCaseWithBLOBs, String> apiTestCaseDataMap) {
         executorService.submit(() -> {
             Map<String, String> executeErrorMap = new HashMap<>();
+            Map<String, String> executeReportIdMap = new HashMap<>();
             for (Map.Entry<ApiTestCaseWithBLOBs, String> entry : apiTestCaseDataMap.entrySet()) {
                 ApiTestCaseWithBLOBs blobs = entry.getKey();
                 try {
+                    String testId = UUID.randomUUID().toString();
                     if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
-                        apiTestCaseService.run(blobs, UUID.randomUUID().toString(), planReportId, testPlanId, ApiRunMode.JENKINS_API_PLAN.name());
+                        apiTestCaseService.run(blobs, testId, planReportId, testPlanId, ApiRunMode.JENKINS_API_PLAN.name());
                     } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
-                        apiTestCaseService.run(blobs, UUID.randomUUID().toString(), planReportId, testPlanId, ApiRunMode.MANUAL_PLAN.name());
+                        apiTestCaseService.run(blobs, testId, planReportId, testPlanId, ApiRunMode.MANUAL_PLAN.name());
                     } else {
-                        apiTestCaseService.run(blobs, UUID.randomUUID().toString(), planReportId, testPlanId, ApiRunMode.SCHEDULE_API_PLAN.name());
+                        apiTestCaseService.run(blobs, testId, planReportId, testPlanId, ApiRunMode.SCHEDULE_API_PLAN.name());
                     }
+                    executeReportIdMap.put(blobs.getId(),testId);
                 } catch (Exception e) {
                     executeErrorMap.put(blobs.getId(), TestPlanApiExecuteStatus.FAILD.name());
                 }
@@ -1182,6 +1186,9 @@ public class TestPlanService {
 
             if (!executeErrorMap.isEmpty()) {
                 TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(planReportId, executeErrorMap, null, null);
+            }
+            if (!executeReportIdMap.isEmpty()) {
+                TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(planReportId, null, executeReportIdMap, null);
             }
         });
     }
@@ -1691,6 +1698,7 @@ public class TestPlanService {
         if (MapUtils.isEmpty(executeInfo.getApiCaseExecInfo()) && MapUtils.isEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
             return;
         }
+        ApiDefinitionExecResultMapper apiDefinitionExecResultMapper = CommonBeanFactory.getBean(ApiDefinitionExecResultMapper.class);
         if (checkReportConfig(config, "api")) {
             List<TestPlanFailureApiDTO> apiAllCases = null;
             List<TestPlanFailureScenarioDTO> scenarioAllCases = null;
@@ -1700,7 +1708,8 @@ public class TestPlanService {
                     apiAllCases = testPlanApiCaseService.getAllCases(executeInfo.getApiCaseExecInfo().keySet(), planId, null);
                     if (saveResponse) {
                         apiAllCases.forEach(item -> {
-                            ApiDefinitionExecResult result = executeInfo.getApiCaseExecuteReportMap().get(item.getId());
+                            String apiReportid = executeInfo.getApiCaseExecuteReportMap().get(item.getId());
+                            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(apiReportid);
                             if (result != null) {
                                 APIReportResult dbResult = apiDefinitionService.buildAPIReportResult(result);
                                 if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
@@ -1716,7 +1725,8 @@ public class TestPlanService {
                     scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioCaseExecInfo().keySet(), planId, null);
                     if (saveResponse) {
                         scenarioAllCases.forEach((item) -> {
-                            APIScenarioReportResult result = executeInfo.getApiScenarioReportReportMap().get(item.getId());
+                            String resultId = executeInfo.getApiScenarioReportReportMap().get(item.getId());
+                            APIScenarioReportResult result = apiScenarioReportService.get(resultId);
                             if (result != null) {
                                 item.setResponse(result);
                             }

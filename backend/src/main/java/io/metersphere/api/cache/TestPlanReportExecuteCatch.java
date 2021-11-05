@@ -54,7 +54,7 @@ public class TestPlanReportExecuteCatch {
     }
 
     public synchronized static void updateTestPlanExecuteResultInfo(String reportId,
-                                                                 Map<String, ApiDefinitionExecResult> apiCaseExecResultInfo, Map<String, APIScenarioReportResult> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
+                                                                 Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
         if(testPlanReportMap != null && testPlanReportMap.containsKey(reportId)){
             testPlanReportMap.get(reportId).updateExecuteResult(apiCaseExecResultInfo,apiScenarioCaseExecResultInfo,loadCaseExecResultInfo);
         }
