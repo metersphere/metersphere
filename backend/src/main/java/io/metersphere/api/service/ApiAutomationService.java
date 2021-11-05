@@ -1170,7 +1170,7 @@ public class ApiAutomationService {
                 if(report != null && StringUtils.isNotEmpty(request.getTestPlanReportId())){
                     Map<String,String> scenarioReportIdMap = new HashMap<>();
                     scenarioReportIdMap.put(item.getId(),report.getId());
-                    TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId, null, scenarioReportIdMap, null);
+                    TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getTestPlanReportId(), null, scenarioReportIdMap, null);
                 }
             } else {
                 report = createScenarioReport(reportId, ExecuteType.Marge.name().equals(request.getExecuteType()) ? serialReportId : item.getId(), item.getName(), request.getTriggerMode(),
