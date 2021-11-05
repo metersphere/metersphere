@@ -21,6 +21,7 @@
     <result column="system_id" jdbcType="VARCHAR" property="systemId" />
     <result column="mock_tcp_port" jdbcType="INTEGER" property="mockTcpPort" />
     <result column="is_mock_tcp_open" jdbcType="BIT" property="isMockTcpOpen" />
+    <result column="azure_filter_id" jdbcType="VARCHAR" property="azureFilterId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -83,7 +84,7 @@
   <sql id="Base_Column_List">
     id, workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key, 
     zentao_id, azure_devops_id, `repeatable`, case_template_id, issue_template_id, custom_num, 
-    scenario_custom_num, create_user, system_id, mock_tcp_port, is_mock_tcp_open
+    scenario_custom_num, create_user, system_id, mock_tcp_port, is_mock_tcp_open, azure_filter_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -122,14 +123,14 @@
       azure_devops_id, `repeatable`, case_template_id, 
       issue_template_id, custom_num, scenario_custom_num, 
       create_user, system_id, mock_tcp_port, 
-      is_mock_tcp_open)
+      is_mock_tcp_open, azure_filter_id)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
       #{azureDevopsId,jdbcType=VARCHAR}, #{repeatable,jdbcType=BIT}, #{caseTemplateId,jdbcType=VARCHAR}, 
       #{issueTemplateId,jdbcType=VARCHAR}, #{customNum,jdbcType=BIT}, #{scenarioCustomNum,jdbcType=BIT}, 
       #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR}, #{mockTcpPort,jdbcType=INTEGER}, 
-      #{isMockTcpOpen,jdbcType=BIT})
+      #{isMockTcpOpen,jdbcType=BIT}, #{azureFilterId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -191,6 +192,9 @@
       <if test="isMockTcpOpen != null">
         is_mock_tcp_open,
       </if>
+      <if test="azureFilterId != null">
+        azure_filter_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -249,6 +253,9 @@
       </if>
       <if test="isMockTcpOpen != null">
         #{isMockTcpOpen,jdbcType=BIT},
+      </if>
+      <if test="azureFilterId != null">
+        #{azureFilterId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -318,6 +325,9 @@
       <if test="record.isMockTcpOpen != null">
         is_mock_tcp_open = #{record.isMockTcpOpen,jdbcType=BIT},
       </if>
+      <if test="record.azureFilterId != null">
+        azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -343,7 +353,8 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       system_id = #{record.systemId,jdbcType=VARCHAR},
       mock_tcp_port = #{record.mockTcpPort,jdbcType=INTEGER},
-      is_mock_tcp_open = #{record.isMockTcpOpen,jdbcType=BIT}
+      is_mock_tcp_open = #{record.isMockTcpOpen,jdbcType=BIT},
+      azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -405,6 +416,9 @@
       <if test="isMockTcpOpen != null">
         is_mock_tcp_open = #{isMockTcpOpen,jdbcType=BIT},
       </if>
+      <if test="azureFilterId != null">
+        azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -427,7 +441,8 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       system_id = #{systemId,jdbcType=VARCHAR},
       mock_tcp_port = #{mockTcpPort,jdbcType=INTEGER},
-      is_mock_tcp_open = #{isMockTcpOpen,jdbcType=BIT}
+      is_mock_tcp_open = #{isMockTcpOpen,jdbcType=BIT},
+      azure_filter_id = #{azureFilterId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

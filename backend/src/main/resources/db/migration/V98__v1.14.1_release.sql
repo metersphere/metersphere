@@ -9,3 +9,8 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (UUID(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+UPLOAD_JAR', 'WORKSPACE_PROJECT_MANAGER');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (UUID(), 'ws_member', 'WORKSPACE_PROJECT_MANAGER:READ+UPLOAD_JAR', 'WORKSPACE_PROJECT_MANAGER');
+<<<<<<< HEAD
+=======
+
+ALTER TABLE project ADD COLUMN azure_filter_id varchar(50) NULL COMMENT 'azure 过滤需求的 parent workItem ID';
+>>>>>>> 92dace863... feat: azure 支持根据父workItem过滤需求
