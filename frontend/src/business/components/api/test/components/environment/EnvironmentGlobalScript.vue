@@ -3,13 +3,13 @@
     <el-collapse v-model="activeNames">
       <el-collapse-item name="1">
         <template slot="title">
-          单个请求步骤后执行
+          <span class="span-style">{{title}}</span>
           <el-tooltip class="item" effect="dark" content="每一个API步骤后执行一次 如加解密" placement="right">
             <i class="el-icon-info"/>
           </el-tooltip>
 
           <div class="header-right" style="margin: 5px 5px 5px 50px" @click.stop>
-            过滤请求类型
+            <span class="span-style">过滤请求类型</span>
             <el-select multiple v-model="filterRequestArray" style="margin : 0px 10px 0px 10px; width: 214px "
                        size="small" placeholder="请选择">
               <el-option
@@ -19,16 +19,16 @@
                 :value="item.value">
               </el-option>
             </el-select>
-
-            脚本执行顺序
+            <span class="span-style" style="margin-right: 10px">脚本执行顺序</span>
             <el-select v-model="isExecAfterPrivateScript" size="small" placeholder="请选择">
               <el-option
-                v-for="item in scriptExecSort"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+                  v-for="item in scriptExecSort"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
               </el-option>
             </el-select>
+
           </div>
 
         </template>
@@ -42,8 +42,8 @@
           <el-tooltip class="item" effect="dark" content="全部API流程结束后执行一次 如token获取，场景初始化" placement="right">
             <i class="el-icon-info"/>
           </el-tooltip>
-          <div class="header-right" style="margin: 5px 5px 5px 50px" @click.stop>
-            <el-switch v-model="isConnScenario" active-text="关联场景结果"
+          <div class="header-right" style="margin: 5px 5px 5px 50px;" @click.stop>
+            <el-switch v-model="isConnScenario" active-text="关联场景结果" style="font-size: 13px;font-weight: 300"
                        @click.stop/>
             <el-tooltip class="item" effect="dark" content="脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果" placement="right">
               <i class="el-icon-info"/>
@@ -80,6 +80,9 @@ export default {
   },
   data() {
     return {
+      title: "",
+      preTitle: "单个请求步骤前执行",
+      postTitle: "单个请求步骤后执行",
       result: {},
       activeNames: [],
       isConnScenario: false,
@@ -104,8 +107,10 @@ export default {
   created() {
     if (this.isPreProcessor) {
       this.scriptExecSort = this.scriptPreExecSort;
+      this.title = this.preTitle;
     } else {
       this.scriptExecSort = this.scriptPostExecSort;
+      this.title = this.postTitle;
     }
     this.isConnScenario = this.connScenario;
     this.isExecAfterPrivateScript = this.execAfterPrivateScript;
@@ -136,5 +141,14 @@ export default {
 <style scoped>
 .header-right {
   z-index: 1;
+}
+.span-style {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+>>> .header-right .el-switch__label *{
+  font-size: 13px!important;
+  font-weight: 400;
 }
 </style>
