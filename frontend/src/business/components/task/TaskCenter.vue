@@ -37,20 +37,20 @@
         <performance-report-view :perReportId="reportId" v-if="reportType === 'PERFORMANCE'"/>
 
       </el-card>
-      <el-card style="width: 550px;float: right">
+      <el-card style="width: 550px;float: right" v-loading="loading">
         <div style="color: #2B415C;margin: 0px 20px 0px;">
           <el-form label-width="68px" class="ms-el-form-item">
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
-                  <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init">
+                  <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init(false)">
                     <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item :label="$t('commons.status')" prop="status">
-                  <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init">
+                  <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init(false)">
                     <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
                 </el-form-item>
@@ -60,7 +60,7 @@
               <el-col :span="12">
                 <el-form-item :label="$t('commons.executor')" prop="status">
                   <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="small"
-                             style="margin-right: 10px" @change="init">
+                             style="margin-right: 10px" @change="init(false)">
                     <el-option
                       v-for="item in maintainerOptions"
                       :key="item.id"
@@ -80,44 +80,47 @@
         </div>
 
         <div class="report-container">
-          <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
-            <el-card class="ms-card-task" @click.native="showReport(item)">
+          <div class="list" v-infinite-scroll="nextData" infinite-scroll-disabled="disabled">
+            <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px;margin-left: 0px">
+              <el-card class="ms-card-task" @click.native="showReport(item)">
             <span class="ms-task-name-width"><el-link type="primary">
               {{ getModeName(item.executionModule) }} </el-link>: {{ item.name }} </span>
-              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)"
-                         v-if="showStop(item.executionStatus)">
-                {{ $t('report.stop_btn') }}
-              </el-button>
-              <br/>
-              <span>
+                <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)"
+                           v-if="showStop(item.executionStatus)">
+                  {{ $t('report.stop_btn') }}
+                </el-button>
+                <br/>
+                <span>
               执行器：{{ item.actuator }} 由 {{ item.executor }}
               {{ item.executionTime | timestampFormatDate }}
               {{ getMode(item.triggerMode) }}
             </span>
-              <br/>
-              <el-row>
-                <el-col :span="20">
-                  <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
-                </el-col>
-                <el-col :span="4">
+                <br/>
+                <el-row>
+                  <el-col :span="20">
+                    <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
+                  </el-col>
+                  <el-col :span="4">
                   <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'"
                         class="ms-task-error">
                      error
                   </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'"
-                        class="ms-task-success">
+                    <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'"
+                          class="ms-task-success">
                      success
                 </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'">
+                    <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'">
                     stopped
                   </span>
-                  <span v-else>{{
-                      item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus
-                    }}</span>
-                </el-col>
-              </el-row>
-            </el-card>
+                    <span v-else>{{
+                        item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus
+                      }}</span>
+                  </el-col>
+                </el-row>
+              </el-card>
+            </div>
           </div>
+          <p style="margin-left: 200px" v-if="noMore">没有执行消息</p>
         </div>
       </el-card>
     </el-drawer>
@@ -144,11 +147,13 @@ export default {
       runningTotal: 0,
       taskVisible: false,
       result: {},
+      loading: false,
       taskData: [],
       response: {},
       initEnd: false,
       visible: false,
       showType: "",
+      pageSize: 1,
       runMode: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
@@ -172,6 +177,7 @@ export default {
       size: 550,
       reportId: "",
       reportType: "",
+      noMore: false,
     };
   },
   props: {
@@ -181,6 +187,12 @@ export default {
       default: true
     }
   },
+  computed: {
+    disabled() {
+      return this.loading
+    }
+  },
+
   created() {
     if (hasPermissions('PROJECT_API_SCENARIO:READ')) {
       this.condition.executor = getCurrentUser().id;
@@ -194,6 +206,11 @@ export default {
     }
   },
   methods: {
+    nextData() {
+      this.pageSize++;
+      this.loading = true;
+      this.init(true);
+    },
     format(item) {
       return '';
     },
@@ -245,6 +262,9 @@ export default {
     onError(e) {
     },
     onMessage(e) {
+      this.pageSize = 1;
+      this.taskData = [];
+      this.loading = true;
       let taskTotal = e.data;
       this.runningTotal = taskTotal;
       this.initIndex++;
@@ -267,6 +287,7 @@ export default {
       this.visible = false;
       this.size = 550;
       this.showType = "";
+      this.pageSize = 1;
       if (this.websocket && this.websocket.close instanceof Function) {
         this.websocket.close();
       }
@@ -274,6 +295,8 @@ export default {
     open() {
       this.showTaskCenter();
       this.initIndex = 0;
+      this.noMore = false;
+      this.pageSize = 1;
     },
     getPercentage(status) {
       if (status) {
@@ -372,16 +395,32 @@ export default {
         this.runningTotal = total;
       }
     },
-    init() {
+    init(change) {
       if (this.showType === "CASE" || this.showType === "SCENARIO") {
         return;
       }
+      if (!change) {
+        this.taskData = [];
+        this.pageSize = 1;
+      }
       this.result.loading = true;
       this.condition.projectId = getCurrentProjectID();
-      this.result = this.$post('/task/center/list', this.condition, response => {
-        this.taskData = response.data;
+      this.result = this.$post('/task/center/list/' + this.pageSize + '/10', this.condition, response => {
+        let tasks = response.data;
+        if (tasks && tasks.length > 0) {
+          this.noMore = false;
+          tasks.forEach(item => {
+            let index = this.taskData.find(p => p.id === item.id);
+            if (index === undefined || index === -1) {
+              this.taskData.push(item);
+            }
+          })
+        } else {
+          this.noMore = true;
+        }
         this.calculationRunningTotal();
         this.initEnd = true;
+        this.loading = false;
       });
     },
     initCaseHistory(id) {

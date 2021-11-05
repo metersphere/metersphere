@@ -15,9 +15,11 @@ public class TaskController {
     @Resource
     private TaskService taskService;
 
-    @PostMapping("/list")
+    @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
-    public List<TaskCenterDTO> getTasks(@RequestBody TaskCenterRequest request) {
+    public List<TaskCenterDTO> getTasks(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TaskCenterRequest request) {
+        request.setGoPage(goPage);
+        request.setPageSize(pageSize);
         return taskService.getTasks(request);
     }
 
