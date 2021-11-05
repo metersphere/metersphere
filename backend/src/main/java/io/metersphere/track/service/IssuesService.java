@@ -76,6 +76,8 @@ public class IssuesService {
     private TestCaseIssueService testCaseIssueService;
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
+    @Resource
+    private IssueFollowMapper issueFollowMapper;
 
     public void testAuth(String workspaceId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
@@ -93,6 +95,7 @@ public class IssuesService {
         issuesRequest.getTestCaseIds().forEach(l -> {
             testCaseIssueService.updateIssuesCount(l);
         });
+        saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
     }
 
 
@@ -102,9 +105,22 @@ public class IssuesService {
         platformList.forEach(platform -> {
             platform.updateIssue(issuesRequest);
         });
+        saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
         // todo 缺陷更新事件？
     }
-
+    private void saveFollows(String issueId, List<String> follows) {
+        IssueFollowExample example = new IssueFollowExample();
+        example.createCriteria().andIssueIdEqualTo(issueId);
+        issueFollowMapper.deleteByExample(example);
+        if (!CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                IssueFollow issueFollow = new IssueFollow();
+                issueFollow.setIssueId(issueId);
+                issueFollow.setFollowId(follow);
+                issueFollowMapper.insert(issueFollow);
+            }
+        }
+    }
     public List<AbstractIssuePlatform> getAddPlatforms(IssuesUpdateRequest updateRequest) {
         List<String> platforms = new ArrayList<>();
         if (StringUtils.isNotBlank(updateRequest.getTestCaseId())) {
@@ -564,5 +580,16 @@ public class IssuesService {
     public List<IssuesDao> getCountByStatus(IssuesRequest request){
         return extIssuesMapper.getCountByStatus(request);
 
+    }
+
+    public List<String> getFollows(String issueId) {
+        List<String> result = new ArrayList<>();
+        if (StringUtils.isBlank(issueId)) {
+            return result;
+        }
+        IssueFollowExample example = new IssueFollowExample();
+        example.createCriteria().andIssueIdEqualTo(issueId);
+        List<IssueFollow> follows = issueFollowMapper.selectByExample(example);
+        return follows.stream().map(IssueFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 }
