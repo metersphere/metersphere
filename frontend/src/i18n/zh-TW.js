@@ -660,8 +660,10 @@ export default {
     },
     select_project: '請選擇項目',
     select_group: '請選擇用戶組',
+    select_workspace: '請選擇工作空間',
     add_user_group_batch: '批量添加用戶組',
     add_project_batch: '批量添加到項目',
+    add_workspace_batch: "批量添加到工作空間",
     add_project_batch_tip: '默認為成員添加只讀用戶組(系統)',
   },
   group: {

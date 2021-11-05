@@ -744,8 +744,53 @@ public class UserService {
         String batchType = request.getBatchType();
         if (StringUtils.equals(BatchProcessUserInfoType.ADD_PROJECT.name(), batchType)) {
             batchAddUserToProject(request);
+        } else if (StringUtils.equals(BatchProcessUserInfoType.ADD_WORKSPACE.name(), batchType)) {
+            batchAddUserToWorkspace(request);
         } else {
             batchAddUserGroup(request);
+        }
+    }
+
+    private void batchAddUserToWorkspace(UserBatchProcessRequest request) {
+        List<String> userIds = this.selectIdByUserRequest(request);
+        String toSetGroup = request.getSelectUserGroupId();
+        if (StringUtils.isBlank(toSetGroup)) {
+            MSException.throwException("batch add user to workspace error. group id is illegal");
+        } else {
+            // 验证用户组ID有效性
+            GroupExample groupExample = new GroupExample();
+            groupExample.createCriteria()
+                    .andIdEqualTo(toSetGroup)
+                    .andTypeEqualTo(UserGroupType.WORKSPACE);
+            List<Group> groups = groupMapper.selectByExample(groupExample);
+            if (CollectionUtils.isEmpty(groups)) {
+                MSException.throwException("batch add user to workspace error. group id is illegal");
+            }
+        }
+
+        List<String> worksapceIds = request.getBatchProcessValue();
+        for (String userId : userIds) {
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample
+                    .createCriteria()
+                    .andUserIdEqualTo(userId)
+                    .andGroupIdEqualTo(toSetGroup);
+            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+            List<String> exist = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+            worksapceIds.removeAll(exist);
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
+            for (String workspaceId : worksapceIds) {
+                UserGroup userGroup = new UserGroup();
+                userGroup.setId(UUID.randomUUID().toString());
+                userGroup.setUserId(userId);
+                userGroup.setGroupId(toSetGroup);
+                userGroup.setSourceId(workspaceId);
+                userGroup.setCreateTime(System.currentTimeMillis());
+                userGroup.setUpdateTime(System.currentTimeMillis());
+                mapper.insertSelective(userGroup);
+            }
+            sqlSession.flushStatements();
         }
     }
 
