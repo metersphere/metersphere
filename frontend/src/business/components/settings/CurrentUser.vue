@@ -39,9 +39,6 @@ export default {
     closeDialog(){
       this.resVisible = false;
     },
-    shawPerson(){
-      debugger
-    }
   },
   computed: {
     currentUser: () => {
