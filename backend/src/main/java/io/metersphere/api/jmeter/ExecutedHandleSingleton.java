@@ -20,17 +20,11 @@ public class ExecutedHandleSingleton {
     }
 
     public synchronized static void parseEnvironment(List<String> evnStrList) {
-//        try {
-//         Thread.sleep(1000);
-//        }catch (Exception e){
-//        }
         for (String evnStr: evnStrList) {
             try {
                 Thread.sleep(1000);
             }catch (Exception e){
             }
-            System.out.println( "--------------------> \t\n" + evnStr);
-            System.out.println("---------------------<");
             apiEnvironmentRunningParamService.parseEvn(evnStr);
         }
     }
