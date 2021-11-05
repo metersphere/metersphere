@@ -21,5 +21,7 @@ public class UserBatchProcessRequest {
     List<String> batchProcessValue;
     String workspaceId;
     UserRequest condition;
+
+    String selectUserGroupId;
 }
 

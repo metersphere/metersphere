@@ -2,12 +2,21 @@
   <el-dialog class="user-cascade" :title="title" :visible.sync="dialogVisible"
              @close="close" v-loading="loading">
     <div class="block">
+      <el-select v-model="selectedUserGroup" clearable size="medium" style="width: 260px;"
+                 placeholder="请选择">
+        <el-option
+          v-for="item in projectUserGroups"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id">
+        </el-option>
+      </el-select>
       <el-alert
         :title="$t('user.add_project_batch_tip')"
         type="info"
         show-icon
         :closable="false"
-        style="margin-bottom: 10px;"
+        style="margin-bottom: 5px;margin-top: 5px;"
       >
       </el-alert>
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
@@ -35,6 +44,7 @@ import ElUploadList from "element-ui/packages/upload/src/upload-list";
 import MsTableButton from '../../../../components/common/components/MsTableButton';
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import {GROUP_PROJECT} from "@/common/js/constants";
 
 export default {
   name: "User2ProjectCascader",
@@ -58,6 +68,8 @@ export default {
         ],
       },
       selectedIds: [],
+      selectedUserGroup: "",
+      projectUserGroups: [],
       isResourceShow: 0,
       props: {
         multiple: true,
@@ -85,6 +97,9 @@ export default {
       default: ''
     }
   },
+  created() {
+    this.getProjectUserGroup();
+  },
   methods: {
     close() {
       removeGoBackListener(this.close);
@@ -107,7 +122,7 @@ export default {
           for (let i = 0; i < checkNodes.length; i++) {
             selectValueArr.push(checkNodes[i].value);
           }
-          this.$emit('confirm', 'ADD_PROJECT', selectValueArr);
+          this.$emit('confirm', 'ADD_PROJECT', selectValueArr, this.selectedUserGroup);
           this.loading = true;
         } else {
           return false;
@@ -130,6 +145,11 @@ export default {
           data.forEach(d => d.leaf = true);
         }
         resolve(data);
+      })
+    },
+    getProjectUserGroup() {
+      this.$post("/user/group/get", {type: GROUP_PROJECT}, (res) => {
+        this.projectUserGroups = res.data ? res.data : [];
       })
     }
   }

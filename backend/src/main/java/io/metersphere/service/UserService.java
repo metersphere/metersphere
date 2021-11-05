@@ -815,7 +815,22 @@ public class UserService {
 
     private void batchAddUserToProject(UserBatchProcessRequest request) {
         List<String> userIds = this.selectIdByUserRequest(request);
-        String toSetGroup = UserGroupConstants.READ_ONLY;
+        String defaultGroup = UserGroupConstants.READ_ONLY;
+        String toSetGroup = request.getSelectUserGroupId();
+        if (StringUtils.isBlank(toSetGroup)) {
+            toSetGroup = defaultGroup;
+        } else {
+            // 验证用户组ID有效性
+            GroupExample groupExample = new GroupExample();
+            groupExample.createCriteria()
+                    .andIdEqualTo(toSetGroup)
+                    .andTypeEqualTo(UserGroupType.PROJECT);
+            List<Group> groups = groupMapper.selectByExample(groupExample);
+            if (CollectionUtils.isEmpty(groups)) {
+                toSetGroup = defaultGroup;
+            }
+        }
+
         List<String> projectIds = request.getBatchProcessValue();
         for (String userId : userIds) {
             UserGroupExample userGroupExample = new UserGroupExample();

@@ -447,7 +447,7 @@ export default {
     addUserGroupBatch(){
       this.$refs.groupCascaderDialog.open();
     },
-    cascaderConfirm(batchProcessTypeParam, selectValueArr){
+    cascaderConfirm(batchProcessTypeParam, selectValueArr, selectedUserGroup){
       if(selectValueArr.length === 0){
         this.$success(this.$t('commons.modify_success'));
       }
@@ -455,6 +455,7 @@ export default {
       params = this.buildBatchParam(params);
       params.batchType = batchProcessTypeParam;
       params.batchProcessValue = selectValueArr;
+      params.selectUserGroupId = selectedUserGroup;
       this.$post('/user/special/batchProcessUserInfo', params, () => {
         this.$success(this.$t('commons.modify_success'));
         this.search();
