@@ -73,6 +73,7 @@ public class TestPlanReportExecuteCatch {
 
     public static synchronized void remove(String reportId){
         if(testPlanReportMap.containsKey(reportId)){
+            testPlanReportMap.get(reportId).finishAllTask();
             testPlanReportMap.remove(reportId);
         }
     }
