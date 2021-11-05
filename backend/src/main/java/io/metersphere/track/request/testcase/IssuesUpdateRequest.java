@@ -24,4 +24,6 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
      */
     private List<String> zentaoBuilds;
     private List<String> testCaseIds;
+
+    private List<String> follows;
 }
