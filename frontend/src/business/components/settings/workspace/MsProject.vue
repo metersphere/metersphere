@@ -142,6 +142,10 @@
         <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_id')" v-if="azuredevops">
           <el-input v-model="form.azureDevopsId" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item :label-width="labelWidth" :label="'AzureDevops过滤ID'" v-if="azuredevops">
+          <el-input v-model="form.azureFilterId" autocomplete="off"/>
+          <ms-instructions-icon content="非必填项，用例关联需求时，可以只筛选出，所填的 workItem 下的选项" effect="light"/>
+        </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
         </el-form-item>

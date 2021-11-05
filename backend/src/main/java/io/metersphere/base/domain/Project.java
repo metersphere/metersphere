@@ -43,5 +43,7 @@ public class Project implements Serializable {
 
     private Boolean isMockTcpOpen;
 
+    private String azureFilterId;
+
     private static final long serialVersionUID = 1L;
 }
