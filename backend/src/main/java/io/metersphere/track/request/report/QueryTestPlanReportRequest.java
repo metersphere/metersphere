@@ -15,13 +15,15 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@Data
+
 public class QueryTestPlanReportRequest {
     private String name;
     private String testPlanName;
     private String creator;
     private String workspaceId;
     private String projectId;
+
+    private Map<String, Object> combine;
 
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;

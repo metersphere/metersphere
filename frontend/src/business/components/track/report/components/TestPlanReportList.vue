@@ -142,7 +142,7 @@ export default {
     }
   },
   activated() {
-    this.components = TEST_PLAN_REPORT_CONFIGS;
+
   },
   created() {
     this.projectId = this.$route.params.projectId;
