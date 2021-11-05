@@ -457,6 +457,7 @@ export const TEST_PLAN_TRIGGER_MODE = {
   options: [
     {label: 'test_track.report.trigger_mode.manual', value: 'manual'},
     {label: 'test_track.report.trigger_mode.automation', value: 'automation'},
+    {label: "commons.trigger_mode.schedule", value: "SCHEDULE"},
   ],
   props: {
     multiple: true

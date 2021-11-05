@@ -575,7 +575,6 @@ export default {
           });
         }
       } else{
-        this.$store.state.apiMap.delete(tabs[1].api.id);
         this.handleTabRemove(targetName);
       }
 
