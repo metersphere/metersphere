@@ -13,15 +13,17 @@
       <el-col :span="7">
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
-          <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
-                     :placeholder="$t('test_track.please_related_requirements')" class="ms-case-input">
-            <el-option
-              v-for="item in demandOptions"
-              :key="item.id"
-              :label="item.platform + ': '+item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
+<!--          <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"-->
+<!--                     :placeholder="$t('test_track.please_related_requirements')" class="ms-case-input">-->
+<!--            <el-option-->
+<!--              v-for="item in demandOptions"-->
+<!--              :key="item.id"-->
+<!--              :label="item.platform + ': '+item.name"-->
+<!--              :value="item.id">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+
+          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" clearable/>
         </el-form-item>
       </el-col>
       <el-col :span="7">
@@ -106,6 +108,7 @@ export default {
       tableData: [],
       demandOptions: [],
       relationshipCount: 0,
+      demandValue: [],
       //sysList:this.sysList,//一级选择框的数据
       props: {
         multiple: true,
@@ -135,6 +138,13 @@ export default {
       getRelationshipCountCase(this.caseId, (data) => {
         this.relationshipCount = data;
       });
+    },
+    demandValue() {
+      if (this.demandValue.length > 0) {
+        this.form.demandId = this.demandValue[this.demandValue.length - 1];
+      } else {
+        this.form.demandId = null;
+      }
     }
   },
   methods: {
@@ -261,16 +271,42 @@ export default {
       if (this.demandOptions.length === 0) {
         this.result = {loading: true};
         this.$get("demand/list/" + this.projectId).then(response => {
-          this.demandOptions = response.data.data;
-          this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'});
+          this.demandOptions = [];
+          if (response.data.data && response.data.data.length > 0) {
+            this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);
+          }
+          this.demandOptions.unshift({value: 'other', label: 'Other: ' + this.$t('test_track.case.other'), platform: 'Other'});
+          if (this.form.demandId === 'other') {
+            this.demandValue = ['other'];
+          }
           this.result = {loading: false};
         }).catch(() => {
-          this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'});
+          this.demandOptions.unshift({value: 'other', label: 'Other: ' + this.$t('test_track.case.other'), platform: 'Other'});
+          if (this.form.demandId === 'other') {
+            this.demandValue = ['other'];
+          }
           this.result = {loading: false};
         });
       }
     },
-
+    buildDemandCascaderOptions(data, options, pathArray) {
+      data.forEach(item => {
+        let option = {
+          label: item.platform + ': ' + item.name,
+          value: item.id
+        }
+        options.push(option);
+        pathArray.push(item.id);
+        if (item.id === this.form.demandId) {
+          this.demandValue = [...pathArray]; // 回显级联选项
+        }
+        if (item.children && item.children.length > 0) {
+          option.children = [];
+          this.buildDemandCascaderOptions(item.children, option.children, pathArray);
+        }
+        pathArray.pop();
+      });
+    }
   }
 };
 </script>
@@ -291,6 +327,6 @@ export default {
 
 .el-cascader >>> .el-input {
   cursor: pointer;
-  width: 500px;
+  width: 250px;
 }
 </style>
