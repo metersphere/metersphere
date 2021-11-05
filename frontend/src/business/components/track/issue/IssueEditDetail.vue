@@ -81,7 +81,7 @@ import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
 
 export default {
@@ -159,6 +159,18 @@ export default {
           this.getThirdPartyInfo();
           initAddFuc(data);
         });
+      this.$get('/issues/follow/' + data.id, response =>{
+        this.form.follows = response.data;
+        for (let i = 0; i < response.data.length; i++) {
+          if(response.data[i]===this.currentUser().id){
+            this.showFollow = true;
+            break;
+          }
+        }
+      })
+    },
+    currentUser: () => {
+      return getCurrentUser();
     },
     getThirdPartyInfo() {
       let platform = this.issueTemplate.platform;
@@ -284,9 +296,16 @@ export default {
     saveFollow(){
       if(this.showFollow){
         this.showFollow = false;
+        for (let i = 0; i < this.form.follows.length; i++) {
+          if(this.form.follows[i]===this.currentUser().id){
+            this.form.follows.splice(i,1)
+            break;
+          }
+        }
+
       }else {
         this.showFollow = true;
-
+        this.form.follows.push(this.currentUser().id)
       }
     }
   }
