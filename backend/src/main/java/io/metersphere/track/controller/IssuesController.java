@@ -129,4 +129,8 @@ public class IssuesController {
         return issuesService.getCountByStatus(request);
     }
 
+    @GetMapping("/follow/{issueId}")
+    public List<String> getFollows(@PathVariable String issueId) {
+        return issuesService.getFollows(issueId);
+    }
 }
