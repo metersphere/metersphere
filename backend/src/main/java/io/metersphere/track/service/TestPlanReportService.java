@@ -12,6 +12,7 @@ import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.service.ShareInfoService;
+import io.metersphere.api.service.task.NamedThreadFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -96,7 +97,7 @@ public class TestPlanReportService {
     @Resource
     private ProjectService projectService;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(20);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(20,new NamedThreadFactory("TestPlanReportService"));
 
     public List<TestPlanReportDTO> list(QueryTestPlanReportRequest request) {
         List<TestPlanReportDTO> list = new ArrayList<>();
@@ -1125,6 +1126,7 @@ public class TestPlanReportService {
                 TestPlanReportExecuteCatch.finishAllTask(planReportId);
             }
         }
+
         this.updateExecuteApis(planReportId);
     }
 
