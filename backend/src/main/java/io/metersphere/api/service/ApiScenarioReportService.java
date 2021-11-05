@@ -304,7 +304,7 @@ public class ApiScenarioReportService {
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
         Map<String, String> scenarioAndErrorMap = new HashMap<>();
-        Map<String, APIScenarioReportResult> caseReportMap = new HashMap<>();
+//        Map<String, APIScenarioReportResult> caseReportMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
 
             // 存储场景报告
@@ -395,13 +395,13 @@ public class ApiScenarioReportService {
             lastReport = report;
 
             APIScenarioReportResult reportResult = this.get(report.getId());
-            caseReportMap.put(testPlanApiScenario.getApiScenarioId(), reportResult);
+//            caseReportMap.put(testPlanApiScenario.getApiScenarioId(), reportResult);
             reportIds.add(report.getId());
         }
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
         for (String reportId : testPlanReportIdList) {
             TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId, null, scenarioAndErrorMap, null);
-            TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId, null, caseReportMap, null);
+//            TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId, null, caseReportMap, null);
         }
 
         return lastReport;
