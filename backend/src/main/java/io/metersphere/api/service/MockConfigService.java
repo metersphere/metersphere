@@ -338,7 +338,7 @@ public class MockConfigService {
                 if (mockExpectRequestObj.containsKey("params")) {
                     isMatch = this.isRequestMockExpectMatchingByParams(requestHeaderMap, mockExpectRequestObj, requestMockParams);
                 } else {
-                    isMatch = this.isRequestMockExpectMatching(mockExpectRequestObj, requestMockParams.getQueryParamsObj());
+                    isMatch = this.isRequestMockExpectMatching(mockExpectRequestObj, requestMockParams);
                 }
 
                 if (isMatch) {
@@ -455,7 +455,7 @@ public class MockConfigService {
         return true;
     }
 
-    private boolean isRequestMockExpectMatching(JSONObject mockExpectRequestObj, JSONObject reqJsonObj) {
+    private boolean isRequestMockExpectMatching(JSONObject mockExpectRequestObj, RequestMockParams requestMockParams) {
         boolean isJsonParam = mockExpectRequestObj.getBoolean("jsonParam");
         JSONObject mockExpectJson = new JSONObject();
         if (isJsonParam) {
@@ -489,8 +489,28 @@ public class MockConfigService {
             }
         }
 
-        boolean isMatching = JsonStructUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
-        return isMatching;
+        boolean matchRest = false;
+        boolean matchQuery = false;
+        boolean matchBody = false;
+
+        if(requestMockParams.getQueryParamsObj() != null){
+            matchQuery = JsonStructUtils.checkJsonObjCompliance(requestMockParams.getQueryParamsObj(), mockExpectJson);
+        }
+        if(requestMockParams.getRestParamsObj() != null){
+            matchRest = JsonStructUtils.checkJsonObjCompliance(requestMockParams.getRestParamsObj(), mockExpectJson);
+        }
+        if(requestMockParams.getBodyParams() != null){
+            for (int i = 0;i < requestMockParams.getBodyParams().size(); i ++) {
+                JSONObject reqJsonObj = requestMockParams.getBodyParams().getJSONObject(i);
+                matchBody = JsonStructUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
+                if(matchBody){
+                    break;
+                }
+            }
+        }
+
+//        boolean isMatching = JsonStructUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
+        return matchRest || matchQuery || matchBody;
     }
 
     private MockExpectConfigResponse getEmptyRequestMockExpectByParams(Map<String, String> requestHeaderMap, MockExpectConfigResponse model) {

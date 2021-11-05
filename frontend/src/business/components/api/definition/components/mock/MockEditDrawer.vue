@@ -159,7 +159,7 @@ export default {
 
           if(this.mockExpectConfig.request.jsonParam && this.mockExpectConfig.request.jsonData){
             this.mockExpectConfig.request.params.body.type = "JSON";
-            this.mockExpectConfig.request.params.body.raw = this.mockExpectConfig.jsonData;
+            this.mockExpectConfig.request.params.body.raw = this.mockExpectConfig.request.jsonData;
           }else if(this.mockExpectConfig.request.variables){
             this.mockExpectConfig.request.params.body.type = "Form Data";
             let headerItem = {};
