@@ -1,5 +1,9 @@
 package io.metersphere.task.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.task.service.TaskService;
@@ -15,10 +19,14 @@ public class TaskController {
     @Resource
     private TaskService taskService;
 
-    @PostMapping("/list")
+    @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
-    public List<TaskCenterDTO> getTasks(@RequestBody TaskCenterRequest request) {
-        return taskService.getTasks(request);
+    public Pager<List<TaskCenterDTO>> getTasks(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TaskCenterRequest request) {
+        request.setGoPage(goPage);
+        request.setPageSize(pageSize);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, taskService.getTasks(request));
+       // return taskService.getTasks(request);
     }
 
     @GetMapping("/case/{id}")
