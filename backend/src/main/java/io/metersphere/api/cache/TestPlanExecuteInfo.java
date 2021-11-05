@@ -3,14 +3,21 @@ package io.metersphere.api.cache;
 
 import io.metersphere.api.jmeter.JmeterThreadUtils;
 import io.metersphere.api.jmeter.MessageCache;
+import io.metersphere.base.domain.ApiScenarioReport;
+import io.metersphere.base.domain.ApiScenarioReportExample;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TestPlanResourceType;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -173,11 +180,14 @@ public class TestPlanExecuteInfo {
                 MessageCache.executionQueue.remove(apiCaseExecuteReportMap.get(resourceId));
             }
         }
+
+        List<String> updateScenarioReportList = new ArrayList<>();
         for (Map.Entry<String, String> entry : apiScenarioCaseExecInfo.entrySet()) {
             String resourceId = entry.getKey();
             String executeResult = entry.getValue();
             if (StringUtils.equalsIgnoreCase(executeResult, TestPlanApiExecuteStatus.RUNNING.name())) {
                 apiScenarioCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
+                updateScenarioReportList.add(apiScenarioReportReportMap.get(resourceId));
                 if (StringUtils.isNotEmpty(apiScenarioReportReportMap.get(resourceId))) {
                     JmeterThreadUtils.stop(apiScenarioReportReportMap.get(resourceId));
                 }
@@ -187,6 +197,15 @@ public class TestPlanExecuteInfo {
                 MessageCache.executionQueue.remove(apiScenarioReportReportMap.get(resourceId));
             }
         }
+        if(CollectionUtils.isNotEmpty(updateScenarioReportList)){
+            ApiScenarioReportMapper apiScenarioReportMapper = CommonBeanFactory.getBean(ApiScenarioReportMapper.class);
+            ApiScenarioReportExample example = new ApiScenarioReportExample();
+            example.createCriteria().andIdIn(updateScenarioReportList).andStatusEqualTo("Running");
+            ApiScenarioReport report = new ApiScenarioReport();
+            report.setStatus("Error");
+            apiScenarioReportMapper.updateByExampleSelective(report,example);
+        }
+
         for (Map.Entry<String, String> entry : loadCaseExecInfo.entrySet()) {
             String resourceId = entry.getKey();
             String executeResult = entry.getValue();
