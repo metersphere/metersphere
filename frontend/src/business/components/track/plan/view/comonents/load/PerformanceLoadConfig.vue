@@ -505,7 +505,7 @@ export default {
           tg.rampUpTime = tg.duration;
         }
         if (tg.rampUpTime < tg.step) {
-          tg.step = tg.rampUpTime;
+          tg.step = tg.rampUpTime || 1; // 至少1步
         }
         let seriesData = {
           name: tg.attributes.testname,
