@@ -6,11 +6,11 @@
           <el-form-item :label="$t('load_test.select_resource_pool')">
             <el-select v-model="resourcePool" :disabled="isReadOnly" size="mini" @change="resourcePoolChange">
               <el-option
-                  v-for="item in resourcePools"
-                  :key="item.id"
-                  :label="item.name"
-                  :disabled="!item.performance"
-                  :value="item.id">
+                v-for="item in resourcePools"
+                :key="item.id"
+                :label="item.name"
+                :disabled="!item.performance"
+                :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
@@ -82,10 +82,10 @@
               <el-form-item :label="$t('load_test.on_sample_error')">
                 <el-select v-model="threadGroup.onSampleError" :disabled="isReadOnly" size="mini">
                   <el-option
-                      v-for="item in onSampleErrors"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                    v-for="item in onSampleErrors"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -252,11 +252,11 @@ const DELETED = "deleted";
 
 const hexToRgba = function (hex, opacity) {
   return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
-      + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
+    + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
 };
 const hexToRgb = function (hex) {
   return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
-      + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
+    + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
 };
 
 export default {
@@ -505,7 +505,7 @@ export default {
           tg.rampUpTime = tg.duration;
         }
         if (tg.rampUpTime < tg.step) {
-          tg.step = tg.rampUpTime;
+          tg.step = tg.rampUpTime || 1; // 至少1步
         }
         let seriesData = {
           name: tg.attributes.testname,
@@ -597,7 +597,7 @@ export default {
         tg.durationMinutes = tg.durationMinutes || 0;
         tg.durationSeconds = tg.durationSeconds || 0;
         this.getDuration(tg);
-        if (tg.enabled === 'false' ) {
+        if (tg.enabled === 'false') {
           continue;
         }
         if (!tg.threadNumber || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
