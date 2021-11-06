@@ -601,8 +601,7 @@ export default {
         if (tg.enabled === 'false' ) {
           continue;
         }
-        if (!tg.threadNumber || !tg.duration
-          || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
+        if (!tg.threadNumber || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
           this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
           this.$emit('changeActive', '1');
           return false;
