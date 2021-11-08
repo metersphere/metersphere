@@ -795,8 +795,8 @@ public class ApiTestCaseService {
         sqlSession.commit();
 
         for (RunCaseRequest runCaseRequest : executeQueue) {
-            run(runCaseRequest);
             MessageCache.batchTestCases.put(runCaseRequest.getReportId(), runCaseRequest.getReport());
+            run(runCaseRequest);
         }
     }
 
@@ -819,6 +819,13 @@ public class ApiTestCaseService {
                 jMeterService.runLocal(request.getReportId(), jmeterHashTree, null, request.getRunMode());
 
             } catch (Exception ex) {
+                ApiDefinitionExecResult result = MessageCache.batchTestCases.get(request.getReportId());
+                result.setStatus("error");
+                apiDefinitionExecResultMapper.updateByPrimaryKey(result);
+                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+                caseWithBLOBs.setStatus("error");
+                apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
+                MessageCache.batchTestCases.remove(request.getReportId());
                 LogUtil.error(ex.getMessage(), ex);
             }
         }
