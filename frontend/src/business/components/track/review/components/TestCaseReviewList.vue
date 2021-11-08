@@ -107,11 +107,14 @@
                                :delete-permission="['PROJECT_TRACK_REVIEW:READ+DELETE']"
                                @editClick="handleEdit(scope.row)"
                                @deleteClick="handleDelete(scope.row)">
+
             </ms-table-operator>
-            <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" >
-              <i v-if="!scope.row.showFollow" class="el-icon-star-off" style="color: #783987; font-size: 25px; padding-left: 5px;top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px;" @click="saveFollow(scope.row)"></i>
-              <i v-if="scope.row.showFollow" class="el-icon-star-on" style="color: #783987; font-size: 30px;padding-left: 5px; top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px; " @click="saveFollow(scope.row)"></i>
-            </el-tooltip>
+            <template>
+              <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" >
+                <i v-if="!scope.row.showFollow" class="el-icon-star-off" style="color: #783987; font-size: 25px; padding-left: 5px;top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px;" @click="saveFollow(scope.row)"></i>
+                <i v-if="scope.row.showFollow" class="el-icon-star-on" style="color: #783987; font-size: 30px;padding-left: 5px; top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px; " @click="saveFollow(scope.row)"></i>
+              </el-tooltip>
+            </template>
           </div>
         </template>
       </el-table-column>
@@ -256,8 +259,10 @@ export default {
       });
       getLabel(this, TEST_CASE_REVIEW_LIST);
     },
-    intoReview(row) {
-      this.$router.push('/track/review/view/' + row.id);
+    intoReview(row,column, event) {
+      if (column.label !== this.$t('commons.operating')) {
+        this.$router.push('/track/review/view/' + row.id);
+      }
     },
     testCaseReviewCreate() {
       if (!this.projectId) {
@@ -299,6 +304,9 @@ export default {
       saveLastTableSortField(key,JSON.stringify(orders));
     },
     saveFollow(row){
+      if (this.$route.path.indexOf("/track/review/view") >= 0){
+        debugger
+      }
       let param = {};
       param.id = row.id;
       if(row.showFollow){
