@@ -13,6 +13,8 @@ public class BatchRunDefinitionRequest {
 
     private List<String> planIds;
 
+    private String triggerMode;
+
     private RunModeConfig config;
 
 }
