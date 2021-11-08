@@ -1198,7 +1198,7 @@ public class MockConfigService {
             request, HttpServletResponse response) {
         String returnStr = "";
         boolean isMatch = false;
-        String url = request.getRequestURI();
+        String url = request.getRequestURL().toString();
         List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
