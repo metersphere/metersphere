@@ -62,7 +62,7 @@ public class ApiJmeterFileService {
                 planEnvMap = JSON.parseObject(environment, Map.class);
             }
         }
-        HashTree hashTree = null;
+        HashTree hashTree;
         if (ApiRunMode.DEFINITION.name().equals(runMode) || ApiRunMode.API_PLAN.name().equals(runMode)) {
             hashTree = testPlanApiCaseService.generateHashTree(testId);
         } else {

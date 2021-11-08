@@ -7,9 +7,10 @@ import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.NodeKafkaService;
+import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
-import io.metersphere.base.mapper.TestResourcePoolMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.TriggerMode;
@@ -175,16 +176,7 @@ public class JMeterService {
                 MSException.throwException(e.getMessage());
             }
         } else {
-            try {
-                this.send(runRequest, config, reportId);
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (MessageCache.cache.get(config.getAmassReport()) != null
-                        && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
-                    MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
-                }
-                MessageCache.batchTestCases.remove(reportId);
-            }
+            this.send(runRequest, config, reportId);
         }
     }
 
@@ -200,21 +192,12 @@ public class JMeterService {
             String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
             ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
-                // 清理零时报告
-                ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
-                apiScenarioReportService.delete(reportId);
-                MSException.throwException("执行失败：" + result);
-                if (MessageCache.cache.get(config.getAmassReport()) != null
-                        && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
-                    MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
-                }
+                ApiScenarioReportService remakeReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
+                remakeReportService.remake(runRequest, config, reportId);
             }
         } catch (Exception e) {
-            if (MessageCache.cache.get(config.getAmassReport()) != null
-                    && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
-                MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
-            }
-            MessageCache.batchTestCases.remove(reportId);
+            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+            remakeReportService.remake(runRequest, config, reportId);
         }
     }
 }
