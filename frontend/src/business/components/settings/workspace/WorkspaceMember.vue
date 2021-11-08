@@ -8,7 +8,22 @@
       </template>
       <el-table border class="adjust-table" :data="tableData" style="width: 100%"
                 :height="screenHeight"
+                @select-all="handleSelectAll"
+                @select="handleSelect"
                 ref="userTable">
+        <el-table-column type="selection" width="50"/>
+        <ms-table-header-select-popover v-show="total>0"
+                                        :page-size="pageSize>total?total:pageSize"
+                                        :total="total"
+                                        :select-data-counts="selectDataCounts"
+                                        :table-data-count-in-page="tableData.length"
+                                        @selectPageAll="isSelectDataAll(false)"
+                                        @selectAll="isSelectDataAll(true)"/>
+        <el-table-column width="30" min-width="30" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+          </template>
+        </el-table-column>
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
@@ -72,6 +87,8 @@
     </el-dialog>
     <user-cascader :lable="batchAddLable" :title="batchAddTitle" @confirm="cascaderConfirm"
                    ref="cascaderDialog"></user-cascader>
+    <batch-to-project-group-cascader :title="$t('user.add_project_batch')" @confirm="cascaderConfirm"
+                                     :cascader-level="1" ref="cascaderDialog"/>
   </div>
 </template>
 
@@ -101,10 +118,13 @@ import UserCascader from "@/business/components/settings/system/components/UserC
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import {GROUP_WORKSPACE} from "@/common/js/constants";
 import AddMember from "@/business/components/settings/common/AddMember";
+import BatchToProjectGroupCascader from "@/business/components/settings/system/components/BatchToProjectGroupCascader";
+import GroupCascader from "@/business/components/settings/system/components/GroupCascader";
 
 export default {
   name: "MsMember",
   components: {
+    BatchToProjectGroupCascader, GroupCascader,
     AddMember, MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
     MsTableHeaderSelectPopover, UserCascader, ShowMoreBtn
   },
@@ -138,9 +158,9 @@ export default {
       referenced: false,
       batchAddUserRoleOptions: [],
       buttons: [
-        // {
-        //   name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
-        // }
+        {
+          name: this.$t('user.add_project_batch'), handleClick: this.addToProjectBatch
+        },
       ],
     };
   },
@@ -260,6 +280,9 @@ export default {
           });
         }
       });
+    },
+    addToProjectBatch(){
+      this.$refs.cascaderDialog.open();
     },
     create() {
       let wsId = getCurrentWorkspaceId();
