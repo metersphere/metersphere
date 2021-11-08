@@ -14,7 +14,7 @@
       <el-form-item :label="$t('commons.phone')" prop="phone">
         <el-input v-model="form.phone" autocomplete="off"/>
       </el-form-item>
-      <el-form-item label="所属工作空间" v-if="workspaceList.length>0">
+<!--      <el-form-item label="所属工作空间" v-if="workspaceList.length>0">
         <span v-for="(item,index) in workspaceList" :key = item.id >
           <span>{{item.name}}</span><span v-if="index<workspaceList.length-1"> | </span>
         </span>
@@ -23,7 +23,7 @@
         <span v-for="(item,index) in projectList" :key = item.id >
           <span>{{item.name}}</span><span v-if="index<projectList.length-1"> | </span>
         </span>
-      </el-form-item>
+      </el-form-item>-->
       <el-form-item>
         <el-button @click="cancel">{{$t('commons.cancel')}}</el-button>
         <el-button type="primary" @click="updateUser('updateUserForm')" @keydown.enter.native.prevent>{{$t('commons.confirm')}}</el-button>

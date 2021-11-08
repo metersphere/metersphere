@@ -96,21 +96,23 @@
         </el-table-column>
       </template>
       <el-table-column
-        min-width="100"
+        min-width="120"
         :label="$t('commons.operating')">
         <template slot="header">
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
           <div>
-
             <ms-table-operator :edit-permission="['PROJECT_TRACK_REVIEW:READ+EDIT']"
                                :delete-permission="['PROJECT_TRACK_REVIEW:READ+DELETE']"
                                @editClick="handleEdit(scope.row)"
                                @deleteClick="handleDelete(scope.row)">
             </ms-table-operator>
+            <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" >
+              <i v-if="!scope.row.showFollow" class="el-icon-star-off" style="color: #783987; font-size: 25px; padding-left: 5px;top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px;" @click="saveFollow(scope.row)"></i>
+              <i v-if="scope.row.showFollow" class="el-icon-star-on" style="color: #783987; font-size: 30px;padding-left: 5px; top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px; " @click="saveFollow(scope.row)"></i>
+            </el-tooltip>
           </div>
-
         </template>
       </el-table-column>
       <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
@@ -132,7 +134,7 @@ import MsDialogFooter from "../../../common/components/MsDialogFooter";
 import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {_filter, _sort, deepClone, getLabel, getLastTableSortField,saveLastTableSortField} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
@@ -196,6 +198,9 @@ export default {
     },
   },
   methods: {
+    currentUser: () => {
+      return getCurrentUser();
+    },
     customHeader() {
       const list = deepClone(this.tableLabel);
       this.$refs.headerCustom.open(list);
@@ -235,8 +240,17 @@ export default {
             let arr = res.data;
             let follow = arr.map(data => data.name).join("、");
             let followIds = arr.map(data => data.id);
+            let showFollow = false;
+            if (arr) {
+              arr.forEach(d => {
+                if(this.currentUser().id===d.id){
+                  showFollow = true;
+                }
+              })
+            }
             this.$set(this.tableData[i], "follow", follow);
             this.$set(this.tableData[i], "followIds", followIds);
+            this.$set(this.tableData[i], "showFollow", showFollow);
           });
         }
       });
@@ -284,6 +298,33 @@ export default {
     saveSortField(key,orders){
       saveLastTableSortField(key,JSON.stringify(orders));
     },
+    saveFollow(row){
+      let param = {};
+      param.id = row.id;
+      if(row.showFollow){
+        row.showFollow = false;
+        for (let i = 0; i < row.followIds.length; i++) {
+          if(row.followIds[i]===this.currentUser().id){
+            row.followIds.splice(i,1)
+            break;
+          }
+        }
+        param.followIds = row.followIds
+        this.$post('/test/case/review/edit/follows', param,() => {
+          this.initTableData();
+        });
+        return
+      }
+      if(!row.showFollow){
+        row.showFollow = true;
+        row.followIds.push(this.currentUser().id);
+        param.followIds = row.followIds
+        this.$post('/test/case/review/edit/follows', param,() => {
+          this.initTableData();
+        });
+      }
+
+    }
   }
 };
 </script>
