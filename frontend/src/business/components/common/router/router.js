@@ -60,26 +60,28 @@ VueRouter.prototype.push = function push(location) {
 function redirectLoginPath(originPath) {
   let redirectUrl = '';
   let loginSuccess = sessionStorage.getItem('loginSuccess');
-  sessionStorage.setItem('redirectUrl', originPath);
 
-  if (hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ')) {
-    redirectUrl = '/project/home';
-  } else if (hasPermissions('WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ')) {
-    redirectUrl = '/setting';
-  } else if (hasPermissions('SYSTEM_USER:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_GROUP:READ', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_SETTING:READ', 'SYSTEM_AUTH:READ', 'SYSTEM_QUOTA:READ', 'SYSTEM_OPERATING_LOG:READ')) {
-    redirectUrl = '/setting';
-  } else {
-    redirectUrl = '/';
-  }
-
-  if (getCurrentUserId() !== sessionStorage.getItem('lastUser')) {
+  if (getCurrentUserId() === sessionStorage.getItem('lastUser')) {
     redirectUrl = sessionStorage.getItem('redirectUrl');
   }
+  if (!redirectUrl) {
+    if (hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ')) {
+      redirectUrl = '/project/home';
+    } else if (hasPermissions('WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ')) {
+      redirectUrl = '/setting';
+    } else if (hasPermissions('SYSTEM_USER:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_GROUP:READ', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_SETTING:READ', 'SYSTEM_AUTH:READ', 'SYSTEM_QUOTA:READ', 'SYSTEM_OPERATING_LOG:READ')) {
+      redirectUrl = '/setting';
+    } else {
+      redirectUrl = '/';
+    }
+  }
+
   if (redirectUrl && loginSuccess) {
     sessionStorage.removeItem('loginSuccess');
     router.push(redirectUrl);
   }
   sessionStorage.setItem('lastUser', getCurrentUserId());
+  sessionStorage.setItem('redirectUrl', originPath);
   sessionStorage.removeItem('loginSuccess');
 }
 
