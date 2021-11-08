@@ -139,7 +139,7 @@ public class ApiAutomationService {
     @Resource
     private ResourcePoolCalculation resourcePoolCalculation;
     @Resource
-    private NodeKafkaService nodeKafkaService;
+    private RemakeReportService remakeReportService;
     @Resource
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
@@ -1187,14 +1187,29 @@ public class ApiAutomationService {
                     executeQueue.put(report.getId(), runModeDataDTO);
                 } else {
                     // 生成报告和HashTree
-                    HashTree hashTree = generateHashTree(item, reportId, planEnvMap);
-                    executeQueue.put(report.getId(), new RunModeDataDTO(hashTree, report));
+                    try {
+                        HashTree hashTree = generateHashTree(item, reportId, planEnvMap);
+                        executeQueue.put(report.getId(), new RunModeDataDTO(hashTree, report));
+                    } catch (Exception ex) {
+                        if (StringUtils.equalsAny(request.getTriggerMode(), TriggerMode.BATCH.name(), TriggerMode.SCHEDULE.name())) {
+                            String testPlanScenarioId;
+                            if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
+                                testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
+                            } else {
+                                testPlanScenarioId = request.getPlanScenarioId();
+                            }
+                            remakeReportService.remakeScenario(request.getRunMode(), testPlanScenarioId, request.getConfig(), item, report);
+                        } else {
+                            MSException.throwException(ex);
+                        }
+                    }
                 }
                 scenarioIds.add(item.getId());
                 scenarioNames.append(item.getName()).append(",");
                 // 重置报告ID
                 reportId = UUID.randomUUID().toString();
             } catch (Exception ex) {
+                ex.printStackTrace();
                 MSException.throwException("解析运行步骤失败！场景名称：" + item.getName());
             }
         }
@@ -1343,12 +1358,18 @@ public class ApiAutomationService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
         // 开始并发执行
-        for (String reportId : executeQueue.keySet()) {
-            //存储报告
-            APIScenarioReportResult report = executeQueue.get(reportId).getReport();
-            batchMapper.insert(report);
-        }
-        sqlSession.commit();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (String reportId : executeQueue.keySet()) {
+                    //存储报告
+                    APIScenarioReportResult report = executeQueue.get(reportId).getReport();
+                    batchMapper.insert(report);
+                }
+                sqlSession.flushStatements();
+            }
+        });
+        thread.start();
 
         for (String reportId : executeQueue.keySet()) {
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {

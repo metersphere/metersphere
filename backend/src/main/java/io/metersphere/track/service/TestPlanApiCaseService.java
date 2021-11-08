@@ -9,6 +9,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.JvmInfoDTO;
 import io.metersphere.api.dto.RunModeDataDTO;
+import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
@@ -27,6 +28,7 @@ import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.api.service.task.NamedThreadFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -94,6 +96,8 @@ public class TestPlanApiCaseService {
     private TestPlanService testPlanService;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private RemakeReportService remakeReportService;
 
     public TestPlanApiCase getInfo(String caseId, String testPlanId) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -397,6 +401,9 @@ public class TestPlanApiCaseService {
         List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
+        if (StringUtils.isEmpty(request.getTriggerMode())) {
+            request.setTriggerMode(ApiRunMode.API_PLAN.name());
+        }
         // 资源池
         if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
             TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(request.getConfig().getResourcePoolId());
@@ -432,18 +439,27 @@ public class TestPlanApiCaseService {
                                 ApiDefinitionExecResult execResult = executeQueue.get(testPlanApiCase);
                                 execResult.setId(executeQueue.get(testPlanApiCase).getId());
                                 execResult.setStatus(APITestStatus.Running.name());
-                                mapper.updateByPrimaryKey(execResult);
                                 reportIds.add(execResult.getId());
                                 RunModeDataDTO modeDataDTO;
                                 if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                                     modeDataDTO = new RunModeDataDTO(testPlanApiCase.getId(), UUID.randomUUID().toString());
                                 } else {
                                     // 生成报告和HashTree
-                                    HashTree hashTree = generateHashTree(testPlanApiCase.getId());
-                                    modeDataDTO = new RunModeDataDTO(hashTree, UUID.randomUUID().toString());
+                                    try {
+                                        HashTree hashTree = generateHashTree(testPlanApiCase.getId());
+                                        modeDataDTO = new RunModeDataDTO(hashTree, UUID.randomUUID().toString());
+                                    } catch (Exception e) {
+                                        RunRequest runRequest = new RunRequest();
+                                        runRequest.setTestId(testPlanApiCase.getId());
+                                        runRequest.setRunMode(request.getTriggerMode());
+                                        remakeReportService.remake(runRequest, request.getConfig(), execResult.getId());
+                                        reportIds.remove(executeQueue.get(testPlanApiCase).getId());
+                                        continue;
+                                    }
                                 }
+                                mapper.updateByPrimaryKey(execResult);
                                 modeDataDTO.setApiCaseId(execResult.getId());
-                                Future<ApiDefinitionExecResult> future = executorService.submit(new SerialApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), ApiRunMode.API_PLAN.name()));
+                                Future<ApiDefinitionExecResult> future = executorService.submit(new SerialApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), request.getTriggerMode()));
                                 ApiDefinitionExecResult report = future.get();
                                 // 如果开启失败结束执行，则判断返回结果状态
                                 if (request.getConfig().isOnSampleError()) {
@@ -463,6 +479,7 @@ public class TestPlanApiCaseService {
                             List<String> removeList = executeQueue.entrySet().stream()
                                     .filter(map -> !reportIds.contains(map.getValue().getId()))
                                     .map(map -> map.getValue().getId()).collect(Collectors.toList());
+
                             ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
                             example.createCriteria().andIdIn(removeList);
                             mapper.deleteByExample(example);
@@ -487,10 +504,10 @@ public class TestPlanApiCaseService {
             // 开始并发执行
             for (String reportId : executeQueue.keySet()) {
                 if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-                    jMeterService.runTest(executeQueue.get(reportId).getId(), reportId, ApiRunMode.API_PLAN.name(), null, request.getConfig());
+                    jMeterService.runTest(executeQueue.get(reportId).getId(), reportId, request.getTriggerMode(), null, request.getConfig());
                 } else {
                     HashTree hashTree = generateHashTree(executeQueue.get(reportId).getId());
-                    jMeterService.runLocal(reportId, hashTree, TriggerMode.BATCH.name(), ApiRunMode.API_PLAN.name());
+                    jMeterService.runLocal(reportId, hashTree, TriggerMode.BATCH.name(), request.getTriggerMode());
                 }
             }
         }
