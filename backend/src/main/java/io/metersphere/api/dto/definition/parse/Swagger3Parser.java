@@ -368,8 +368,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return jsonArray;
         } else if (schema instanceof BinarySchema) {
             return getDefaultValueByPropertyType(schema);
+        } else if (schema instanceof ObjectSchema) {
+            Object propertiesResult = parseSchemaProperties(schema, refSet, infoMap);
+            return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
         } else {
-            if (schema.getType() != null) {  //  特判属性不是对象的情况，直接将基本类型赋值进去
+            if (schema instanceof StringSchema) {
+                StringSchema stringSchema = (StringSchema) schema;
+                return stringSchema.getExample();
+            } else if (schema.getType() != null) {  //  特判属性不是对象的情况，直接将基本类型赋值进去
                 return schema;
             }
             Object propertiesResult = parseSchemaProperties(schema, refSet, infoMap);
