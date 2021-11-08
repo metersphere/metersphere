@@ -103,11 +103,11 @@
         </template>
         <template v-slot:default="scope">
           <div>
+
             <ms-table-operator :edit-permission="['PROJECT_TRACK_REVIEW:READ+EDIT']"
                                :delete-permission="['PROJECT_TRACK_REVIEW:READ+DELETE']"
                                @editClick="handleEdit(scope.row)"
                                @deleteClick="handleDelete(scope.row)">
-
             </ms-table-operator>
             <template>
               <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" >
@@ -116,6 +116,7 @@
               </el-tooltip>
             </template>
           </div>
+
         </template>
       </el-table-column>
       <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
@@ -304,9 +305,6 @@ export default {
       saveLastTableSortField(key,JSON.stringify(orders));
     },
     saveFollow(row){
-      if (this.$route.path.indexOf("/track/review/view") >= 0){
-        debugger
-      }
       let param = {};
       param.id = row.id;
       if(row.showFollow){
