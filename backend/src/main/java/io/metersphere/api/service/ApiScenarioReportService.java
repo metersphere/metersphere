@@ -289,6 +289,7 @@ public class ApiScenarioReportService {
             }
             returnReport = report;
             reportIds.add(report.getId());
+            MessageCache.executionQueue.remove(report.getId());
         }
         return returnReport;
     }
@@ -394,8 +395,7 @@ public class ApiScenarioReportService {
 
             lastReport = report;
 
-            APIScenarioReportResult reportResult = this.get(report.getId());
-//            caseReportMap.put(testPlanApiScenario.getApiScenarioId(), reportResult);
+            MessageCache.executionQueue.remove(report.getId());
             reportIds.add(report.getId());
         }
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
@@ -600,6 +600,7 @@ public class ApiScenarioReportService {
                     sendNotice(scenario, report);
                 }
                 lastReport = report;
+                MessageCache.executionQueue.remove(report.getId());
                 if (report.getExecuteType().equals(ExecuteType.Marge.name())) {
                     Object obj = MessageCache.cache.get(report.getScenarioId());
                     if (obj != null) {
