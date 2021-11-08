@@ -5,6 +5,10 @@
       <el-form :model="httpForm" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
         <div style="float: right;margin-right: 20px" class="ms-opt-btn">
+          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer " @click="saveFollow" v-if="!showFollow"/>
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer " @click="saveFollow" v-if="showFollow"/>
+          </el-tooltip>
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="httpForm.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
@@ -69,7 +73,7 @@
                 <ms-input-tag :currentScenario="httpForm" ref="tag"/>
               </el-form-item>
             </el-col>
-            <el-col :span="8">
+<!--            <el-col :span="8">
               <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
                 <el-select v-model="httpForm.follows"
                            clearable multiple
@@ -83,7 +87,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-            </el-col>
+            </el-col>-->
             <el-col :span="8">
               <el-form-item :label="$t('commons.description')" prop="description">
                 <el-input class="ms-http-textarea"
@@ -144,7 +148,7 @@
   import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
   import MsChangeHistory from "../../../../history/ChangeHistory";
-  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+  import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
   import MsFormDivider from "@/business/components/common/components/MsFormDivider";
   import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
 
@@ -177,6 +181,7 @@
         },
         httpForm: {environmentId: "", path: "", tags: []},
         isShowEnable: true,
+        showFollow:false,
         maintainerOptions: [],
         currentModule: {},
         reqOptions: REQ_METHOD,
@@ -304,6 +309,9 @@
       }
     },
     methods: {
+      currentUser: () => {
+        return getCurrentUser();
+      },
       openHis(){
         this.$refs.changeHistory.open(this.httpForm.id,["接口定义" , "接口定義" , "Api definition"]);
       },
@@ -402,6 +410,21 @@
           }
         });
       },
+      saveFollow(){
+        if(this.showFollow){
+          this.showFollow = false;
+          for (let i = 0; i < this.httpForm.follows.length; i++) {
+            if(this.httpForm.follows[i]===this.currentUser().id){
+              this.httpForm.follows.splice(i,1)
+              break;
+            }
+          }
+
+        }else {
+          this.showFollow = true;
+          this.httpForm.follows.push(this.currentUser().id)
+        }
+      }
     },
 
     created() {
@@ -412,6 +435,12 @@
       this.httpForm = JSON.parse(JSON.stringify(this.basisData));
       this.$get('/api/definition/follow/' + this.basisData.id, response => {
         this.httpForm.follows = response.data;
+        for (let i = 0; i < response.data.length; i++) {
+          if(response.data[i]===this.currentUser().id){
+            this.showFollow = true;
+            break;
+          }
+        }
       });
       this.initMockEnvironment();
     }

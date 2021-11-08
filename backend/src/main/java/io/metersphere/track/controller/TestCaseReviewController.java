@@ -137,4 +137,10 @@ public class TestCaseReviewController {
     public List<TestReviewDTOWithMetric> listRelateAll(@RequestBody ReviewRelateRequest request) {
         return testCaseReviewService.listRelateAll(request);
     }
+
+    @PostMapping("/edit/follows")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
+    public void editTestFollows(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
+        testCaseReviewService.editCaseRevieweFollow(testCaseReview);
+    }
 }

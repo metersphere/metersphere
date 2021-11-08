@@ -50,7 +50,7 @@
             </el-col>
             <el-col :span="16">
               <div class="tag-item" @click.stop>
-                <el-select v-model="apiCase.follows" multiple clearable
+<!--                <el-select v-model="apiCase.follows" multiple clearable
                            :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                            @change="saveTestCase(apiCase,true)" style="width: 100%" :disabled="loaded">
                   <el-option
@@ -59,7 +59,9 @@
                     :label="item.id + ' (' + item.name + ')'"
                     :value="item.id">
                   </el-option>
-                </el-select>
+                </el-select>-->
+                <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="!showFollow"/>
+                <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="showFollow"/>
               </div>
             </el-col>
           </el-row>
@@ -145,7 +147,7 @@
 </template>
 
 <script>
-import {_getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {_getBodyUploadFiles, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
 import {API_STATUS, PRIORITY} from "../../model/JsonData";
 import MsTag from "../../../../common/components/MsTag";
 import MsTipButton from "../../../../common/components/MsTipButton";
@@ -224,6 +226,7 @@ export default {
       isShowInput: false,
       methodColorMap: new Map(API_METHOD_COLOUR),
       saveLoading: false,
+      showFollow:false,
       beforeRequest: {},
     }
   },
@@ -268,8 +271,15 @@ export default {
       this.isXpack = true;
     }
     if (this.apiCase && this.apiCase.id) {
+      this.showFollow = false;
       this.$get('/api/testcase/follow/' + this.apiCase.id, response => {
         this.apiCase.follows = response.data;
+        for (let i = 0; i < response.data.length; i++) {
+          if(response.data[i]===this.currentUser().id){
+            this.showFollow = true;
+            break;
+          }
+        }
       });
     }
     if (this.currentApi && this.currentApi.request) {
@@ -277,6 +287,9 @@ export default {
     }
   },
   methods: {
+    currentUser: () => {
+      return getCurrentUser();
+    },
     hasPermission,
     openHis(row) {
       this.$refs.changeHistory.open(row.id, ["接口定义用例", "接口定義用例", "Api definition case"]);
@@ -499,6 +512,20 @@ export default {
     showHistory(id) {
       this.$emit("showHistory", id);
     },
+    saveFollow(){
+      if(this.showFollow){
+        this.showFollow = false;
+        for (let i = 0; i < this.apiCase.follows.length; i++) {
+          if(this.apiCase.follows[i]===this.currentUser().id){
+            this.apiCase.follows.splice(i,1)
+            break;
+          }
+        }
+      }else {
+        this.showFollow = true;
+        this.apiCase.follows.push(this.currentUser().id)
+      }
+    }
   }
 }
 </script>
