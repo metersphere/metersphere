@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card v-loading="result.loading">
         <el-row>
-          <el-col :span="6">
+          <el-col :span="12">
             <el-form :inline="true">
               <el-form-item :label="$t('load_test.name') ">
                 <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="test.name"
@@ -13,7 +13,7 @@
               </el-form-item>
             </el-form>
           </el-col>
-          <el-col :span="6">
+<!--          <el-col :span="6">
             <el-form>
               <el-form-item :label="$t('api_test.automation.follow_people')">
                 <el-select v-model="test.follows"
@@ -29,8 +29,12 @@
               </el-form-item>
             </el-form>
 
-          </el-col>
+          </el-col>-->
           <el-col :span="12">
+            <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark">
+              <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" v-if="!showFollow"/>
+              <i class="el-icon-star-on" style="color: #783987; font-size: 28px;  margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" v-if="showFollow"/>
+            </el-tooltip>
             <el-link type="primary" size="small" style="margin-right: 20px" @click="openHis" v-if="test.id">
               {{ $t('operating_log.change_history') }}
             </el-link>
@@ -90,7 +94,7 @@ import PerformancePressureConfig from "./components/PerformancePressureConfig";
 import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getCurrentProjectID, getCurrentWorkspaceId, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId, hasPermission} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import MsChangeHistory from "../../history/ChangeHistory";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
@@ -123,6 +127,7 @@ export default {
       active: '0',
       testId: '',
       isReadOnly: false,
+      showFollow:false,
       tabs: [{
         title: this.$t('load_test.basic_config'),
         id: '0',
@@ -165,6 +170,9 @@ export default {
     this.getMaintainerOptions();
   },
   methods: {
+    currentUser: () => {
+      return getCurrentUser();
+    },
     getMaintainerOptions() {
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.maintainerOptions = response.data;
@@ -248,6 +256,8 @@ export default {
     },
     getTest(testId) {
       if (testId) {
+        this.test.follows = [];
+        this.showFollow = false;
         this.testId = testId;
         this.result = this.$get('/performance/get/' + testId, response => {
           if (response.data) {
@@ -257,6 +267,12 @@ export default {
             }
             this.$get('/performance/test/follow/' + testId, response => {
               this.$set(this.test, 'follows', response.data);
+              for (let i = 0; i < this.test.follows.length; i++) {
+                if(this.test.follows[i]===this.currentUser().id){
+                  this.showFollow = true;
+                  break;
+                }
+              }
             });
           }
         });
@@ -462,6 +478,21 @@ export default {
     clickTab(tab) {
       if (tab.index === '1') {
         this.$refs.pressureConfig.calculateTotalChart();
+      }
+    },
+    saveFollow(){
+      if(this.showFollow){
+        this.showFollow = false;
+        for (let i = 0; i < this.test.follows.length; i++) {
+          if(this.test.follows[i]===this.currentUser().id){
+            this.test.follows.splice(i,1)
+            break;
+          }
+        }
+
+      }else {
+        this.showFollow = true;
+        this.test.follows.push(this.currentUser().id)
       }
     }
   }

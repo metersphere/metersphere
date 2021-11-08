@@ -5,6 +5,10 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
+          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" v-if="!showFollow"/>
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" v-if="showFollow"/>
+          </el-tooltip>
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
 
           <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario"
@@ -58,7 +62,7 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="7">
+<!--            <el-col :span="7">
               <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
                 <el-select v-model="currentScenario.follows"
                            clearable multiple
@@ -72,7 +76,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-            </el-col>
+            </el-col>-->
           </el-row>
           <el-row>
             <el-col :span="7">
@@ -337,7 +341,7 @@ import {
   strMapToObj,
   handleCtrlSEvent,
   getCurrentProjectID,
-  handleCtrlREvent, hasLicense
+  handleCtrlREvent, hasLicense, getCurrentUser
 } from "@/common/js/utils";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
@@ -459,6 +463,7 @@ export default {
       plugins: [],
       clearMessage: "",
       runScenario: undefined,
+      showFollow:false
     }
   },
   watch: {
@@ -519,6 +524,9 @@ export default {
     },
   },
   methods: {
+    currentUser: () => {
+      return getCurrentUser();
+    },
     setDomain(flag) {
       if (this.projectEnvMap && this.projectEnvMap.size > 0) {
         let scenario = {
@@ -1400,6 +1408,12 @@ export default {
             this.$get('/api/automation/follow/' + this.currentScenario.id, response => {
               // this.$set(this.currentScenario, 'follows', response.data);
               this.currentScenario.follows = response.data;
+              for (let i = 0; i < response.data.length; i++) {
+                if(response.data[i]===this.currentUser().id){
+                  this.showFollow = true;
+                  break;
+                }
+              }
             });
           }
           this.loading = false;
@@ -1601,6 +1615,21 @@ export default {
     },
     showHistory() {
       this.$refs.taskCenter.openScenarioHistory(this.currentScenario.id);
+    },
+    saveFollow(){
+      if(this.showFollow){
+        this.showFollow = false;
+        for (let i = 0; i < this.currentScenario.follows.length; i++) {
+          if(this.currentScenario.follows[i]===this.currentUser().id){
+            this.currentScenario.follows.splice(i,1)
+            break;
+          }
+        }
+
+      }else {
+        this.showFollow = true;
+        this.currentScenario.follows.push(this.currentUser().id)
+      }
     }
   }
 }
