@@ -159,7 +159,7 @@ export default {
           this.getThirdPartyInfo();
           initAddFuc(data);
         });
-      this.$get('/issues/follow/' + data.id, response =>{
+      this.$get('/issues/follow/' + data.id, response => {
         this.form.follows = response.data;
         for (let i = 0; i < response.data.length; i++) {
           if(response.data[i]===this.currentUser().id){
