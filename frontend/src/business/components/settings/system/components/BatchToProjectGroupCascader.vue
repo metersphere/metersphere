@@ -23,6 +23,7 @@
         <el-form-item prop="project" label-width="0px">
           <el-cascader-panel :props="props"
                              popper-class="ms-cascade"
+                             :style="{'--cascaderMenuWidth': cascaderMenuWidth + 'px'}"
                              v-model="selectedIds"
                              ref="cascadeSelector"
                              :key="isResourceShow"
@@ -42,12 +43,12 @@
 <script>
 import ElUploadList from "element-ui/packages/upload/src/upload-list";
 import MsTableButton from '../../../../components/common/components/MsTableButton';
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {GROUP_PROJECT} from "@/common/js/constants";
 
 export default {
-  name: "User2ProjectCascader",
+  name: "BatchToProjectGroupCascader",
   components: {ElUploadList, MsTableButton, MsDialogFooter},
   data() {
     let validateSelect = (rule, value, callback) => {
@@ -78,12 +79,21 @@ export default {
         label: 'name',
         lazyLoad(node, resolve) {
           const {level, value} = node;
-          if (level === 0) {
-            self.getWorkspace(resolve);
-          } else if (level === 1) {
-            self.getProject(value, resolve);
-          } else {
-            resolve([]);
+          if (self.cascaderLevel === 1) {
+            if (level === 0) {
+              self.getProject(getCurrentWorkspaceId(), resolve);
+            } else {
+              resolve([]);
+            }
+          } else if (self.cascaderLevel === 2) {
+            // 先加载工作空间
+            if (level === 0) {
+              self.getWorkspace(resolve);
+            } else if (level === 1) {
+              self.getProject(value, resolve);
+            } else {
+              resolve([]);
+            }
           }
         }
       },
@@ -95,10 +105,20 @@ export default {
     title: {
       type: String,
       default: ''
-    }
+    },
+    // 几层 项目/工作空间-项目
+    cascaderLevel: {
+      type: Number,
+      default: 2
+    },
   },
   created() {
     this.getProjectUserGroup();
+  },
+  computed: {
+    cascaderMenuWidth() {
+      return this.cascaderLevel === 1 ? '560' : '280';
+    }
   },
   methods: {
     close() {
@@ -148,9 +168,20 @@ export default {
       })
     },
     getProjectUserGroup() {
-      this.$post("/user/group/get", {type: GROUP_PROJECT}, (res) => {
-        this.projectUserGroups = res.data ? res.data : [];
-      })
+      // 系统菜单显示所有项目类型用户组
+      if (this.cascaderLevel === 2) {
+        this.$post("/user/group/get", {type: GROUP_PROJECT}, (res) => {
+          this.projectUserGroups = res.data ? res.data : [];
+        });
+      } else if (this.cascaderLevel === 1) {
+        // 过滤工作空间下用户组
+        this.result = this.$post('/user/group/list', {
+          type: GROUP_PROJECT,
+          resourceId: getCurrentProjectID()
+        }, (res) => {
+          this.projectUserGroups = res.data ? res.data : [];
+        });
+      }
     }
   }
 }
@@ -174,6 +205,6 @@ export default {
 
 /deep/ .el-cascader-menu__wrap {
   height: 300px;
-  width: 280px;
+  width: var(--cascaderMenuWidth);
 }
 </style>

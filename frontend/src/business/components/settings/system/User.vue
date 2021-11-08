@@ -98,7 +98,8 @@
       </span>
     </el-dialog>
     <user-import ref="userImportDialog" @refreshAll="search"></user-import>
-    <project-cascader :title="batchAddTitle" @confirm="cascaderConfirm" ref="cascaderDialog"></project-cascader>
+    <batch-to-project-group-cascader :title="batchAddTitle" @confirm="cascaderConfirm"
+                                     :cascader-level="2" ref="cascaderDialog"/>
     <workspace-cascader :title="addToWorkspaceTitle" @confirm="cascaderConfirm" ref="workspaceCascader"></workspace-cascader>
     <group-cascader :title="$t('user.add_user_group_batch')" @confirm="cascaderConfirm" ref="groupCascaderDialog"></group-cascader>
     <edit-user ref="editUser" @refresh="search"/>
@@ -128,14 +129,15 @@ import {
 import UserCascader from "@/business/components/settings/system/components/UserCascader";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import EditUser from "@/business/components/settings/system/EditUser";
-import ProjectCascader from "@/business/components/settings/system/components/ProjectCascader";
 import GroupCascader from "@/business/components/settings/system/components/GroupCascader";
 import {logout} from "@/network/user";
 import WorkspaceCascader from "@/business/components/settings/system/components/WorkspaceCascader";
+import BatchToProjectGroupCascader from "@/business/components/settings/system/components/BatchToProjectGroupCascader";
 
 export default {
   name: "MsUser",
   components: {
+    BatchToProjectGroupCascader,
     WorkspaceCascader,
     GroupCascader,
     EditUser,
@@ -149,7 +151,6 @@ export default {
     UserImport,
     MsTableHeaderSelectPopover,
     UserCascader,
-    ProjectCascader,
     ShowMoreBtn
   },
   inject: [
