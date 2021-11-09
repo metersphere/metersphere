@@ -71,7 +71,7 @@ public class ApiDefinitionExecResultService {
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                     scenarioResult.getRequestResults().forEach(item -> {
                         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                            ApiDefinitionExecResult saveResult = MessageCache.batchTestCases.get(result.getTestId());
+                            ApiDefinitionExecResult saveResult = MessageCache.caseExecResourceLock.get(result.getTestId());
                             if (saveResult == null) {
                                 saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(result.getTestId());
                             }
@@ -125,7 +125,7 @@ public class ApiDefinitionExecResultService {
                             }
                             apiDefinitionService.removeCache(result.getTestId());
                             if (StringUtils.isNotEmpty(result.getTestId())) {
-                                MessageCache.batchTestCases.remove(result.getTestId());
+                                MessageCache.caseExecResourceLock.remove(result.getTestId());
                             }
                             // 发送通知
                             sendNotice(saveResult);

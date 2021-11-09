@@ -326,7 +326,7 @@ public class ApiAutomationController {
     @GetMapping(value = "/stop/{reportId}")
     public void stop(@PathVariable String reportId) {
         if (StringUtils.isNotEmpty(reportId)) {
-            MessageCache.batchTestCases.remove(reportId);
+            MessageCache.caseExecResourceLock.remove(reportId);
             new LocalRunner().stop(reportId);
         }
     }

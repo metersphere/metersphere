@@ -497,7 +497,7 @@ public class TestPlanApiCaseService {
             planApiCases.forEach(testPlanApiCase -> {
                 ApiDefinitionExecResult report = addResult(request, testPlanApiCase, APITestStatus.Running.name(), batchMapper);
                 executeQueue.put(report.getId(), testPlanApiCase);
-                MessageCache.batchTestCases.put(report.getId(), report);
+                MessageCache.caseExecResourceLock.put(report.getId(), report);
             });
             sqlSession.commit();
 
@@ -507,7 +507,7 @@ public class TestPlanApiCaseService {
                     jMeterService.runTest(executeQueue.get(reportId).getId(), reportId, request.getTriggerMode(), null, request.getConfig());
                 } else {
                     HashTree hashTree = generateHashTree(executeQueue.get(reportId).getId());
-                    jMeterService.runLocal(reportId, hashTree, TriggerMode.BATCH.name(), request.getTriggerMode());
+                    jMeterService.runLocal(reportId,request.getConfig(), hashTree, TriggerMode.BATCH.name(), request.getTriggerMode());
                 }
             }
         }

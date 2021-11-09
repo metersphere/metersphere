@@ -17,9 +17,10 @@ import java.util.List;
 public class APIBackendListenerClient extends AbstractBackendListenerClient implements Serializable {
 
     public final static String TEST_ID = "ms.test.id";
+    public final static String AMASS_REPORT = "ms.test.amass.report.id";
 
     public String runMode = ApiRunMode.RUN.name();
-
+    private String amassReport;
     private final List<SampleResult> queue = new ArrayList<>();
 
     // 测试ID
@@ -42,7 +43,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     public void teardownTest(BackendListenerContext context) throws Exception {
         APIBackendListenerHandler apiBackendListenerHandler =
                 CommonBeanFactory.getBean(APIBackendListenerHandler.class);
-        apiBackendListenerHandler.handleTeardownTest(queue, this.runMode, this.testId, this.debugReportId);
+        apiBackendListenerHandler.handleTeardownTest(queue, this.runMode, this.testId, this.debugReportId, this.amassReport);
         super.teardownTest(context);
     }
 
@@ -50,6 +51,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         this.testId = context.getParameter(APIBackendListenerClient.TEST_ID);
         this.runMode = context.getParameter("runMode");
         this.debugReportId = context.getParameter("debugReportId");
+        this.amassReport = context.getParameter(AMASS_REPORT);
         if (StringUtils.isBlank(this.runMode)) {
             this.runMode = ApiRunMode.RUN.name();
         }

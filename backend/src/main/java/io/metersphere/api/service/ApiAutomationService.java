@@ -1304,6 +1304,9 @@ public class ApiAutomationService {
                                 hashTreeUtil.setEnvParamsMapToHashTree(hashTree, executeEnvParams);
                                 executeQueue.get(key).setHashTree(hashTree);
                             }
+                            if (request.getConfig() != null && StringUtils.isNotEmpty(serialReportId)) {
+                                request.getConfig().setAmassReport(serialReportId);
+                            }
                             Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
                             future.get();
                             // 如果开启失败结束执行，则判断返回结果状态
@@ -1365,8 +1368,11 @@ public class ApiAutomationService {
                     //存储报告
                     APIScenarioReportResult report = executeQueue.get(reportId).getReport();
                     batchMapper.insert(report);
+                    // 增加一个本地锁，防止并发找不到资源
+                    MessageCache.scenarioExecResourceLock.put(reportId,report);
                 }
                 sqlSession.flushStatements();
+                sqlSession.commit();
             }
         });
         thread.start();
@@ -1381,7 +1387,7 @@ public class ApiAutomationService {
                 }
                 jMeterService.runTest(executeQueue.get(reportId).getTestId(), reportId, request.getRunMode(), testPlanScenarioId, request.getConfig());
             } else {
-                jMeterService.runLocal(reportId, executeQueue.get(reportId).getHashTree(),
+                jMeterService.runLocal(reportId, request.getConfig(), executeQueue.get(reportId).getHashTree(),
                         TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
             }
         }
@@ -1590,7 +1596,7 @@ public class ApiAutomationService {
         List<String> reportIds = new LinkedList<>();
         try {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
-            jMeterService.runLocal(reportIds.size() == 1 ? reportIds.get(0) : JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
+            jMeterService.runLocal(reportIds.size() == 1 ? reportIds.get(0) : JSON.toJSONString(reportIds), request.getConfig(), hashTree, request.getReportId(), runMode);
 
             Map<String, String> scenarioReportIdMap = new HashMap<>();
             for (String id : ids) {
@@ -1666,7 +1672,7 @@ public class ApiAutomationService {
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
 
         // 调用执行方法
-        jMeterService.runLocal(request.getId(), hashTree, request.getExecuteType(), ApiRunMode.SCENARIO.name());
+        jMeterService.runLocal(request.getId(), request.getConfig(), hashTree, request.getExecuteType(), ApiRunMode.SCENARIO.name());
         return request.getId();
     }
 
