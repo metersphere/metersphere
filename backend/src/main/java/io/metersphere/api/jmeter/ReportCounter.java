@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class ReportCounter {
-    private int number;
+    private List<String> completedIds;
     private List<JvmInfoDTO> poolUrls;
     private List<String> reportIds;
 }

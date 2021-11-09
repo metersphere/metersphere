@@ -398,7 +398,9 @@ public class ElementUtil {
         List<String> delIds = new ArrayList<>();
         Map<String, MsTestElement> updateMap = new HashMap<>();
         if (CollectionUtils.isEmpty(sourceHashTree)) {
-            sourceHashTree.addAll(targetHashTree);
+            if (CollectionUtils.isNotEmpty(targetHashTree)) {
+                sourceHashTree.addAll(targetHashTree);
+            }
             return;
         }
         if (CollectionUtils.isNotEmpty(targetHashTree)) {
