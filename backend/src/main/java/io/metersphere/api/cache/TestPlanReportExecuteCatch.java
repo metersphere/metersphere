@@ -46,6 +46,10 @@ public class TestPlanReportExecuteCatch {
         }
     }
 
+    public synchronized static boolean containsReport(String reportId){
+        return testPlanReportMap != null && testPlanReportMap.containsKey(reportId);
+    }
+
     public synchronized static void updateApiTestPlanExecuteInfo(String reportId,
                                                                  Map<String, String> apiCaseExecInfo, Map<String, String> apiScenarioCaseExecInfo, Map<String, String> loadCaseExecInfo) {
         if(testPlanReportMap != null && testPlanReportMap.containsKey(reportId)){

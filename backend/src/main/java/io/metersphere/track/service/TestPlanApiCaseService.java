@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.JvmInfoDTO;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.RunRequest;
@@ -430,6 +431,11 @@ public class TestPlanApiCaseService {
                     ExecutorService executorService = Executors.newFixedThreadPool(1, new NamedThreadFactory("TestPlanApiCaseService"));
                     try {
                         Thread.currentThread().setName("TestPlanCase串行执行线程");
+
+                        //记录案例线程结果以及执行失败的案例ID
+                        Map<String, String> executeThreadIdMap = new HashMap<>();
+                        List<String> executeErrorList = new ArrayList<>();
+
                         for (TestPlanApiCase testPlanApiCase : executeQueue.keySet()) {
                             try {
                                 if (executeQueue.get(testPlanApiCase) != null && MessageCache.terminationOrderDeque.contains(executeQueue.get(testPlanApiCase).getId())) {
@@ -441,13 +447,15 @@ public class TestPlanApiCaseService {
                                 execResult.setStatus(APITestStatus.Running.name());
                                 reportIds.add(execResult.getId());
                                 RunModeDataDTO modeDataDTO;
+
+                                String randomUUID = UUID.randomUUID().toString();
                                 if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                                    modeDataDTO = new RunModeDataDTO(testPlanApiCase.getId(), UUID.randomUUID().toString());
+                                    modeDataDTO = new RunModeDataDTO(testPlanApiCase.getId(), randomUUID);
                                 } else {
                                     // 生成报告和HashTree
                                     try {
                                         HashTree hashTree = generateHashTree(testPlanApiCase.getId());
-                                        modeDataDTO = new RunModeDataDTO(hashTree, UUID.randomUUID().toString());
+                                        modeDataDTO = new RunModeDataDTO(hashTree, randomUUID);
                                     } catch (Exception e) {
                                         RunRequest runRequest = new RunRequest();
                                         runRequest.setTestId(testPlanApiCase.getId());
@@ -468,7 +476,9 @@ public class TestPlanApiCaseService {
                                         break;
                                     }
                                 }
+                                executeThreadIdMap.put(testPlanApiCase.getApiCaseId(),randomUUID);
                             } catch (Exception e) {
+                                executeErrorList.add(testPlanApiCase.getApiCaseId());
                                 reportIds.remove(executeQueue.get(testPlanApiCase).getId());
                                 LogUtil.error("执行终止：" + e.getMessage());
                                 break;
@@ -484,6 +494,21 @@ public class TestPlanApiCaseService {
                             example.createCriteria().andIdIn(removeList);
                             mapper.deleteByExample(example);
                         }
+
+                        //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
+                        if(TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())){
+                            if (!executeErrorList.isEmpty()) {
+                                Map<String,String> executeErrorMap = new HashMap<>();
+                                for(String id : executeErrorList){
+                                    executeErrorMap.put(id,TestPlanApiExecuteStatus.FAILD.name());
+                                }
+                                TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(request.getPlanReportId(), executeErrorMap, null, null);
+                            }
+                            if (!executeThreadIdMap.isEmpty()) {
+                                TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
+                            }
+                        }
+
                     } catch (Exception e) {
                         LogUtil.error(e);
                     } finally {
@@ -502,12 +527,39 @@ public class TestPlanApiCaseService {
             sqlSession.commit();
 
             // 开始并发执行
+
+            //记录案例线程结果以及执行失败的案例ID
+            Map<String, String> executeThreadIdMap = new HashMap<>();
+            List<String> executeErrorList = new ArrayList<>();
+
             for (String reportId : executeQueue.keySet()) {
-                if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-                    jMeterService.runTest(executeQueue.get(reportId).getId(), reportId, request.getTriggerMode(), null, request.getConfig());
-                } else {
-                    HashTree hashTree = generateHashTree(executeQueue.get(reportId).getId());
-                    jMeterService.runLocal(reportId,request.getConfig(), hashTree, TriggerMode.BATCH.name(), request.getTriggerMode());
+                TestPlanApiCase testPlanApiCase = executeQueue.get(reportId);
+                try {
+                    if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
+                        jMeterService.runTest(testPlanApiCase.getId(), reportId, request.getTriggerMode(), null, request.getConfig());
+                        executeThreadIdMap.put(testPlanApiCase.getApiCaseId(),testPlanApiCase.getId());
+                    } else {
+                        HashTree hashTree = generateHashTree(testPlanApiCase.getId());
+                        jMeterService.runLocal(reportId,request.getConfig(), hashTree, TriggerMode.BATCH.name(), request.getTriggerMode());
+                        executeThreadIdMap.put(testPlanApiCase.getApiCaseId(),reportId);
+                    }
+                }catch (Exception e){
+                    executeErrorList.add(testPlanApiCase.getApiCaseId());
+                }
+
+            }
+
+            //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
+            if(TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())){
+                if (!executeErrorList.isEmpty()) {
+                    Map<String,String> executeErrorMap = new HashMap<>();
+                    for(String id : executeErrorList){
+                        executeErrorMap.put(id,TestPlanApiExecuteStatus.FAILD.name());
+                    }
+                    TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(request.getPlanReportId(), executeErrorMap, null, null);
+                }
+                if (!executeThreadIdMap.isEmpty()) {
+                    TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
                 }
             }
         }

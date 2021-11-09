@@ -125,7 +125,7 @@ public class TestPlanReportService {
     public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String projectID, String planId, String userId, String triggerMode) {
         Map<String, String> planScenarioIdMap = new LinkedHashMap<>();
         Map<String, String> apiTestCaseIdMap = new LinkedHashMap<>();
-        Map<ApiTestCaseWithBLOBs, String> apiTestCaseDataMap = new LinkedHashMap<>();
+        Map<String, String> apiTestCaseDataMap = new LinkedHashMap<>();
         Map<String, String> performanceIdMap = new LinkedHashMap<>();
 
         List<TestPlanApiScenario> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectLegalDataByTestPlanId(planId);
@@ -152,15 +152,15 @@ public class TestPlanReportService {
         if (!apiTestCaseIdMap.isEmpty()) {
             ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
             apiTestCaseExample.createCriteria().andIdIn(new ArrayList<>(apiTestCaseIdMap.keySet()));
-            List<ApiTestCaseWithBLOBs> apiCaseList = apiTestCaseMapper.selectByExampleWithBLOBs(apiTestCaseExample);
-            Map<String, ApiTestCaseWithBLOBs> apiCaseDataMap = new HashMap<>();
+            List<ApiTestCase> apiCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+            Map<String, ApiTestCase> apiCaseDataMap = new HashMap<>();
             if (!apiCaseList.isEmpty()) {
-                apiCaseDataMap = apiCaseList.stream().collect(Collectors.toMap(ApiTestCaseWithBLOBs::getId, k -> k));
+                apiCaseDataMap = apiCaseList.stream().collect(Collectors.toMap(ApiTestCase::getId, k -> k));
                 for (String id : apiCaseDataMap.keySet()) {
                     apiCaseInfoMap.put(id, TestPlanApiExecuteStatus.PREPARE.name());
                     String testPlanApiCaseId = apiTestCaseIdMap.get(id);
                     if (StringUtils.isNotEmpty(testPlanApiCaseId)) {
-                        apiTestCaseDataMap.put(apiCaseDataMap.get(id), testPlanApiCaseId);
+                        apiTestCaseDataMap.put(apiCaseDataMap.get(id).getId(), testPlanApiCaseId);
                     }
                 }
             }
