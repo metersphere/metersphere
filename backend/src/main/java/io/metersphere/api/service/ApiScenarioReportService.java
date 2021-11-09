@@ -519,11 +519,18 @@ public class ApiScenarioReportService {
             ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
             scenarioReportExample.createCriteria().andScenarioIdIn(list);
             List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
-            list.forEach(item ->{
-                if(MessageCache.scenarioExecResourceLock.containsKey(item)) {
+
+            if (CollectionUtils.isEmpty(reportList)) {
+                ApiScenarioReportExample example = new ApiScenarioReportExample();
+                example.createCriteria().andIdIn(list);
+                reportList = apiScenarioReportMapper.selectByExample(example);
+            }
+
+            for (String item : list) {
+                if (MessageCache.scenarioExecResourceLock.containsKey(item)) {
                     reportList.add(MessageCache.scenarioExecResourceLock.get(item));
                 }
-            });
+            }
             for (ApiScenarioReport report : reportList) {
                 report.setStatus("Error");
                 apiScenarioReportMapper.updateByPrimaryKey(report);

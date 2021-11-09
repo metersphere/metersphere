@@ -35,8 +35,8 @@ public class FixedTask {
                 ReportCounter counter = MessageCache.cache.get(key);
                 LogUtil.info("集成报告：【" + key + "】总执行场景：【" + counter.getReportIds().size() + "】已经执行完成场景：【" + counter.getCompletedIds().size() + "】");
                 List<String> filterList = counter.getReportIds().stream().filter(t -> !counter.getCompletedIds().contains(t)).collect(Collectors.toList());
-                LogUtil.info("剩余要执行的报告" + JSON.toJSONString(filterList));
 
+                LogUtil.debug("剩余要执行的报告" + JSON.toJSONString(filterList));
                 // 合并
                 if (counter.getCompletedIds().size() >= counter.getReportIds().size()) {
                     scenarioReportService.margeReport(key, counter.getReportIds());
@@ -55,7 +55,7 @@ public class FixedTask {
                             // 资源池中已经没有执行的请求了
                             int runningCount = scenarioReportService.get(key, counter);
                             if (runningCount == 0) {
-                                LogUtil.info("发生未知异常，进行资源合并，请检查资源池是否正常运行");
+                                LogUtil.error("发生未知异常，进行资源合并，请检查资源池是否正常运行");
                                 scenarioReportService.margeReport(key, counter.getReportIds());
                                 guardTask.remove(key);
                                 MessageCache.cache.remove(key);
