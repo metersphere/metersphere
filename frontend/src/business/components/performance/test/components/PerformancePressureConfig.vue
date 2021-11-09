@@ -210,6 +210,38 @@
                 </el-form-item>
                 <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
               </div>
+              <!-- 资源池自己配置各个节点的并发 -->
+              <div v-if="resourcePoolType === 'NODE'">
+                <el-radio-group v-model="threadGroup.strategy" :disabled="isReadOnly" style="padding-bottom: 10px;">
+                  <el-radio label="auto">自动分配</el-radio>
+                  <el-radio label="specify">固定节点</el-radio>
+                  <el-radio label="custom">自定义</el-radio>
+                </el-radio-group>
+                <div v-if="threadGroup.strategy === 'auto'"></div>
+                <div v-else-if="threadGroup.strategy === 'specify'">
+                  <el-select v-model="threadGroup.resourceNodeIndex" :disabled="isReadOnly" size="mini">
+                    <el-option
+                      v-for="(node, index) in resourceNodes"
+                      :key="node.ip"
+                      :label="node.ip"
+                      :value="index">
+                    </el-option>
+                  </el-select>
+                </div>
+                <div v-else>
+                  <el-table :data="threadGroup.resourceNodes" :max-height="200">
+                    <el-table-column type="index" width="50"/>
+                    <el-table-column prop="ip" label="IP"/>
+                    <el-table-column prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"/>
+                    <el-table-column prop="ratio" label="占比">
+                      <template v-slot:default="{row}">
+                        <el-input-number size="small" v-model="row.ratio" :min="0" :step=".1"
+                                         :max="1"></el-input-number>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </div>
+              </div>
             </el-form>
           </el-collapse-item>
         </el-collapse>
@@ -249,11 +281,10 @@ const THREAD_TYPE = "threadType";
 const ITERATE_NUM = "iterateNum";
 const ENABLED = "enabled";
 const DELETED = "deleted";
+const STRATEGY = "strategy";
+const RESOURCE_NODE_INDEX = "resourceNodeIndex";
+const RATIOS = "ratios";
 
-const hexToRgba = function (hex, opacity) {
-  return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
-    + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
-};
 const hexToRgb = function (hex) {
   return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
     + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
@@ -282,6 +313,8 @@ export default {
       options: {},
       resourcePool: null,
       resourcePools: [],
+      resourceNodes: [],
+      resourcePoolType: null,
       activeNames: ["0"],
       threadGroups: [],
       maxThreadNumbers: 5000,
@@ -402,6 +435,15 @@ export default {
                 case ON_SAMPLE_ERROR:
                   this.threadGroups[i].onSampleError = item.value;
                   break;
+                case STRATEGY:
+                  this.threadGroups[i].strategy = item.value;
+                  break;
+                case RESOURCE_NODE_INDEX:
+                  this.threadGroups[i].resourceNodeIndex = item.value;
+                  break;
+                case RATIOS:
+                  this.threadGroups[i].ratios = item.value;
+                  break;
                 case SERIALIZE_THREAD_GROUPS:
                   this.serializeThreadGroups = item.value;// 所有的线程组值一样
                   break;
@@ -430,6 +472,7 @@ export default {
             tg.durationMinutes = Math.floor((tg.duration / 60 % 60));
             tg.durationSeconds = Math.floor((tg.duration % 60));
           }
+          this.resourcePoolChange();
           this.calculateTotalChart();
         }
       });
@@ -454,15 +497,45 @@ export default {
       let result = this.resourcePools.filter(p => p.id === this.resourcePool);
       if (result.length === 1) {
         let threadNumber = 0;
+        this.resourceNodes = [];
+        this.resourcePoolType = result[0].type;
         result[0].resources.forEach(resource => {
-          threadNumber += JSON.parse(resource.configuration).maxConcurrency;
+          let config = JSON.parse(resource.configuration);
+          threadNumber += config.maxConcurrency;
+          this.resourceNodes.push(config);
         });
         this.$set(this, 'maxThreadNumbers', threadNumber);
         this.threadGroups.forEach(tg => {
           if (tg.threadNumber > threadNumber) {
             this.$set(tg, "threadNumber", threadNumber);
           }
+          let tgRatios = tg.ratios;
+          let resourceNodes = JSON.parse(JSON.stringify(this.resourceNodes));
+          let ratios = resourceNodes.map(n => n.maxConcurrency).reduce((total, curr) => {
+            total += curr;
+            return total;
+          }, 0);
+          let preSum = 0;
+          for (let i = 0; i < resourceNodes.length; i++) {
+            let n = resourceNodes[i];
+            if (resourceNodes.length === tgRatios.length) {
+              n.ratio = tgRatios[i];
+              continue;
+            }
+
+            if (i === resourceNodes.length - 1) {
+              n.ratio = (1 - preSum).toFixed(2);
+            } else {
+              n.ratio = (n.maxConcurrency / ratios).toFixed(2);
+              preSum += Number.parseFloat(n.ratio);
+            }
+          }
+          this.$set(tg, "resourceNodes", resourceNodes);
+          if (tg.resourceNodeIndex > resourceNodes.length - 1) {
+            this.$set(tg, "resourceNodeIndex", 0);
+          }
         });
+
         this.calculateTotalChart();
       }
     },
@@ -497,8 +570,8 @@ export default {
         let tg = handler.threadGroups[i];
 
         if (tg.enabled === 'false' ||
-            tg.deleted === 'true' ||
-            tg.threadType === 'ITERATION') {
+          tg.deleted === 'true' ||
+          tg.threadType === 'ITERATION') {
           continue;
         }
         if (this.getDuration(tg) < tg.rampUpTime) {
@@ -600,8 +673,20 @@ export default {
         if (tg.enabled === 'false') {
           continue;
         }
+
+        if (tg.strategy === "custom") {
+          let sum = tg.resourceNodes.map(n => n.ratio).reduce((total, curr) => {
+            total += curr;
+            return total;
+          }, 0);
+          if (sum !== 1) {
+            this.$warning(this.$t('load_test.pressure_config_custom_error'));
+            return false;
+          }
+        }
+
         if (!tg.threadNumber || !tg.duration
-            || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
+          || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
           this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
           this.$emit('changeActive', '1');
           return false;
@@ -622,6 +707,9 @@ export default {
     getDuration(tg) {
       tg.duration = tg.durationHours * 60 * 60 + tg.durationMinutes * 60 + tg.durationSeconds;
       return tg.duration;
+    },
+    getRatios(tg) {
+      return tg.resourceNodes.map(node => node.ratio);
     },
     convertProperty() {
       /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？
@@ -648,6 +736,9 @@ export default {
           {key: ENABLED, value: this.threadGroups[i].enabled},
           {key: DELETED, value: this.threadGroups[i].deleted},
           {key: ON_SAMPLE_ERROR, value: this.threadGroups[i].onSampleError},
+          {key: STRATEGY, value: this.threadGroups[i].strategy},
+          {key: RESOURCE_NODE_INDEX, value: this.threadGroups[i].resourceNodeIndex},
+          {key: RATIOS, value: this.getRatios(this.threadGroups[i])},
           {key: THREAD_GROUP_TYPE, value: this.threadGroups[i].tgType},
           {key: SERIALIZE_THREAD_GROUPS, value: this.serializeThreadGroups},
           {key: AUTO_STOP, value: this.autoStop},

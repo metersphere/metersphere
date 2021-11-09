@@ -382,7 +382,7 @@ export default {
       let testId = this.report.testId;
       let reportId = this.report.id;
       let resourceIndex = 0;
-      let ratio = "1.0";
+      let ratio = "-1";
       let config = {
         url: `/jmeter/download?testId=${testId}&ratio=${ratio}&reportId=${reportId}&resourceIndex=${resourceIndex}`,
         method: 'get',

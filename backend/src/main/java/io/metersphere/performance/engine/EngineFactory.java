@@ -111,6 +111,12 @@ public class EngineFactory {
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTestReport.getTestId());
         }
+        // 报告页面点击下载执行zip
+        boolean isLocal = false;
+        if (ratios.length == 1 && ratios[0] < 0) {
+            ratios[0] = 1;
+            isLocal = true;
+        }
 
         List<FileMetadata> jmxFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
         List<FileMetadata> resourceFiles = ListUtils.subtract(fileMetadataList, jmxFiles);
@@ -132,6 +138,22 @@ public class EngineFactory {
             for (int i = 0; i < jsonArray.size(); i++) {
                 if (jsonArray.get(i) instanceof List) {
                     JSONArray o = jsonArray.getJSONArray(i);
+                    String strategy = "auto";
+                    int resourceNodeIndex = 0;
+                    JSONArray tgRatios = null;
+                    for (int j = 0; j < o.size(); j++) {
+                        JSONObject b = o.getJSONObject(j);
+                        String key = b.getString("key");
+                        if ("strategy".equals(key) && !isLocal) {
+                            strategy = b.getString("value");
+                        }
+                        if ("resourceNodeIndex".equals(key)) {
+                            resourceNodeIndex = b.getIntValue("value");
+                        }
+                        if ("ratios".equals(key)) {
+                            tgRatios = b.getJSONArray("value");
+                        }
+                    }
                     for (int j = 0; j < o.size(); j++) {
                         JSONObject b = o.getJSONObject(j);
                         String key = b.getString("key");
@@ -142,17 +164,45 @@ public class EngineFactory {
                         if (values instanceof List) {
                             Object value = b.get("value");
                             if ("TargetLevel".equals(key)) {
-                                Integer targetLevel = ((Integer) b.get("value"));
-                                if (resourceIndex + 1 == ratios.length) {
-                                    double beforeLast = 0; // 前几个线程数
-                                    for (int k = 0; k < ratios.length - 1; k++) {
-                                        beforeLast += Math.round(targetLevel * ratios[k]);
-                                    }
-                                    value = Math.round(targetLevel - beforeLast);
-                                } else {
-                                    value = Math.round(targetLevel * ratios[resourceIndex]);
+                                switch (strategy) {
+                                    default:
+                                    case "auto":
+                                        Integer targetLevel = ((Integer) b.get("value"));
+                                        if (resourceIndex + 1 == ratios.length) {
+                                            double beforeLast = 0; // 前几个线程数
+                                            for (int k = 0; k < ratios.length - 1; k++) {
+                                                beforeLast += Math.round(targetLevel * ratios[k]);
+                                            }
+                                            value = Math.round(targetLevel - beforeLast);
+                                        } else {
+                                            value = Math.round(targetLevel * ratios[resourceIndex]);
+                                        }
+                                        break;
+                                    case "specify":
+                                        Integer threadNum = ((Integer) b.get("value"));
+                                        if (resourceNodeIndex == resourceIndex) {
+                                            value = Math.round(threadNum);
+                                        } else {
+                                            value = Math.round(0);
+                                        }
+                                        break;
+                                    case "custom":
+                                        Integer threadNum2 = ((Integer) b.get("value"));
+                                        if (CollectionUtils.isNotEmpty(tgRatios)) {
+                                            if (resourceIndex + 1 == tgRatios.size()) {
+                                                double beforeLast = 0; // 前几个线程数
+                                                for (int k = 0; k < tgRatios.size() - 1; k++) {
+                                                    beforeLast += Math.round(threadNum2 * tgRatios.getDoubleValue(k));
+                                                }
+                                                value = Math.round(threadNum2 - beforeLast);
+                                            } else {
+                                                value = Math.round(threadNum2 * tgRatios.getDoubleValue(resourceIndex));
+                                            }
+                                        }
+                                        break;
                                 }
                             }
+
                             ((List<Object>) values).add(value);
                             engineContext.addProperty(key, values);
                         }

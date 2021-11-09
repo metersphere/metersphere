@@ -829,6 +829,7 @@ export default {
     user_name: 'Creator',
     special_characters_are_not_supported: 'Test name does not support special characters',
     pressure_config_params_is_empty: 'Pressure configuration parameters cannot be empty!',
+    pressure_config_custom_error: 'The sum of custom strategies must be 1',
     schedule_tip: 'The interval must not be less than the pressure measuring time',
     delete_threadgroup_confirm: 'Confirm delete scenario: ',
     scenario_list: 'Scenario List',
