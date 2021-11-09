@@ -5,8 +5,12 @@
 
         <el-form-item :label="$t('commons.title')" prop="title">
           <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
-          <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-left: 15px;cursor: pointer" @click="saveFollow" v-if="!showFollow"/>
-          <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-top: 2px; margin-left: 15px; cursor: pointer" @click="saveFollow" v-if="showFollow"/>
+          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+          </el-tooltip>
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow" >
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-left: 15px; cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+          </el-tooltip>
         </el-form-item>
 
         <!-- 自定义字段 -->

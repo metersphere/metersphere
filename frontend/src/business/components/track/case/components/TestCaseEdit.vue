@@ -5,12 +5,14 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark">
-            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="!showFollow"/>
-            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="showFollow"/>
+          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px;  margin-right: 15px;cursor: pointer;position: relative;top: 5px " @click="saveFollow" />
+          </el-tooltip>
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow">
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 15px;cursor: pointer;position: relative;top: 5px " @click="saveFollow" />
           </el-tooltip>
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">{{$t('operating_log.change_history')}}</el-link>
-          <ms-table-button v-if="this.path!='/test/case/add'"
+          <ms-table-button v-if="this.path!=='/test/case/add'"
                            id="inputDelay"
                            type="primary"
                            :content="$t('commons.save')"
@@ -103,12 +105,12 @@
           <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
                                      :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
-          <el-row style="margin-top: 10px" v-if="type!='add'">
+          <el-row style="margin-top: 10px" v-if="type!=='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
               <el-button icon="el-icon-plus" type="mini" @click="openComment"></el-button>
             </el-col>
           </el-row>
-          <el-row v-if="type!='add'">
+          <el-row v-if="type!=='add'">
             <el-col :span="20" :offset="1">
 
               <review-comment-item v-for="(comment,index) in comments"
@@ -771,7 +773,7 @@
             return false;
           }
         }
-        if (param.name == '') {
+        if (param.name === '') {
           this.$warning(this.$t('test_track.case.input_name'));
           return false;
         }
