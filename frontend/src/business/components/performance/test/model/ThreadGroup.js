@@ -62,6 +62,9 @@ export function findThreadGroup(jmxContent, handler) {
     tg.enabled = tg.attributes.enabled;
     tg.tgType = tg.name;
     tg.csvFiles = csvFiles;
+    tg.strategy = 'auto';
+    tg.resourceNodeIndex = 0;
+    tg.ratios = '';
     if (tg.name === 'SetupThreadGroup' || tg.name === 'PostThreadGroup') {
       tg.threadType = 'ITERATION';
       tg.threadNumber = 1;

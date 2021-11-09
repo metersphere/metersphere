@@ -835,6 +835,7 @@ export default {
     user_name: '创建人',
     special_characters_are_not_supported: '测试名称不支持特殊字符',
     pressure_config_params_is_empty: '压力配置参数不能为空!',
+    pressure_config_custom_error: '自定义策略之和必须为1',
     schedule_tip: '间隔时间不能小于压测时长',
     delete_threadgroup_confirm: '确认删除场景',
     scenario_list: '场景列表',
