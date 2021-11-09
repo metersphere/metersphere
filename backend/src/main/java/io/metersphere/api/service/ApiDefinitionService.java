@@ -901,7 +901,7 @@ public class ApiDefinitionService {
         if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
             jMeterService.runTest(request.getId(), request.getId(), runMode, null, request.getConfig());
         } else {
-            jMeterService.runLocal(request.getId(), hashTree, request.getReportId(), runMode);
+            jMeterService.runLocal(request.getId(),request.getConfig(), hashTree, request.getReportId(), runMode);
         }
         return request.getId();
     }

@@ -34,14 +34,14 @@ public class SerialApiExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
-            if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+            if (runModeDataDTO.getReport() != null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
                 MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                 return null;
             }
             if (config != null && StringUtils.isNotBlank(config.getResourcePoolId())) {
                 jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getApiCaseId(), runMode, null, config);
             } else {
-                jMeterService.runLocal(runModeDataDTO.getApiCaseId(), runModeDataDTO.getHashTree(), runModeDataDTO.getReport() != null ? runModeDataDTO.getReport().getTriggerMode() : null, runMode);
+                jMeterService.runLocal(runModeDataDTO.getApiCaseId(), config, runModeDataDTO.getHashTree(), runModeDataDTO.getReport() != null ? runModeDataDTO.getReport().getTriggerMode() : null, runMode);
             }
             // 轮询查看报告状态，最多200次，防止死循环
             ApiDefinitionExecResult report = null;
@@ -53,7 +53,7 @@ public class SerialApiExecTask<T> implements Callable<T> {
                 if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
                     break;
                 }
-                if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                if (runModeDataDTO.getReport() != null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
                     MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                     break;
                 }

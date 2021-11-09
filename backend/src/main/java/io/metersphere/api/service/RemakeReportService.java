@@ -113,7 +113,8 @@ public class RemakeReportService {
                     }
                 }
             }
-            MessageCache.batchTestCases.remove(reportId);
+            MessageCache.caseExecResourceLock.remove(reportId);
+            MessageCache.scenarioExecResourceLock.remove(reportId);
             MessageCache.executionQueue.remove(reportId);
         }
     }
@@ -146,7 +147,8 @@ public class RemakeReportService {
         }
         report.setStatus(APITestStatus.Error.name());
         apiScenarioReportMapper.insert(report);
-        MessageCache.batchTestCases.remove(report.getId());
+        MessageCache.caseExecResourceLock.remove(report.getId());
+        MessageCache.scenarioExecResourceLock.remove(report.getId());
         MessageCache.executionQueue.remove(report.getId());
     }
 }
