@@ -248,6 +248,7 @@ public class ApiDefinitionExecResultService {
                         String creator = TestPlanReportExecuteCatch.getCreator(testPlanReportId);
 
                         String status = item.isSuccess() ? "success" : "error";
+                        item.getResponseResult().setConsole(result.getConsole());
                         ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
                         saveResult.setId(UUID.randomUUID().toString());
                         saveResult.setCreateTime(System.currentTimeMillis());
