@@ -1,6 +1,5 @@
 package io.metersphere.track.dto;
 
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanReport;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +16,6 @@ import java.util.Map;
 public class TestPlanScheduleReportInfoDTO {
     private TestPlanReport testPlanReport;
     private Map<String, String> planScenarioIdMap = new LinkedHashMap<>();
-    private Map<ApiTestCaseWithBLOBs, String> apiTestCaseDataMap = new LinkedHashMap<>();
+    private Map<String, String> apiTestCaseDataMap = new LinkedHashMap<>();
     private Map<String, String> performanceIdMap = new LinkedHashMap<>();
 }
