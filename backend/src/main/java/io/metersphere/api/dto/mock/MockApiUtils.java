@@ -352,7 +352,6 @@ public class MockApiUtils {
                         String baseScript = parseScript(url,headerMap,requestMockParams);
                         try {
                             script = baseScript + script;
-                            System.out.println(script);
                             if(StringUtils.isEmpty(scriptLanguage)){
                                 scriptLanguage = "beanshell";
                             }
