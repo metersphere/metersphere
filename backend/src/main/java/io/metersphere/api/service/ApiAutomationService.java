@@ -1368,8 +1368,6 @@ public class ApiAutomationService {
                     //存储报告
                     APIScenarioReportResult report = executeQueue.get(reportId).getReport();
                     batchMapper.insert(report);
-                    // 增加一个本地锁，防止并发找不到资源
-                    MessageCache.scenarioExecResourceLock.put(reportId, report);
                 }
                 sqlSession.flushStatements();
                 sqlSession.commit();
@@ -1378,6 +1376,8 @@ public class ApiAutomationService {
         thread.start();
 
         for (String reportId : executeQueue.keySet()) {
+            // 增加一个本地锁，防止并发找不到资源
+            MessageCache.scenarioExecResourceLock.put(reportId, executeQueue.get(reportId).getReport());
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
                 String testPlanScenarioId = "";
                 if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(executeQueue.get(reportId).getTestId())) {
