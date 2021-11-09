@@ -1229,7 +1229,7 @@ public class ApiAutomationService {
                 List<String> reportIds = executeQueue.entrySet().stream()
                         .map(reports -> reports.getKey()).collect(Collectors.toList());
                 ReportCounter counter = new ReportCounter();
-                counter.setNumber(0);
+                counter.setCompletedIds(new LinkedList<>());
                 if (CollectionUtils.isNotEmpty(request.getConfig().getTestResources())) {
                     counter.setPoolUrls(request.getConfig().getTestResources());
                 }
@@ -1369,7 +1369,7 @@ public class ApiAutomationService {
                     APIScenarioReportResult report = executeQueue.get(reportId).getReport();
                     batchMapper.insert(report);
                     // 增加一个本地锁，防止并发找不到资源
-                    MessageCache.scenarioExecResourceLock.put(reportId,report);
+                    MessageCache.scenarioExecResourceLock.put(reportId, report);
                 }
                 sqlSession.flushStatements();
                 sqlSession.commit();
