@@ -795,7 +795,7 @@ public class ApiTestCaseService {
         sqlSession.commit();
 
         for (RunCaseRequest runCaseRequest : executeQueue) {
-            MessageCache.batchTestCases.put(runCaseRequest.getReportId(), runCaseRequest.getReport());
+            MessageCache.caseExecResourceLock.put(runCaseRequest.getReportId(), runCaseRequest.getReport());
             run(runCaseRequest);
         }
     }
@@ -816,16 +816,16 @@ public class ApiTestCaseService {
             try {
                 HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs);
                 // 调用执行方法
-                jMeterService.runLocal(request.getReportId(), jmeterHashTree, null, request.getRunMode());
+                jMeterService.runLocal(request.getReportId(),null, jmeterHashTree, null, request.getRunMode());
 
             } catch (Exception ex) {
-                ApiDefinitionExecResult result = MessageCache.batchTestCases.get(request.getReportId());
+                ApiDefinitionExecResult result = MessageCache.caseExecResourceLock.get(request.getReportId());
                 result.setStatus("error");
                 apiDefinitionExecResultMapper.updateByPrimaryKey(result);
                 ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
                 caseWithBLOBs.setStatus("error");
                 apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
-                MessageCache.batchTestCases.remove(request.getReportId());
+                MessageCache.caseExecResourceLock.remove(request.getReportId());
                 LogUtil.error(ex.getMessage(), ex);
             }
         }
@@ -842,7 +842,7 @@ public class ApiTestCaseService {
                 request.setTestPlanId(testPlanID);
                 HashTree jmeterHashTree = this.generateHashTree(request, apiCaseBolbs);
                 // 调用执行方法
-                jMeterService.runLocal(id, jmeterHashTree, debugReportId, runMode);
+                jMeterService.runLocal(id,null, jmeterHashTree, debugReportId, runMode);
             } catch (Exception ex) {
                 LogUtil.error(ex);
             }

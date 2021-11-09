@@ -2,13 +2,10 @@ package io.metersphere.api.jmeter;
 
 
 import io.metersphere.api.dto.RunningParamKeys;
-import io.metersphere.api.service.ApiEnvironmentRunningParamService;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.api.service.TestResultService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,15 +23,12 @@ public class APIBackendListenerHandler {
     @Resource
     private TestResultService testResultService;
     @Resource
-    private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
-    @Resource
     private MsResultService resultService;
 
-    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
-
-    public void handleTeardownTest(List<SampleResult> queue, String runMode, String testId, String debugReportId) throws Exception {
+    public void handleTeardownTest(List<SampleResult> queue, String runMode, String testId, String debugReportId, String amassReport) throws Exception {
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
+        testResult.setSetReportId(amassReport);
         MessageCache.runningEngine.remove(testId);
         testResult.setTotal(0);
         List<String> enviromentList = new ArrayList<>();
@@ -60,7 +54,7 @@ public class APIBackendListenerHandler {
         if (!MessageCache.reportCache.containsKey(testId) && resultService.getProcessCache().containsKey(testId)) {
             resultService.getProcessCache().remove(testId);
         }
-        if(StringUtils.isNotEmpty(testId)) {
+        if (StringUtils.isNotEmpty(testId)) {
             MessageCache.executionQueue.remove(testId);
         }
     }

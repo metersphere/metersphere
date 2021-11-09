@@ -18,6 +18,12 @@ public class FixedTask {
 
     @Scheduled(cron = "*/6 * * * * ?")
     public void execute() {
+        if (MessageCache.caseExecResourceLock.size() > 10000) {
+            MessageCache.caseExecResourceLock.clear();
+        }
+        if (MessageCache.scenarioExecResourceLock.size() > 5000) {
+            MessageCache.scenarioExecResourceLock.clear();
+        }
         if (scenarioReportService == null) {
             scenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
         }
@@ -26,7 +32,7 @@ public class FixedTask {
                 ReportCounter counter = MessageCache.cache.get(key);
                 LogUtil.info("集成报告：【" + key + "】总执行场景：【" + counter.getReportIds().size() + "】已经执行完成场景：【" + counter.getNumber() + "】");
                 // 合并
-                if (counter.getNumber() == counter.getReportIds().size()) {
+                if (counter.getNumber() >= counter.getReportIds().size()) {
                     scenarioReportService.margeReport(key, counter.getReportIds());
                     guardTask.remove(key);
                     MessageCache.cache.remove(key);
@@ -34,7 +40,7 @@ public class FixedTask {
                     try {
                         if (guardTask.containsKey(key)) {
                             int number = guardTask.get(key);
-                            number +=1;
+                            number += 1;
                             guardTask.put(key, number);
                         } else {
                             guardTask.put(key, 0);
