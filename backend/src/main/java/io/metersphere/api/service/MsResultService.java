@@ -138,31 +138,35 @@ public class MsResultService {
     }
 
     public String getJmeterLogger(String testId, boolean removed) {
-        Long startTime = FixedTask.tasks.get(testId);
-        if (startTime == null) {
-            startTime = FixedTask.tasks.get("[" + testId + "]");
-        }
-        if (startTime == null) {
-            startTime = System.currentTimeMillis();
-        }
-        Long endTime = System.currentTimeMillis();
-        Long finalStartTime = startTime;
-        String logMessage = JmeterLoggerAppender.logger.entrySet().stream()
-                .filter(map -> map.getKey() > finalStartTime && map.getKey() < endTime)
-                .map(map -> map.getValue()).collect(Collectors.joining());
-        if (removed) {
-            if (processCache.get(testId) != null) {
-                try {
-                    Thread.sleep(2000);
-                } catch (Exception e) {
-                }
+        try {
+            Long startTime = FixedTask.tasks.get(testId);
+            if (startTime == null) {
+                startTime = FixedTask.tasks.get("[" + testId + "]");
             }
-            FixedTask.tasks.remove(testId);
+            if (startTime == null) {
+                startTime = System.currentTimeMillis();
+            }
+            Long endTime = System.currentTimeMillis();
+            Long finalStartTime = startTime;
+            String logMessage = JmeterLoggerAppender.logger.entrySet().stream()
+                    .filter(map -> map.getKey() > finalStartTime && map.getKey() < endTime)
+                    .map(map -> map.getValue()).collect(Collectors.joining());
+            if (removed) {
+                if (processCache.get(testId) != null) {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (Exception e) {
+                    }
+                }
+                FixedTask.tasks.remove(testId);
+            }
+            if (FixedTask.tasks.isEmpty()) {
+                JmeterLoggerAppender.logger.clear();
+            }
+            return logMessage;
+        }catch (Exception e){
+            return "";
         }
-        if (FixedTask.tasks.isEmpty()) {
-            JmeterLoggerAppender.logger.clear();
-        }
-        return logMessage;
     }
 
     public RequestResult getRequestResult(SampleResult result) {

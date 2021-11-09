@@ -1,5 +1,6 @@
 package io.metersphere.api.jmeter;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -8,7 +9,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class FixedTask {
@@ -30,9 +33,12 @@ public class FixedTask {
         if (MessageCache.cache != null && MessageCache.cache.size() > 0) {
             for (String key : MessageCache.cache.keySet()) {
                 ReportCounter counter = MessageCache.cache.get(key);
-                LogUtil.info("集成报告：【" + key + "】总执行场景：【" + counter.getReportIds().size() + "】已经执行完成场景：【" + counter.getNumber() + "】");
+                LogUtil.info("集成报告：【" + key + "】总执行场景：【" + counter.getReportIds().size() + "】已经执行完成场景：【" + counter.getCompletedIds().size() + "】");
+                List<String> filterList = counter.getReportIds().stream().filter(t -> !counter.getCompletedIds().contains(t)).collect(Collectors.toList());
+                LogUtil.info("剩余要执行的报告" + JSON.toJSONString(filterList));
+
                 // 合并
-                if (counter.getNumber() >= counter.getReportIds().size()) {
+                if (counter.getCompletedIds().size() >= counter.getReportIds().size()) {
                     scenarioReportService.margeReport(key, counter.getReportIds());
                     guardTask.remove(key);
                     MessageCache.cache.remove(key);
@@ -45,7 +51,7 @@ public class FixedTask {
                         } else {
                             guardTask.put(key, 0);
                         }
-                        if (CollectionUtils.isNotEmpty(counter.getPoolUrls()) && counter.getNumber() > 0 && guardTask.get(key) > 200) {
+                        if (CollectionUtils.isNotEmpty(counter.getPoolUrls()) && counter.getCompletedIds().size() > 0 && guardTask.get(key) > 200) {
                             // 资源池中已经没有执行的请求了
                             int runningCount = scenarioReportService.get(key, counter);
                             if (runningCount == 0) {
