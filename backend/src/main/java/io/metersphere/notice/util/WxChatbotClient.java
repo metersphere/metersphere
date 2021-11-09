@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class WxChatbotClient {
 
-    static HttpClient httpclient = HttpClients.createDefault();
+    static HttpClient httpclient = HttpClients.createSystem();
 
     public static SendResult send(String webhook, Message message) throws IOException {
 
