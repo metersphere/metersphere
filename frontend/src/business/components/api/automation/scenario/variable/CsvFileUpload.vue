@@ -33,6 +33,8 @@
 </template>
 
 <script>
+import {downloadFile} from "@/common/js/utils";
+
 export default {
   name: "MsApiBodyFileUpload",
   data() {
@@ -50,7 +52,7 @@ export default {
     download() {
       // 本地文件
       if (this.parameter.files && this.parameter.files.length > 0 && this.parameter.files[0].file) {
-        console.log("local",this.parameter.files[0].file)
+        downloadFile(this.parameter.files[0].file.name, this.parameter.files[0].file);
       }
       // 远程下载文件
       if (this.parameter.files && this.parameter.files.length > 0 && !this.parameter.files[0].file) {
@@ -63,9 +65,9 @@ export default {
         };
         this.result = this.$request(conf).then(response => {
           const content = response.data;
-          const blob = new Blob([content]);
-          console.log(content)
-
+          if(content && this.parameter.files[0]) {
+            downloadFile(this.parameter.files[0].name, content);
+          }
         });
       }
     },
