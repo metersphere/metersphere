@@ -53,7 +53,7 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                 jMeterService.runTest(runModeDataDTO.getTestId(), reportId, request.getRunMode(), testPlanScenarioId, request.getConfig());
             } else {
                 reportId = runModeDataDTO.getReport().getId();
-                jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
+                jMeterService.runLocal(runModeDataDTO.getReport().getId(),request.getConfig(), runModeDataDTO.getHashTree(), TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
             }
             while (MessageCache.executionQueue.containsKey(reportId)) {
                 long time = MessageCache.executionQueue.get(runModeDataDTO.getReport().getId());
@@ -68,8 +68,8 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                     }
                     break;
                 }
-                if (runModeDataDTO.getReport() != null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
-                    MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
+                if (MessageCache.terminationOrderDeque.contains(reportId)) {
+                    MessageCache.terminationOrderDeque.remove(reportId);
                     break;
                 }
                 Thread.sleep(1000);

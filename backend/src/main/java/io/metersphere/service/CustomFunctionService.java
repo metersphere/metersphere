@@ -121,7 +121,7 @@ public class CustomFunctionService {
         config.setProjectId(request.getProjectId());
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = ApiRunMode.DEFINITION.name();
-        jMeterService.runLocal(request.getId(), hashTree, request.getReportId(), runMode);
+        jMeterService.runLocal(request.getId(),request.getConfig(), hashTree, request.getReportId(), runMode);
         return request.getId();
     }
 }
