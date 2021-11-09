@@ -180,7 +180,7 @@ export function appendCase(parent, item, isDisable, setParamCallback) {
     text: item.name,
     priority: Number.parseInt(item.priority.substring(item.priority.length - 1 )) + 1,
     resource: [i18n.t('api_test.definition.request.case')],
-    type: item.type,
+    type: 'case',
     method: item.method,
     maintainer: item.maintainer,
     stepModel: item.stepModel
@@ -356,16 +356,25 @@ export function tagBatch(distinctTags) {
   });
 }
 
+function parentIsModule(parentNode) {
+  let lastNodeResource = parentNode ? parentNode.data.resource : null;
+  return parentNode.data.type === 'node' || (lastNodeResource && lastNodeResource.indexOf('模块') > -1);
+}
+
 export function tagEditCheck(resourceName) {
   let minder = window.minder;
   let selectNodes = minder.getSelectedNodes();
   if (selectNodes && selectNodes.length > 0) {
-    let lastNodeResource = selectNodes[0].getParent().data.resource;
-    if ( resourceName === '模块') {
-      // 模块不能编辑
+    let type = selectNodes[0].data.type;
+    if (type === 'case' || type === 'node') {// 已存在的模块和用例不能修改标签
       return false;
     }
-    if (lastNodeResource && lastNodeResource.indexOf('用例') > -1 && resourceName === '用例') {
+    let parentIsModuleNode = parentIsModule(selectNodes[0].getParent());
+    if (resourceName === '用例' && !parentIsModuleNode) {
+      return false;
+    }
+    // 父节点必须是模块
+    if (resourceName === '模块' && !parentIsModuleNode) {
       return false;
     }
   }
@@ -377,7 +386,8 @@ export function priorityDisableCheck() {
   let minder = window.minder;
   let selectNodes = minder.getSelectedNodes();
   if (selectNodes && selectNodes.length > 0) {
-    let resource = selectNodes[0].getParent().data.resource;
+    let parentNode = selectNodes[0].getParent();
+    let resource = parentNode ? parentNode.data.resource : null;
     if (resource && resource.indexOf('用例') > -1) {
       return true;
     }
@@ -385,22 +395,32 @@ export function priorityDisableCheck() {
   return false;
 }
 
-export function handleAfterSave(pNode, param) {
-  let children = pNode.children;
-  if (children) {
-    for (let i = 0; i < children.length; i++) {
-      let item = children[i];
-      if (item.data.id === null || (item.data.id && item.data.id.length < 20)) {
-        pNode.data.loaded = false;
-        loadNode(pNode, param, getTestCasesForMinder, null, getMinderExtraNode);
-        return;
-      }
-      if (item.data.changed) {
-        item.data.changed = false;
-      }
-      if (item.data.type === 'node') {
-        handleAfterSave(item, param);
-      }
+export function handleAfterSave(rootNode) {
+  if (rootNode.data.newId) {
+    rootNode.data.id = rootNode.data.newId;
+    rootNode.data.newId = null;
+  }
+  rootNode.data.deleteChild = null;
+  rootNode.data.changed = false;
+  if (rootNode.children) {
+    for (let i = 0; i < rootNode.children.length; i++) {
+      handleAfterSave(rootNode.children[i]);
+    }
+  }
+}
+
+export function getChildNodeId(rootNode, nodeIds) {
+  //递归获取所有子节点ID
+  if (rootNode.data.id) {
+    if (rootNode.data.newId) {
+      nodeIds.push(rootNode.data.newId);
+    } else {
+      nodeIds.push(rootNode.data.id);
+    }
+  }
+  if (rootNode.children) {
+    for (let i = 0; i < rootNode.children.length; i++) {
+      getChildNodeId(rootNode.children[i], nodeIds);
     }
   }
 }

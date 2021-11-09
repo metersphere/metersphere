@@ -268,9 +268,9 @@ public class TestPlanReportService {
 
 //        testPlanReport.setPrincipal(testPlan.getPrincipal());
         if (testPlanReport.getIsScenarioExecuting() || testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting()) {
-            testPlanReport.setStatus(APITestStatus.Running.name());
+            testPlanReport.setStatus(TestPlanReportStatus.RUNNING.name());
         } else {
-            testPlanReport.setStatus(APITestStatus.Completed.name());
+            testPlanReport.setStatus(TestPlanReportStatus.COMPLETED.name());
         }
 
         testPlanReportMapper.insert(testPlanReport);

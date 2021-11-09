@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.NodeNumDTO;
@@ -23,10 +24,7 @@ import io.metersphere.service.NodeTreeService;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
-import io.metersphere.track.request.testcase.DragNodeRequest;
-import io.metersphere.track.request.testcase.QueryNodeRequest;
-import io.metersphere.track.request.testcase.QueryTestCaseRequest;
-import io.metersphere.track.request.testcase.TestCaseBatchRequest;
+import io.metersphere.track.request.testcase.*;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -65,8 +63,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     @Resource
     ProjectMapper projectMapper;
     @Resource
-    TestCaseReviewService testCaseReviewService;
-    @Resource
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
     @Resource
     TestCaseReviewMapper testCaseReviewMapper;
@@ -79,7 +75,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         validateNode(node);
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
-        node.setId(UUID.randomUUID().toString());
+        if (StringUtils.isBlank(node.getId())) {
+            node.setId(UUID.randomUUID().toString());
+        }
         node.setCreateUser(SessionUtils.getUserId());
         double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
         node.setPos(pos);
@@ -90,8 +88,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     public List<String> getNodes(String nodeId) {
         return extTestCaseNodeMapper.getNodes(nodeId);
     }
-
-    ;
 
     private void validateNode(TestCaseNode node) {
         if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
@@ -236,25 +232,27 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     public int editNode(DragNodeRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         checkTestCaseNodeExist(request);
-        List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(request.getNodeIds());
-
-        testCases.forEach(testCase -> {
-            StringBuilder path = new StringBuilder(testCase.getNodePath());
-            List<String> pathLists = Arrays.asList(path.toString().split("/"));
-            pathLists.set(request.getLevel(), request.getName());
-            path.delete(0, path.length());
-            for (int i = 1; i < pathLists.size(); i++) {
-                path = path.append("/").append(pathLists.get(i));
-            }
-            testCase.setNodePath(path.toString());
-        });
-
-        batchUpdateTestCase(testCases);
-
+        if (!CollectionUtils.isEmpty(request.getNodeIds())) {
+            List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(request.getNodeIds());
+            testCases.forEach(testCase -> {
+                StringBuilder path = new StringBuilder(testCase.getNodePath());
+                List<String> pathLists = Arrays.asList(path.toString().split("/"));
+                pathLists.set(request.getLevel(), request.getName());
+                path.delete(0, path.length());
+                for (int i = 1; i < pathLists.size(); i++) {
+                    path = path.append("/").append(pathLists.get(i));
+                }
+                testCase.setNodePath(path.toString());
+            });
+            batchUpdateTestCase(testCases);
+        }
         return testCaseNodeMapper.updateByPrimaryKeySelective(request);
     }
 
     public int deleteNode(List<String> nodeIds) {
+        if (CollectionUtils.isEmpty(nodeIds)) {
+            return 1;
+        }
         TestCaseService testCaseService = CommonBeanFactory.getBean(TestCaseService.class);
         List<String> testCaseIdList = this.selectCaseIdByNodeIds(nodeIds);
         TestCaseBatchRequest request = new TestCaseBatchRequest();
@@ -769,5 +767,30 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo("Trash");
         return testCaseMapper.countByExample(testCaseExample);
+    }
+
+    public void minderEdit(TestCaseMinderEditRequest request) {
+        deleteNode(request.getIds());
+
+        List<TestCaseMinderEditRequest.TestCaseNodeMinderEditItem> testCaseNodes = request.getTestCaseNodes();
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(testCaseNodes)) {
+
+            for (TestCaseMinderEditRequest.TestCaseNodeMinderEditItem item: testCaseNodes) {
+                if (StringUtils.isBlank(item.getParentId()) || item.getParentId().equals("root")) {
+                    item.setParentId("");
+                }
+                item.setProjectId(request.getProjectId());
+                if (item.getIsEdit()) {
+                    DragNodeRequest editNode = new DragNodeRequest();
+                    BeanUtils.copyBean(editNode, item);
+                    editNode(editNode);
+                } else {
+                    TestCaseNode testCaseNode = new TestCaseNode();
+                    BeanUtils.copyBean(testCaseNode, item);
+                    testCaseNode.setProjectId(request.getProjectId());
+                    addNode(testCaseNode);
+                }
+            }
+        }
     }
 }
