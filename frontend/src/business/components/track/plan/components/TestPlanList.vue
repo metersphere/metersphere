@@ -208,9 +208,11 @@
               </template>
             </ms-table-operator>
             <template>
-              <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" >
-                <i  v-if="!scope.row.showFollow" class="el-icon-star-off" style="color: #783987; font-size: 25px; cursor: pointer;padding-left: 5px;width: 28px;height: 28px; top: 5px; position: relative" @click="saveFollow(scope.row)"></i>
-                <i  v-if="scope.row.showFollow" class="el-icon-star-on" style="color: #783987; font-size: 30px; cursor: pointer;padding-left: 5px;width: 28px;height: 28px; top: 6px; position: relative" @click="saveFollow(scope.row)"></i>
+              <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!scope.row.showFollow">
+                <i   class="el-icon-star-off" style="color: #783987; font-size: 25px; cursor: pointer;padding-left: 5px;width: 28px;height: 28px; top: 5px; position: relative" @click="saveFollow(scope.row)"></i>
+              </el-tooltip>
+              <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="scope.row.showFollow" >
+                <i  class="el-icon-star-on" style="color: #783987; font-size: 30px; cursor: pointer;padding-left: 5px;width: 28px;height: 28px; top: 6px; position: relative" @click="saveFollow(scope.row)"></i>
               </el-tooltip>
             </template>
             <el-dropdown @command="handleCommand($event, scope.row)" class="scenario-ext-btn" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE','PROJECT_TRACK_PLAN:READ+SCHEDULE']">

@@ -109,9 +109,11 @@
                                @deleteClick="handleDelete(scope.row)">
             </ms-table-operator>
             <template>
-              <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" >
-                <i v-if="!scope.row.showFollow" class="el-icon-star-off" style="color: #783987; font-size: 25px; padding-left: 5px;top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px;" @click="saveFollow(scope.row)"></i>
-                <i v-if="scope.row.showFollow" class="el-icon-star-on" style="color: #783987; font-size: 30px;padding-left: 5px; top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px; " @click="saveFollow(scope.row)"></i>
+              <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark"  v-if="!scope.row.showFollow">
+                <i class="el-icon-star-off" style="color: #783987; font-size: 25px; padding-left: 5px;top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px;" @click="saveFollow(scope.row)"></i>
+              </el-tooltip>
+              <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark"  v-if="scope.row.showFollow">
+                <i  class="el-icon-star-on" style="color: #783987; font-size: 30px;padding-left: 5px; top: 5px; position: relative; cursor: pointer;width: 28px;height: 28px; " @click="saveFollow(scope.row)"></i>
               </el-tooltip>
             </template>
           </div>
