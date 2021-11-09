@@ -1361,23 +1361,16 @@ public class ApiAutomationService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
         // 开始并发执行
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (String reportId : executeQueue.keySet()) {
-                    //存储报告
-                    APIScenarioReportResult report = executeQueue.get(reportId).getReport();
-                    batchMapper.insert(report);
-                    // 增加一个本地锁，防止并发找不到资源
-                    MessageCache.scenarioExecResourceLock.put(reportId, report);
-                }
-                sqlSession.flushStatements();
-                sqlSession.commit();
-            }
-        });
-        thread.start();
+        for (String reportId : executeQueue.keySet()) {
+            //存储报告
+            APIScenarioReportResult report = executeQueue.get(reportId).getReport();
+            batchMapper.insert(report);
+            MessageCache.scenarioExecResourceLock.put(reportId, report);
+        }
+        sqlSession.flushStatements();
 
         for (String reportId : executeQueue.keySet()) {
+            // 增加一个本地锁，防止并发找不到资源
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
                 String testPlanScenarioId = "";
                 if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(executeQueue.get(reportId).getTestId())) {
