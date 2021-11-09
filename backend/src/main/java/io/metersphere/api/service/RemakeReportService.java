@@ -31,7 +31,7 @@ public class RemakeReportService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
 
     public void remake(RunRequest runRequest, RunModeConfig config, String reportId) {
-        if (MessageCache.cache.get(config.getAmassReport()) != null
+        if (config != null && config.getAmassReport() != null && MessageCache.cache.get(config.getAmassReport()) != null
                 && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
             MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
         }
