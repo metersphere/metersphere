@@ -141,7 +141,9 @@
         handler(v, v1) {
           if (v && v1 && v !== v1) {
             this.$store.state.apiStatus.set("fromChange", true);
-            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            if (this.basicForm.id) {
+              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            }
           }
         }
       },
@@ -149,7 +151,9 @@
         handler(v, v1) {
           if (v && v1 && v !== v1) {
             this.$store.state.apiStatus.set("fromChange", true);
-            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            if (this.basicForm.id) {
+              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            }
           }
         }
       },
@@ -157,7 +161,9 @@
         handler(v, v1) {
           if (v && v1 && v !== v1) {
             this.$store.state.apiStatus.set("fromChange", true);
-            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            if (this.basicForm.id) {
+              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            }
           }
         }
       },
@@ -165,7 +171,9 @@
         handler(v, v1) {
           if (v && v1 && v !== v1) {
             this.$store.state.apiStatus.set("fromChange", true);
-            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            if (this.basicForm.id) {
+              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            }
           }
         }
       },
@@ -173,7 +181,9 @@
         handler(v, v1) {
           if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
             this.$store.state.apiStatus.set("fromChange", true);
-            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            if (this.basicForm.id) {
+              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            }
           }
         }
       },
@@ -181,7 +191,9 @@
         handler(v, v1) {
           if (v && v1 && v !== v1) {
             this.$store.state.apiStatus.set("fromChange", true);
-            this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            if (this.basicForm.id) {
+              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
+            }
           }
         }
       },
