@@ -590,6 +590,10 @@ public class IssuesService {
         IssueFollowExample example = new IssueFollowExample();
         example.createCriteria().andIssueIdEqualTo(issueId);
         List<IssueFollow> follows = issueFollowMapper.selectByExample(example);
-        return follows.stream().map(IssueFollow::getFollowId).distinct().collect(Collectors.toList());
+        if(follows==null||follows.size()==0){
+            return result;
+        }
+        result = follows.stream().map(IssueFollow::getFollowId).distinct().collect(Collectors.toList());
+        return result;
     }
 }
