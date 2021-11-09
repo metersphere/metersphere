@@ -145,6 +145,8 @@ public class TestCaseService {
     @Resource
     @Lazy
     private TestPlanService testPlanService;
+    @Resource
+    private MinderExtraNodeService minderExtraNodeService;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -1480,10 +1482,15 @@ public class TestCaseService {
     }
 
     public void minderEdit(TestCaseMinderEditRequest request) {
+
+        deleteToGcBatch(request.getIds());
+
+        testCaseNodeService.minderEdit(request);
+
         List<TestCaseMinderEditRequest.TestCaseMinderEditItem> data = request.getData();
         if (CollectionUtils.isNotEmpty(data)) {
             List<String> editIds = data.stream()
-                    .filter(t -> StringUtils.isNotBlank(t.getId()) && t.getId().length() > 20)
+                    .filter(TestCaseMinderEditRequest.TestCaseMinderEditItem::getIsEdit)
                     .map(TestCaseWithBLOBs::getId).collect(Collectors.toList());
 
             Map<String, TestCaseWithBLOBs> testCaseMap = new HashMap<>();
@@ -1494,31 +1501,29 @@ public class TestCaseService {
                 testCaseMap = testCaseWithBLOBs.stream().collect(Collectors.toMap(TestCaseWithBLOBs::getId, t -> t));
             }
 
-            Map<String, TestCaseWithBLOBs> finalTestCaseMap = testCaseMap;
-            data.forEach(item -> {
+            for (TestCaseMinderEditRequest.TestCaseMinderEditItem item: data) {
                 if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
                     item.setNodeId("");
                 }
                 item.setProjectId(request.getProjectId());
-                if (StringUtils.isBlank(item.getId()) || item.getId().length() < 20) {
-                    item.setId(UUID.randomUUID().toString());
-                    item.setMaintainer(SessionUtils.getUserId());
-                    EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
-                    BeanUtils.copyBean(editTestCaseRequest, item);
-                    addTestCase(editTestCaseRequest);
-                    changeOrder(item, request.getProjectId());
-                } else {
-                    TestCaseWithBLOBs dbCase = finalTestCaseMap.get(item.getId());
+                if (item.getIsEdit()) {
+                    TestCaseWithBLOBs dbCase = testCaseMap.get(item.getId());
                     if (editCustomFieldsPriority(dbCase, item.getPriority())) {
                         item.setCustomFields(dbCase.getCustomFields());
                     }
                     editTestCase(item);
                     changeOrder(item, request.getProjectId());
+                } else {
+                    item.setMaintainer(SessionUtils.getUserId());
+                    EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
+                    BeanUtils.copyBean(editTestCaseRequest, item);
+                    addTestCase(editTestCaseRequest);
+                    changeOrder(item, request.getProjectId());
                 }
-            });
+            }
         }
-        List<String> ids = request.getIds();
-        deleteToGcBatch(ids);
+
+        minderExtraNodeService.batchEdit(request);
     }
 
     private void changeOrder(TestCaseMinderEditRequest.TestCaseMinderEditItem item, String projectId) {
