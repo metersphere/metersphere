@@ -471,6 +471,7 @@ export default {
       this.$refs.pressureConfig.threadGroups = threadGroups;
       this.$refs.advancedConfig.csvFiles = csvFiles;
 
+      this.$refs.pressureConfig.resourcePoolChange();
       handler.calculateTotalChart();
     },
     tgTypeChange(threadGroup) {
