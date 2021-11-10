@@ -320,7 +320,7 @@ export default {
     handleTabClose() {
       let message = "";
       this.tabs.forEach(t => {
-        if (t && this.$store.state.testCaseMap.has(t.testCaseInfo.id) && this.$store.state.testCaseMap.get(t.testCaseInfo.id) > 1) {
+        if (t && this.$store.state.testCaseMap.has(t.testCaseInfo.id) && this.$store.state.testCaseMap.get(t.testCaseInfo.id) > 2) {
           message += t.testCaseInfo.name + "，";
         }
       })
