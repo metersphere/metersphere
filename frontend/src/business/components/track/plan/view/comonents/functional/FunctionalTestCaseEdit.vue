@@ -62,7 +62,7 @@
                       <el-col :span="10">
                         <test-plan-test-case-status-button class="status-button"
                                                            @statusChange="statusChange"
-                                                           :is-read-only="isReadOnly"
+                                                           :is-read-only="statusReadOnly"
                                                            :status="testCase.status"/>
                       </el-col>
                     </el-row>
@@ -219,6 +219,9 @@ export default {
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
+    },
+    statusReadOnly() {
+      return !hasPermission('PROJECT_TRACK_PLAN:READ+RUN');
     }
   },
   methods: {
