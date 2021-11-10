@@ -64,8 +64,8 @@ public class MockApiUtils {
         }
     }
 
-    public static JSONArray getExpectBodyParams(JSONObject bodyObj) {
-        JSONArray returnJsonArray = new JSONArray();
+    public static JSON getExpectBodyParams(JSONObject bodyObj) {
+        JSON returnJson = new JSONArray();
 
         try {
             String type = bodyObj.getString("type");
@@ -92,17 +92,18 @@ public class MockApiUtils {
                 }
                 JSONValidator jsonValidator = JSONValidator.from(jsonString);
                 if (StringUtils.equalsIgnoreCase("Array", jsonValidator.getType().name())) {
-                    returnJsonArray = JSONArray.parseArray(jsonString);
+                    returnJson = JSONArray.parseArray(jsonString);
                 } else if (StringUtils.equalsIgnoreCase("Object", jsonValidator.getType().name())) {
                     JSONObject jsonObject = JSONObject.parseObject(jsonString);
-                    returnJsonArray.add(jsonObject);
+                    returnJson = jsonObject;
                 }
 
             } else if (StringUtils.equalsIgnoreCase(type, "XML")) {
                 if (bodyObj.containsKey("raw")) {
                     String xmlStr = bodyObj.getString("raw");
                     JSONObject matchObj = XMLUtils.XmlToJson(xmlStr);
-                    returnJsonArray.add(matchObj);
+//                    returnJsonArray.add(matchObj);
+                    returnJson  = matchObj;
                 }
             } else if (StringUtils.equalsIgnoreCase(type,  "Raw")) {
                 if (bodyObj.containsKey("raw")) {
@@ -110,7 +111,8 @@ public class MockApiUtils {
                     if(StringUtils.isNotEmpty(raw)){
                         JSONObject rawObject = new JSONObject();
                         rawObject.put("raw",raw);
-                        returnJsonArray.add(rawObject);
+//                        returnJsonArray.add(rawObject);
+                        returnJson  = rawObject;
                     }
                 }
             } else if (StringUtils.equalsAnyIgnoreCase(type, "Form Data", "WWW_FORM")) {
@@ -132,13 +134,14 @@ public class MockApiUtils {
                             bodyParamArr.put(kv.getString("name"), values);
                         }
                     }
-                    returnJsonArray.add(bodyParamArr);
+//                    returnJsonArray.add(bodyParamArr);
+                    returnJson  = bodyParamArr;
                 }
             }
         }catch (Exception e){}
 
 
-        return  returnJsonArray;
+        return  returnJson;
     }
 
     public static JSONObject parseJsonSchema(JSONObject bodyReturnObj) {
@@ -464,7 +467,7 @@ public class MockApiUtils {
     }
 
     public static JSON getPostParamMap(HttpServletRequest request) {
-        if (StringUtils.equalsIgnoreCase("application/JSON", request.getContentType())) {
+        if (StringUtils.startsWithIgnoreCase(request.getContentType(),"application/JSON")) {
             JSON returnJson = null;
             try {
                 String param = getRequestPostStr(request);
@@ -478,7 +481,7 @@ public class MockApiUtils {
                 e.printStackTrace();
             }
             return returnJson;
-        } else if (StringUtils.equalsIgnoreCase("text/xml", request.getContentType())) {
+        } else if (StringUtils.startsWithIgnoreCase(request.getContentType(),"text/xml")) {
             String xmlString = readXml(request);
 
             org.json.JSONObject xmlJSONObj = XML.toJSONObject(xmlString);
@@ -489,7 +492,7 @@ public class MockApiUtils {
             } catch (Exception e) {
             }
             return object;
-        } else if (StringUtils.equalsIgnoreCase("application/x-www-form-urlencoded", request.getContentType())) {
+        } else if (StringUtils.startsWithIgnoreCase( request.getContentType(),"application/x-www-form-urlencoded")) {
             JSONObject object = new JSONObject();
             Enumeration<String> paramNameItor = request.getParameterNames();
             while (paramNameItor.hasMoreElements()) {
@@ -498,7 +501,7 @@ public class MockApiUtils {
                 object.put(key, value);
             }
             return object;
-        } else if (StringUtils.equalsIgnoreCase("text/plain", request.getContentType())) {
+        } else if (StringUtils.startsWithIgnoreCase(request.getContentType(),"text/plain")) {
             JSONObject object = new JSONObject();
             String bodyParam = readBody(request);
             if(StringUtils.isNotEmpty(bodyParam)){
