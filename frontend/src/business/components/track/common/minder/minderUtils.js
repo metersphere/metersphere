@@ -1,6 +1,4 @@
 import i18n from "@/i18n/i18n";
-import {getTestCasesForMinder} from "@/network/testCase";
-import {getMinderExtraNode} from "@/network/testCase";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 
 export function listenNodeSelected(callback) {
@@ -356,9 +354,13 @@ export function tagBatch(distinctTags) {
   });
 }
 
-function parentIsModule(parentNode) {
-  let lastNodeResource = parentNode ? parentNode.data.resource : null;
-  return parentNode.data.type === 'node' || (lastNodeResource && lastNodeResource.indexOf('模块') > -1);
+export function isModuleNode(node) {
+  return isModuleNodeData(node.data);
+}
+
+export function isModuleNodeData(data) {
+  let resource = data ? data.resource : null;
+  return data.type === 'node' || (resource && resource.indexOf(i18n.t('test_track.module.module')) > -1);
 }
 
 export function tagEditCheck(resourceName) {
@@ -369,12 +371,12 @@ export function tagEditCheck(resourceName) {
     if (type === 'case' || type === 'node') {// 已存在的模块和用例不能修改标签
       return false;
     }
-    let parentIsModuleNode = parentIsModule(selectNodes[0].getParent());
-    if (resourceName === '用例' && !parentIsModuleNode) {
+    let parentIsModuleNode = isModuleNode(selectNodes[0].getParent());
+    if (resourceName === i18n.t('api_test.definition.request.case') && !parentIsModuleNode) {
       return false;
     }
     // 父节点必须是模块
-    if (resourceName === '模块' && !parentIsModuleNode) {
+    if (resourceName === i18n.t('test_track.module.module') && !parentIsModuleNode) {
       return false;
     }
   }
@@ -388,7 +390,7 @@ export function priorityDisableCheck() {
   if (selectNodes && selectNodes.length > 0) {
     let parentNode = selectNodes[0].getParent();
     let resource = parentNode ? parentNode.data.resource : null;
-    if (resource && resource.indexOf('用例') > -1) {
+    if (resource && resource.indexOf(i18n.t('api_test.definition.request.case')) > -1) {
       return true;
     }
   }
@@ -402,6 +404,7 @@ export function handleAfterSave(rootNode) {
   }
   rootNode.data.deleteChild = null;
   rootNode.data.changed = false;
+  rootNode.data.contextChanged = false;
   if (rootNode.children) {
     for (let i = 0; i < rootNode.children.length; i++) {
       handleAfterSave(rootNode.children[i]);

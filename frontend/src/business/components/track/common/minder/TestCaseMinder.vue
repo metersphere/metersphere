@@ -22,7 +22,7 @@ import MsModuleMinder from "@/business/components/common/components/MsModuleMind
 import {
   getChildNodeId,
   handleAfterSave,
-  handleExpandToLevel, handleTestCaseAdd, handTestCaeEdit,
+  handleExpandToLevel, handleTestCaseAdd, handTestCaeEdit, isModuleNode, isModuleNodeData,
   listenBeforeExecCommand, listenDblclick,
   listenNodeSelected,
   loadSelectNodes,
@@ -181,6 +181,12 @@ name: "TestCaseMinder",
         if (data.type !== 'tmp' && data.changed) {
           if (data.contextChanged && data.resource && data.resource.indexOf(this.$t('test_track.module.module')) > -1) {
             this.buildSaveModules(root, data, parent);
+            root.children && root.children.forEach(i => {
+              if (isModuleNode(i)) {
+                i.data.changed = true;
+                i.data.contextChanged = true; // 如果当前节点有变化，下面的模块节点也需要level也可能需要变化
+              }
+            });
           } else {
             // 保存临时节点
             this.buildExtraNode(data, parent, root);
@@ -190,15 +196,15 @@ name: "TestCaseMinder",
         if (root.children) {
           for (let i = 0; i < root.children.length; i++) {
             let childNode = root.children[i];
-            let preNode = null;
-            let nextNode = null;
+            let preNodeTmp = null;
+            let nextNodeTmp = null;
             if (i != 0) {
-              preNode = root.children[i - 1];
+              preNodeTmp = root.children[i - 1];
             }
             if (i + 1 < root.children.length) {
-              nextNode = root.children[i + 1];
+              nextNodeTmp = root.children[i + 1];
             }
-            this.buildSaveParam(childNode, root.data, preNode, nextNode);
+            this.buildSaveParam(childNode, root.data, preNodeTmp, nextNodeTmp);
           }
         }
       }
@@ -209,10 +215,16 @@ name: "TestCaseMinder",
       }
       let pId = parent ? (parent.newId ? parent.newId : parent.id) : null;
 
+      if (!isModuleNodeData(parent)) {
+        let tip = data.text + '不能创建非模块节点下';
+        this.$error(tip)
+        throw new Error(tip);
+      }
+
       let module = {
         id: data.id,
         name: data.text,
-        level: data.level ? data.level : (parent.level + 1),
+        level: parent.level + 1,
         parentId: pId
       };
       data.level = module.level;
