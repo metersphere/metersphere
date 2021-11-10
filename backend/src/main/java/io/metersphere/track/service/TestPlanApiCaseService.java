@@ -467,6 +467,7 @@ public class TestPlanApiCaseService {
                                 }
                                 mapper.updateByPrimaryKey(execResult);
                                 modeDataDTO.setApiCaseId(execResult.getId());
+                                modeDataDTO.setDebugReportId(request.getPlanReportId());
                                 Future<ApiDefinitionExecResult> future = executorService.submit(new SerialApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), request.getTriggerMode()));
                                 ApiDefinitionExecResult report = future.get();
                                 // 如果开启失败结束执行，则判断返回结果状态
