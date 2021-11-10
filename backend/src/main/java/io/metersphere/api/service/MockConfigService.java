@@ -371,10 +371,17 @@ public class MockConfigService {
 
         if(expectParamsObj.containsKey("body")){
             JSONObject expectBodyObject = expectParamsObj.getJSONObject("body");
-            JSONArray mockExpectJsonArray = MockApiUtils.getExpectBodyParams(expectBodyObject);
+            JSON mockExpectJsonArray = MockApiUtils.getExpectBodyParams(expectBodyObject);
             JSONArray jsonArray = requestMockParams.getBodyParams();
-            if(!JsonStructUtils.checkJsonArrayCompliance(jsonArray, mockExpectJsonArray)){
-                return false;
+
+            if (mockExpectJsonArray instanceof JSONObject) {
+                if(!JsonStructUtils.checkJsonArrayCompliance(jsonArray, (JSONObject) mockExpectJsonArray)){
+                    return false;
+                }
+            }else if (mockExpectJsonArray instanceof JSONArray) {
+                if(!JsonStructUtils.checkJsonArrayCompliance(jsonArray, (JSONArray)mockExpectJsonArray)){
+                    return false;
+                }
             }
         }
 
