@@ -660,15 +660,14 @@
             this.$emit("refreshTestCase",);
             //this.tableType = 'edit';
             this.$emit("refresh", this.form);
-            this.form.id = response.data.id;
-
-            if (this.type === 'add' || this.type === 'copy') {
+            if (this.form.id) {
+              this.$emit("caseEdit", param);
+            } else {
               param.id = response.data.id;
               this.$emit("caseCreate", param);
               this.close();
-            } else {
-              this.$emit("caseEdit", param);
             }
+            this.form.id = response.data.id;
 
             if (callback) {
               callback(this);
