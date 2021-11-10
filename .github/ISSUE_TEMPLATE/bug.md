@@ -8,7 +8,6 @@ assignees: youliyuan-fit2cloud
 ---
 
 **MeterSphere 版本**
->v1.10是MeterSphere的首个LTS版本，建议升级到该版本后再次验证是否能重现该问题。
 
 您所使用的 MeterSphere 版本是？
 
