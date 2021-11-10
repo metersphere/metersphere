@@ -354,13 +354,13 @@ export function tagBatch(distinctTags) {
   });
 }
 
-export function isModuleNode(node) {
-  return isModuleNodeData(node.data);
-}
-
 export function isModuleNodeData(data) {
   let resource = data ? data.resource : null;
   return data.type === 'node' || (resource && resource.indexOf(i18n.t('test_track.module.module')) > -1);
+}
+
+export function isModuleNode(node) {
+  return isModuleNodeData(node.data);
 }
 
 export function tagEditCheck(resourceName) {
