@@ -301,13 +301,13 @@ export default {
       let message = "";
       ids.forEach(row => {
         const v = this.variables.find(d => d.id === row);
-        if (v && v.type === 'CSV' && v.name) {
+        if (v.name) {
           message += v.name + ";";
         }
       });
       if (message !== "") {
         message = message.substr(0, message.length - 1);
-        this.$alert('是否确认删除CSV：【 ' + message + " 】？", '', {
+        this.$alert('是否确认删除变量：【 ' + message + " 】？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
