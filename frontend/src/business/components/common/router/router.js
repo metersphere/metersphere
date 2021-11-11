@@ -58,13 +58,10 @@ VueRouter.prototype.push = function push(location) {
 
 // 登入后跳转至原路径
 function redirectLoginPath(originPath) {
-  let redirectUrl = '';
+  let redirectUrl = sessionStorage.getItem('redirectUrl');
   let loginSuccess = sessionStorage.getItem('loginSuccess');
 
-  if (getCurrentUserId() === sessionStorage.getItem('lastUser')) {
-    redirectUrl = sessionStorage.getItem('redirectUrl');
-  }
-  if (!redirectUrl) {
+  if (!redirectUrl || redirectUrl === '/') {
     if (hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ')) {
       redirectUrl = '/project/home';
     } else if (hasPermissions('WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ')) {
