@@ -38,7 +38,7 @@
       </el-collapse-item>
       <el-collapse-item name="2">
         <template slot="title">
-          所有请求步骤后执行
+          {{ stepTitle }}
           <el-tooltip class="item" effect="dark" content="全部API流程结束后执行一次 如token获取，场景初始化" placement="right">
             <i class="el-icon-info"/>
           </el-tooltip>
@@ -83,6 +83,9 @@ export default {
       title: "",
       preTitle: "单个请求步骤前执行",
       postTitle: "单个请求步骤后执行",
+      stepTitle: "",
+      preStepTitle: "所有请求步骤前执行",
+      postStepTitle: "所有请求步骤后执行",
       result: {},
       activeNames: [],
       isConnScenario: false,
@@ -108,9 +111,11 @@ export default {
     if (this.isPreProcessor) {
       this.scriptExecSort = this.scriptPreExecSort;
       this.title = this.preTitle;
+      this.stepTitle = this.preStepTitle;
     } else {
       this.scriptExecSort = this.scriptPostExecSort;
       this.title = this.postTitle;
+      this.stepTitle = this.postStepTitle;
     }
     this.isConnScenario = this.connScenario;
     this.isExecAfterPrivateScript = this.execAfterPrivateScript;
