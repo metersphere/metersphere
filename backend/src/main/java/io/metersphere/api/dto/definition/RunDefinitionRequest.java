@@ -46,4 +46,8 @@ public class RunDefinitionRequest {
     private RunModeConfig config;
 
     private Map<String, String> environmentMap;
+
+    private String environmentType;
+    private String environmentJson;
+    private String environmentGroupId;
 }

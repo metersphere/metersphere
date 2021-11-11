@@ -1843,6 +1843,146 @@ public class ApiScenarioExample {
             addCriterion("`order` not between", value1, value2, "order");
             return (Criteria) this;
         }
+
+        public Criteria andEnvironmentTypeIsNull() {
+            addCriterion("environment_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeIsNotNull() {
+            addCriterion("environment_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeEqualTo(String value) {
+            addCriterion("environment_type =", value, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeNotEqualTo(String value) {
+            addCriterion("environment_type <>", value, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeGreaterThan(String value) {
+            addCriterion("environment_type >", value, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("environment_type >=", value, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeLessThan(String value) {
+            addCriterion("environment_type <", value, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeLessThanOrEqualTo(String value) {
+            addCriterion("environment_type <=", value, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeLike(String value) {
+            addCriterion("environment_type like", value, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeNotLike(String value) {
+            addCriterion("environment_type not like", value, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeIn(List<String> values) {
+            addCriterion("environment_type in", values, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeNotIn(List<String> values) {
+            addCriterion("environment_type not in", values, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeBetween(String value1, String value2) {
+            addCriterion("environment_type between", value1, value2, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentTypeNotBetween(String value1, String value2) {
+            addCriterion("environment_type not between", value1, value2, "environmentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdIsNull() {
+            addCriterion("environment_group_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdIsNotNull() {
+            addCriterion("environment_group_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdEqualTo(String value) {
+            addCriterion("environment_group_id =", value, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdNotEqualTo(String value) {
+            addCriterion("environment_group_id <>", value, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdGreaterThan(String value) {
+            addCriterion("environment_group_id >", value, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdGreaterThanOrEqualTo(String value) {
+            addCriterion("environment_group_id >=", value, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdLessThan(String value) {
+            addCriterion("environment_group_id <", value, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdLessThanOrEqualTo(String value) {
+            addCriterion("environment_group_id <=", value, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdLike(String value) {
+            addCriterion("environment_group_id like", value, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdNotLike(String value) {
+            addCriterion("environment_group_id not like", value, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdIn(List<String> values) {
+            addCriterion("environment_group_id in", values, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdNotIn(List<String> values) {
+            addCriterion("environment_group_id not in", values, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdBetween(String value1, String value2) {
+            addCriterion("environment_group_id between", value1, value2, "environmentGroupId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentGroupIdNotBetween(String value1, String value2) {
+            addCriterion("environment_group_id not between", value1, value2, "environmentGroupId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

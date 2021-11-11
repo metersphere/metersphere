@@ -1190,6 +1190,8 @@ export default {
       globalVariable: "全局變量",
       environment_list: "環境列表",
       environment_config: "環境配置",
+      environment_manage: "環境管理",
+      please_input_env_group_name: "請輸入環境組名稱",
       config_environment: "配置環境",
       copy_environment: "復製環境",
       environment: "環境",

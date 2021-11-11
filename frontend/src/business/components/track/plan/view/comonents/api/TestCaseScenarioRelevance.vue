@@ -107,9 +107,13 @@
         let url = '/api/automation/relevance';
         const envMap = this.$refs.apiScenarioList.projectEnvMap;
         let map = this.$refs.apiScenarioList.map;
+        let envType = this.$refs.apiScenarioList.environmentType;
+        let envGroupId = this.$refs.apiScenarioList.envGroupId;
         param.planId = this.planId;
         param.mapping = strMapToObj(map);
         param.envMap = strMapToObj(envMap);
+        param.environmentType = envType;
+        param.envGroupId = envGroupId;
 
         this.result = this.$post(url, param, () => {
           this.$success(this.$t('commons.save_success'));

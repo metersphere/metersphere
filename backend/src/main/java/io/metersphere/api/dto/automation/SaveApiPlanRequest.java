@@ -43,5 +43,7 @@ public class SaveApiPlanRequest {
      * 用例的环境的对应关系
      */
     private Map<String, List<String>> mapping;
+    private String environmentType;
+    private String envGroupId;
 
 }

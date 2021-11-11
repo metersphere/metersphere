@@ -166,7 +166,12 @@ export default {
     },
     setDomain() {
       if (this.scenario.environmentEnable) {
-        this.$post("/api/automation/setDomain", {definition: JSON.stringify(this.scenario)}, res => {
+        let param = {
+          environmentEnable: true,
+          id: this.scenario.id,
+          definition: JSON.stringify(this.scenario)
+        }
+        this.$post("/api/automation/setDomain", param, res => {
           if (res.data) {
             let data = JSON.parse(res.data);
             this.scenario.hashTree = data.hashTree;

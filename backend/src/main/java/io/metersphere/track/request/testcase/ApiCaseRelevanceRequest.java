@@ -40,4 +40,7 @@ public class ApiCaseRelevanceRequest {
      *测试评审ID
      */
     private String reviewId;
+
+    private String environmentType;
+    private String envGroupId;
 }

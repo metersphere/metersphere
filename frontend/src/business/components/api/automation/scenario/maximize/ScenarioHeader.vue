@@ -27,6 +27,7 @@
           <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">{{ $t('commons.failure_continues') }}</el-checkbox>
           <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1"
                        :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                       :environment-type.sync="envType" :group-id="envGroupId"
                        @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right"
                        :result="envResult"/>
 
@@ -59,6 +60,8 @@ export default {
   props: {
     currentScenario: {}, scenarioDefinition: Array, enableCookieShare: Boolean, onSampleError: Boolean,
     projectEnvMap: Map,
+    environmentType: String,
+    groupId: String,
     projectIds: Set,
     projectList: Array,
     isFullUrl: Boolean,
@@ -68,6 +71,8 @@ export default {
   data() {
     return {
       envMap: new Map,
+      envType: this.environmentType,
+      envGroupId: this.groupId,
       loading: false,
       varSize: 0,
       cookieShare: false,
@@ -89,6 +94,12 @@ export default {
     },
   },
   watch: {
+    envType(value) {
+      this.$emit("setEnvType", value);
+    },
+    envGroupId(value) {
+      this.$emit("setEnvGroupId", value);
+    },
     execDebug() {
       this.debug = false;
     },

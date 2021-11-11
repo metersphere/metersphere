@@ -18,5 +18,7 @@ public class TestplanRunRequest {
     private String runWithinResourcePool;//是否选择资源池
     private String resourcePoolId;//资源池Id
     private Map<String, String> envMap;
+    private String environmentType;
+    private String environmentGroupId;
 }
 

@@ -1185,6 +1185,8 @@ export default {
       globalVariable: "Global Variable",
       environment_list: "Environment List",
       environment_config: "Environment Config",
+      environment_manage: "Environment Manage",
+      please_input_env_group_name: "Please input environment group name",
       config_environment: "Config Environment",
       copy_environment: "copy environment",
       environment: "Environment",

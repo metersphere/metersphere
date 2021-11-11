@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
@@ -13,7 +14,9 @@ import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
@@ -23,6 +26,7 @@ import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.EnvironmentGroupProjectService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -343,12 +347,24 @@ public class ElementUtil {
                     MsScenario scenario = JSONObject.toJavaObject(element, MsScenario.class);
                     if (scenario.isEnvironmentEnable()) {
                         isScenarioEnv = true;
+                        Map<String, String> environmentMap = new HashMap<>();
+                        ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
+                        EnvironmentGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(EnvironmentGroupProjectService.class);
+                        ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(scenario.getId());
+                        String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
+                        String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
+                        String environmentJson = apiScenarioWithBLOBs.getEnvironmentJson();
+                        if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+                            environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+                        } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                            environmentMap = JSON.parseObject(environmentJson, Map.class);
+                        }
                         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
-                        Map<String, String> environmentMap = (Map<String, String>) element.get("environmentMap");
                         if (environmentMap != null && !environmentMap.isEmpty()) {
+                            Map<String, String> finalEnvironmentMap = environmentMap;
                             environmentMap.keySet().forEach(projectId -> {
                                 ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-                                ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentMap.get(projectId));
+                                ApiTestEnvironmentWithBLOBs environment = environmentService.get(finalEnvironmentMap.get(projectId));
                                 if (environment != null && environment.getConfig() != null) {
                                     EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
                                     env.setApiEnvironmentid(environment.getId());

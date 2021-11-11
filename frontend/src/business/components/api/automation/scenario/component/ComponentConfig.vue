@@ -20,6 +20,8 @@
         :title="title"
         :color="titleColor"
         :response="response"
+        :environmet-type="environmentType"
+        :environment-group-id="envGroupId"
         :background-color="backgroundColor"
         :project-list="projectList"
         :env-map="envMap"
@@ -86,7 +88,9 @@ export default {
     response: {},
     node: {},
     projectList: Array,
-    envMap: Map
+    envMap: Map,
+    environmentType: String,
+    envGroupId: String
   },
   data() {
     return {
