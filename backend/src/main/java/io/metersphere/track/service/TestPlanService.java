@@ -942,14 +942,14 @@ public class TestPlanService {
             request.setTriggerMode(planScenarioExecuteRequest.getTriggerMode());
             request.setExecuteType(planScenarioExecuteRequest.getExecuteType());
             request.setRunMode(planScenarioExecuteRequest.getRunMode());
-            request.setIds(new ArrayList<>(scenarioMap.keySet()));//场景IDS
+            request.setIds(new ArrayList<>(scenarioMap.values()));//场景IDS
             request.setReportUserID(planScenarioExecuteRequest.getReportUserID());
             request.setScenarioTestPlanIdMap(scenarioMap);//未知
             request.setConfig(planScenarioExecuteRequest.getConfig());
             request.setTestPlanScheduleJob(true);
             request.setTestPlanReportId(planScenarioExecuteRequest.getTestPlanReportId());
-//            request.getConfig().getReportType()
             request.setId(UUID.randomUUID().toString());
+            request.setProjectId(planScenarioExecuteRequest.getProjectId());
             if (request.getConfig() != null) {
                 if (request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
                     // 校验并发数量
@@ -1073,8 +1073,8 @@ public class TestPlanService {
         TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, testPlanID, userId, triggerMode);
 
         TestPlanReport testPlanReport = reportInfoDTO.getTestPlanReport();
-        Map<String, String> planScenarioIdMap = reportInfoDTO.getPlanScenarioIdMap();
-        Map<String, String> apiTestCaseDataMap = reportInfoDTO.getApiTestCaseDataMap();
+        Map<String, String> planScenarioIdsMap = reportInfoDTO.getPlanScenarioIdMap();
+        Map<String, String> planApiCaseMap = reportInfoDTO.getApiTestCaseDataMap();
         Map<String, String> performanceIdMap = reportInfoDTO.getPerformanceIdMap();
 
         String planReportId = testPlanReport.getId();
@@ -1134,11 +1134,11 @@ public class TestPlanService {
 
         }
 
-        for (Map.Entry<String, String> entry : apiTestCaseDataMap.entrySet()) {
+        for (Map.Entry<String, String> entry : planApiCaseMap.entrySet()) {
             String id = entry.getKey();
             executeApiCaseIdMap.put(id, TestPlanApiExecuteStatus.RUNNING.name());
         }
-        for (String id : planScenarioIdMap.keySet()) {
+        for (String id : planScenarioIdsMap.keySet()) {
             executeScenarioCaseIdMap.put(id, TestPlanApiExecuteStatus.RUNNING.name());
         }
         testPlanLog.info("ReportId[" + planReportId + "] start run. TestPlanID:[" + testPlanID + "].  Execute api :" + JSONObject.toJSONString(executeApiCaseIdMap) + "; Execute scenario:" + JSONObject.toJSONString(executeScenarioCaseIdMap) + "; Execute performance:" + JSONObject.toJSONString(executePerformanceIdMap));
@@ -1164,9 +1164,9 @@ public class TestPlanService {
             }
         }
         //执行接口案例任务
-        this.executeApiTestCase(triggerMode, planReportId,new ArrayList<>(apiTestCaseDataMap.values()), runModeConfig);
+        this.executeApiTestCase(triggerMode, planReportId,new ArrayList<>(planApiCaseMap.keySet()), runModeConfig);
         //执行场景执行任务
-        this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, planScenarioIdMap);
+        this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, planScenarioIdsMap);
         this.listenTaskExecuteStatus(planReportId);
         return testPlanReport.getId();
     }
@@ -1189,9 +1189,6 @@ public class TestPlanService {
 
     private void executeApiTestCase(String triggerMode, String planReportId, List<String> planCaseIds, RunModeConfig runModeConfig) {
         executorService.submit(() -> {
-//            Map<String, String> executeErrorMap = new HashMap<>();
-//            Map<String, String> executeReportIdMap = new HashMap<>();
-
             BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
 //            List<String> planIdList = new ArrayList<>(1);
 //            planIdList.add(testPlanId);
@@ -1207,32 +1204,6 @@ public class TestPlanService {
             request.setPlanReportId(planReportId);
             request.setConfig(runModeConfig);
             testPlanApiCaseService.run(request);
-//            for (Map.Entry<ApiTestCaseWithBLOBs, String> entry : apiTestCaseDataMap.entrySet()) {
-//                ApiTestCaseWithBLOBs blobs = entry.getKey();
-//                try {
-//                    String testId = UUID.randomUUID().toString();
-//
-//
-//
-////                    if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
-////                        apiTestCaseService.run(blobs, testId, planReportId, testPlanId, ApiRunMode.JENKINS_API_PLAN.name());
-////                    } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
-////                        apiTestCaseService.run(blobs, testId, planReportId, testPlanId, ApiRunMode.MANUAL_PLAN.name());
-////                    } else {
-////                        apiTestCaseService.run(blobs, testId, planReportId, testPlanId, ApiRunMode.SCHEDULE_API_PLAN.name());
-////                    }
-////                    executeReportIdMap.put(blobs.getId(),testId);
-//                } catch (Exception e) {
-//                    executeErrorMap.put(blobs.getId(), TestPlanApiExecuteStatus.FAILD.name());
-//                }
-//            }
-
-//            if (!executeErrorMap.isEmpty()) {
-//                TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(planReportId, executeErrorMap, null, null);
-//            }
-//            if (!executeReportIdMap.isEmpty()) {
-//                TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(planReportId, executeReportIdMap,null, null);
-//            }
         });
     }
 
@@ -1725,6 +1696,7 @@ public class TestPlanService {
     }
 
     public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo, String planId, boolean saveResponse) {
+        saveResponse = true;
         if (MapUtils.isEmpty(executeInfo.getApiCaseExecInfo()) && MapUtils.isEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
             return;
         }
@@ -1735,10 +1707,10 @@ public class TestPlanService {
             if (checkReportConfig(config, "api", "all")) {
                 if (MapUtils.isNotEmpty(executeInfo.getApiCaseExecInfo())) {
                     // 接口
-                    apiAllCases = testPlanApiCaseService.getAllCases(executeInfo.getApiCaseExecInfo().keySet(), planId, null);
+                    apiAllCases = testPlanApiCaseService.getAllCases(executeInfo.getApiCaseExecInfo().keySet(),  null);
                     if (saveResponse) {
                         apiAllCases.forEach(item -> {
-                            String apiReportid = executeInfo.getApiCaseExecuteReportMap().get(item.getId());
+                            String apiReportid = executeInfo.getApiCaseReportMap().get(item.getId());
                             ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(apiReportid);
                             if (result != null) {
                                 APIReportResult dbResult = apiDefinitionService.buildAPIReportResult(result);
@@ -1752,10 +1724,10 @@ public class TestPlanService {
                 }
                 if (MapUtils.isNotEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
                     //场景
-                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioCaseExecInfo().keySet(), planId, null);
+                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioCaseExecInfo().keySet(), null);
                     if (saveResponse) {
                         scenarioAllCases.forEach((item) -> {
-                            String resultId = executeInfo.getApiScenarioReportReportMap().get(item.getId());
+                            String resultId = executeInfo.getApiScenarioReportMap().get(item.getId());
                             APIScenarioReportResult result = apiScenarioReportService.get(resultId);
                             if (result != null) {
                                 item.setResponse(result);
@@ -1773,14 +1745,18 @@ public class TestPlanService {
                             .filter(i -> StringUtils.isNotBlank(i.getExecResult())
                                     && i.getExecResult().equals("error"))
                             .collect(Collectors.toList());
-                }
-                if (saveResponse) {
-                    apiFailureCases.forEach(item -> {
-                        APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
-                        if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
-                            item.setResponse(dbResult.getContent());
+                    if (saveResponse) {
+                        for (TestPlanFailureApiDTO item : apiFailureCases) {
+                            String apiReportid = executeInfo.getApiCaseReportMap().get(item.getId());
+                            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(apiReportid);
+                            if (result != null) {
+                                APIReportResult dbResult = apiDefinitionService.buildAPIReportResult(result);
+                                if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
+                                    item.setResponse(dbResult.getContent());
+                                }
+                            }
                         }
-                    });
+                    }
                 }
                 report.setApiFailureCases(apiFailureCases);
 
@@ -1791,11 +1767,15 @@ public class TestPlanService {
                             .filter(i -> StringUtils.isNotBlank(i.getLastResult())
                                     && i.getLastResult().equals("Fail"))
                             .collect(Collectors.toList());
-                }
-                if (saveResponse) {
-                    scenarioFailureCases.forEach((item) -> {
-                        item.setResponse(apiScenarioReportService.get(item.getReportId()));
-                    });
+                    if (saveResponse) {
+                        for (TestPlanFailureScenarioDTO item : scenarioFailureCases) {
+                            String resultId = executeInfo.getApiScenarioReportMap().get(item.getId());
+                            APIScenarioReportResult result = apiScenarioReportService.get(resultId);
+                            if (result != null) {
+                                item.setResponse(result);
+                            }
+                        }
+                    }
                 }
                 report.setScenarioFailureCases(scenarioFailureCases);
             }
