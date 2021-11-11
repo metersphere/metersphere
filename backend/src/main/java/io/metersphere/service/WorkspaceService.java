@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -144,6 +145,9 @@ public class WorkspaceService {
                 .map(RelatedSource::getWorkspaceId)
                 .distinct()
                 .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(wsIds)) {
+            return new ArrayList<>();
+        }
         WorkspaceExample workspaceExample = new WorkspaceExample();
         workspaceExample.createCriteria().andIdIn(wsIds);
         return workspaceMapper.selectByExample(workspaceExample);
