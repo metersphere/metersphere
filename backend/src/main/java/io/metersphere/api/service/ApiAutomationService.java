@@ -56,6 +56,7 @@ import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +79,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -1133,50 +1135,171 @@ public class ApiAutomationService {
         if (StringUtils.isEmpty(request.getTriggerMode())) {
             request.setTriggerMode(ReportTriggerMode.MANUAL.name());
         }
-        String reportId = request.getId();
+
         Map<String, RunModeDataDTO> executeQueue = new LinkedHashMap<>();
         List<String> scenarioIds = new ArrayList<>();
         StringBuilder scenarioNames = new StringBuilder();
-        // 按照场景执行
+
+        if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+            //测试计划执行
+            this.prepareExecutedPlanScenario(apiScenarios,request,executeQueue,scenarioIds,scenarioNames,serialReportId);
+        }else {
+            // 按照场景执行
+            this.prepareExecutedScenario(apiScenarios,request,executeQueue,scenarioIds,scenarioNames,serialReportId);
+        }
+
+        if (request.getConfig() != null && StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString()) && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
+            request.getConfig().setReportId(UUID.randomUUID().toString());
+            APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(),
+                    JSON.toJSONString(CollectionUtils.isNotEmpty(scenarioIds) && scenarioIds.size() > 50 ? scenarioIds.subList(0, 50) : scenarioIds),
+                    scenarioNames.length() >= 3000 ? scenarioNames.substring(0, 2000) : scenarioNames.deleteCharAt(scenarioNames.toString().length() - 1).toString(),
+                    ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig(), JSON.toJSONString(scenarioIds));
+
+            report.setName(request.getConfig().getReportName());
+            report.setId(serialReportId);
+            apiScenarioReportMapper.insert(report);
+            // 增加并行集合报告
+            if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
+                List<String> reportIds = executeQueue.entrySet().stream()
+                        .map(reports -> reports.getKey()).collect(Collectors.toList());
+                ReportCounter counter = new ReportCounter();
+                counter.setCompletedIds(new LinkedList<>());
+                if (CollectionUtils.isNotEmpty(request.getConfig().getTestResources())) {
+                    counter.setPoolUrls(request.getConfig().getTestResources());
+                }
+                counter.setReportIds(reportIds);
+                request.getConfig().setAmassReport(serialReportId);
+                MessageCache.cache.put(serialReportId, counter);
+            }
+        }
+        // 开始执行
+        if (executeQueue != null && executeQueue.size() > 0) {
+            if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+                this.serial(executeQueue, request, serialReportId);
+            } else {
+                this.parallel(executeQueue, request);
+            }
+        }
+        return request.getId();
+    }
+
+    /**
+     * 测试计划接口场景的预执行（生成场景报告）
+     * @param apiScenarios
+     * @param request
+     * @param executeQueue
+     * @param scenarioIds
+     * @param scenarioNames
+     * @param serialReportId
+     */
+    private void prepareExecutedPlanScenario(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, Map<String, RunModeDataDTO> executeQueue, List<String> scenarioIds, StringBuilder scenarioNames, String serialReportId) {
+        String reportId = request.getId();
+        Map<String,String> planScenarioIdMap = request.getScenarioTestPlanIdMap();
+        if(MapUtils.isEmpty(planScenarioIdMap)){
+            return;
+        }
+        String projectId = request.getProjectId();
+        Map<String,ApiScenarioWithBLOBs> scenarioMap = apiScenarios.stream().collect(Collectors.toMap(ApiScenarioWithBLOBs::getId, Function.identity(),(t1, t2)->t1));
+        for (Map.Entry<String, String> entry: planScenarioIdMap.entrySet()){
+            String testPlanScenarioId = entry.getKey();
+            String scenarioId = entry.getValue();
+            ApiScenarioWithBLOBs scenario = scenarioMap.get(scenarioId);
+
+//        }
+//        for (ApiScenarioWithBLOBs scenario : apiScenarios) {
+            if (scenario.getStepTotal() == null || scenario.getStepTotal() == 0) {
+                continue;
+            }
+            APIScenarioReportResult report;
+            Map<String, String> planEnvMap = new HashMap<>();
+
+            //测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
+//            String testPlanScenarioId = scenario.getId();
+//            if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
+//                testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
+                // 获取场景用例单独的执行环境
+                TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
+                String environment = planApiScenario.getEnvironment();
+                if (StringUtils.isNotBlank(environment)) {
+                    planEnvMap = JSON.parseObject(environment, Map.class);
+                }
+//            }
+            if(StringUtils.isEmpty(projectId)){
+                projectId = testPlanScenarioCaseService.getProjectIdById(testPlanScenarioId);
+            }
+            if (StringUtils.isEmpty(projectId)) {
+                projectId = scenario.getProjectId();
+            }
+            if (request.isTestPlanScheduleJob()) {
+                String savedScenarioId = testPlanScenarioId + ":" + request.getTestPlanReportId();
+                report = createScenarioReport(reportId, savedScenarioId, scenario.getName(), request.getTriggerMode(),
+                        request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig(), scenario.getId());
+            } else {
+                report = createScenarioReport(reportId, testPlanScenarioId, scenario.getName(), request.getTriggerMode(),
+                        request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig(), scenario.getId());
+            }
+            if (report != null && StringUtils.isNotEmpty(request.getTestPlanReportId())) {
+                Map<String, String> scenarioReportIdMap = new HashMap<>();
+                scenarioReportIdMap.put(testPlanScenarioId, report.getId());
+                TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getTestPlanReportId(), null, scenarioReportIdMap, null);
+            }
+
+            try {
+                if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
+                    RunModeDataDTO runModeDataDTO = new RunModeDataDTO();
+                    runModeDataDTO.setTestId(scenario.getId());
+                    runModeDataDTO.setPlanEnvMap(planEnvMap);
+                    runModeDataDTO.setReport(report);
+                    executeQueue.put(report.getId(), runModeDataDTO);
+                } else {
+                    // 生成报告和HashTree
+                    try {
+                        HashTree hashTree = generateHashTree(scenario, reportId, planEnvMap);
+                        executeQueue.put(report.getId(), new RunModeDataDTO(hashTree, report));
+                    } catch (Exception ex) {
+                        if (StringUtils.equalsAny(request.getTriggerMode(), TriggerMode.BATCH.name(), TriggerMode.SCHEDULE.name())) {
+//                            String testPlanScenarioId;
+//                            if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
+//                                testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
+//                            } else {
+//                                testPlanScenarioId = request.getPlanScenarioId();
+//                            }
+                            remakeReportService.remakeScenario(request.getRunMode(), testPlanScenarioId, request.getConfig(), scenario, report);
+                        } else {
+                            MSException.throwException(ex);
+                        }
+                    }
+                }
+                scenarioIds.add(scenario.getId());
+                scenarioNames.append(scenario.getName()).append(",");
+                // 重置报告ID
+                reportId = UUID.randomUUID().toString();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                MSException.throwException("解析运行步骤失败！场景名称：" + scenario.getName());
+            }
+        }
+    }
+
+    /**
+     * 接口场景的预执行（生成场景报告）
+     * @param apiScenarios
+     * @param request
+     * @param executeQueue
+     * @param scenarioIds
+     * @param scenarioNames
+     * @param serialReportId
+     */
+    private void prepareExecutedScenario(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, Map<String, RunModeDataDTO> executeQueue, List<String> scenarioIds, StringBuilder scenarioNames,String serialReportId) {
+        String reportId = request.getId();
         for (ApiScenarioWithBLOBs item : apiScenarios) {
             if (item.getStepTotal() == null || item.getStepTotal() == 0) {
                 continue;
             }
             APIScenarioReportResult report;
             Map<String, String> planEnvMap = new HashMap<>();
-            //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
-            if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                String testPlanScenarioId = item.getId();
-                if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
-                    testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
-                    // 获取场景用例单独的执行环境
-                    TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
-                    String environment = planApiScenario.getEnvironment();
-                    if (StringUtils.isNotBlank(environment)) {
-                        planEnvMap = JSON.parseObject(environment, Map.class);
-                    }
-                }
-                String projectId = testPlanScenarioCaseService.getProjectIdById(testPlanScenarioId);
-                if (StringUtils.isEmpty(projectId)) {
-                    projectId = item.getProjectId();
-                }
-                if (request.isTestPlanScheduleJob()) {
-                    String savedScenarioId = testPlanScenarioId + ":" + request.getTestPlanReportId();
-                    report = createScenarioReport(reportId, savedScenarioId, item.getName(), request.getTriggerMode(),
-                            request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig(), item.getId());
-                } else {
-                    report = createScenarioReport(reportId, testPlanScenarioId, item.getName(), request.getTriggerMode(),
-                            request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig(), item.getId());
-                }
-                if (report != null && StringUtils.isNotEmpty(request.getTestPlanReportId())) {
-                    Map<String, String> scenarioReportIdMap = new HashMap<>();
-                    scenarioReportIdMap.put(item.getId(), report.getId());
-                    TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getTestPlanReportId(), null, scenarioReportIdMap, null);
-                }
-            } else {
-                report = createScenarioReport(reportId, ExecuteType.Marge.name().equals(request.getExecuteType()) ? serialReportId : item.getId(), item.getName(), request.getTriggerMode(),
-                        request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
-            }
+            report = createScenarioReport(reportId, ExecuteType.Marge.name().equals(request.getExecuteType()) ? serialReportId : item.getId(), item.getName(), request.getTriggerMode(),
+                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
 
             try {
                 if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
@@ -1213,40 +1336,6 @@ public class ApiAutomationService {
                 MSException.throwException("解析运行步骤失败！场景名称：" + item.getName());
             }
         }
-
-        if (request.getConfig() != null && StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString()) && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
-            request.getConfig().setReportId(UUID.randomUUID().toString());
-            APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(),
-                    JSON.toJSONString(CollectionUtils.isNotEmpty(scenarioIds) && scenarioIds.size() > 50 ? scenarioIds.subList(0, 50) : scenarioIds),
-                    scenarioNames.length() >= 3000 ? scenarioNames.substring(0, 2000) : scenarioNames.deleteCharAt(scenarioNames.toString().length() - 1).toString(),
-                    ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig(), JSON.toJSONString(scenarioIds));
-
-            report.setName(request.getConfig().getReportName());
-            report.setId(serialReportId);
-            apiScenarioReportMapper.insert(report);
-            // 增加并行集合报告
-            if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
-                List<String> reportIds = executeQueue.entrySet().stream()
-                        .map(reports -> reports.getKey()).collect(Collectors.toList());
-                ReportCounter counter = new ReportCounter();
-                counter.setCompletedIds(new LinkedList<>());
-                if (CollectionUtils.isNotEmpty(request.getConfig().getTestResources())) {
-                    counter.setPoolUrls(request.getConfig().getTestResources());
-                }
-                counter.setReportIds(reportIds);
-                request.getConfig().setAmassReport(serialReportId);
-                MessageCache.cache.put(serialReportId, counter);
-            }
-        }
-        // 开始执行
-        if (executeQueue != null && executeQueue.size() > 0) {
-            if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-                this.serial(executeQueue, request, serialReportId);
-            } else {
-                this.parallel(executeQueue, request);
-            }
-        }
-        return request.getId();
     }
 
     /**
@@ -1595,7 +1684,7 @@ public class ApiAutomationService {
             for (String id : ids) {
                 scenarioReportIdMap.put(id, request.getReportId());
             }
-            TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getTestPlanReportId(), null, scenarioReportIdMap, null);
+            TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getTestPlanReportId(), null, scenarioReportIdMap, null);
 
         } catch (Exception e) {
             LogUtil.error(e);
