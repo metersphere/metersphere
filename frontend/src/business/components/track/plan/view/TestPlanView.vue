@@ -142,14 +142,14 @@ export default {
   display: inline-block;
 }
 
-/deep/ .ms-main-container {
-  height: calc(100vh - 80px - 53px);
-}
+/*/deep/ .ms-main-container {*/
+/*  height: calc(100vh - 80px - 53px);*/
+/*}*/
 
-/deep/ .ms-aside-container {
-  height: calc(100vh - 80px - 53px);
-  margin-top: 1px;
-}
+/*/deep/ .ms-aside-container {*/
+/*  height: calc(100vh - 80px - 53px);*/
+/*  margin-top: 1px;*/
+/*}*/
 
 .header-menu.el-menu--horizontal > li {
   height: 49px;
