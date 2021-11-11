@@ -77,6 +77,7 @@ export default {
     group: '用户组',
     personal_info: '个人信息',
     api_keys: 'API Keys',
+    third_account:'第三方平台账号',
     quota: '配额管理',
     status: '状态',
     show_all: '显示全部',

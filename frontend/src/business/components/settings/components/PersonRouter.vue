@@ -2,8 +2,8 @@
   <div>
     <el-tabs v-model="activeIndex" >
       <el-tab-pane  v-for="menu in persons" :key = "menu.title" :name="menu.title" :label="$t(menu.title)" class="setting-item"></el-tab-pane>
-      <el-tab-pane   name="change_password" label="修改密码" class="setting-item"></el-tab-pane>
-      <el-tab-pane   name="third_account" label="第三方平台账号" class="setting-item"></el-tab-pane>
+      <el-tab-pane   name="change_password" :label="$t('member.edit_password')" class="setting-item"></el-tab-pane>
+      <el-tab-pane   name="third_account" :label="$t('commons.third_account')" class="setting-item"></el-tab-pane>
     </el-tabs>
     <ms-main-container>
       <ms-person-from-setting v-if="activeIndex==='commons.personal_setting'" @getPlatformInfo = "getPlatformInfo" @cancel = "cancel"/>

@@ -47,9 +47,13 @@
       </div>
       <div>
         3. {{ $t('organization.integration.use_tip_three') }}
-        <router-link :to="{name: 'PersonSetting', params: { open: true }}" style="margin-left: 5px">
+        <span  style="margin-left: 5px;color: #551A8B; text-decoration: underline; cursor: pointer" @click="resVisible = true">
           {{ $t('organization.integration.link_the_info_now') }}
-        </router-link>
+        </span>
+        <el-dialog :close-on-click-modal="false" width="80%"
+                   :visible.sync="resVisible" destroy-on-close @close="closeDialog">
+          <ms-person-router @closeDialog = "closeDialog"/>
+        </el-dialog>
       </div>
     </div>
   </div>
@@ -60,12 +64,14 @@ import BugManageBtn from "@/business/components/settings/workspace/components/Bu
 import {getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {ZEN_TAO} from "@/common/js/constants";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
+import MsPersonRouter from "@/business/components/settings/components/PersonRouter";
 
 export default {
   name: "ZentaoSetting",
   components: {
     MsInstructionsIcon,
-    BugManageBtn
+    BugManageBtn,
+    MsPersonRouter
   },
   created() {
     this.init();
@@ -74,6 +80,7 @@ export default {
     return {
       show: true,
       showInput: true,
+      resVisible:false,
       form: {},
       rules: {
         account: {
@@ -204,6 +211,9 @@ export default {
       this.$nextTick(function () {
         this.showInput = true;
       });
+    },
+    closeDialog(){
+      this.resVisible = false;
     }
   }
 };

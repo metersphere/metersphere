@@ -83,6 +83,7 @@ export default {
     system: 'System',
     personal_setting: 'Personal Setting',
     api_keys: 'API Keys',
+    third_account:'Third Account',
     quota: 'Quota',
     test_resource_pool: 'Resource Pool',
     system_setting: 'Settings',
