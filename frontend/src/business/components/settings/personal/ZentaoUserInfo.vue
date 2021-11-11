@@ -1,7 +1,7 @@
 <template>
   <el-form label-position="right" label-width="100px" size="small">
     <el-form-item :label="'禅道信息'">
-      <ms-instructions-icon size="10" :content="'该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用组织中配置的默认信息'"/>
+      <ms-instructions-icon size="10" :content="'该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用工作空间中配置的默认信息'"/>
     </el-form-item>
     <el-form-item :label="'禅道' + $t('organization.integration.account')" prop="account">
       <el-input v-model="data.zentaoUserName" :placeholder="$t('organization.integration.input_api_account')"/>
