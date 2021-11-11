@@ -21,6 +21,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
@@ -38,6 +39,8 @@ public class ApiTestEnvironmentService {
 
     @Resource
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
+    @Resource
+    private EnvironmentGroupProjectService environmentGroupProjectService;
 
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
@@ -70,6 +73,7 @@ public class ApiTestEnvironmentService {
 
     public void delete(String id) {
         apiTestEnvironmentMapper.deleteByPrimaryKey(id);
+        environmentGroupProjectService.deleteRelateEnv(id);
     }
 
     public void update(ApiTestEnvironmentWithBLOBs apiTestEnvironment) {

@@ -126,7 +126,7 @@
         </div>
       </template>
     </api-base-component>
-    <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
+    <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="environmentMap"
             @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
 
   </div>
@@ -144,6 +144,7 @@ import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
 import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+import {ENV_TYPE} from "@/common/js/constants";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -172,7 +173,9 @@ export default {
     projectList: Array,
     expandedNode: Array,
     envMap: Map,
-    message: String
+    message: String,
+    environmentGroupId: String,
+    environmentType: String
   },
   components: {
     TemplateComponent,
@@ -192,7 +195,9 @@ export default {
       environment: {},
       result: {},
       apiActive: false,
-      reqSuccess: true
+      reqSuccess: true,
+      envType: this.environmentType,
+      environmentMap: this.envMap
     }
   },
   created() {
@@ -226,16 +231,23 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
     }
-    this.getEnvironments();
+    this.getEnvironments(this.environmentGroupId);
   },
   watch: {
-    envMap() {
+    envMap(val) {
       this.getEnvironments();
+      this.environmentMap = val;
     },
     message() {
       this.forStatus();
       this.reload();
     },
+    environmentGroupId(val) {
+      this.getEnvironments(val);
+    },
+    environmentType(val) {
+      this.envType = val;
+    }
   },
   computed: {
     displayColor() {
@@ -344,14 +356,31 @@ export default {
         this.request.environmentId = this.environment.id;
       }
     },
-    getEnvironments() {
+    getEnvironments(groupId) {
       this.environment = {};
-      let id = this.envMap.get(this.request.projectId);
-      if (id) {
-        this.$get('/api/environment/get/' + id, response => {
-          this.environment = response.data;
-          this.initDataSource();
-        });
+      let id = undefined;
+      if (groupId) {
+        this.$get("/environment/group/project/map/" + groupId, res => {
+          let data = res.data;
+          if (data) {
+            this.environmentMap = new Map(Object.entries(data));
+            id = new Map(Object.entries(data)).get(this.request.projectId);
+            if (id) {
+              this.$get('/api/environment/get/' + id, response => {
+                this.environment = response.data;
+                this.initDataSource();
+              });
+            }
+          }
+        })
+      } else {
+        id = this.envMap.get(this.request.projectId);
+        if (id) {
+          this.$get('/api/environment/get/' + id, response => {
+            this.environment = response.data;
+            this.initDataSource();
+          });
+        }
       }
     },
     remove() {
@@ -510,11 +539,11 @@ export default {
     run() {
       if (this.isApiImport || this.request.isRefEnvironment) {
         if (this.request.type && (this.request.type === "HTTPSamplerProxy" || this.request.type === "JDBCSampler" || this.request.type === "TCPSampler")) {
-          if (!this.envMap || this.envMap.size === 0) {
+          if (!this.environmentMap || this.environmentMap.size === 0) {
             this.$warning(this.$t('api_test.automation.env_message'));
             return false;
-          } else if (this.envMap && this.envMap.size > 0) {
-            const env = this.envMap.get(this.request.projectId);
+          } else if (this.environmentMap && this.environmentMap.size > 0) {
+            const env = this.environmentMap.get(this.request.projectId);
             if (!env) {
               this.$warning(this.$t('api_test.automation.env_message'));
               return false;

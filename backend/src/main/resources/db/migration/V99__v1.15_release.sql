@@ -23,6 +23,58 @@ VALUES (UUID(), 'project_group', 'PROJECT_GROUP:READ+SETTING_PERMISSION', 'PROJE
 alter table test_plan_load_case
     add advanced_configuration TEXT null;
 
+-- environment group
+alter table api_scenario
+    add environment_type varchar(20) null;
+
+alter table api_scenario
+    add environment_json longtext null;
+
+alter table api_scenario
+    add environment_group_id varchar(50) null;
+
+update api_scenario
+set environment_json = api_scenario.scenario_definition -> '$.environmentMap'
+where api_scenario.environment_json is null;
+
+update api_scenario
+set environment_type = 'JSON'
+where environment_type is null;
+
+alter table test_plan_api_scenario
+    add environment_type varchar(20) null comment '场景使用的环境类型';
+
+alter table test_plan_api_scenario
+    add environment_group_id varchar(50) null comment '场景使用的环境组ID';
+
+CREATE TABLE `environment_group`
+(
+    `id`           varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT '环境组id',
+    `name`         varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT '环境组名',
+    `workspace_id` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '所属工作空间',
+    `description`  varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '环境组描述',
+    `create_user`  varchar(50) COLLATE utf8mb4_bin  DEFAULT NULL COMMENT '创建人',
+    `create_time`  bigint(13)                       DEFAULT NULL COMMENT '创建时间',
+    `update_time`  bigint(13)                       DEFAULT NULL COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_bin;
+
+
+CREATE TABLE `environment_group_project`
+(
+    `id`                   varchar(50) COLLATE utf8mb4_bin NOT NULL,
+    `environment_group_id` varchar(50) COLLATE utf8mb4_bin  DEFAULT NULL COMMENT '环境组id',
+    `environment_id`       varchar(50) COLLATE utf8mb4_bin  DEFAULT NULL COMMENT 'api test environment 环境ID',
+    `project_id`           varchar(50) COLLATE utf8mb4_bin  DEFAULT NULL COMMENT '项目id',
+    `description`          varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_bin;
+
+
 
 INSERT INTO custom_field (id, name, scene, `type`, remark, `options`, `system`, `global`, workspace_id, create_time,
                           update_time)
@@ -30,7 +82,8 @@ VALUES ('e392af07-fdfe-4475-a459-87d59f0b1625', '测试阶段', 'PLAN', 'select'
         '[{"text":"test_track.plan.smoke_test","value":"smoke","system": true},{"text":"test_track.plan.system_test","value":"system","system": true},{"text":"test_track.plan.regression_test","value":"regression","system": true}]',
         1, 1, 'global', unix_timestamp() * 1000, unix_timestamp() * 1000);
 
-ALTER TABLE api_definition_exec_result MODIFY COLUMN name VARCHAR (100);
+ALTER TABLE api_definition_exec_result
+    MODIFY COLUMN name VARCHAR(100);
 
 CREATE TABLE IF NOT EXISTS `enterprise_test_report` (
     `id` varchar(50)  NOT NULL COMMENT 'Test ID',

@@ -8,9 +8,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.JvmInfoDTO;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.RunRequest;
+import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
@@ -41,6 +43,7 @@ import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
 import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
@@ -99,6 +102,8 @@ public class TestPlanApiCaseService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private RemakeReportService remakeReportService;
+    @Resource
+    private EnvironmentGroupProjectService environmentGroupProjectService;
 
     public TestPlanApiCase getInfo(String caseId, String testPlanId) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -603,9 +608,17 @@ public class TestPlanApiCaseService {
                     MSException.throwException("并发数量过大，请重新选择！");
                 }
             }
-            Map<String, String> envMap = request.getConfig().getEnvMap();
-            if (!envMap.isEmpty()) {
-                setApiCaseEnv(request.getPlanIds(), envMap);
+            RunModeConfig config = request.getConfig();
+            if (config != null) {
+                String envType = config.getEnvironmentType();
+                String envGroupId = config.getEnvironmentGroupId();
+                Map<String, String> envMap = config.getEnvMap();
+                if ((StringUtils.equals(envType, EnvironmentType.JSON.toString()) && envMap != null && !envMap.isEmpty())) {
+                    setApiCaseEnv(request.getPlanIds(), envMap);
+                } else if ((StringUtils.equals(envType, EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(envGroupId))) {
+                    Map<String, String> map = environmentGroupProjectService.getEnvMap(envGroupId);
+                    setApiCaseEnv(request.getPlanIds(), map);
+                }
             }
             return this.modeRun(request);
         }
@@ -613,7 +626,7 @@ public class TestPlanApiCaseService {
     }
 
     public void setApiCaseEnv(List<String> planIds, Map<String, String> map) {
-        if (CollectionUtils.isEmpty(planIds)) {
+        if (CollectionUtils.isEmpty(planIds) || (map != null && map.isEmpty())) {
             return;
         }
 

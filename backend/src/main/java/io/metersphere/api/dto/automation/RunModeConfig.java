@@ -22,4 +22,6 @@ public class RunModeConfig {
      * 运行环境
      */
     private Map<String, String> envMap;
+    private String environmentType;
+    private String environmentGroupId;
 }

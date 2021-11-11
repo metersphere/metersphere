@@ -666,7 +666,6 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             samplerProxy.setConnectTimeout(source.getConnectTimeout() + "");
             samplerProxy.setResponseTimeout(source.getResponseTimeout() + "");
             samplerProxy.setPort(source.getPropertyAsString("HTTPSampler.port"));
-            samplerProxy.setDomain(source.getDomain());
             String bodyType = this.getBodyType(samplerProxy.getHeaders());
             if (source.getArguments() != null) {
                 if (source.getPostBodyRaw()) {
@@ -698,10 +697,6 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             }
             samplerProxy.setPath(source.getPath());
             samplerProxy.setMethod(source.getMethod());
-            MsJmeterParser jmeterParser = new MsJmeterParser();
-            if (jmeterParser.getUrl(source) != null) {
-                samplerProxy.setUrl(jmeterParser.getUrl(source));
-            }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");
             body.getKvs().add(new KeyValue());

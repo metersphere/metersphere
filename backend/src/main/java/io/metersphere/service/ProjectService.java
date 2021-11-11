@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.service.APITestService;
-import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestDelService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.tcp.TCPPool;
@@ -91,6 +90,8 @@ public class ProjectService {
     private ApiTestDelService apiTestDelService;
     @Value("${tcp.mock.port}")
     private String tcpMockPorts;
+    @Resource
+    private EnvironmentGroupProjectService environmentGroupProjectService;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -200,6 +201,8 @@ public class ProjectService {
         } catch (Exception e) {
         }
 
+        // 删除环境组下的项目相关
+        environmentGroupProjectService.deleteRelateProject(projectId);
 
         // delete project
         projectMapper.deleteByPrimaryKey(projectId);

@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import io.metersphere.api.cache.TestPlanExecuteInfo;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.APIReportResult;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
@@ -187,6 +188,8 @@ public class TestPlanService {
     private TestPlanFollowService testPlanFollowService;
     @Resource
     private TestPlanFollowMapper testPlanFollowMapper;
+    @Resource
+    private EnvironmentGroupProjectService environmentGroupProjectService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20, new NamedThreadFactory("TestPlanService"));
 
@@ -948,6 +951,8 @@ public class TestPlanService {
             request.setTestPlanReportId(planScenarioExecuteRequest.getTestPlanReportId());
             request.setId(UUID.randomUUID().toString());
             request.setProjectId(planScenarioExecuteRequest.getProjectId());
+            request.setRequestOriginator("TEST_PLAN");
+            request.setPlanCaseIds(new ArrayList<>(testPlanScenarioIdMap.keySet()));
             if (request.getConfig() != null) {
                 if (request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
                     // 校验并发数量
@@ -1469,10 +1474,21 @@ public class TestPlanService {
 
         for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
             String env = testPlanApiScenario.getEnvironment();
-            if (StringUtils.isBlank(env)) {
+            String envType = testPlanApiScenario.getEnvironmentType();
+            String envGroupId = testPlanApiScenario.getEnvironmentGroupId();
+            if (StringUtils.isBlank(envType)) {
                 continue;
             }
-            Map<String, String> map = JSON.parseObject(env, Map.class);
+            if ((StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isBlank(env))
+                || StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isBlank(envGroupId)) {
+                continue;
+            }
+            Map<String, String> map = new HashMap<>();
+            if (StringUtils.equals(envType, EnvironmentType.JSON.name())) {
+                map = JSON.parseObject(env, Map.class);
+            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name())) {
+                map = environmentGroupProjectService.getEnvMap(envGroupId);
+            }
             if (!map.isEmpty()) {
                 Set<String> set = map.keySet();
                 for (String s : set) {
@@ -1969,8 +1985,18 @@ public class TestPlanService {
     }
 
     public String runPlan(TestplanRunRequest testplanRunRequest) {
-        if (MapUtils.isNotEmpty(testplanRunRequest.getEnvMap())) {
-            this.setPlanCaseEnv(testplanRunRequest.getTestPlanId(), testplanRunRequest.getEnvMap());
+
+        String envType = testplanRunRequest.getEnvironmentType();
+        Map<String, String> envMap = testplanRunRequest.getEnvMap();
+        String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();
+        RunModeConfig runModeConfig = new RunModeConfig();
+        runModeConfig.setEnvironmentType(testplanRunRequest.getEnvironmentType());
+        if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && !envMap.isEmpty()) {
+            runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
+            this.setPlanCaseEnv(testplanRunRequest.getTestPlanId(), runModeConfig);
+        } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
+            runModeConfig.setEnvironmentGroupId(testplanRunRequest.getEnvironmentGroupId());
+            this.setPlanCaseEnv(testplanRunRequest.getTestPlanId(), runModeConfig);
         }
 
         ApiRunConfigDTO api = new ApiRunConfigDTO();
@@ -1987,18 +2013,25 @@ public class TestPlanService {
                 testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }
 
-    public void setPlanCaseEnv(String planId, Map<String, String> envMap) {
+    public void setPlanCaseEnv(String planId, RunModeConfig runModeConfig) {
         TestPlanApiCaseExample caseExample = new TestPlanApiCaseExample();
         caseExample.createCriteria().andTestPlanIdEqualTo(planId);
         List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(caseExample);
         List<String> planApiCaseIds = testPlanApiCases.stream().map(TestPlanApiCase::getId).collect(Collectors.toList());
+        Map<String, String> envMap = runModeConfig.getEnvMap();
+        String envType = runModeConfig.getEnvironmentType();
+        String environmentGroupId = runModeConfig.getEnvironmentGroupId();
+        if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
+            envMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+        }
+
         testPlanApiCaseService.setApiCaseEnv(planApiCaseIds, envMap);
 
         TestPlanApiScenarioExample scenarioExample = new TestPlanApiScenarioExample();
         scenarioExample.createCriteria().andTestPlanIdEqualTo(planId);
         List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(scenarioExample);
         List<String> planScenarioIds = testPlanApiScenarios.stream().map(TestPlanApiScenario::getId).collect(Collectors.toList());
-        testPlanScenarioCaseService.setScenarioEnv(planScenarioIds, envMap);
+        testPlanScenarioCaseService.setScenarioEnv(planScenarioIds, runModeConfig);
     }
 
     public void editReportConfig(TestPlanDTO testPlanDTO) {

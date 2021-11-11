@@ -7,6 +7,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -21,6 +22,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.EnvironmentGroupProjectService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -168,9 +170,35 @@ public class MsScenario extends MsTestElement {
             config.setHeaders(this.headers);
         }
         ParameterConfig newConfig = new ParameterConfig();
-        if (this.isEnvironmentEnable() && this.environmentMap != null && !this.environmentMap.isEmpty()) {
-            this.setEnv(this.environmentMap, envConfig);
-            newConfig.setConfig(envConfig);
+        if (this.isEnvironmentEnable()) {
+            ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+            EnvironmentGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(EnvironmentGroupProjectService.class);
+            ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
+            String environmentType = scenario.getEnvironmentType();
+            String environmentJson = scenario.getEnvironmentJson();
+            String environmentGroupId = scenario.getEnvironmentGroupId();
+            if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+                this.environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+            } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                this.environmentMap = JSON.parseObject(environmentJson, Map.class);
+            }
+
+            if (this.environmentMap != null && !this.environmentMap.isEmpty()) {
+                environmentMap.keySet().forEach(projectId -> {
+                    ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                    ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.environmentMap.get(projectId));
+                    if (environment != null && environment.getConfig() != null) {
+                        EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                        env.setApiEnvironmentid(environment.getId());
+                        envConfig.put(projectId, env);
+                        if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
+                            this.setMockEnvironment(true);
+                        }
+                    }
+                });
+                newConfig.setConfig(envConfig);
+            }
+
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {

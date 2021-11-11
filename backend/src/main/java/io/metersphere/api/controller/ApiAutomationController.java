@@ -338,7 +338,7 @@ public class ApiAutomationController {
 
     @PostMapping("/setDomain")
     public String setDomain(@RequestBody ApiScenarioEnvRequest request) {
-        return apiAutomationService.setDomain(request.getDefinition());
+        return apiAutomationService.setDomain(request);
     }
 
     @PostMapping(value = "/export/zip")

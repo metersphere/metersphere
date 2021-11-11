@@ -27,6 +27,10 @@ public class TestPlanApiScenario implements Serializable {
 
     private Long order;
 
+    private String environmentType;
+
+    private String environmentGroupId;
+
     private String environment;
 
     private static final long serialVersionUID = 1L;

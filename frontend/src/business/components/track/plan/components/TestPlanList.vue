@@ -542,12 +542,15 @@ export default {
       })
     },
     _handleRun(config) {
-      let {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap} = config;
+      let {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap, environmentType, environmentGroupId} = config;
       let param = {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap};
       param.testPlanId = this.currentPlanId;
       param.projectId = getCurrentProjectID();
       param.userId = getCurrentUserId();
       param.triggerMode = 'MANUAL';
+      param.environmentType = environmentType;
+      param.environmentGroupId = environmentGroupId;
+      param.requestOriginator = "TEST_PLAN";
       this.$refs.taskCenter.open();
       this.result = this.$post('test/plan/run/', param,() => {
         this.$success(this.$t('commons.run_success'));

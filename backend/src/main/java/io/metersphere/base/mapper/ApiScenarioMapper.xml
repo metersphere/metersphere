@@ -28,11 +28,14 @@
     <result column="delete_user_id" jdbcType="VARCHAR" property="deleteUserId" />
     <result column="execute_times" jdbcType="INTEGER" property="executeTimes" />
     <result column="order" jdbcType="BIGINT" property="order" />
+    <result column="environment_type" jdbcType="VARCHAR" property="environmentType" />
+    <result column="environment_group_id" jdbcType="VARCHAR" property="environmentGroupId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioWithBLOBs">
     <result column="scenario_definition" jdbcType="LONGVARCHAR" property="scenarioDefinition" />
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="use_url" jdbcType="LONGVARCHAR" property="useUrl" />
+    <result column="environment_json" jdbcType="LONGVARCHAR" property="environmentJson" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -96,10 +99,10 @@
     id, project_id, tags, user_id, api_scenario_module_id, module_path, `name`, `level`, 
     `status`, principal, step_total, schedule, create_time, update_time, pass_rate, last_result, 
     report_id, num, original_state, custom_num, create_user, version, delete_time, delete_user_id, 
-    execute_times, `order`
+    execute_times, `order`, environment_type, environment_group_id
   </sql>
   <sql id="Blob_Column_List">
-    scenario_definition, description, use_url
+    scenario_definition, description, use_url, environment_json
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioExample" resultMap="ResultMapWithBLOBs">
     select
@@ -158,8 +161,10 @@
       last_result, report_id, num, 
       original_state, custom_num, create_user, 
       version, delete_time, delete_user_id, 
-      execute_times, `order`, scenario_definition, 
-      description, use_url)
+      execute_times, `order`, environment_type, 
+      environment_group_id, scenario_definition, 
+      description, use_url, environment_json
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
@@ -168,8 +173,10 @@
       #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
       #{originalState,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{version,jdbcType=INTEGER}, #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, 
-      #{executeTimes,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR}, #{useUrl,jdbcType=LONGVARCHAR})
+      #{executeTimes,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, #{environmentType,jdbcType=VARCHAR}, 
+      #{environmentGroupId,jdbcType=VARCHAR}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, 
+      #{description,jdbcType=LONGVARCHAR}, #{useUrl,jdbcType=LONGVARCHAR}, #{environmentJson,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
     insert into api_scenario
@@ -252,6 +259,12 @@
       <if test="order != null">
         `order`,
       </if>
+      <if test="environmentType != null">
+        environment_type,
+      </if>
+      <if test="environmentGroupId != null">
+        environment_group_id,
+      </if>
       <if test="scenarioDefinition != null">
         scenario_definition,
       </if>
@@ -260,6 +273,9 @@
       </if>
       <if test="useUrl != null">
         use_url,
+      </if>
+      <if test="environmentJson != null">
+        environment_json,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -341,6 +357,12 @@
       <if test="order != null">
         #{order,jdbcType=BIGINT},
       </if>
+      <if test="environmentType != null">
+        #{environmentType,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentGroupId != null">
+        #{environmentGroupId,jdbcType=VARCHAR},
+      </if>
       <if test="scenarioDefinition != null">
         #{scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
@@ -349,6 +371,9 @@
       </if>
       <if test="useUrl != null">
         #{useUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="environmentJson != null">
+        #{environmentJson,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -439,6 +464,12 @@
       <if test="record.order != null">
         `order` = #{record.order,jdbcType=BIGINT},
       </if>
+      <if test="record.environmentType != null">
+        environment_type = #{record.environmentType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.environmentGroupId != null">
+        environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR},
+      </if>
       <if test="record.scenarioDefinition != null">
         scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
@@ -447,6 +478,9 @@
       </if>
       <if test="record.useUrl != null">
         use_url = #{record.useUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.environmentJson != null">
+        environment_json = #{record.environmentJson,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -481,9 +515,12 @@
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       execute_times = #{record.executeTimes,jdbcType=INTEGER},
       `order` = #{record.order,jdbcType=BIGINT},
+      environment_type = #{record.environmentType,jdbcType=VARCHAR},
+      environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR},
       scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
-      use_url = #{record.useUrl,jdbcType=LONGVARCHAR}
+      use_url = #{record.useUrl,jdbcType=LONGVARCHAR},
+      environment_json = #{record.environmentJson,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -515,7 +552,9 @@
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       execute_times = #{record.executeTimes,jdbcType=INTEGER},
-      `order` = #{record.order,jdbcType=BIGINT}
+      `order` = #{record.order,jdbcType=BIGINT},
+      environment_type = #{record.environmentType,jdbcType=VARCHAR},
+      environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -598,6 +637,12 @@
       <if test="order != null">
         `order` = #{order,jdbcType=BIGINT},
       </if>
+      <if test="environmentType != null">
+        environment_type = #{environmentType,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentGroupId != null">
+        environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
+      </if>
       <if test="scenarioDefinition != null">
         scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
@@ -606,6 +651,9 @@
       </if>
       <if test="useUrl != null">
         use_url = #{useUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="environmentJson != null">
+        environment_json = #{environmentJson,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -637,9 +685,12 @@
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       execute_times = #{executeTimes,jdbcType=INTEGER},
       `order` = #{order,jdbcType=BIGINT},
+      environment_type = #{environmentType,jdbcType=VARCHAR},
+      environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
       scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
-      use_url = #{useUrl,jdbcType=LONGVARCHAR}
+      use_url = #{useUrl,jdbcType=LONGVARCHAR},
+      environment_json = #{environmentJson,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiScenario">
@@ -668,7 +719,9 @@
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       execute_times = #{executeTimes,jdbcType=INTEGER},
-      `order` = #{order,jdbcType=BIGINT}
+      `order` = #{order,jdbcType=BIGINT},
+      environment_type = #{environmentType,jdbcType=VARCHAR},
+      environment_group_id = #{environmentGroupId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

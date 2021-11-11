@@ -4,7 +4,7 @@
       <!-- 表头 -->
       <template v-slot:header>
         <ms-table-header :create-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE']"
-                         :title="$t('api_test.environment.environment_list')" :create-tip="btnTips"
+                         :create-tip="btnTips"
                          :condition.sync="condition" @search="search" @create="createEnv">
           <template v-slot:button>
             <ms-table-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT']" icon="el-icon-box"
@@ -18,8 +18,15 @@
       <el-table border :data="environments" @filter-change="filter"
                 @selection-change="handleSelectionChange" class="adjust-table" style="width: 100%" ref="table"
                 :height="screenHeight"
+                @select-all="handleSelectAll"
+                @select="handleSelect"
       >
         <el-table-column type="selection"></el-table-column>
+        <el-table-column width="30" min-width="30" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+          </template>
+        </el-table-column>
         <el-table-column :label="$t('commons.project')" width="250" :filters="projectFilters" column-key="projectId"
                          show-overflow-tooltip>
           <template v-slot="scope">
@@ -98,6 +105,7 @@
     <el-button type="primary" @click="domainVisible = false" size="mini">{{ $t('commons.confirm') }}</el-button>
   </span>
     </el-dialog>
+    <env-group-cascader :title="'批量添加到环境组'" ref="cascader" @confirm="_batchAddToGroup"/>
   </div>
 </template>
 
@@ -114,12 +122,16 @@ import MsAsideItem from "@/business/components/common/components/MsAsideItem";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import ProjectSwitch from "@/business/components/common/head/ProjectSwitch";
 import SearchList from "@/business/components/common/head/SearchList";
-import {downloadFile} from "@/common/js/utils";
+import {downloadFile, strMapToObj} from "@/common/js/utils";
 import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
+import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
+import {_handleSelect, _handleSelectAll, getSelectDataCounts, setUnSelectIds} from "@/common/js/tableUtils";
+import EnvGroupCascader from "@/business/components/settings/workspace/environment/EnvGroupCascader";
 
 export default {
   name: "EnvironmentList",
   components: {
+    EnvGroupCascader,
     EnvironmentImport,
     SearchList,
     ProjectSwitch,
@@ -127,7 +139,12 @@ export default {
     MsAsideItem,
     EnvironmentEdit,
     ApiEnvironmentConfig,
-    MsTablePagination, MsTableOperatorButton, MsTableOperator, MsTableButton, MsTableHeader
+    MsTablePagination,
+    MsTableOperatorButton,
+    MsTableOperator,
+    MsTableButton,
+    MsTableHeader,
+    ShowMoreBtn
   },
   data() {
     return {
@@ -142,6 +159,7 @@ export default {
       dialogTitle: '',
       currentProjectId: '',   //复制、创建、编辑环境时所选择项目的id
       selectRows: [],
+      selectRow: new Set(),
       isTesterPermission: false,
       domainVisible: false,
       conditions: [],
@@ -155,11 +173,17 @@ export default {
         currentProjectId: [
           {required: true, message: "", trigger: 'blur'},
         ],
-      }
+      },
+      selectDataCounts: 0,
+      buttons: [
+        {
+          name: '批量添加到环境组', handleClick: this.batchAddToGroup
+        },
+      ]
     };
   },
   created() {
-
+    this.list();
   },
 
   activated() {
@@ -372,8 +396,62 @@ export default {
       } else {  //旧版本没有对应的config数据,其域名保存在protocol和domain中
         return environment.protocol + '://' + environment.domain;
       }
+    },
+    batchAddToGroup() {
+      this.$refs.cascader.open();
+    },
+    handleSelectAll(selection) {
+      _handleSelectAll(this, selection, this.environments, this.selectRow, this.condition);
+      setUnSelectIds(this.environments, this.condition, this.selectRow);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRow);
+      this.$emit('selection', selection);
+    },
+    handleSelect(selection, row) {
+      _handleSelect(this, selection, row, this.selectRow);
+      setUnSelectIds(this.environments, this.condition, this.selectRow);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRow);
+      this.$emit('selection', selection);
+    },
+    _batchAddToGroup(value) {
+      let sign = this.checkRepeat();
+      if (!sign) {
+        return false;
+      }
+      let map = new Map();
+      this.selectRow.forEach(row => {
+        map.set(row.projectId, row.id);
+      })
+      this.$post("/environment/group/batch/add", {map: strMapToObj(map), groupIds:value}, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.getEnvironments();
+      })
+    },
+    checkRepeat() {
+      let projectArr = [];
+      this.selectRow.forEach(row => {
+        projectArr.push(row.projectId)
+      })
+      let repeatArr = this.duplicates(projectArr);
+      let str = "";
+      repeatArr.forEach(id => {
+        const project = this.projectList.find(p => p.id === id);
+        if (project) {
+          str += project.name + " ";
+        }
+      })
+      if (str) {
+        this.$warning(str + "环境选择冲突，一个项目选择一个对应环境！");
+        return false;
+      }
+      return true;
+    },
+    duplicates(arr) {
+      let a = arr.sort(), b = [];
+      for (let i in a) {
+        if (a[i] === a[i - 1] && b.indexOf(a[i]) === -1) b.push(a[i]);
+      }
+      return b;
     }
-
   },
 
 

@@ -132,10 +132,13 @@
                 <el-col :span="8">
                   <div style="float: right;width: 300px">
                     <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
-                                 :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
+                                 :project-ids="projectIds" :result="envResult"
+                                 :environment-type.sync="environmentType" :isReadOnly="scenarioDefinition.length < 1"
+                                 :group-id="envGroupId" :project-list="projectList"
                                  :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                                 :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
-                                 :project-list="projectList" ref="envPopover" class="ms-message-right"/>
+                                 @setProjectEnvMap="setProjectEnvMap" @setEnvGroup="setEnvGroup"
+                                 @showPopover="showPopover"
+                                 ref="envPopover" class="ms-message-right"/>
                     <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
                       <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
                         {{ $t('api_test.request.debug') }}
@@ -201,6 +204,7 @@
                          :node="node"
                          :project-list="projectList"
                          :env-map="projectEnvMap"
+                         :env-group-id="envGroupId"
                          @remove="remove"
                          @copyRow="copyRow"
                          @suggestClick="suggestClick"
@@ -250,7 +254,7 @@
 
       <!--执行组件-->
       <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId" :saved="!debug"
-              :run-data="debugData"
+              :run-data="debugData" :environment-type="environmentType" :environment-group-id="envGroupId"
               @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
@@ -275,9 +279,13 @@
             :scenarioDefinition="scenarioDefinition"
             :enableCookieShare="enableCookieShare"
             :onSampleError="onSampleError"
+            :environment-type="environmentType"
+            :group-id="envGroupId"
             :execDebug="stopDebug"
             :isFullUrl.sync="isFullUrl"
             :clearMessage="clearMessage"
+            @setEnvType="setEnvType"
+            @envGroupId="setEnvGroup"
             @closePage="close"
             @unFullScreen="unFullScreen"
             @showAllBtn="showAllBtn"
@@ -334,6 +342,7 @@ import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
 import {saveScenario} from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
+import {ENV_TYPE} from "@/common/js/constants";
 
 let jsonPath = require('jsonpath');
 export default {
@@ -450,7 +459,9 @@ export default {
       plugins: [],
       clearMessage: "",
       runScenario: undefined,
-      showFollow: false
+      showFollow: false,
+      envGroupId: "",
+      environmentType: ENV_TYPE.JSON
     }
   },
   watch: {
@@ -509,6 +520,9 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+    ENV_TYPE() {
+      return ENV_TYPE;
+    }
   },
   methods: {
     currentUser: () => {
@@ -530,7 +544,14 @@ export default {
           onSampleError: this.onSampleError,
           projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
         };
-        this.$post("/api/automation/setDomain", {definition: JSON.stringify(scenario)}, res => {
+        let param = {
+          definition: JSON.stringify(scenario),
+          environmentType: this.environmentType,
+          environmentMap: strMapToObj(this.projectEnvMap),
+          environmentGroupId: this.envGroupId,
+          environmentEnable: false,
+        };
+        this.$post("/api/automation/setDomain", param, res => {
           if (res.data) {
             let data = JSON.parse(res.data);
             this.scenarioDefinition = data.hashTree;
@@ -1175,47 +1196,44 @@ export default {
       this.clearResult(this.scenarioDefinition);
       this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
       /*触发执行操作*/
-      this.$refs.currentScenario.validate((valid) => {
+      this.$refs.currentScenario.validate(async (valid) => {
         if (valid) {
           let definition = JSON.parse(JSON.stringify(this.currentScenario));
           definition.hashTree = this.scenarioDefinition;
-          this.getEnv(JSON.stringify(definition)).then(() => {
-            let promise = this.$refs.envPopover.initEnv();
-            promise.then(() => {
-              let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
-              if (!sign) {
-                this.buttonIsLoading = false;
-                this.clearMessage = getUUID().substring(0, 8);
-                return;
-              }
-              let scenario = undefined;
-              if (runScenario && runScenario.type === 'scenario') {
-                scenario = runScenario;
-                this.runScenario = runScenario;
-              }
-              //调试时不再保存
-              this.debugData = {
-                id: scenario ? scenario.id : this.currentScenario.id,
-                name: scenario ? scenario.name : this.currentScenario.name,
-                type: "scenario",
-                variables: scenario ? scenario.variables : this.currentScenario.variables,
-                referenced: 'Created',
-                enableCookieShare: scenario ? scenario.enableCookieShare : this.enableCookieShare,
-                headers: scenario ? scenario.headers : this.currentScenario.headers,
-                environmentMap: scenario && scenario.environmentEnable ? scenario.environmentMap : this.projectEnvMap,
-                hashTree: scenario ? scenario.hashTree : this.scenarioDefinition,
-                onSampleError: scenario ? scenario.onSampleError : this.onSampleError,
-              };
-              if (scenario && scenario.environmentEnable) {
-                this.debugData.environmentEnable = scenario.environmentEnable;
-                this.debugLoading = false;
-              } else {
-                this.debugLoading = true;
-              }
-              this.reportId = getUUID().substring(0, 8);
-              this.debug = true;
-            })
-          })
+          await this.getEnv(JSON.stringify(definition));
+          await this.$refs.envPopover.initEnv();
+          const sign = await this.$refs.envPopover.checkEnv(this.isFullUrl);
+          if (!sign) {
+            this.buttonIsLoading = false;
+            this.clearMessage = getUUID().substring(0, 8);
+            return;
+          }
+          let scenario = undefined;
+          if (runScenario && runScenario.type === 'scenario') {
+            scenario = runScenario;
+            this.runScenario = runScenario;
+          }
+          //调试时不再保存
+          this.debugData = {
+            id: scenario ? scenario.id : this.currentScenario.id,
+            name: scenario ? scenario.name : this.currentScenario.name,
+            type: "scenario",
+            variables: scenario ? scenario.variables : this.currentScenario.variables,
+            referenced: 'Created',
+            enableCookieShare: scenario ? scenario.enableCookieShare : this.enableCookieShare,
+            headers: scenario ? scenario.headers : this.currentScenario.headers,
+            environmentMap: scenario && scenario.environmentEnable ? scenario.environmentMap : this.projectEnvMap,
+            hashTree: scenario ? scenario.hashTree : this.scenarioDefinition,
+            onSampleError: scenario ? scenario.onSampleError : this.onSampleError,
+          };
+          if (scenario && scenario.environmentEnable) {
+            this.debugData.environmentEnable = scenario.environmentEnable;
+            this.debugLoading = false;
+          } else {
+            this.debugLoading = true;
+          }
+          this.reportId = getUUID().substring(0, 8);
+          this.debug = true;
         } else {
           this.clearMessage = getUUID().substring(0, 8);
         }
@@ -1347,12 +1365,21 @@ export default {
               let obj = JSON.parse(response.data.scenarioDefinition);
               if (obj) {
                 this.currentEnvironmentId = obj.environmentId;
-                if (obj.environmentMap) {
-                  this.projectEnvMap = objToStrMap(obj.environmentMap);
-                } else {
+                // if (obj.environmentMap) {
+                //   this.projectEnvMap = objToStrMap(obj.environmentMap);
+                // } else {
+                //   // 兼容历史数据
+                //   this.projectEnvMap.set(this.projectId, obj.environmentId);
+                // }
+                if (response.data.environmentJson) {
+                  this.projectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                }
+                else {
                   // 兼容历史数据
                   this.projectEnvMap.set(this.projectId, obj.environmentId);
                 }
+                this.envGroupId = response.data.environmentGroupId;
+                this.environmentType = response.data.environmentType;
                 this.currentScenario.variables = [];
                 let index = 1;
                 if (obj.variables) {
@@ -1462,6 +1489,9 @@ export default {
       if (scenario.hashTree) {
         this.formatData(scenario.hashTree);
       }
+      this.currentScenario.environmentType = this.environmentType;
+      this.currentScenario.environmentJson = JSON.stringify(strMapToObj(this.projectEnvMap));
+      this.currentScenario.environmentGroupId = this.envGroupId;
       this.currentScenario.scenarioDefinition = scenario;
       if (this.currentScenario.tags instanceof Array) {
         this.currentScenario.tags = JSON.stringify(this.currentScenario.tags);
@@ -1518,6 +1548,13 @@ export default {
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
       this.setDomain(true);
+    },
+    setEnvGroup(id) {
+      this.envGroupId = id;
+      this.setDomain(true);
+    },
+    setEnvType(val) {
+      this.environmentType = val;
     },
     getWsProjects() {
       this.$get("/project/listAll", res => {

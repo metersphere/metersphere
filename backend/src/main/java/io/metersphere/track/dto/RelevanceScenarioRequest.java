@@ -20,5 +20,7 @@ public class RelevanceScenarioRequest {
      * 场景用例跨项目的关系
      */
     private Map<String, List<String>> mapping;
+    private String environmentType;
+    private String envGroupId;
 
 }

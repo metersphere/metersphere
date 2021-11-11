@@ -16,6 +16,8 @@ export default {
     reportId: String,
     runData: Object,
     saved: Boolean,
+    environmentType: String,
+    environmentGroupId: String
   },
   data() {
     return {
@@ -68,7 +70,8 @@ export default {
       this.sort(testPlan.hashTree);
       let reqObj = {
         id: this.reportId, reportId: this.reportId, scenarioName: this.runData.name, saved: this.saved,
-        scenarioId: this.runData.id, testElement: testPlan, projectId: getCurrentProjectID(), environmentMap: strMapToObj(map)
+        scenarioId: this.runData.id, testElement: testPlan, projectId: getCurrentProjectID(), environmentMap: strMapToObj(map),
+        environmentType: this.environmentType, environmentGroupId: this.environmentGroupId, environmentJson: JSON.stringify(strMapToObj(map))
       };
       saveScenario('/api/automation/run/debug', reqObj, this.runData.hashTree, this, (response) => {
         this.runId = response.data;

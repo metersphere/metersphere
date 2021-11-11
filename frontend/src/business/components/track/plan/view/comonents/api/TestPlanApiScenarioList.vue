@@ -184,7 +184,7 @@ import {
   initCondition,
   buildBatchParam, getCustomTableHeader, getCustomTableWidth
 } from "../../../../../../../common/js/tableUtils";
-import {TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
+import {ENV_TYPE, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import MsPlanRunMode from "@/business/components/track/plan/common/PlanRunModeWithEnv";
@@ -337,11 +337,23 @@ export default {
           });
           this.tableData.forEach(item => {
             try {
-              const envs = JSON.parse(item.environment);
-              if (envs) {
-                this.$post("/test/plan/scenario/case/env", envs, res => {
-                  this.$set(item, 'envs', res.data);
-                });
+              let envs;
+              const type = item.environmentType;
+              if (type === ENV_TYPE.GROUP && item.environmentGroupId) {
+                this.$get("/environment/group/project/map/name/" + item.environmentGroupId, res => {
+                  let data = res.data;
+                  if (data) {
+                    envs = new Map(Object.entries(data));
+                    this.$set(item, 'envs', res.data);
+                  }
+                })
+              } else if (type === ENV_TYPE.JSON) {
+                envs = JSON.parse(item.environment);
+                if (envs) {
+                  this.$post("/test/plan/scenario/case/env", envs, res => {
+                    this.$set(item, 'envs', res.data);
+                  });
+                }
               }
             } catch (error) {
               this.$set(item, 'envs', {});
@@ -413,6 +425,7 @@ export default {
         });
         param.condition = selectParam.condition;
         param.triggerMode = "BATCH";
+        param.requestOriginator = "TEST_PLAN";
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.$message(this.$t('commons.run_message'));
           this.$refs.taskCenter.open();
@@ -429,6 +442,10 @@ export default {
       this.reportId = "";
       this.buildExecuteParam(param,row);
       param.triggerMode = "MANUAL";
+      param.requestOriginator = "TEST_PLAN";
+      param.config = {
+        mode: "serial"
+      };
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
@@ -519,7 +536,8 @@ export default {
       let param = {};
       param.mapping = strMapToObj(form.map);
       param.envMap = strMapToObj(form.projectEnvMap);
-
+      param.environmentType = form.environmentType;
+      param.envGroupId = form.envGroupId;
       if (this.planId) {
         this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
           this.$success(this.$t('commons.save_success'));

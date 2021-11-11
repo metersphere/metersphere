@@ -13,6 +13,8 @@
     <result column="report_id" jdbcType="VARCHAR" property="reportId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="order" jdbcType="BIGINT" property="order" />
+    <result column="environment_type" jdbcType="VARCHAR" property="environmentType" />
+    <result column="environment_group_id" jdbcType="VARCHAR" property="environmentGroupId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanApiScenario">
     <result column="environment" jdbcType="LONGVARCHAR" property="environment" />
@@ -77,7 +79,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_plan_id, api_scenario_id, `status`, create_time, update_time, pass_rate, 
-    last_result, report_id, create_user, `order`
+    last_result, report_id, create_user, `order`, environment_type, environment_group_id
   </sql>
   <sql id="Blob_Column_List">
     environment
@@ -134,13 +136,13 @@
     insert into test_plan_api_scenario (id, test_plan_id, api_scenario_id, 
       `status`, create_time, update_time, 
       pass_rate, last_result, report_id, 
-      create_user, `order`, environment
-      )
+      create_user, `order`, environment_type, 
+      environment_group_id, environment)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{passRate,jdbcType=VARCHAR}, #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, #{environment,jdbcType=LONGVARCHAR}
-      )
+      #{createUser,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, #{environmentType,jdbcType=VARCHAR}, 
+      #{environmentGroupId,jdbcType=VARCHAR}, #{environment,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
     insert into test_plan_api_scenario
@@ -177,6 +179,12 @@
       </if>
       <if test="order != null">
         `order`,
+      </if>
+      <if test="environmentType != null">
+        environment_type,
+      </if>
+      <if test="environmentGroupId != null">
+        environment_group_id,
       </if>
       <if test="environment != null">
         environment,
@@ -215,6 +223,12 @@
       </if>
       <if test="order != null">
         #{order,jdbcType=BIGINT},
+      </if>
+      <if test="environmentType != null">
+        #{environmentType,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentGroupId != null">
+        #{environmentGroupId,jdbcType=VARCHAR},
       </if>
       <if test="environment != null">
         #{environment,jdbcType=LONGVARCHAR},
@@ -263,6 +277,12 @@
       <if test="record.order != null">
         `order` = #{record.order,jdbcType=BIGINT},
       </if>
+      <if test="record.environmentType != null">
+        environment_type = #{record.environmentType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.environmentGroupId != null">
+        environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR},
+      </if>
       <if test="record.environment != null">
         environment = #{record.environment,jdbcType=LONGVARCHAR},
       </if>
@@ -284,6 +304,8 @@
       report_id = #{record.reportId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
+      environment_type = #{record.environmentType,jdbcType=VARCHAR},
+      environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR},
       environment = #{record.environment,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -301,7 +323,9 @@
       last_result = #{record.lastResult,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      `order` = #{record.order,jdbcType=BIGINT}
+      `order` = #{record.order,jdbcType=BIGINT},
+      environment_type = #{record.environmentType,jdbcType=VARCHAR},
+      environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -339,6 +363,12 @@
       <if test="order != null">
         `order` = #{order,jdbcType=BIGINT},
       </if>
+      <if test="environmentType != null">
+        environment_type = #{environmentType,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentGroupId != null">
+        environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
+      </if>
       <if test="environment != null">
         environment = #{environment,jdbcType=LONGVARCHAR},
       </if>
@@ -357,6 +387,8 @@
       report_id = #{reportId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
+      environment_type = #{environmentType,jdbcType=VARCHAR},
+      environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
       environment = #{environment,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -371,7 +403,9 @@
       last_result = #{lastResult,jdbcType=VARCHAR},
       report_id = #{reportId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
-      `order` = #{order,jdbcType=BIGINT}
+      `order` = #{order,jdbcType=BIGINT},
+      environment_type = #{environmentType,jdbcType=VARCHAR},
+      environment_group_id = #{environmentGroupId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

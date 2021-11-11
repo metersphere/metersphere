@@ -1,8 +1,8 @@
 <template>
 
   <div class="dialog-footer">
-    <el-button @click="cancel">{{$t('commons.cancel')}}</el-button>
-    <el-button type="primary" @click="confirm" @keydown.enter.native.prevent>{{$t('commons.confirm')}}</el-button>
+    <el-button @click="cancel" :size="btnSize">{{$t('commons.cancel')}}</el-button>
+    <el-button type="primary" @click="confirm" @keydown.enter.native.prevent :size="btnSize">{{$t('commons.confirm')}}</el-button>
     <el-button type="primary" v-if="isShow" @click="saveAsEdit" @keydown.enter.native.prevent>{{title}}</el-button>
   </div>
 
@@ -17,6 +17,12 @@
         default: false,
       },
       title:String,
+      btnSize: {
+        type: String,
+        default() {
+          return '';
+        }
+      }
     },
     methods: {
       cancel() {
