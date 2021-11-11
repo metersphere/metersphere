@@ -65,24 +65,31 @@ export default {
         };
         this.result = this.$request(conf).then(response => {
           const content = response.data;
-          if(content && this.parameter.files[0]) {
+          if (content && this.parameter.files[0]) {
             downloadFile(this.parameter.files[0].name, content);
           }
         });
       }
     },
     handleRemove(file) {
-      this.$refs.upload.handleRemove(file);
-      for (let i = 0; i < this.parameter.files.length; i++) {
-        let fileName = file.file ? file.file.name : file.name;
-        let paramFileName = this.parameter.files[i].file ?
-          this.parameter.files[i].file.name : this.parameter.files[i].name;
-        if (fileName === paramFileName) {
-          this.parameter.files.splice(i, 1);
-          this.$refs.upload.handleRemove(file);
-          break;
+      this.$alert('是否确认删除CSV文件：【 ' + file.name + " 】？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.$refs.upload.handleRemove(file);
+            for (let i = 0; i < this.parameter.files.length; i++) {
+              let fileName = file.file ? file.file.name : file.name;
+              let paramFileName = this.parameter.files[i].file ?
+                this.parameter.files[i].file.name : this.parameter.files[i].name;
+              if (fileName === paramFileName) {
+                this.parameter.files.splice(i, 1);
+                this.$refs.upload.handleRemove(file);
+                break;
+              }
+            }
+          }
         }
-      }
+      });
     },
     exceed() {
       this.$warning(this.$t('test_track.case.import.upload_limit_count'));
