@@ -307,7 +307,7 @@ public class ApiScenarioReportService {
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
         Map<String, String> scenarioAndErrorMap = new HashMap<>();
-//        Map<String, APIScenarioReportResult> caseReportMap = new HashMap<>();
+        Map<String,String> planScenarioReportMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
 
             // 存储场景报告
@@ -344,13 +344,14 @@ public class ApiScenarioReportService {
             report.setTestPlanScenarioId(planScenarioId);
             report.setEndTime(System.currentTimeMillis());
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+            planScenarioReportMap.put(planScenarioId,report.getId());
 
 
             if (scenarioResult.getError() > 0) {
-                scenarioAndErrorMap.put(testPlanApiScenario.getApiScenarioId(), TestPlanApiExecuteStatus.FAILD.name());
+                scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.FAILD.name());
                 testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
             } else {
-                scenarioAndErrorMap.put(testPlanApiScenario.getApiScenarioId(), TestPlanApiExecuteStatus.SUCCESS.name());
+                scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.SUCCESS.name());
                 testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
             }
 
@@ -403,7 +404,7 @@ public class ApiScenarioReportService {
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
         for (String reportId : testPlanReportIdList) {
             TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId, null, scenarioAndErrorMap, null);
-//            TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId, null, caseReportMap, null);
+            TestPlanReportExecuteCatch.updateTestPlanReport(reportId, null, planScenarioReportMap);
         }
 
         return lastReport;
