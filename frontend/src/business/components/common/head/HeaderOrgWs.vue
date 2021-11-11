@@ -1,14 +1,15 @@
 <template>
-  <el-dropdown size="medium" @command="changeWs" placement="bottom" class="align-right">
+  <el-dropdown size="medium" @command="changeWs" placement="bottom" class="align-right"
+               v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
+                  'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
+                  'PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_CUSTOM_CODE:READ',
+                  'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ']" >
     <span class="dropdown-link">
       {{ currentWorkspaceName }}
       <i class="el-icon-caret-bottom el-icon--right"/>
     </span>
     <template v-slot:dropdown>
-      <el-dropdown-menu v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
-                  'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
-                  'PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_CUSTOM_CODE:READ',
-                  'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ']" style="margin-top: 5px;">
+      <el-dropdown-menu style="margin-top: 5px;">
         <el-input :placeholder="$t('project.search_by_name')"
                   prefix-icon="el-icon-search"
                   v-model="searchString"
