@@ -15,7 +15,7 @@
         </div>
       </template>
 
-      <el-table border class="adjust-table" :data="tableData" style="width: 100%">
+      <el-table border class="adjust-table" :data="tableData" :key = "certinfoKey" style="width: 100%">
         <el-table-column prop="accessKey" label="Access Key">
           <template v-slot:default="scope">
             <div class="variable-combine">
@@ -31,8 +31,8 @@
         </el-table-column>
         <el-table-column prop="secretKey" label="Secret Key">
           <template v-slot:default="scope">
-            <el-link type="primary" @click="showSecretKey(scope.row)" v-if="!apiKeysVisible">{{ $t('commons.show') }}</el-link>
-            <div v-if="apiKeysVisible" class="variable-combine">
+            <el-link type="primary" @click="showSecretKey(scope)" v-if="!scope.row.apiKeysVisible">{{ $t('commons.show') }}</el-link>
+            <div v-if="scope.row.apiKeysVisible" class="variable-combine">
               <div class="variable">{{scope.row.secretKey}}</div>
                 <el-tooltip :content="$t('api_test.copied')" manual v-model="scope.row.visible2" placement="top"
                             :visible-arrow="false">
@@ -96,6 +96,7 @@ export default {
       condition: {},
       tableData: [],
       currentRow: {},
+      certinfoKey:false,
     }
   },
 
@@ -110,7 +111,10 @@ export default {
     search() {
       this.result = this.$get("/user/key/info", response => {
           this.tableData = response.data;
-          this.tableData.forEach(d => d.show = false);
+          this.tableData.forEach((d) => {
+            d.show = false;
+            d.apiKeysVisible = false;
+          })
         }
       )
     },
@@ -150,10 +154,16 @@ export default {
       }
     },
     showSecretKey(row) {
-      this.apiKeysVisible = true;
-      setTimeout(() => {
-        this.apiKeysVisible = false;
-      }, 5000);
+      this.$nextTick(function () {
+        this.$set(this.tableData[row.$index], "apiKeysVisible", true) // => '已更新'
+      })
+      this.certinfoKey = !this.certinfoKey;
+     setTimeout(() => {
+       this.$set(this.tableData[row.$index], "apiKeysVisible", false);
+       this.certinfoKey = !this.certinfoKey;
+     }, 5000);
+
+
     },
     copy(row, key, visible) {
       let input = document.createElement("input");

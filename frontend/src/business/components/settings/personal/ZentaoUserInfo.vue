@@ -1,5 +1,5 @@
 <template>
-  <el-form label-position="right" label-width="100px" size="small">
+  <el-form label-position="right" label-width="110px" size="small">
     <el-form-item :label="'禅道信息'">
       <ms-instructions-icon size="10" :content="'该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用工作空间中配置的默认信息'"/>
     </el-form-item>
