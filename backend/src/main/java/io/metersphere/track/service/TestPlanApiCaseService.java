@@ -477,9 +477,9 @@ public class TestPlanApiCaseService {
                                         break;
                                     }
                                 }
-                                executeThreadIdMap.put(testPlanApiCase.getApiCaseId(),randomUUID);
+                                executeThreadIdMap.put(testPlanApiCase.getId(),randomUUID);
                             } catch (Exception e) {
-                                executeErrorList.add(testPlanApiCase.getApiCaseId());
+                                executeErrorList.add(testPlanApiCase.getId());
                                 reportIds.remove(executeQueue.get(testPlanApiCase).getId());
                                 LogUtil.error("执行终止：" + e.getMessage());
                                 break;
@@ -506,7 +506,7 @@ public class TestPlanApiCaseService {
                                 TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(request.getPlanReportId(), executeErrorMap, null, null);
                             }
                             if (!executeThreadIdMap.isEmpty()) {
-                                TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
+                                TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
                             }
                         }
 
@@ -536,16 +536,20 @@ public class TestPlanApiCaseService {
             for (String reportId : executeQueue.keySet()) {
                 TestPlanApiCase testPlanApiCase = executeQueue.get(reportId);
                 try {
+                    String debugId = request.getPlanReportId();
                     if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-                        jMeterService.runTest(testPlanApiCase.getId(), reportId, request.getTriggerMode(), null, request.getConfig());
+                        jMeterService.runTest(testPlanApiCase.getId(), reportId, request.getTriggerMode(), request.getPlanReportId(), request.getConfig());
                         executeThreadIdMap.put(testPlanApiCase.getApiCaseId(),testPlanApiCase.getId());
                     } else {
                         HashTree hashTree = generateHashTree(testPlanApiCase.getId());
-                        jMeterService.runLocal(reportId,request.getConfig(), hashTree, TriggerMode.BATCH.name(), request.getTriggerMode());
-                        executeThreadIdMap.put(testPlanApiCase.getApiCaseId(),reportId);
+                        if(StringUtils.isEmpty(debugId)){
+                            debugId = TriggerMode.BATCH.name();
+                        }
+                        jMeterService.runLocal(reportId,request.getConfig(), hashTree, debugId, request.getTriggerMode());
+                        executeThreadIdMap.put(testPlanApiCase.getId(),reportId);
                     }
                 }catch (Exception e){
-                    executeErrorList.add(testPlanApiCase.getApiCaseId());
+                    executeErrorList.add(testPlanApiCase.getId());
                 }
 
             }
@@ -560,7 +564,7 @@ public class TestPlanApiCaseService {
                     TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(request.getPlanReportId(), executeErrorMap, null, null);
                 }
                 if (!executeThreadIdMap.isEmpty()) {
-                    TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
+                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
                 }
             }
         }
@@ -670,11 +674,11 @@ public class TestPlanApiCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureApiDTO> getAllCases(Collection<String> caseIdList, String planId, String status) {
+    public List<TestPlanFailureApiDTO> getAllCases(Collection<String> caseIdList,String status) {
         if (caseIdList.isEmpty()) {
             return new ArrayList<>();
         }
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(caseIdList, planId, status);
+        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(caseIdList, status);
         return buildCases(apiTestCases);
     }
 

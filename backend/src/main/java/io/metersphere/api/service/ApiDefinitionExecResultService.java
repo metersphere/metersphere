@@ -324,7 +324,7 @@ public class ApiDefinitionExecResultService {
                             if (StringUtils.isNotEmpty(caseId)) {
                                 apiIdResultMap.put(caseId, item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
                             }
-
+                            //更新报告ID
                             caseReportMap.put(caseId, saveResult.getId());
                         }
 
@@ -334,7 +334,7 @@ public class ApiDefinitionExecResultService {
         }
         testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
         TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(testPlanReportId, apiIdResultMap, null, null);
-//        TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(testPlanReportId, caseReportMap, null, null);
+        TestPlanReportExecuteCatch.updateTestPlanReport(testPlanReportId, caseReportMap, null);
     }
 
     public void deleteByResourceId(String resourceId) {

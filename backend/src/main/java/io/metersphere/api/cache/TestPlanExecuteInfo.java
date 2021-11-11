@@ -33,9 +33,12 @@ public class TestPlanExecuteInfo {
     private Map<String, String> apiScenarioCaseExecInfo = new HashMap<>();
     private Map<String, String> loadCaseExecInfo = new HashMap<>();
 
-    private Map<String, String> apiCaseExecuteReportMap = new HashMap<>();
-    private Map<String, String> apiScenarioReportReportMap = new HashMap<>();
+    private Map<String, String> apiCaseExecuteThreadMap = new HashMap<>();
+    private Map<String, String> apiScenarioThreadMap = new HashMap<>();
     private Map<String, String> loadCaseReportIdMap = new HashMap<>();
+
+    private Map<String, String> apiCaseReportMap = new HashMap<>();
+    private Map<String, String> apiScenarioReportMap = new HashMap<>();
 
     private boolean reportDataInDataBase;
 
@@ -65,13 +68,13 @@ public class TestPlanExecuteInfo {
         }
     }
 
-    public synchronized void updateExecuteResult(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
+    public synchronized void updateThreadResult(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
         if (MapUtils.isNotEmpty(apiCaseExecResultInfo)) {
-            this.apiCaseExecuteReportMap.putAll(apiCaseExecResultInfo);
+            this.apiCaseExecuteThreadMap.putAll(apiCaseExecResultInfo);
         }
 
         if (MapUtils.isNotEmpty(apiScenarioCaseExecResultInfo)) {
-            this.apiScenarioReportReportMap.putAll(apiScenarioCaseExecResultInfo);
+            this.apiScenarioThreadMap.putAll(apiScenarioCaseExecResultInfo);
         }
 
         if (MapUtils.isNotEmpty(loadCaseExecResultInfo)) {
@@ -171,13 +174,13 @@ public class TestPlanExecuteInfo {
             String executeResult = entry.getValue();
             if (StringUtils.equalsIgnoreCase(executeResult, TestPlanApiExecuteStatus.RUNNING.name())) {
                 apiCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
-                if (StringUtils.isNotEmpty(apiCaseExecuteReportMap.get(resourceId))) {
-                    JmeterThreadUtils.stop(apiCaseExecuteReportMap.get(resourceId));
+                if (StringUtils.isNotEmpty(apiCaseExecuteThreadMap.get(resourceId))) {
+                    JmeterThreadUtils.stop(apiCaseExecuteThreadMap.get(resourceId));
                 }
             }
 
-            if (apiCaseExecuteReportMap.containsKey(resourceId)) {
-                MessageCache.executionQueue.remove(apiCaseExecuteReportMap.get(resourceId));
+            if (apiCaseExecuteThreadMap.containsKey(resourceId)) {
+                MessageCache.executionQueue.remove(apiCaseExecuteThreadMap.get(resourceId));
             }
         }
 
@@ -187,14 +190,14 @@ public class TestPlanExecuteInfo {
             String executeResult = entry.getValue();
             if (StringUtils.equalsIgnoreCase(executeResult, TestPlanApiExecuteStatus.RUNNING.name())) {
                 apiScenarioCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
-                updateScenarioReportList.add(apiScenarioReportReportMap.get(resourceId));
-                if (StringUtils.isNotEmpty(apiScenarioReportReportMap.get(resourceId))) {
-                    JmeterThreadUtils.stop(apiScenarioReportReportMap.get(resourceId));
+                updateScenarioReportList.add(apiScenarioThreadMap.get(resourceId));
+                if (StringUtils.isNotEmpty(apiScenarioThreadMap.get(resourceId))) {
+                    JmeterThreadUtils.stop(apiScenarioThreadMap.get(resourceId));
                 }
             }
 
-            if (apiScenarioReportReportMap.containsKey(resourceId)) {
-                MessageCache.executionQueue.remove(apiScenarioReportReportMap.get(resourceId));
+            if (apiScenarioThreadMap.containsKey(resourceId)) {
+                MessageCache.executionQueue.remove(apiScenarioThreadMap.get(resourceId));
             }
         }
         if(CollectionUtils.isNotEmpty(updateScenarioReportList)){
@@ -222,5 +225,16 @@ public class TestPlanExecuteInfo {
         }
 
         this.countUnFinishedNum();
+    }
+
+    public void updateReport(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo) {
+        if (MapUtils.isNotEmpty(apiCaseExecResultInfo)) {
+            this.apiCaseReportMap.putAll(apiCaseExecResultInfo);
+        }
+
+        if (MapUtils.isNotEmpty(apiScenarioCaseExecResultInfo)) {
+            this.apiScenarioReportMap.putAll(apiScenarioCaseExecResultInfo);
+        }
+
     }
 }

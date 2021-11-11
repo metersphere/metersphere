@@ -28,8 +28,6 @@ public class ApiEnvironmentRunningParamService {
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
-    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
-
     public synchronized void addParam(String enviromentId, String key, String value) {
 
         if(StringUtils.isEmpty(key)){
@@ -110,8 +108,6 @@ public class ApiEnvironmentRunningParamService {
         }finally {
             sqlSession.close();
         }
-
-        testPlanLog.info("update by sty: "+enviromentId + ":[" + key +":"+ value +"]");
     }
 
     public void parseEvn(String envStr) {
