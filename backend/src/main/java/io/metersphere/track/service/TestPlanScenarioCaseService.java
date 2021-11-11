@@ -184,7 +184,7 @@ public class TestPlanScenarioCaseService {
             scenarioIds.add(apiScenario.getApiScenarioId());
             scenarioIdApiScarionMap.put(apiScenario.getApiScenarioId(), apiScenario.getId());
         }
-        if(scenarioIdApiScarionMap.isEmpty()){
+        if (scenarioIdApiScarionMap.isEmpty()) {
             MSException.throwException("未找到执行场景！");
         }
         RunScenarioRequest request = new RunScenarioRequest();
@@ -403,7 +403,7 @@ public class TestPlanScenarioCaseService {
         apiResult.setApiScenarioStepData(stepResult);
     }
 
-    private int getUnderwayStepsCounts(List<String> underwayIds){
+    private int getUnderwayStepsCounts(List<String> underwayIds) {
         if (CollectionUtils.isNotEmpty(underwayIds)) {
             List<Integer> underwayStepsCounts = extTestPlanScenarioCaseMapper.getUnderwaySteps(underwayIds);
             Optional<Integer> underwayStepCount = underwayStepsCounts.stream().reduce((total, count) -> {
@@ -450,9 +450,9 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> getAllCases(Collection<String> ids,String planId,String status) {
+    public List<TestPlanFailureScenarioDTO> getAllCases(Collection<String> ids, String status) {
         List<TestPlanFailureScenarioDTO> apiTestCases =
-                extTestPlanScenarioCaseMapper.getFailureListByIds(ids,planId, status);
+                extTestPlanScenarioCaseMapper.getFailureListByIds(ids, status);
         return buildCases(apiTestCases);
     }
 
@@ -462,7 +462,7 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> buildCases(List<TestPlanFailureScenarioDTO> apiTestCases ) {
+    public List<TestPlanFailureScenarioDTO> buildCases(List<TestPlanFailureScenarioDTO> apiTestCases) {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
@@ -493,6 +493,7 @@ public class TestPlanScenarioCaseService {
 
     /**
      * 用例自定义排序
+     *
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {
