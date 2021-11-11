@@ -213,9 +213,9 @@
               <!-- 资源池自己配置各个节点的并发 -->
               <div v-if="resourcePoolType === 'NODE'">
                 <el-radio-group v-model="threadGroup.strategy" :disabled="isReadOnly" style="padding-bottom: 10px;">
-                  <el-radio label="auto">自动分配</el-radio>
-                  <el-radio label="specify">固定节点</el-radio>
-                  <el-radio label="custom">自定义</el-radio>
+                  <el-radio label="auto">{{ $t('load_test.auto_ratio') }}</el-radio>
+                  <el-radio label="specify">{{ $t('load_test.specify_resource') }}</el-radio>
+                  <el-radio label="custom">{{ $t('load_test.custom_ratio') }}</el-radio>
                 </el-radio-group>
                 <div v-if="threadGroup.strategy === 'auto'"></div>
                 <div v-else-if="threadGroup.strategy === 'specify'">
@@ -233,7 +233,7 @@
                     <el-table-column type="index" width="50"/>
                     <el-table-column prop="ip" label="IP"/>
                     <el-table-column prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"/>
-                    <el-table-column prop="ratio" label="占比">
+                    <el-table-column prop="ratio" :label="$t('test_track.home.percentage')">
                       <template v-slot:default="{row}">
                         <el-input-number size="small" v-model="row.ratio" :min="0" :step=".1"
                                          :max="1"></el-input-number>
