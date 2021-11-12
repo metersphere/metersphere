@@ -524,6 +524,10 @@ public class UserService {
     private User updateCurrentUserPwd(EditPassWordRequest request) {
         String oldPassword = CodingUtil.md5(request.getPassword(), "utf-8");
         String newPassword = request.getNewpassword();
+        String newPasswordMd5 = CodingUtil.md5(newPassword);
+        if(StringUtils.equals(oldPassword,newPasswordMd5)){
+            MSException.throwException(Translator.get("新修改的密码不能与旧密码一样 "));
+        }
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdEqualTo(SessionUtils.getUser().getId()).andPasswordEqualTo(oldPassword);
         List<User> users = userMapper.selectByExample(userExample);

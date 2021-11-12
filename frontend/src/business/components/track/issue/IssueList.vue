@@ -78,7 +78,8 @@
                   :label="$t('test_track.issue.platform_status') "
                   prop="platformStatus">
             <template v-slot="scope">
-              {{ scope.row.platformStatus ? scope.row.platformStatus : '--'}}
+              <span v-if="scope.row.platform ==='Zentao'">{{ scope.row.platformStatus ? issueStatusMap[scope.row.platformStatus] : '--'}}</span>
+              <span v-else>{{ scope.row.platformStatus ? scope.row.platformStatus : '--'}}</span>
             </template>
           </ms-table-column>
 
