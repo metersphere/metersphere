@@ -182,7 +182,7 @@ public class TestPlanScenarioCaseService {
         Map<String, String> scenarioIdApiScarionMap = new HashMap<>();
         for (TestPlanApiScenario apiScenario : testPlanApiScenarioList) {
             scenarioIds.add(apiScenario.getApiScenarioId());
-            scenarioIdApiScarionMap.put(apiScenario.getApiScenarioId(), apiScenario.getId());
+            scenarioIdApiScarionMap.put(apiScenario.getId(), apiScenario.getApiScenarioId());
         }
         if (scenarioIdApiScarionMap.isEmpty()) {
             MSException.throwException("未找到执行场景！");

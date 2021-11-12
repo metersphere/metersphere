@@ -391,6 +391,7 @@ public class TestPlanApiCaseService {
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.API_PLAN.name());
         apiResult.setStatus(status);
+        apiResult.setContent(request.getPlanReportId());
         batchMapper.insert(apiResult);
         return apiResult;
     }
@@ -468,6 +469,7 @@ public class TestPlanApiCaseService {
                                 mapper.updateByPrimaryKey(execResult);
                                 modeDataDTO.setApiCaseId(execResult.getId());
                                 modeDataDTO.setDebugReportId(request.getPlanReportId());
+                                modeDataDTO.setTestId(modeDataDTO.getTestId()+":"+request.getPlanReportId()+ ":"+ execResult.getId());
                                 Future<ApiDefinitionExecResult> future = executorService.submit(new SerialApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), request.getTriggerMode()));
                                 ApiDefinitionExecResult report = future.get();
                                 // 如果开启失败结束执行，则判断返回结果状态
@@ -538,14 +540,16 @@ public class TestPlanApiCaseService {
                 try {
                     String debugId = request.getPlanReportId();
                     if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-                        jMeterService.runTest(testPlanApiCase.getId(), reportId, request.getTriggerMode(), request.getPlanReportId(), request.getConfig());
+                        String testId = testPlanApiCase.getId()+":"+ request.getPlanReportId() + ":" +reportId;
+                        jMeterService.runTest(testId, reportId, request.getTriggerMode(), request.getPlanReportId(), request.getConfig());
                         executeThreadIdMap.put(testPlanApiCase.getApiCaseId(),testPlanApiCase.getId());
                     } else {
                         HashTree hashTree = generateHashTree(testPlanApiCase.getId());
                         if(StringUtils.isEmpty(debugId)){
                             debugId = TriggerMode.BATCH.name();
                         }
-                        jMeterService.runLocal(reportId,request.getConfig(), hashTree, debugId, request.getTriggerMode());
+                        String testId = reportId+":"+ request.getPlanReportId();
+                        jMeterService.runLocal(testId,request.getConfig(), hashTree, debugId, request.getTriggerMode());
                         executeThreadIdMap.put(testPlanApiCase.getId(),reportId);
                     }
                 }catch (Exception e){
