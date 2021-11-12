@@ -93,11 +93,11 @@ export default {
       if (this.planReportTemplate) {
         // this.handleGetLogResourceDetail(this.planReportTemplate.logResourceDetail, resourceId);
       } else if (this.isShare) {
-        getSharePerformanceReportLogResourceDetail(this.shareId, this.id, resourceId, this.page[resourceId], data => {
+        getSharePerformanceReportLogResourceDetail(this.shareId, this.id, resourceId, this.page[resourceId] || 1, data => {
           this.handleGetLogResourceDetail(data, resourceId);
         });
       } else {
-        getPerformanceReportLogResourceDetail(this.id, resourceId, this.page[resourceId], data => {
+        getPerformanceReportLogResourceDetail(this.id, resourceId, this.page[resourceId] || 1, data => {
           this.handleGetLogResourceDetail(data, resourceId);
         });
       }
