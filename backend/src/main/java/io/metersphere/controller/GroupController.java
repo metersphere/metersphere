@@ -34,7 +34,7 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/get/{goPage}/{pageSize}")
-    @RequiresPermissions(value= {PermissionConstants.SYSTEM_GROUP_READ}, logical = Logical.OR)
+    @RequiresPermissions(value= {PermissionConstants.SYSTEM_GROUP_READ,PermissionConstants.PROJECT_GROUP_READ}, logical = Logical.OR)
     public Pager<List<GroupDTO>> getGroupList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest request) {
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
