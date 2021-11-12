@@ -1190,7 +1190,6 @@ public class ApiAutomationService {
      * @param executeQueue
      * @param scenarioIds
      * @param scenarioNames
-     * @param serialReportId
      */
     private void prepareExecutedPlanScenario(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, Map<String, RunModeDataDTO> executeQueue, List<String> scenarioIds, StringBuilder scenarioNames) {
         String reportId = request.getId();
@@ -1247,7 +1246,7 @@ public class ApiAutomationService {
             try {
                 if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                     RunModeDataDTO runModeDataDTO = new RunModeDataDTO();
-                    runModeDataDTO.setTestId(scenario.getId());
+                    runModeDataDTO.setTestId(testPlanScenarioId);
                     runModeDataDTO.setPlanEnvMap(planEnvMap);
                     runModeDataDTO.setReport(report);
                     executeQueue.put(report.getId(), runModeDataDTO);
@@ -1462,12 +1461,14 @@ public class ApiAutomationService {
             // 增加一个本地锁，防止并发找不到资源
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
                 String testPlanScenarioId = "";
+                String testId = executeQueue.get(reportId).getTestId();
                 if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(executeQueue.get(reportId).getTestId())) {
-                    testPlanScenarioId = request.getScenarioTestPlanIdMap().get(executeQueue.get(reportId).getTestId());
+                    testPlanScenarioId = executeQueue.get(reportId).getTestId();
+                    testId = request.getScenarioTestPlanIdMap().get(executeQueue.get(reportId).getTestId());
                 } else {
                     testPlanScenarioId = request.getPlanScenarioId();
                 }
-                jMeterService.runTest(executeQueue.get(reportId).getTestId(), reportId, request.getRunMode(), testPlanScenarioId, request.getConfig());
+                jMeterService.runTest(testId, reportId, request.getRunMode(), testPlanScenarioId, request.getConfig());
             } else {
                 jMeterService.runLocal(reportId, request.getConfig(), executeQueue.get(reportId).getHashTree(),
                         TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());

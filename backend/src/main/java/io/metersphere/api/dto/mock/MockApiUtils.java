@@ -471,11 +471,13 @@ public class MockApiUtils {
             JSON returnJson = null;
             try {
                 String param = getRequestPostStr(request);
-                JSONValidator jsonValidator = JSONValidator.from(param);
-                if (StringUtils.equalsIgnoreCase("Array", jsonValidator.getType().name())) {
-                    returnJson = JSONArray.parseArray(param);
-                } else if (StringUtils.equalsIgnoreCase("Object", jsonValidator.getType().name())) {
-                    returnJson = JSONObject.parseObject(param);
+                if(StringUtils.isNotEmpty(param)){
+                    JSONValidator jsonValidator = JSONValidator.from(param);
+                    if (StringUtils.equalsIgnoreCase("Array", jsonValidator.getType().name())) {
+                        returnJson = JSONArray.parseArray(param);
+                    } else if (StringUtils.equalsIgnoreCase("Object", jsonValidator.getType().name())) {
+                        returnJson = JSONObject.parseObject(param);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
