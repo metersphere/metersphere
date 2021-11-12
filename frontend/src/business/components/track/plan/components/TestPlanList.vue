@@ -542,8 +542,8 @@ export default {
       this.$refs.taskCenter.open();
       this.result = this.$post('test/plan/run/', param,() => {
         this.$success(this.$t('commons.run_success'));
-      }, () => {
-        this.$error(this.$t('commons.run_fail'));
+      }, error => {
+        // this.$error(error.message);
       });
     },
     saveFollow(row){

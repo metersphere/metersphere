@@ -81,6 +81,10 @@ public class TestResultService {
                 if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
                     apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, debugReportId, runMode);
                 } else {
+                    String testResultTestId = testResult.getTestId();
+                    if(testResultTestId.contains(":")){
+                        testResult.setTestId(testResultTestId.split(":")[0]);
+                    }
                     apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(), TriggerMode.MANUAL.name());
                 }
             } else if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {

@@ -1068,14 +1068,52 @@ public class TestPlanService {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public String run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
-        extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
+        RunModeConfig runModeConfig = null;
+        try {
+            runModeConfig = JSONObject.parseObject(apiRunConfig, RunModeConfig.class);
+            runModeConfig.setOnSampleError(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (runModeConfig == null) {
+            runModeConfig = new RunModeConfig();
+            runModeConfig.setMode("serial");
+            runModeConfig.setReportType("iddReport");
+            runModeConfig.setEnvMap(new HashMap<>());
+            runModeConfig.setOnSampleError(false);
+        }else {
+            if(runModeConfig.getEnvMap() == null){
+                runModeConfig.setEnvMap(new HashMap<>());
+            }
+        }
+
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, testPlanID, userId, triggerMode);
-
         TestPlanReport testPlanReport = reportInfoDTO.getTestPlanReport();
         Map<String, String> planScenarioIdsMap = reportInfoDTO.getPlanScenarioIdMap();
         Map<String, String> planApiCaseMap = reportInfoDTO.getApiTestCaseDataMap();
         Map<String, String> performanceIdMap = reportInfoDTO.getPerformanceIdMap();
+
+        if (runModeConfig.getMode().equals(RunModeConstants.PARALLEL.toString())) {
+            // 校验并发数量
+            int count = 50;
+            BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
+            if (StringUtils.isNotEmpty(dto.getConcurrency())) {
+                count = Integer.parseInt(dto.getConcurrency());
+            }
+            if (planApiCaseMap.size() > count) {
+                testPlanReportService.finishReport(reportInfoDTO.getTestPlanReport());
+                MSException.throwException("并发超过"+count+"，数量过大，请重新选择！");
+            }
+            if (planScenarioIdsMap.size() > count) {
+                testPlanReportService.finishReport(reportInfoDTO.getTestPlanReport());
+                MSException.throwException("并发超过"+count+"，数量过大，请重新选择！");
+            }
+        }
+        extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
+
+
 
         String planReportId = testPlanReport.getId();
 
@@ -1143,26 +1181,6 @@ public class TestPlanService {
         }
         testPlanLog.info("ReportId[" + planReportId + "] start run. TestPlanID:[" + testPlanID + "].  Execute api :" + JSONObject.toJSONString(executeApiCaseIdMap) + "; Execute scenario:" + JSONObject.toJSONString(executeScenarioCaseIdMap) + "; Execute performance:" + JSONObject.toJSONString(executePerformanceIdMap));
         TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(planReportId, executeApiCaseIdMap, executeScenarioCaseIdMap, executePerformanceIdMap);
-
-        RunModeConfig runModeConfig = null;
-        try {
-            runModeConfig = JSONObject.parseObject(apiRunConfig, RunModeConfig.class);
-            runModeConfig.setOnSampleError(false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (runModeConfig == null) {
-            runModeConfig = new RunModeConfig();
-            runModeConfig.setMode("serial");
-            runModeConfig.setReportType("iddReport");
-            runModeConfig.setEnvMap(new HashMap<>());
-            runModeConfig.setOnSampleError(false);
-        }else {
-            if(runModeConfig.getEnvMap() == null){
-                runModeConfig.setEnvMap(new HashMap<>());
-            }
-        }
         //执行接口案例任务
         this.executeApiTestCase(triggerMode, planReportId,new ArrayList<>(planApiCaseMap.keySet()), runModeConfig);
         //执行场景执行任务
