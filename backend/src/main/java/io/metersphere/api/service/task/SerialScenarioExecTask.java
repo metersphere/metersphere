@@ -41,7 +41,9 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 String testPlanScenarioId = "";
                 if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(runModeDataDTO.getTestId())) {
-                    testPlanScenarioId = request.getScenarioTestPlanIdMap().get(runModeDataDTO.getTestId());
+                    testPlanScenarioId = runModeDataDTO.getTestId();
+                    String scenarioId = request.getScenarioTestPlanIdMap().get(runModeDataDTO.getTestId());
+                    runModeDataDTO.setTestId(scenarioId);
                 } else {
                     testPlanScenarioId = request.getPlanScenarioId();
                 }
