@@ -1182,4 +1182,13 @@ public class TestPlanReportService {
         testPlanReportDTO.setName(testPlanReport.getName());
         return testPlanReportDTO;
     }
+
+    public void finishReport(TestPlanReport testPlanReport) {
+        long endTime = System.currentTimeMillis();
+        testPlanReport.setEndTime(endTime);
+        testPlanReport.setUpdateTime(endTime);
+
+        testPlanReport.setStatus(TestPlanReportStatus.FAILED.name());
+        testPlanReportMapper.updateByPrimaryKey(testPlanReport);
+    }
 }
