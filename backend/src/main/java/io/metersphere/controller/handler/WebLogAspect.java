@@ -48,8 +48,7 @@ public class WebLogAspect {
         Handler h = handler.get();
 
         StringBuilder sb = new StringBuilder()
-                .append(h.getMethod()).append(" ")
-                .append("URL: ")
+                .append(h.getMethod()).append(": ")
                 .append(h.getUrl()).append(" ")
                 .append("TIME: ")
                 .append((System.currentTimeMillis() - h.getStartTime())).append("ms ");
