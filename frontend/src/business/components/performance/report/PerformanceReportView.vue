@@ -413,12 +413,7 @@ export default {
         let data = res.data;
         if (data) {
           this.status = data.status;
-          this.$set(this.report, "id", data.id);
-          this.$set(this.report, "status", data.status);
-          this.$set(this.report, "testId", data.testId);
-          this.$set(this.report, "name", data.name);
-          this.$set(this.report, "createTime", data.createTime);
-          this.$set(this.report, "loadConfiguration", data.loadConfiguration);
+          this.$set(this, "report", data);
           this.checkReportStatus(data.status);
           if (this.status === "Completed" || this.status === "Running") {
             this.initReportTimeInfo();

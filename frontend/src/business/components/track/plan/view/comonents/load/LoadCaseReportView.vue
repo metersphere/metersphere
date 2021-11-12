@@ -13,7 +13,7 @@
                 <el-breadcrumb-item>{{ reportName }}</el-breadcrumb-item>
               </el-breadcrumb>
             </el-row>
-            <el-row class="ms-report-view-btns"  v-if="!isPlanReport">
+            <el-row class="ms-report-view-btns" v-if="!isPlanReport">
               <el-button :disabled="isReadOnly || report.status !== 'Running'" type="primary" plain size="mini"
                          @click="dialogFormVisible=true">
                 {{ $t('report.test_stop_now') }}
@@ -61,7 +61,8 @@
                                       :share-id="shareId" ref="testDetails"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_request_statistics')">
-              <ms-report-request-statistics :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
+              <ms-report-request-statistics :report="report" :is-share="isShare"
+                                            :plan-report-template="planReportTemplate"
                                             :share-id="shareId" ref="requestStatistics"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_error_log')">
@@ -69,7 +70,7 @@
                                    :share-id="shareId" ref="errorLog"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_log_details')">
-              <ms-report-log-details  :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
+              <ms-report-log-details :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
                                      :share-id="shareId"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_monitor_details')">
@@ -79,11 +80,13 @@
           </el-tabs>
         </div>
 
-        <ms-performance-report-export v-if="!isShare && !planReportTemplate" :title="reportName" id="performanceReportExport" v-show="reportExportVisible"
+        <ms-performance-report-export v-if="!isShare && !planReportTemplate" :title="reportName"
+                                      id="performanceReportExport" v-show="reportExportVisible"
                                       :report="report"/>
 
       </el-card>
-      <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%" :append-to-body="true">
+      <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%"
+                 :append-to-body="true">
         <p v-html="$t('report.force_stop_tips')"/>
         <p v-html="$t('report.stop_tips')"/>
         <div slot="footer" class="dialog-footer">
@@ -155,7 +158,7 @@ export default {
       reportExportVisible: false,
       testPlan: {testResourcePoolId: null},
       show: true,
-    }
+    };
   },
   props: {
     reportId: String,
@@ -191,7 +194,7 @@ export default {
           } else {
             this.$error(this.$t('report.not_exist'));
           }
-        })
+        });
       }
     },
     initReportTimeInfo() {
@@ -360,10 +363,10 @@ export default {
           aTag.download = this.reportName + ".jtl";
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
-          URL.revokeObjectURL(aTag.href)
+          URL.revokeObjectURL(aTag.href);
         } else {
           // IE10+下载
-          navigator.msSaveBlob(blob, this.filename)
+          navigator.msSaveBlob(blob, this.filename);
         }
       }).catch(e => {
         let text = e.response.data.text();
@@ -376,7 +379,7 @@ export default {
       this.clearData();
       if (this.planReportTemplate) {
         this.handleInit(this.planReportTemplate);
-      } else if (this.isShare){
+      } else if (this.isShare) {
         this.result = getSharePerformanceReport(this.shareId, this.reportId, data => {
           this.handleInit(data);
         });
@@ -389,10 +392,7 @@ export default {
     handleInit(data) {
       if (data) {
         this.status = data.status;
-        this.$set(this.report, "id", this.reportId);
-        this.$set(this.report, "status", data.status);
-        this.$set(this.report, "testId", data.testId);
-        this.$set(this.report, "loadConfiguration", data.loadConfiguration);
+        this.$set(this, "report", data);
         this.checkReportStatus(data.status);
         if (this.status === "Completed" || this.status === "Running") {
           this.initReportTimeInfo();
@@ -407,7 +407,7 @@ export default {
   created() {
     this.init();
   }
-}
+};
 </script>
 
 <style scoped>
