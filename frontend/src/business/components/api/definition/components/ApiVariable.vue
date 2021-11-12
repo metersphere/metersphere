@@ -91,7 +91,8 @@
     <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario"
                              :append-to-body="appendDialogToBody"
                              :parameters="parameters"
-                             :current-item="currentItem"/>
+                             :current-item="currentItem"
+                             @advancedRefresh="reload"/>
     <ms-api-variable-json :append-to-body="appendDialogToBody" ref="variableJson" @callback="callback"/>
 
     <api-variable-setting :append-to-body="appendDialogToBody"
