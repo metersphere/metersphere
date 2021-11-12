@@ -47,9 +47,7 @@ public class WebLogAspect {
     public void doAfter(Object ret) {
         Handler h = handler.get();
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("HOST: ")
-                .append(h.getHost()).append(" ")
+        StringBuilder sb = new StringBuilder()
                 .append(h.getMethod()).append(" ")
                 .append("URL: ")
                 .append(h.getUrl()).append(" ")
