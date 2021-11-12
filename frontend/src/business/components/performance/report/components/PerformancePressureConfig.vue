@@ -49,8 +49,8 @@
               <br>
               <el-form-item label="执行方式">
                 <el-radio-group v-model="threadGroup.threadType" :disabled="true">
-                  <el-radio label="DURATION">{{ $t('load_test.by_duration') }}</el-radio>
-                  <el-radio label="ITERATION">{{ $t('load_test.by_iteration') }}</el-radio>
+                  <el-radio-button label="DURATION">{{ $t('load_test.by_duration') }}</el-radio-button>
+                  <el-radio-button label="ITERATION">{{ $t('load_test.by_iteration') }}</el-radio-button>
                 </el-radio-group>
               </el-form-item>
               <br>
