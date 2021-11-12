@@ -251,6 +251,11 @@
         this.showPreview();
       },
       addFunc() {
+        if(this.itemValue.indexOf('@') == -1){
+          this.itemValue = '@' + this.itemValue;
+        } else {
+          this.itemValue = this.itemValue;
+        }
         if (this.mockVariableFuncs.length > 4) {
           this.$info(this.$t('api_test.request.parameters_advance_add_func_limit'));
           return;
@@ -273,7 +278,11 @@
         this.mockVariableFuncs.push({name: '', params: []});
       },
       saveAdvanced() {
-        this.currentItem.value = this.itemValue;
+        if(this.itemValue.indexOf('@') == -1){
+          this.currentItem.value = '@' + this.itemValue;
+        } else {
+          this.currentItem.value = this.itemValue;
+        }
         this.itemValueVisible = false;
         this.mockVariableFuncs = [];
         this.$emit('advancedRefresh', this.itemValue);
