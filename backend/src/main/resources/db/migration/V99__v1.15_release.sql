@@ -6,6 +6,14 @@ CREATE TABLE `issue_follow` (
                                 KEY `issue_follow_issue_id_index` (`issue_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
+-- group
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_group', 'PROJECT_GROUP:READ', 'PROJECT_GROUP');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_group', 'PROJECT_GROUP:READ+CREATE', 'PROJECT_GROUP');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_group', 'PROJECT_GROUP:READ+EDIT', 'PROJECT_GROUP');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_group', 'PROJECT_GROUP:READ+DELETE', 'PROJECT_GROUP');
 
 
