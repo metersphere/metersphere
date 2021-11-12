@@ -50,11 +50,11 @@
                 <div class="div-item">
                   <div style="float: left">
                     <i class="el-icon-user icon-color"
-                       @click="click('/project/usergroup', ['PROJECT_USER:READ'])">
+                       @click="click('/project/usergroup', ['PROJECT_GROUP:READ'])">
                     </i>
                   </div>
                   <div style="float: left">
-                    <span class="title" @click="click('/project/usergroup', ['PROJECT_USER:READ'])">
+                    <span class="title" @click="click('/project/usergroup', ['PROJECT_GROUP:READ'])">
                       {{ $t('group.group_permission') }}
                     </span><br/>
                     <span class="desc">{{ $t('project.group_desc') }}</span>
