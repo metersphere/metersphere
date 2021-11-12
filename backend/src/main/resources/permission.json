@@ -286,6 +286,26 @@
       "resourceId": "PROJECT_USER"
     },
     {
+      "id": "PROJECT_GROUP:READ",
+      "name": "查询用户组与权限",
+      "resourceId": "PROJECT_GROUP"
+    },
+    {
+      "id": "PROJECT_GROUP:READ+CREATE",
+      "name": "创建用户组与权限",
+      "resourceId": "PROJECT_GROUP"
+    },
+    {
+      "id": "PROJECT_GROUP:READ+EDIT",
+      "name": "编辑用户组与权限",
+      "resourceId": "PROJECT_GROUP"
+    },
+    {
+      "id": "PROJECT_GROUP:READ+DELETE",
+      "name": "删除用户组与权限",
+      "resourceId": "PROJECT_GROUP"
+    },
+    {
       "id": "PROJECT_MANAGER:READ",
       "name": "查询项目",
       "resourceId": "PROJECT_MANAGER"
@@ -868,6 +888,10 @@
     {
       "id": "PROJECT_MANAGER",
       "name": "项目管理"
+    },
+    {
+      "id": "PROJECT_GROUP",
+      "name": "用户组与权限"
     },
     {
       "id": "PROJECT_ENVIRONMENT",
