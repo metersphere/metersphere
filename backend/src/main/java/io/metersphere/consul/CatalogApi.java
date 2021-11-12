@@ -18,7 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("v1")
-public class CatalogApiController {
+public class CatalogApi {
     @Resource
     private ConsulService consulService;
 
