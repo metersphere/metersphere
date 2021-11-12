@@ -3,9 +3,8 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.JarConfig;
-import io.metersphere.base.domain.TestPlanApiScenario;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -39,6 +38,8 @@ public class ApiJmeterFileService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
 
     public byte[] downloadJmeterFiles(List<BodyFile> bodyFileList) {
         Map<String, byte[]> files = new LinkedHashMap<>();
@@ -52,27 +53,34 @@ public class ApiJmeterFileService {
         return listBytesToZip(files);
     }
 
-    public byte[] downloadJmeterFiles(String runMode, String testId, String reportId, String testPlanScenarioId) {
+    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String testPlanScenarioId) {
         Map<String, String> planEnvMap = new HashMap<>();
         if (StringUtils.isNotEmpty(testPlanScenarioId)) {
             // 获取场景用例单独的执行环境
             TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
-            String environment = planApiScenario.getEnvironment();
-            if (StringUtils.isNotBlank(environment)) {
-                planEnvMap = JSON.parseObject(environment, Map.class);
+            if(planApiScenario != null){
+                String environment = planApiScenario.getEnvironment();
+                if (StringUtils.isNotBlank(environment)) {
+                    planEnvMap = JSON.parseObject(environment, Map.class);
+                }
             }
         }
         HashTree hashTree;
-        if (ApiRunMode.DEFINITION.name().equals(runMode) || ApiRunMode.API_PLAN.name().equals(runMode)) {
+        if (ApiRunMode.DEFINITION.name().equals(runMode) || ApiRunMode.API_PLAN.name().equals(runMode) || ApiRunMode.MANUAL_PLAN.name().equals(runMode)) {
+            String testId = remoteTestId;
+            if(remoteTestId.contains(":")){
+                //执行测试计划案例时会有拼接ID,ID为 planTestCaseId:测试计划报告ID
+                testId = remoteTestId.split(":")[0];
+            }
             hashTree = testPlanApiCaseService.generateHashTree(testId);
         } else {
-            ApiScenarioWithBLOBs item = apiScenarioMapper.selectByPrimaryKey(testId);
+            ApiScenarioWithBLOBs item = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
             if (item == null) {
                 MSException.throwException("未找到执行场景。");
             }
             hashTree = apiAutomationService.generateHashTree(item, reportId, planEnvMap);
         }
-        return zipFilesToByteArray(testId, hashTree);
+        return zipFilesToByteArray(remoteTestId, hashTree);
     }
 
     public byte[] downloadJmx(String runMode, String testId, String reportId, String testPlanScenarioId) {

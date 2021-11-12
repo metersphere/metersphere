@@ -230,7 +230,6 @@ public class ApiDefinitionExecResultService {
      * @param type
      */
     public void saveApiResultByScheduleTask(TestResult result, String testPlanReportId, String type) {
-        testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER.");
         String saveResultType = type;
         if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             saveResultType = ApiRunMode.API_PLAN.name();
@@ -240,14 +239,25 @@ public class ApiDefinitionExecResultService {
         Map<String, String> apiIdResultMap = new HashMap<>();
         Map<String, String> caseReportMap = new HashMap<>();
 
+        String testId = result.getTestId();
+        if(testId.contains(":")){
+            String [] testIdArr = testId.split(":");
+            if(testIdArr.length == 3){
+                result.setTestId(testIdArr[2]);
+            }else {
+                result.setTestId(testIdArr[0]);
+            }
+            testPlanReportId = testIdArr[1];
+        }
+        String creator = TestPlanReportExecuteCatch.getCreator(testPlanReportId);
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
             result.getScenarios().forEach(scenarioResult -> {
                 final boolean[] isFirst = {true};
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                     scenarioResult.getRequestResults().forEach(item -> {
-                        String creator = TestPlanReportExecuteCatch.getCreator(testPlanReportId);
                         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                             ApiDefinitionExecResult saveResult = MessageCache.caseExecResourceLock.get(result.getTestId());
+
                             if (saveResult == null) {
                                 saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(result.getTestId());
                             }
