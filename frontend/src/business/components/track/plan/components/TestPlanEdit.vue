@@ -2,7 +2,8 @@
 
   <div>
 
-    <el-dialog :close-on-click-modal="false"
+    <el-dialog v-loading="result.loading"
+               :close-on-click-modal="false"
                :destroy-on-close="true"
                :title="operationType === 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
@@ -143,15 +144,18 @@
 
         <div class="dialog-footer">
           <el-button
+            v-prevent-re-click
             @click="dialogFormVisible = false">
             {{ $t('test_track.cancel') }}
           </el-button>
           <el-button
             type="primary"
+            v-prevent-re-click
             @click="savePlan">
             {{ $t('test_track.confirm') }}
           </el-button>
-          <el-button type="primary" @click="testPlanInfo">
+          <el-button type="primary" v-prevent-re-click
+                     @click="testPlanInfo">
             {{ $t('test_track.planning_execution') }}
           </el-button>
         </div>
@@ -178,6 +182,7 @@ export default {
       isStepTableAlive: true,
       dialogFormVisible: false,
       itemSize: "medium",
+      result: {},
       form: {
         name: '',
         projectIds: [],
@@ -231,6 +236,7 @@ export default {
       this.reload();
     },
     testPlanInfo() {
+      this.result.loading = true;
       this.$refs['planFrom'].validate((valid) => {
         if (valid) {
           let param = {};
@@ -245,7 +251,7 @@ export default {
             this.form.tags = JSON.stringify(this.form.tags);
           }
           param.tags = this.form.tags;
-          this.$post('/test/plan/' + this.operationType, param, response => {
+          this.result = this.$post('/test/plan/' + this.operationType, param, response => {
             this.$success(this.$t('commons.save_success'));
             this.dialogFormVisible = false;
             this.$router.push('/track/plan/view/' + response.data.id);
@@ -256,6 +262,7 @@ export default {
       });
     },
     savePlan() {
+
       this.$refs['planFrom'].validate((valid) => {
         if (valid) {
           let param = {};
