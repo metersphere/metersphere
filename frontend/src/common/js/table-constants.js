@@ -71,7 +71,8 @@ export const ISSUE_STATUS_MAP = {
   'closed': '已关闭',
   'resolved': '已解决',
   'active': '激活',
-  'delete': '已删除'
+  'delete': '已删除',
+  'created':'新建'
 }
 
 export const API_SCENARIO_FILTERS = {
