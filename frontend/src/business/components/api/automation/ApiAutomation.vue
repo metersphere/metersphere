@@ -486,4 +486,10 @@ export default {
 /deep/ .el-tabs__header {
   margin: 0 0 0px;
 }
+/deep/ .el-table__empty-block {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  padding-right: 100%;
+}
 </style>
