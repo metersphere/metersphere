@@ -822,4 +822,11 @@ export default {
   margin-right: 10px;
   font-size: 16px;
 }
+
+/deep/ .el-table__empty-block {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  padding-right: 100%;
+}
 </style>

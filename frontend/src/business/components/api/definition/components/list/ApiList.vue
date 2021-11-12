@@ -864,6 +864,12 @@ export default {
   top: -2px;
 }
 
+/deep/ .el-table__empty-block {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  padding-right: 100%;
+}
 /* /deep/ .el-table__fixed-body-wrapper {
   top: 60px !important;
 } */
