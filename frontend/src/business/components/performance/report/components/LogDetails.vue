@@ -5,10 +5,10 @@
         <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
                    @change="changeInstance(currentInstance)">
           <el-option
-              v-for="item in resource"
-              :key="item.resourceId"
-              :label="item.resourceName"
-              :value="item.resourceId">
+            v-for="item in resource"
+            :key="item.resourceId"
+            :label="item.resourceName"
+            :value="item.resourceId">
           </el-option>
         </el-select>
       </el-col>
@@ -73,7 +73,7 @@ export default {
         this.init = false;
       }
       if (!this.currentInstance) {
-        this.currentInstance = this.resource[0].resourceId;
+        this.currentInstance = this.resource[0]?.resourceId;
       }
       this.page = data.map(item => item.resourceId).reduce((result, curr) => {
         result[curr] = 1;
