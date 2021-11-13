@@ -795,6 +795,7 @@ export default {
     rps_limit: 'RPS Limit',
     rps_limit_enable: 'RPS Value',
     resource_strategy: 'Allocation Strategy',
+    run_mode: 'Run Mode',
     input_rps_limit: 'Please enter a limit',
     ramp_up_time_within: 'In',
     ramp_up_time_minutes: 'seconds, separate',
