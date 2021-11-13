@@ -798,6 +798,7 @@ export default {
     rps_limit: 'RPS上限',
     rps_limit_enable: 'RPS開啟',
     resource_strategy: '分配策略',
+    run_mode: '執行方式',
     input_rps_limit: '請輸入限製',
     ramp_up_time_within: '在',
     ramp_up_time_minutes: '秒內，分',
