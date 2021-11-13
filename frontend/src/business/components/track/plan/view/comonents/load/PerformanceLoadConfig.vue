@@ -17,19 +17,17 @@
           <el-form-item :label="$t('load_test.serialize_threadgroups')">
             <el-switch v-model="serializeThreadGroups"/>
           </el-form-item>
-          <br>
           <el-form-item :label="$t('load_test.autostop_threadgroups')">
             <el-switch v-model="autoStop"/>
           </el-form-item>
-          <el-form-item :label="$t('load_test.reaches_duration')">
-            <el-input-number
-              :disabled="isReadOnly || !autoStop"
-              v-model="autoStopDelay"
-              :min="1"
-              :max="9999"
-              size="mini"/>
+          <el-form-item v-if="autoStop" :label="$t('load_test.reaches_duration')">
+            <el-input-number controls-position="right"
+                             :disabled="isReadOnly"
+                             v-model="autoStopDelay"
+                             :min="1"
+                             :max="9999"
+                             size="mini"/>
           </el-form-item>
-          <el-form-item :label="$t('load_test.autostop_delay')"/>
         </el-form>
       </el-col>
     </el-row>

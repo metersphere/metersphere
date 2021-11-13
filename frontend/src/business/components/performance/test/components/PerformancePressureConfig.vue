@@ -6,30 +6,28 @@
           <el-form-item :label="$t('load_test.select_resource_pool')">
             <el-select v-model="resourcePool" :disabled="isReadOnly" size="mini" @change="resourcePoolChange">
               <el-option
-                  v-for="item in resourcePools"
-                  :key="item.id"
-                  :label="item.name"
-                  :disabled="!item.performance"
-                  :value="item.id">
+                v-for="item in resourcePools"
+                :key="item.id"
+                :label="item.name"
+                :disabled="!item.performance"
+                :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
           <el-form-item :label="$t('load_test.serialize_threadgroups')">
             <el-switch v-model="serializeThreadGroups"/>
           </el-form-item>
-          <br>
           <el-form-item :label="$t('load_test.autostop_threadgroups')">
             <el-switch v-model="autoStop"/>
           </el-form-item>
-          <el-form-item :label="$t('load_test.reaches_duration')">
+          <el-form-item v-if="autoStop" :label="$t('load_test.reaches_duration')">
             <el-input-number controls-position="right"
-                             :disabled="isReadOnly || !autoStop"
+                             :disabled="isReadOnly"
                              v-model="autoStopDelay"
                              :min="1"
                              :max="9999"
                              size="mini"/>
           </el-form-item>
-          <el-form-item :label="$t('load_test.autostop_delay')"/>
         </el-form>
       </el-col>
     </el-row>
@@ -83,10 +81,10 @@
               <el-form-item :label="$t('load_test.on_sample_error')">
                 <el-select v-model="threadGroup.onSampleError" :disabled="isReadOnly" size="mini">
                   <el-option
-                      v-for="item in onSampleErrors"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                    v-for="item in onSampleErrors"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -222,10 +220,10 @@
                   <el-form-item :label="$t('load_test.specify_resource')">
                     <el-select v-model="threadGroup.resourceNodeIndex" :disabled="isReadOnly" size="mini">
                       <el-option
-                          v-for="(node, index) in resourceNodes"
-                          :key="node.ip"
-                          :label="node.ip"
-                          :value="index">
+                        v-for="(node, index) in resourceNodes"
+                        :key="node.ip"
+                        :label="node.ip"
+                        :value="index">
                       </el-option>
                     </el-select>
                   </el-form-item>
@@ -289,7 +287,7 @@ const RATIOS = "ratios";
 
 const hexToRgb = function (hex) {
   return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
-      + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
+    + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
 };
 
 export default {
@@ -572,8 +570,8 @@ export default {
         let tg = handler.threadGroups[i];
 
         if (tg.enabled === 'false' ||
-            tg.deleted === 'true' ||
-            tg.threadType === 'ITERATION') {
+          tg.deleted === 'true' ||
+          tg.threadType === 'ITERATION') {
           continue;
         }
         if (this.getDuration(tg) < tg.rampUpTime) {
@@ -688,7 +686,7 @@ export default {
         }
 
         if (!tg.threadNumber || !tg.duration
-            || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
+          || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
           this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
           this.$emit('changeActive', '1');
           return false;
