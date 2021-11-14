@@ -47,8 +47,8 @@
                   size="mini"/>
               </el-form-item>
               <br>
-              <el-form-item label="执行方式">
-                <el-radio-group v-model="threadGroup.threadType" :disabled="true">
+              <el-form-item :label="$t('load_test.run_mode')">
+                <el-radio-group v-model="threadGroup.threadType" size="mini" :disabled="true">
                   <el-radio-button label="DURATION">{{ $t('load_test.by_duration') }}</el-radio-button>
                   <el-radio-button label="ITERATION">{{ $t('load_test.by_iteration') }}</el-radio-button>
                 </el-radio-group>
