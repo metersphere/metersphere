@@ -169,7 +169,7 @@ export default {
       this.reload();
     },
     addAssertions() {
-      let assertions = new Assertions();
+      let assertions = new Assertions({id:getUUID()});
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
@@ -177,7 +177,7 @@ export default {
       this.reload();
     },
     addExtract() {
-      let jsonPostProcessor = new Extract();
+      let jsonPostProcessor = new Extract({id:getUUID()});
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }

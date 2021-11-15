@@ -407,6 +407,11 @@ export default {
     },
     mergeHashTree(targetHashTree) {
       let sourceHashTree = this.request.hashTree;
+      // 历史数据兼容
+      if (sourceHashTree && targetHashTree && sourceHashTree.length < targetHashTree.length) {
+        this.request.hashTree = targetHashTree;
+        return;
+      }
       let sourceIds = [];
       let delIds = [];
       let updateMap = new Map();
@@ -420,24 +425,35 @@ export default {
         return;
       }
       if (targetHashTree) {
-        for(let i in targetHashTree){
+        for (let i in targetHashTree) {
           targetHashTree[i].disabled = true;
-          updateMap.set(targetHashTree[i].id, targetHashTree[i]);
+          if (targetHashTree[i].id) {
+            updateMap.set(targetHashTree[i].id, targetHashTree[i]);
+          }
         }
       }
+
       if (sourceHashTree && sourceHashTree.length > 0) {
         for (let index in sourceHashTree) {
           let source = sourceHashTree[index];
           sourceIds.push(source.id);
-          if (source.label !== 'SCENARIO-REF-STEP') {
-            if (source.id && updateMap.has(source.id)) {
-              Object.assign(sourceHashTree[index] , updateMap.get(source.id));
+          // 历史数据兼容
+          if (source.label !== 'SCENARIO-REF-STEP' && source.id) {
+            if (updateMap.has(source.id)) {
+              Object.assign(sourceHashTree[index], updateMap.get(source.id));
               sourceHashTree[index].disabled = true;
               sourceHashTree[index].label = '';
               sourceHashTree[index].enable = updateMap.get(source.id).enable;
             } else {
               delIds.push(source.id);
             }
+          }
+          // 历史数据兼容
+          if (!source.id && source.label !== 'SCENARIO-REF-STEP' && index < targetHashTree.length) {
+            Object.assign(sourceHashTree[index], targetHashTree[index]);
+            sourceHashTree[index].disabled = true;
+            sourceHashTree[index].label = '';
+            sourceHashTree[index].enable = targetHashTree[index].enable;
           }
         }
       }
