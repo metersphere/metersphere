@@ -187,6 +187,20 @@ export default {
     }
     this.init();
   },
+  watch: {
+    'request.changeId'() {
+      if (this.request.headers && this.request.headers.length > 1) {
+        this.activeName = 'headers';
+      }
+      if (this.request.rest && this.request.rest.length > 1) {
+        this.activeName = 'rest';
+      }
+      if (this.request.arguments && this.request.arguments.length > 1) {
+        this.activeName = 'parameters';
+      }
+      this.reload();
+    }
+  },
   methods: {
     hasPermission,
     hasLicense,
