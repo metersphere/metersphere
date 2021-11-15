@@ -84,6 +84,7 @@ public class PermissionConstants {
     public static final String PROJECT_GROUP_READ_CREATE = "PROJECT_GROUP:READ+CREATE";
     public static final String PROJECT_GROUP_READ_EDIT = "PROJECT_GROUP:READ+EDIT";
     public static final String PROJECT_GROUP_READ_DELETE = "PROJECT_GROUP:READ+DELETE";
+    public static final String PROJECT_GROUP_READ_SETTING_PERMISSION = "PROJECT_GROUP:READ+SETTING_PERMISSION";
 
     public static final String PROJECT_ENVIRONMENT_READ = "PROJECT_ENVIRONMENT:READ";
     public static final String PROJECT_ENVIRONMENT_READ_CREATE = "PROJECT_ENVIRONMENT:READ+CREATE";
