@@ -253,7 +253,7 @@
         <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true"
                    :modal="false"
                    size="90%">
-          <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb"
+          <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb" :show-cancel-button="false"
                                 :report-id="showReportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
