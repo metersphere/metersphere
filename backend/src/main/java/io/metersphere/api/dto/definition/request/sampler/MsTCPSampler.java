@@ -233,7 +233,7 @@ public class MsTCPSampler extends MsTestElement {
             }
             if (proxy != null) {
                 if (StringUtils.equals(this.getRefType(), "CASE")) {
-                    ElementUtil.mergeHashTree(this.getHashTree(), proxy.getHashTree());
+                    ElementUtil.mergeHashTree(this, proxy.getHashTree());
                 }else {
                     this.setHashTree(proxy.getHashTree());
                 }

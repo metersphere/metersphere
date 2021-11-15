@@ -393,47 +393,65 @@ public class ElementUtil {
         }
     }
 
-    public static void mergeHashTree(List<MsTestElement> sourceHashTree, List<MsTestElement> targetHashTree) {
-        List<String> sourceIds = new ArrayList<>();
-        List<String> delIds = new ArrayList<>();
-        Map<String, MsTestElement> updateMap = new HashMap<>();
-        if (CollectionUtils.isEmpty(sourceHashTree)) {
+    public static void mergeHashTree(MsTestElement element, LinkedList<MsTestElement> targetHashTree) {
+        try {
+            LinkedList<MsTestElement> sourceHashTree = element.getHashTree();
+            if (CollectionUtils.isNotEmpty(sourceHashTree) && CollectionUtils.isNotEmpty(targetHashTree) && sourceHashTree.size() < targetHashTree.size()) {
+                element.setHashTree(targetHashTree);
+                return;
+            }
+            List<String> sourceIds = new ArrayList<>();
+            List<String> delIds = new ArrayList<>();
+            Map<String, MsTestElement> updateMap = new HashMap<>();
+            if (CollectionUtils.isEmpty(sourceHashTree)) {
+                if (CollectionUtils.isNotEmpty(targetHashTree)) {
+                    element.setHashTree(targetHashTree);
+                }
+                return;
+            }
             if (CollectionUtils.isNotEmpty(targetHashTree)) {
-                sourceHashTree.addAll(targetHashTree);
+                for (MsTestElement item : targetHashTree) {
+                    if (StringUtils.isNotEmpty(item.getId())) {
+                        updateMap.put(item.getId(), item);
+                    }
+                }
             }
-            return;
-        }
-        if (CollectionUtils.isNotEmpty(targetHashTree)) {
-            for (MsTestElement item : targetHashTree) {
-                updateMap.put(item.getId(), item);
-            }
-        }
-        // 找出待更新内容和源已经被删除的内容
-        if (CollectionUtils.isNotEmpty(sourceHashTree)) {
-            for (int i = 0; i < sourceHashTree.size(); i++) {
-                MsTestElement source = sourceHashTree.get(i);
-                if (source != null) {
-                    sourceIds.add(source.getId());
-                    if (!StringUtils.equals(source.getLabel(), "SCENARIO-REF-STEP")) {
-                        if (StringUtils.isNotEmpty(source.getId()) && updateMap.containsKey(source.getId())) {
-                            sourceHashTree.set(i, updateMap.get(source.getId()));
-                        } else {
-                            delIds.add(source.getId());
+            // 找出待更新内容和源已经被删除的内容
+            if (CollectionUtils.isNotEmpty(sourceHashTree)) {
+                for (int i = 0; i < sourceHashTree.size(); i++) {
+                    MsTestElement source = sourceHashTree.get(i);
+                    if (source != null) {
+                        sourceIds.add(source.getId());
+                        if (!StringUtils.equals(source.getLabel(), "SCENARIO-REF-STEP") && StringUtils.isNotEmpty(source.getId())) {
+                            if (updateMap.containsKey(source.getId())) {
+                                sourceHashTree.set(i, updateMap.get(source.getId()));
+                            } else {
+                                delIds.add(source.getId());
+                            }
+                        }
+                        // 历史数据兼容
+                        if (StringUtils.isEmpty(source.getId()) && !StringUtils.equals(source.getLabel(), "SCENARIO-REF-STEP") && i < targetHashTree.size()) {
+                            sourceHashTree.set(i, targetHashTree.get(i));
                         }
                     }
                 }
             }
-        }
 
-        // 删除多余的步骤
-        sourceHashTree.removeIf(item -> item != null && delIds.contains(item.getId()));
-        // 补充新增的源引用步骤
-        if (CollectionUtils.isNotEmpty(targetHashTree)) {
-            for (MsTestElement item : targetHashTree) {
-                if (!sourceIds.contains(item.getId())) {
-                    sourceHashTree.add(item);
+            // 删除多余的步骤
+            sourceHashTree.removeIf(item -> item != null && delIds.contains(item.getId()));
+            // 补充新增的源引用步骤
+            if (CollectionUtils.isNotEmpty(targetHashTree)) {
+                for (MsTestElement item : targetHashTree) {
+                    if (!sourceIds.contains(item.getId())) {
+                        sourceHashTree.add(item);
+                    }
                 }
             }
+            if (CollectionUtils.isNotEmpty(sourceHashTree)) {
+                element.setHashTree(sourceHashTree);
+            }
+        } catch (Exception e) {
+            element.setHashTree(targetHashTree);
         }
     }
 }
