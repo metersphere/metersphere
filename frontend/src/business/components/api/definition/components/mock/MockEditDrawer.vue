@@ -86,6 +86,7 @@ export default {
         name: "",
         mockConfigId: "",
         request: {
+          reportType: "raw",
           jsonParam: false,
           variables: [],
           jsonData: "{}",

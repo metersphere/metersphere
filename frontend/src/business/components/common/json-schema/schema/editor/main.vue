@@ -21,7 +21,7 @@
         </el-select>
       </el-col>
       <el-col :span="4">
-        <ms-mock :disabled="pickValue.type==='object' || pickValue.type==='array'" :schema="pickValue"/>
+        <ms-mock :disabled="pickValue.type==='object' || pickValue.type==='array' || pickValue.type==='null'" :schema="pickValue"/>
       </el-col>
       <el-col :span="4">
         <el-input v-model="pickValue.description" class="ms-col-title" :placeholder="$t('schema.description')" size="small"/>
