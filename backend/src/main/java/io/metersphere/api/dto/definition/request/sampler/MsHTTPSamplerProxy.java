@@ -662,10 +662,20 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         stringBuffer.append(path);
         stringBuffer.append("/");
         Map<String, String> keyValueMap = new HashMap<>();
-        this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).filter(KeyValue::valueIsNotEmpty).forEach(keyValue ->
-                keyValueMap.put(keyValue.getName(), keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
-                        ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue())
-        );
+        List<KeyValue> list = this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid)
+                .filter(KeyValue::valueIsNotEmpty).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(list)) {
+            list.forEach(keyValue -> {
+                try {
+                    String value = keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
+                            ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                    value = keyValue.isUrlEncode() ? URLEncoder.encode(value, "utf-8") : value;
+                    keyValueMap.put(keyValue.getName(), value);
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
+            });
+        }
         try {
             Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
             Matcher m = p.matcher(path);
@@ -688,8 +698,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue -> {
             stringBuffer.append(keyValue.getName());
             if (keyValue.getValue() != null) {
-                stringBuffer.append("=").append(keyValue.getValue().startsWith("@") ?
-                        ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue());
+                try {
+                    String value = keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                    value = keyValue.isUrlEncode() ? URLEncoder.encode(value, "utf-8") : value;
+                    stringBuffer.append("=").append(value);
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
             }
             stringBuffer.append("&");
         });
@@ -703,7 +718,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     if (keyValue.getValue() == null) {
                         httpArgument.setValue("");
                     }
-                    httpArgument.setAlwaysEncoded(keyValue.isEncode());
+                    httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
                     if (StringUtils.isNotBlank(keyValue.getContentType())) {
                         httpArgument.setContentType(keyValue.getContentType());
                     }

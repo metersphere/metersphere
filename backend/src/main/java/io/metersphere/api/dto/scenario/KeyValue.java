@@ -16,7 +16,7 @@ public class KeyValue {
     private String description;
     private String contentType;
     private boolean enable = true;
-    private boolean encode = true;
+    private boolean urlEncode;
     private boolean required;
     private Integer min;
     private Integer max;
