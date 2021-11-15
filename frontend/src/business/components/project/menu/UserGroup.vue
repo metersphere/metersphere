@@ -1,71 +1,75 @@
 <template>
-  <div v-loading="result.loading">
-    <el-card>
-      <template v-slot:header>
-        <ms-table-header :create-permission="['PROJECT_GROUP:READ+CREATE']"
-                         :condition.sync="condition" @search="initData" @create="create"
-                         :create-tip="$t('group.create')"/>
-      </template>
+  <ms-container>
+    <ms-main-container>
+      <div v-loading="result.loading">
+        <el-card>
+          <template v-slot:header>
+            <ms-table-header :create-permission="['PROJECT_GROUP:READ+CREATE']"
+                             :condition.sync="condition" @search="initData" @create="create"
+                             :create-tip="$t('group.create')"/>
+          </template>
 
-      <el-table :data="groups" border class="adjust-table" style="width: 100%"
-                :height="screenHeight" @sort-change="sort">
-        <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
-        <el-table-column prop="type" :label="$t('group.type')">
-          <template v-slot="scope">
-            <span>{{ userGroupType[scope.row.type] ? $t(userGroupType[scope.row.type]) : scope.row.type }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('commons.member')" width="100">
-          <template v-slot:default="scope">
-            <el-link type="primary" class="member-size" @click="memberClick(scope.row)">
-              {{ scope.row.memberSize || 0 }}
-            </el-link>
-          </template>
-        </el-table-column>
-        <el-table-column prop="scopeName" :label="$t('group.scope')">
-          <template v-slot="scope">
-            <span v-if="scope.row.scopeId ==='global'">{{ $t('group.global') }}</span>
-            <span v-else>{{ scope.row.scopeName }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="updateTime" :label="$t('commons.update_time')" sortable show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="creator" :label="$t('group.operator')"/>
-        <el-table-column prop="description" :label="$t('group.description')"/>
-        <el-table-column :label="$t('commons.operating')" min-width="120">
-          <template v-slot:default="scope">
-            <div>
-              <ms-table-operator :edit-permission="['SYSTEM_GROUP:READ+EDIT', 'ORGANIZATION_GROUP:READ+EDIT']"
-                                 :delete-permission="['SYSTEM_GROUP:READ+DELETE', 'ORGANIZATION_GROUP:READ+DELETE']"
-                                 @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
-                <template v-slot:middle>
-                  <!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
-                  <ms-table-operator-button
-                    v-permission="['SYSTEM_GROUP:READ+SETTING_PERMISSION', 'ORGANIZATION_GROUP:READ+SETTING_PERMISSION']"
-                    :tip="$t('group.set_permission')" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
-                </template>
-              </ms-table-operator>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table :data="groups" border class="adjust-table" style="width: 100%"
+                    :height="screenHeight" @sort-change="sort">
+            <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
+            <el-table-column prop="type" :label="$t('group.type')">
+              <template v-slot="scope">
+                <span>{{ userGroupType[scope.row.type] ? $t(userGroupType[scope.row.type]) : scope.row.type }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column :label="$t('commons.member')" width="100">
+              <template v-slot:default="scope">
+                <el-link type="primary" class="member-size" @click="memberClick(scope.row)">
+                  {{ scope.row.memberSize || 0 }}
+                </el-link>
+              </template>
+            </el-table-column>
+            <el-table-column prop="scopeName" :label="$t('group.scope')">
+              <template v-slot="scope">
+                <span v-if="scope.row.scopeId ==='global'">{{ $t('group.global') }}</span>
+                <span v-else>{{ scope.row.scopeName }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable show-overflow-tooltip>
+              <template v-slot:default="scope">
+                <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="updateTime" :label="$t('commons.update_time')" sortable show-overflow-tooltip>
+              <template v-slot:default="scope">
+                <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="creator" :label="$t('group.operator')"/>
+            <el-table-column prop="description" :label="$t('group.description')"/>
+            <el-table-column :label="$t('commons.operating')" min-width="120">
+              <template v-slot:default="scope">
+                <div>
+                  <ms-table-operator :edit-permission="['SYSTEM_GROUP:READ+EDIT', 'ORGANIZATION_GROUP:READ+EDIT']"
+                                     :delete-permission="['SYSTEM_GROUP:READ+DELETE', 'ORGANIZATION_GROUP:READ+DELETE']"
+                                     @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
+                    <template v-slot:middle>
+                      <!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
+                      <ms-table-operator-button
+                        v-permission="['SYSTEM_GROUP:READ+SETTING_PERMISSION', 'ORGANIZATION_GROUP:READ+SETTING_PERMISSION']"
+                        :tip="$t('group.set_permission')" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
+                    </template>
+                  </ms-table-operator>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
 
-      <ms-table-pagination :change="initData" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
-    </el-card>
-    <group-member ref="groupMember" @refresh="initData"/>
-    <edit-user-group ref="editUserGroup" @refresh="initData"/>
-    <edit-permission ref="editPermission"/>
-    <ms-delete-confirm :title="$t('group.delete')" @delete="_handleDel" ref="deleteConfirm"/>
-  </div>
+          <ms-table-pagination :change="initData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                               :total="total"/>
+        </el-card>
+        <group-member ref="groupMember" @refresh="initData"/>
+        <edit-user-group ref="editUserGroup" @refresh="initData"/>
+        <edit-permission ref="editPermission"/>
+        <ms-delete-confirm :title="$t('group.delete')" @delete="_handleDel" ref="deleteConfirm"/>
+      </div>
+    </ms-main-container>
+  </ms-container>
 </template>
 
 <script>
@@ -80,10 +84,14 @@ import MsDeleteConfirm from "@/business/components/common/components/MsDeleteCon
 import {_sort} from "@/common/js/tableUtils";
 import GroupMember from "@/business/components/settings/system/group/GroupMember";
 import {getCurrentProjectID} from "@/common/js/utils";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 
 export default {
   name: "UserGroup",
   components: {
+    MsMainContainer,
+    MsContainer,
     GroupMember,
     EditUserGroup,
     MsTableHeader,
@@ -118,8 +126,8 @@ export default {
   },
   methods: {
     initData() {
-      this.condition.projectId =  this.projectId;
-      if(this.projectId) {
+      this.condition.projectId = this.projectId;
+      if (this.projectId) {
         this.result = this.$post("/user/group/get/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
           let data = res.data;
           if (data) {
