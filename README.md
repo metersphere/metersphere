@@ -31,7 +31,7 @@ MeterSphere `/ˈmitərˌsfɪər/` 是一站式开源持续测试平台，涵盖�
 
 ### 功能架构
 
-![产品定位](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/ct-devops.png)
+![产品定位](https://metersphere.io/images/screenshot/ms-architecture.png)
 
 ### 在线体验
 
