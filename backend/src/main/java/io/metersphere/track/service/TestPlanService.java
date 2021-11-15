@@ -1070,7 +1070,6 @@ public class TestPlanService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         if (runModeConfig == null) {
             runModeConfig = new RunModeConfig();
             runModeConfig.setMode("serial");
@@ -1082,7 +1081,6 @@ public class TestPlanService {
                 runModeConfig.setEnvMap(new HashMap<>());
             }
         }
-
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, testPlanID, userId, triggerMode);
         TestPlanReport testPlanReport = reportInfoDTO.getTestPlanReport();
@@ -1107,13 +1105,8 @@ public class TestPlanService {
             }
         }
         extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
-
-
-
         String planReportId = testPlanReport.getId();
-
         testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. " + "API Run Config:【" + apiRunConfig + "】");
-
         //不同任务的执行ID
         Map<String, String> executePerformanceIdMap = new HashMap<>();
         Map<String, String> executeApiCaseIdMap = new HashMap<>();
@@ -1185,18 +1178,17 @@ public class TestPlanService {
     }
 
     private void listenTaskExecuteStatus(String planReportId) {
-
         executorService.submit(() -> {
             try {
-                Thread.sleep(30000);
+                //10s 查询一次状态
+                Thread.sleep(10000);
                 while (TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId) != null) {
                     testPlanReportService.countReport(planReportId);
-                    Thread.sleep(30000);
+                    Thread.sleep(10000);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         });
     }
 
