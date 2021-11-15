@@ -818,6 +818,21 @@
       "name": "另存为",
       "resourceId": "PROJECT_REPORT_ANALYSIS",
       "license": false
+    },
+    {
+      "id": "SYSTEM_PLUGIN:UPLOAD",
+      "name": "点击上传",
+      "resourceId": "SYSTEM_PLUGIN"
+    },
+    {
+      "id": "SYSTEM_PLUGIN:DEL",
+      "name": "删除",
+      "resourceId": "SYSTEM_PLUGIN"
+    },
+    {
+      "id": "SYSTEM_PLUGIN:VIEW",
+      "name": "查看脚本",
+      "resourceId": "SYSTEM_PLUGIN"
     }
   ],
   "resource": [
@@ -952,6 +967,10 @@
     {
       "id": "PROJECT_REPORT_ANALYSIS",
       "name": "报表"
+    },
+    {
+      "id": "SYSTEM_PLUGIN",
+      "name": "插件管理"
     }
   ]
 }

@@ -13,7 +13,7 @@
           :title="$t('plugin.title')"
           @search="initPlugins"
           @import="importJar"
-          :show-import="true"/>
+          :show-import="true" :upload-permission="['SYSTEM_PLUGIN:UPLOAD']"/>
       </template>
 
       <el-table
@@ -44,13 +44,13 @@
                 :tip="$t('commons.delete')"
                 icon="el-icon-delete"
                 type="danger"
-                @exec="handleDelete(scope.row.id)"/>
+                @exec="handleDelete(scope.row.id)" v-permission="['SYSTEM_PLUGIN:DEL']"/>
             </div>
             <div v-else>
               <ms-table-operator-button
                 :tip="$t('plugin.script_view')"
                 icon="el-icon-view"
-                @exec="handleView(scope.row)"/>
+                @exec="handleView(scope.row)" v-permission="['SYSTEM_PLUGIN:VIEW']"/>
             </div>
           </template>
         </el-table-column>
