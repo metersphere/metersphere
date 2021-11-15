@@ -148,7 +148,7 @@ public class MsResultService {
             }
             Long endTime = System.currentTimeMillis();
             Long finalStartTime = startTime;
-            String logMessage = JmeterLoggerAppender.logger.entrySet().stream()
+            String logMessage = FixedCapacityUtils.fixedCapacityCache.entrySet().stream()
                     .filter(map -> map.getKey() > finalStartTime && map.getKey() < endTime)
                     .map(map -> map.getValue()).collect(Collectors.joining());
             if (removed) {
@@ -160,11 +160,8 @@ public class MsResultService {
                 }
                 FixedTask.tasks.remove(testId);
             }
-            if (FixedTask.tasks.isEmpty()) {
-                JmeterLoggerAppender.logger.clear();
-            }
             return logMessage;
-        }catch (Exception e){
+        } catch (Exception e) {
             return "";
         }
     }
