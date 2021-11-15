@@ -12,7 +12,7 @@
         <el-col :span="11" :offset="2">
           <el-form-item :label="$t('group.type')" prop="type">
             <el-select v-model="form.type" :placeholder="$t('group.select_type')" style="width: 100%"
-                       @change="changeGroup" disabled>
+                       disabled>
               <el-option :label="$t('group.system')" value="SYSTEM"></el-option>
               <el-option :label="$t('group.workspace')" value="WORKSPACE"></el-option>
               <el-option :label="$t('group.project')" value="PROJECT"></el-option>
@@ -24,7 +24,7 @@
         <el-input type="textarea" v-model="form.description"></el-input>
       </el-form-item>
       <el-form-item :label="$t('group.global_group')">
-        <el-switch v-model="form.global" :disabled="dialogType === 'edit' || form.type === 'SYSTEM'"
+        <el-switch v-model="form.global" :disabled="dialogType === 'edit'"
                    @change="change(form.global)"></el-switch>
       </el-form-item>
 
@@ -98,7 +98,7 @@ export default {
       }
 
       if (this.dialogType === 'copy') {
-        return;
+
       }
 
     },
@@ -135,15 +135,6 @@ export default {
       this.dialogVisible = true;
       this.dialogType = type;
       this.form = Object.assign({type: 'PROJECT' ,global: false , scopeId: getCurrentWorkspaceId()}, row);
-      if (type !== 'create') {
-        if (this.form.type === GROUP_SYSTEM) {
-          this.form.global = true;
-          this.show = false;
-        } else {
-          this.form.global = true;
-          this.show = !this.form.global;
-        }
-      }
       this.getWorkspace();
     },
     cancel() {
@@ -163,18 +154,9 @@ export default {
           this.show = this.isSystem ? false : !global;
         } else {
           this.form.global = false;
-          this.$warning(this.$t('group.group_global_warning'))
+          this.$warning(this.$t('group.ws_admin_global'))
         }
       })
-    },
-    changeGroup(val) {
-      if (val === GROUP_SYSTEM) {
-        this.isSystem = true;
-        this.$set(this.form, "global", true);
-        this.change(true);
-      } else {
-        this.isSystem = false;
-      }
     },
     getWorkspace() {
       this.$get("/user/group/ws/" + getCurrentUserId(), res => {

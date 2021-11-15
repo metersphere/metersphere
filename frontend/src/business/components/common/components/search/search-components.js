@@ -447,6 +447,23 @@ export const TEST_PLAN_STATUS = {
   }
 };
 
+export const TEST_PLAN_REPORT_STATUS = {
+  key: "status",
+  name: 'MsTableSearchSelect',
+  label: "test_track.plan.plan_status",
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: 'Starting', value: 'Starting'},
+    {label: 'Running', value: 'Underway'},
+    {label: 'Completed', value: 'Completed'}
+  ],
+  props: {
+    multiple: true
+  }
+};
+
 export const TEST_PLAN_TRIGGER_MODE = {
   key: "triggerMode",
   name: 'MsTableSearchSelect',

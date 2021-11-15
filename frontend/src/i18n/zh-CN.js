@@ -697,7 +697,8 @@ export default {
     check_all: '全选',
     permission: '权限',
     please_select_group: '请选择用户组',
-    global: '全局'
+    global: '全局',
+    ws_admin_global: '工作空间管理员才可以创建全局用户组'
   },
   role: {
     please_choose_role: '请选择角色',
