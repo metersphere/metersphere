@@ -1,5 +1,5 @@
 <template>
-  <div v-permission="['PROJECT_API_SCENARIO:READ']">
+  <div v-permission="['PROJECT_API_SCENARIO:READ','WORKSPACE_USER:READ']">
     <el-menu v-if="showMenu"
              :unique-opened="true"
              class="header-user-menu align-right header-top-menu"
