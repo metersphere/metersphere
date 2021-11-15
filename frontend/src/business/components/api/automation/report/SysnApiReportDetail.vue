@@ -5,6 +5,7 @@
         <section class="report-container">
           <div style="margin-top: 10px">
             <ms-api-report-view-header
+              :show-cancel-button="false"
               :debug="debug"
               :export-flag="exportFlag"
               :report="report"
