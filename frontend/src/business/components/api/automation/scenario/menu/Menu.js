@@ -1,5 +1,6 @@
 import {ELEMENT_TYPE} from "@/business/components/api/automation/scenario/Setting";
 import {Assertions, ConstantTimer, Extract, IfController, JSR223Processor, JDBCProcessor, LoopController, TransactionController, PluginController} from "@/business/components/api/definition/model/ApiTestModel";
+import {getUUID} from "@/common/js/utils";
 
 export function buttons(this_) {
   let buttons = [
@@ -176,11 +177,11 @@ export function setComponent(type, _this, plugin) {
         _this.scenarioDefinition.push(new JDBCProcessor({type: "JDBCPostProcessor"}));
       break;
     case ELEMENT_TYPE.Assertions:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Assertions({label: "SCENARIO-REF-STEP"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Assertions({label: "SCENARIO-REF-STEP",id:getUUID()})) :
         _this.scenarioDefinition.push(new Assertions());
       break;
     case ELEMENT_TYPE.Extract:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Extract({label: "SCENARIO-REF-STEP"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Extract({label: "SCENARIO-REF-STEP",id:getUUID()})) :
         _this.scenarioDefinition.push(new Extract());
       break;
     case ELEMENT_TYPE.CustomizeReq:
