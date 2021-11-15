@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card>
         <section class="report-container" v-if="this.report.testId">
-          <ms-api-report-view-header :is-plan="isPlan" :is-template="isTemplate" :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
+          <ms-api-report-view-header :show-cancel-button="showCancelButton" :is-plan="isPlan" :is-template="isTemplate" :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
           <main v-if="isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
             <div>
@@ -81,7 +81,11 @@ export default {
     templateReport: Object,
     isShare: Boolean,
     shareId: String,
-    isPlan: Boolean
+    isPlan: Boolean,
+    showCancelButton: {
+      type: Boolean,
+      default: true
+    }
   },
   watch: {
     reportId() {

@@ -138,10 +138,9 @@ export default {
       screenHeight: 'calc(100vh - 200px)',
     }
   },
-
-  watch: {
-    '$route': 'init',
-  },
+  // watch: {
+  //   '$route': 'init',
+  // },
 
   methods: {
     search() {
