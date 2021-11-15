@@ -306,6 +306,11 @@
       "resourceId": "PROJECT_GROUP"
     },
     {
+      "id": "PROJECT_GROUP:READ+SETTING_PERMISSION",
+      "name": "设置权限",
+      "resourceId": "PROJECT_GROUP"
+    },
+    {
       "id": "PROJECT_MANAGER:READ",
       "name": "查询项目",
       "resourceId": "PROJECT_MANAGER"
