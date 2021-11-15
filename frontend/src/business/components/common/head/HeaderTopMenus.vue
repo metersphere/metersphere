@@ -8,8 +8,7 @@
            @select="handleSelect"
            :key="menuKey"
            router>
-    <el-menu-item index="/workstation" v-xpack onselectstart="return false"
-                  v-permission="['PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ']">
+    <el-menu-item index="/workstation" v-xpack onselectstart="return false">
       {{ $t('commons.my_workstation') }}
     </el-menu-item>
     <el-menu-item index="/track" v-if="check('testTrack')" onselectstart="return false"
