@@ -517,15 +517,11 @@ export default {
 }
 
 .container >>> .el-card__body {
-  height: calc(100vh - 50px);
+  height: calc(100vh - 60px);
 }
 
 .comment-card >>> .el-card__header {
   padding: 0 20px;
-}
-
-.comment-card >>> .el-card__body {
-  height: calc(100vh - 100px);
 }
 
 .case_container > .el-row {
