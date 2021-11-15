@@ -15,7 +15,7 @@
         </div>
       </template>
 
-      <el-table border class="adjust-table" :data="tableData" :key = "certinfoKey" style="width: 100%">
+      <el-table border class="adjust-table" :data="tableData" style="width: 100%">
         <el-table-column prop="accessKey" label="Access Key">
           <template v-slot:default="scope">
             <div class="variable-combine">
@@ -96,7 +96,6 @@ export default {
       condition: {},
       tableData: [],
       currentRow: {},
-      certinfoKey:false,
     }
   },
 
@@ -110,11 +109,11 @@ export default {
     },
     search() {
       this.result = this.$get("/user/key/info", response => {
-          this.tableData = response.data;
-          this.tableData.forEach((d) => {
+          response.data.forEach((d) => {
             d.show = false;
             d.apiKeysVisible = false;
           })
+          this.tableData = response.data;
         }
       )
     },
@@ -153,17 +152,12 @@ export default {
         });
       }
     },
-    showSecretKey(row) {
-      this.$nextTick(function () {
-        this.$set(this.tableData[row.$index], "apiKeysVisible", true) // => '已更新'
-      })
-      this.certinfoKey = !this.certinfoKey;
-     setTimeout(() => {
-       this.$set(this.tableData[row.$index], "apiKeysVisible", false);
-       this.certinfoKey = !this.certinfoKey;
-     }, 5000);
-
-
+    showSecretKey(scope) {
+      scope.row.apiKeysVisible = true
+      setTimeout(() => {
+        //this.$set(this.tableData[row.$index], "apiKeysVisible", false);
+        scope.row.apiKeysVisible = false
+      }, 5000);
     },
     copy(row, key, visible) {
       let input = document.createElement("input");
