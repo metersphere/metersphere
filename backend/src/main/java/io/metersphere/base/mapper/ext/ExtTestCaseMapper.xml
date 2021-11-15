@@ -447,8 +447,8 @@
         group by tc.maintainer
     </select>
     <select id="getTestPlanBug" resultType="int">
-        select count(tci.issues_id) from test_plan_test_case tptc join test_case_issues tci on tptc.case_id = tci.test_case_id
-        where tptc.plan_id = #{planId};
+        select count(tci.issues_id) from test_plan_test_case tptc join test_case_issues tci on tptc.case_id = tci.test_case_id join issues on tci.issues_id  = issues.id
+        where tptc.plan_id = #{planId} and issues.status != 'closed';
     </select>
     <select id="getTestPlanCase" resultType="int">
         select count(s)
