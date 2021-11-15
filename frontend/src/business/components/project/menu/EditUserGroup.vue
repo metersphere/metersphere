@@ -98,7 +98,7 @@ export default {
       }
 
       if (this.dialogType === 'copy') {
-        return;
+
       }
 
     },
@@ -163,7 +163,7 @@ export default {
           this.show = this.isSystem ? false : !global;
         } else {
           this.form.global = false;
-          this.$warning(this.$t('group.group_global_warning'))
+          this.$warning(this.$t('group.ws_admin_global'))
         }
       })
     },

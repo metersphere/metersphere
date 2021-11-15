@@ -692,7 +692,8 @@ export default {
     check_all: 'ALL',
     permission: 'Permission',
     please_select_group: 'Please Select Group',
-    global: 'Global'
+    global: 'Global',
+    ws_admin_global: 'Only workspace administrators can create global user groups'
   },
   role: {
     please_choose_role: 'Please Choose Role',

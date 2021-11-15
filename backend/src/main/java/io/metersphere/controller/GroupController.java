@@ -53,7 +53,7 @@ public class GroupController {
     }
 
     @PostMapping("/add")
-    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_CREATE}, logical = Logical.OR)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_CREATE , PermissionConstants.PROJECT_GROUP_READ_CREATE}, logical = Logical.OR)
     @MsAuditLog(module = "group_permission", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = GroupService.class)
     public Group addGroup(@RequestBody EditGroupRequest request) {
         request.setId(UUID.randomUUID().toString());
