@@ -75,7 +75,7 @@ public class Body {
             KeyValue keyValue = new KeyValue("", "JSON-SCHEMA", this.getRaw(), true, true);
             sampler.setPostBodyRaw(true);
             keyValue.setEnable(true);
-            keyValue.setEncode(false);
+            keyValue.setUrlEncode(false);
             body.add(keyValue);
         }
         return body;
