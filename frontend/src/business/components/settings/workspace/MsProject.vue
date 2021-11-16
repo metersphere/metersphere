@@ -110,18 +110,18 @@
 
         <el-form-item :label-width="labelWidth" label="TCP Mock Port">
           <el-input-number v-model="form.mockTcpPort" :controls="false"
-                           style="width: 30%;margin-right: 30px"></el-input-number>
+                           style="width: 37%;margin-right: 30px"></el-input-number>
           <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" :label="$t('commons.description')" prop="description">
-          <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
+          <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description" ></el-input>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.tapd_id')" v-if="tapd">
-          <el-input v-model="form.tapdId" autocomplete="off"></el-input>
+          <el-input v-model="form.tapdId" autocomplete="off" ></el-input>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.jira_key')" v-if="jira">
-          <el-input v-model="form.jiraKey" autocomplete="off"/>
+          <el-input v-model="form.jiraKey" autocomplete="off" />
           <ms-instructions-icon effect="light">
             <template>
               <img class="jira-image" src="../../../../assets/jira-key.png"/>
@@ -129,7 +129,7 @@
           </ms-instructions-icon>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
-          <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
+          <el-input v-model="form.zentaoId" autocomplete="off" ></el-input>
           <ms-instructions-icon effect="light">
             <template>
               禅道流程：产品-项目 | 产品-迭代 | 产品-冲刺 | 项目-迭代 | 项目-冲刺 <br/><br/>
@@ -140,7 +140,7 @@
           </ms-instructions-icon>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_id')" v-if="azuredevops">
-          <el-input v-model="form.azureDevopsId" autocomplete="off"></el-input>
+          <el-input v-model="form.azureDevopsId" autocomplete="off" ></el-input>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="'AzureDevops过滤ID'" v-if="azuredevops">
           <el-input v-model="form.azureFilterId" autocomplete="off"/>
@@ -207,16 +207,16 @@
                @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
-          <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
+          <el-input v-model="form.id" autocomplete="off" :disabled="true" />
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="form.name" autocomplete="off" :disabled="true"/>
+          <el-input v-model="form.name" autocomplete="off" :disabled="true" />
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
           <el-input v-model="form.email" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
+          <el-input v-model="form.phone" autocomplete="off" :disabled="true" />
         </el-form-item>
         <el-form-item :label="$t('commons.group')" prop="groupIds"
                       :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
@@ -720,6 +720,7 @@ pre {
 }
 
 .el-input, .el-textarea {
-  width: 95%;
+  width: 80%;
 }
+
 </style>

@@ -50,7 +50,7 @@
 
     <add-member :group-type="'WORKSPACE'" :group-scope-id="workspaceId" ref="addMember" @submit="submitForm"/>
 
-    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="40%"
                :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
@@ -364,7 +364,7 @@ export default {
 }
 
 .select-width {
-  width: 100%;
+  width: 80%;
 }
 
 .workspace-member-name {
@@ -383,5 +383,8 @@ export default {
 
 /deep/ .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {
   top: -5px;
+}
+.el-input{
+  width: 80%;
 }
 </style>
