@@ -85,7 +85,7 @@ public class Document {
                     } else {
                         item.setJsonPath("$." + item.getName());
                     }
-                    if (!StringUtils.equalsAny(item.getContentVerification(), "none", null) || item.isInclude()) {
+                    if (!StringUtils.equalsAny(item.getContentVerification(), "none", null) || item.isInclude() || item.isArrayVerification() || item.isTypeVerification()) {
                         list.add(newJSONPathAssertion(item, conditionMap.get(item.getId())));
                     }
                     if (CollectionUtils.isNotEmpty(item.getChildren())) {
@@ -108,7 +108,7 @@ public class Document {
                 } else {
                     item.setJsonPath("$." + item.getName());
                 }
-                if (!StringUtils.equalsAny(item.getContentVerification(), "none", null) || item.isInclude()) {
+                if (!StringUtils.equalsAny(item.getContentVerification(), "none", null) || item.isInclude()|| item.isArrayVerification() || item.isTypeVerification()) {
                     list.add(newXMLAssertion(item, conditionMap.get(item.getId())));
                 }
                 if (CollectionUtils.isNotEmpty(item.getChildren())) {

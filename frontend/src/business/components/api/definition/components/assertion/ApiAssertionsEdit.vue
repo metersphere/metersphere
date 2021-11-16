@@ -103,7 +103,7 @@ export default {
       return rt.value !== undefined && rt.value !== 0;
     },
     isDocument() {
-      return this.assertions.document.data && (this.assertions.document.data.json.length > 0 || this.assertions.document.data.xml.length > 0);
+      return this.assertions.document && this.assertions.document.data && (this.assertions.document.data.json.length > 0 || this.assertions.document.data.xml.length > 0);
     }
   },
   watch: {
