@@ -130,6 +130,9 @@ export default {
   },
 
   watch: {
+    'body.typeChange'(){
+      this.reloadCodeEdit();
+    },
     'body.raw'() {
       if (this.body.format !== 'JSON-SCHEMA' && this.body.raw) {
         try {
