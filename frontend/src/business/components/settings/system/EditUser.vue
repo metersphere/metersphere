@@ -3,27 +3,27 @@
              :visible.sync="createVisible" width="40%"
              @closed="handleClose" class="edit-user-dialog"
              :destroy-on-close="true">
-    <div v-loading="result.loading">
-      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
+    <div v-loading="result.loading" >
+      <el-form :model="form" label-width="120px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')"
-                    :disabled="type === 'Edit'"/>
+                    :disabled="type === 'Edit'" class="form-input" />
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="form.name" autocomplete="off" :placeholder="$t('user.input_name')"/>
+          <el-input v-model="form.name" autocomplete="off" :placeholder="$t('user.input_name')" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="form.email" autocomplete="off" :placeholder="$t('user.input_email')"/>
+          <el-input v-model="form.email" autocomplete="off" :placeholder="$t('user.input_email')" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="form.phone" autocomplete="off" :placeholder="$t('user.input_phone')"/>
+          <el-input v-model="form.phone" autocomplete="off" :placeholder="$t('user.input_phone')" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.password')" prop="password" v-if="type === 'Add'">
           <el-input v-model="form.password" autocomplete="new-password" show-password
-                    :placeholder="$t('user.input_password')"/>
+                    :placeholder="$t('user.input_password')" class="form-input"/>
         </el-form-item>
         <div v-for="(group, index) in form.groups" :key="index">
-          <el-form-item :label="'用户组'+index"
+          <el-form-item :label="getLabel(index)"
                         :prop="'groups.' + index + '.type'"
                         :rules="{required: true, message: '请选择用户组', trigger: 'change'}"
           >
@@ -47,7 +47,7 @@
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
               <el-select filterable v-model="group.ids" :placeholder="$t('workspace.select')" multiple
-                         class="edit-user-select">
+                         class="edit-user-select" >
                 <el-option
                   v-for="item in group.workspaces"
                   :key="item.id"
@@ -63,7 +63,7 @@
                           :rules="{required: true, message: '请选择项目', trigger: 'change'}"
             >
               <el-select filterable v-model="group.ids" placeholder="请选择项目" multiple
-                         class="edit-user-select">
+                         class="edit-user-select" >
                 <el-option
                   v-for="item in group.projects"
                   :key="item.id"
@@ -77,7 +77,7 @@
 
         <el-form-item>
           <template>
-            <el-button type="success" style="width: 100%;" @click="addGroup('createUserForm')" :disabled="btnAddRole">
+            <el-button type="success"  class="form-input" @click="addGroup('createUserForm')" :disabled="btnAddRole">
               {{ $t('group.add') }}
             </el-button>
           </template>
@@ -291,22 +291,29 @@ export default {
           break;
         default:
       }
+    },
+    getLabel(index){
+      let a  = index+1;
+      return "用户组"+a;
     }
   }
 }
 </script>
 
 <style scoped>
-.edit-user-dialog >>> .el-dialog__body {
+/*.edit-user-dialog >>> .el-dialog__body {
   padding-bottom: 0;
   padding-left: 0;
-}
+}*/
 
-.edit-user-dialog >>> .el-dialog__footer {
+/*.edit-user-dialog >>> .el-dialog__footer {
   padding-top: 0;
+}*/
+.form-input{
+  width: 80%;
 }
-
 .edit-user-select {
   width: 80%;
 }
+
 </style>

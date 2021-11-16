@@ -6,12 +6,12 @@
       <el-row>
         <el-col :span="11">
           <el-form-item :label="$t('commons.name')" prop="name">
-            <el-input v-model="form.name"></el-input>
+            <el-input v-model="form.name"  class="form-input"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="11" :offset="2">
+        <el-col :span="11" >
           <el-form-item :label="$t('group.type')" prop="type">
-            <el-select v-model="form.type" :placeholder="$t('group.select_type')" style="width: 100%"
+            <el-select v-model="form.type" :placeholder="$t('group.select_type')" class="form-input"
                         disabled>
               <el-option :label="$t('group.system')" value="SYSTEM"></el-option>
               <el-option :label="$t('group.workspace')" value="WORKSPACE"></el-option>
@@ -21,7 +21,7 @@
         </el-col>
       </el-row>
       <el-form-item :label="$t('group.description')" prop="description">
-        <el-input type="textarea" v-model="form.description"></el-input>
+        <el-input type="textarea" v-model="form.description" style="width: 83%"></el-input>
       </el-form-item>
       <el-form-item :label="$t('group.global_group')">
         <el-switch v-model="form.global" :disabled="dialogType === 'edit'"
@@ -29,7 +29,7 @@
       </el-form-item>
 
       <el-form-item :label="$t('project.owning_workspace')" v-if="show" prop="scopeId">
-        <el-select v-model="form.scopeId" :placeholder="$t('project.please_choose_workspace')" style="width: 100%;" disabled
+        <el-select v-model="form.scopeId" :placeholder="$t('project.please_choose_workspace')" style="width: 83%" disabled
                    clearable>
           <el-option v-for="item in workspaces" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
@@ -176,5 +176,7 @@ export default {
 </script>
 
 <style scoped>
-
+.form-input{
+  width: 80%;
+}
 </style>

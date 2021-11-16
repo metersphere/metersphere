@@ -135,6 +135,6 @@ export default {
 }
 
 .select-width {
-  width: 100%;
+  width: 85%;
 }
 </style>

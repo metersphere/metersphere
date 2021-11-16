@@ -15,7 +15,7 @@
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" label="TCP Mock Port">
-          <el-input-number v-model="form.mockTcpPort" :controls="false" style="width: 30%;margin-right: 30px"></el-input-number>
+          <el-input-number v-model="form.mockTcpPort" :controls="false" style="width: 37%;margin-right: 30px"></el-input-number>
           <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
         </el-form-item>
 
@@ -281,6 +281,6 @@ pre {
 }
 
 .el-input,.el-textarea {
-  width: 95%;
+  width: 80%;
 }
 </style>

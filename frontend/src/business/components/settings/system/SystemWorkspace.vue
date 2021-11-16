@@ -40,10 +40,10 @@
                width="30%" @close="close">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
+          <el-input v-model="form.name" autocomplete="off" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input type="textarea" v-model="form.description"></el-input>
+          <el-input type="textarea" v-model="form.description" class="form-input"></el-input>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
@@ -58,10 +58,10 @@
                width="30%" @close="close">
       <el-form :model="form" :rules="rules" ref="updateForm" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
+          <el-input v-model="form.name" autocomplete="off" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input type="textarea" v-model="form.description"></el-input>
+          <el-input type="textarea" v-model="form.description" class="form-input"></el-input>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
@@ -114,16 +114,16 @@
                @close="handleClose">
       <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
-          <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
+          <el-input v-model="memberForm.id" autocomplete="off" :disabled="true" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="memberForm.name" autocomplete="off" :disabled="true"/>
+          <el-input v-model="memberForm.name" autocomplete="off" :disabled="true" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
-          <el-input v-model="memberForm.email" autocomplete="off" :disabled="true"/>
+          <el-input v-model="memberForm.email" autocomplete="off" :disabled="true" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
+          <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.group')" prop="groupIds"
                       :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
@@ -480,7 +480,9 @@ export default {
 .select-width {
   width: 100%;
 }
-
+.form-input{
+  width: 80%;
+}
 /*.dialog-css >>> .el-dialog__header {*/
 /*  padding: 0;*/
 /*}*/

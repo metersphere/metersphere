@@ -64,7 +64,7 @@
             multiple
             filterable
             :popper-append-to-body="false"
-            style="width: 100%"
+            style="width: 90%"
             :disabled="userSelectDisable"
             :placeholder="$t('member.please_choose_member')">
             <el-option
@@ -80,7 +80,7 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="typeLabel" v-if="showTypeLabel" prop="sourceIds">
-          <el-select v-model="form.sourceIds" :placeholder="typeLabel" style="width: 100%;" clearable multiple
+          <el-select v-model="form.sourceIds" :placeholder="typeLabel" style="width: 90%;" clearable multiple
                      filterable>
             <el-option v-for="item in sourceData" :key="item.id" :label="item.name" :value="item.id"/>
           </el-select>
