@@ -1207,7 +1207,7 @@ export default {
       jmeter_func: "JMeter 方法",
       parameters_filter_example: "示例",
       parameters_filter_tips: "只支持 MockJs 函數結果預覽",
-      parameters_advance: "return",
+      parameters_advance: "參數設置",
       parameters_preview: "預覽",
       parameters_mock_filter_tips: "請輸入關鍵字進行過濾",
       parameters_pre_request: "前置請求提取",
