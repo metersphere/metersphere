@@ -374,6 +374,11 @@ export default {
         let enable = this.request.enable;
         this.$get("/api/testcase/get/" + this.request.id, response => {
           if (response.data) {
+            let hashTree = [];
+            if (this.request.hashTree) {
+              hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
+            }
+            Object.assign(this.request, JSON.parse(response.data.request));
             this.request.name = response.data.name;
             this.request.referenced = "REF";
             this.request.enable = enable;
@@ -395,6 +400,7 @@ export default {
             this.request.projectId = response.data.projectId;
             let req = JSON.parse(response.data.request);
             if (req && this.request) {
+              this.request.hashTree = hashTree;
               this.mergeHashTree(req.hashTree);
             }
             this.reload();
