@@ -810,7 +810,7 @@
       "resourceId": "SYSTEM_PLUGIN"
     },
     {
-      "id": "SYSTEM_PLUGIN:VIEW",
+      "id": "SYSTEM_PLUGIN:READ",
       "name": "查看脚本",
       "resourceId": "SYSTEM_PLUGIN"
     }
