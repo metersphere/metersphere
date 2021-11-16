@@ -425,7 +425,7 @@ export default {
         if (targetHashTree) {
           targetHashTree.forEach(item => {
             item.disabled = true;
-          })
+          });
           this.request.hashTree = targetHashTree;
         }
         return;
