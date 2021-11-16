@@ -17,20 +17,13 @@
 
 package org.apache.jmeter.assertions;
 
-import com.alibaba.fastjson.JSON;
-import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Predicate;
-import io.metersphere.api.dto.definition.request.assertions.document.Condition;
-import io.metersphere.api.dto.definition.request.assertions.document.ElementCondition;
 import net.minidev.json.JSONArray;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.ThreadListener;
-import org.apache.jmeter.util.JMeterUtils;
-import org.apache.oro.text.regex.Pattern;
 import org.json.JSONObject;
 import org.json.XML;
 import org.slf4j.Logger;
@@ -45,7 +38,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.text.DecimalFormat;
-import java.util.Map;
 
 /**
  * Checks if the result is a well-formed XML content using {@link XMLReader}
@@ -142,15 +134,15 @@ public class XMLAssertion extends AbstractTestElement implements Serializable, A
             }
         }
         if (!this.isEquals(value)) {
-            String msg = (StringUtils.isNotEmpty(this.getName()) ? this.getName().split("==")[1] : "") + "校验失败，返回数据：" + (value != null ? value.toString() : "");
-            throw new IllegalStateException(String.format(msg, this.getExpectedValue(), objectToString(value)));
+            String msg = (StringUtils.isNotEmpty(this.getName()) ? this.getName().split("==")[1] : "") + "校验失败，实际返回：" + DocumentUtils.documentMsg(value, this.getCondition());
+            throw new IllegalStateException(String.format(msg, this.getExpectedValue(), DocumentUtils.objectToString(value, decimalFormatter)));
         }
     }
 
 
     private boolean isEquals(Object subj) {
-        String str = objectToString(subj);
-        return isDocument(str);
+        String str = DocumentUtils.objectToString(subj, decimalFormatter);
+        return DocumentUtils.documentChecked(str, this.getCondition(), decimalFormatter);
     }
 
     private boolean arrayMatched(JSONArray value) {
@@ -171,80 +163,8 @@ public class XMLAssertion extends AbstractTestElement implements Serializable, A
         }
     }
 
-    private String ifValue(Object value) {
-        if (value != null) {
-            return value.toString();
-        }
-        return "";
-    }
-
-    private boolean isDocument(String resValue) {
-        String condition = this.getCondition();
-        if (StringUtils.isNotEmpty(condition)) {
-            ElementCondition elementCondition = JSON.parseObject(condition, ElementCondition.class);
-            boolean isTrue = true;
-            if (CollectionUtils.isNotEmpty(elementCondition.getConditions())) {
-                for (Condition item : elementCondition.getConditions()) {
-                    String expectedValue = ifValue(item.getValue());
-                    switch (item.getKey()) {
-                        case "value_eq":
-                            isTrue = StringUtils.equals(resValue, expectedValue);
-                            break;
-                        case "value_not_eq":
-                            isTrue = !StringUtils.equals(resValue, expectedValue);
-                            break;
-                        case "value_in":
-                            isTrue = StringUtils.contains(resValue, expectedValue);
-                            break;
-                        case "length_eq":
-                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() == expectedValue.length())
-                                    || (StringUtils.isEmpty(resValue) && StringUtils.isEmpty(expectedValue));
-                            break;
-                        case "length_not_eq":
-                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() != expectedValue.length())
-                                    || (StringUtils.isEmpty(resValue) || StringUtils.isEmpty(expectedValue));
-                            break;
-                        case "length_gt":
-                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() > expectedValue.length())
-                                    || (StringUtils.isNotEmpty(resValue) && StringUtils.isEmpty(expectedValue));
-                            break;
-                        case "length_lt":
-                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() < expectedValue.length())
-                                    || (StringUtils.isEmpty(resValue) || StringUtils.isEmpty(expectedValue));
-                            break;
-                        case "regular":
-                            Pattern pattern = JMeterUtils.getPatternCache().getPattern(this.getExpectedValue());
-                            isTrue = JMeterUtils.getMatcher().matches(resValue, pattern);
-                            break;
-                    }
-                    if (!isTrue) {
-                        break;
-                    }
-                }
-            }
-            return isTrue;
-        }
-        return true;
-    }
-
-    public static String objectToString(Object subj) {
-        String str;
-        if (subj == null) {
-            str = "null";
-        } else if (subj instanceof Map) {
-            str = new Gson().toJson(subj);
-        } else if (!(subj instanceof Double) && !(subj instanceof Float)) {
-            str = subj.toString();
-        } else {
-            str = ((DecimalFormat) decimalFormatter.get()).format(subj);
-        }
-
-        return str;
-    }
-
     @Override
     public void threadStarted() {
-        // nothing to do on thread start
     }
 
     @Override

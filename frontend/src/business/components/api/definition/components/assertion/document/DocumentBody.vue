@@ -5,7 +5,9 @@
          <i class="el-icon-edit-outline" style="font-size: 16px"/>
          {{ $t('commons.import') }}
        </span>
-      <el-checkbox v-model="checked" @change="checkedAPI">跟随API定义</el-checkbox>
+      <span v-if="apiId!=='none'">
+         <el-checkbox v-model="checked" @change="checkedAPI">跟随API定义</el-checkbox>
+      </span>
     </div>
     <el-table
       :data="tableData"
@@ -161,13 +163,34 @@ export default {
         this.loading = false
       })
     },
-    getAPI() {
-      let url = "/api/definition/getDocument/" + this.apiId + "/" + this.document.type;
+    getCase() {
+      let url = "/api/testcase/get/" + this.apiId;
+      this.$get(url, response => {
+        if (response.data) {
+          this.getAPI(response.data.apiDefinitionId);
+          if (this.document.type === "JSON") {
+            this.document.data.jsonFollowAPI = response.data.apiDefinitionId;
+          } else {
+            this.document.data.xmlFollowAPI = response.data.apiDefinitionId;
+          }
+        }
+      });
+    },
+    getAPI(id) {
+      let url = "/api/definition/getDocument/" + (id ? id : this.apiId) + "/" + this.document.type;
       this.$get(url, response => {
         if (response.data) {
           this.tableData = response.data;
         }
       });
+    },
+    getDocument() {
+      // 来自场景步骤，请求id为用例id
+      if (this.document && this.document.nodeType && this.document.nodeType === "scenario") {
+        this.getCase();
+      } else {
+        this.getAPI();
+      }
     },
     changeData() {
       if (this.document.data) {
@@ -175,14 +198,14 @@ export default {
         if (this.document.type === "JSON") {
           this.document.data.jsonFollowAPI = this.checked ? this.apiId : "";
           if (this.document.data.jsonFollowAPI) {
-            this.getAPI();
+            this.getDocument();
           } else {
             this.tableData = this.document.data.json;
           }
         } else if (this.document.type === "XML") {
           this.document.data.xmlFollowAPI = this.checked ? this.apiId : "";
           if (this.document.data.xmlFollowAPI) {
-            this.getAPI();
+            this.getDocument();
           } else {
             this.tableData = this.document.data.xml;
           }
@@ -302,7 +325,9 @@ export default {
     },
     addRow(row) {
       //首先保存当前行内容
-      row.type = "object";
+      if (row.type !== "array") {
+        row.type = "object";
+      }
       let newRow = this.getNewRow();
       row.children.push(newRow);
     },
@@ -389,6 +414,12 @@ export default {
     editRow(row, column, cell) {
       if (this.checked) {
         return;
+      }
+      if (row.expectedOutcome === true) {
+        row.expectedOutcome = "true";
+      }
+      if (row.expectedOutcome === false) {
+        row.expectedOutcome = "false";
       }
       column.fixed = true;
       row.status = true;

@@ -50,16 +50,6 @@
             </el-col>
             <el-col :span="16">
               <div class="tag-item" @click.stop>
-<!--                <el-select v-model="apiCase.follows" multiple clearable
-                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
-                           @change="saveTestCase(apiCase,true)" style="width: 100%" :disabled="loaded">
-                  <el-option
-                    v-for="item in maintainerOptions"
-                    :key="item.id"
-                    :label="item.id + ' (' + item.name + ')'"
-                    :value="item.id">
-                  </el-option>
-                </el-select>-->
                 <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
                   <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow"/>
                 </el-tooltip>
@@ -139,7 +129,7 @@
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
         </div>
 
-        <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
+        <ms-jmx-step :request="apiCase.request" :api-id="api.id" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
                    v-if="type!=='detail'"
@@ -405,6 +395,9 @@ export default {
         for (let i in stepArray) {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
           }
           if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
             stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);

@@ -794,6 +794,31 @@ export class Assertions extends BaseConfig {
   }
 }
 
+export class AssertionDocument extends BaseConfig {
+  constructor(options) {
+    super();
+    this.id = uuid();
+    this.name = "root";
+    this.status = true;
+    this.groupId = "";
+    this.rowspan = 1;
+    this.include = false;
+    this.typeVerification = false;
+    this.type = "object";
+    this.arrayVerification = false;
+    this.contentVerifications = "none";
+    this.expectedOutcome = "";
+    this.children = [];
+    this.set(options);
+  }
+
+  initOptions(options) {
+    options = options || {};
+    options.duration = new Duration(options.duration);
+    return options;
+  }
+}
+
 export class AssertionType extends BaseConfig {
   constructor(type) {
     super();
