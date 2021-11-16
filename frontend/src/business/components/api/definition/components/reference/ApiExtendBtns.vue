@@ -53,6 +53,9 @@
             if (!stepArray[i].clazzName) {
               stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
             }
+            if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+              stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+            }
             if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
               stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
             }

@@ -19,7 +19,7 @@
 
 <script>
 
-import {getUUID} from "@/common/js/utils";
+import {AssertionDocument} from "@/business/components/api/definition/model/ApiTestModel";
 
 export default {
   name: "DocumentHeader",
@@ -37,38 +37,11 @@ export default {
 
   methods: {
     add() {
+      let obj = new AssertionDocument({id: "root"});
       if (this.document.type === "JSON" && this.document.data.json.length === 0) {
-        let obj = {
-          id: "root",
-          name: "root",
-          status: true,
-          groupId: "",
-          rowspan: 1,
-          include: false,
-          typeVerification: false,
-          type: "object",
-          arrayVerification: false,
-          contentVerifications: "none",
-          expectedOutcome: "",
-          children: []
-        };
         this.document.data.json.push(obj);
       }
       if (this.document.type === "XML" && this.document.data.xml.length === 0) {
-        let obj = {
-          id: getUUID(),
-          name: "root",
-          status: true,
-          groupId: "",
-          rowspan: 1,
-          include: false,
-          typeVerification: false,
-          type: "object",
-          arrayVerification: false,
-          contentVerifications: "none",
-          expectedOutcome: "",
-          children: []
-        };
         this.document.data.xml.push(obj);
       }
       this.callback();

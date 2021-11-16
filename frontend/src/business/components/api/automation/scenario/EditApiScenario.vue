@@ -5,11 +5,11 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
-            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" />
+          <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
           </el-tooltip>
-          <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow">
-            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" />
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
           </el-tooltip>
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
 
@@ -64,21 +64,6 @@
                 </el-select>
               </el-form-item>
             </el-col>
-<!--            <el-col :span="7">
-              <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
-                <el-select v-model="currentScenario.follows"
-                           clearable multiple
-                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
-                           class="ms-scenario-input">
-                  <el-option
-                    v-for="item in maintainerOptions"
-                    :key="item.id"
-                    :label="item.id + ' (' + item.name + ')'"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>-->
           </el-row>
           <el-row>
             <el-col :span="7">
@@ -465,7 +450,7 @@ export default {
       plugins: [],
       clearMessage: "",
       runScenario: undefined,
-      showFollow:false
+      showFollow: false
     }
   },
   watch: {
@@ -1359,7 +1344,6 @@ export default {
           if (response.data) {
             this.path = "/api/automation/update";
             if (response.data.scenarioDefinition != null) {
-              // this.getEnv(response.data.scenarioDefinition);
               let obj = JSON.parse(response.data.scenarioDefinition);
               if (obj) {
                 this.currentEnvironmentId = obj.environmentId;
@@ -1394,13 +1378,8 @@ export default {
                 } else {
                   this.onSampleError = obj.onSampleError;
                 }
-                if (obj.hashTree) {
-                  obj.hashTree.forEach(item => {
-                    if (!item.hashTree) {
-                      item.hashTree = [];
-                    }
-                  });
-                }
+                this.dataProcessing(obj.hashTree);
+
                 this.scenarioDefinition = obj.hashTree;
               }
             }
@@ -1408,10 +1387,9 @@ export default {
               this.path = "/api/automation/create";
             }
             this.$get('/api/automation/follow/' + this.currentScenario.id, response => {
-              // this.$set(this.currentScenario, 'follows', response.data);
               this.currentScenario.follows = response.data;
               for (let i = 0; i < response.data.length; i++) {
-                if(response.data[i]===this.currentUser().id){
+                if (response.data[i] === this.currentUser().id) {
                   this.showFollow = true;
                   break;
                 }
@@ -1429,6 +1407,22 @@ export default {
         })
       }
     },
+    dataProcessing(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].hashTree) {
+            stepArray[i].hashTree = [];
+          }
+          if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+          }
+          if (stepArray[i].hashTree.length > 0) {
+            this.dataProcessing(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
+
     formatData(hashTree) {
       for (let i in hashTree) {
         if (!hashTree[i].clazzName) {
@@ -1618,17 +1612,17 @@ export default {
     showHistory() {
       this.$refs.taskCenter.openScenarioHistory(this.currentScenario.id);
     },
-    saveFollow(){
-      if(this.showFollow){
+    saveFollow() {
+      if (this.showFollow) {
         this.showFollow = false;
         for (let i = 0; i < this.currentScenario.follows.length; i++) {
-          if(this.currentScenario.follows[i]===this.currentUser().id){
-            this.currentScenario.follows.splice(i,1)
+          if (this.currentScenario.follows[i] === this.currentUser().id) {
+            this.currentScenario.follows.splice(i, 1)
             break;
           }
         }
 
-      }else {
+      } else {
         this.showFollow = true;
         this.currentScenario.follows.push(this.currentUser().id)
       }

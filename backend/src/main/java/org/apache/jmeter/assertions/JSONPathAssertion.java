@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Map;
 
 public class JSONPathAssertion extends AbstractTestElement implements Serializable, Assertion, ThreadListener {
@@ -141,7 +142,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                             msg = "Value < '%s', but found '%s'";
                             break;
                         case "DOCUMENT":
-                            msg = (StringUtils.isNotEmpty(this.getName()) ? this.getName().split("==")[1] : "") + "校验失败，返回数据：" + (value != null ? value.toString() : "");
+                            msg = (StringUtils.isNotEmpty(this.getName()) ? this.getName().split("==")[1] : "") + "校验失败，返回数据：" + documentMsg(value);
                             break;
                     }
                 } else {
@@ -214,7 +215,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                         refFlag = isLt(str, getExpectedValue());
                         break;
                     case "DOCUMENT":
-                        refFlag = isDocument(str);
+                        refFlag = isDocument(subj);
                         break;
                 }
                 return refFlag;
@@ -222,6 +223,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
             return str.equals(this.getExpectedValue());
         }
     }
+
     private String ifValue(Object value) {
         if (value != null) {
             return value.toString();
@@ -229,7 +231,51 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         return "";
     }
 
-    private boolean isDocument(String resValue) {
+    private int getLength(Object value) {
+        if (value != null) {
+            if (value instanceof List) {
+                return ((List) value).size();
+            }
+            return value.toString().length();
+        }
+        return 0;
+    }
+
+    private String documentMsg(Object resValue) {
+        String msg = "";
+        if (StringUtils.isNotEmpty(this.getElementCondition())) {
+            ElementCondition elementCondition = JSON.parseObject(this.getElementCondition(), ElementCondition.class);
+            if (CollectionUtils.isNotEmpty(elementCondition.getConditions())) {
+                for (Condition item : elementCondition.getConditions()) {
+                    if (StringUtils.equalsAny(item.getKey(), "value_eq", "value_not_eq", "value_in")) {
+                        msg = resValue != null ? resValue.toString() : "";
+                    } else if (StringUtils.equalsAny(item.getKey(), "length_eq", "length_not_eq", "length_gt", "length_lt")) {
+                        msg = getLength(resValue) + "";
+                    } else {
+                        msg = resValue != null ? resValue.toString() : "";
+                    }
+                }
+            }
+        }
+        return msg;
+    }
+
+    private int checkLength(Object value) {
+        if (value != null) {
+            if (value instanceof Map) {
+                return ((Map) value).size();
+            } else if (value instanceof List) {
+                return ((List) value).size();
+            } else if (!(value instanceof Double) && !(value instanceof Float)) {
+                return value.toString().length();
+            } else {
+                return ((DecimalFormat) decimalFormatter.get()).format(value).length();
+            }
+        }
+        return 0;
+    }
+
+    private boolean isDocument(Object subj) {
         String condition = this.getElementCondition();
         if (StringUtils.isNotEmpty(condition)) {
             ElementCondition elementCondition = JSON.parseObject(condition, ElementCondition.class);
@@ -237,6 +283,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
             if (CollectionUtils.isNotEmpty(elementCondition.getConditions())) {
                 for (Condition item : elementCondition.getConditions()) {
                     String expectedValue = ifValue(item.getValue());
+                    String resValue = objectToString(subj);
                     switch (item.getKey()) {
                         case "value_eq":
                             isTrue = StringUtils.equals(resValue, expectedValue);
@@ -248,20 +295,16 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                             isTrue = StringUtils.contains(resValue, expectedValue);
                             break;
                         case "length_eq":
-                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() == expectedValue.length())
-                                    || (StringUtils.isEmpty(resValue) && StringUtils.isEmpty(expectedValue));
+                            isTrue = this.checkLength(subj) == this.checkLength(item.getValue());
                             break;
                         case "length_not_eq":
-                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() != expectedValue.length())
-                                    || (StringUtils.isEmpty(resValue) || StringUtils.isEmpty(expectedValue));
+                            isTrue = this.checkLength(subj) != this.checkLength(item.getValue());
                             break;
                         case "length_gt":
-                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() > expectedValue.length())
-                                    || (StringUtils.isNotEmpty(resValue) && StringUtils.isEmpty(expectedValue));
+                            isTrue = this.checkLength(subj) > this.checkLength(item.getValue());
                             break;
                         case "length_lt":
-                            isTrue = (StringUtils.isNotEmpty(resValue) && StringUtils.isNotEmpty(expectedValue) && resValue.length() < expectedValue.length())
-                                    || (StringUtils.isEmpty(resValue) || StringUtils.isEmpty(expectedValue));
+                            isTrue = this.checkLength(subj) < this.checkLength(item.getValue());
                             break;
                         case "regular":
                             Pattern pattern = JMeterUtils.getPatternCache().getPattern(this.getExpectedValue());
