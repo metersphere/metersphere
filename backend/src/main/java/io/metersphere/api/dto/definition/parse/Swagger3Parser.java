@@ -295,7 +295,6 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     private void parseKvBody(Schema schema, Body body, Object data, Map<String, Schema> infoMap) {
-        if (data == null) return;
         if (data instanceof JSONObject) {
             ((JSONObject) data).forEach((k, v) -> {
                 Schema dataSchema = (Schema) v;
@@ -312,22 +311,21 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 body.getKvs().add(kv);
             });
         } else {
-            if (data instanceof String && StringUtils.isBlank((String) data)) {
-                return;
-            }
-            Schema dataSchema = (Schema) data;
-            KeyValue kv = new KeyValue(schema.getName(), String.valueOf(dataSchema.getExample()), schema.getDescription());
-            Schema schemaInfo = infoMap.get(schema.getName());
-            if (schemaInfo != null) {
-                if (schemaInfo instanceof BinarySchema) {
-                    kv.setType("file");
+            if(data instanceof  Schema) {
+                Schema dataSchema = (Schema) data;
+                KeyValue kv = new KeyValue(schema.getName(), String.valueOf(dataSchema.getExample()), schema.getDescription());
+                Schema schemaInfo = infoMap.get(schema.getName());
+                if (schemaInfo != null) {
+                    if (schemaInfo instanceof BinarySchema) {
+                        kv.setType("file");
+                    }
                 }
-            }
-            if (body != null) {
-                if (body.getKvs() == null) {
-                    body.setKvs(new ArrayList<>());
+                if (body != null) {
+                    if (body.getKvs() == null) {
+                        body.setKvs(new ArrayList<>());
+                    }
+                    body.getKvs().add(kv);
                 }
-                body.getKvs().add(kv);
             }
         }
     }
