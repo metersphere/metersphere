@@ -7,7 +7,6 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.task.service.TaskService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -25,7 +24,6 @@ public class TaskController {
         request.setPageSize(pageSize);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, taskService.getTasks(request));
-       // return taskService.getTasks(request);
     }
 
     @GetMapping("/case/{id}")
