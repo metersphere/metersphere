@@ -198,6 +198,9 @@ export default {
       if (this.request.arguments && this.request.arguments.length > 1) {
         this.activeName = 'parameters';
       }
+      if(this.request.body) {
+        this.request.body.typeChange = this.request.changeId;
+      }
       this.reload();
     }
   },
