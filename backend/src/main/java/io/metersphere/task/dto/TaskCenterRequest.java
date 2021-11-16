@@ -20,5 +20,6 @@ public class TaskCenterRequest {
     private String executor;
 
     private int goPage;
+
     private int pageSize;
 }
