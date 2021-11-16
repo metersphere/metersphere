@@ -110,7 +110,7 @@ export default {
     {
       path: 'plugin',
       component: () => import('@/business/components/settings/plugin/PluginConfig'),
-      meta: {system: true, title: 'plugin.title', permissions: ['SYSTEM_USER:READ']}
+      meta: {system: true, title: 'plugin.title', permissions: ['SYSTEM_PLUGIN:READ']}
     },
   ]
 };

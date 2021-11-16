@@ -50,7 +50,7 @@
               <ms-table-operator-button
                 :tip="$t('plugin.script_view')"
                 icon="el-icon-view"
-                @exec="handleView(scope.row)" v-permission="['SYSTEM_PLUGIN:VIEW']"/>
+                @exec="handleView(scope.row)" v-permission="['SYSTEM_PLUGIN:READ']"/>
             </div>
           </template>
         </el-table-column>
