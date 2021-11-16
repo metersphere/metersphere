@@ -24,6 +24,7 @@
     AND t.api_case_id IN (
         SELECT id FROM api_test_case WHERE status IS NULL OR status != 'Trash'
         )
+    ORDER BY `order` DESC
   </select>
   <select id="list" resultType="io.metersphere.api.dto.definition.TestPlanApiCaseDTO">
     select
