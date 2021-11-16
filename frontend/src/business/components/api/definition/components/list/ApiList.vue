@@ -170,6 +170,14 @@
           sortable
           :fields-width="fieldsWidth"
           :label="$t('api_test.definition.api_case_passing_rate')"/>
+
+          <ms-table-column
+            prop="description"
+            :field="item"
+            min-width="120px"
+            sortable
+            :fields-width="fieldsWidth"
+            :label="$t('commons.description')"/>
         </span>
       </ms-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
