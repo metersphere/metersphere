@@ -2,8 +2,6 @@ package io.metersphere.commons.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.commons.exception.MSException;
-import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -15,12 +13,13 @@ public class XMLUtils {
         Set<Map.Entry<String, Object>> se = jObj.entrySet();
         StringBuffer nowTab = new StringBuffer(tab.toString());
         for (Map.Entry<String, Object> en : se) {
-            if ("com.alibaba.fastjson.JSONObject".equals(en.getValue().getClass().getName())) {
+            if (en == null || en.getValue() == null) continue;
+            if (en.getValue() instanceof JSONObject) {
                 buffer.append(tab).append("<").append(en.getKey()).append(">\n");
                 JSONObject jo = jObj.getJSONObject(en.getKey());
                 jsonToXmlStr(jo, buffer, nowTab.append("\t"));
                 buffer.append(tab).append("</").append(en.getKey()).append(">\n");
-            } else if ("com.alibaba.fastjson.JSONArray".equals(en.getValue().getClass().getName())) {
+            } else if (en.getValue() instanceof JSONArray) {
                 JSONArray jarray = jObj.getJSONArray(en.getKey());
                 for (int i = 0; i < jarray.size(); i++) {
                     buffer.append(tab).append("<").append(en.getKey()).append(">\n");
@@ -30,7 +29,7 @@ public class XMLUtils {
                         buffer.append(tab).append("</").append(en.getKey()).append(">\n");
                     }
                 }
-            } else if ("java.lang.String".equals(en.getValue().getClass().getName())) {
+            } else if (en.getValue() instanceof String) {
                 buffer.append(tab).append("<").append(en.getKey()).append(">").append(en.getValue());
                 buffer.append("</").append(en.getKey()).append(">\n");
             }
