@@ -680,13 +680,14 @@ public class ApiDefinitionService {
             apiDefinition.setStatus(sameRequest.get(0).getStatus());
             apiDefinition.setOriginalState(sameRequest.get(0).getOriginalState());
             apiDefinition.setCaseStatus(sameRequest.get(0).getCaseStatus());
+            apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
+            apiDefinition.setTags(sameRequest.get(0).getTags()); //tag 不变
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 //如果存在则修改
                 apiDefinition.setId(sameRequest.get(0).getId());
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setModuleId(sameRequest.get(0).getModuleId());
                 apiDefinition.setModulePath(sameRequest.get(0).getModulePath());
-                apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
                 apiDefinition.setOrder(sameRequest.get(0).getOrder());
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 apiDefinition.setRequest(request);
