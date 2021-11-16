@@ -47,6 +47,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'status', key: 'b', label: 'api_test.definition.api_status'},
     {id: 'createTime', key: 'c', label: 'commons.create_time'},
     {id: 'projectName', key: 'd', label: 'api_test.definition.api_project'},
+    {id: 'description', key: 'e', label: 'commons.description'},
   ],
 //接口用例
   API_CASE: [
