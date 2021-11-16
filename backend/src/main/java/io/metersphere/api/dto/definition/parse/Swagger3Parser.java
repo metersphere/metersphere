@@ -297,21 +297,26 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     private void parseKvBody(Schema schema, Body body, Object data, Map<String, Schema> infoMap) {
         if (data instanceof JSONObject) {
             ((JSONObject) data).forEach((k, v) -> {
-                Schema dataSchema = (Schema) v;
-                KeyValue kv = new KeyValue(k, String.valueOf(dataSchema.getExample()), dataSchema.getDescription());
-                Schema schemaInfo = infoMap.get(k);
-                if (schemaInfo != null) {
-                    if (schemaInfo instanceof BinarySchema) {
-                        kv.setType("file");
+                if (v != null && v instanceof Schema) {
+                    Schema dataSchema = (Schema) v;
+                    KeyValue kv = new KeyValue(k, String.valueOf(dataSchema.getExample()), dataSchema.getDescription());
+                    Schema schemaInfo = infoMap.get(k);
+                    if (schemaInfo != null) {
+                        if (schemaInfo instanceof BinarySchema) {
+                            kv.setType("file");
+                        }
                     }
+                    if (body.getKvs() == null) {  //  防止空指针
+                        body.setKvs(new ArrayList<>());
+                    }
+                    body.getKvs().add(kv);
                 }
-                if (body.getKvs() == null) {  //  防止空指针
-                    body.setKvs(new ArrayList<>());
-                }
-                body.getKvs().add(kv);
             });
         } else {
             if(data instanceof  Schema) {
+                if (data instanceof String && StringUtils.isBlank((String)data)) {
+                    return;
+                }
                 Schema dataSchema = (Schema) data;
                 KeyValue kv = new KeyValue(schema.getName(), String.valueOf(dataSchema.getExample()), schema.getDescription());
                 Schema schemaInfo = infoMap.get(schema.getName());
