@@ -582,7 +582,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
      * @return
      */
     private boolean isCustomizeReqCompleteUrl(String url) {
-        if (isCustomizeReq() && (url.startsWith("http://") || url.startsWith("https://"))) {
+        if (isCustomizeReq() && StringUtils.isNotEmpty(url) && (url.startsWith("http://") || url.startsWith("https://"))) {
             return true;
         }
         return false;

@@ -311,19 +311,21 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 body.getKvs().add(kv);
             });
         } else {
-            Schema dataSchema = (Schema) data;
-            KeyValue kv = new KeyValue(schema.getName(), String.valueOf(dataSchema.getExample()), schema.getDescription());
-            Schema schemaInfo = infoMap.get(schema.getName());
-            if (schemaInfo != null) {
-                if (schemaInfo instanceof BinarySchema) {
-                    kv.setType("file");
+            if(data instanceof  Schema) {
+                Schema dataSchema = (Schema) data;
+                KeyValue kv = new KeyValue(schema.getName(), String.valueOf(dataSchema.getExample()), schema.getDescription());
+                Schema schemaInfo = infoMap.get(schema.getName());
+                if (schemaInfo != null) {
+                    if (schemaInfo instanceof BinarySchema) {
+                        kv.setType("file");
+                    }
                 }
-            }
-            if (body != null) {
-                if (body.getKvs() == null) {
-                    body.setKvs(new ArrayList<>());
+                if (body != null) {
+                    if (body.getKvs() == null) {
+                        body.setKvs(new ArrayList<>());
+                    }
+                    body.getKvs().add(kv);
                 }
-                body.getKvs().add(kv);
             }
         }
     }
