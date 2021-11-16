@@ -20,7 +20,6 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public Pager<List<TaskCenterDTO>> getTasks(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TaskCenterRequest request) {
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
@@ -30,19 +29,16 @@ public class TaskController {
     }
 
     @GetMapping("/case/{id}")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public List<TaskCenterDTO> getCase(@PathVariable String id) {
         return taskService.getCases(id);
     }
 
     @GetMapping("/scenario/{id}")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public List<TaskCenterDTO> getScenario(@PathVariable String id) {
         return taskService.getScenario(id);
     }
 
     @PostMapping("/count/running")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public int getRunningTasks(@RequestBody TaskCenterRequest request) {
         return taskService.getRunningTasks(request);
     }
