@@ -1223,7 +1223,7 @@ export default {
       jmeter_func: "JMeter 方法",
       parameters_filter_example: "示例",
       parameters_filter_tips: "只支持 MockJs 函数结果预览",
-      parameters_advance: "return",
+      parameters_advance: "参数设置",
       parameters_preview: "预览",
       parameters_mock_filter_tips: "请输入关键字进行过滤",
       parameters_pre_request: "前置请求提取",
