@@ -520,7 +520,6 @@ public class APITestService {
                     //HTTPSamplerProxy， 进行附件转化： 1.elementProp里去掉路径； 2。elementProp->filePath获取路径并读出来
                     attachmentFilePathList.addAll(this.parseAttachmentFileInfo(element));
                 }
-
                 //如果存在证书文件，也要匹配出来
                 attachmentFilePathList.addAll(this.parseAttachmentFileInfo(innerHashTreeElement));
             }
@@ -535,7 +534,10 @@ public class APITestService {
 
         //处理附件
         Map<String, String> attachmentFiles = new HashMap<>();
-
+        //去重处理
+        if(!CollectionUtils.isEmpty(attachmentFilePathList)){
+            attachmentFilePathList = attachmentFilePathList.stream().distinct().collect(Collectors.toList());
+        }
         List<FileMetadata> fileMetadataList = new ArrayList<>();
         for (String filePath: attachmentFilePathList) {
             File file  = new File(filePath);
@@ -555,8 +557,8 @@ public class APITestService {
         return returnDTO;
     }
 
-    private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
-        List<String> attachmentFilePathList = new ArrayList<>();
+private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
+         List<String> attachmentFilePathList = new ArrayList<>();
         List<Element> parentElementList = parentHashTreeElement.elements();
         for (Element parentElement: parentElementList) {
             String qname = parentElement.getQName().getName();
