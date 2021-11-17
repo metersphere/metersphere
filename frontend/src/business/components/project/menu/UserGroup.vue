@@ -47,12 +47,16 @@
                 <div>
                   <ms-table-operator :edit-permission="['PROJECT_GROUP:READ+EDIT']"
                                      :delete-permission="['PROJECT_GROUP:READ+DELETE']"
-                                     @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
+                                     @editClick="edit(scope.row)" @deleteClick="del(scope.row)"
+                                     :isShow="flagChange(scope.row.scopeId ==='global')">
                     <template v-slot:middle>
                       <!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
                       <ms-table-operator-button
                         v-permission="['PROJECT_GROUP:READ+SETTING_PERMISSION']"
-                        :tip="$t('group.set_permission')" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
+                        :tip="$t('group.set_permission')"
+                        icon="el-icon-s-tools"
+                        @exec="setPermission(scope.row)"
+                        :disabled="flagChange(scope.row.scopeId ==='global')"/>
                     </template>
                   </ms-table-operator>
                 </div>
@@ -83,7 +87,7 @@ import EditPermission from "@/business/components/settings/system/group/EditPerm
 import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
 import {_sort} from "@/common/js/tableUtils";
 import GroupMember from "@/business/components/settings/system/group/GroupMember";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 
@@ -110,8 +114,21 @@ export default {
       total: 0,
       screenHeight: 'calc(100vh - 200px)',
       groups: [],
-      currentGroup: {}
+      currentGroup: {},
+      flag: false
     };
+  },
+  created() {
+    this.$get("/user/group/list/ws/" + getCurrentWorkspaceId() + "/" + getCurrentUserId(), res => {
+      let data = res.data;
+      if (data) {
+        data.forEach(row => {
+          if (row.id === 'ws_admin') {
+            this.flag = true;
+          }
+        })
+      }
+    })
   },
   activated() {
     this.initData();
@@ -138,6 +155,15 @@ export default {
         });
       }
     },
+    flagChange(data) {
+      if (this.flag) {
+        return false;
+      } else if (data) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     create() {
       this.$refs.editUserGroup.open({}, 'create', this.$t('group.create'));
     },
@@ -162,7 +188,6 @@ export default {
       this.$refs.deleteConfirm.open(row);
     },
     copy(row) {
-      // console.log(row);
     },
     setPermission(row) {
       this.$refs.editPermission.open(row);
