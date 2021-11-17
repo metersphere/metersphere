@@ -300,7 +300,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 item.setType("object");
                 handleRefProperties(item, value, refSet);
             } else {
-                handleBaseProperties(item, value, refSet);
+                handleBaseProperties(item, value);
             }
             if (value.getExample() != null) {
                 item.getMock().put("mock", value.getExample());
@@ -324,12 +324,12 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             subItem.setType("object");
             subItem.setProperties(parseSchemaProperties(((ObjectProperty) value).getProperties(), refSet));
         } else {
-            handleBaseProperties(subItem, value, refSet);
+            handleBaseProperties(subItem, value);
         }
         item.getItems().add(subItem);
     }
 
-    private void handleBaseProperties(JsonSchemaItem item, Property value, HashSet<String> refSet) {
+    private void handleBaseProperties(JsonSchemaItem item, Property value) {
         if (value instanceof StringProperty || value instanceof DateProperty || value instanceof DateTimeProperty ) {
             item.setType("string");
         } else if (value instanceof IntegerProperty) {
