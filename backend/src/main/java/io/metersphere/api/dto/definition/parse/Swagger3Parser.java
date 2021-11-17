@@ -343,17 +343,17 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     private void parseKvBody(Schema schema, Body body, Object data, Map<String, Schema> infoMap) {
         if (data instanceof JSONObject) {
             ((JSONObject) data).forEach((k, v) -> {
-                _parseKvBody(schema, body, k, infoMap);
+                parseKvBodyItem(schema, body, k, infoMap);
             });
         } else {
             if(data instanceof  Schema) {
                 Schema dataSchema = (Schema) data;
-                _parseKvBody(schema, body, dataSchema.getName(), infoMap);
+                parseKvBodyItem(schema, body, dataSchema.getName(), infoMap);
             }
         }
     }
 
-    private void _parseKvBody(Object schemaObject, Body body, String name, Map<String, Schema> infoMap) {
+    private void parseKvBodyItem(Object schemaObject, Body body, String name, Map<String, Schema> infoMap) {
         Schema schema = (Schema) schemaObject;
         if (schema == null) return;
         KeyValue kv = new KeyValue(name, String.valueOf(schema.getExample() == null ? "" : schema.getExample()), schema.getDescription());
