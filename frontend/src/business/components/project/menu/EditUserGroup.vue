@@ -28,12 +28,6 @@
                    @change="change(form.global)"></el-switch>
       </el-form-item>
 
-      <el-form-item :label="$t('project.owning_workspace')" v-if="show" prop="scopeId">
-        <el-select v-model="form.scopeId" :placeholder="$t('project.please_choose_workspace')" style="width: 83%" disabled
-                   clearable>
-          <el-option v-for="item in workspaces" :key="item.id" :label="item.name" :value="item.id"/>
-        </el-select>
-      </el-form-item>
     </el-form>
 
     <template v-slot:footer>
@@ -101,6 +95,7 @@ export default {
     create() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.form.scopeId = getCurrentWorkspaceId();
           this.$post("/user/group/add", this.form, () => {
             this.$success(this.$t('commons.save_success'));
             this.$emit("refresh")
@@ -163,14 +158,7 @@ export default {
         this.isSystem = false;
       }
     },
-    getWorkspace() {
-      this.$get("/user/group/ws/" + getCurrentUserId(), res => {
-        let data = res.data;
-        if (data) {
-          this.workspaces = data;
-        }
-      })
-    }
+
   }
 }
 </script>
