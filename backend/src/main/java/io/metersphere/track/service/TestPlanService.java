@@ -580,7 +580,7 @@ public class TestPlanService {
 
                     for (TestCaseTest l : list) {
                         if (StringUtils.equals(l.getTestType(), TestCaseStatus.performance.name())) {
-                            TestPlanLoadCase t = new TestPlanLoadCase();
+                            TestPlanLoadCaseWithBLOBs t = new TestPlanLoadCaseWithBLOBs();
                             t.setId(UUID.randomUUID().toString());
                             t.setTestPlanId(request.getPlanId());
                             t.setLoadCaseId(l.getTestId());
@@ -1138,13 +1138,13 @@ public class TestPlanService {
                 reportId = performanceTestService.run(performanceRequest);
                 if (reportId != null) {
                     performaneReportIDMap.put(reportId, caseID);
-                    TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+                    TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
                     testPlanLoadCase.setId(performanceRequest.getTestPlanLoadId());
                     testPlanLoadCase.setLoadReportId(reportId);
                     testPlanLoadCaseService.update(testPlanLoadCase);
 
                     //更新关联处的报告
-                    TestPlanLoadCase loadCase = new TestPlanLoadCaseDTO();
+                    TestPlanLoadCaseWithBLOBs loadCase = new TestPlanLoadCaseDTO();
                     loadCase.setId(id);
                     loadCase.setLoadReportId(reportId);
                     loadCase.setStatus("run");
@@ -1398,7 +1398,7 @@ public class TestPlanService {
             if (!CollectionUtils.isEmpty(loadCases)) {
                 Long nextLoadOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanLoadCaseMapper::getLastOrder);
                 for (TestPlanLoadCase loadCase : loadCases) {
-                    TestPlanLoadCase load = new TestPlanLoadCase();
+                    TestPlanLoadCaseWithBLOBs load = new TestPlanLoadCaseWithBLOBs();
                     load.setId(UUID.randomUUID().toString());
                     load.setTestPlanId(targetPlanId);
                     load.setLoadCaseId(loadCase.getLoadCaseId());

@@ -3,7 +3,7 @@
  */
 package io.metersphere.track.service.utils;
 
-import io.metersphere.base.domain.TestPlanLoadCase;
+import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -27,7 +27,7 @@ public class ParallelExecTask<T> implements Callable<T> {
     public T call() {
         try {
             String reportId = performanceTestService.run(request);
-            TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+            TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
             testPlanLoadCase.setId(request.getTestPlanLoadId());
             testPlanLoadCase.setLoadReportId(reportId);
             testPlanLoadCase.setStatus("run");
