@@ -84,7 +84,6 @@
             </el-row>
           </el-form>
         </div>
-
       </template>
       <el-table border class="adjust-table" :data="tableData" ref="operLog"
                 :height="screenHeight">
@@ -149,7 +148,7 @@ export default {
         condition: {},
         tableData: [],
         userList: [],
-        screenHeight: 'calc(100vh - 215px)',
+        screenHeight: 'calc(100vh - 270px)',
         LOG_TYPE: new LOG_TYPE(this),
         LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
         sysList: sysList,
