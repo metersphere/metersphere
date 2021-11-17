@@ -6,6 +6,7 @@
     width="70%"
     @closed="closeFunc"
     :destroy-on-close="true"
+    :append-to-body="true"
     v-loading="result.loading"
   >
     <div style="height: 50vh;overflow-y: auto;">
