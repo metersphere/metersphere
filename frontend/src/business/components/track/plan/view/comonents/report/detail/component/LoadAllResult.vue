@@ -95,9 +95,6 @@ export default {
   height: 600px !important;
 }
 
-/deep/ .drag-bar {
-  width: 0px;
-}
 .ms-aside-container {
   border: 0px;
   padding: 10px 0px 0px 10px;

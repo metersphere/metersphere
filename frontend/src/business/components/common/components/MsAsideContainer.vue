@@ -4,13 +4,15 @@
             :style="{
               'margin-left': !asideHidden ? 0 : '-' + width,
               'min-width': minWidth + 'px',
-              'height': height ? (height + 'px') : (enableAutoHeight ? null : 'calc(100vh - 80px)'),
+              'height': calHeight,
              }">
     <div v-if="enableAsideHidden" class="hiddenBottom" :style="{'top': hiddenBottomTop ? hiddenBottomTop : 0}" @click="asideHidden = !asideHidden">
       <i v-if="!asideHidden" class="el-icon-arrow-left"/>
       <i v-if="asideHidden" class="el-icon-arrow-right"/>
     </div>
-    <slot></slot>
+    <div style="overflow: scroll" :style="{'height': containerCalHeight }">
+      <slot></slot>
+    </div>
     <ms-horizontal-drag-bar/>
   </el-aside>
 </template>
@@ -51,6 +53,14 @@
         asideHidden() {
           this.$emit('setAsideHidden', this.asideHidden) ;
         }
+      },
+      computed: {
+        calHeight() {
+          return this.height ? (this.height + 'px') : (this.enableAutoHeight ? null : 'calc(100vh - 80px)')
+        },
+        containerCalHeight() {
+          return this.height ? (this.height - 30 + 'px') : (this.enableAutoHeight ? null : 'calc(100vh - 100px)')
+        },
       },
       created() {
         this.id = getUUID();
