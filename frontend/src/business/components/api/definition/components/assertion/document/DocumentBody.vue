@@ -16,12 +16,13 @@
       @cell-mouse-enter="editRow"
       @cell-mouse-leave="editLeave"
       row-key="id"
+      border
       default-expand-all
       v-loading="loading">
 
       <el-table-column prop="name" :label="$t('api_test.definition.request.esb_table.name')" width="230">
         <template slot-scope="scope">
-          <el-input v-if="scope.row.status && scope.column.fixed && scope.row.id!=='root'" v-model="scope.row.name" style="width: 140px" size="mini"/>
+          <el-input v-if="(scope.row.status && scope.column.fixed && scope.row.id!=='root') || (scope.row.type !=='object' && !scope.row.name)" v-model="scope.row.name" style="width: 140px" size="mini" :placeholder="$t('api_test.definition.request.esb_table.name')"/>
           <span v-else>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
@@ -69,7 +70,7 @@
       <el-table-column :label="$t('commons.operating')" width="200" fixed="right">
         <template v-slot:default="scope">
           <span>
-            <el-button size="mini" type="text" circle @click="addVerification(scope.row)" :disabled="scope.row.type ==='object' || checked || scope.row.id==='root'">添加校验</el-button>
+            <el-button size="mini" type="text" circle @click="addVerification(scope.row)" :disabled="scope.row.type ==='object' ||scope.row.type ==='array' || checked || scope.row.id==='root'">添加校验</el-button>
             <el-button size="mini" type="text" @click="addRow(scope.row)" :disabled="(scope.row.type !=='object' && scope.row.type !=='array')  || checked">添加子字段</el-button>
             <el-button size="mini" type="text" @click="remove(scope.row)" :disabled="checked || scope.row.id==='root'">{{ $t('commons.remove') }}</el-button>
           </span>
@@ -245,9 +246,10 @@ export default {
         'span', [
           h('el-checkbox', {
             style: 'margin-right:5px;',
+            disabled:this.checked,
             on: {
               change: this.handleCheckAllChange
-            }
+            },
           }),
           h('span', column.label)
         ]
@@ -258,6 +260,7 @@ export default {
         'span', [
           h('el-checkbox', {
             style: 'margin-right:5px;',
+            disabled:this.checked,
             on: {
               change: this.handleType
             }
@@ -271,6 +274,7 @@ export default {
         'span', [
           h('el-checkbox', {
             style: 'margin-right:5px;',
+            disabled:this.checked,
             on: {
               change: this.handleArray
             }
@@ -298,18 +302,27 @@ export default {
       }
     },
     handleCheckAllChange(val) {
+      if(this.checked){
+        return;
+      }
       this.tableData.forEach(item => {
         item.include = val;
         this.childrenChecked(item.children, 1, val);
       })
     },
     handleType(val) {
+      if(this.checked) {
+        return;
+      }
       this.tableData.forEach(item => {
         item.typeVerification = val;
         this.childrenChecked(item.children, 2, val);
       })
     },
     handleArray(val) {
+      if(this.checked){
+        return;
+      }
       this.tableData.forEach(item => {
         item.arrayVerification = val;
         this.childrenChecked(item.children, 3, val);
