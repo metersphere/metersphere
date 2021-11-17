@@ -502,7 +502,7 @@ public class ApiAutomationService {
         return scenario;
     }
 
-    private void saveFollows(String scenarioId, List<String> follows) {
+    public void saveFollows(String scenarioId, List<String> follows) {
         ApiScenarioFollowExample example = new ApiScenarioFollowExample();
         example.createCriteria().andScenarioIdEqualTo(scenarioId);
         apiScenarioFollowMapper.deleteByExample(example);

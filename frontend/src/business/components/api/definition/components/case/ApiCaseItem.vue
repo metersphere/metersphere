@@ -522,9 +522,19 @@ export default {
             break;
           }
         }
+        if( this.apiCase.id){
+          this.$post("/api/testcase/update/follows/"+this.apiCase.id, this.apiCase.follows,() => {
+            this.$message.success("cancel success")
+          });
+        }
       }else {
         this.showFollow = true;
         this.apiCase.follows.push(this.currentUser().id)
+        if( this.apiCase.id){
+          this.$post("/api/testcase/update/follows/"+this.apiCase.id, this.apiCase.follows,() => {
+            this.$message.success("cancel success")
+          });
+        }
       }
     }
   }

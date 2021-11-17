@@ -837,10 +837,22 @@
               break;
             }
           }
+          if(this.path === "/test/case/edit"){
+            this.result.loading = true
+            this.$post('/test/case/edit/follows/'+this.currentTestCaseInfo.id, this.form.follows,() => {
+              this.result.loading = false
+            });
+          }
 
         }else {
           this.showFollow = true;
           this.form.follows.push(this.currentUser().id)
+          if(this.path === "/test/case/edit"){
+            this.result.loading = true
+            this.$post('/test/case/edit/follows/'+this.currentTestCaseInfo.id, this.form.follows,() => {
+              this.result.loading = false
+            });
+          }
         }
       }
     }

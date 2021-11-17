@@ -102,6 +102,7 @@ export default {
   },
   data() {
     return {
+      issueId:'',
       result: {},
       relateFields: [],
       isFormAlive: true,
@@ -124,7 +125,7 @@ export default {
       form: {
         title: '',
         description: '',
-        creator: null
+        creator: null,
       },
       tapdUsers: [],
       zentaoUsers: [],
@@ -173,6 +174,8 @@ export default {
             }
           }
         })
+      }else {
+        this.form.follows = [];
       }
     },
     currentUser: () => {
@@ -215,6 +218,7 @@ export default {
           this.form.options = data.options ? JSON.parse(data.options) : [];
         }
         if (data.id) {
+          this.issueId  = data.id
           this.url = 'issues/update';
         } else {
           //copy
@@ -300,6 +304,9 @@ export default {
       }
     },
     saveFollow(){
+      if(!this.form.follows){
+        this.form.follows = [];
+      }
       if(this.showFollow){
         this.showFollow = false;
         for (let i = 0; i < this.form.follows.length; i++) {
@@ -308,10 +315,18 @@ export default {
             break;
           }
         }
+        if(this.url === "issues/update"){
+          this.$post("issues/up/follows/"+this.issueId, this.form.follows,() => {
+          });
+        }
 
       }else {
         this.showFollow = true;
         this.form.follows.push(this.currentUser().id)
+        if(this.url === "issues/update"){
+          this.$post("issues/up/follows/"+this.issueId, this.form.follows,() => {
+          });
+        }
       }
     }
   }

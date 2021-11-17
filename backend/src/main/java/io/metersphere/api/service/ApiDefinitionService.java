@@ -512,11 +512,11 @@ public class ApiDefinitionService {
         List<String> ids = new ArrayList<>();
         ids.add(request.getId());
         apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol());
-        saveFollows(test.getId(), request.getFollows());
+        //saveFollows(test.getId(), request.getFollows());
         return test;
     }
 
-    private void saveFollows(String definitionId, List<String> follows) {
+    public void saveFollows(String definitionId, List<String> follows) {
         ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
         example.createCriteria().andDefinitionIdEqualTo(definitionId);
         apiDefinitionFollowMapper.deleteByExample(example);

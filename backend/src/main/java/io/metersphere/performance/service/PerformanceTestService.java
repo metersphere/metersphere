@@ -308,13 +308,13 @@ public class PerformanceTestService {
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
-        saveFollows(loadTest.getId(), request.getFollows());
+        //saveFollows(loadTest.getId(), request.getFollows());
         loadTestMapper.updateByPrimaryKeySelective(loadTest);
 
         return loadTest;
     }
 
-    private void saveFollows(String testId, List<String> follows) {
+    public void saveFollows(String testId, List<String> follows) {
         LoadTestFollowExample example = new LoadTestFollowExample();
         example.createCriteria().andTestIdEqualTo(testId);
         loadTestFollowMapper.deleteByExample(example);
