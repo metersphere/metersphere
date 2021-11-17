@@ -183,7 +183,7 @@ public class TestCaseService {
         return request;
     }
 
-    private void saveFollows(String caseId, List<String> follows) {
+    public void saveFollows(String caseId, List<String> follows) {
         TestCaseFollowExample example = new TestCaseFollowExample();
         example.createCriteria().andCaseIdEqualTo(caseId);
         testCaseFollowMapper.deleteByExample(example);
@@ -1429,7 +1429,7 @@ public class TestCaseService {
         }
         this.setNode(request);
         editTestCase(request);
-        saveFollows(request.getId(), request.getFollows());
+        //saveFollows(request.getId(), request.getFollows());
         return testCaseWithBLOBs;
     }
 

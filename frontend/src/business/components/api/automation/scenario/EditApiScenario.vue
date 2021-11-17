@@ -1612,19 +1612,28 @@ export default {
     showHistory() {
       this.$refs.taskCenter.openScenarioHistory(this.currentScenario.id);
     },
-    saveFollow() {
-      if (this.showFollow) {
+    saveFollow(){
+      if(this.showFollow){
         this.showFollow = false;
         for (let i = 0; i < this.currentScenario.follows.length; i++) {
-          if (this.currentScenario.follows[i] === this.currentUser().id) {
-            this.currentScenario.follows.splice(i, 1)
+          if(this.currentScenario.follows[i]===this.currentUser().id){
+            this.currentScenario.follows.splice(i,1)
             break;
           }
         }
-
-      } else {
+        if(this.currentScenario.id){
+          this.$post("/api/automation/update/follows/"+this.currentScenario.id, this.currentScenario.follows,() => {
+            this.$message.success("cancel success")
+          });
+        }
+      }else {
         this.showFollow = true;
         this.currentScenario.follows.push(this.currentUser().id)
+        if(this.currentScenario.id){
+          this.$post("/api/automation/update/follows/"+this.currentScenario.id, this.currentScenario.follows,() => {
+            this.$message.success("cancel success")
+          });
+        }
       }
     }
   }

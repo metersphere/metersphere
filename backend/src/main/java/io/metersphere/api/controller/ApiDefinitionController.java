@@ -342,4 +342,9 @@ public class ApiDefinitionController {
         return JSONToDocumentUtils.getDocument(body.getRaw(),body.getType());
     }
 
+    @PostMapping("/update/follows/{definitionId}")
+    public void saveFollows(@PathVariable String definitionId,@RequestBody List<String> follows) {
+        apiDefinitionService.saveFollows(definitionId,follows);
+    }
+
 }

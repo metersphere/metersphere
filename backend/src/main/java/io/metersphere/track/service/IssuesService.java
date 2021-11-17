@@ -105,10 +105,10 @@ public class IssuesService {
         platformList.forEach(platform -> {
             platform.updateIssue(issuesRequest);
         });
-        saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
+        //saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
         // todo 缺陷更新事件？
     }
-    private void saveFollows(String issueId, List<String> follows) {
+    public void saveFollows(String issueId, List<String> follows) {
         IssueFollowExample example = new IssueFollowExample();
         example.createCriteria().andIssueIdEqualTo(issueId);
         issueFollowMapper.deleteByExample(example);

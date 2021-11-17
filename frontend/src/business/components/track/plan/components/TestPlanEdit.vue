@@ -100,7 +100,7 @@
           </el-col>
         </el-row>
 
-        <el-row type="flex" justify="left" :gutter="20">
+<!--        <el-row type="flex" justify="left" :gutter="20">
           <el-col :span="12">
             <el-form-item :label="$t('test_track.plan.follow_people')" :label-width="formLabelWidth"
                           prop="follows">
@@ -116,7 +116,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-        </el-row>
+        </el-row>-->
 
         <el-row type="flex" justify="left" :gutter="20">
           <el-col :span="24">

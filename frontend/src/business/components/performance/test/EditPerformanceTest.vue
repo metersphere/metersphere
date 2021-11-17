@@ -492,10 +492,19 @@ export default {
             break;
           }
         }
-
+        if(this.testId){
+          this.$post("/performance/test/update/follows/"+this.testId, this.test.follows,() => {
+            this.$message.success("cancel success")
+          });
+        }
       }else {
         this.showFollow = true;
         this.test.follows.push(this.currentUser().id)
+        if(this.testId){
+          this.$post("/performance/test/update/follows/"+this.testId, this.test.follows,() => {
+            this.$message.success("cancel success")
+          });
+        }
       }
     }
   }

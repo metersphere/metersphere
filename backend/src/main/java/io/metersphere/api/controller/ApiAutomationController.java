@@ -368,6 +368,9 @@ public class ApiAutomationController {
     public List<String> getFollows(@PathVariable String scenarioId) {
         return apiAutomationService.getFollows(scenarioId);
     }
-
+    @PostMapping("/update/follows/{scenarioId}")
+    public void saveFollows(@PathVariable String scenarioId,@RequestBody List<String> follows) {
+        apiAutomationService.saveFollows(scenarioId,follows);
+    }
 }
 

@@ -209,4 +209,9 @@ public class ApiTestCaseController {
     public List<String> getFollows(@PathVariable String testId) {
         return apiTestCaseService.getFollows(testId);
     }
+
+    @PostMapping("/update/follows/{testId}")
+    public void saveFollows(@PathVariable String testId,@RequestBody List<String> follows) {
+        apiTestCaseService.saveFollows(testId,follows);
+    }
 }

@@ -133,4 +133,9 @@ public class IssuesController {
     public List<String> getFollows(@PathVariable String issueId) {
         return issuesService.getFollows(issueId);
     }
+
+    @PostMapping("/up/follows/{issueId}")
+    public void saveFollows(@PathVariable String issueId,@RequestBody List<String> follows) {
+        issuesService.saveFollows(issueId,follows);
+    }
 }

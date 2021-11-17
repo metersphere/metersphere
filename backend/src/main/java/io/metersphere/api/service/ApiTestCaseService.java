@@ -378,7 +378,7 @@ public class ApiTestCaseService {
         return test;
     }
 
-    private void saveFollows(String testId, List<String> follows) {
+    public void saveFollows(String testId, List<String> follows) {
         ApiTestCaseFollowExample example = new ApiTestCaseFollowExample();
         example.createCriteria().andCaseIdEqualTo(testId);
         apiTestCaseFollowMapper.deleteByExample(example);
