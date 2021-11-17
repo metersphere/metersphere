@@ -249,6 +249,7 @@ export default {
         }
       }
       Object.assign(this.currentApi, data);
+      this.currentApi.isCopy = false;
       this.mockSetting();
       this.reload();
     },

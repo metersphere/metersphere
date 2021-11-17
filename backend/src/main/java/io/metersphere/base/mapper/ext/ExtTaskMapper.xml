@@ -57,7 +57,7 @@
         left join `user` t1 ON t.user_id = t1.id
         left join test_resource_pool t2 on t.actuator  = t2.id
         left join api_test_case t4 on t4.id = t.resource_id
-        where t4.id=#{id} and t.content != "" LIMIT 5;
+        where t4.id=#{id} and t.content != "" order by t.create_time desc LIMIT 5;
     </select>
 
     <select id="getScenario" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
