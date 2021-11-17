@@ -713,16 +713,24 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private Arguments httpArguments(List<KeyValue> list) {
         Arguments arguments = new Arguments();
-        list.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue -> {
-                    HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue());
-                    if (keyValue.getValue() == null) {
-                        httpArgument.setValue("");
+        list.stream().
+                filter(KeyValue::isValid).
+                filter(KeyValue::isEnable).forEach(keyValue -> {
+                    try {
+                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                        value = keyValue.isUrlEncode() ? URLEncoder.encode(value, "utf-8") : value;
+                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                        if (keyValue.getValue() == null) {
+                            httpArgument.setValue("");
+                        }
+                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                            httpArgument.setContentType(keyValue.getContentType());
+                        }
+                        arguments.addArgument(httpArgument);
+                    } catch (Exception e) {
+
                     }
-                    httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                    if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                        httpArgument.setContentType(keyValue.getContentType());
-                    }
-                    arguments.addArgument(httpArgument);
                 }
         );
         return arguments;
