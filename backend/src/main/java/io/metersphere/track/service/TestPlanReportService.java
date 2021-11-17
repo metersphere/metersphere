@@ -128,19 +128,6 @@ public class TestPlanReportService {
         return list;
     }
 
-//    private void checkReport(List<TestPlanReportDTO> list) {
-//        if(CollectionUtils.isNotEmpty(list)){
-//            for (TestPlanReportDTO dto : list){
-//                if(StringUtils.equalsIgnoreCase(dto.getStatus(),TestPlanApiExecuteStatus.RUNNING.name())){
-//                    TestPlanReport model = this.updateTestPlanReportById(dto.getId());
-//                    if(model != null && model.getStatus() != null){
-//                        dto.setStatus(model.getStatus());
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String projectID, String planId, String userId, String triggerMode) {
         Map<String, List<String>> apiTestCaseIdMap = new LinkedHashMap<>();
 
@@ -295,7 +282,6 @@ public class TestPlanReportService {
 
         TestPlanReportExecuteCatch.addApiTestPlanExecuteInfo(testPlanReportID, saveRequest.getUserId(), apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
 
-//        testPlanReport.setPrincipal(testPlan.getPrincipal());
         if (testPlanReport.getIsScenarioExecuting() || testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting()) {
             testPlanReport.setStatus(TestPlanReportStatus.RUNNING.name());
         } else {
@@ -604,10 +590,6 @@ public class TestPlanReportService {
         int[] componentIndexArr = new int[]{1, 3, 4};
         testPlanReport.setComponents(JSONArray.toJSONString(componentIndexArr));
 
-//        QueryTestPlanRequest queryTestPlanRequest = new QueryTestPlanRequest();
-//        queryTestPlanRequest.setId(testPlanReport.getTestPlanId());
-//        TestPlanDTO testPlan = extTestPlanMapper.list(queryTestPlanRequest).get(0);
-
         TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
 
         Map<String, Map<String, String>> testPlanExecuteResult = executeInfo.getExecutedResult();
@@ -640,17 +622,6 @@ public class TestPlanReportService {
         testPlanReport = this.update(testPlanReport);
         return testPlanReport;
     }
-
-//    public void checkTestPlanStatus(String planReportId) {
-//        try {
-//            TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(planReportId);
-//
-//            TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
-//            testPlanService.checkStatus(testPlanReport.getTestPlanId());
-//        } catch (Exception e) {
-//            LogUtil.error(e.getMessage(), e);
-//        }
-//    }
 
     /**
      * @param planReportId    测试计划报告ID
@@ -686,7 +657,6 @@ public class TestPlanReportService {
         TestPlanReportContentExample example = new TestPlanReportContentExample();
         example.createCriteria().andTestPlanReportIdEqualTo(planReportId);
         List<TestPlanReportContentWithBLOBs> testPlanReportContentList = testPlanReportContentMapper.selectByExampleWithBLOBs(example);
-
 
         TestPlanReportContentWithBLOBs testPlanReportContent = null;
         TestPlanSimpleReportDTO reportDTO = testPlanService.buildPlanReport(testPlan.getId(), false);
@@ -834,8 +804,6 @@ public class TestPlanReportService {
                 TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
                 if (testPlan != null) {
                     testPlanService.checkStatus(testPlan);
-//                    testPlan.setStatus(TestPlanStatus.Completed.name());
-//                    testPlanMapper.updateByPrimaryKeySelective(testPlan);
                 }
                 if (testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
                         ReportTriggerMode.MANUAL.name(),
@@ -872,7 +840,6 @@ public class TestPlanReportService {
             subject = Translator.get("task_notification");
         }
 
-
         if (StringUtils.equals(TestPlanReportStatus.FAILED.name(), testPlanReport.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         } else {
@@ -890,10 +857,8 @@ public class TestPlanReportService {
         }
         paramMap.putAll(new BeanMap(testPlan));
 
-
         String successfulMailTemplate = "TestPlanSuccessfulNotification";
         String errfoMailTemplate = "TestPlanFailedNotification";
-
 
         String testPlanShareUrl = shareInfoService.getTestPlanShareUrl(testPlanReport.getId());
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
@@ -1026,9 +991,6 @@ public class TestPlanReportService {
             TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
             contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
             testPlanReportContentMapper.deleteByExample(contentExample);
-//            TestPlanReportResourceExample resourceExample = new TestPlanReportResourceExample();
-//            resourceExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
-//            testPlanReportResourceService.deleteByExample(resourceExample);
         }
     }
 
@@ -1056,10 +1018,6 @@ public class TestPlanReportService {
             TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
             contentExample.createCriteria().andTestPlanReportIdIn(deleteReportIds);
             testPlanReportContentMapper.deleteByExample(contentExample);
-
-//            TestPlanReportResourceExample resourceExample = new TestPlanReportResourceExample();
-//            resourceExample.createCriteria().andTestPlanReportIdIn(deleteReportIds);
-//            testPlanReportResourceService.deleteByExample(resourceExample);
         }
     }
 
