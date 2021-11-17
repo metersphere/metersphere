@@ -19,6 +19,7 @@ package org.apache.jmeter.assertions;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Predicate;
+import io.metersphere.api.dto.definition.request.assertions.document.DocumentUtils;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
