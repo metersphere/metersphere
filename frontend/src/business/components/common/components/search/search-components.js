@@ -473,7 +473,10 @@ export const TEST_PLAN_TRIGGER_MODE = {
   },
   options: [
     {label: 'test_track.report.trigger_mode.manual', value: 'manual'},
-    {label: "commons.trigger_mode.schedule", value: "SCHEDULE"},
+    {label: 'commons.trigger_mode.schedule', value: 'SCHEDULE'},
+    {label: 'commons.trigger_mode.api', value: 'API'},
+    {label: 'api_test.automation.batch_execute', value: 'BATCH'}
+
   ],
   props: {
     multiple: true
