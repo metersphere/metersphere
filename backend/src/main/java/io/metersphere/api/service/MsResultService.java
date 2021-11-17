@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class MsResultService {
     // 零时存放实时结果
-    private Cache cache = Cache.newHardMemoryCache(0, 3600 * 2);
-    private ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
+    private final Cache cache = Cache.newHardMemoryCache(0, 3600 * 2);
+    private final ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
 
     public ConcurrentHashMap<String, List<SampleResult>> getProcessCache() {
         return processCache;
@@ -252,13 +252,21 @@ public class MsResultService {
         ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
         responseAssertionResult.setName(assertionResult.getName());
         if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().indexOf("==") != -1) {
-            String array[] = assertionResult.getName().split("==");
-            responseAssertionResult.setName(array[0]);
-            StringBuffer content = new StringBuffer();
-            for (int i = 1; i < array.length; i++) {
-                content.append(array[i]);
+            String[] array = assertionResult.getName().split("==");
+            if ("JSR223".equals(array[0])) {
+                responseAssertionResult.setName(array[1]);
+                responseAssertionResult.setContent(array[2]);
+                if (array.length > 3) {
+                    responseAssertionResult.setScript(array[3]);
+                }
+            } else {
+                responseAssertionResult.setName(array[0]);
+                StringBuffer content = new StringBuffer();
+                for (int i = 1; i < array.length; i++) {
+                    content.append(array[i]);
+                }
+                responseAssertionResult.setContent(content.toString());
             }
-            responseAssertionResult.setContent(content.toString());
         }
         responseAssertionResult.setPass(!assertionResult.isFailure() && !assertionResult.isError());
         if (!responseAssertionResult.isPass()) {

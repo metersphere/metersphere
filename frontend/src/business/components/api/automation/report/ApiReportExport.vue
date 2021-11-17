@@ -61,12 +61,6 @@
                 </el-tag>
               </api-report-reqest-header-item>
             </div>
-
-            <div class="request-bottom">
-              <div v-if="request.responseResult.assertions.length>0">
-                  <ms-assertion-results :assertions="request.responseResult.assertions"/>
-              </div>
-            </div>
           </div>
         </el-card>
       </div>
