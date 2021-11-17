@@ -229,13 +229,13 @@
                   </el-form-item>
                 </div>
                 <div v-else>
-                  <el-table :data="threadGroup.resourceNodes" :max-height="200">
+                  <el-table class="adjust-table" :data="threadGroup.resourceNodes" :max-height="200">
                     <el-table-column type="index" width="50"/>
                     <el-table-column prop="ip" label="IP"/>
                     <el-table-column prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"/>
                     <el-table-column prop="ratio" :label="$t('test_track.home.percentage')">
                       <template v-slot:default="{row}">
-                        <el-input-number size="small" v-model="row.ratio" :min="0" :step=".1"
+                        <el-input-number size="mini" v-model="row.ratio" :min="0" :step=".1" controls-position="right"
                                          :max="1"></el-input-number>
                       </template>
                     </el-table-column>
