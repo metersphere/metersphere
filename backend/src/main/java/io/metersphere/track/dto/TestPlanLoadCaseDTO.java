@@ -2,6 +2,7 @@ package io.metersphere.track.dto;
 
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.TestPlanLoadCase;
+import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class TestPlanLoadCaseDTO extends TestPlanLoadCase {
+public class TestPlanLoadCaseDTO extends TestPlanLoadCaseWithBLOBs {
     private String userName;
     private String caseName;
     private String projectName;

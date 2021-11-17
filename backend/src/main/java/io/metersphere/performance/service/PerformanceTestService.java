@@ -402,9 +402,12 @@ public class PerformanceTestService {
             String testPlanLoadId = request.getTestPlanLoadId();
             if (StringUtils.isNotBlank(testPlanLoadId)) {
                 // 设置本次报告中的压力配置信息
-                TestPlanLoadCase testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(testPlanLoadId);
+                TestPlanLoadCaseWithBLOBs testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(testPlanLoadId);
                 if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getLoadConfiguration())) {
                     testReport.setLoadConfiguration(testPlanLoadCase.getLoadConfiguration());
+                }
+                if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getAdvancedConfiguration())) {
+                    testReport.setAdvancedConfiguration(testPlanLoadCase.getAdvancedConfiguration());
                 }
                 if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getTestResourcePoolId())) {
                     testReport.setTestResourcePoolId(testPlanLoadCase.getTestResourcePoolId());

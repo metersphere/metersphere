@@ -179,7 +179,7 @@ export default {
           permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
         },
         {
-          tip: '修改压力配置',
+          tip: '修改配置',
           icon: "el-icon-setting",
           exec: this.changeLoadConfig,
           type: 'success',

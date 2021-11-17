@@ -100,7 +100,7 @@ public class TestPlanLoadCaseService {
         Collections.reverse(caseIds);
 
         for (String id : caseIds) {
-            TestPlanLoadCase t = new TestPlanLoadCase();
+            TestPlanLoadCaseWithBLOBs t = new TestPlanLoadCaseWithBLOBs();
             t.setId(UUID.randomUUID().toString());
             t.setCreateUser(SessionUtils.getUserId());
             t.setTestPlanId(planId);
@@ -112,6 +112,7 @@ public class TestPlanLoadCaseService {
             if (loadTest != null) {
                 t.setTestResourcePoolId(loadTest.getTestResourcePoolId());
                 t.setLoadConfiguration(loadTest.getLoadConfiguration());
+                t.setAdvancedConfiguration(loadTest.getAdvancedConfiguration());
             }
             nextOrder += 5000;
             testPlanLoadCaseMapper.insert(t);
@@ -142,7 +143,7 @@ public class TestPlanLoadCaseService {
 
     public String run(RunTestPlanRequest request) {
         String reportId = performanceTestService.run(request);
-        TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+        TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
         testPlanLoadCase.setId(request.getTestPlanLoadId());
         testPlanLoadCase.setLoadReportId(reportId);
         testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
@@ -192,7 +193,7 @@ public class TestPlanLoadCaseService {
         example.createCriteria().andIdEqualTo(reportId);
         List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(loadTestReports)) {
-            TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+            TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
             testPlanLoadCase.setId(testPlanLoadCaseId);
             testPlanLoadCase.setLoadReportId("");
             testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
@@ -240,7 +241,7 @@ public class TestPlanLoadCaseService {
         testPlanLoadCaseMapper.deleteByExample(example);
     }
 
-    public void update(TestPlanLoadCase testPlanLoadCase) {
+    public void update(TestPlanLoadCaseWithBLOBs testPlanLoadCase) {
         if (!StringUtils.isEmpty(testPlanLoadCase.getId())) {
             testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
         }
@@ -403,9 +404,21 @@ public class TestPlanLoadCaseService {
         if (StringUtils.isBlank(loadCaseId)) {
             return "";
         }
-        TestPlanLoadCase testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
+        TestPlanLoadCaseWithBLOBs testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
         if (testPlanLoadCase != null) {
             return testPlanLoadCase.getLoadConfiguration();
+        }
+        return "";
+    }
+
+
+    public String getAdvancedConfiguration(String loadCaseId) {
+        if (StringUtils.isBlank(loadCaseId)) {
+            return "";
+        }
+        TestPlanLoadCaseWithBLOBs testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
+        if (testPlanLoadCase != null) {
+            return testPlanLoadCase.getAdvancedConfiguration();
         }
         return "";
     }
@@ -428,7 +441,7 @@ public class TestPlanLoadCaseService {
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {
-        ServiceUtils.updateOrderField(request, TestPlanLoadCase.class,
+        ServiceUtils.updateOrderField(request, TestPlanLoadCaseWithBLOBs.class,
                 testPlanLoadCaseMapper::selectByPrimaryKey,
                 extTestPlanLoadCaseMapper::getPreOrder,
                 extTestPlanLoadCaseMapper::getLastOrder,
