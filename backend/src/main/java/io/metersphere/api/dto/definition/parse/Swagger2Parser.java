@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.request.variable.JsonSchemaItem;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -17,6 +18,7 @@ import io.swagger.models.parameters.*;
 import io.swagger.models.properties.*;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
@@ -227,23 +229,149 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parseRequestBodyParameters(Parameter parameter, Body body) {
         BodyParameter bodyParameter = (BodyParameter) parameter;
-        body.setRaw(parseSchema(bodyParameter.getSchema()));
+        if (body.getType().equals(Body.JSON)) {
+            body.setJsonSchema(parseSchema2JsonSchema(bodyParameter.getSchema()));
+            body.setFormat("JSON-SCHEMA");
+        } else {
+            body.setRaw(parseSchema(bodyParameter.getSchema()));
+        }
     }
+
+    private JsonSchemaItem parseSchema2JsonSchema(Model schema) {
+        if (schema == null) return null;
+        JsonSchemaItem item = new JsonSchemaItem();
+        item.setDescription(schema.getDescription());
+        // 引用模型
+        if (schema instanceof RefModel) {
+            HashSet<String> refSet = new HashSet<>();
+            Model model = getRefModelType(schema, refSet);
+            item.setType("object");
+            item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
+        } else if (schema instanceof ArrayModel) {
+            //模型数组
+            ArrayModel arrayModel = (ArrayModel) schema;
+            HashSet<String> refSet = new HashSet<>();
+            handleArrayItemProperties(item, arrayModel.getItems(), refSet);
+        } else if (schema instanceof ModelImpl) {
+            ModelImpl model = (ModelImpl) schema;
+            Map<String, Property> properties = model.getProperties();
+            if (model != null) {
+                item.setType("object");
+                item.setProperties(parseSchemaProperties(properties, new HashSet<>()));
+            }
+        }
+        if (schema.getExample() != null) {
+            item.getMock().put("mock", schema.getExample());
+        } else {
+            item.getMock().put("mock", "");
+        }
+        return item;
+    }
+
+    private Model getRefModelType(Model schema, HashSet<String> refSet) {
+        String simpleRef;
+        RefModel refModel = (RefModel) schema;
+        String originalRef = refModel.getOriginalRef();
+        if (refModel.getOriginalRef().split("/").length > 3) {
+            simpleRef = originalRef.replace("#/definitions/", "");
+        } else {
+            simpleRef = refModel.getSimpleRef();
+        }
+        refSet.add(simpleRef);
+        return this.definitions.get(simpleRef);
+    }
+
+    private Map<String, JsonSchemaItem> parseSchemaProperties(Map<String, Property> properties, HashSet<String> refSet) {
+        if (MapUtils.isEmpty(properties)) return null;
+
+        Map<String, JsonSchemaItem> JsonSchemaProperties = new LinkedHashMap<>();
+
+        properties.forEach((key, value) -> {
+            JsonSchemaItem item = new JsonSchemaItem();
+            item.setDescription(value.getDescription());
+            if (value instanceof ObjectProperty) {
+                ObjectProperty objectProperty = (ObjectProperty) value;
+                item.setType("object");
+                item.setProperties(parseSchemaProperties(objectProperty.getProperties(), refSet));
+            } else if (value instanceof ArrayProperty) {
+                ArrayProperty arrayProperty = (ArrayProperty) value;
+                handleArrayItemProperties(item, arrayProperty.getItems(), refSet);
+            } else if (value instanceof RefProperty) {
+                item.setType("object");
+                handleRefProperties(item, value, refSet);
+            } else {
+                handleBaseProperties(item, value, refSet);
+            }
+            if (value.getExample() != null) {
+                item.getMock().put("mock", value.getExample());
+            } else {
+                item.getMock().put("mock", "");
+            }
+            JsonSchemaProperties.put(key, item);
+        });
+
+        return JsonSchemaProperties;
+    }
+
+    private void handleArrayItemProperties(JsonSchemaItem item, Property value, HashSet<String> refSet) {
+        if (value == null) return;
+        item.setType("array");
+        JsonSchemaItem subItem = new JsonSchemaItem("object");
+        if (value instanceof RefProperty) {
+            subItem.setType("object");
+            handleRefProperties(subItem, value, refSet);
+        } else if (value instanceof ObjectProperty) {
+            subItem.setType("object");
+            subItem.setProperties(parseSchemaProperties(((ObjectProperty) value).getProperties(), refSet));
+        } else {
+            handleBaseProperties(subItem, value, refSet);
+        }
+        item.getItems().add(subItem);
+    }
+
+    private void handleBaseProperties(JsonSchemaItem item, Property value, HashSet<String> refSet) {
+        if (value instanceof StringProperty || value instanceof DateProperty || value instanceof DateTimeProperty ) {
+            item.setType("string");
+        } else if (value instanceof IntegerProperty) {
+            item.setType("integer");
+        } else if (value instanceof BooleanProperty) {
+            item.setType("boolean");
+        } else if (value instanceof LongProperty || value instanceof FloatProperty
+                || value instanceof DecimalProperty || value instanceof DoubleProperty) {
+            item.setType("number");
+        } else {
+            item.setType("string");
+        }
+    }
+
+    private void handleRefProperties(JsonSchemaItem item, Property value, HashSet<String> refSet) {
+        RefProperty refProperty = (RefProperty) value;
+        String simpleRef = refProperty.getSimpleRef();
+        if (isContainRef(refSet, simpleRef)) {
+            return;
+        }
+        Model model = this.definitions.get(simpleRef);
+        if (model != null) {
+            item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
+        }
+    }
+
+    private boolean isContainRef(HashSet<String> refSet, String ref) {
+        if (refSet.contains(ref)) {
+            //避免嵌套死循环
+            return true;
+        } else {
+            refSet.add(ref);
+            return false;
+        }
+    }
+
 
     private String parseSchema(Model schema) {
         // 引用模型
         if (schema instanceof RefModel) {
-            String simpleRef = "";
-            RefModel refModel = (RefModel) schema;
-            String originalRef = refModel.getOriginalRef();
-            if (refModel.getOriginalRef().split("/").length > 3) {
-                simpleRef = originalRef.replace("#/definitions/", "");
-            } else {
-                simpleRef = refModel.getSimpleRef();
-            }
-            Model model = this.definitions.get(simpleRef);
             HashSet<String> refSet = new HashSet<>();
-            refSet.add(simpleRef);
+            Model model = getRefModelType(schema, refSet);
             if (model != null) {
                 JSONObject bodyParameters = getBodyParameters(model.getProperties(), refSet);
                 return bodyParameters.toJSONString();
