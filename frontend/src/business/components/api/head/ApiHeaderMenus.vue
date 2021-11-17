@@ -69,8 +69,11 @@ export default {
     '$route': {
       immediate: true,
       handler(to) {
-        let path = to.path.split("/", 3);
+        let path = to.path.split("/", 4);
         this.currentPath = '/' + path[1] + '/' + path[2];
+        if (path[3] === "report") {
+          this.currentPath = this.currentPath + '/' + path[3];
+        }
       }
     }
   },
