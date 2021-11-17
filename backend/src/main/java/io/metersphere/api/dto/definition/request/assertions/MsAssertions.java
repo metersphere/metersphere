@@ -138,11 +138,7 @@ public class MsAssertions extends MsTestElement {
         assertion.setExpectNull(false);
         assertion.setInvert(false);
         assertion.setProperty("ASS_OPTION", assertionJsonPath.getOption());
-        if (StringUtils.isEmpty(assertionJsonPath.getOption()) || "REGEX".equals(assertionJsonPath.getOption())) {
-            assertion.setIsRegex(true);
-        } else {
-            assertion.setIsRegex(false);
-        }
+        assertion.setIsRegex(StringUtils.isEmpty(assertionJsonPath.getOption()) || "REGEX".equals(assertionJsonPath.getOption()));
         return assertion;
     }
 
@@ -178,9 +174,9 @@ public class MsAssertions extends MsTestElement {
         JSR223Assertion assertion = new JSR223Assertion();
         assertion.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(assertionJSR223.getDesc())) {
-            assertion.setName(this.getName() + "==" + assertionJSR223.getDesc());
+            assertion.setName("JSR223" + "==" + this.getName() + "==" + assertionJSR223.getDesc() + "==" + assertionJSR223.getScript());
         } else {
-            assertion.setName(this.getName() + "==" + "JSR223Assertion");
+            assertion.setName("JSR223" + "==" + this.getName() + "==" + "JSR223Assertion" + "==" + assertionJSR223.getScript());
         }
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));

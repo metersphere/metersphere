@@ -17,25 +17,79 @@
         </el-tag>
       </template>
     </el-table-column>
+    <el-table-column prop="script">
+      <template v-slot:default="{row}">
+        <div class="assertion-item btn circle" v-if="row.script">
+          <i class="el-icon-view el-button el-button--primary el-button--mini is-circle" circle
+             @click="showPage(row.script)"/>
+        </div>
+      </template>
+    </el-table-column>
+    <el-dialog :title="$t('api_test.request.assertions.script')" :visible.sync="visible" width="900px" append-to-body>
+      <el-row type="flex" justify="space-between" align="middle" class="quick-script-block">
+        <el-col :span="codeSpan" class="script-content">
+          <ms-code-edit v-if="isCodeEditAlive"
+                        :read-only="disabled"
+                        :data.sync="scriptContent" theme="eclipse" :modes="['java','python']"
+                        ref="codeEdit"/>
+        </el-col>
+      </el-row>
+    </el-dialog>
   </el-table>
 </template>
 
 <script>
+
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
+
 export default {
   name: "MsAssertionResults",
-
+  components: {MsCodeEdit},
   props: {
     assertions: Array
   },
-
+  data() {
+    return {
+      visible: false,
+      disabled: false,
+      codeSpan: 20,
+      isCodeEditAlive: true,
+      scriptContent: '',
+    }
+  },
   methods: {
     getRowStyle() {
       return {backgroundColor: "#F5F5F5"};
-    }
-  }
+    },
+    showPage(script) {
+      this.disabled = true;
+      this.visible = true;
+      this.scriptContent = script;
+      this.reload();
+    },
+    reload() {
+      this.isCodeEditAlive = false;
+      this.$nextTick(() => (this.isCodeEditAlive = true));
+    },
+  },
+
 }
 </script>
 
+
 <style scoped>
 
+.assertion-item.btn.circle {
+  text-align: right;
+  min-width: 80px;
+}
+
+.script-content {
+  height: calc(100vh - 570px);
+  min-height: 440px;
+}
+
+.quick-script-block {
+  margin-bottom: 10px;
+}
 </style>
