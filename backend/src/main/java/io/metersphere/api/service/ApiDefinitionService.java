@@ -33,6 +33,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.json.JSONToDocumentUtils;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -1744,6 +1745,10 @@ public class ApiDefinitionService {
                 String dataType = body.getString("type");
                 if (StringUtils.isNotEmpty(raw) && StringUtils.isNotEmpty(dataType)) {
                     if (StringUtils.equals(type, "JSON")) {
+                        String format = body.getString("format");
+                        if (StringUtils.equals(format, "JSON-SCHEMA") && StringUtils.isNotEmpty(body.getString("jsonSchema"))) {
+                            raw = JSONSchemaGenerator.getJson(body.getString("jsonSchema"));
+                        }
                         elements = JSONToDocumentUtils.getDocument(raw, dataType);
                     } else if (StringUtils.equals(dataType, "XML")) {
                         elements = JSONToDocumentUtils.getDocument(raw, type);
