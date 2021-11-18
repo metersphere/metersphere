@@ -285,4 +285,11 @@
         WHERE scenario_id is not null  GROUP BY scenario_id;
     </select>
 
+    <select id="selectStatusByIds" resultType="io.metersphere.base.domain.ApiScenarioReport">
+        select id,status from api_scenario_report
+        WHERE id IN
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </select>
 </mapper>

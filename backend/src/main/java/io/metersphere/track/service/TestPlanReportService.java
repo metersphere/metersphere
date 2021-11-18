@@ -595,7 +595,7 @@ public class TestPlanReportService {
         Map<String, Map<String, String>> testPlanExecuteResult = executeInfo.getExecutedResult();
         testPlanLog.info("ReportId[" + testPlanReport.getId() + "] COUNT OVER. COUNT RESULT :" + JSONObject.toJSONString(testPlanExecuteResult));
 
-        TestPlanSimpleReportDTO reportDTO = testPlanService.buildPlanReport(executeInfo, testPlanReport.getTestPlanId(), false);
+        TestPlanSimpleReportDTO reportDTO = testPlanService.buildPlanReport(executeInfo, testPlanReport.getTestPlanId(), apiCaseIsOk && scenarioIsOk && performanceIsOk);
         reportDTO.setStartTime(testPlanReport.getStartTime());
         long endTime = System.currentTimeMillis();
         //全部结束时，更新时间
@@ -1102,7 +1102,7 @@ public class TestPlanReportService {
             //如果间隔超过5分钟没有案例执行完成，则把执行结果变成false
             long lastCountTime = executeInfo.getLastFinishedNumCountTime();
             long nowTime = System.currentTimeMillis();
-            if (nowTime - lastCountTime > 300000) {
+            if (nowTime - lastCountTime > 1800000) {
                 TestPlanReportExecuteCatch.finishAllTask(planReportId);
             }
         }
