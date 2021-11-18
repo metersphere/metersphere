@@ -2,9 +2,11 @@ package io.metersphere.commons.json;
 
 import com.google.gson.*;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -18,17 +20,23 @@ public class JSONSchemaToDocumentUtils {
     }
 
     private static void analyzeObject(JsonObject object, List<DocumentElement> roots) {
+        List<String> requiredList = new ArrayList<>();
+        if (object.get("required") != null) {
+            JsonArray jsonElements = object.get("required").getAsJsonArray();
+            for (JsonElement jsonElement : jsonElements) {
+                requiredList.add(jsonElement.getAsString());
+            }
+        }
         if (object.has("allOf")) {
             JsonArray allOfArray = object.get("allOf").getAsJsonArray();
             for (JsonElement allOfElement : allOfArray) {
                 JsonObject allOfElementObj = allOfElement.getAsJsonObject();
                 if (allOfElementObj.has("properties")) {
-                    // Properties elements will become the attributes/references of the element
                     JsonObject propertiesObj = allOfElementObj.get("properties").getAsJsonObject();
                     for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
                         String propertyKey = entry.getKey();
                         JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
-                        analyzeProperty(roots, propertyKey, propertyObj);
+                        analyzeProperty(roots, propertyKey, propertyObj, requiredList);
                     }
                 }
             }
@@ -37,17 +45,17 @@ public class JSONSchemaToDocumentUtils {
             for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
                 String propertyKey = entry.getKey();
                 JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
-                analyzeProperty(roots, propertyKey, propertyObj);
+                analyzeProperty(roots, propertyKey, propertyObj, requiredList);
             }
         } else if (object.has("type") && object.get("type").getAsString().equals("array")) {
-            analyzeProperty(roots, "MS-OBJECT", object);
+            analyzeProperty(roots, "MS-OBJECT", object, requiredList);
         } else if (object.has("type") && !object.get("type").getAsString().equals("object")) {
-            analyzeProperty(roots, object.getAsString(), object);
+            analyzeProperty(roots, object.getAsString(), object, requiredList);
         }
     }
 
     private static void analyzeProperty(List<DocumentElement> concept,
-                                        String propertyName, JsonObject object) {
+                                        String propertyName, JsonObject object, List<String> requiredList) {
         if (object.has("type")) {
             String propertyObjType = null;
             if (object.get("type") instanceof JsonPrimitive) {
@@ -56,35 +64,36 @@ public class JSONSchemaToDocumentUtils {
                 JsonArray typeArray = (JsonArray) object.get("type").getAsJsonArray();
                 propertyObjType = typeArray.get(0).getAsString();
             }
+            Object value = null;
+            boolean required = requiredList.contains(propertyName);
             if (object.has("default")) {
-                concept.add(new DocumentElement(propertyName, propertyObjType, object.get("default") != null ? object.get("default").toString() : "", null));
+                value = object.get("default") != null ? object.get("default").toString() : "";
+                concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (object.has("enum")) {
                 try {
                     if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                        Object value = object.get("mock").getAsJsonObject().get("mock");
-                        concept.add(new DocumentElement(propertyName, propertyObjType, value.toString(), null));
+                        value = object.get("mock").getAsJsonObject().get("mock");
                     } else {
                         List<Object> list = analyzeEnumProperty(object);
                         if (list.size() > 0) {
                             int index = (int) (Math.random() * list.size());
-                            concept.add(new DocumentElement(propertyName, propertyObjType, list.get(index).toString(), null));
+                            value = list.get(index).toString();
                         }
                     }
                 } catch (Exception e) {
-                    concept.add(new DocumentElement(propertyName, propertyObjType, "", null));
+                    LogUtil.error(e);
                 }
+                concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (propertyObjType.equals("string")) {
                 // 先设置空值
-                String value = "";
                 if (object.has("default")) {
                     value = object.get("default") != null ? object.get("default").toString() : "";
                 }
                 if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString()) && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
                     value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
                 }
-                concept.add(new DocumentElement(propertyName, propertyObjType, value, null));
+                concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (propertyObjType.equals("integer")) {
-                Object value = null;
                 if (object.has("default")) {
                     value = object.get("default");
                 }
@@ -95,9 +104,8 @@ public class JSONSchemaToDocumentUtils {
                         value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
                     }
                 }
-                concept.add(new DocumentElement(propertyName, propertyObjType, value, null));
+                concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (propertyObjType.equals("number")) {
-                Object value = null;
                 if (object.has("default")) {
                     value = object.get("default");
                 }
@@ -108,9 +116,8 @@ public class JSONSchemaToDocumentUtils {
                         value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
                     }
                 }
-                concept.add(new DocumentElement(propertyName, propertyObjType, value, null));
+                concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (propertyObjType.equals("boolean")) {
-                Object value = null;
                 if (object.has("default")) {
                     value = object.get("default");
                 }
@@ -120,9 +127,12 @@ public class JSONSchemaToDocumentUtils {
                     } catch (Exception e) {
                     }
                 }
-                concept.add(new DocumentElement(propertyName, propertyObjType, value, null));
+                concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (propertyObjType.equals("array")) {
-                analyzeArray(propertyObjType, propertyName, object);
+                List<DocumentElement> elements = new LinkedList<>();
+                concept.add(new DocumentElement(propertyName, propertyObjType, "", requiredList.contains(propertyName), elements));
+                JsonArray jsonArray = object.get("items").getAsJsonArray();
+                analyzeArray(propertyName, jsonArray, elements, requiredList);
             } else if (propertyObjType.equals("object")) {
                 List<DocumentElement> list = new LinkedList<>();
                 concept.add(new DocumentElement(propertyName, propertyObjType, "", list));
@@ -131,51 +141,26 @@ public class JSONSchemaToDocumentUtils {
         }
     }
 
-    private static void analyzeArray(String propertyObjType, String propertyName, JsonObject object) {
-        // 先设置空值
-        List<DocumentElement> array = new LinkedList<>();
-        JsonArray jsonArray = new JsonArray();
-        if (object.has("items") && object.get("items").isJsonArray()) {
-            jsonArray = object.get("items").getAsJsonArray();
-        } else {
-            JsonObject itemsObject = object.get("items").getAsJsonObject();
-            array.add(new DocumentElement(propertyName, propertyObjType, itemsObject, null));
-        }
+    private static void analyzeArray(String propertyName, JsonArray jsonArray, List<DocumentElement> array, List<String> requiredList) {
         for (int i = 0; i < jsonArray.size(); i++) {
-            JsonObject itemsObject = jsonArray.get(i).getAsJsonObject();
-            if (object.has("items")) {
-                Object value = null;
-                if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                    try {
-                        value = itemsObject.get("mock").getAsJsonObject().get("mock").getAsInt();
-                    } catch (Exception e) {
-                        value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
-                    }
-                } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("string")) {
-                    if (itemsObject.has("default")) {
-                        value = itemsObject.get("default");
-                    } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                        value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
-                    }
-                } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("number")) {
-                    if (itemsObject.has("default")) {
-                        value = itemsObject.get("default");
-                    } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                        value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
-                    }
-                } else if (itemsObject.has("properties")) {
-                    List<DocumentElement> propertyConcept = new LinkedList<>();
-                    JsonObject propertiesObj = itemsObject.get("properties").getAsJsonObject();
-                    for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
-                        String propertyKey = entry.getKey();
-                        JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
-                        analyzeProperty(propertyConcept, propertyKey, propertyObj);
+            JsonElement obj = jsonArray.get(i);
+            if (obj.isJsonArray()) {
+                JsonArray itemsObject = obj.getAsJsonArray();
+                List<DocumentElement> elements = new LinkedList<>();
+                array.add(new DocumentElement(propertyName, "", "", requiredList.contains("" + i + ""), elements));
+                analyzeArray("", itemsObject, elements, requiredList);
+            } else if (obj.isJsonObject()) {
+                List<String> requiredItems = new ArrayList<>();
+                if (obj.getAsJsonObject().get("required") != null) {
+                    JsonArray jsonElements = obj.getAsJsonObject().get("required").getAsJsonArray();
+                    for (JsonElement jsonElement : jsonElements) {
+                        requiredItems.add(jsonElement.getAsString());
                     }
                 }
-                array.add(new DocumentElement(propertyName, itemsObject.get("type").getAsString(), value, null));
-            } else if (object.has("items") && object.get("items").isJsonArray()) {
-                JsonArray itemsObjectArray = object.get("items").getAsJsonArray();
-                array.add(new DocumentElement(propertyName, itemsObject.get("type").getAsString(), itemsObjectArray, null));
+                analyzeProperty(array, "0", obj.getAsJsonObject(), requiredItems);
+            } else {
+                JsonPrimitive primitive = (JsonPrimitive) obj;
+                array.add(new DocumentElement(propertyName, primitive.getAsString(), "", requiredList.contains(propertyName), null));
             }
         }
     }
@@ -207,7 +192,17 @@ public class JSONSchemaToDocumentUtils {
         JsonObject rootElement = element.getAsJsonObject();
         List<DocumentElement> roots = new LinkedList<>();
         analyzeRootSchemaElement(rootElement, roots);
+        if (rootElement.get("type") != null) {
+            if (rootElement.get("type").toString().equals("object")) {
+                return new LinkedList<DocumentElement>() {{
+                    this.add(new DocumentElement().newRoot("root", roots));
+                }};
+            } else {
+                return new LinkedList<DocumentElement>() {{
+                    this.add(new DocumentElement().newRoot("array", roots));
+                }};
+            }
+        }
         return roots;
     }
-
 }
