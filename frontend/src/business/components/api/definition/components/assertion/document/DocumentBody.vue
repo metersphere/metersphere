@@ -152,13 +152,13 @@ export default {
   methods: {
     setJSONData(data) {
       this.checked = false;
+      this.document.data.jsonFollowAPI = "";
+      this.document.data.xmlFollowAPI = "";
       this.tableData = data;
       if (this.document.type === "JSON") {
         this.document.data.json = this.tableData;
-        this.document.data.jsonFollowAPI = this.apiId;
       } else if (this.document.type === "XML") {
         this.document.data.xml = this.tableData;
-        this.document.data.xmlFollowAPI = this.apiId;
       }
     },
     checkedAPI() {
