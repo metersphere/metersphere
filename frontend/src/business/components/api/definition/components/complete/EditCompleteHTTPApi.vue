@@ -201,70 +201,49 @@
       'httpForm.name': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.httpForm.id) {
-              this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'httpForm.path': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.httpForm.id) {
-              this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'httpForm.userId': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.httpForm.id) {
-              this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'httpForm.moduleId': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.httpForm.id) {
-              this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'httpForm.status': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.httpForm.id) {
-              this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'httpForm.follows': {
         handler(v, v1) {
           if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.httpForm.id) {
-              this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'httpForm.description': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.httpForm.id) {
-              this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
@@ -325,16 +304,22 @@
       }
     },
     methods: {
+      apiMapStatus() {
+        this.$store.state.apiStatus.set("fromChange", true);
+        if (this.httpForm.id) {
+          this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+        }
+      },
       currentUser: () => {
         return getCurrentUser();
       },
-      openHis(){
-        this.$refs.changeHistory.open(this.httpForm.id,["接口定义" , "接口定義" , "Api definition"]);
+      openHis() {
+        this.$refs.changeHistory.open(this.httpForm.id, ["接口定义", "接口定義", "Api definition"]);
       },
       mockSetting() {
-        if(this.basisData.id){
-          this.$store.state.currentApiCase={mock : getUUID()};
-          this.$emit('changeTab','mock');
+        if (this.basisData.id) {
+          this.$store.state.currentApiCase = {mock: getUUID()};
+          this.$emit('changeTab', 'mock');
         }else {
           this.$alert(this.$t('api_test.mock.create_error'));
         }
