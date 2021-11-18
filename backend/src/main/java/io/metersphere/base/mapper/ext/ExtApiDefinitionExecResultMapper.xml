@@ -92,4 +92,14 @@
         where resource_id = #{resourceId,jdbcType=VARCHAR} and `type` = #{type, jdbcType=VARCHAR}
         ORDER BY start_time DESC LIMIT 1
     </select>
+
+    <select id="selectStatusByIdList"
+            resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
+        select  id,status from api_definition_exec_result
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
+
 </mapper>

@@ -1230,8 +1230,6 @@ public class ApiAutomationService {
             String scenarioId = entry.getValue();
             ApiScenarioWithBLOBs scenario = scenarioMap.get(scenarioId);
 
-//        }
-//        for (ApiScenarioWithBLOBs scenario : apiScenarios) {
             if (scenario.getStepTotal() == null || scenario.getStepTotal() == 0) {
                 continue;
             }
@@ -1239,16 +1237,12 @@ public class ApiAutomationService {
             Map<String, String> planEnvMap = new HashMap<>();
 
             //测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
-//            String testPlanScenarioId = scenario.getId();
-//            if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
-//                testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
-                // 获取场景用例单独的执行环境
-                TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
-                String environment = planApiScenario.getEnvironment();
-                if (StringUtils.isNotBlank(environment)) {
-                    planEnvMap = JSON.parseObject(environment, Map.class);
-                }
-//            }
+            // 获取场景用例单独的执行环境
+            TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
+            String environment = planApiScenario.getEnvironment();
+            if (StringUtils.isNotBlank(environment)) {
+                planEnvMap = JSON.parseObject(environment, Map.class);
+            }
             if(StringUtils.isEmpty(projectId)){
                 projectId = testPlanScenarioCaseService.getProjectIdById(testPlanScenarioId);
             }
