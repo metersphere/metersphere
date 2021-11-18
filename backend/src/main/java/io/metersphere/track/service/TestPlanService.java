@@ -1127,11 +1127,11 @@ public class TestPlanService {
             performanceRequest.setId(caseID);
             performanceRequest.setTestPlanLoadId(id);
             if (StringUtils.equals(ReportTriggerMode.API.name(), triggerMode)) {
-                performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_API.name());
+                performanceRequest.setTriggerMode(ReportTriggerMode.API.name());
             } else if (StringUtils.equals(ReportTriggerMode.MANUAL.name(), triggerMode)) {
                 performanceRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
             } else {
-                performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_SCHEDULE.name());
+                performanceRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
             }
             String reportId = null;
             try {
