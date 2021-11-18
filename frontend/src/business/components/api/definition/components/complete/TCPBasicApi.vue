@@ -140,65 +140,53 @@
       'basicForm.name': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.basicForm.id) {
-              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'basicForm.userId': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.basicForm.id) {
-              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'basicForm.moduleId': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.basicForm.id) {
-              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'basicForm.status': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.basicForm.id) {
-              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'basicForm.follows': {
         handler(v, v1) {
           if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.basicForm.id) {
-              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
       'basicForm.description': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
-            this.$store.state.apiStatus.set("fromChange", true);
-            if (this.basicForm.id) {
-              this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
-            }
+            this.apiMapStatus();
           }
         }
       },
     },
     methods: {
+      apiMapStatus() {
+        this.$store.state.apiStatus.set("fromChange", true);
+        if (this.httpForm.id) {
+          this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+        }
+      },
       getMaintainerOptions() {
         this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
           this.maintainerOptions = response.data;
