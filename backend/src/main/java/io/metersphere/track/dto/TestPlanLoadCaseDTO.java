@@ -23,6 +23,7 @@ public class TestPlanLoadCaseDTO extends TestPlanLoadCase {
     private String num;
     private String name;
     private ResponseDTO response;
+    private String reportId;
 
     @Getter
     @Setter

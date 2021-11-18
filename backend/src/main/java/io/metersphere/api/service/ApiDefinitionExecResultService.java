@@ -423,4 +423,19 @@ public class ApiDefinitionExecResultService {
             return returnList;
         }
     }
+
+    public Map<String, String> selectReportResultByReportIds(Collection<String> values) {
+        if(CollectionUtils.isEmpty(values)){
+            return  new HashMap<>();
+        }else {
+            Map<String, String> returnMap = new HashMap<>();
+            List<ApiDefinitionExecResult> idStatusList = extApiDefinitionExecResultMapper.selectStatusByIdList(values);
+            for (ApiDefinitionExecResult model: idStatusList){
+                String id = model.getId();
+                String status = model.getStatus();
+                returnMap.put(id,status);
+            }
+            return returnMap;
+        }
+    }
 }
