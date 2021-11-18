@@ -33,7 +33,6 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.json.JSONSchemaToDocumentUtils;
 import io.metersphere.commons.json.JSONToDocumentUtils;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -1736,35 +1735,25 @@ public class ApiDefinitionService {
 
     public List<DocumentElement> getDocument(String id, String type) {
         ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
-        List<DocumentElement> list = new LinkedList<>();
+        List<DocumentElement> elements = new LinkedList<>();
         if (bloBs != null && StringUtils.isNotEmpty(bloBs.getResponse())) {
             JSONObject object = JSON.parseObject(bloBs.getResponse());
             JSONObject body = (JSONObject) object.get("body");
             if (body != null) {
-                if (StringUtils.equals(type, "JSON")) {
-                    String jsonSchema = body.getString("jsonSchema");
-                    String dataType = body.getString("type");
-                    if (StringUtils.equalsAny(dataType, "JSON", "JSON-SCHEMA") && StringUtils.isNotEmpty(jsonSchema)) {
-                        JSONObject obj = (JSONObject) body.get("jsonSchema");
-                        if (StringUtils.equals(obj.getString("type"), "array")) {
-                            list.add(new DocumentElement().newRoot("array", JSONSchemaToDocumentUtils.getDocument(jsonSchema)));
-                        } else {
-                            list.add(new DocumentElement().newRoot("object", JSONSchemaToDocumentUtils.getDocument(jsonSchema)));
-                        }
-                    } else {
-                        list.add(new DocumentElement().newRoot("object", null));
-                    }
-                } else {
-                    String xml = body.getString("raw");
-                    String dataType = body.getString("type");
-                    if (StringUtils.equals(dataType, "XML") && StringUtils.isNotEmpty(xml)) {
-                        list = JSONToDocumentUtils.getDocument(xml, type);
-                    } else {
-                        list.add(new DocumentElement().newRoot("root", null));
+                String raw = body.getString("raw");
+                String dataType = body.getString("type");
+                if (StringUtils.isNotEmpty(raw) && StringUtils.isNotEmpty(dataType)) {
+                    if (StringUtils.equals(type, "JSON")) {
+                        elements = JSONToDocumentUtils.getDocument(raw, dataType);
+                    } else if (StringUtils.equals(dataType, "XML")) {
+                        elements = JSONToDocumentUtils.getDocument(raw, type);
                     }
                 }
             }
         }
-        return list;
+        if (CollectionUtils.isEmpty(elements)) {
+            elements.add(new DocumentElement().newRoot("root", null));
+        }
+        return elements;
     }
 }

@@ -47,12 +47,6 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="arrayVerification" width="140" label="校验数组内元素" :render-header="renderHeaderArray">
-        <template slot-scope="scope">
-          <el-checkbox v-model="scope.row.arrayVerification" @change="handleCheckOneChange" v-if="scope.row.type==='array'" :disabled="checked"/>
-        </template>
-      </el-table-column>
-
       <el-table-column prop="contentVerification" label="内容校验" width="200">
         <template slot-scope="scope">
           <el-select v-model="scope.row.contentVerification" :placeholder="$t('commons.please_select')" size="mini" :disabled="checked">
@@ -67,12 +61,24 @@
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('commons.operating')" width="200" fixed="right">
+      <el-table-column prop="arrayVerification" width="140" label="校验数组内元素" :render-header="renderHeaderArray">
+        <template slot-scope="scope">
+          <el-checkbox v-model="scope.row.arrayVerification" @change="handleCheckOneChange" v-if="scope.row.type==='array'" :disabled="checked"/>
+        </template>
+      </el-table-column>
+
+      <el-table-column :label="$t('commons.operating')" width="130" fixed="right">
         <template v-slot:default="scope">
           <span>
-            <el-button size="mini" type="text" circle @click="addVerification(scope.row)" :disabled="scope.row.type ==='object' ||scope.row.type ==='array' || checked || scope.row.id==='root'">添加校验</el-button>
-            <el-button size="mini" type="text" @click="addRow(scope.row)" :disabled="(scope.row.type !=='object' && scope.row.type !=='array')  || checked">添加子字段</el-button>
-            <el-button size="mini" type="text" @click="remove(scope.row)" :disabled="checked || scope.row.id==='root'">{{ $t('commons.remove') }}</el-button>
+            <el-tooltip effect="dark" content="添加校验" placement="top-start">
+              <el-button icon="el-icon-document-checked" circle type="primary" size="mini" @click="addVerification(scope.row)" :disabled="scope.row.type ==='object' ||scope.row.type ==='array' || checked || scope.row.id==='root'"/>
+            </el-tooltip>
+            <el-tooltip effect="dark" content="添加子字段" placement="top-start">
+              <el-button icon="el-icon-plus"  circle type="primary" size="mini" style="margin-left: 10px" @click="addRow(scope.row)" :disabled="(scope.row.type !=='object' && scope.row.type !=='array')  || checked"/>
+            </el-tooltip>
+            <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
+              <el-button icon="el-icon-delete" type="primary"  circle size="mini" style="margin-left: 10px" @click="remove(scope.row)" :disabled="checked || scope.row.id==='root'"/>
+            </el-tooltip>
           </span>
         </template>
       </el-table-column>
@@ -246,7 +252,7 @@ export default {
         'span', [
           h('el-checkbox', {
             style: 'margin-right:5px;',
-            disabled:this.checked,
+            disabled: this.checked,
             on: {
               change: this.handleCheckAllChange
             },
@@ -260,7 +266,7 @@ export default {
         'span', [
           h('el-checkbox', {
             style: 'margin-right:5px;',
-            disabled:this.checked,
+            disabled: this.checked,
             on: {
               change: this.handleType
             }
@@ -274,7 +280,7 @@ export default {
         'span', [
           h('el-checkbox', {
             style: 'margin-right:5px;',
-            disabled:this.checked,
+            disabled: this.checked,
             on: {
               change: this.handleArray
             }
@@ -302,7 +308,7 @@ export default {
       }
     },
     handleCheckAllChange(val) {
-      if(this.checked){
+      if (this.checked) {
         return;
       }
       this.tableData.forEach(item => {
@@ -311,7 +317,7 @@ export default {
       })
     },
     handleType(val) {
-      if(this.checked) {
+      if (this.checked) {
         return;
       }
       this.tableData.forEach(item => {
@@ -320,7 +326,7 @@ export default {
       })
     },
     handleArray(val) {
-      if(this.checked){
+      if (this.checked) {
         return;
       }
       this.tableData.forEach(item => {

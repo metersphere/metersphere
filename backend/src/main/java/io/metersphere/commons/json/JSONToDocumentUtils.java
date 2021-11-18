@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.commons.utils.LogUtil;
+import net.sf.json.util.JSONTokener;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -19,8 +20,18 @@ public class JSONToDocumentUtils {
 
     public static void jsonDataFormatting(JSONArray array, List<DocumentElement> children) {
         for (int i = 0; i < array.size(); i++) {
-            JSONObject element = array.getJSONObject(i);
-            jsonDataFormatting(element, children);
+            Object value = array.get(i);
+            if (value instanceof JSONObject) {
+                List<DocumentElement> childrenElements = new LinkedList<>();
+                children.add(new DocumentElement("", "object", "", childrenElements));
+                jsonDataFormatting((JSONObject) value, childrenElements);
+            } else if (value instanceof JSONArray) {
+                List<DocumentElement> childrenElements = new LinkedList<>();
+                children.add(new DocumentElement("", "array", "", childrenElements));
+                jsonDataFormatting((JSONArray) value, childrenElements);
+            } else {
+                children.add(new DocumentElement("", "string", value, null));
+            }
         }
     }
 
@@ -47,12 +58,23 @@ public class JSONToDocumentUtils {
             if (StringUtils.equals(type, "JSON")) {
                 List<DocumentElement> roots = new LinkedList<>();
                 List<DocumentElement> children = new LinkedList<>();
-                roots.add(new DocumentElement("root", "root", "object", "", children));
-                JSONObject object = JSON.parseObject(json);
-                jsonDataFormatting(object, children);
+                Object typeObject = new JSONTokener(json).nextValue();
+                if (typeObject instanceof net.sf.json.JSONArray) {
+                    roots.add(new DocumentElement().newRoot("array", children));
+                    JSONArray array = JSON.parseArray(json);
+                    jsonDataFormatting(array, children);
+                } else {
+                    roots.add(new DocumentElement().newRoot("object", children));
+                    JSONObject object = JSON.parseObject(json);
+                    jsonDataFormatting(object, children);
+                }
                 return roots;
-            } else {
+            } else if (StringUtils.equals(type, "XML")) {
                 return getXmlDocument(json);
+            } else {
+                return new LinkedList<DocumentElement>() {{
+                    this.add(new DocumentElement().newRoot("root", null));
+                }};
             }
         } catch (Exception e) {
             LogUtil.error(e);
