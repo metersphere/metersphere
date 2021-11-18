@@ -6,6 +6,7 @@
           <div class="el-step__icon-inner">{{ data.index }}</div>
         </div>
         <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
+        <el-tag size="mini" v-if="data.method && !data.pluginId">{{ getMethod() }}</el-tag>
       </slot>
       <slot name="behindHeaderLeft" v-if="!isMax"></slot>
       <span>
@@ -21,7 +22,6 @@
             <el-tooltip placement="top" :content="data.name">
               <span>{{ data.name }}</span>
             </el-tooltip>
-            <el-tag size="mini" v-if="data.method && !data.pluginId">{{ getMethod() }}</el-tag>
           </span>
         </slot>
 

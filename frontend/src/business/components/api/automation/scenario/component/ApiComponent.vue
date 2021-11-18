@@ -608,7 +608,7 @@ export default {
 }
 
 .ms-tag {
-  margin-left: 0px;
+  margin-left: 10px;
 }
 
 .ms-step-debug-code {

@@ -471,7 +471,6 @@ export default {
           change = change + 1;
           this.$store.state.scenarioMap.set(this.currentScenario.id, change);
         }
-
       },
       deep: true
     },
@@ -1380,7 +1379,7 @@ export default {
                   this.onSampleError = obj.onSampleError;
                 }
                 this.dataProcessing(obj.hashTree);
-                this.addNum(obj.hashTree);
+
                 this.scenarioDefinition = obj.hashTree;
               }
             }
@@ -1636,56 +1635,6 @@ export default {
           });
         }
       }
-    },
-    addNum(hashTree){
-      for (let i = 0; i < hashTree.length; i++) {
-        let data = hashTree[i];
-        if(!data.num){
-          if(data.refType){
-            if(data.refType==='API'){
-              let promise = this.getApiDefinitionNumById(data.id);
-              promise.then(result =>{
-                this.$set(data,'num',result);
-              });
-            }else if(data.refType==='CASE'){
-              let promise =   this.getApiTestCaseNumById(data.id);
-              promise.then(result =>{
-                this.$set(data,'num',result);
-              });
-            }
-          }else {
-            let promise =  this.getScenarioNumById(data.id);
-            promise.then(result =>{
-              this.$set(data,'num',result);
-            });
-          }
-        }
-      }
-
-    },
-    getApiDefinitionNumById(id){
-      return new Promise((resolve) => {
-        let url = '/api/definition/get/'+id;
-        this.$get(url, response => {
-          resolve(response.data.num);
-        });
-      });
-    },
-    getApiTestCaseNumById(id){
-      return new Promise((resolve) => {
-        let url = '/api/testcase/findById/'+id;
-        this.$get(url, response => {
-          resolve(response.data.num);
-        });
-      });
-    },
-    getScenarioNumById(id){
-      return new Promise((resolve) => {
-        let url = '/api/automation/getApiScenario/'+id;
-        this.$get(url, response => {
-          resolve(response.data.num);
-        });
-      });
     }
   }
 }
