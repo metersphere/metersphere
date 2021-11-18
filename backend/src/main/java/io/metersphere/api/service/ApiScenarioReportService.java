@@ -863,4 +863,15 @@ public class ApiScenarioReportService {
         return count;
     }
 
+    public Map<String, String> getReportStatusByReportIds(Collection<String> values) {
+        if(CollectionUtils.isEmpty(values)){
+            return  new HashMap<>();
+        }
+        Map<String, String> map = new HashMap<>();
+        List<ApiScenarioReport> reportList = extApiScenarioReportMapper.selectStatusByIds(values);
+        for (ApiScenarioReport report : reportList) {
+            map.put(report.getId(),report.getStatus());
+        }
+        return map;
+    }
 }

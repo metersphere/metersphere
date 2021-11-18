@@ -419,10 +419,23 @@ public class TestPlanApiCaseService {
         // 开始选择执行模式
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
             Map<TestPlanApiCase, ApiDefinitionExecResult> executeQueue = new HashMap<>();
+
+            //记录案例线程结果以及执行失败的案例ID
+            Map<String, String> executeThreadIdMap = new HashMap<>();
+
             planApiCases.forEach(testPlanApiCase -> {
                 ApiDefinitionExecResult report = addResult(request, testPlanApiCase, APITestStatus.Waiting.name(), batchMapper);
                 executeQueue.put(testPlanApiCase, report);
+                executeThreadIdMap.put(testPlanApiCase.getId(),report.getId());
             });
+
+            //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
+            if(TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())){
+                if (!executeThreadIdMap.isEmpty()) {
+                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
+                }
+            }
+
             sqlSession.commit();
             List<String> reportIds = new LinkedList<>();
             // 开始串行执行
@@ -433,8 +446,6 @@ public class TestPlanApiCaseService {
                     try {
                         Thread.currentThread().setName("TestPlanCase串行执行线程");
 
-                        //记录案例线程结果以及执行失败的案例ID
-                        Map<String, String> executeThreadIdMap = new HashMap<>();
                         List<String> executeErrorList = new ArrayList<>();
 
                         for (TestPlanApiCase testPlanApiCase : executeQueue.keySet()) {
@@ -479,7 +490,7 @@ public class TestPlanApiCaseService {
                                         break;
                                     }
                                 }
-                                executeThreadIdMap.put(testPlanApiCase.getId(),randomUUID);
+
                             } catch (Exception e) {
                                 executeErrorList.add(testPlanApiCase.getId());
                                 reportIds.remove(executeQueue.get(testPlanApiCase).getId());
@@ -507,9 +518,6 @@ public class TestPlanApiCaseService {
                                 }
                                 TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(request.getPlanReportId(), executeErrorMap, null, null);
                             }
-                            if (!executeThreadIdMap.isEmpty()) {
-                                TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
-                            }
                         }
 
                     } catch (Exception e) {
@@ -522,17 +530,23 @@ public class TestPlanApiCaseService {
             thread.start();
         } else {
             Map<String, TestPlanApiCase> executeQueue = new HashMap<>();
+            //记录案例线程结果以及执行失败的案例ID
+            Map<String, String> executeThreadIdMap = new HashMap<>();
             planApiCases.forEach(testPlanApiCase -> {
                 ApiDefinitionExecResult report = addResult(request, testPlanApiCase, APITestStatus.Running.name(), batchMapper);
                 executeQueue.put(report.getId(), testPlanApiCase);
+                executeThreadIdMap.put(testPlanApiCase.getId(),report.getId());
                 MessageCache.caseExecResourceLock.put(report.getId(), report);
             });
             sqlSession.commit();
+            //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
+            if(TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())){
+                if (!executeThreadIdMap.isEmpty()) {
+                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
+                }
+            }
 
             // 开始并发执行
-
-            //记录案例线程结果以及执行失败的案例ID
-            Map<String, String> executeThreadIdMap = new HashMap<>();
             List<String> executeErrorList = new ArrayList<>();
 
             for (String reportId : executeQueue.keySet()) {
@@ -542,7 +556,6 @@ public class TestPlanApiCaseService {
                     if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
                         String testId = testPlanApiCase.getId()+":"+ request.getPlanReportId() + ":" +reportId;
                         jMeterService.runTest(testId, reportId, request.getTriggerMode(), request.getPlanReportId(), request.getConfig());
-                        executeThreadIdMap.put(testPlanApiCase.getApiCaseId(),testPlanApiCase.getId());
                     } else {
                         HashTree hashTree = generateHashTree(testPlanApiCase.getId());
                         if(StringUtils.isEmpty(debugId)){
@@ -550,7 +563,6 @@ public class TestPlanApiCaseService {
                         }
                         String testId = reportId+":"+ request.getPlanReportId();
                         jMeterService.runLocal(testId,request.getConfig(), hashTree, debugId, request.getTriggerMode());
-                        executeThreadIdMap.put(testPlanApiCase.getId(),reportId);
                     }
                 }catch (Exception e){
                     executeErrorList.add(testPlanApiCase.getId());
@@ -566,9 +578,6 @@ public class TestPlanApiCaseService {
                         executeErrorMap.put(id,TestPlanApiExecuteStatus.FAILD.name());
                     }
                     TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(request.getPlanReportId(), executeErrorMap, null, null);
-                }
-                if (!executeThreadIdMap.isEmpty()) {
-                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
                 }
             }
         }
@@ -678,14 +687,6 @@ public class TestPlanApiCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureApiDTO> getAllCases(Collection<String> caseIdList,String status) {
-        if (caseIdList.isEmpty()) {
-            return new ArrayList<>();
-        }
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(caseIdList, status);
-        return buildCases(apiTestCases);
-    }
-
     public List<TestPlanFailureApiDTO> buildCases(List<TestPlanFailureApiDTO> apiTestCases) {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
@@ -713,4 +714,30 @@ public class TestPlanApiCaseService {
                 testPlanApiCaseMapper::updateByPrimaryKeySelective);
     }
 
+    public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String,String> testPlanApiCaseReportMap,boolean isFinish) {
+        if (testPlanApiCaseReportMap.isEmpty()) {
+            return new ArrayList<>();
+        }
+        String defaultStatus = "Running";
+        if(isFinish){
+            defaultStatus = "error";
+        }
+        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(testPlanApiCaseReportMap.keySet(),null);
+        Map<String,String> reportResult = apiDefinitionExecResultService.selectReportResultByReportIds(testPlanApiCaseReportMap.values());
+        for (TestPlanFailureApiDTO dto : apiTestCases) {
+            String testPlanApiCaseId = dto.getId();
+            String reportId = testPlanApiCaseReportMap.get(testPlanApiCaseId);
+            dto.setReportId(reportId);
+            if(StringUtils.isEmpty(reportId)){
+                dto.setStatus(defaultStatus);
+            }else {
+                String status = reportResult.get(reportId);
+                if(status == null){
+                    status = defaultStatus;
+                }
+                dto.setStatus(status);
+            }
+        }
+        return buildCases(apiTestCases);
+    }
 }

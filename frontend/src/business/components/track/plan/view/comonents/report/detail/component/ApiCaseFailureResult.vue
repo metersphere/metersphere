@@ -157,13 +157,25 @@ export default {
           }
         });
       } else {
-        // todo
-        getApiReport(row.id, (data) => {
-          if (data && data.content) {
-            this.showResponse = true;
-            this.response = JSON.parse(data.content);
-          }
-        });
+        if(row.reportId){
+          let url = "/api/definition/report/get/" + row.reportId;
+          this.$get(url, response => {
+            if (response.data) {
+              let data = response.data;
+              if (data && data.content) {
+                this.showResponse = true;
+                this.response = JSON.parse(data.content);
+              }
+            }
+          });
+        }else {
+          getApiReport(row.id, (data) => {
+            if (data && data.content) {
+              this.showResponse = true;
+              this.response = JSON.parse(data.content);
+            }
+          });
+        }
       }
     }
   }

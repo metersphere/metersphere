@@ -450,9 +450,27 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> getAllCases(Collection<String> ids, String status) {
+    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String,String> idMap, boolean isFinish) {
         List<TestPlanFailureScenarioDTO> apiTestCases =
-                extTestPlanScenarioCaseMapper.getFailureListByIds(ids, status);
+                extTestPlanScenarioCaseMapper.getFailureListByIds(idMap.keySet(), null);
+
+        String defaultStatus = "Running";
+        if(isFinish){
+            defaultStatus = "Error";
+        }
+        Map<String,String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
+        for (TestPlanFailureScenarioDTO dto: apiTestCases) {
+            String reportId = idMap.get(dto.getId());
+            dto.setReportId(reportId);
+            if(reportId != null){
+                String status = reportStatus.get(reportId);
+                if(status == null ){
+                    status = defaultStatus;
+                }
+                dto.setStatus(status);
+            }
+
+        }
         return buildCases(apiTestCases);
     }
 
