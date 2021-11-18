@@ -74,10 +74,10 @@
               <el-button icon="el-icon-document-checked" circle type="primary" size="mini" @click="addVerification(scope.row)" :disabled="scope.row.type ==='object' ||scope.row.type ==='array' || checked || scope.row.id==='root'"/>
             </el-tooltip>
             <el-tooltip effect="dark" content="添加子字段" placement="top-start">
-              <el-button icon="el-icon-plus"  circle type="primary" size="mini" style="margin-left: 10px" @click="addRow(scope.row)" :disabled="(scope.row.type !=='object' && scope.row.type !=='array')  || checked"/>
+              <el-button icon="el-icon-plus" circle type="primary" size="mini" style="margin-left: 10px" @click="addRow(scope.row)" :disabled="(scope.row.type !=='object' && scope.row.type !=='array')  || checked"/>
             </el-tooltip>
             <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
-              <el-button icon="el-icon-delete" type="primary"  circle size="mini" style="margin-left: 10px" @click="remove(scope.row)" :disabled="checked || scope.row.id==='root'"/>
+              <el-button icon="el-icon-delete" type="primary" circle size="mini" style="margin-left: 10px" @click="remove(scope.row)" :disabled="checked || scope.row.id==='root'"/>
             </el-tooltip>
           </span>
         </template>
@@ -133,18 +133,18 @@ export default {
   },
   created() {
     if (this.document.type === "JSON") {
-      this.checked = this.document.data.jsonFollowAPI ? true : false;
+      this.checked = this.document.data.jsonFollowAPI && this.document.data.jsonFollowAPI !== "false" ? true : false;
     } else if (this.document.type === "XML") {
-      this.checked = this.document.data.xmlFollowAPI ? true : false;
+      this.checked = this.document.data.xmlFollowAPI && this.document.data.xmlFollowAPI !== "false" ? true : false;
     }
     this.changeData();
   },
   watch: {
     'document.type'() {
       if (this.document.type === "JSON") {
-        this.checked = this.document.data.jsonFollowAPI ? true : false;
+        this.checked = this.document.data.jsonFollowAPI && this.document.data.jsonFollowAPI !== "false" ? true : false;
       } else if (this.document.type === "XML") {
-        this.checked = this.document.data.xmlFollowAPI ? true : false;
+        this.checked = this.document.data.xmlFollowAPI && this.document.data.xmlFollowAPI !== "false" ? true : false;
       }
       this.changeData();
     }
@@ -162,6 +162,8 @@ export default {
       }
     },
     checkedAPI() {
+      this.document.data.jsonFollowAPI = "";
+      this.document.data.xmlFollowAPI = "";
       this.changeData();
     },
     reload() {
