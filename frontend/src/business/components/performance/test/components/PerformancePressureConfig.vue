@@ -386,9 +386,18 @@ export default {
       this.$get('/performance/get-load-config/' + this.testId, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
-          for (let i = 0; i < data.length; i++) {
-            let d = data[i];
-            d.forEach(item => {
+          for (let i = 0; i < this.threadGroups.length; i++) {
+            let handler = this.threadGroups[i].handler;
+
+            let j = 0;
+            for (; j < data.length; j++) {
+              let res = data[j].filter(v => v.key === HANDLER && v.value === handler);
+              if (res.length > 0) {
+                break;
+              }
+            }
+
+            data[j].forEach(item => {
               switch (item.key) {
                 case TARGET_LEVEL:
                   this.threadGroups[i].threadNumber = item.value;
