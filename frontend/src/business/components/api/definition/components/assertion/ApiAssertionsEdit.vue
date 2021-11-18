@@ -57,7 +57,10 @@
         :edit="true"/>
     </div>
     <div class="assertion-item-editing response-time" v-if="isDocument">
-      <div> {{ assertions.document.type }}-{{ $t("api_test.definition.request.document_structure") }}</div>
+      <div>
+        {{ assertions.document.type }}-{{ $t("api_test.definition.request.document_structure") }}
+        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" style="float: right"/>
+      </div>
       <ms-document-body :document="assertions.document" :apiId="apiId"/>
     </div>
   </div>
@@ -112,6 +115,9 @@ export default {
     }
   },
   methods: {
+    remove() {
+      this.assertions.document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+    },
     reload() {
       this.loading = true
       this.$nextTick(() => {

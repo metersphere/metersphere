@@ -8,8 +8,7 @@
         </el-select>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
-        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add" v-else>
+        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add">
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
