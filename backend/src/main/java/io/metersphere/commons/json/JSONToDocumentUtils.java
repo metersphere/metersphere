@@ -73,7 +73,7 @@ public class JSONToDocumentUtils {
                 return getXmlDocument(json);
             } else {
                 return new LinkedList<DocumentElement>() {{
-                    this.add(new DocumentElement().newRoot("root", null));
+                    this.add(new DocumentElement().newRoot("object", null));
                 }};
             }
         } catch (Exception e) {
