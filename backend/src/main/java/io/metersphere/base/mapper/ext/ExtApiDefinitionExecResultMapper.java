@@ -4,6 +4,7 @@ import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ExtApiDefinitionExecResultMapper {
@@ -24,4 +25,6 @@ public interface ExtApiDefinitionExecResultMapper {
     String  selectExecResult(String resourceId);
 
     ApiDefinitionExecResult selectPlanApiMaxResultByTestIdAndType(String resourceId, String type);
+
+    List<ApiDefinitionExecResult> selectStatusByIdList(@Param("ids")Collection<String> values);
 }

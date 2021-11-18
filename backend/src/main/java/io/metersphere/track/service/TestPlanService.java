@@ -1114,7 +1114,7 @@ public class TestPlanService {
 
         //执行性能测试任务
         Map<String, String> performaneReportIDMap = new LinkedHashMap<>();
-
+        Map<String, String> performaneThreadIDMap = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : performanceIdMap.entrySet()) {
             String id = entry.getKey();
             String caseID = entry.getValue();
@@ -1148,12 +1148,14 @@ public class TestPlanService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(),reportId);
             if (StringUtils.isNotEmpty(reportId)) {
                 executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.RUNNING.name());
             } else {
                 executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.PREPARE.name());
             }
         }
+        TestPlanReportExecuteCatch.updateTestPlanThreadInfo(planReportId,null,null,performaneThreadIDMap);
         if (!performaneReportIDMap.isEmpty()) {
             //性能测试时保存性能测试报告ID，在结果返回时用于捕捉并进行
             testPlanReportService.updatePerformanceInfo(testPlanReport, performaneReportIDMap, triggerMode);
@@ -1700,7 +1702,7 @@ public class TestPlanService {
         }
     }
 
-    public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo, String planId, boolean saveResponse) {
+    public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo,boolean isFinish) {
         if (MapUtils.isEmpty(executeInfo.getApiCaseExecInfo()) && MapUtils.isEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
             return;
         }
@@ -1711,33 +1713,12 @@ public class TestPlanService {
             if (checkReportConfig(config, "api", "all")) {
                 if (MapUtils.isNotEmpty(executeInfo.getApiCaseExecInfo())) {
                     // 接口
-                    apiAllCases = testPlanApiCaseService.getAllCases(executeInfo.getApiCaseExecInfo().keySet(),  null);
-                    if (saveResponse) {
-                        apiAllCases.forEach(item -> {
-                            String apiReportid = executeInfo.getApiCaseReportMap().get(item.getId());
-                            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(apiReportid);
-                            if (result != null) {
-                                APIReportResult dbResult = apiDefinitionService.buildAPIReportResult(result);
-                                if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
-                                    item.setResponse(dbResult.getContent());
-                                }
-                            }
-                        });
-                    }
+                    apiAllCases = testPlanApiCaseService.getByApiExecReportIds(executeInfo.getApiCaseExecuteThreadMap(),isFinish);
                     report.setApiAllCases(apiAllCases);
                 }
                 if (MapUtils.isNotEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
                     //场景
-                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioCaseExecInfo().keySet(), null);
-                    if (saveResponse) {
-                        scenarioAllCases.forEach((item) -> {
-                            String resultId = executeInfo.getApiScenarioReportMap().get(item.getId());
-                            APIScenarioReportResult result = apiScenarioReportService.get(resultId);
-                            if (result != null) {
-                                item.setResponse(result);
-                            }
-                        });
-                    }
+                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioThreadMap(),isFinish);
                     report.setScenarioAllCases(scenarioAllCases);
                 }
             }
@@ -1749,18 +1730,6 @@ public class TestPlanService {
                             .filter(i -> StringUtils.isNotBlank(i.getExecResult())
                                     && i.getExecResult().equals("error"))
                             .collect(Collectors.toList());
-                    if (saveResponse) {
-                        for (TestPlanFailureApiDTO item : apiFailureCases) {
-                            String apiReportid = executeInfo.getApiCaseReportMap().get(item.getId());
-                            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(apiReportid);
-                            if (result != null) {
-                                APIReportResult dbResult = apiDefinitionService.buildAPIReportResult(result);
-                                if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
-                                    item.setResponse(dbResult.getContent());
-                                }
-                            }
-                        }
-                    }
                 }
                 report.setApiFailureCases(apiFailureCases);
 
@@ -1771,15 +1740,6 @@ public class TestPlanService {
                             .filter(i -> StringUtils.isNotBlank(i.getLastResult())
                                     && i.getLastResult().equals("Fail"))
                             .collect(Collectors.toList());
-                    if (saveResponse) {
-                        for (TestPlanFailureScenarioDTO item : scenarioFailureCases) {
-                            String resultId = executeInfo.getApiScenarioReportMap().get(item.getId());
-                            APIScenarioReportResult result = apiScenarioReportService.get(resultId);
-                            if (result != null) {
-                                item.setResponse(result);
-                            }
-                        }
-                    }
                 }
                 report.setScenarioFailureCases(scenarioFailureCases);
             }
@@ -1794,6 +1754,11 @@ public class TestPlanService {
             List<TestPlanLoadCaseDTO> allCases = null;
             if (checkReportConfig(config, "load", "all")) {
                 allCases = testPlanLoadCaseService.getAllCases(executeInfo.getLoadCaseExecInfo().keySet(), planId, null);
+                for (TestPlanLoadCaseDTO dto :
+                        allCases) {
+                    String reportId = executeInfo.getLoadCaseReportIdMap().get(dto.getId());
+                    dto.setReportId(reportId);
+                }
                 if (saveResponse) {
                     buildLoadResponse(allCases);
                 }
@@ -1812,7 +1777,7 @@ public class TestPlanService {
         }
     }
 
-    public TestPlanSimpleReportDTO buildPlanReport(TestPlanExecuteInfo executeInfo, String planId, boolean saveResponse) {
+    public TestPlanSimpleReportDTO buildPlanReport(TestPlanExecuteInfo executeInfo, String planId, boolean isFinish) {
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
         if (testPlan != null) {
             String reportConfig = testPlan.getReportConfig();
@@ -1822,8 +1787,8 @@ public class TestPlanService {
             }
             TestPlanSimpleReportDTO report = getReport(planId);
             buildFunctionalReport(report, config, planId);
-            buildApiReport(report, config, executeInfo, planId, true);
-            buildLoadReport(report, config, executeInfo, planId, saveResponse);
+            buildApiReport(report, config, executeInfo, isFinish);
+            buildLoadReport(report, config, executeInfo, planId, false);
             return report;
         } else {
             return null;
