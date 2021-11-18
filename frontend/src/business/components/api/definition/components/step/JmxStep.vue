@@ -1,5 +1,5 @@
 <template>
-  <div v-if="request.hashTree && request.hashTree.length > 0">
+  <div v-if="loaded">
     <p class="tip">
       {{ $t('test_track.plan_view.step') }}
     </p>
@@ -120,6 +120,11 @@ export default {
       default: false
     }
   },
+  watch: {
+    'request.body.typeChange'() {
+      this.showHide();
+    },
+  },
   data() {
     let validateURL = (rule, value, callback) => {
       try {
@@ -130,6 +135,7 @@ export default {
     };
     return {
       activeName: "headers",
+      loaded: true,
       rules: {
         name: [
           {max: 300, message: this.$t('commons.input_limit', [1, 300]), trigger: 'blur'}
@@ -171,7 +177,7 @@ export default {
       this.reload();
     },
     addAssertions() {
-      let assertions = new Assertions({id:getUUID()});
+      let assertions = new Assertions({id: getUUID()});
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
@@ -179,7 +185,7 @@ export default {
       this.reload();
     },
     addExtract() {
-      let jsonPostProcessor = new Extract({id:getUUID()});
+      let jsonPostProcessor = new Extract({id: getUUID()});
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
@@ -206,6 +212,12 @@ export default {
       this.isReloadData = true
       this.$nextTick(() => {
         this.isReloadData = false
+      })
+    },
+    showHide() {
+      this.loaded = false
+      this.$nextTick(() => {
+        this.loaded = true
       })
     },
     init() {

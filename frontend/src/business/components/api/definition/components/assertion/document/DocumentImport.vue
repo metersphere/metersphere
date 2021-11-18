@@ -99,7 +99,6 @@ export default {
       let url = "/api/definition/jsonGenerator";
       this.$post(url, {raw: this.json, type: this.document.type}, response => {
         if (response.data) {
-          console.log(response.data)
           this.$emit('setJSONData', response.data);
         }
       });
