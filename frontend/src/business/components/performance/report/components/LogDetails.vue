@@ -47,7 +47,6 @@ export default {
       page: {},
       pageCount: 5,
       loading: false,
-      init: false,
       logStatus: {},
       currentInstance: ''
     };
@@ -69,9 +68,6 @@ export default {
     },
     handleGetLogResource(data) {
       this.resource = data;
-      if (!this.resource || this.resource.length === 0) {
-        this.init = false;
-      }
       if (!this.currentInstance) {
         this.currentInstance = this.resource[0]?.resourceId;
       }
@@ -151,7 +147,6 @@ export default {
     '$route'(to) {
       if (to.name === "perReportView") {
         this.id = to.path.split('/')[4];
-        this.init = false;
         this.getResource();
       }
     },
@@ -160,15 +155,10 @@ export default {
         if (!val.status || !val.id) {
           return;
         }
-        if (this.init) {
-          return;
-        }
         let status = val.status;
         this.id = val.id;
         if (status === "Running") {
           this.getResource();
-        } else {
-          this.resource = [];
         }
       },
       deep: true
