@@ -109,16 +109,13 @@ export default {
       let params = data.split("\n");
       let keyValues = [];
       params.forEach(item => {
-        let line = item.split(/，|,/);
+        let line = item.split(/：|:/);
         let required = false;
-        if (line[1] === '必填' || line[1] === 'Required' || line[1] === 'true') {
-          required = true;
-        }
-        keyValues.push(new KeyValue({
+        keyValues.unshift(new KeyValue({
           name: line[0],
           required: required,
-          value: line[2],
-          description: line[3],
+          value: line[1],
+          description: line[2],
           type: "text",
           valid: false,
           file: false,
@@ -135,9 +132,19 @@ export default {
     batchSave(data) {
       if (data) {
         let keyValues = this._handleBatchVars(data);
-        keyValues.forEach(item => {
-          this.items.unshift(item);
-        });
+        keyValues.forEach(keyValue => {
+          let isAdd = true;
+          for (let i in this.items) {
+            let item = this.items[i];
+            if (item.name === keyValue.name) {
+              item.value = keyValue.value;
+              isAdd = false;
+            }
+          }
+          if (isAdd) {
+            this.items.unshift(keyValue);
+          }
+        })
       }
     },
   },
