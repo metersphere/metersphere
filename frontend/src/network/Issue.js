@@ -1,6 +1,6 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate} from "@/common/js/tableUtils";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import {baseGet} from "@/network/base-network";
 
 export function buildIssues(page) {
@@ -74,7 +74,11 @@ export function getRelateIssues(page) {
 }
 
 export function syncIssues(success) {
-  return get('issues/sync/' + getCurrentProjectID(), (response) => {
+  let uri = 'issues/sync/';
+  if (hasLicense()) {
+    uri = 'xpack/issue/sync/';
+  }
+  return get(uri + getCurrentProjectID(), (response) => {
     if (success) {
       success(response);
     }
