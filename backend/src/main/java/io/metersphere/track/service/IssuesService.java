@@ -191,7 +191,7 @@ public class IssuesService {
 
     public String getIssueTemplate(String projectId) {
         Project project = projectService.getProjectById(projectId);
-        IssueTemplate issueTemplate = null;
+        IssueTemplate issueTemplate;
         String id = project.getIssueTemplateId();
         if (StringUtils.isBlank(id)) {
             issueTemplate = issueTemplateService.getDefaultTemplate(project.getWorkspaceId());
@@ -595,5 +595,14 @@ public class IssuesService {
         }
         result = follows.stream().map(IssueFollow::getFollowId).distinct().collect(Collectors.toList());
         return result;
+    }
+
+    public List<IssuesWithBLOBs> getIssuesByPlatformIds(List<String> platformIds, String projectId) {
+        if (CollectionUtils.isEmpty(platformIds)) return new ArrayList<>();
+        IssuesExample example = new IssuesExample();
+        example.createCriteria()
+                .andPlatformIdIn(platformIds)
+                .andProjectIdEqualTo(projectId);
+        return issuesMapper.selectByExampleWithBLOBs(example);
     }
 }

@@ -64,4 +64,10 @@ public interface IssuesPlatform {
      * @param tapdIssues
      */
     void syncIssues(Project project, List<IssuesDao> tapdIssues);
+
+    /**
+     * 同步缺陷全量的缺陷
+     * @param project
+     */
+    void syncAllIssues(Project project, String defaultCustomFields);
 }

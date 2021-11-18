@@ -44,8 +44,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     protected String key = IssuesManagePlatform.Tapd.toString();
 
-    private TapdClient tapdClient = new TapdClient();
-
+    protected TapdClient tapdClient = new TapdClient();
 
     public TapdPlatform(IssuesRequest issueRequest) {
         super(issueRequest);
@@ -224,16 +223,13 @@ public class TapdPlatform extends AbstractIssuePlatform {
             pageNum++;
             datas.forEach(issue -> {
                 JSONObject bug = issue.getJSONObject("Bug");
-                String id = idMap.get(bug.getString("id"));
-                IssuesDao issuesDao = new IssuesDao();
-                BeanUtils.copyBean(issuesDao, bug);
-                issuesDao.setId(id);
-                issuesDao.setPlatformStatus(statusMap.get(bug.getString("status")));
-                issuesDao.setDescription(htmlDesc2MsDesc(issuesDao.getDescription()));
-                IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
-                issuesDao.setCustomFields(syncIssueCustomField(issuesWithBLOBs.getCustomFields(), bug));
-                issuesMapper.updateByPrimaryKeySelective(issuesDao);
-                ids.remove(bug.getString("id"));
+                String platformId = bug.getString("id");
+                String id = idMap.get(platformId);
+                IssuesWithBLOBs updateIssue = getUpdateIssue(issuesMapper.selectByPrimaryKey(id), bug, statusMap);
+                updateIssue.setId(id);
+                updateIssue.setCustomFields(syncIssueCustomField(updateIssue.getCustomFields(), bug));
+                issuesMapper.updateByPrimaryKeySelective(updateIssue);
+                ids.remove(platformId);
             });
         }
         // 查不到的设置为删除
@@ -245,6 +241,17 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 issuesMapper.updateByPrimaryKeySelective(issuesDao);
             }
         });
+    }
+
+    protected IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, JSONObject bug, Map<String, String> statusMap) {
+        if (issue == null) issue = new IssuesWithBLOBs();
+        TapdBug bugObj = JSONObject.parseObject(bug.toJSONString(), TapdBug.class);
+        BeanUtils.copyBean(issue, bugObj);
+        issue.setPlatformStatus(statusMap.get(bugObj.getStatus()));
+        issue.setDescription(htmlDesc2MsDesc(issue.getDescription()));
+        issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), bug));
+        issue.setPlatform(key);
+        return issue;
     }
 
     @Override

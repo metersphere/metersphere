@@ -23,4 +23,6 @@ public interface ExtIssuesMapper {
     List<PlanReportIssueDTO> selectForPlanReport(String planId);
 
     List<IssuesDao>getCountByStatus(@Param("request") IssuesRequest issuesRequest);
+
+    List<String> selectIdNotInUuIds(@Param("projectId") String projectId, @Param("platform") String platform, @Param("platformIds")  List<String> platformIds);
 }

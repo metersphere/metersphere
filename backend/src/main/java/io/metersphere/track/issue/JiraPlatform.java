@@ -83,10 +83,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     public void parseIssue(IssuesWithBLOBs item, JiraIssue jiraIssue, String customFieldsStr) {
         String lastmodify = "";
-        String status = "";
         JSONObject fields = jiraIssue.getFields();
 
-        status = getStatus(fields);
+        String status = getStatus(fields);
         JSONObject assignee = (JSONObject) fields.get("assignee");
         String description = fields.getString("description");
 
@@ -331,6 +330,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void syncIssues(Project project, List<IssuesDao> issues) {
+        setConfig();
         issues.forEach(item -> {
             setConfig();
             try {
