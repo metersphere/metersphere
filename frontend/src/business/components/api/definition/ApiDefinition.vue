@@ -797,7 +797,6 @@ export default {
 
 /deep/ .el-tabs__header {
   margin: 0 0 0px;
-  width: calc(100% - 200px);
 }
 
 /deep/ .el-card {
@@ -812,7 +811,7 @@ export default {
 
 .ms-api-button {
   position: absolute;
-  top: 92px;
+  top: 86px;
   right: 10px;
   padding: 0;
   background: 0 0;
