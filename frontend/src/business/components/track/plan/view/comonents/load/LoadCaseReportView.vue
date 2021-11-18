@@ -48,10 +48,6 @@
         <el-divider/>
         <div ref="resume">
           <el-tabs v-model="active">
-            <el-tab-pane :label="$t('load_test.pressure_config')">
-              <ms-performance-pressure-config :is-share="isShare" :plan-report-template="planReportTemplate"
-                                              :share-id="shareId" :is-read-only="true" :report="report"/>
-            </el-tab-pane>
             <el-tab-pane :label="$t('report.test_overview')">
               <ms-report-test-overview :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
                                        :share-id="shareId" ref="testOverview"/>
@@ -76,6 +72,9 @@
             <el-tab-pane :label="$t('report.test_monitor_details')">
               <monitor-card :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
                             :share-id="shareId"/>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('测试配置')">
+              <ms-test-configuration :report="report" :test="test" :test-id="testId"/>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -112,7 +111,6 @@ import MsReportRequestStatistics from "@/business/components/performance/report/
 import MsReportTestOverview from "@/business/components/performance/report/components/TestOverview";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-import MsPerformancePressureConfig from "@/business/components/performance/report/components/PerformancePressureConfig";
 import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
 import MsReportTestDetails from '@/business/components/performance/report/components/TestDetails';
 import {
@@ -121,11 +119,13 @@ import {
   getSharePerformanceReport,
   getSharePerformanceReportTime
 } from "@/network/load-test";
+import MsTestConfiguration from "@/business/components/performance/report/components/TestConfiguration";
 
 
 export default {
   name: "LoadCaseReportView",
   components: {
+    MsTestConfiguration,
     MonitorCard,
     MsPerformanceReportExport,
     MsReportErrorLog,
@@ -135,12 +135,11 @@ export default {
     MsReportTestDetails,
     MsContainer,
     MsMainContainer,
-    MsPerformancePressureConfig
   },
   data() {
     return {
       result: {},
-      active: '1',
+      active: '0',
       status: '',
       reportName: '',
       testId: '',
@@ -158,6 +157,7 @@ export default {
       reportExportVisible: false,
       testPlan: {testResourcePoolId: null},
       show: true,
+      test: {testResourcePoolId: null},
     };
   },
   props: {
@@ -393,6 +393,7 @@ export default {
       if (data) {
         this.status = data.status;
         this.$set(this, "report", data);
+        this.$set(this.test, "testResourcePoolId", data.testResourcePoolId);
         this.checkReportStatus(data.status);
         if (this.status === "Completed" || this.status === "Running") {
           this.initReportTimeInfo();

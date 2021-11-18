@@ -3,13 +3,13 @@
     <!--  基本配置  -->
     <el-row>
       <el-col :span="6">
-        <el-form :inline="true">
+        <el-form :inline="true" :disabled="isReadOnly">
           <el-form-item>
             <div>{{ $t('load_test.connect_timeout') }}</div>
           </el-form-item>
           <el-form-item>
             <el-input-number
-                :disabled="readOnly" size="mini" v-model="timeout"
+                size="mini" v-model="timeout"
                 controls-position="right"
                 :min="0"/>
           </el-form-item>
@@ -19,13 +19,13 @@
         </el-form>
       </el-col>
       <el-col :span="6">
-        <el-form :inline="true">
+        <el-form :inline="true" :disabled="isReadOnly">
           <el-form-item>
             <div>{{ $t('load_test.response_timeout') }}</div>
           </el-form-item>
           <el-form-item>
             <el-input-number
-                :disabled="readOnly" size="mini" :min="0"
+                size="mini" :min="0"
                 controls-position="right"
                 v-model="responseTimeout"/>
           </el-form-item>
@@ -35,7 +35,7 @@
         </el-form>
       </el-col>
       <el-col :span="6">
-        <el-form :inline="true">
+        <el-form :inline="true" :disabled="isReadOnly">
           <el-form-item>
             <div>
               {{ $t('load_test.granularity') }}
@@ -65,13 +65,13 @@
         </el-form>
       </el-col>
       <el-col :span="6">
-        <el-form :inline="true">
+        <el-form :inline="true" :disabled="isReadOnly">
           <el-form-item>
             <div>{{ $t('load_test.custom_http_code') }}</div>
           </el-form-item>
           <el-form-item>
             <el-input
-                :disabled="readOnly" size="mini" v-model="statusCodeStr"
+                size="mini" v-model="statusCodeStr"
                 :placeholder="$t('load_test.separated_by_commas')"
                 @input="checkStatusCode"></el-input>
           </el-form-item>
@@ -83,7 +83,9 @@
     <el-row type="flex" justify="start">
       <el-col :span="8">
         <h3>{{ $t('load_test.domain_bind') }}</h3>
-        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="add('domains')">
+        <el-button icon="el-icon-circle-plus-outline"
+                   :disabled="isReadOnly"
+                   plain size="mini" @click="add('domains')">
           {{ $t('commons.add') }}
         </el-button>
       </el-col>
@@ -98,7 +100,7 @@
             <template v-slot:default="{row}">
               <el-input
                   size="mini"
-                  v-if="!readOnly"
+                  v-if="!isReadOnly"
                   type="textarea"
                   :rows="1"
                   class="edit-input"
@@ -116,7 +118,7 @@
             <template v-slot:default="{row}">
               <el-input
                   size="mini"
-                  v-if="!readOnly"
+                  v-if="!isReadOnly"
                   type="textarea"
                   class="edit-input"
                   :rows="1"
@@ -132,7 +134,7 @@
               show-overflow-tooltip>
             <template v-slot:default="{row}">
               <el-switch
-                  :disabled="readOnly"
+                  :disabled="isReadOnly"
                   size="mini"
                   v-model="row.enable"
                   inactive-color="#DCDFE6"
@@ -142,8 +144,8 @@
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
-              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
-                                        type="danger"
+              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete"
+                                        type="danger" :disabled="isReadOnly"
                                         @exec="del(row, 'domains', $index)"/>
             </template>
           </el-table-column>
@@ -167,12 +169,12 @@
           </el-table-column>
           <el-table-column align="center" prop="csvSplit" :label="$t('load_test.csv_split')">
             <template v-slot:default="{row}">
-              <el-switch :disabled="readOnly" v-model="row.csvSplit"/>
+              <el-switch :disabled="isReadOnly" v-model="row.csvSplit"/>
             </template>
           </el-table-column>
           <el-table-column align="center" prop="csvHasHeader" :label="$t('load_test.csv_has_header')">
             <template v-slot:default="{row}">
-              <el-switch :disabled="readOnly || !row.csvSplit" v-model="row.csvHasHeader"/>
+              <el-switch :disabled="isReadOnly || !row.csvSplit" v-model="row.csvHasHeader"/>
             </template>
           </el-table-column>
         </el-table>
@@ -183,7 +185,9 @@
     <el-row>
       <el-col :span="8">
         <h3>{{ $t('load_test.params') }}</h3>
-        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="add('params')">
+        <el-button icon="el-icon-circle-plus-outline"
+                   :disabled="isReadOnly"
+                   plain size="mini" @click="add('params')">
           {{ $t('commons.add') }}
         </el-button>
       </el-col>
@@ -198,7 +202,7 @@
             <template v-slot:default="{row}">
               <el-input
                   size="mini"
-                  v-if="!readOnly"
+                  v-if="!isReadOnly"
                   type="textarea"
                   :rows="1"
                   class="edit-input"
@@ -213,13 +217,9 @@
               :label="$t('load_test.param_value')"
               show-overflow-tooltip align="center">
             <template v-slot:default="{row}">
-              <!-- <template v-if="row.edit">
-                 <el-input v-model="row.value" class="edit-input" size="mini"/>
-               </template>
-               <span v-else>{{ row.value }}</span>-->
               <el-input
                   size="mini"
-                  v-if="!readOnly"
+                  v-if="!isReadOnly"
                   type="textarea"
                   class="edit-input"
                   :rows="1"
@@ -235,7 +235,7 @@
               show-overflow-tooltip>
             <template v-slot:default="{row}">
               <el-switch
-                  :disabled="readOnly"
+                  :disabled="isReadOnly"
                   size="mini"
                   v-model="row.enable"
                   inactive-color="#DCDFE6">
@@ -244,8 +244,9 @@
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
-              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
+              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete"
                                         type="danger"
+                                        :disabled="isReadOnly"
                                         @exec="del(row, 'params', $index)"/>
             </template>
           </el-table-column>
@@ -257,7 +258,9 @@
     <el-row>
       <el-col :span="8">
         <h3>JMeter Properties</h3>
-        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="add('properties')">
+        <el-button icon="el-icon-circle-plus-outline"
+                   :disabled="isReadOnly"
+                   plain size="mini" @click="add('properties')">
           {{ $t('commons.add') }}
         </el-button>
       </el-col>
@@ -272,7 +275,7 @@
             <template v-slot:default="{row}">
               <el-input
                   size="mini"
-                  v-if="!readOnly"
+                  v-if="!isReadOnly"
                   type="textarea"
                   :rows="1"
                   class="edit-input"
@@ -287,13 +290,9 @@
               :label="$t('load_test.param_value')"
               show-overflow-tooltip align="center">
             <template v-slot:default="{row}">
-              <!-- <template v-if="row.edit">
-                 <el-input v-model="row.value" class="edit-input" size="mini"/>
-               </template>
-               <span v-else>{{ row.value }}</span>-->
               <el-input
                   size="mini"
-                  v-if="!readOnly"
+                  v-if="!isReadOnly"
                   type="textarea"
                   class="edit-input"
                   :rows="1"
@@ -309,7 +308,7 @@
               show-overflow-tooltip>
             <template v-slot:default="{row}">
               <el-switch
-                  :disabled="readOnly"
+                  :disabled="isReadOnly"
                   size="mini"
                   v-model="row.enable"
                   inactive-color="#DCDFE6">
@@ -318,8 +317,9 @@
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
-              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
+              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete"
                                         type="danger"
+                                        :disabled="isReadOnly"
                                         @exec="del(row, 'properties', $index)"/>
             </template>
           </el-table-column>
@@ -331,10 +331,12 @@
     <el-row>
       <el-col :span="8">
         <h3>{{ $t('commons.monitor') }}</h3>
-        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="addMonitor">
+        <el-button icon="el-icon-circle-plus-outline" :disabled="isReadOnly"
+                   plain size="mini" @click="addMonitor">
           {{ $t('commons.add') }}
         </el-button>
-        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini"
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini"
+                   :disabled="isReadOnly"
                    @click="batchAddMonitor">
           {{ $t('commons.batch_add') }}
         </el-button>
@@ -348,20 +350,6 @@
               prop="name"
               :label="$t('commons.name')">
           </el-table-column>
-          <!--        <el-table-column-->
-          <!--          align="center"-->
-          <!--          prop="environmentName"-->
-          <!--          label="所属环境">-->
-          <!--        </el-table-column>-->
-          <!--        <el-table-column-->
-          <!--          align="center"-->
-          <!--          prop="authStatus"-->
-          <!--          label="认证状态">-->
-          <!--        </el-table-column>-->
-          <!--        <el-table-column-->
-          <!--          align="center"-->
-          <!--          prop="monitorStatus"-->
-          <!--          label="监控状态">-->
           <el-table-column
               align="center"
               prop="ip"
@@ -379,10 +367,12 @@
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
-              <ms-table-operator-button :disabled="readOnly" tip="编辑" icon="el-icon-edit"
+              <ms-table-operator-button tip="编辑" icon="el-icon-edit"
                                         type="primary"
+                                        :disabled="isReadOnly"
                                         @exec="modifyMonitor(row, $index)"/>
-              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
+              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete"
+                                        :disabled="isReadOnly"
                                         type="danger"
                                         @exec="delMonitor(row, $index)"/>
             </template>
@@ -399,7 +389,6 @@
 <script>
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton.vue";
 import EditMonitor from "@/business/components/performance/test/components/EditMonitor";
-import {hasPermission} from "@/common/js/utils";
 import BatchAddMonitor from "@/business/components/performance/test/components/BatchAddMonitor";
 
 export default {
@@ -429,17 +418,21 @@ export default {
         {start: 60001, end: 180000, granularity: 1800},
         {start: 180001, end: 360000, granularity: 3600},
       ],
-      readOnly: false,
     };
   },
   props: {
     testId: String,
+    isReadOnly: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    }
   },
   mounted() {
     if (this.testId) {
       this.getAdvancedConfig();
     }
-    this.readOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT');
   },
   watch: {
     testId() {
