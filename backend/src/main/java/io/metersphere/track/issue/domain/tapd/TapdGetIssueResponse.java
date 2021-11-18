@@ -13,10 +13,4 @@ public class TapdGetIssueResponse {
     private int status;
     private List<JSONObject> data;
     private String info;
-
-//    @Getter
-//    @Setter
-//    public static class Data {
-//        private TapdBug bug;
-//    }
 }

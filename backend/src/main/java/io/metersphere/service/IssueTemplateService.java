@@ -206,7 +206,7 @@ public class IssueTemplateService extends TemplateBaseService {
     public IssueTemplateDao getTemplate(String projectId) {
         Project project = projectService.getProjectById(projectId);
         String issueTemplateId = project.getIssueTemplateId();
-        IssueTemplate issueTemplate = null;
+        IssueTemplate issueTemplate;
         IssueTemplateDao issueTemplateDao = new IssueTemplateDao();
         if (StringUtils.isNotBlank(issueTemplateId)) {
             issueTemplate = issueTemplateMapper.selectByPrimaryKey(issueTemplateId);

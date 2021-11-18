@@ -44,10 +44,10 @@ public class TapdClient extends BaseClient {
     public TapdGetIssueResponse getIssueForPageByIds(String projectId, int pageNum, int limit, List<String> ids) {
         String url = getBaseUrl() + "/bugs?workspace_id={1}&page={2}&limit={3}&fields={4}";
         StringBuilder idStr = new StringBuilder();
-        ids.forEach(item -> {
-            idStr.append(item + ",");
-        });
         if (!CollectionUtils.isEmpty(ids)) {
+            ids.forEach(item -> {
+                idStr.append(item + ",");
+            });
             url += "&id={5}";
         }
         String fields = "id,title,description,priority,severity,reporter,status";

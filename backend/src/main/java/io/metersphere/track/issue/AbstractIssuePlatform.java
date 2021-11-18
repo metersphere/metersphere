@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
+import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
@@ -15,6 +16,7 @@ import io.metersphere.dto.UserDTO;
 import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestCaseIssueService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
@@ -34,10 +36,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -382,4 +381,41 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         return JSONObject.toJSONString(customFields);
     }
 
+    @Override
+    public void syncAllIssues(Project project, String defaultCustomFields) {}
+
+    protected List<IssuesWithBLOBs> getIssuesByPlatformIds(List<String> platformIds) {
+        IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
+        return issuesService.getIssuesByPlatformIds(platformIds, projectId);
+    }
+
+    protected Map<String, IssuesWithBLOBs> getUuIdMap(List<IssuesWithBLOBs> issues) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(issues)) {
+            return issues.stream().collect(Collectors.toMap(Issues::getPlatformId, i -> i));
+        }
+        return new HashMap<>();
+    }
+
+    protected void deleteSyncIssue(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) return;
+        IssuesExample example = new IssuesExample();
+        IssuesWithBLOBs issue = new IssuesWithBLOBs();
+        issue.setPlatformStatus(IssuesStatus.DELETE.toString());
+        example.createCriteria().andIdIn(ids);
+        issuesMapper.updateByExampleSelective(issue, example);
+    }
+
+    protected List<String> updateSyncDeleteIds(List<String> uuIds, List<String> syncDeleteIds, String platform) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(uuIds)) {
+            // 每次获取不在当前查询的缺陷里的 id
+            List<String> notInIds = extIssuesMapper.selectIdNotInUuIds(projectId, platform, uuIds);
+            if (syncDeleteIds == null) {
+                syncDeleteIds = notInIds;
+            } else {
+                // 求交集，即不在所有查询里的缺陷，即要删除的缺陷
+                syncDeleteIds.retainAll(notInIds);
+            }
+        }
+        return syncDeleteIds;
+    }
 }
