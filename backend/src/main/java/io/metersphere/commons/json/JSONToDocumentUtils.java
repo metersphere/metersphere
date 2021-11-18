@@ -10,11 +10,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.json.XML;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class JSONToDocumentUtils {
 
@@ -27,10 +29,20 @@ public class JSONToDocumentUtils {
                 jsonDataFormatting((JSONObject) value, childrenElements);
             } else if (value instanceof JSONArray) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                children.add(new DocumentElement("", "array", "", childrenElements));
+                DocumentElement documentElement = new DocumentElement("", "array", "", childrenElements);
+                documentElement.setArrayVerification(true);
+                children.add(documentElement);
                 jsonDataFormatting((JSONArray) value, childrenElements);
             } else {
-                children.add(new DocumentElement("", "string", value, null));
+                String type = "string";
+                if (value != null) {
+                    if (isWholeNumber(value.toString())) {
+                        type = "integer";
+                    } else if (isNumber(value.toString())) {
+                        type = "number";
+                    }
+                }
+                children.add(new DocumentElement("", type, value, null));
             }
         }
     }
@@ -44,33 +56,58 @@ public class JSONToDocumentUtils {
                 jsonDataFormatting((JSONObject) value, childrenElements);
             } else if (value instanceof JSONArray) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                children.add(new DocumentElement(key, "array", "", childrenElements));
+                DocumentElement documentElement = new DocumentElement(key, "array", "", childrenElements);
+                documentElement.setArrayVerification(true);
+                children.add(documentElement);
                 jsonDataFormatting((JSONArray) value, childrenElements);
             } else {
-                children.add(new DocumentElement(key, "string", value, null));
+                String type = "string";
+                if (value != null) {
+                    if (isWholeNumber(value.toString())) {
+                        type = "integer";
+                    } else if (isNumber(value.toString())) {
+                        type = "number";
+                    }
+                }
+                children.add(new DocumentElement(key, type, value, null));
             }
         }
     }
 
+    private static List<DocumentElement> getJsonDocument(String json, String type) {
+        List<DocumentElement> roots = new LinkedList<>();
+        List<DocumentElement> children = new LinkedList<>();
+        Object typeObject = new JSONTokener(json).nextValue();
+        if (typeObject instanceof net.sf.json.JSONArray) {
+            if (StringUtils.equals(type, "JSON")) {
+                roots.add(new DocumentElement().newRoot("array", children));
+                JSONArray array = JSON.parseArray(json);
+                jsonDataFormatting(array, children);
+            } else {
+                JSONArray array = JSON.parseArray(json);
+                jsonDataFormatting(array, roots);
+            }
+        } else {
+            if (StringUtils.equals(type, "JSON")) {
+                roots.add(new DocumentElement().newRoot("object", children));
+                JSONObject object = JSON.parseObject(json);
+                jsonDataFormatting(object, children);
+            } else {
+                JSONObject object = JSON.parseObject(json);
+                jsonDataFormatting(object, roots);
+            }
+        }
+        return roots;
+    }
 
     public static List<DocumentElement> getDocument(String json, String type) {
         try {
             if (StringUtils.equals(type, "JSON")) {
-                List<DocumentElement> roots = new LinkedList<>();
-                List<DocumentElement> children = new LinkedList<>();
-                Object typeObject = new JSONTokener(json).nextValue();
-                if (typeObject instanceof net.sf.json.JSONArray) {
-                    roots.add(new DocumentElement().newRoot("array", children));
-                    JSONArray array = JSON.parseArray(json);
-                    jsonDataFormatting(array, children);
-                } else {
-                    roots.add(new DocumentElement().newRoot("object", children));
-                    JSONObject object = JSON.parseObject(json);
-                    jsonDataFormatting(object, children);
-                }
-                return roots;
+                return getJsonDocument(json, type);
             } else if (StringUtils.equals(type, "XML")) {
-                return getXmlDocument(json);
+                org.json.JSONObject xmlJSONObj = XML.toJSONObject(json);
+                String jsonPrettyPrintString = xmlJSONObj.toString(4);
+                return getJsonDocument(jsonPrettyPrintString, type);
             } else {
                 return new LinkedList<DocumentElement>() {{
                     this.add(new DocumentElement().newRoot("object", null));
@@ -82,6 +119,16 @@ public class JSONToDocumentUtils {
         }
     }
 
+    public static boolean isNumber(String number) {
+        Pattern pattern = Pattern.compile("^-?\\d+(\\.\\d+)?$");
+        return StringUtils.isNotEmpty(number) && pattern.matcher(number).matches();
+    }
+
+    public static boolean isWholeNumber(String wholeNumber) {
+        Pattern pattern = Pattern.compile("[+-]?[0-9]+?");
+        return StringUtils.isNotEmpty(wholeNumber) && pattern.matcher(wholeNumber).matches();
+    }
+
 
     /**
      * 从指定节点开始,递归遍历所有子节点
@@ -90,7 +137,15 @@ public class JSONToDocumentUtils {
         //递归遍历当前节点所有的子节点
         List<Element> listElement = node.elements();
         if (listElement.isEmpty()) {
-            children.add(new DocumentElement(node.getName(), "string", node.getTextTrim(), null));
+            String type = "string";
+            if (StringUtils.isNotEmpty(node.getTextTrim())) {
+                if (isWholeNumber(node.getText())) {
+                    type = "integer";
+                } else if (isNumber(node.getText())) {
+                    type = "number";
+                }
+            }
+            children.add(new DocumentElement(node.getName(), type, node.getTextTrim(), null));
         }
         for (Element element : listElement) {//遍历所有一级子节点
             List<Element> elementNodes = element.elements();

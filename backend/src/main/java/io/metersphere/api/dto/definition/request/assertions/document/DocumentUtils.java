@@ -38,10 +38,10 @@ public class DocumentUtils {
                             isTrue = getLength(subj, decimalFormatter) != getLength(item.getValue(), decimalFormatter);
                             break;
                         case "length_gt":
-                            isTrue = getLength(subj, decimalFormatter) > getLength(item.getValue(), decimalFormatter);
+                            isTrue = getLength(subj, decimalFormatter) < getLength(item.getValue(), decimalFormatter);
                             break;
                         case "length_lt":
-                            isTrue = getLength(subj, decimalFormatter) < getLength(item.getValue(), decimalFormatter);
+                            isTrue = getLength(subj, decimalFormatter) > getLength(item.getValue(), decimalFormatter);
                             break;
                         case "regular":
                             Pattern pattern = JMeterUtils.getPatternCache().getPattern(expectedValue);
