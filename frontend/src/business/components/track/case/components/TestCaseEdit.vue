@@ -318,6 +318,16 @@
           }
         },
         deep: true
+      },
+      'testCaseTemplate.customFields': {
+        handler(val) {
+          if (this.$store.state.testCaseMap) {
+            let change = this.$store.state.testCaseMap.get(this.form.id);
+            change = change + 1;
+            this.$store.state.testCaseMap.set(this.form.id, change);
+          }
+        },
+        deep: true
       }
     },
     mounted() {
