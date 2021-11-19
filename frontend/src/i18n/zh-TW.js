@@ -1804,7 +1804,7 @@ export default {
       review_progress: "評審進度",
       case_count: "用例數量統計",
       relevance_case: "關聯用例數量統計",
-      case_maintenance: "用例維護人分布",
+      case_maintenance: "用例責任人分布",
       bug_count: "遺留缺陷統計",
       case_review: "用例評審",
       review_rate: "評審率",
