@@ -1654,7 +1654,7 @@ export default {
           }
         }
       }
-      Promise.all(funcs).then(([result1, result2, result3]) =>{
+      Promise.all(funcs).then(([result1, result2, result3]) => {
         for (let i = 0; i < hashTree.length; i++) {
           let data = hashTree[i];
           if(!data.num){
