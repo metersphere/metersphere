@@ -18,19 +18,22 @@
         <i class="el-icon-top" style="cursor:pointer" @click="moveTop(index)"/>
         <i class="el-icon-bottom" style="cursor:pointer;" @click="moveBottom(index)"/>
 
-        <el-col class="item">
+        <el-col class="item" v-if="unShowSelect===false">
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
                     @change="change"
                     :placeholder="keyText" show-word-limit/>
           <el-autocomplete :disabled="isReadOnly" :maxlength="400" v-if="suggestions" v-model="item.name" size="small"
                            :fetch-suggestions="querySearch" @change="change" :placeholder="keyText"
                            show-word-limit/>
+        </el-col>
 
+        <el-col class="item" v-if="unShowSelect===true">
+          <el-input v-if="suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200" :placeholder="keyText"  show-word-limit/>
         </el-col>
 
         <el-col class="item">
           <el-input v-if="!needMock" :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
-                    :placeholder="valueText" show-word-limit/>
+                    :placeholder="unShowSelect?$t('commons.description'):valueText" show-word-limit/>
           <div v-if="needMock">
             <el-autocomplete
               :disabled="isReadOnly"
@@ -80,6 +83,10 @@
       valuePlaceholder: String,
       isShowEnable: {
         type: Boolean,
+      },
+      unShowSelect:{
+        type: Boolean,
+        default: false
       },
       description: String,
       items: Array,
