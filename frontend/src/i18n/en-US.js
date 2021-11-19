@@ -189,6 +189,8 @@ export default {
     run_success: "Run Success",
     run_completed: "Run Completed",
     run_fail: "Run Fail",
+    follow_success:"Follow Success",
+    cancel_follow_success: "Cancel Follow Success",
     generate_test_data: "Generate test data",
     relationship: {
       name: 'Dependencies',

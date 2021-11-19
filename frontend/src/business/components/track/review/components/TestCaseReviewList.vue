@@ -318,15 +318,20 @@ export default {
         }
         param.followIds = row.followIds
         this.$post('/test/case/review/edit/follows', param,() => {
+          this.$success(this.$t('commons.cancel_follow_success'));
           this.initTableData();
         });
         return
       }
       if(!row.showFollow){
         row.showFollow = true;
+        if(!row.followIds){
+          row.followIds = [];
+        }
         row.followIds.push(this.currentUser().id);
         param.followIds = row.followIds
         this.$post('/test/case/review/edit/follows', param,() => {
+          this.$success(this.$t('commons.follow_success'));
           this.initTableData();
         });
       }

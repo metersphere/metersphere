@@ -412,8 +412,6 @@
         });
       },
       saveFollow(){
-        console.log("***********")
-        console.log(this.basisData.id)
         if(this.showFollow){
           this.showFollow = false;
           for (let i = 0; i < this.httpForm.follows.length; i++) {
@@ -424,15 +422,18 @@
           }
           if(this.basisData.id){
             this.$post("/api/definition/update/follows/"+this.basisData.id, this.httpForm.follows,() => {
-              this.$message.success("cancel success")
+              this.$success(this.$t('commons.cancel_follow_success'));
             });
           }
         }else {
           this.showFollow = true;
+          if(!this.httpForm.follows){
+            this.httpForm.follows = [];
+          }
           this.httpForm.follows.push(this.currentUser().id)
           if(this.basisData.id){
             this.$post("/api/definition/update/follows/"+this.basisData.id, this.httpForm.follows,() => {
-              this.$message.success("save success")
+              this.$success(this.$t('commons.follow_success'));
             });
           }
         }

@@ -519,15 +519,18 @@ export default {
         }
         if( this.apiCase.id){
           this.$post("/api/testcase/update/follows/"+this.apiCase.id, this.apiCase.follows,() => {
-            this.$message.success("cancel success")
+            this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
       }else {
         this.showFollow = true;
+        if(!this.apiCase.follows){
+          this.apiCase.follows = [];
+        }
         this.apiCase.follows.push(this.currentUser().id)
         if( this.apiCase.id){
           this.$post("/api/testcase/update/follows/"+this.apiCase.id, this.apiCase.follows,() => {
-            this.$message.success("cancel success")
+            this.$success(this.$t('commons.follow_success'));
           });
         }
       }
