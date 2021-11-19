@@ -151,6 +151,12 @@ public class PluginService {
         }
     }
 
+    public List<Plugin> list() {
+        PluginExample example = new PluginExample();
+        List<Plugin> plugins = pluginMapper.selectByExample(example);
+        return plugins;
+    }
+
     public List<PluginDTO> list(String name) {
         try {
             PluginExample example = new PluginExample();
