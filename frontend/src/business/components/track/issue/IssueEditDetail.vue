@@ -317,14 +317,19 @@ export default {
         }
         if(this.url === "issues/update"){
           this.$post("issues/up/follows/"+this.issueId, this.form.follows,() => {
+            this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
 
       }else {
         this.showFollow = true;
+        if(!this.form.follows){
+          this.form.follows = [];
+        }
         this.form.follows.push(this.currentUser().id)
         if(this.url === "issues/update"){
           this.$post("issues/up/follows/"+this.issueId, this.form.follows,() => {
+            this.$success(this.$t('commons.follow_success'));
           });
         }
       }

@@ -1625,15 +1625,18 @@ export default {
         }
         if(this.currentScenario.id){
           this.$post("/api/automation/update/follows/"+this.currentScenario.id, this.currentScenario.follows,() => {
-            this.$message.success("cancel success")
+            this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
       }else {
         this.showFollow = true;
+        if(!this.currentScenario.follows){
+          this.currentScenario.follows = [];
+        }
         this.currentScenario.follows.push(this.currentUser().id)
         if(this.currentScenario.id){
           this.$post("/api/automation/update/follows/"+this.currentScenario.id, this.currentScenario.follows,() => {
-            this.$message.success("cancel success")
+            this.$success(this.$t('commons.follow_success'));
           });
         }
       }

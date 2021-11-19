@@ -494,15 +494,18 @@ export default {
         }
         if(this.testId){
           this.$post("/performance/test/update/follows/"+this.testId, this.test.follows,() => {
-            this.$message.success("cancel success")
+            this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
       }else {
         this.showFollow = true;
+        if(!this.test.follows){
+          this.test.follows = [];
+        }
         this.test.follows.push(this.currentUser().id)
         if(this.testId){
           this.$post("/performance/test/update/follows/"+this.testId, this.test.follows,() => {
-            this.$message.success("cancel success")
+            this.$success(this.$t('commons.follow_success'));
           });
         }
       }

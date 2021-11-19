@@ -841,16 +841,21 @@ export default {
           this.result.loading = true
           this.$post('/test/case/edit/follows/' + this.currentTestCaseInfo.id, this.form.follows, () => {
             this.result.loading = false
+            this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
 
       } else {
         this.showFollow = true;
+        if(!this.form.follows){
+          this.form.follows = [];
+        }
         this.form.follows.push(this.currentUser().id)
         if (this.path === "/test/case/edit") {
           this.result.loading = true
           this.$post('/test/case/edit/follows/' + this.currentTestCaseInfo.id, this.form.follows, () => {
             this.result.loading = false
+            this.$success(this.$t('commons.follow_success'));
           });
         }
       }

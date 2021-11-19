@@ -190,6 +190,8 @@ export default {
     run_success: "执行成功",
     run_completed: "执行完成",
     run_fail: "执行失败",
+    follow_success:"关注成功",
+    cancel_follow_success:"取消关注成功",
     relationship: {
       name: '依赖关系',
       pre_case: '前置用例',
