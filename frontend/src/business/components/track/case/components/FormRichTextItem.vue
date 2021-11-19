@@ -83,9 +83,6 @@ export default {
     }
   },
   mounted() {
-    if (this.$refs.md) {
-      this.$refs.md.markdownIt.set({html: false});
-    }
     // 点击编辑，失去焦点展示
     let el = document.getElementById(this.id);
     if (el) {
