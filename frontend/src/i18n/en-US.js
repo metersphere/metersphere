@@ -1795,7 +1795,7 @@ export default {
       review_progress: "Review Progress",
       case_count: "Statistics of the number of use cases",
       relevance_case: "Relevance Case",
-      case_maintenance: "Use case maintainer distribution",
+      case_maintenance: "Use case person responsible distribution",
       bug_count: "Statistics of remaining defects",
       case_review: "Use case review",
       review_rate: "Rate",

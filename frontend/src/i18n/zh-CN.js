@@ -1803,7 +1803,7 @@ export default {
       review_progress: "评审进度",
       case_count: "用例数量统计",
       relevance_case: "关联用例数量统计",
-      case_maintenance: "用例维护人分布",
+      case_maintenance: "用例责任人分布",
       bug_count: "遗留缺陷统计",
       case_review: "用例评审",
       review_rate: "评审率",
