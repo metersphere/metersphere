@@ -7,7 +7,9 @@ import java.util.Set;
 
 public interface QuotaService {
 
-    void checkAPITestQuota();
+    void checkAPIDefinitionQuota();
+
+    void checkAPIAutomationQuota();
 
     void checkLoadTestQuota(TestPlanRequest request, boolean checkPerformance);
 

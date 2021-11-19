@@ -97,7 +97,6 @@ public class APITestService {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-        checkQuota();
         request.setBodyUploadIds(null);
         ApiTest test = createTest(request);
         saveFile(test, file);
@@ -140,7 +139,6 @@ public class APITestService {
     }
 
     public void copy(SaveAPITestRequest request) {
-        checkQuota();
 
         ApiTestExample example = new ApiTestExample();
         example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
@@ -450,13 +448,6 @@ public class APITestService {
 
         jMeterService.runOld(request.getId(), reportId, is);
         return reportId;
-    }
-
-    private void checkQuota() {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkAPITestQuota();
-        }
     }
 
     public void mergeCreate(SaveAPITestRequest request, MultipartFile file, List<String> selectIds) {

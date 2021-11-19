@@ -231,13 +231,6 @@ public class ApiTestCaseService {
         return test;
     }
 
-    private void checkQuota() {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkAPITestQuota();
-        }
-    }
-
     public ApiTestCase update(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         deleteFileByTestId(request.getId());
         request.setBodyUploadIds(null);
