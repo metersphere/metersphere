@@ -50,7 +50,8 @@ export const FIELD_TYPE_MAP = {
 
 export const SCENE_MAP = {
   ISSUE: 'workspace.issue_template_manage',
-  TEST_CASE: 'workspace.case_template_manage'
+  TEST_CASE: 'workspace.case_template_manage',
+  PLAN: 'workstation.table_name.track_plan'
 };
 
 export const SYSTEM_FIELD_NAME_MAP = {
@@ -63,6 +64,8 @@ export const SYSTEM_FIELD_NAME_MAP = {
   处理人: 'custom_field.issue_processor',
   状态: 'custom_field.issue_status',
   严重程度: 'custom_field.issue_severity',
+  // 测试计划
+  测试阶段: 'test_track.plan.plan_stage'
 }
 
 

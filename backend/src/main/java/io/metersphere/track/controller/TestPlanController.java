@@ -1,5 +1,6 @@
 package io.metersphere.track.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -72,6 +73,11 @@ public class TestPlanController {
     @PostMapping("/list/all")
     public List<TestPlan> listAll(@RequestBody QueryTestPlanRequest request) {
         return testPlanService.listTestAllPlan(request);
+    }
+
+    @GetMapping("/get/stage/option/{workspaceId}")
+    public JSONArray getStageOption(@PathVariable("workspaceId") String workspaceId) {
+        return testPlanService.getStageOption(workspaceId);
     }
 
     @GetMapping("recent/{count}/{id}")

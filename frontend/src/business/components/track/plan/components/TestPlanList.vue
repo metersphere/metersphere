@@ -92,7 +92,7 @@
           :min-width="110"
           :key="index">
           <template v-slot:default="scope">
-            <plan-stage-table-item :stage="scope.row.stage"/>
+            <plan-stage-table-item :option="stageOption" :stage="scope.row.stage"/>
           </template>
         </el-table-column>
         <el-table-column
@@ -274,10 +274,16 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/components/track/plan/components/ScheduleMaintain";
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId, hasPermission} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+  hasPermission
+} from "@/common/js/utils";
 import PlanRunModeWithEnv from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import TestPlanReportReview from "@/business/components/track/report/components/TestPlanReportReview";
 import MsTaskCenter from "@/business/components/task/TaskCenter";
+import {getPlanStageOption} from "@/network/test-plan";
 
 export default {
   name: "TestPlanList",
@@ -326,7 +332,8 @@ export default {
         {text: this.$t('test_track.plan.system_test'), value: 'system'},
         {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
       ],
-      currentPlanId: ""
+      currentPlanId: "",
+      stageOption: []
     };
   },
   watch: {
@@ -343,7 +350,9 @@ export default {
     }
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
-
+    getPlanStageOption((data) => {
+      this.stageOption = data;
+    });
     this.initTableData();
   },
   methods: {
