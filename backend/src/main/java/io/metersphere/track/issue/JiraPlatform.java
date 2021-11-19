@@ -40,33 +40,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     protected String key = IssuesManagePlatform.Jira.toString();
 
-    private JiraClientV2 jiraClientV2 = new JiraClientV2();
+    protected JiraClientV2 jiraClientV2;
 
     public JiraPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
-    }
-
-    public JiraConfig getConfig() {
-        String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
-        JiraConfig jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
-        validateConfig(jiraConfig);
-        return jiraConfig;
-    }
-
-    public JiraConfig getUserConfig() {
-        JiraConfig jiraConfig = null;
-        String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
-        if (StringUtils.isNotBlank(config)) {
-            jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
-            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(this.workspaceId);
-            if (userPlatInfo != null && StringUtils.isNotBlank(userPlatInfo.getJiraAccount())
-                    && StringUtils.isNotBlank(userPlatInfo.getJiraPassword())) {
-                jiraConfig.setAccount(userPlatInfo.getJiraAccount());
-                jiraConfig.setPassword(userPlatInfo.getJiraPassword());
-            }
-        }
-        validateConfig(jiraConfig);
-        return jiraConfig;
+        jiraClientV2 = new JiraClientV2();
+        setConfig();
     }
 
     @Override
@@ -81,12 +60,16 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return issues;
     }
 
-    public void parseIssue(IssuesWithBLOBs item, JiraIssue jiraIssue, String customFieldsStr) {
-        String lastmodify = "";
-        JSONObject fields = jiraIssue.getFields();
+    public IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, JiraIssue jiraIssue) {
+        if (issue == null) {
+            issue = new IssuesWithBLOBs();
+            issue.setCustomFields(defaultCustomFields);
+        } else {
+            mergeCustomField(issue, defaultCustomFields);
+        }
 
+        JSONObject fields = jiraIssue.getFields();
         String status = getStatus(fields);
-        JSONObject assignee = (JSONObject) fields.get("assignee");
         String description = fields.getString("description");
 
         Parser parser = Parser.builder().build();
@@ -96,16 +79,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
             description = renderer.render(document);
         }
 
-        if (assignee != null) {
-            lastmodify = assignee.getString("displayName");
-        }
-        item.setTitle(fields.getString("summary"));
-        item.setCreateTime(fields.getLong("created"));
-        item.setLastmodify(lastmodify);
-        item.setDescription(description);
-        item.setPlatformStatus(status);
-        item.setPlatform(IssuesManagePlatform.Jira.toString());
-        item.setCustomFields(syncIssueCustomField(customFieldsStr, jiraIssue.getFields()));
+        JSONObject assignee = (JSONObject) fields.get("assignee");
+        issue.setTitle(fields.getString("summary"));
+        issue.setCreateTime(fields.getLong("created"));
+        issue.setLastmodify(assignee == null ? "" : assignee.getString("displayName"));
+        issue.setDescription(description);
+        issue.setPlatformStatus(status);
+        issue.setPlatform(IssuesManagePlatform.Jira.toString());
+        issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), jiraIssue.getFields()));
+        return issue;
     }
 
     private String getStatus(JSONObject fields) {
@@ -200,7 +182,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
     @Override
     public void addIssue(IssuesUpdateRequest issuesRequest) {
 
-        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest);
+        JiraConfig jiraConfig = setUserConfig();
+        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, jiraConfig.getIssuetype());
 
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
@@ -224,12 +207,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
         handleTestCaseIssues(issuesRequest);
     }
 
-    private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest) {
+    private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr) {
 
         issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
-
-        JiraConfig config = getUserConfig();
-        jiraClientV2.setConfig(config);
 
         String jiraKey = validateJiraKey(issuesRequest.getProjectId());
 
@@ -243,7 +223,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         project.put("key", jiraKey);
 
         JSONObject issuetype = new JSONObject();
-        issuetype.put("name", config.getIssuetype());
+        issuetype.put("name", issuetypeStr);
 
         fields.put("summary", issuesRequest.getTitle());
 //        fields.put("description", new JiraIssueDescription(desc));
@@ -254,7 +234,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
         addJiraIssueParam.put("fields", fields);
 
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
-        jiraClientV2.setConfig(config);
 
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
@@ -293,7 +272,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void updateIssue(IssuesUpdateRequest request) {
-        JSONObject param = buildUpdateParam(request);
+        JiraConfig jiraConfig = setUserConfig();
+        JSONObject param = buildUpdateParam(request, jiraConfig.getIssuetype());
         handleIssueUpdate(request);
         jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
     }
@@ -302,24 +282,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public void deleteIssue(String id) {
         IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
         super.deleteIssue(id);
-        setConfig();
         jiraClientV2.deleteIssue(issuesWithBLOBs.getPlatformId());
     }
 
     @Override
     public void testAuth() {
-        setConfig();
         jiraClientV2.auth();
     }
 
     @Override
     public void userAuth(UserDTO.PlatformInfo userInfo) {
-        String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
-        JiraConfig jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
-        jiraConfig.setAccount(userInfo.getJiraAccount());
-        jiraConfig.setPassword(userInfo.getJiraPassword());
-        validateConfig(jiraConfig);
-        jiraClientV2.setConfig(jiraConfig);
+        setUserConfig(userInfo);
         jiraClientV2.auth();
     }
 
@@ -330,12 +303,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void syncIssues(Project project, List<IssuesDao> issues) {
-        setConfig();
         issues.forEach(item -> {
-            setConfig();
             try {
                 IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
-                parseIssue(item, jiraClientV2.getIssues(item.getPlatformId()), issuesWithBLOBs.getCustomFields());
+                getUpdateIssue(item, jiraClientV2.getIssues(item.getPlatformId()));
                 String desc = htmlDesc2MsDesc(item.getDescription());
                 // 保留之前上传的图片
                 String images = getImages(issuesWithBLOBs.getDescription());
@@ -364,9 +335,30 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return project.getJiraKey();
     }
 
+    public JiraConfig getConfig() {
+        return getConfig(IssuesManagePlatform.Jira.toString(), JiraConfig.class);
+    }
+
     public JiraConfig setConfig() {
         JiraConfig config = getConfig();
+        validateConfig(config);
         jiraClientV2.setConfig(config);
         return config;
+    }
+
+    public JiraConfig setUserConfig(UserDTO.PlatformInfo userInfo) {
+        JiraConfig config = getConfig();
+        if (userInfo != null && StringUtils.isNotBlank(userInfo.getJiraAccount())
+                && StringUtils.isNotBlank(userInfo.getJiraPassword())) {
+            config.setAccount(userInfo.getJiraAccount());
+            config.setPassword(userInfo.getJiraPassword());
+        }
+        validateConfig(config);
+        jiraClientV2.setConfig(config);
+        return config;
+    }
+
+    public JiraConfig setUserConfig() {
+        return setUserConfig(getUserPlatInfo(this.workspaceId));
     }
 }

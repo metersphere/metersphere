@@ -37,10 +37,6 @@ public class ZentaoGetClient extends ZentaoClient {
         requestUrl = request;
     }
 
-    public ZentaoGetClient(String url) {
-        super(url);
-    }
-
     private String getUrl(String url) {
         return getBaseUrl() + "/?m=api&f=getModel" + url;
     }

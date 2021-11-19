@@ -1,5 +1,6 @@
 package io.metersphere.track.issue.client;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,22 @@ public class TapdClient extends BaseClient {
         JSONObject jsonObject = JSONObject.parseObject(resultForObject);
         String data = jsonObject.getString("data");
         return JSONObject.parseObject(data, Map.class);
+    }
+
+    public JSONArray getPlatformUser(String projectId) {
+        String url = getBaseUrl() + "/workspaces/users?workspace_id=" + projectId;
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectId);
+        return JSONArray.parseArray(response.getBody());
+    }
+
+    public void auth() {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.exchange("https://api.tapd.cn/quickstart/testauth", HttpMethod.GET, getAuthHttpEntity(), String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("验证失败: " + e.getMessage());
+        }
     }
 
     public TapdGetIssueResponse getIssueForPageByIds(String projectId, int pageNum, int limit, List<String> ids) {

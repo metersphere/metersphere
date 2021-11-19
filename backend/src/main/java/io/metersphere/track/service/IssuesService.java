@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -12,11 +13,13 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
+import io.metersphere.dto.CustomFieldTemplateDao;
+import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
-import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.CustomFieldTemplateService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
@@ -59,15 +62,13 @@ public class IssuesService {
     @Resource
     private IssuesMapper issuesMapper;
     @Resource
-    private NoticeSendService noticeSendService;
-    @Resource
     private TestCaseIssuesMapper testCaseIssuesMapper;
     @Resource
     private IssueTemplateMapper issueTemplateMapper;
     @Resource
     private ExtIssuesMapper extIssuesMapper;
     @Resource
-    private WorkspaceMapper workspaceMapper;
+    private CustomFieldTemplateService customFieldTemplateService;
     @Resource
     private IssueTemplateService issueTemplateService;
     @Resource
@@ -442,6 +443,9 @@ public class IssuesService {
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
             issuesRequest.setWorkspaceId(project.getWorkspaceId());
+            String defaultCustomFields = getDefaultCustomFields(projectId);
+            issuesRequest.setDefaultCustomFields(defaultCustomFields);
+
             if (CollectionUtils.isNotEmpty(tapdIssues)) {
                 TapdPlatform tapdPlatform = new TapdPlatform(issuesRequest);
                 syncThirdPartyIssues(tapdPlatform::syncIssues, project, tapdIssues);
@@ -466,6 +470,33 @@ public class IssuesService {
                 }
             }
         }
+    }
+
+    /**
+     * 获取默认的自定义字段的取值，同步之后更新成第三方平台的值
+     * @param projectId
+     * @return
+     */
+    public String getDefaultCustomFields(String projectId) {
+        IssueTemplateDao template = issueTemplateService.getTemplate(projectId);
+        CustomFieldTemplate request = new CustomFieldTemplate();
+        request.setTemplateId(template.getId());
+        List<CustomFieldTemplateDao> customFields = customFieldTemplateService.list(request);
+
+        JSONArray fields = new JSONArray();
+        customFields.forEach(item -> {
+            JSONObject field = new JSONObject(true);
+            field.put("customData", item.getCustomData());
+            field.put("id", item.getId());
+            field.put("name", item.getName());
+            field.put("type", item.getType());
+            String defaultValue = item.getDefaultValue();
+            if (StringUtils.isNotBlank(defaultValue)) {
+                field.put("value", JSONObject.parse(defaultValue));
+            }
+            fields.add(field);
+        });
+        return fields.toJSONString();
     }
 
     public void syncThirdPartyIssues(BiConsumer<Project, List<IssuesDao>> syncFuc, Project project, List<IssuesDao> issues) {

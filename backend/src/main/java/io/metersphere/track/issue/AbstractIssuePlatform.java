@@ -61,6 +61,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected String key;
     protected String workspaceId;
     protected String userId;
+    protected String defaultCustomFields;
 
 
     public String getKey() {
@@ -92,6 +93,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.projectId = issuesRequest.getProjectId();
         this.workspaceId = issuesRequest.getWorkspaceId();
         this.userId = issuesRequest.getUserId();
+        this.defaultCustomFields = issuesRequest.getDefaultCustomFields();
     }
 
     public AbstractIssuePlatform() {
@@ -382,7 +384,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     @Override
-    public void syncAllIssues(Project project, String defaultCustomFields) {}
+    public void syncAllIssues(Project project) {}
 
     protected List<IssuesWithBLOBs> getIssuesByPlatformIds(List<String> platformIds) {
         IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
@@ -417,5 +419,27 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             }
         }
         return syncDeleteIds;
+    }
+
+    protected void mergeCustomField(IssuesWithBLOBs issues, String defaultCustomField) {
+        if (StringUtils.isNotBlank(defaultCustomField)) {
+            String issuesCustomFields = issues.getCustomFields();
+            if (StringUtils.isNotBlank(issuesCustomFields) || issuesCustomFields.startsWith("{")) issuesCustomFields = "[]";
+            JSONArray issueFields = JSONArray.parseArray(issuesCustomFields);
+            Set<String> ids = issueFields.stream().map(i -> ((JSONObject) i).getString("id")).collect(Collectors.toSet());
+            JSONArray defaultFields = JSONArray.parseArray(defaultCustomField);
+            defaultFields.forEach(item -> { // 如果自定义字段里没有模板新加的字段，就把新字段加上
+                if (!ids.contains(((JSONObject) item).getString("id"))) {
+                    issueFields.add(item);
+                }
+            });
+            issues.setCustomFields(issueFields.toJSONString());
+        }
+    }
+
+    public <T> T getConfig(String platform, Class<T> clazz) {
+        String config = getPlatformConfig(platform);
+        if (StringUtils.isBlank(config)) MSException.throwException("配置为空");
+        return JSONObject.parseObject(config, clazz);
     }
 }

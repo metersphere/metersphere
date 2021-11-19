@@ -27,12 +27,10 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,10 +42,12 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     protected String key = IssuesManagePlatform.Tapd.toString();
 
-    protected TapdClient tapdClient = new TapdClient();
+    protected TapdClient tapdClient;
 
     public TapdPlatform(IssuesRequest issueRequest) {
         super(issueRequest);
+        tapdClient = new TapdClient();
+        setConfig();
     }
 
     @Override
@@ -111,7 +111,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     private MultiValueMap<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
         issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
-        setConfig();
 
         String tapdId = getProjectId(issuesRequest.getProjectId());
 
@@ -156,19 +155,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     @Override
     public void testAuth() {
-        try {
-            String tapdConfig = getPlatformConfig(IssuesManagePlatform.Tapd.toString());
-            JSONObject object = JSON.parseObject(tapdConfig);
-            String account = object.getString("account");
-            String password = object.getString("password");
-            HttpHeaders headers = auth(account, password);
-            HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(headers);
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.exchange("https://api.tapd.cn/quickstart/testauth", HttpMethod.GET, requestEntity, String.class);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            MSException.throwException("验证失败！");
-        }
+        tapdClient.auth();
     }
 
     @Override
@@ -179,16 +166,9 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public List<PlatformUser> getPlatformUser() {
         List<PlatformUser> users = new ArrayList<>();
-        String id = getProjectId(projectId);
-        if (StringUtils.isBlank(id)) {
-            MSException.throwException("未关联Tapd项目ID");
-        }
-        String url = "https://api.tapd.cn/workspaces/users?workspace_id=" + id;
-        ResultHolder call = call(url);
-        String listJson = JSON.toJSONString(call.getData());
-        JSONArray jsonArray = JSON.parseArray(listJson);
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JSONObject o = jsonArray.getJSONObject(i);
+        JSONArray res = tapdClient.getPlatformUser(projectId);
+        for (int i = 0; i < res.size(); i++) {
+            JSONObject o = res.getJSONObject(i);
             PlatformUser user = o.getObject("UserWorkspace", PlatformUser.class);
             users.add(user);
         }
@@ -211,8 +191,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-
-        setConfig();
 
         Map<String, String> statusMap = tapdClient.getStatusMap(project.getTapdId());
 
@@ -244,7 +222,12 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     protected IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, JSONObject bug, Map<String, String> statusMap) {
-        if (issue == null) issue = new IssuesWithBLOBs();
+        if (issue == null) {
+            issue = new IssuesWithBLOBs();
+            issue.setCustomFields(defaultCustomFields);
+        } else {
+            mergeCustomField(issue, defaultCustomFields);
+        }
         TapdBug bugObj = JSONObject.parseObject(bug.toJSONString(), TapdBug.class);
         BeanUtils.copyBean(issue, bugObj);
         issue.setPlatformStatus(statusMap.get(bugObj.getStatus()));
@@ -265,10 +248,13 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     public TapdConfig getConfig() {
-        String config = getPlatformConfig(IssuesManagePlatform.Tapd.toString());
-        TapdConfig tapdConfig = JSONObject.parseObject(config, TapdConfig.class);
-//        validateConfig(tapdConfig);
-        return tapdConfig;
+        return getConfig(IssuesManagePlatform.Tapd.toString(), TapdConfig.class);
+    }
+
+    public TapdConfig setConfig() {
+        TapdConfig config = getConfig();
+        tapdClient.setConfig(config);
+        return config;
     }
 
     public String getReporter() {
@@ -277,12 +263,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
             return userPlatInfo.getTapdUserName();
         }
         return null;
-    }
-
-    public TapdConfig setConfig() {
-        TapdConfig config = getConfig();
-        tapdClient.setConfig(config);
-        return config;
     }
 
     private ResultHolder call(String url) {

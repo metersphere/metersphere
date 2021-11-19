@@ -69,5 +69,5 @@ public interface IssuesPlatform {
      * 同步缺陷全量的缺陷
      * @param project
      */
-    void syncAllIssues(Project project, String defaultCustomFields);
+    void syncAllIssues(Project project);
 }
