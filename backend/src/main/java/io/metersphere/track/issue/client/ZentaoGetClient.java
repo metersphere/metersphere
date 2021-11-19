@@ -21,6 +21,10 @@ public class ZentaoGetClient extends ZentaoClient {
 
     RequestUrl request = new RequestUrl();
 
+    public ZentaoGetClient(String url) {
+        super(url);
+    }
+
     {
         request.setLogin(getNotSuperModelUrl(LOGIN));
         request.setSessionGet(getNotSuperModelUrl(SESSION_GET));

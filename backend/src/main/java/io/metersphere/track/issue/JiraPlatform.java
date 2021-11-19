@@ -1,35 +1,31 @@
 package io.metersphere.track.issue;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.CustomFieldService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.JiraClientV2;
+import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.jira.JiraAddIssueResponse;
 import io.metersphere.track.issue.domain.jira.JiraConfig;
 import io.metersphere.track.issue.domain.jira.JiraIssue;
-import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -102,62 +98,25 @@ public class JiraPlatform extends AbstractIssuePlatform {
     @Override
     public List<DemandDTO> getDemandList(String projectId) {
         List<DemandDTO> list = new ArrayList<>();
-
-        try {
-            String key = validateJiraKey(projectId);
-            String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
-            JSONObject object = JSON.parseObject(config);
-
-            if (object == null) {
-                MSException.throwException("jira config is null");
+        JiraConfig config = getConfig();
+        int maxResults = 50, startAt = 0;
+        JSONArray demands;
+        String key = validateJiraKey(projectId);
+        do {
+            demands = jiraClientV2.getDemands(key, config.getStorytype(), startAt, maxResults);
+            for (int i = 0; i < demands.size(); i++) {
+                JSONObject o = demands.getJSONObject(i);
+                String issueKey = o.getString("key");
+                JSONObject fields = o.getJSONObject("fields");
+                String summary = fields.getString("summary");
+                DemandDTO demandDTO = new DemandDTO();
+                demandDTO.setName(summary);
+                demandDTO.setId(issueKey);
+                demandDTO.setPlatform(IssuesManagePlatform.Jira.name());
+                list.add(demandDTO);
             }
-
-            String account = object.getString("account");
-            String password = object.getString("password");
-            String url = object.getString("url");
-            String type = object.getString("storytype");
-            String auth = EncryptUtils.base64Encoding(account + ":" + password);
-            HttpHeaders requestHeaders = new HttpHeaders();
-            requestHeaders.add("Authorization", "Basic " + auth);
-            requestHeaders.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-            //HttpEntity
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestHeaders);
-            RestTemplate restTemplate = new RestTemplate();
-            //post
-            ResponseEntity<String> responseEntity = null;
-            int maxResults = 50, startAt = 0, total = 0, currentStartAt = 0;
-            do {
-                String jql = url + "/rest/api/2/search?jql=project=" + key + "+AND+issuetype=" + type
-                        + "&maxResults=" + maxResults + "&startAt=" + startAt + "&fields=summary,issuetype";
-                responseEntity = restTemplate.exchange(jql,
-                        HttpMethod.GET, requestEntity, String.class);
-                String body = responseEntity.getBody();
-                JSONObject jsonObject = JSONObject.parseObject(body);
-                JSONArray jsonArray = jsonObject.getJSONArray("issues");
-                if (jsonArray.size() == 0) {
-                    break;
-                }
-                total = jsonObject.getInteger("total");
-                startAt = startAt + maxResults;
-                currentStartAt = jsonObject.getInteger("startAt");
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    JSONObject o = jsonArray.getJSONObject(i);
-                    String issueKey = o.getString("key");
-                    JSONObject fields = o.getJSONObject("fields");
-                    String summary = fields.getString("summary");
-                    DemandDTO demandDTO = new DemandDTO();
-                    demandDTO.setName(summary);
-                    demandDTO.setId(issueKey);
-                    demandDTO.setPlatform(IssuesManagePlatform.Jira.name());
-                    list.add(demandDTO);
-                }
-            } while (currentStartAt + maxResults < total);
-
-
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
-
+            startAt += maxResults;
+        } while (demands.size() >= maxResults);
         return list;
     }
 
