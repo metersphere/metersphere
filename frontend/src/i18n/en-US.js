@@ -333,7 +333,13 @@ export default {
     system_workspace: "Workspace",
     system_project: "Project",
     user_unit: "",
-    workspace_unit: ""
+    workspace_unit: "",
+    dash_board:'Dash board',
+    all_project:'All Project',
+    to_be_completed:'To be completed',
+    pending_upgrade:'Pending upgrade',
+    information:'Information',
+    nick_name:'Nick name'
   },
   license: {
     title: 'Authorization management',
@@ -356,15 +362,20 @@ export default {
     upcoming: 'My Upcoming',
     focus: 'My Focus',
     creation: 'My Creation',
+    creation_case:'My Creation Case',
+    creation_issue:'My Creation Issue',
+    creation_case_tip: 'No use case has been created yet, create it now',
+    creation_issue_tip:'No defects have been created yet, create them now',
     table_name:{
       track_case:'Track Case',
       track_plan:'Track Plan',
       track_review:'Track Review',
-      track_issue:'Track issue',
+      track_issue:'Track Issue',
       api_definition:'Api Definition',
       api_automation:'Api Automation',
       api_case:'Api Case',
       performance:'Performance',
+      scenario_case:'Scenario Case'
     }
   },
   display: {
@@ -518,6 +529,10 @@ export default {
       zentao_request: 'Zentao request',
       input_zentao_request: 'Please enter zentao request type',
       input_zentao_url: 'Please enter Zentao address, for example: http://xx.xx.xx.xx/zentao/',
+      zentao_info:'Zentao Information',
+      zentao_account:'Zentao Account',
+      zentao_password:'Zentao Password',
+      zentao_prompt_information:'This information is the username and password of the user who submitted the defect through ZenTao. If not filled in, the default information configured in the workspace will be used',
       use_tip: 'Usage guidelines:',
       use_tip_tapd: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
       use_tip_jira: 'Jira software server authentication information is account password, Jira software cloud authentication information is account + token (account settings-security-create API token)',
@@ -543,6 +558,7 @@ export default {
       input_azure_url: 'Please enter Azure Devops Url',
       input_azure_id: 'Please enter Azure Organization ID',
       use_tip_azure: 'Azure Devops URL+PersonalAccessTokens(User Settings-Personal Access Tokens-New Token)',
+      jira_prompt_information:'This information is the user authentication information for submitting defects through Jira. If it is not filled in, the default information configured in the workspace will be used'
     }
   },
   project: {

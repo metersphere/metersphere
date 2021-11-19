@@ -334,7 +334,13 @@ export default {
     system_workspace: "工作空间",
     system_project: "项目",
     user_unit: "人",
-    workspace_unit: "个"
+    workspace_unit: "个",
+    dash_board:'仪表盘',
+    all_project:'全部项目',
+    to_be_completed:'待完成',
+    pending_upgrade:'待更新',
+    information:'信息',
+    nick_name:'昵称'
   },
   license: {
     title: '授权管理',
@@ -357,6 +363,10 @@ export default {
     upcoming: '我的待办',
     focus: '我的关注',
     creation: '我创建的',
+    creation_case:'我创建的用例',
+    creation_issue:'我创建的缺陷',
+    creation_case_tip:'暂时还没有创建用例，马上创建',
+    creation_issue_tip:'暂时还没有创建缺陷，马上创建',
     table_name:{
       track_case:'功能用例',
       track_plan:'测试计划',
@@ -366,6 +376,7 @@ export default {
       api_automation:'接口自动化',
       api_case:'接口用例',
       performance:'性能测试',
+      scenario_case:'场景用例'
     }
   },
   display: {
@@ -521,6 +532,10 @@ export default {
       zentao_request: '请求方式',
       input_zentao_request: '请输入Zentao请求方式',
       input_zentao_url: '请输入Zentao地址，例：http://xx.xx.xx.xx/zentao/',
+      zentao_info:'禅道信息',
+      zentao_account:'禅道账户',
+      zentao_password:'禅道密码',
+      zentao_prompt_information:'该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用工作空间中配置的默认信息',
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 账号信息在"公司管理-安全与集成-开放平台"中查询',
       use_tip_jira: 'Jira software server 认证信息为 账号密码，Jira software cloud 认证信息为 账号+令牌(账户设置-安全-创建API令牌)',
@@ -547,6 +562,7 @@ export default {
       input_azure_url: '请输入 Azure Devops 地址',
       input_azure_organization_id: '请输入 Azure 组织ID',
       use_tip_azure: 'Azure Devops 地址+令牌(账户设置-个人访问令牌-创建令牌)',
+      jira_prompt_information:'该信息为通过Jira提交缺陷的用户认证信息，若未填写，则使用工作空间中配置的默认信息'
     }
   },
   project: {
