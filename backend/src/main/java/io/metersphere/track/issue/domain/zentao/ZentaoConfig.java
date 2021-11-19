@@ -10,4 +10,5 @@ public class ZentaoConfig {
     private String password;
     private String url;
     private String requestType;
+    private String request;
 }

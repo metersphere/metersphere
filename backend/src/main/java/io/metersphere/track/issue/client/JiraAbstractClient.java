@@ -6,6 +6,7 @@ import io.metersphere.track.issue.domain.Jira.JiraAddIssueResponse;
 import io.metersphere.track.issue.domain.Jira.JiraConfig;
 import io.metersphere.track.issue.domain.Jira.JiraField;
 import io.metersphere.track.issue.domain.Jira.JiraIssue;
+import io.metersphere.track.issue.domain.Jira.JiraIssueListResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
@@ -123,5 +124,11 @@ public abstract class JiraAbstractClient extends BaseClient {
         ENDPOINT = url;
         USER_NAME = config.getAccount();
         PASSWD = config.getPassword();
+    }
+
+    public JiraIssueListResponse getProjectIssues(int startAt, int maxResults, String projectKey) {
+        ResponseEntity<String> responseEntity;
+        responseEntity = restTemplate.exchange(getBaseUrl() + "/search?startAt={1}&maxResults={2}&jql=project={3}", HttpMethod.GET, getAuthHttpEntity(), String.class, startAt, maxResults, projectKey);
+        return  (JiraIssueListResponse)getResultForObject(JiraIssueListResponse.class, responseEntity);
     }
 }
