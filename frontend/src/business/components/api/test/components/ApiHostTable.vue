@@ -3,21 +3,21 @@
     <el-table :data="hostTable" style="width: 100%" @cell-dblclick="dblHostTable" class="ht-tb">
       <el-table-column prop="ip" label="IP">
         <template slot-scope="scope">
-          <el-input v-if="scope.row.status" v-model="scope.row.ip"></el-input>
+          <el-input size="small" v-if="scope.row.status" v-model="scope.row.ip"></el-input>
           <span v-else>{{scope.row.ip}}</span>
         </template>
       </el-table-column>
 
       <el-table-column prop="domain" :label="$t('load_test.domain')">
         <template slot-scope="scope">
-          <el-input v-if="scope.row.status" v-model="scope.row.domain"></el-input>
+          <el-input size="small" v-if="scope.row.status" v-model="scope.row.domain"></el-input>
           <span v-else>{{scope.row.domain}}</span>
         </template>
       </el-table-column>
 
       <el-table-column prop="annotation" :label="$t('commons.annotation')">
         <template slot-scope="scope">
-          <el-input v-if="scope.row.status" v-model="scope.row.annotation"></el-input>
+          <el-input size="small" v-if="scope.row.status" v-model="scope.row.annotation"></el-input>
           <span v-else>{{scope.row.annotation}}</span>
         </template>
       </el-table-column>
