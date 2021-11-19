@@ -46,7 +46,6 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'casePassingRate', key: 'a', label: 'api_test.definition.api_case_passing_rate'},
     {id: 'status', key: 'b', label: 'api_test.definition.api_status'},
     {id: 'createTime', key: 'c', label: 'commons.create_time'},
-    {id: 'projectName', key: 'd', label: 'api_test.definition.api_project'},
     {id: 'description', key: 'e', label: 'commons.description'},
   ],
 //接口用例
@@ -61,7 +60,6 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createUser', key: '8', label: 'api_test.creator'},
     {id: 'updateTime', key: '9', label: 'api_test.definition.api_last_time'},
     {id: 'createTime', key: 'a', label: 'commons.create_time'},
-    {id: 'projectName', key: 'c', label: 'commons.project'},
     {id: 'passRate', key: 'b', label: 'commons.pass_rate'},
     {id: 'environment', key: 'e', label: 'commons.environment'},
   ],
@@ -198,7 +196,6 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'description', key: '7', label: 'test_track.issue.description'},
     {id: 'caseCount', key: '9', label: 'api_test.definition.api_case_number'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
-    {id: 'projectName', key: 'a', label: 'test_track.issue.issue_project'},
   ]
 
 }
