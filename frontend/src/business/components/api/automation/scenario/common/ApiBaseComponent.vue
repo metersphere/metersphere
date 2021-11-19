@@ -5,10 +5,9 @@
         <div v-if="data.index" class="el-step__icon is-text enable-switch" :style="{'color': color, 'background-color': backgroundColor}">
           <div class="el-step__icon-inner">{{ data.index }}</div>
         </div>
+        <slot name="behindHeaderLeft" v-if="!isMax"></slot>
         <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
-        <el-tag size="mini" v-if="data.method && !data.pluginId">{{ getMethod() }}</el-tag>
       </slot>
-      <slot name="behindHeaderLeft" v-if="!isMax"></slot>
       <span>
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"  @click="active(data)" v-if="data.type!='scenario' && !isMax " @click.stop/>
@@ -22,9 +21,11 @@
             <el-tooltip placement="top" :content="data.name">
               <span>{{ data.name }}</span>
             </el-tooltip>
+            <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{ getMethod() }}</el-tag>
+            <slot name = "afterTitle" v-if="data.num"/>
           </span>
-        </slot>
 
+        </slot>
         <slot name="scenarioEnable"/>
 
       </span>
@@ -192,6 +193,7 @@ export default {
 .ms-left-btn {
   font-size: 13px;
   margin-right: 15px;
+  margin-left: 10px;
 }
 
 .header-right {
