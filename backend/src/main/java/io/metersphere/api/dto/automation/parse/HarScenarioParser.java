@@ -5,16 +5,16 @@ import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.parse.har.HarUtils;
 import io.metersphere.api.dto.definition.parse.har.model.*;
 import io.metersphere.api.dto.definition.request.MsScenario;
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.jmeter.RequestResult;
-import io.metersphere.api.jmeter.ResponseResult;
 import io.metersphere.api.parse.HarScenarioAbstractParser;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.RequestResult;
+import io.metersphere.dto.ResponseResult;
+import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -89,7 +89,7 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
         scenario.setHashTree(results);
     }
 
-private RequestResult getRequestResult(MsHTTPSamplerProxy samplerProxy,HarEntry harEntry) {
+private RequestResult getRequestResult(MsHTTPSamplerProxy samplerProxy, HarEntry harEntry) {
     HarRequest request = harEntry.request;
     HarResponse response = harEntry.response;
 

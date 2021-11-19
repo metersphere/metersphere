@@ -1,5 +1,6 @@
 package io.metersphere.service.utils;
 
+import com.github.pagehelper.util.StringUtil;
 import io.metersphere.commons.utils.LogUtil;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class MsClassLoader {
 
-    private final static ConcurrentHashMap<String, MsURLClassLoader> LOADER_CACHE = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<String, MsURLClassLoader> LOADER_CACHE = new ConcurrentHashMap<>();
 
     public MsURLClassLoader loadJar(String path) {
         try {
             String jarName = path.substring(path.indexOf("_") + 1);
+            if (StringUtil.isNotEmpty(jarName) && jarName.endsWith(".jar")) {
+                jarName = jarName.substring(0, jarName.length() - 4);
+            }
             MsURLClassLoader urlClassLoader = LOADER_CACHE.get(jarName);
             if (urlClassLoader != null) {
                 return urlClassLoader;
@@ -33,6 +37,9 @@ public class MsClassLoader {
     }
 
     public Class loadClass(String jarName, String name) throws ClassNotFoundException {
+        if (StringUtil.isNotEmpty(jarName) && jarName.endsWith(".jar")) {
+            jarName = jarName.substring(0, jarName.length() - 4);
+        }
         MsURLClassLoader urlClassLoader = LOADER_CACHE.get(jarName);
         if (urlClassLoader == null) {
             return null;
@@ -42,6 +49,9 @@ public class MsClassLoader {
 
     public void unloadJarFile(String path) throws MalformedURLException {
         String jarName = path.substring(path.indexOf("_") + 1);
+        if (StringUtil.isNotEmpty(jarName) && jarName.endsWith(".jar")) {
+            jarName = jarName.substring(0, jarName.length() - 4);
+        }
         MsURLClassLoader urlClassLoader = LOADER_CACHE.get(jarName);
         if (urlClassLoader == null) {
             return;

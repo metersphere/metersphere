@@ -1,15 +1,17 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.dto.RunRequest;
-import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.automation.ScenarioStatus;
+import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
 import io.metersphere.api.jmeter.MessageCache;
+import io.metersphere.api.jmeter.ReportCounter;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.constants.RunModeConstants;
+import io.metersphere.dto.JmeterRunRequestDTO;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,44 +32,40 @@ public class RemakeReportService {
     private TestCaseReviewApiCaseMapper testCaseReviewApiCaseMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
-    @Resource
-    @Lazy
-    private ApiScenarioReportService apiScenarioReportService;
-    @Resource
-    @Lazy
-    private ApiDefinitionExecResultService apiDefinitionExecResultService;
 
-    public void remake(RunRequest runRequest, RunModeConfig config, String reportId) {
-        if (config != null && config.getAmassReport() != null && MessageCache.cache.get(config.getAmassReport()) != null
-                && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
-            MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
-        }
-        // 重置报告状态
-        if (StringUtils.isNotEmpty(reportId)) {
+    public void remake(JmeterRunRequestDTO request) {
+        try {
+            if (StringUtils.equals(request.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                Object obj = MessageCache.concurrencyCounter.get(request.getReportId());
+                if (obj != null) {
+                    ReportCounter counter = (ReportCounter) obj;
+                    counter.getCompletedIds().add(request.getTestId());
+                    MessageCache.concurrencyCounter.put(request.getReportId(), counter);
+                }
+            }
             // 清理零时报告
-            if (StringUtils.equalsAnyIgnoreCase(runRequest.getRunMode(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
-                ApiDefinitionExecResult result = execResultMapper.selectByPrimaryKey(reportId);
+            if (StringUtils.equalsAnyIgnoreCase(request.getRunMode(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
+                ApiDefinitionExecResult result = execResultMapper.selectByPrimaryKey(request.getReportId());
                 if (result != null) {
                     result.setStatus("error");
                     result.setEndTime(System.currentTimeMillis());
                     execResultMapper.updateByPrimaryKeySelective(result);
 
-                    TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(runRequest.getTestId());
+                    TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(request.getTestId());
                     if (testPlanApiCase != null) {
                         testPlanApiCase.setStatus("error");
                         testPlanApiCase.setUpdateTime(System.currentTimeMillis());
                         testPlanApiCaseMapper.updateByPrimaryKeySelective(testPlanApiCase);
-                        apiDefinitionExecResultService.updateTestCaseStates(testPlanApiCase.getId());
                     }
-                    TestCaseReviewApiCase testCaseReviewApiCase = testCaseReviewApiCaseMapper.selectByPrimaryKey(runRequest.getTestId());
+                    TestCaseReviewApiCase testCaseReviewApiCase = testCaseReviewApiCaseMapper.selectByPrimaryKey(request.getTestId());
                     if (testCaseReviewApiCase != null) {
                         testCaseReviewApiCase.setStatus("error");
                         testCaseReviewApiCase.setUpdateTime(System.currentTimeMillis());
                         testCaseReviewApiCaseMapper.updateByPrimaryKeySelective(testCaseReviewApiCase);
                     }
                 }
-            } else if (StringUtils.equals(runRequest.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
-                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+            } else if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
+                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                 if (report != null) {
                     report.setEndTime(System.currentTimeMillis());
                     report.setStatus(APITestStatus.Error.name());
@@ -81,11 +79,9 @@ public class RemakeReportService {
                         testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
                     }
                     apiScenarioReportMapper.updateByPrimaryKey(report);
-
-                    apiScenarioReportService.updatePlanTestCaseStates(testPlanApiScenario);
                 }
-            } else if (StringUtils.equalsAny(runRequest.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+            } else if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                 if (report != null) {
                     report.setEndTime(System.currentTimeMillis());
                     report.setStatus(APITestStatus.Error.name());
@@ -102,17 +98,15 @@ public class RemakeReportService {
                         testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
                     }
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-
-                    apiScenarioReportService.updatePlanTestCaseStates(testPlanApiScenario);
                 }
             } else {
-                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                 if (report != null) {
                     report.setStatus(APITestStatus.Error.name());
                     apiScenarioReportMapper.updateByPrimaryKey(report);
                 }
-                if (StringUtils.isNotEmpty(runRequest.getTestId())) {
-                    ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(runRequest.getTestId());
+                if (StringUtils.isNotEmpty(request.getTestId())) {
+                    ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(request.getTestId());
                     if (scenarioWithBLOBs != null) {
                         scenarioWithBLOBs.setLastResult("Fail");
                         scenarioWithBLOBs.setPassRate("0%");
@@ -122,20 +116,17 @@ public class RemakeReportService {
                     }
                 }
             }
-            MessageCache.caseExecResourceLock.remove(reportId);
-            MessageCache.scenarioExecResourceLock.remove(reportId);
-            MessageCache.executionQueue.remove(reportId);
+            MessageCache.caseExecResourceLock.remove(request.getReportId());
+            SerialBlockingQueueUtil.remove(request.getReportId());
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 
-    public void remakeScenario(String runMode, String testId, RunModeConfig config, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiScenarioReport report) {
-        if (MessageCache.cache.get(config.getAmassReport()) != null
-                && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
-            MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(report.getId());
-        }
+    public void remakeScenario(String runMode, String scenarioId, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiScenarioReport report) {
         // 生成失败报告
         if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCENARIO_PLAN.name())) {
-            TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testId);
+            TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(scenarioId);
             if (testPlanApiScenario != null) {
                 report.setScenarioId(scenarioWithBLOBs.getId());
                 report.setEndTime(System.currentTimeMillis());
@@ -145,8 +136,6 @@ public class RemakeReportService {
                 testPlanApiScenario.setReportId(report.getId());
                 testPlanApiScenario.setUpdateTime(report.getCreateTime());
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-
-                apiScenarioReportService.updatePlanTestCaseStates(testPlanApiScenario);
             }
         } else {
             scenarioWithBLOBs.setLastResult("Fail");
@@ -158,7 +147,6 @@ public class RemakeReportService {
         report.setStatus(APITestStatus.Error.name());
         apiScenarioReportMapper.insert(report);
         MessageCache.caseExecResourceLock.remove(report.getId());
-        MessageCache.scenarioExecResourceLock.remove(report.getId());
-        MessageCache.executionQueue.remove(report.getId());
+        SerialBlockingQueueUtil.remove(report.getId());
     }
 }

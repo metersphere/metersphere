@@ -5,10 +5,12 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.controller.request.ResetOrderRequest;
+import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
@@ -67,10 +69,10 @@ public class TestPlanScenarioCaseController {
 
     @PostMapping(value = "/run")
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.planCaseIds)", msClass = TestPlanScenarioCaseService.class)
-    public String run(@RequestBody RunTestPlanScenarioRequest request) {
+    public List<MsExecResponseDTO> run(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
         if(request.getConfig() == null){
-            RunModeConfig config = new RunModeConfig();
+            RunModeConfigDTO config = new RunModeConfigDTO();
             config.setMode(RunModeConstants.PARALLEL.toString());
             config.setEnvMap(new HashMap<>());
             request.setConfig(config);
@@ -80,7 +82,7 @@ public class TestPlanScenarioCaseController {
 
     @PostMapping(value = "/jenkins/run")
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
-    public String runByRun(@RequestBody RunTestPlanScenarioRequest request) {
+    public List<MsExecResponseDTO> runByRun(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(ApiRunMode.API.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());

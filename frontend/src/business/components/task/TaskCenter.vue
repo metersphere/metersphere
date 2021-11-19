@@ -37,7 +37,7 @@
         <!-- 接口用例结果 -->
         <ms-request-result-tail :response="response" ref="debugResult" v-if="reportType === 'API'"/>
 
-        <ms-api-report-detail :reportId="reportId" v-if="reportType === 'SCENARIO'"/>
+        <ms-api-report-detail :showCancelButton="false" :reportId="reportId" v-if="reportType === 'SCENARIO'"/>
 
         <performance-report-view :perReportId="reportId" v-if="reportType === 'PERFORMANCE'"/>
       </el-card>

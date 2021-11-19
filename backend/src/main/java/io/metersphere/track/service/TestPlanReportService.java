@@ -12,7 +12,7 @@ import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.service.ShareInfoService;
-import io.metersphere.api.service.task.NamedThreadFactory;
+import io.metersphere.api.exec.utils.NamedThreadFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;

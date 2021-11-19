@@ -2,7 +2,8 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.dto.ApiCaseBatchRequest;
+import io.metersphere.api.dto.ApiCaseEditRequest;
+import io.metersphere.api.dto.ApiCaseRunRequest;
 import io.metersphere.api.dto.DeleteCheckResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.service.ApiTestCaseService;
@@ -14,6 +15,7 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
+import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
@@ -128,7 +130,7 @@ public class ApiTestCaseController {
     }
 
     @PostMapping("/batch/edit")
-    public void editApiBath(@RequestBody ApiCaseBatchRequest request) {
+    public void editApiBath(@RequestBody ApiCaseEditRequest request) {
         apiTestCaseService.editApiBath(request);
     }
 
@@ -189,13 +191,13 @@ public class ApiTestCaseController {
 
     @PostMapping(value = "/batch/run")
     @MsAuditLog(module = "api_definition_case", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
-    public void batchRun(@RequestBody ApiCaseBatchRequest request) {
+    public void batchRun(@RequestBody ApiCaseRunRequest request) {
         apiTestCaseService.batchRun(request);
     }
 
     @PostMapping(value = "/jenkins/run")
     @MsAuditLog(module = "api_definition_case", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
-    public String jenkinsRun(@RequestBody RunCaseRequest request) {
+    public MsExecResponseDTO jenkinsRun(@RequestBody RunCaseRequest request) {
         return apiTestCaseService.jenkinsRun(request);
     }
 
@@ -211,7 +213,7 @@ public class ApiTestCaseController {
     }
 
     @PostMapping("/update/follows/{testId}")
-    public void saveFollows(@PathVariable String testId,@RequestBody List<String> follows) {
-        apiTestCaseService.saveFollows(testId,follows);
+    public void saveFollows(@PathVariable String testId, @RequestBody List<String> follows) {
+        apiTestCaseService.saveFollows(testId, follows);
     }
 }

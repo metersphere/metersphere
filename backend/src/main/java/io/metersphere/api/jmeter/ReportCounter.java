@@ -1,6 +1,6 @@
 package io.metersphere.api.jmeter;
 
-import io.metersphere.api.dto.JvmInfoDTO;
+import io.metersphere.dto.JvmInfoDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -9,5 +9,5 @@ import java.util.List;
 public class ReportCounter {
     private List<String> completedIds;
     private List<JvmInfoDTO> poolUrls;
-    private List<String> reportIds;
+    private List<String> testIds;
 }

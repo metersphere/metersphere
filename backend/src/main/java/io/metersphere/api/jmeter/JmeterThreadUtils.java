@@ -1,5 +1,6 @@
 package io.metersphere.api.jmeter;
 
+import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,7 +19,7 @@ public class JmeterThreadUtils {
             if (StringUtils.isNotEmpty(lstThreads[i].getName()) && lstThreads[i].getName().startsWith(name)) {
                 String threadName = StringUtils.substringBeforeLast(lstThreads[i].getName(), THREAD_SPLIT);
                 if (StringUtils.isNotEmpty(threadName)) {
-                    MessageCache.executionQueue.remove(threadName);
+                    SerialBlockingQueueUtil.remove(threadName);
                 }
                 System.out.println("异常强制处理线程编号：" + i + " = " + lstThreads[i].getName());
                 LogUtil.error("异常强制处理线程编号：" + i + " = " + lstThreads[i].getName());

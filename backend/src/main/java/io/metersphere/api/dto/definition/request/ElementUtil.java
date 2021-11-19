@@ -38,6 +38,7 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
@@ -473,5 +474,16 @@ public class ElementUtil {
         } catch (Exception e) {
             element.setHashTree(targetHashTree);
         }
+    }
+
+    public static String hashTreeToString(HashTree hashTree) {
+        try (ByteArrayOutputStream bas = new ByteArrayOutputStream()) {
+            SaveService.saveTree(hashTree, bas);
+            return bas.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            io.metersphere.plugin.core.utils.LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
+        }
+        return null;
     }
 }

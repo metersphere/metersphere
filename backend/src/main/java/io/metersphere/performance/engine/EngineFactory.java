@@ -3,7 +3,6 @@ package io.metersphere.performance.engine;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.Application;
-import io.metersphere.api.dto.RunRequest;
 import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
@@ -13,6 +12,7 @@ import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.docker.DockerTestEngine;
 import io.metersphere.performance.parse.EngineSourceParser;
@@ -96,7 +96,7 @@ public class EngineFactory {
         return null;
     }
 
-    public static Engine createApiEngine(RunRequest runRequest) {
+    public static Engine createApiEngine(JmeterRunRequestDTO runRequest) {
         try {
             return (Engine) ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, runRequest);
         } catch (Exception e) {

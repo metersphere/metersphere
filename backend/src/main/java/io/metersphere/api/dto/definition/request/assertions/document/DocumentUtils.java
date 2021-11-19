@@ -2,6 +2,8 @@ package io.metersphere.api.dto.definition.request.assertions.document;
 
 import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
+import io.metersphere.vo.Condition;
+import io.metersphere.vo.ElementCondition;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.util.JMeterUtils;

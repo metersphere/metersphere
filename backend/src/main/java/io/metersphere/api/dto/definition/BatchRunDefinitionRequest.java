@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.api.dto.automation.RunModeConfig;
+import io.metersphere.dto.RunModeConfigDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +15,7 @@ public class BatchRunDefinitionRequest {
 
     private String triggerMode;
 
-    private RunModeConfig config;
+    private RunModeConfigDTO config;
 
     //测试计划报告ID。 测试计划执行时使用
     private String planReportId;

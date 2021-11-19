@@ -18,12 +18,11 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -244,10 +243,6 @@ public class MsJDBCPostProcessor extends MsTestElement {
         JDBCPostProcessor jdbcPostProcessor = new JDBCPostProcessor();
         jdbcPostProcessor.setEnabled(this.isEnable());
         jdbcPostProcessor.setName(this.getName() == null? "JDBCPostProcessor" : this.getName());
-        String name = ElementUtil.getParentName(this.getParent());
-        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            jdbcPostProcessor.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
-        }
         jdbcPostProcessor.setProperty(TestElement.TEST_CLASS, JDBCPostProcessor.class.getName());
         jdbcPostProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         jdbcPostProcessor.setProperty("MS-ID", this.getId());

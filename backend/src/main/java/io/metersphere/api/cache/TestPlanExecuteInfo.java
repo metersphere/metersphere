@@ -1,14 +1,16 @@
 package io.metersphere.api.cache;
 
 
+import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
+import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
 import io.metersphere.api.jmeter.JmeterThreadUtils;
-import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiScenarioReportExample;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TestPlanResourceType;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
@@ -88,12 +90,15 @@ public class TestPlanExecuteInfo {
         this.isApiCaseAllExecuted = true;
         this.isScenarioAllExecuted = true;
         this.isLoadCaseAllExecuted = true;
-
+        boolean isQueue = false;
         for (String result : apiCaseExecInfo.values()) {
             if (StringUtils.equalsIgnoreCase(result, TestPlanApiExecuteStatus.RUNNING.name())) {
                 unFinishedCount++;
                 if (this.isApiCaseAllExecuted) {
                     this.isApiCaseAllExecuted = false;
+                }
+                if (!isQueue) {
+                    isQueue = CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).check(apiCaseExecuteThreadMap.get(result));
                 }
             }
         }
@@ -102,6 +107,9 @@ public class TestPlanExecuteInfo {
                 unFinishedCount++;
                 if (this.isScenarioAllExecuted) {
                     isScenarioAllExecuted = false;
+                }
+                if (!isQueue) {
+                    isQueue = CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).check(apiScenarioThreadMap.get(result));
                 }
             }
         }
@@ -114,6 +122,12 @@ public class TestPlanExecuteInfo {
             }
         }
         if (lastUnFinishedNumCount != unFinishedCount) {
+            lastUnFinishedNumCount = unFinishedCount;
+            lastFinishedNumCountTime = System.currentTimeMillis();
+        }
+
+        if (lastUnFinishedNumCount == unFinishedCount && isQueue) {
+            LoggerUtil.info("执行的报告还在队列中，重置超时时间");
             lastUnFinishedNumCount = unFinishedCount;
             lastFinishedNumCountTime = System.currentTimeMillis();
         }
@@ -180,7 +194,7 @@ public class TestPlanExecuteInfo {
             }
 
             if (apiCaseExecuteThreadMap.containsKey(resourceId)) {
-                MessageCache.executionQueue.remove(apiCaseExecuteThreadMap.get(resourceId));
+                SerialBlockingQueueUtil.remove(apiCaseExecuteThreadMap.get(resourceId));
             }
         }
 
@@ -197,16 +211,16 @@ public class TestPlanExecuteInfo {
             }
 
             if (apiScenarioThreadMap.containsKey(resourceId)) {
-                MessageCache.executionQueue.remove(apiScenarioThreadMap.get(resourceId));
+                SerialBlockingQueueUtil.remove(apiScenarioThreadMap.get(resourceId));
             }
         }
-        if(CollectionUtils.isNotEmpty(updateScenarioReportList)){
+        if (CollectionUtils.isNotEmpty(updateScenarioReportList)) {
             ApiScenarioReportMapper apiScenarioReportMapper = CommonBeanFactory.getBean(ApiScenarioReportMapper.class);
             ApiScenarioReportExample example = new ApiScenarioReportExample();
             example.createCriteria().andIdIn(updateScenarioReportList).andStatusEqualTo("Running");
             ApiScenarioReport report = new ApiScenarioReport();
             report.setStatus("Error");
-            apiScenarioReportMapper.updateByExampleSelective(report,example);
+            apiScenarioReportMapper.updateByExampleSelective(report, example);
         }
 
         for (Map.Entry<String, String> entry : loadCaseExecInfo.entrySet()) {
@@ -220,7 +234,7 @@ public class TestPlanExecuteInfo {
             }
 
             if (loadCaseReportIdMap.containsKey(resourceId)) {
-                MessageCache.executionQueue.remove(loadCaseReportIdMap.get(resourceId));
+                SerialBlockingQueueUtil.remove(loadCaseReportIdMap.get(resourceId));
             }
         }
 

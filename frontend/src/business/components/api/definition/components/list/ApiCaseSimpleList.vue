@@ -553,7 +553,11 @@ export default {
       this.$post('/api/testcase/batch/run', obj, () => {
         this.condition.ids = [];
         this.$refs.batchRun.close();
-        this.$store.state.currentApiCase.case = true;
+        if (this.$store.state.currentApiCase) {
+          this.$store.state.currentApiCase.case = true;
+        } else {
+          this.$store.state.currentApiCase = {case: true};
+        }
         this.search();
       });
     },

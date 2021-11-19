@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.automation;
 
+import io.metersphere.dto.RunModeConfigDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,5 +37,5 @@ public class SchedulePlanScenarioExecuteRequest {
 
     private String testPlanReportId;
 
-    private RunModeConfig config;
+    private RunModeConfigDTO config;
 }

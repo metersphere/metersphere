@@ -11,10 +11,6 @@
           <pre>{{ response.headers }}</pre>
         </el-tab-pane>
 
-        <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
-          <pre>{{ console ? console : response.console }}</pre>
-        </el-tab-pane>
-
         <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
           <ms-assertion-results :assertions="response.assertions"/>
         </el-tab-pane>

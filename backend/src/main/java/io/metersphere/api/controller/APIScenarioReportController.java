@@ -7,9 +7,7 @@ import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
-import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.service.ApiScenarioReportService;
-import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -27,8 +25,6 @@ public class APIScenarioReportController {
 
     @Resource
     private ApiScenarioReportService apiReportService;
-    @Resource
-    private MsResultService resultService;
 
     @GetMapping("/get/{reportId}")
     public APIScenarioReportResult get(@PathVariable String reportId) {
@@ -61,16 +57,6 @@ public class APIScenarioReportController {
             mailTemplate = "api/ReportDelete", subject = "接口报告通知")
     public void deleteAPIReportBatch(@RequestBody APIReportBatchRequest request) {
         apiReportService.deleteAPIReportBatch(request);
-    }
-
-    @GetMapping("/get/real/{reportId}")
-    public TestResult getRealReport(@PathVariable String reportId) {
-        return resultService.getResult(reportId);
-    }
-
-    @GetMapping("/remove/real/{reportId}")
-    public void removeRealReport(@PathVariable String reportId) {
-        resultService.delete(reportId);
     }
 
 }
