@@ -230,16 +230,9 @@ export default {
         let request = {type: row.executionModule, reportId: row.id};
         array = [request];
       } else {
-        this.taskData.forEach(item => {
-          if (this.showStop(item.executionStatus)) {
-            let request = {type: item.executionModule, reportId: item.id};
-            array.push(request);
-          }
-        });
-      }
-      if (array.length === 0) {
-        this.$warning("没有需要停止的任务");
-        return;
+        array.push({type: 'API', projectId: getCurrentProjectID()});
+        array.push({type: 'SCENARIO', projectId: getCurrentProjectID()});
+        array.push({type: 'PERFORMANCE', projectId: getCurrentProjectID()});
       }
       this.$post('/api/automation/stop/batch', array, response => {
         this.$success(this.$t('report.test_stop_success'));
