@@ -67,7 +67,7 @@
         :label="$t('test_track.plan.plan_stage')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
-          <plan-stage-table-item :stage="scope.row.stage"/>
+          <plan-stage-table-item :option="stageOption" :stage="scope.row.stage"/>
         </template>
       </el-table-column>
       <el-table-column
@@ -156,6 +156,7 @@ import {_filter, _sort} from "@/common/js/tableUtils";
 import EnvPopover from "@/business/components/track/common/EnvPopover";
 import TestPlanEdit from "@/business/components/track/plan/components/TestPlanEdit";
 import TestPlansEdit from "@/business/components/api/automation/scenario/testplan/TestPlansEdit";
+import {getPlanStageOption} from "@/network/test-plan";
 
 export default {
   name: "TestPlanList",
@@ -203,6 +204,7 @@ export default {
         projectList: [],
         projectIds: new Set(),
         map: new Map(),
+        stageOption: []
       }
     },
     watch: {
@@ -215,6 +217,9 @@ export default {
     created() {
       this.projectId = this.$route.params.projectId;
       this.isTestManagerOrTestUser = true;
+      getPlanStageOption((data) => {
+        this.stageOption = data;
+      });
       this.initTableData();
       this.setScenarioSelectRows(this.row);
       this.getWsProjects();

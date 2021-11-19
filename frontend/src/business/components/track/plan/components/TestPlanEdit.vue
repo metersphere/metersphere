@@ -47,9 +47,7 @@
           <el-col :span="12">
             <el-form-item :label="$t('test_track.plan.plan_stage')" :label-width="formLabelWidth" prop="stage">
               <el-select v-model="form.stage" clearable :placeholder="$t('test_track.plan.input_plan_stage')" style="width: 100%;" :size="itemSize">
-                <el-option :label="$t('test_track.plan.smoke_test')" value="smoke"></el-option>
-                <el-option :label="$t('test_track.plan.system_test')" value="system"></el-option>
-                <el-option :label="$t('test_track.plan.regression_test')" value="regression"></el-option>
+                <el-option v-for="item in stageOption" :key="item.value" :label="$t(item.text)" :value="item.value"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -99,24 +97,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-
-<!--        <el-row type="flex" justify="left" :gutter="20">
-          <el-col :span="12">
-            <el-form-item :label="$t('test_track.plan.follow_people')" :label-width="formLabelWidth"
-                          prop="follows">
-              <el-select v-model="form.follows"
-                         clearable
-                         :placeholder="$t('test_track.plan.follow_people')" filterable multiple size="small">
-                <el-option
-                  v-for="(item) in principalOptions"
-                  :key="item.id"
-                  :label="item.name + '(' + item.id + ')'"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>-->
 
         <el-row type="flex" justify="left" :gutter="20">
           <el-col :span="24">
@@ -173,6 +153,7 @@ import TestPlanStatusButton from "../common/TestPlanStatusButton";
 import {getCurrentProjectID, getCurrentWorkspaceId, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
+import {getPlanStageOption} from "@/network/test-plan";
 
 export default {
   name: "TestPlanEdit",
@@ -207,11 +188,15 @@ export default {
       formLabelWidth: "100px",
       operationType: '',
       principalOptions: [],
+      stageOption: []
     };
   },
   created() {
     //设置“测试阶段”和“负责人”的默认值
     this.form.stage = 'smoke';
+    getPlanStageOption((data) => {
+      this.stageOption = data;
+    });
   },
   methods: {
     reload() {

@@ -38,7 +38,7 @@
                   v-model="element.value"/>
         <span class="text-item" v-else>
           <span v-if="element.system">
-             {{$t(element.value)}}
+             {{$t(element.text)}}
           </span>
           <span v-else>
              {{ (element.value && isKv ? '(' : '') + element.value + (element.value && isKv ? ')' : '')}}

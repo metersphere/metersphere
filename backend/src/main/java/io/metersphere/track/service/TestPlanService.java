@@ -125,7 +125,7 @@ public class TestPlanService {
     @Resource
     UserMapper userMapper;
     @Resource
-    private NoticeSendService noticeSendService;
+    private CustomFieldMapper customFieldMapper;
     @Resource
     private SystemParameterService systemParameterService;
     @Resource
@@ -2104,5 +2104,24 @@ public class TestPlanService {
 
     public boolean isAllowedRepeatCase(String planId) {
         return testPlanMapper.selectByPrimaryKey(planId).getRepeatCase();
+    }
+
+    public JSONArray getStageOption(String workspaceId) {
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria()
+                .andWorkspaceIdEqualTo(workspaceId)
+                .andSceneEqualTo("PLAN")
+                .andNameEqualTo("测试阶段");
+
+        List<CustomField> customFields = customFieldMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isEmpty(customFields)) {
+            example.clear();
+            example.createCriteria()
+                    .andGlobalEqualTo(true)
+                    .andSceneEqualTo("PLAN")
+                    .andNameEqualTo("测试阶段");
+            customFields = customFieldMapper.selectByExampleWithBLOBs(example);
+        }
+        return JSONArray.parseArray(customFields.get(0).getOptions());
     }
 }
