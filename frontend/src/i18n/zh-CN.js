@@ -86,6 +86,7 @@ export default {
     user: '用户',
     system: '系统',
     personal_setting: '个人设置',
+    personal_password_info:'新旧密码相同',
     test_resource_pool: '测试资源池',
     system_setting: '系统设置',
     api: '接口测试',

@@ -67,8 +67,12 @@ export default {
             return;
           }
           this.result = this.$post(this.updatePasswordPath, this.ruleForm, response => {
-            this.$success(this.$t('commons.modify_success'));
-            logout();
+            if(!response.data){
+              this.$error(this.$t('commons.personal_password_info'));
+            }else {
+              this.$success(this.$t('commons.modify_success'));
+              logout();
+            }
           });
         } else {
           return false;

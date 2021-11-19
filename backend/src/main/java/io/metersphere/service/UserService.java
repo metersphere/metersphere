@@ -526,7 +526,7 @@ public class UserService {
         String newPassword = request.getNewpassword();
         String newPasswordMd5 = CodingUtil.md5(newPassword);
         if(StringUtils.equals(oldPassword,newPasswordMd5)){
-            MSException.throwException(Translator.get("新修改的密码不能与旧密码一样 "));
+            return null;
         }
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdEqualTo(SessionUtils.getUser().getId()).andPasswordEqualTo(oldPassword);
