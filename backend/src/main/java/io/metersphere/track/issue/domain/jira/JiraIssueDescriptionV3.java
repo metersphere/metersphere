@@ -1,4 +1,4 @@
-package io.metersphere.track.issue.domain.Jira;
+package io.metersphere.track.issue.domain.jira;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
