@@ -149,7 +149,8 @@
         FROM load_test
         JOIN project ON load_test.project_id = project.id
         WHERE workspace_id = #{workspaceId,jdbcType=VARCHAR})
-        AND create_time > #{startTimestamp}
+          AND create_time
+            > #{startTimestamp}
         GROUP BY x
     </select>
 
@@ -159,11 +160,22 @@
         WHERE report_id = #{reportId}
         GROUP BY resource_id
     </select>
+    <select id="selectReportByProjectId" resultType="io.metersphere.base.domain.LoadTestReport">
+        select t.*
+        from load_test_report t
+                 left join `user` t1 ON t.user_id = t1.id
+                 left join test_resource_pool t2 on t.test_resource_pool_id = t2.id
+        where to_days(FROM_UNIXTIME(t.create_time / 1000)) = to_days(now())
+          and t.project_id = #{projectId}
+          and t.status = 'running'
+
+    </select>
 
     <update id="updateJmxContentIfAbsent">
         update load_test_report
         set jmx_content = #{jmxContent,jdbcType=VARCHAR}
-        WHERE id = #{id,jdbcType=VARCHAR} and jmx_content is null
+        WHERE id = #{id,jdbcType=VARCHAR}
+          and jmx_content is null
     </update>
 
 </mapper>
