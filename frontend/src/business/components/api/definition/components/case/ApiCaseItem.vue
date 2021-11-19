@@ -77,11 +77,6 @@
                 </div>
               </el-button>
             </el-tooltip>
-            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy" v-permission="['PROJECT_API_DEFINITION:READ+COPY_CASE']"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit || loaded" circle v-if="!loaded"/>
-            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete" v-permission="['PROJECT_API_SCENARIO:READ+DELETE_CASE']"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
-            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase"/>
           </span>
           <span @click.stop>
             <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase"/>
