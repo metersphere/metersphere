@@ -655,6 +655,7 @@ public class TestCaseService {
                     testcase.setCustomNum(String.valueOf(number));
                 }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                testcase.setStatus(TestCaseReviewStatus.Prepare.name());
                 testcase.setOrder(nextOrder);
                 mapper.insert(testcase);
                 nextOrder += 5000;
