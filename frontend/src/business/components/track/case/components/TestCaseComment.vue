@@ -80,11 +80,6 @@ export default {
       }
     };
   },
-  mounted() {
-    if (this.$refs.md) {
-      this.$refs.md.markdownIt.set({html: false});
-    }
-  },
   methods: {
     open() {
       this.dialogTableVisible = true;
