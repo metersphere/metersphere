@@ -11,9 +11,9 @@
             <ms-api-body :isReadOnly="false" :isShowEnable="false" :body="response.body" :headers="response.headers"/>
           </el-tab-pane>
 
-          <el-tab-pane :label="$t('api_test.definition.request.status_code')" name="status_code" class="pane">
+          <el-tab-pane :label="$t('api_test.definition.request.status_code')" name="status_code" class="pane" >
             <ms-api-key-value :isShowEnable="false" :suggestions="headerSuggestions"
-                              :items="response.statusCode"/>
+                              :items="response.statusCode" :unShowSelect = "true"/>
           </el-tab-pane>
         </el-tabs>
       </el-collapse-transition>
