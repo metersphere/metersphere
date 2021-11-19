@@ -80,6 +80,7 @@ export default {
     show: 'Show',
     report: 'Report',
     user: 'User',
+    personal_password_info:'Same old and new password',
     system: 'System',
     personal_setting: 'Personal Setting',
     api_keys: 'API Keys',
