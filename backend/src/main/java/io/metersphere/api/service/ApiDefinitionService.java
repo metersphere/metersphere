@@ -49,10 +49,7 @@ import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.service.FileService;
-import io.metersphere.service.RelationshipEdgeService;
-import io.metersphere.service.ScheduleService;
-import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestPlanService;
@@ -269,6 +266,7 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionWithBLOBs create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        checkQuota();
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
@@ -278,6 +276,7 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionWithBLOBs update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        checkQuota();
         if (request.getRequest() != null) {
             deleteFileByTestId(request.getRequest().getId());
         }
@@ -290,6 +289,13 @@ public class ApiDefinitionService {
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
         return returnModel;
+    }
+
+    private void checkQuota() {
+        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+        if (quotaService != null) {
+            quotaService.checkAPIDefinitionQuota();
+        }
     }
 
     public void delete(String apiId) {
@@ -1748,7 +1754,7 @@ public class ApiDefinitionService {
                         String format = body.getString("format");
                         if (StringUtils.equals(format, "JSON-SCHEMA") && StringUtils.isNotEmpty(body.getString("jsonSchema"))) {
                             elements = JSONSchemaToDocumentUtils.getDocument(body.getString("jsonSchema"));
-                        }else {
+                        } else {
                             elements = JSONToDocumentUtils.getDocument(raw, dataType);
                         }
                     } else if (StringUtils.equals(dataType, "XML")) {

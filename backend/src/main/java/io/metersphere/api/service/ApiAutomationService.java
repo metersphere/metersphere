@@ -46,6 +46,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.AutomationReference;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.QuotaService;
 import io.metersphere.service.RelationshipEdgeService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
@@ -295,6 +296,7 @@ public class ApiAutomationService {
     }
 
     public ApiScenario create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
+        checkQuota();
         request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
         int nextNum = getNextNum(request.getProjectId());
@@ -324,6 +326,13 @@ public class ApiAutomationService {
         uploadFiles(request, bodyFiles, scenarioFiles);
 
         return scenario;
+    }
+
+    private void checkQuota() {
+        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+        if (quotaService != null) {
+            quotaService.checkAPIAutomationQuota();
+        }
     }
 
     private void uploadFiles(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
@@ -394,6 +403,7 @@ public class ApiAutomationService {
     }
 
     public ApiScenario update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
+        checkQuota();
         checkNameExist(request);
         checkScenarioNum(request);
 
