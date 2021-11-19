@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
 import io.metersphere.track.service.TestCaseReviewScenarioCaseService;
@@ -42,7 +43,7 @@ public class TestCaseReviewScenarioCaseController {
     }
 
     @PostMapping(value = "/run")
-    public String run(@RequestBody RunScenarioRequest request) {
+    public List<MsExecResponseDTO> run(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
         return testCaseReviewScenarioCaseService.run(request);
     }

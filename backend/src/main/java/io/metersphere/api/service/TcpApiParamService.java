@@ -3,9 +3,10 @@ package io.metersphere.api.service;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
+import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +24,17 @@ public class TcpApiParamService {
 
     public SaveApiDefinitionRequest handleTcpRequest(SaveApiDefinitionRequest request) {
         MsTCPSampler tcpSampler = this.handleTcpRequest(request.getRequest());
-        if(tcpSampler != null){
+        if (tcpSampler != null) {
             request.setRequest(tcpSampler);
         }
         return request;
     }
-    public MsTCPSampler  handleTcpRequest(MsTestElement testElement){
+
+    public MsTCPSampler handleTcpRequest(MsTestElement testElement) {
         MsTCPSampler tcpSampler = null;
         try {
-            if(testElement instanceof  MsTCPSampler){
-                tcpSampler = (MsTCPSampler)testElement;
+            if (testElement instanceof MsTCPSampler) {
+                tcpSampler = (MsTCPSampler) testElement;
                 String reportType = tcpSampler.getReportType();
                 if (StringUtils.isNotEmpty(reportType)) {
                     switch (reportType) {
@@ -62,16 +64,22 @@ public class TcpApiParamService {
     }
 
     public void checkTestElement(MsTestElement testElement) {
-        if(testElement != null){
-            if(testElement instanceof MsTCPSampler){
-                this.handleTcpRequest(testElement);
-            }
-
-            if(testElement.getHashTree() != null){
-                for (MsTestElement itemElement : testElement.getHashTree()) {
-                    this.checkTestElement(itemElement);
+        try {
+            if (testElement != null) {
+                if (testElement instanceof MsTCPSampler) {
+                    LoggerUtil.info("处理TCP请求【 " + testElement.getId() + " 】开始");
+                    this.handleTcpRequest(testElement);
+                    LoggerUtil.info("处理TCP请求【 " + testElement.getId() + " 】完成");
+                }
+                if (testElement.getHashTree() != null) {
+                    for (MsTestElement itemElement : testElement.getHashTree()) {
+                        this.checkTestElement(itemElement);
+                    }
                 }
             }
+
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 }

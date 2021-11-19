@@ -16,23 +16,23 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
-import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.api.dto.definition.request.ElementUtil;
+import io.metersphere.api.dto.definition.request.MsScenario;
+import io.metersphere.api.dto.definition.request.MsTestPlan;
+import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ApiTestCaseService;
-import io.metersphere.api.service.task.NamedThreadFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
-import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.dto.IssueTemplateDao;
-import io.metersphere.dto.LogDetailDTO;
+import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -64,8 +64,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.ListedHashTree;
 import org.mybatis.spring.SqlSessionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,8 +83,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -196,8 +192,6 @@ public class TestPlanService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private LoadTestMapper loadTestMapper;
-
-    private final ExecutorService executorService = Executors.newFixedThreadPool(40, new NamedThreadFactory("TestPlanService"));
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -951,9 +945,9 @@ public class TestPlanService {
         return extTestPlanMapper.findScheduleCreateUserById(testPlanId);
     }
 
-    public String scenarioRunModeConfig(SchedulePlanScenarioExecuteRequest planScenarioExecuteRequest) {
+    public List<MsExecResponseDTO> scenarioRunModeConfig(SchedulePlanScenarioExecuteRequest planScenarioExecuteRequest) {
         Map<String, Map<String, String>> testPlanScenarioIdMap = planScenarioExecuteRequest.getTestPlanScenarioIDMap();
-
+        List<MsExecResponseDTO> list = new LinkedList<>();
         String returnStr = null;
         for (Map.Entry<String, Map<String, String>> entry : testPlanScenarioIdMap.entrySet()) {
             Map<String, String> scenarioMap = entry.getValue();
@@ -974,57 +968,9 @@ public class TestPlanService {
             request.setProjectId(planScenarioExecuteRequest.getProjectId());
             request.setRequestOriginator("TEST_PLAN");
             request.setPlanCaseIds(new ArrayList<>(testPlanScenarioIdMap.keySet()));
-            if (request.getConfig() != null) {
-                if (request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
-                    // 校验并发数量
-                    int count = 50;
-                    BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
-                    if (StringUtils.isNotEmpty(dto.getConcurrency())) {
-                        count = Integer.parseInt(dto.getConcurrency());
-                    }
-                    if (request.getIds().size() > count) {
-                        MSException.throwException("并发数量过大，请重新选择！");
-                    }
-                    returnStr = apiAutomationService.modeRun(request);
-                } else {
-                    returnStr = apiAutomationService.modeRun(request);
-                }
-            } else {
-                returnStr = apiAutomationService.execute(request);
-            }
+            list.addAll(apiAutomationService.run(request));
         }
-        return returnStr;
-    }
-
-    /**
-     * 测试计划的定时任务--执行场景案例
-     *
-     * @param request
-     * @return
-     */
-    public String runScenarioCase(SchedulePlanScenarioExecuteRequest request) {
-        String returnId = "";
-        MsTestPlan testPlan = new MsTestPlan();
-        testPlan.setHashTree(new LinkedList<>());
-        HashTree jmeterHashTree = new ListedHashTree();
-        Map<String, Map<String, String>> testPlanScenarioIdMap = request.getTestPlanScenarioIDMap();
-
-        for (Map.Entry<String, Map<String, String>> entry : testPlanScenarioIdMap.entrySet()) {
-            Map<String, String> planScenarioIdMap = entry.getValue();
-
-            try {
-                returnId = this.generateHashTreeByScenarioList(testPlan, planScenarioIdMap, request);
-            } catch (Exception ex) {
-                MSException.throwException(ex.getMessage());
-            }
-
-            testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
-            String runMode = ApiRunMode.SCHEDULE_SCENARIO_PLAN.name();
-            // 调用执行方法
-            jMeterService.runLocal(request.getId(), request.getConfig(), jmeterHashTree, request.getReportId(), runMode);
-        }
-
-        return returnId;
+        return list;
     }
 
     private String generateHashTreeByScenarioList(MsTestPlan testPlan, Map<String, String> planScenarioIdMap, SchedulePlanScenarioExecuteRequest request) throws Exception {
@@ -1078,7 +1024,7 @@ public class TestPlanService {
             scenarios.add(scenario);
             // 创建场景报告
             //不同的运行模式，第二个参数入参不同
-            APIScenarioReportResult report = apiAutomationService.createScenarioReport(group.getName(),
+            APIScenarioReportResult report = apiScenarioReportService.init(group.getName(),
                     planScenarioID + ":" + request.getTestPlanReportId(),
                     item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                     request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), null);
@@ -1097,15 +1043,15 @@ public class TestPlanService {
     }
 
     public String run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
-        RunModeConfig runModeConfig = null;
+        RunModeConfigDTO runModeConfig = null;
         try {
-            runModeConfig = JSONObject.parseObject(apiRunConfig, RunModeConfig.class);
+            runModeConfig = JSONObject.parseObject(apiRunConfig, RunModeConfigDTO.class);
             runModeConfig.setOnSampleError(false);
         } catch (Exception e) {
             LogUtil.error(e);
         }
         if (runModeConfig == null) {
-            runModeConfig = new RunModeConfig();
+            runModeConfig = new RunModeConfigDTO();
             runModeConfig.setMode("serial");
             runModeConfig.setReportType("iddReport");
             runModeConfig.setEnvMap(new HashMap<>());
@@ -1121,23 +1067,6 @@ public class TestPlanService {
         Map<String, String> planScenarioIdsMap = reportInfoDTO.getPlanScenarioIdMap();
         Map<String, String> planApiCaseMap = reportInfoDTO.getApiTestCaseDataMap();
         Map<String, String> performanceIdMap = reportInfoDTO.getPerformanceIdMap();
-
-        if (runModeConfig.getMode().equals(RunModeConstants.PARALLEL.toString())) {
-            // 校验并发数量
-            int count = 50;
-            BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
-            if (StringUtils.isNotEmpty(dto.getConcurrency())) {
-                count = Integer.parseInt(dto.getConcurrency());
-            }
-            if (planApiCaseMap.size() > count) {
-                testPlanReportService.finishReport(reportInfoDTO.getTestPlanReport());
-                MSException.throwException("并发超过" + count + "，数量过大，请重新选择！");
-            }
-            if (planScenarioIdsMap.size() > count) {
-                testPlanReportService.finishReport(reportInfoDTO.getTestPlanReport());
-                MSException.throwException("并发超过" + count + "，数量过大，请重新选择！");
-            }
-        }
         extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
         String planReportId = testPlanReport.getId();
         testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. " + "API Run Config:【" + apiRunConfig + "】");
@@ -1218,70 +1147,72 @@ public class TestPlanService {
     }
 
     private void listenTaskExecuteStatus(String planReportId) {
-        executorService.submit(() -> {
-            try {
-                //10s 查询一次状态
-                Thread.sleep(10000);
-                while (TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId) != null) {
-                    testPlanReportService.countReport(planReportId);
+        // 开始串行执行
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Thread.currentThread().setName("TestPlanListener");
+                try {
+                    //10s 查询一次状态
                     Thread.sleep(10000);
+                    while (TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId) != null) {
+                        testPlanReportService.countReport(planReportId);
+                        Thread.sleep(10000);
+                    }
+                } catch (InterruptedException e) {
+                    TestPlanReportExecuteCatch.remove(planReportId);
+                    LogUtil.error(e);
                 }
-            } catch (InterruptedException e) {
-                TestPlanReportExecuteCatch.remove(planReportId);
-                LogUtil.error(e);
             }
         });
+        thread.start();
     }
 
-    private void executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfig runModeConfig) {
-        executorService.submit(() -> {
-            BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
+    private void executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfigDTO runModeConfig) {
+        BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
+        if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
+            request.setTriggerMode(ApiRunMode.JENKINS_API_PLAN.name());
+        } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
+            request.setTriggerMode(ApiRunMode.MANUAL_PLAN.name());
+        } else {
+            request.setTriggerMode(ApiRunMode.SCHEDULE_API_PLAN.name());
+        }
+        request.setPlanIds(planCaseIds);
+        request.setPlanReportId(planReportId);
+        request.setConfig(runModeConfig);
+        request.setUserId(userId);
+        testPlanApiCaseService.run(request);
+    }
+
+    private void executeScenarioCase(String planReportId, String testPlanID, String projectID, RunModeConfigDTO runModeConfig, String triggerMode, String userId, Map<String, String> planScenarioIdMap) {
+        if (!planScenarioIdMap.isEmpty()) {
+            SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
+            String senarionReportID = UUID.randomUUID().toString();
+            scenarioRequest.setId(senarionReportID);
+            scenarioRequest.setReportId(senarionReportID);
+            scenarioRequest.setProjectId(projectID);
             if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
-                request.setTriggerMode(ApiRunMode.JENKINS_API_PLAN.name());
+                scenarioRequest.setTriggerMode(ReportTriggerMode.API.name());
+                scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
             } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
-                request.setTriggerMode(ApiRunMode.MANUAL_PLAN.name());
+                scenarioRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
+                scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
             } else {
-                request.setTriggerMode(ApiRunMode.SCHEDULE_API_PLAN.name());
+                scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+                scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
             }
-            request.setPlanIds(planCaseIds);
-            request.setPlanReportId(planReportId);
-            request.setConfig(runModeConfig);
-            request.setUserId(userId);
-            testPlanApiCaseService.run(request);
-        });
-    }
+            scenarioRequest.setExecuteType(ExecuteType.Saved.name());
+            Map<String, Map<String, String>> testPlanScenarioIdMap = new HashMap<>();
+            testPlanScenarioIdMap.put(testPlanID, planScenarioIdMap);
+            scenarioRequest.setTestPlanScenarioIDMap(testPlanScenarioIdMap);
+            scenarioRequest.setReportUserID(userId);
+            scenarioRequest.setTestPlanID(testPlanID);
 
-    private void executeScenarioCase(String planReportId, String testPlanID, String projectID, RunModeConfig runModeConfig, String triggerMode, String userId, Map<String, String> planScenarioIdMap) {
-        executorService.submit(() -> {
-            if (!planScenarioIdMap.isEmpty()) {
-                SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
-                String senarionReportID = UUID.randomUUID().toString();
-                scenarioRequest.setId(senarionReportID);
-                scenarioRequest.setReportId(senarionReportID);
-                scenarioRequest.setProjectId(projectID);
-                if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
-                    scenarioRequest.setTriggerMode(ReportTriggerMode.API.name());
-                    scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
-                } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
-                    scenarioRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
-                    scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
-                } else {
-                    scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
-                    scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
-                }
-                scenarioRequest.setExecuteType(ExecuteType.Saved.name());
-                Map<String, Map<String, String>> testPlanScenarioIdMap = new HashMap<>();
-                testPlanScenarioIdMap.put(testPlanID, planScenarioIdMap);
-                scenarioRequest.setTestPlanScenarioIDMap(testPlanScenarioIdMap);
-                scenarioRequest.setReportUserID(userId);
-                scenarioRequest.setTestPlanID(testPlanID);
+            scenarioRequest.setTestPlanReportId(planReportId);
 
-                scenarioRequest.setTestPlanReportId(planReportId);
-
-                scenarioRequest.setConfig(runModeConfig);
-                this.scenarioRunModeConfig(scenarioRequest);
-            }
-        });
+            scenarioRequest.setConfig(runModeConfig);
+            this.scenarioRunModeConfig(scenarioRequest);
+        }
     }
 
     public String getLogDetails(String id) {
@@ -2003,7 +1934,7 @@ public class TestPlanService {
         String envType = testplanRunRequest.getEnvironmentType();
         Map<String, String> envMap = testplanRunRequest.getEnvMap();
         String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();
-        RunModeConfig runModeConfig = new RunModeConfig();
+        RunModeConfigDTO runModeConfig = new RunModeConfigDTO();
         runModeConfig.setEnvironmentType(testplanRunRequest.getEnvironmentType());
         if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && !envMap.isEmpty()) {
             runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
@@ -2027,7 +1958,7 @@ public class TestPlanService {
                 testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }
 
-    public void setPlanCaseEnv(String planId, RunModeConfig runModeConfig) {
+    public void setPlanCaseEnv(String planId, RunModeConfigDTO runModeConfig) {
         TestPlanApiCaseExample caseExample = new TestPlanApiCaseExample();
         caseExample.createCriteria().andTestPlanIdEqualTo(planId);
         List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(caseExample);

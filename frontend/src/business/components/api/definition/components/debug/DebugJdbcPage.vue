@@ -154,7 +154,9 @@ export default {
       this.responseData = data;
       this.loading = false;
       this.isStop = false;
-      this.$refs.debugResult.reload();
+      if (this.$refs.debugResult) {
+        this.$refs.debugResult.reload();
+      }
     },
     saveAsApi() {
       let obj = {request: this.request};

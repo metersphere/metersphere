@@ -36,7 +36,7 @@ public class DateUtils {
         return dateFormat.format(date);
     }
 
-    public static String getTimeString(long timeStamp) throws Exception {
+    public static String getTimeString(long timeStamp) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_PATTERN);
         return dateFormat.format(timeStamp);
     }
@@ -115,24 +115,6 @@ public class DateUtils {
         Date now = new Date();
         return dateSum (now,countDays).getTime()/1000*1000;
     }
-
-    public static void main(String[] args) throws Exception {
-        Date now = new Date();
-        long time = dateSum(now, -3).getTime()/1000*1000;
-        long time1 = dateSum(now, 0).getTime()/1000*1000;
-        Date afterDate = dateSum(now,-3);
-        System.out.println(getTimeString(afterDate));
-        /*System.out.println(getTimeString(now));
-        Date afterDate = dateSum(now,-30,Calendar.DAY_OF_MONTH);
-        System.out.println(getTimeString(afterDate));
-        afterDate = dateSum(now,-17,Calendar.MONTH);
-        System.out.println(getTimeString(afterDate));
-        afterDate = dateSum(now,-20,Calendar.YEAR);
-        System.out.println(getTimeString(afterDate));*/
-        System.out.println(time);
-        System.out.println(time1);
-    }
-
 
     /**
      * 获取当天的起始时间Date

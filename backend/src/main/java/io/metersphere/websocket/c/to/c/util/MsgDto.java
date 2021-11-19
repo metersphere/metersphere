@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+ *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,5 +15,6 @@ import lombok.NoArgsConstructor;
 public class MsgDto {
     private String reportId;
     private String toReport;
+    private boolean execEnd;
     private String content;
 }

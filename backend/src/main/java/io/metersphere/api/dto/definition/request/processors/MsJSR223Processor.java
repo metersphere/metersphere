@@ -7,7 +7,6 @@ import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -70,10 +69,6 @@ public class MsJSR223Processor extends MsTestElement {
             processor.setName(this.getName());
         } else {
             processor.setName("JSR223Processor");
-        }
-        String name = ElementUtil.getParentName(this.getParent());
-        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            processor.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         processor.setProperty("MS-ID", this.getId());
         processor.setProperty("MS-RESOURCE-ID", this.getResourceId()+ "_" + this.getIndex());

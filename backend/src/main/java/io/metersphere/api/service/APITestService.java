@@ -22,14 +22,16 @@ import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
-import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.dubbo.common.URL;
@@ -232,12 +234,6 @@ public class APITestService {
             apiTest.setUserId(request.getUserId());
         }
         String reportId = apiReportService.create(apiTest, request.getTriggerMode());
-        /*if (request.getTriggerMode().equals("SCHEDULE")) {
-            List<Notice> notice = noticeService.queryNotice(request.getId());
-            mailService.sendHtml(reportId,notice,"api");
-        }*/
-        changeStatus(request.getId(), APITestStatus.Running);
-        jMeterService.runOld(request.getId(), null, is);
         return reportId;
     }
 
@@ -445,8 +441,6 @@ public class APITestService {
         } catch (IOException e) {
             LogUtil.error(e.getMessage(), e);
         }
-
-        jMeterService.runOld(request.getId(), reportId, is);
         return reportId;
     }
 
@@ -526,32 +520,32 @@ public class APITestService {
         //处理附件
         Map<String, String> attachmentFiles = new HashMap<>();
         //去重处理
-        if(!CollectionUtils.isEmpty(attachmentFilePathList)){
+        if (!CollectionUtils.isEmpty(attachmentFilePathList)) {
             attachmentFilePathList = attachmentFilePathList.stream().distinct().collect(Collectors.toList());
         }
         List<FileMetadata> fileMetadataList = new ArrayList<>();
-        for (String filePath: attachmentFilePathList) {
-            File file  = new File(filePath);
-            if(file.exists() && file.isFile()){
-                try{
-                    FileMetadata fileMetadata = fileService.saveFile(file,FileUtil.readAsByteArray(file));
+        for (String filePath : attachmentFilePathList) {
+            File file = new File(filePath);
+            if (file.exists() && file.isFile()) {
+                try {
+                    FileMetadata fileMetadata = fileService.saveFile(file, FileUtil.readAsByteArray(file));
                     fileMetadataList.add(fileMetadata);
-                    attachmentFiles.put(fileMetadata.getId(),fileMetadata.getName());
-                }catch (Exception e){
+                    attachmentFiles.put(fileMetadata.getId(), fileMetadata.getName());
+                } catch (Exception e) {
                     LogUtil.error(e);
                 }
             }
         }
 
-        JmxInfoDTO returnDTO = new JmxInfoDTO("Demo.jmx",jmxString,attachmentFiles);
+        JmxInfoDTO returnDTO = new JmxInfoDTO("Demo.jmx", jmxString, attachmentFiles);
         returnDTO.setFileMetadataList(fileMetadataList);
         return returnDTO;
     }
 
-private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
-         List<String> attachmentFilePathList = new ArrayList<>();
+    private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
+        List<String> attachmentFilePathList = new ArrayList<>();
         List<Element> parentElementList = parentHashTreeElement.elements();
-        for (Element parentElement: parentElementList) {
+        for (Element parentElement : parentElementList) {
             String qname = parentElement.getQName().getName();
             if (StringUtils.equals(qname, "CSVDataSet")) {
                 try {
@@ -593,23 +587,23 @@ private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
                         }
                     }
                 }
-            }else if (StringUtils.equals(qname, "KeystoreConfig")) {
-                    List<Element> stringPropList = parentElement.elements("stringProp");
-                    for (Element element : stringPropList) {
-                        if (StringUtils.equals(element.attributeValue("name"), "MS-KEYSTORE-FILE-PATH")) {
+            } else if (StringUtils.equals(qname, "KeystoreConfig")) {
+                List<Element> stringPropList = parentElement.elements("stringProp");
+                for (Element element : stringPropList) {
+                    if (StringUtils.equals(element.attributeValue("name"), "MS-KEYSTORE-FILE-PATH")) {
 
-                            try {
-                                String filePath = element.getStringValue();
-                                File file = new File(filePath);
-                                if(file.exists() && file.isFile()){
-                                    attachmentFilePathList.add(filePath);
-                                    String fileName = file.getName();
-                                    element.setText(fileName);
-                                }
-                            }catch (Exception e){
+                        try {
+                            String filePath = element.getStringValue();
+                            File file = new File(filePath);
+                            if (file.exists() && file.isFile()) {
+                                attachmentFilePathList.add(filePath);
+                                String fileName = file.getName();
+                                element.setText(fileName);
                             }
+                        } catch (Exception e) {
                         }
                     }
+                }
             } else if (StringUtils.equals(qname, "hashTree")) {
                 attachmentFilePathList.addAll(this.parseAttachmentFileInfo(parentElement));
             }
@@ -652,7 +646,7 @@ private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
                         String scriptName = scriptElement.attributeValue("name");
                         String contentValue = scriptElement.getStringValue();
 
-                        if ("script".equals(scriptName) && contentValue.startsWith("io.metersphere.api.jmeter.JMeterVars.addVars")) {
+                        if ("script".equals(scriptName) && contentValue.startsWith("io.metersphere.utils.JMeterVars.addVars")) {
                             isRemove = true;
                             removeElement.add(hashTreeItemElement);
                         }

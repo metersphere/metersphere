@@ -2,7 +2,6 @@ package io.metersphere.job.sechedule;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.ExecuteType;
-import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -10,6 +9,7 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.RunModeConfigDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 
@@ -71,7 +71,7 @@ public class ApiScenarioTestJob extends MsScheduleJob {
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
         String config = jobDataMap.getString("config");
         if (StringUtils.isNotBlank(config)) {
-            RunModeConfig runModeConfig = JSONObject.parseObject(config, RunModeConfig.class);
+            RunModeConfigDTO runModeConfig = JSONObject.parseObject(config, RunModeConfigDTO.class);
             request.setConfig(runModeConfig);
         }
 

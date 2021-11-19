@@ -1,5 +1,6 @@
 package io.metersphere.api.jmeter;
 
+import io.metersphere.dto.RequestResult;
 import lombok.Data;
 
 import java.util.ArrayList;

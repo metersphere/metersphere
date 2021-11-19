@@ -13,12 +13,13 @@ import io.metersphere.base.mapper.TestCaseReviewScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -77,7 +78,7 @@ public class TestCaseReviewScenarioCaseService {
         testCaseReviewScenarioMapper.deleteByExample(example);
     }
 
-    public String run(RunScenarioRequest request) {
+    public List<MsExecResponseDTO> run(RunScenarioRequest request) {
         TestCaseReviewScenarioExample example = new TestCaseReviewScenarioExample();
         example.createCriteria().andIdIn(request.getPlanCaseIds());
         List<TestCaseReviewScenario> testPlanApiScenarioList = testCaseReviewScenarioMapper.selectByExample(example);

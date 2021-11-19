@@ -8,6 +8,7 @@ import io.metersphere.base.domain.CustomFunctionWithBLOBs;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.CustomFunctionRequest;
+import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.service.CustomFunctionService;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,7 +58,7 @@ public class CustomFunctionController {
     }
 
     @PostMapping("/run")
-    public String run(@RequestBody RunDefinitionRequest request) {
+    public MsExecResponseDTO run(@RequestBody RunDefinitionRequest request) {
         return customFunctionService.run(request);
     }
 }

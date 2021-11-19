@@ -2,7 +2,6 @@
   <header class="report-header">
     <el-row>
       <el-col>
-        <!--        <span v-if="!debug"><el-input size="mini" style="width: 200px" v-model="report.name"/> </span>-->
         <span v-if="!debug">
           <el-input v-if="nameIsEdit" size="mini" @blur="handleSave(report.name)" style="width: 200px" v-model="report.name"/>
           <span v-else>
@@ -98,6 +97,7 @@ export default {
 
 .export-button {
   float: right;
+  margin-right: 10px;
 }
 
 </style>

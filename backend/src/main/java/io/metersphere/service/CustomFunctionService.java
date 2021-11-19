@@ -2,24 +2,23 @@ package io.metersphere.service;
 
 
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.base.domain.CustomFunction;
 import io.metersphere.base.domain.CustomFunctionExample;
 import io.metersphere.base.domain.CustomFunctionWithBLOBs;
 import io.metersphere.base.mapper.CustomFunctionMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFunctionMapper;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.CustomFunctionRequest;
+import io.metersphere.dto.MsExecResponseDTO;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +36,7 @@ public class CustomFunctionService {
     @Resource
     private ExtCustomFunctionMapper extCustomFunctionMapper;
     @Resource
-    private JMeterService jMeterService;
+    private ApiDefinitionService apiDefinitionService;
 
     public CustomFunctionWithBLOBs save(CustomFunctionRequest request) {
         request.setId(UUID.randomUUID().toString());
@@ -116,12 +115,7 @@ public class CustomFunctionService {
         return customFunctionMapper.selectByPrimaryKey(id);
     }
 
-    public String run(RunDefinitionRequest request) {
-        ParameterConfig config = new ParameterConfig();
-        config.setProjectId(request.getProjectId());
-        HashTree hashTree = request.getTestElement().generateHashTree(config);
-        String runMode = ApiRunMode.DEFINITION.name();
-        jMeterService.runLocal(request.getId(),request.getConfig(), hashTree, request.getReportId(), runMode);
-        return request.getId();
+    public MsExecResponseDTO run(RunDefinitionRequest request) {
+        return apiDefinitionService.run(request, new LinkedList<>());
     }
 }

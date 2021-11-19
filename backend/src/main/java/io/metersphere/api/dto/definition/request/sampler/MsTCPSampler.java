@@ -243,10 +243,6 @@ public class MsTCPSampler extends MsTestElement {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setEnabled(this.isEnable());
         tcpSampler.setName(this.getName());
-        String name = ElementUtil.getParentName(this.getParent());
-        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            tcpSampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
-        }
         tcpSampler.setProperty("MS-ID", this.getId());
         String indexPath = this.getIndex();
         tcpSampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
