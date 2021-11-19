@@ -34,7 +34,6 @@
             @refresh="refresh"
             @refreshAll="refreshAll"
             @setCondition="setCondition"
-            @decrease="decrease"
             ref="testCaseTrashList">
           </test-case-list>
         </el-tab-pane>
