@@ -169,13 +169,16 @@ export default {
       ],
       runStatus: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
-        {id: 'Saved', label: 'Saved'},
-        {id: 'Starting', label: 'Starting'},
-        {id: 'Running', label: 'Running'},
-        {id: 'Reporting', label: 'Reporting'},
-        {id: 'Completed', label: 'Completed'},
-        {id: 'error', label: 'Error'},
-        {id: 'success', label: 'Success'}
+        {id: 'saved', label: 'saved'},
+        {id: 'starting', label: 'starting'},
+        {id: 'running', label: 'running'},
+        {id: 'reporting', label: 'reporting'},
+        {id: 'completed', label: 'completed'},
+        {id: 'error', label: 'error'},
+        {id: 'success', label: 'success'},
+        {id: 'waiting', label: 'waiting'},
+        {id: 'fail', label: 'fail'},
+        {id: 'stop', label: 'stopped'}
       ],
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
