@@ -3,7 +3,10 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.JarConfig;
+import io.metersphere.base.domain.Plugin;
+import io.metersphere.base.domain.TestPlanApiScenario;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -12,6 +15,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.service.JarConfigService;
+import io.metersphere.service.PluginService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -55,7 +60,7 @@ public class ApiJmeterFileService {
         if (StringUtils.isNotEmpty(testPlanScenarioId)) {
             // 获取场景用例单独的执行环境
             TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
-            if(planApiScenario != null){
+            if (planApiScenario != null) {
                 String environment = planApiScenario.getEnvironment();
                 if (StringUtils.isNotBlank(environment)) {
                     planEnvMap = JSON.parseObject(environment, Map.class);
@@ -65,7 +70,7 @@ public class ApiJmeterFileService {
         HashTree hashTree;
         if (ApiRunMode.DEFINITION.name().equals(runMode) || ApiRunMode.API_PLAN.name().equals(runMode) || ApiRunMode.MANUAL_PLAN.name().equals(runMode)) {
             String testId = remoteTestId;
-            if(remoteTestId.contains(":")){
+            if (remoteTestId.contains(":")) {
                 //执行测试计划案例时会有拼接ID,ID为 planTestCaseId:测试计划报告ID
                 testId = remoteTestId.split(":")[0];
             }
@@ -118,6 +123,19 @@ public class ApiJmeterFileService {
         return listBytesToZip(files);
     }
 
+    public byte[] downloadPlugJar() {
+        Map<String, byte[]> files = new HashMap<>();
+        // 获取JAR
+        Map<String, byte[]> jarFiles = this.getPlugJar();
+        if (!com.alibaba.excel.util.CollectionUtils.isEmpty(jarFiles)) {
+            for (String k : jarFiles.keySet()) {
+                byte[] v = jarFiles.get(k);
+                files.put(k, v);
+            }
+        }
+        return listBytesToZip(files);
+    }
+
     private Map<String, byte[]> getJar() {
         Map<String, byte[]> jarFiles = new LinkedHashMap<>();
         // jar 包
@@ -138,6 +156,31 @@ public class ApiJmeterFileService {
                 LogUtil.error(e.getMessage(), e);
             }
         });
+        return jarFiles;
+    }
+
+    private Map<String, byte[]> getPlugJar() {
+        Map<String, byte[]> jarFiles = new LinkedHashMap<>();
+        // jar 包
+        PluginService jarConfigService = CommonBeanFactory.getBean(PluginService.class);
+        List<Plugin> plugins = jarConfigService.list();
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(plugins)) {
+            plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
+                    -> new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
+            if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(plugins)) {
+                plugins.forEach(item -> {
+                    String path = item.getSourcePath();
+                    File file = new File(path);
+                    if (file.isDirectory() && !path.endsWith("/")) {
+                        file = new File(path + "/");
+                    }
+                    byte[] fileByte = FileUtils.fileToByte(file);
+                    if (fileByte != null) {
+                        jarFiles.put(file.getName(), fileByte);
+                    }
+                });
+            }
+        }
         return jarFiles;
     }
 
