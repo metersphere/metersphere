@@ -32,6 +32,12 @@
         <el-table-column
           type="selection"/>
         <el-table-column
+          prop="num"
+          label="ID"
+          width="100px"
+          sortable>
+        </el-table-column>
+        <el-table-column
           prop="name"
           :label="$t('commons.name')"
           show-overflow-tooltip>
