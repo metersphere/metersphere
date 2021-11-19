@@ -548,6 +548,7 @@ export default {
       this.$post('/api/testcase/batch/run', obj, () => {
         this.condition.ids = [];
         this.$refs.batchRun.close();
+        this.$store.state.currentApiCase.case = true;
         this.search();
       });
     },
@@ -643,7 +644,7 @@ export default {
         this.condition.protocol = this.currentProtocol;
       }
       //检查是否只查询本周数据
-      this.isSelectThissWeekData();
+      this.isSelectThisWeekData();
       this.condition.selectThisWeedData = false;
       this.condition.id = null;
       if (this.selectDataRange == 'thisWeekCount') {
@@ -799,7 +800,6 @@ export default {
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteBatchByParam/', obj, () => {
               this.$refs.caseTable.clearSelectRows();
-              // this.initTable();
               this.$emit('refreshTable');
               this.$success(this.$t('commons.delete_success'));
             });
@@ -879,7 +879,6 @@ export default {
           if (action === 'confirm') {
             this.$get('/api/testcase/delete/' + apiCase.id, () => {
               this.$success(this.$t('commons.delete_success'));
-              // this.initTable();
               this.$emit('refreshTable');
             });
           }
@@ -987,7 +986,7 @@ export default {
       }
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
-    isSelectThissWeekData() {
+    isSelectThisWeekData() {
       this.selectDataRange = "all";
       let routeParam = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
@@ -1010,8 +1009,6 @@ export default {
       this.$refs.viewRef.open(param);
     },
     showEnvironment(row) {
-
-      let projectID = this.projectId;
       if (this.projectId) {
         this.$get('/api/environment/list/' + this.projectId, response => {
           this.environments = response.data;
@@ -1078,7 +1075,6 @@ export default {
       }
       let projectId = getCurrentProjectID();
       let runData = [];
-      let singleLoading = true;
       row.request = JSON.parse(row.request);
       row.request.name = row.id;
       row.request.useEnvironment = environment.id;
