@@ -646,6 +646,19 @@ export default {
       if (routeTestCase) {
         this.editApi(routeTestCase)
       }
+      let dataRange = this.$route.params.dataSelectRange;
+      let dataType = this.$route.params.dataType;
+      if(dataRange){
+        let selectParamArr = dataRange.split("edit:");
+        if (selectParamArr.length === 2) {
+          let scenarioId = selectParamArr[1];
+          if(dataType==='api'){
+            this.$get('/api/definition/get/' + scenarioId, (response) => {
+              this.editApi(response.data);
+            });
+          }
+        }
+      }
     },
     editApi(row) {
       const index = this.apiTabs.find(p => p.api && p.api.id === row.id);

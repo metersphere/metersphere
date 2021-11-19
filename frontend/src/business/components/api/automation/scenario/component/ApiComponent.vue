@@ -16,6 +16,10 @@
         <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
 
+      <template v-slot:afterTitle>
+        <span @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
+      </template>
+
       <template v-slot:behindHeaderLeft>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
@@ -140,6 +144,7 @@ import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
 import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
@@ -265,7 +270,7 @@ export default {
     },
     displayTitle() {
       if (this.isApiImport) {
-        return this.$t('api_test.automation.api_list_import');
+        return this.request.refType==='API'?'API':'CASE';
       } else if (this.isExternalImport) {
         return this.$t('api_test.automation.external_import');
       } else if (this.isCustomizeReq) {
@@ -560,8 +565,54 @@ export default {
         const project = this.projectList.find(p => p.id === id);
         return project ? project.name : "";
       }
+    },
 
-    }
+    clickResource(resource) {
+      if(resource.refType&&resource.refType==='API'){
+        let definitionData = this.$router.resolve({
+          name: 'ApiDefinition',
+          params: {redirectID: getUUID(), dataType: "api", dataSelectRange: 'edit:' + resource.id}
+        });
+        window.open(definitionData.href, '_blank');
+      }else if(resource.refType&&resource.refType==='CASE'){
+        this.$get("/api/testcase/findById/" + resource.id, response => {
+          if (response.data) {
+            response.data.sourceId = resource.resourceId;
+            response.data.type = resource.type;
+            response.data.refType = resource.refType;
+            this.clickCase(response.data)
+          } else {
+            this.$error("接口用例场景场景已经被删除");
+          }
+        });
+      }
+
+    },
+    clickCase(resource) {
+      let uri = getUrl(resource);
+      let resourceId = resource.sourceId;
+      if (resourceId && resourceId.startsWith("\"" || resourceId.startsWith("["))) {
+        resourceId = JSON.parse(resource.sourceId);
+      }
+      if (resourceId instanceof Array) {
+        resourceId = resourceId[0];
+      }
+      this.$get('/user/update/currentByResourceId/' + resourceId, () => {
+        this.toPage(uri);
+      });
+    },
+    toPage(uri) {
+      let id = "new_a";
+      let a = document.createElement("a");
+      a.setAttribute("href", uri);
+      a.setAttribute("target", "_blank");
+      a.setAttribute("id", id);
+      document.body.appendChild(a);
+      a.click();
+
+      let element = document.getElementById(id);
+      element.parentNode.removeChild(element);
+    },
   }
 }
 </script>
@@ -608,7 +659,7 @@ export default {
 }
 
 .ms-tag {
-  margin-left: 10px;
+  margin-left: 0px;
 }
 
 .ms-step-debug-code {
