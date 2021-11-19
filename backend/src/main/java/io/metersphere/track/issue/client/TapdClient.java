@@ -46,7 +46,7 @@ public class TapdClient extends BaseClient {
     public JSONArray getPlatformUser(String projectId) {
         String url = getBaseUrl() + "/workspaces/users?workspace_id=" + projectId;
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectId);
-        return JSONArray.parseArray(response.getBody());
+        return JSONArray.parseObject(response.getBody()).getJSONArray("data");
     }
 
     public void auth() {
@@ -60,19 +60,24 @@ public class TapdClient extends BaseClient {
     }
 
     public TapdGetIssueResponse getIssueForPageByIds(String projectId, int pageNum, int limit, List<String> ids) {
-        String url = getBaseUrl() + "/bugs?workspace_id={1}&page={2}&limit={3}&fields={4}";
+        String url = getBaseUrl() + "/bugs?workspace_id={1}&page={2}&limit={3}";
         StringBuilder idStr = new StringBuilder();
         if (!CollectionUtils.isEmpty(ids)) {
             ids.forEach(item -> {
                 idStr.append(item + ",");
             });
-            url += "&id={5}";
+            url += "&id={4}";
         }
-        String fields = "id,title,description,priority,severity,reporter,status";
         LogUtil.info("ids: " + idStr);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class,
-                projectId, pageNum, limit, fields, idStr);
+                projectId, pageNum, limit, idStr);
         return (TapdGetIssueResponse) getResultForObject(TapdGetIssueResponse.class, response);
+    }
+
+    public JSONArray getDemands(String projectId) {
+        String url = getBaseUrl() + "/stories?workspace_id={1}";
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectId);
+        return JSONArray.parseObject(response.getBody()).getJSONArray("data");
     }
 
     public TapdBug addIssue(MultiValueMap<String, Object> paramMap) {

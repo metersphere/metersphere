@@ -1,6 +1,5 @@
 package io.metersphere.track.issue;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.IssuesDao;
@@ -12,9 +11,7 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.controller.ResultHolder;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.DemandDTO;
@@ -27,8 +24,6 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -65,21 +60,13 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public List<DemandDTO> getDemandList(String projectId) {
         List<DemandDTO> demandList = new ArrayList<>();
-        try {
-            String url = "https://api.tapd.cn/stories?workspace_id=" + getProjectId(projectId);
-            ResultHolder call = call(url);
-            String listJson = JSON.toJSONString(call.getData());
-            JSONArray jsonArray = JSON.parseArray(listJson);
-            for (int i = 0; i < jsonArray.size(); i++) {
-                JSONObject o = jsonArray.getJSONObject(i);
-                DemandDTO demand = o.getObject("Story", DemandDTO.class);
-                demand.setPlatform(IssuesManagePlatform.Tapd.name());
-                demandList.add(demand);
-            }
-        } catch (Exception e) {
-            LogUtil.error(e);
+        JSONArray demands = tapdClient.getDemands(getProjectId(projectId));
+        for (int i = 0; i < demands.size(); i++) {
+            JSONObject o = demands.getJSONObject(i);
+            DemandDTO demand = o.getObject("Story", DemandDTO.class);
+            demand.setPlatform(IssuesManagePlatform.Tapd.name());
+            demandList.add(demand);
         }
-
         return demandList;
     }
 
@@ -166,7 +153,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public List<PlatformUser> getPlatformUser() {
         List<PlatformUser> users = new ArrayList<>();
-        JSONArray res = tapdClient.getPlatformUser(projectId);
+        JSONArray res = tapdClient.getPlatformUser(getProjectId(projectId));
         for (int i = 0; i < res.size(); i++) {
             JSONObject o = res.getJSONObject(i);
             PlatformUser user = o.getObject("UserWorkspace", PlatformUser.class);
@@ -264,40 +251,4 @@ public class TapdPlatform extends AbstractIssuePlatform {
         }
         return null;
     }
-
-    private ResultHolder call(String url) {
-        return call(url, HttpMethod.GET, null);
-    }
-
-    private ResultHolder call(String url, HttpMethod httpMethod, Object params) {
-        String responseJson;
-
-        String config = getPlatformConfig(IssuesManagePlatform.Tapd.toString());
-        JSONObject object = JSON.parseObject(config);
-
-        if (object == null) {
-            MSException.throwException("tapd config is null");
-        }
-
-        String account = object.getString("account");
-        String password = object.getString("password");
-
-        HttpHeaders header = auth(account, password);
-
-        if (httpMethod.equals(HttpMethod.GET)) {
-            responseJson = TapdRestUtils.get(url, header);
-        } else {
-            responseJson = TapdRestUtils.post(url, params, header);
-        }
-
-        ResultHolder result = JSON.parseObject(responseJson, ResultHolder.class);
-
-        if (!result.isSuccess()) {
-            MSException.throwException(result.getMessage());
-        }
-        return JSON.parseObject(responseJson, ResultHolder.class);
-
-    }
-
-
 }

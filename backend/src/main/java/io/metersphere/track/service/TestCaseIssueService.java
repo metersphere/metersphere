@@ -42,13 +42,6 @@ public class TestCaseIssueService {
     public void delTestCaseIssues(String testCaseId) {
         TestCaseIssuesExample example = new TestCaseIssuesExample();
         example.createCriteria().andTestCaseIdEqualTo(testCaseId);
-        List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
-        if (!CollectionUtils.isEmpty(testCaseIssues)) {
-            List<String> list = testCaseIssues.stream().map(TestCaseIssues::getIssuesId).collect(Collectors.toList());
-            list.forEach(id -> {
-                issuesMapper.deleteByPrimaryKey(id);
-            });
-        }
         testCaseIssuesMapper.deleteByExample(example);
     }
 

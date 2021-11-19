@@ -43,7 +43,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         super(issuesRequest);
         ZentaoConfig zentaoConfig = getConfig();
         this.workspaceId = issuesRequest.getWorkspaceId();
-        this.zentaoClient = ZentaoFactory.getInstance(zentaoConfig.getRequest());
+        this.zentaoClient = ZentaoFactory.getInstance(zentaoConfig.getUrl(), zentaoConfig.getRequest());
         this.zentaoClient.setConfig(zentaoConfig);
     }
 

@@ -25,6 +25,10 @@ public abstract class ZentaoClient extends BaseClient {
     public RequestUrl requestUrl;
     protected String url;
 
+    public ZentaoClient(String url) {
+        ENDPOINT = url;
+    }
+
     private static final String BUG_LIST_URL="?m=bug&f=browse&productID={0}&branch=&browseType=&param=0&orderBy=&pageID={1}&recPerPage={2}&t=json&zentaosid=";
 
     public String login() {

@@ -359,24 +359,18 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
                     if (!fieldName.equals("assignee") && !fieldName.equals("reporter")) { // 获取不到账号名
                         item.setValue(((JSONObject)value).getString("id"));
                     }
-                } else {
-                    if (StringUtils.isNotBlank(item.getType()) &&
-                            StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
-                        List<String> values = new ArrayList<>();
-                        if (item.getValue() != null) {
-                            JSONArray attrs = (JSONArray) item.getValue();
-                            attrs.forEach(attr -> {
-                                if (attr instanceof JSONObject) {
-                                    values.add(((JSONObject)attr).getString("id"));
-                                } else {
-                                    values.add((String) attr);
-                                }
-                            });
+                } else if (value instanceof JSONArray) {
+                    List<Object> values = new ArrayList<>();
+                    ((JSONArray)value).forEach(attr -> {
+                        if (attr instanceof JSONObject) {
+                            values.add(((JSONObject)attr).getString("id"));
+                        } else {
+                            values.add(attr);
                         }
-                        item.setValue(values);
-                    } else {
-                        item.setValue(value);
-                    }
+                    });
+                    item.setValue(values);
+                } else {
+                    item.setValue(value);
                 }
             }
         });
@@ -424,7 +418,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected void mergeCustomField(IssuesWithBLOBs issues, String defaultCustomField) {
         if (StringUtils.isNotBlank(defaultCustomField)) {
             String issuesCustomFields = issues.getCustomFields();
-            if (StringUtils.isNotBlank(issuesCustomFields) || issuesCustomFields.startsWith("{")) issuesCustomFields = "[]";
+            if (StringUtils.isBlank(issuesCustomFields) || issuesCustomFields.startsWith("{")) issuesCustomFields = "[]";
             JSONArray issueFields = JSONArray.parseArray(issuesCustomFields);
             Set<String> ids = issueFields.stream().map(i -> ((JSONObject) i).getString("id")).collect(Collectors.toSet());
             JSONArray defaultFields = JSONArray.parseArray(defaultCustomField);
@@ -441,5 +435,16 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         String config = getPlatformConfig(platform);
         if (StringUtils.isBlank(config)) MSException.throwException("配置为空");
         return JSONObject.parseObject(config, clazz);
+    }
+
+    public void buildSyncCreate(IssuesWithBLOBs issue, String platformId, Integer nextNum) {
+        issue.setProjectId(projectId);
+        issue.setId(UUID.randomUUID().toString());
+        issue.setPlatformId(platformId);
+        issue.setCreateTime(System.currentTimeMillis());
+        issue.setUpdateTime(System.currentTimeMillis());
+        issue.setCreator(SessionUtils.getUserId());
+        issue.setNum(nextNum);
+        issuesMapper.insert(issue); // 批量新增
     }
 }
