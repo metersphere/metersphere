@@ -106,7 +106,7 @@ export default {
     },
     confirm() {
       if (!this.selectedUserGroup) {
-        this.$warning(this.$t('user.select_workspace'));
+        this.$warning(this.$t('user.select_group'));
         return;
       }
       this.$refs.ruleForm.validate((valid) => {
