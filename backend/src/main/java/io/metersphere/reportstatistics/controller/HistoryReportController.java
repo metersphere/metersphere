@@ -27,8 +27,7 @@ public class HistoryReportController {
 
     @PostMapping("/selectByParams")
     public List<ReportStatistics> selectByParams(@RequestBody ReportStatisticsSaveRequest request) {
-        List<ReportStatistics> returnList = reportStatisticsService.selectByProjectIdAndReportType(request.getProjectId(),request.getReportType());
-        LogUtil.info("报表查询结果:"+JSONArray.toJSONString(returnList));
+        List<ReportStatistics> returnList = reportStatisticsService.selectByRequest(request);
         return returnList;
     }
 

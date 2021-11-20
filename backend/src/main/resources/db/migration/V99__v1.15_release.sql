@@ -31,3 +31,35 @@ VALUES ('e392af07-fdfe-4475-a459-87d59f0b1625', '测试阶段', 'PLAN', 'select'
         1, 1, 'global', unix_timestamp() * 1000, unix_timestamp() * 1000);
 
 ALTER TABLE api_definition_exec_result MODIFY COLUMN name VARCHAR (100);
+
+CREATE TABLE IF NOT EXISTS `enterprise_test_report` (
+    `id` varchar(50)  NOT NULL COMMENT 'Test ID',
+    `project_id` varchar(50)  NOT NULL COMMENT 'Project ID this report belongs to',
+    `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
+    `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
+    `create_user` varchar(64) DEFAULT NULL COMMENT 'User ID',
+    `update_user` varchar(64) DEFAULT NULL COMMENT 'User ID',
+    `name` varchar(255)  NOT NULL COMMENT 'report name',
+    `status` varchar(64)  DEFAULT NULL COMMENT 'Status of email',
+    `send_freq` varchar(64)  DEFAULT NULL COMMENT 'send freq',
+    `send_cron` varchar(64)  DEFAULT NULL COMMENT 'send cron',
+    `last_send_time` bigint(13)  DEFAULT NULL COMMENT 'last send time',
+    `report_content` longtext COMMENT 'report content',
+    `addressee` longtext COMMENT 'report content',
+    `duplicated` longtext COMMENT 'report content',
+    PRIMARY KEY (`id`)
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+
+CREATE TABLE IF NOT EXISTS `enterprise_test_report_send_record` (
+    `id` varchar(50)  NOT NULL COMMENT 'Test ID',
+    `enterprise_test_report_id` varchar(50)  NOT NULL COMMENT 'Enterprise report ID this record belongs to',
+    `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
+    `create_user` varchar(64) DEFAULT NULL COMMENT 'User ID',
+    `status` varchar(64)  DEFAULT NULL COMMENT 'Status of email',
+    `report_content` longtext COMMENT 'report content',
+    `addressee` longtext COMMENT 'report content',
+    `duplicated` longtext COMMENT 'report content',
+    PRIMARY KEY (`id`),
+    INDEX `enterprise_test_report_id` (`enterprise_test_report_id`) USING BTREE
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;

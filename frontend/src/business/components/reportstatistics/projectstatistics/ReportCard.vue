@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="4">
         <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('trackTestCase')">
-          <img src="../../../assets/track.jpg" class="image">
+          <img src="@/assets/track.jpg" class="image">
           <div style="padding: 10px;">
             <span>{{$t('commons.report_statistics.test_case_analysis')}}</span>
             <div class="bottom clearfix">
@@ -14,7 +14,7 @@
       </el-col>
       <el-col :span="4">
         <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('countTestCase')">
-          <img src="../../../assets/track.jpg" class="image">
+          <img src="@/assets/track.jpg" class="image">
           <div style="padding: 10px;">
             <span>{{$t('commons.report_statistics.test_case_count')}}</span>
             <div class="bottom clearfix">
@@ -25,7 +25,7 @@
       </el-col>
       <el-col :span="4">
         <el-card :body-style="{ padding: '0px' }" class="ms-col">
-          <img src="../../../assets/other.png" class="image">
+          <img src="@/assets/other.png" class="image">
           <div style="padding: 10px;">
             <span>预留模块敬请期待</span>
             <div class="bottom clearfix">
@@ -36,7 +36,7 @@
       </el-col>
       <el-col :span="4">
         <el-card :body-style="{ padding: '0px' }" class="ms-col">
-          <img src="../../../assets/other.png" class="image">
+          <img src="@/assets/other.png" class="image">
           <div style="padding: 10px;">
             <span>预留模块敬请期待</span>
             <div class="bottom clearfix">
@@ -47,7 +47,7 @@
       </el-col>
       <el-col :span="4">
         <el-card :body-style="{ padding: '0px' }" class="ms-col">
-          <img src="../../../assets/other.png" class="image">
+          <img src="@/assets/other.png" class="image">
           <div style="padding: 10px;">
             <span>预留模块敬请期待</span>
             <div class="bottom clearfix">
@@ -58,7 +58,7 @@
       </el-col>
       <el-col :span="4">
         <el-card :body-style="{ padding: '0px' }" class="ms-col">
-          <img src="../../../assets/other.png" class="image">
+          <img src="@/assets/other.png" class="image">
           <div style="padding: 10px;">
             <span>预留模块敬请期待</span>
             <div class="bottom clearfix">

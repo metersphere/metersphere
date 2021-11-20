@@ -3,7 +3,7 @@
     <el-card class="ms-test-chart" :style="{ width: w+'px', height: h + 'px'}" ref="msDrawer">
       <el-row class="ms-row">
         <p class="tip"><span style="margin-left: 5px"></span> {{$t('commons.report_statistics.chart')}} </p>
-        <div class="ms-test-chart-header">
+        <div class="ms-test-chart-header" v-if="!readOnly">
           <el-dropdown @command="exportCommand" :hide-on-click="false">
             <span class="el-dropdown-link">
               {{ $t('commons.export') }}<i class="el-icon-arrow-down el-icon--right"></i>
@@ -44,6 +44,8 @@
       loadOption: {},
       pieOption: {},
       chartWidth:Number,
+      needFullScreen: Boolean,
+      readOnly:Boolean,
     },
     data() {
       return {
@@ -146,6 +148,10 @@
     },
     created() {
       this.dataOption = this.loadOption;
+      if(this.needFullScreen){
+        this.w = document.documentElement.clientWidth;
+      }
+      this.reload();
     },
     watch:{
       chartWidth(){
@@ -153,7 +159,7 @@
       },
       chartType(){
         this.countChartWidth();
-      }
+      },
     },
     methods: {
       countChartWidth(){
@@ -180,7 +186,7 @@
       reload() {
         this.loading = true
         this.$nextTick(() => {
-          this.loading = false
+          this.loading = false;
         })
       },
       fullScreen() {
@@ -196,6 +202,22 @@
         this.h = this.originalH;
         this.isFullScreen = false;
         this.$emit('hidePage', false);
+      },
+      getImages(command){
+        let imageType = 'image/png';
+        if(command === 'jpg'){
+          imageType = 'image/jpg';
+        }
+        let returnImageDatas = "";
+        if (document.getElementById('picChart')) {
+          let chartsCanvas = document.getElementById('picChart').querySelectorAll('canvas')[0];
+          if (chartsCanvas) {
+            // toDataURL()是canvas对象的一种方法，用于将canvas对象转换为base64位编码
+            returnImageDatas = chartsCanvas && chartsCanvas.toDataURL(imageType);
+          }
+        }
+        this.$emit("getImage",returnImageDatas);
+        return returnImageDatas;
       },
       exportCommand(command){
         let fileName = 'report_pic.'+command;

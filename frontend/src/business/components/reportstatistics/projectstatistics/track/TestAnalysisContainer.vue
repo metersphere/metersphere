@@ -29,7 +29,7 @@
   import TestAnalysisFilter from "./filter/TestAnalysisFilter";
   import {exportPdf, getCurrentProjectID} from "@/common/js/utils";
   import html2canvas from 'html2canvas';
-  import HistoryReportData from "../base/HistoryReportData";
+  import HistoryReportData from "../../base/HistoryReportData";
 
   export default {
     name: "TestAnalysisContainer",

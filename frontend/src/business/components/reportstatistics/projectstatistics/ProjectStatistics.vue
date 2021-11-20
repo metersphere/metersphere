@@ -51,11 +51,12 @@
 </template>
 
 <script>
-  import ReportCard from "./ReportCard";
-  import TestAnalysisContainer from "./track/TestAnalysisContainer";
+  import ReportCard from "@/business/components/reportstatistics/projectstatistics/ReportCard";
+  import TestAnalysisContainer from "@/business/components/reportstatistics/projectstatistics/track/TestAnalysisContainer";
   import MsDrawer from "@/business/components/common/components/MsDrawer";
-  import ReportHeader from './base/ReportHeader';
-  import TestCaseCountContainer from "./casecount/TestCaseCountContainer";
+  import ReportHeader from "@/business/components/reportstatistics/base/ReportHeader";
+  import TestCaseCountContainer from "@/business/components/reportstatistics/projectstatistics/casecount/TestCaseCountContainer";
+
 
   export default {
     name: "ReportAnalysis",

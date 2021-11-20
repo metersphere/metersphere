@@ -280,6 +280,18 @@ export default {
       default_module: "默认模块",
     },
     report_statistics: {
+      menu: {
+        project_statistics: "项目报表",
+        project_report: "项目报告",
+      },
+      project_report: {
+        create_report: "创建报告",
+        report_name: "报告名称",
+        report_send_time: "发送时间",
+        report_send_freq: "发送频率",
+        report_detail: "报告内容",
+        show: "查看",
+      },
       title: "报表统计",
       test_case_analysis: "测试用例趋势",
       test_case_activity: "测试用例活动情况",
@@ -2214,5 +2226,10 @@ export default {
     script_entry: "脚本执行入口",
     plugin_id: "插件ID",
     script_view: "查看脚本",
+  },
+  mail: {
+    mail_subject: "邮件主题",
+    mail_addressee: "收件人",
+    mail_duplicate: "抄送人",
   }
 };

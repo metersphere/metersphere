@@ -1197,6 +1197,7 @@ public class MockConfigService {
 
         if (!isMatch) {
             response.setStatus(404);
+            returnStr = "未找到匹配的Mock期望!";
         }
         return returnStr;
     }
@@ -1238,6 +1239,7 @@ public class MockConfigService {
 
         if (!isMatch) {
             response.setStatus(404);
+            returnStr = "未找到匹配的Mock期望!";
         }
         return returnStr;
     }
