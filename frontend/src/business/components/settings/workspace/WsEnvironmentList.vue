@@ -55,7 +55,7 @@
     </el-card>
 
     <!-- 创建、编辑、复制环境时的对话框 -->
-    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :title="dialogTitle" width="66%">
+    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :title="dialogTitle" top="50px" width="66%">
       <el-form label-width="80px" :rules="rules">
         <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
           <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
@@ -402,6 +402,8 @@ export default {
   margin-left: 0;
   width: 100%;
   border: 0;
+  min-height: 400px;
+  max-height: 450px;
 }
 
 .project-item {

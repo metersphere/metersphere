@@ -345,8 +345,7 @@
     border: solid 1px #EBEEF5;
     margin-left: 200px;
     min-height: 400px;
-    max-height: 700px;
-
+    max-height: 550px;
   }
 
   .el-row {
