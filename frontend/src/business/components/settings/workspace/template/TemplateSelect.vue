@@ -44,8 +44,8 @@ export default {
       this.$get(url + getCurrentWorkspaceId(), (response) => {
         this.templateOptions = response.data;
         if (!this.data[this.prop]) {
-          for(let item of this.templateOptions) {
-            if (item.system) {
+          for (let item of this.templateOptions) {
+            if (item.system && item.platform === 'metersphere' && item.name === 'default') {
               this.$set(this.data, this.prop, item.id);
               break;
             }
