@@ -102,6 +102,7 @@ export default {
     open() {
       listenGoBack(this.close);
       this.dialogVisible = true;
+      this.selectedUserGroup = "";
       this.rules.workspace[0].message = this.$t('user.select_workspace');
     },
     confirm() {
