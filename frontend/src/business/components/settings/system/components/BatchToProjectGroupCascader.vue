@@ -177,7 +177,7 @@ export default {
         // 过滤工作空间下用户组
         this.result = this.$post('/user/group/list', {
           type: GROUP_PROJECT,
-          resourceId: getCurrentProjectID()
+          resourceId: getCurrentWorkspaceId()
         }, (res) => {
           this.projectUserGroups = res.data ? res.data : [];
         });
