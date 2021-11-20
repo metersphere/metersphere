@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -68,6 +69,12 @@ public class TestPlanScenarioCaseController {
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.planCaseIds)", msClass = TestPlanScenarioCaseService.class)
     public String run(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
+        if(request.getConfig() == null){
+            RunModeConfig config = new RunModeConfig();
+            config.setMode(RunModeConstants.PARALLEL.toString());
+            config.setEnvMap(new HashMap<>());
+            request.setConfig(config);
+        }
         return testPlanScenarioCaseService.run(request);
     }
 
