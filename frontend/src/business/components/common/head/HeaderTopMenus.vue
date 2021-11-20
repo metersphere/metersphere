@@ -25,7 +25,7 @@
       {{ $t('commons.performance') }}
     </el-menu-item>
     <el-menu-item index="/report" v-if="check('reportStat')" onselectstart="return false"
-                  v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ']">
+                  v-permission="['PROJECT_REPORT_ANALYSIS:READ']">
       {{ $t('commons.report_statistics.title') }}
     </el-menu-item>
 

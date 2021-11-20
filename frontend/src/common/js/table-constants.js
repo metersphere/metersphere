@@ -107,5 +107,5 @@ export const PROJECT_GROUP_SCOPE = {
   'TRACK': '测试跟踪',
   'API': '接口测试',
   'PERFORMANCE': '性能测试',
-  'REPORT': '报告统计'
+  'REPORT': '报表统计'
 }
