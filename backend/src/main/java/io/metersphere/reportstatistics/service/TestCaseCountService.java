@@ -12,6 +12,9 @@ import io.metersphere.dto.TestCaseTemplateDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.reportstatistics.dto.*;
 import io.metersphere.reportstatistics.dto.charts.*;
+import io.metersphere.reportstatistics.dto.table.TestCaseCountTableDataDTO;
+import io.metersphere.reportstatistics.dto.table.TestCaseCountTableItemDataDTO;
+import io.metersphere.reportstatistics.dto.table.TestCaseCountTableRowDTO;
 import io.metersphere.service.TestCaseTemplateService;
 import io.metersphere.service.UserService;
 import org.apache.commons.collections.CollectionUtils;
@@ -298,11 +301,94 @@ public class TestCaseCountService {
 
         formatPieChart(pieChartDTO, request.getXaxis(), summaryMap,yAxisSelectTestCase,yAxisSelectApi,yAxisSelectScenarioCase,yAxisSelectLoad);
 
+        TestCaseCountTableDataDTO showTable = this.countShowTable(request.getXaxis(),request.getYaxis(),dtos);
+
         TestCaseCountResponse testCaseCountResult = new TestCaseCountResponse();
         testCaseCountResult.setBarChartDTO(dto);
         testCaseCountResult.setTableDTOs(dtos);
         testCaseCountResult.setPieChartDTO(pieChartDTO);
+        testCaseCountResult.setShowTable(showTable);
+
         return testCaseCountResult;
+    }
+
+    private TestCaseCountTableDataDTO countShowTable(String groupName, List<String> yaxis, List<TestCaseCountTableDTO> dtos) {
+        TestCaseCountTableDataDTO returnDTO = new TestCaseCountTableDataDTO();
+        String [] headers = new String[]{groupName,"总计","testCase","apiCase","scenarioCase","loadCaseCount"};
+
+        List<TestCaseCountTableItemDataDTO> heads = new ArrayList<>();
+        boolean showTestCase = true;
+        boolean showApi = true;
+        boolean showScenario = true;
+        boolean showLoad = true;
+        for (String head : headers) {
+            if(StringUtils.equalsAnyIgnoreCase(head,groupName,"总计") || yaxis.contains(head)){
+                TestCaseCountTableItemDataDTO headData = new TestCaseCountTableItemDataDTO();
+                headData.setId(UUID.randomUUID().toString());
+                headData.setValue(head);
+                heads.add(headData);
+            }else {
+                if(StringUtils.equalsIgnoreCase(head,"testCase")){
+                    showTestCase = false;
+                }else if(StringUtils.equalsIgnoreCase(head,"apiCase")){
+                    showApi = false;
+                }else if(StringUtils.equalsIgnoreCase(head,"scenarioCase")){
+                    showScenario = false;
+                }else if(StringUtils.equalsIgnoreCase(head,"loadCaseCount")){
+                    showLoad = false;
+                }
+            }
+        }
+        List<TestCaseCountTableRowDTO> tableRows = new ArrayList<>();
+        for (TestCaseCountTableDTO data : dtos) {
+            TestCaseCountTableRowDTO row = new TestCaseCountTableRowDTO();
+            List<TestCaseCountTableItemDataDTO> rowDataList = new ArrayList<>();
+
+            TestCaseCountTableItemDataDTO nameData = new TestCaseCountTableItemDataDTO();
+            nameData.setId(UUID.randomUUID().toString());
+            nameData.setValue(data.getName());
+            rowDataList.add(nameData);
+
+            TestCaseCountTableItemDataDTO countData = new TestCaseCountTableItemDataDTO();
+            countData.setId(UUID.randomUUID().toString());
+            countData.setValue(data.getAllCount());
+            rowDataList.add(countData);
+
+            if(showTestCase){
+                TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
+                itemData.setId(UUID.randomUUID().toString());
+                itemData.setValue(data.getTestCaseCount());
+                rowDataList.add(itemData);
+            }
+
+            if(showApi){
+                TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
+                itemData.setId(UUID.randomUUID().toString());
+                itemData.setValue(data.getApiCaseCount());
+                rowDataList.add(itemData);
+            }
+
+            if(showScenario){
+                TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
+                itemData.setId(UUID.randomUUID().toString());
+                itemData.setValue(data.getScenarioCaseCount());
+                rowDataList.add(itemData);
+            }
+
+            if(showLoad){
+                TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
+                itemData.setId(UUID.randomUUID().toString());
+                itemData.setValue(data.getLoadCaseCount());
+                rowDataList.add(itemData);
+            }
+            row.setTableDatas(rowDataList);
+            tableRows.add(row);
+        }
+        returnDTO.setHeads(heads);
+        returnDTO.setData(tableRows);
+
+
+        return returnDTO;
     }
 
     private List<TestCaseCountChartResult> checkCountChartResultHasColumn(String xcolumn,List<TestCaseCountChartResult> resultList) {

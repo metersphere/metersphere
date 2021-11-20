@@ -242,8 +242,6 @@ export default {
           this.lineDivHeight = 0;
           setTimeout(() => {
             let itemOptions = document.getElementsByName("itemOptions");
-            // let optionTypeDiv = document.getElementById("moreOptionTypeDiv");
-            // if(optionTypeDiv){
               if(itemOptions && itemOptions.length > 1){
                 let optionTypeHeight = 0;
                 for(let i = 0; i < itemOptions.length; i ++){
@@ -260,17 +258,7 @@ export default {
                 let divMarginBottom = ((endHeight-32)/2+16);
                 this.lineDivBottomHeight = ((optionTypeHeight - 32 - this.lineDivTopHeight - this.lineDivMarginTopHeight - divMarginBottom ));
               }
-            // }
-
           }, 100);
-          // moreOptionTypeDiv
-          // if(this.option.filters.length > 1){
-          //   let countPageHeight = (this.option.filters.length)* 32 + (this.option.filters.length-1)*5;
-          //   if(countPageHeight > 32){
-          //     this.lineDivHeight = (countPageHeight-32)/2-11;
-          //   }
-          // }
-
         });
       },
       deep: true

@@ -1,16 +1,20 @@
-const reportForm = () => import('./ReportAnalysis');
-
 export default {
   path: "/report",
   name: "report",
-  redirect: "/report/home",
+  redirect: "/report/projectStatistics",
   components: {
-    content: reportForm
+    content: () => import('@/business/components/reportstatistics/ReportStatistics'),
   },
   children: [
     {
-      path: 'home',
-      name: 'reportHome',
+      path: '/report/projectStatistics',
+      name: 'projectStatistics',
+      component: () => import('@/business/components/reportstatistics/projectstatistics/ProjectStatistics'),
+    },
+    {
+      path: "/report/projectReport",
+      name: "projectReport",
+      component: () => import('@/business/components/xpack/reportstatistics/projectreport/ProjectReport'),
     },
   ]
 }

@@ -280,6 +280,18 @@ export default {
       default_module: "默認模塊",
     },
     report_statistics: {
+      menu: {
+        project_statistics: "項目報表",
+        project_report: "項目報告",
+      },
+      project_report: {
+        create_report: "創建報告",
+        report_name: "報告名稱",
+        report_send_time: "發送時間",
+        report_send_freq: "發送頻率",
+        report_detail: "報告內容",
+        show: "查看",
+      },
       title: "報表統計",
       test_case_analysis: "測試用例趨勢",
       test_case_activity: "測試用例活動情況",
@@ -2213,5 +2225,10 @@ export default {
     script_entry: "腳本執行入口",
     plugin_id: "插件ID",
     script_view: "查看腳本",
+  },
+  mail: {
+    mail_subject: "郵件主題",
+    mail_addressee: "收件人",
+    mail_duplicate: "抄送人",
   }
 };

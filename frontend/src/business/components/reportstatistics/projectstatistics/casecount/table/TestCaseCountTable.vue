@@ -58,6 +58,12 @@
       tableData: Array,
       groupName: String,
       showColoums: Array,
+      fullScreen: {
+        type: Boolean,
+        default(){
+          return false;
+        }
+      }
     },
     data() {
       return {
@@ -68,6 +74,9 @@
     },
     created() {
       this.getTableHeight();
+      if(this.fullScreen){
+        this.w = document.documentElement.clientWidth;
+      }
     },
     methods: {
       isShowColumn(type){

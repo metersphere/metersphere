@@ -279,6 +279,18 @@ export default {
       default_module: "Default module",
     },
     report_statistics: {
+      menu: {
+        project_statistics: "Project statistics",
+        project_report: "Project report",
+      },
+      project_report: {
+        create_report: "Create report",
+        report_name: "Report name",
+        report_send_time: "Send time",
+        report_send_freq: "Send frequence",
+        report_detail: "Report detail",
+        show: "Show",
+      },
       title: "Report Statistics",
       test_case_analysis: "Test case analysis",
       test_case_activity: "Test case activity",
@@ -2202,5 +2214,10 @@ export default {
     script_entry: "Script execution entry",
     plugin_id: "Plug-in id",
     script_view: "View script",
+  },
+  mail: {
+    mail_subject: "Subject ",
+    mail_addressee: "To ",
+    mail_duplicate: "Cc ",
   }
 };
