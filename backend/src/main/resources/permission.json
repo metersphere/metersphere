@@ -838,6 +838,36 @@
       "id": "SYSTEM_PLUGIN:READ",
       "name": "查看脚本",
       "resourceId": "SYSTEM_PLUGIN"
+    },
+    {
+      "id": "ENTERPRISE_REPORT:READ+EXPORT",
+      "name": "发送邮件",
+      "resourceId": "ENTERPRISE_REPORT",
+      "license": true
+    },
+    {
+      "id": "ENTERPRISE_REPORT:READ+CREATE",
+      "name": "创建报告",
+      "resourceId": "ENTERPRISE_REPORT",
+      "license": true
+    },
+    {
+      "id": "ENTERPRISE_REPORT:READ+DELETE",
+      "name": "删除报告",
+      "resourceId": "ENTERPRISE_REPORT",
+      "license": true
+    },
+    {
+      "id": "ENTERPRISE_REPORT:READ+COPY",
+      "name": "复制报告",
+      "resourceId": "ENTERPRISE_REPORT",
+      "license": true
+    },
+    {
+      "id": "ENTERPRISE_REPORT:READ+EDIT",
+      "name": "修改报告",
+      "resourceId": "ENTERPRISE_REPORT",
+      "license": true
     }
   ],
   "resource": [
@@ -972,6 +1002,10 @@
     {
       "id": "PROJECT_REPORT_ANALYSIS",
       "name": "报表"
+    },
+    {
+      "id": "ENTERPRISE_REPORT",
+      "name": "项目报告"
     },
     {
       "id": "SYSTEM_PLUGIN",

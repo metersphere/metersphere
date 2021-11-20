@@ -25,11 +25,11 @@
 
 <script>
 import TestCaseCountChart from "./chart/TestCaseCountChart";
-import TestCaseCountTable from "@/business/components/reportstatistics/casecount/table/TestCaseCountTable";
+import TestCaseCountTable from "@/business/components/reportstatistics/projectstatistics/casecount/table/TestCaseCountTable";
 import TestCaseCountFilter from "./filter/TestCaseCountFilter";
 import {exportPdf,getCurrentProjectID} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
-import HistoryReportData from "../base/HistoryReportData";
+import HistoryReportData from "../../base/HistoryReportData";
 
 export default {
   name: "TestCaseCountContainer",

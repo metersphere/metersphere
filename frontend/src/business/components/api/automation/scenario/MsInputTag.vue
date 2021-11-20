@@ -21,7 +21,7 @@
       :disabled="readOnly"
       class="tag-input el-input"
       v-model="newTag"
-      :placeholder="$t('commons.tag_tip')"
+      :placeholder=defaultPlaceHolder
       @keydown.delete.stop="removeLastTag"
       @keydown="addNew"
       @blur="addNew"/>
@@ -33,6 +33,9 @@
     name: 'MsInputTag',
     props: {
       currentScenario: {},
+      placeholder: {
+        type: String,
+      },
       addTagOnKeys: {
         type: Array,
         default: () => [13, 188, 9]
@@ -51,9 +54,13 @@
       if (!this.currentScenario[this.prop]) {
         this.currentScenario[this.prop] = [];
       }
+      if(this.placeholder){
+        this.defaultPlaceHolder = this.placeholder;
+      }
     },
     data() {
       return {
+        defaultPlaceHolder: this.$t('commons.tag_tip'),
         newTag: '',
         innerTags: this.currentScenario[this.prop] ? [...this.currentScenario[this.prop]] : []
       }

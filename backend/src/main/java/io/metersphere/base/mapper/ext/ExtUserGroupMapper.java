@@ -6,6 +6,7 @@ import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.RelatedSource;
 import io.metersphere.dto.UserGroupDTO;
+import io.metersphere.dto.UserGroupInfoDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -27,4 +28,6 @@ public interface ExtUserGroupMapper {
     List<User> getGroupUser(@Param("request")EditGroupRequest request);
 
     int checkSourceRole(@Param("sourceId") String sourceId, @Param("userId") String userId, @Param("groupId") String groupId);
+
+    List<UserGroupInfoDTO> getUserGroupInfo();
 }
