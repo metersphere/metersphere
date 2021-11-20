@@ -15,7 +15,7 @@
         <!-- float right -->
         <ms-user ref="headerUser"/>
         <ms-language-switch :color="color"/>
-        <ms-header-org-ws :color="color"/>
+        <ms-header-ws :color="color"/>
         <ms-task-center :color="color"/>
         <ms-notification :color="color"/>
       </el-col>
@@ -31,7 +31,7 @@
 import MsTopMenus from "./components/common/head/HeaderTopMenus";
 import MsView from "./components/common/router/View";
 import MsUser from "./components/common/head/HeaderUser";
-import MsHeaderOrgWs from "./components/common/head/HeaderOrgWs";
+import MsHeaderWs from "./components/common/head/HeaderWs";
 import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
 import {hasLicense, saveLocalStorage, setColor, setDefaultTheme} from "@/common/js/utils";
 import {registerRequestHeaders} from "@/common/js/ajax";
@@ -199,7 +199,7 @@ export default {
     MsUser,
     MsView,
     MsTopMenus,
-    MsHeaderOrgWs,
+    MsHeaderWs,
     "LicenseMessage": header.default,
     "Theme": theme.default
   }
