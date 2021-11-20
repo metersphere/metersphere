@@ -247,7 +247,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         apiDefinition.setName(element.getName());
         apiDefinition.setProjectId(this.projectId);
         apiDefinition.setRequest(JSON.toJSONString(element));
-        if (this.selectModule != null) {
+        if (this.apiModule != null) {
             apiDefinition.setModuleId(this.apiModule.getId());
             if (StringUtils.isNotBlank(this.selectModulePath)) {
                 apiDefinition.setModulePath(this.selectModulePath + "/" + this.apiModule.getName());
