@@ -31,14 +31,14 @@
 import {
   fullScreenLoading,
   getCurrentUser,
-  getCurrentWorkspaceId,
+  getCurrentWorkspaceId, hasPermissions,
   saveLocalStorage,
   stopFullScreenLoading
 } from "@/common/js/utils";
-import {ORGANIZATION_ID, PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
+import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
 export default {
-  name: "MsHeaderOrgWs",
+  name: "MsHeaderWs",
   created() {
     this.initMenuData();
   },
@@ -81,9 +81,9 @@ export default {
     },
     getRedirectUrl(user) {
       if (!user.lastProjectId || !user.lastWorkspaceId) {
-        // 没有项目级的权限直接回到 /
-        // 只是某一个工作空间的用户组也转到 /
-        return "/";
+        // 没有项目级的权限直接回到 /setting/project/:type
+        // 只是某一个工作空间的用户组也转到 /setting/project/:type
+        return "/setting/project/:type";
       }
       let redirectUrl = sessionStorage.getItem('redirectUrl');
       if (redirectUrl.startsWith("/")) {
