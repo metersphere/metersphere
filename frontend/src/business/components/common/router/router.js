@@ -16,6 +16,7 @@ Vue.use(VueRouter);
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 const router = new VueRouter({
   routes: [
+    {path: "/", redirect: '/setting'},
     {
       path: "/sidebar",
       components: {
