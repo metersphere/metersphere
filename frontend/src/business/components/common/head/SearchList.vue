@@ -32,9 +32,10 @@ import {
   getCurrentUser,
   getCurrentUserId,
   getCurrentWorkspaceId,
-  saveLocalStorage, stopFullScreenLoading
+  hasPermissions,
+  saveLocalStorage,
+  stopFullScreenLoading
 } from "@/common/js/utils";
-import {mapGetters} from "vuex";
 import {PROJECT_ID} from "@/common/js/constants";
 
 export default {
@@ -47,7 +48,8 @@ export default {
     this.init();
   },
   inject: [
-    'reload'
+    'reload',
+    'reloadTopMenus'
   ],
   data() {
     return {
@@ -95,6 +97,39 @@ export default {
         return (item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
       };
     },
+    reloadPage: function () {
+      let redirectUrl = sessionStorage.getItem('redirectUrl');
+
+      let trackPermission = hasPermissions('PROJECT_TRACK_CASE:READ', 'PROJECT_TRACK_PLAN:READ', 'PROJECT_TRACK_REVIEW:READ', 'PROJECT_TRACK_ISSUE:READ', 'PROJECT_TRACK_REPORT:READ');
+      let apiPermission = hasPermissions('PROJECT_API_DEFINITION:READ', 'PROJECT_API_SCENARIO:READ', 'PROJECT_API_REPORT:READ');
+      let performancePermission = hasPermissions('PROJECT_PERFORMANCE_TEST:READ', 'PROJECT_PERFORMANCE_REPORT:READ');
+      let projectPermission = hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ');
+
+      let redirectMap = {
+        track: trackPermission,
+        api: apiPermission,
+        performance: performancePermission,
+        project: projectPermission,
+      };
+      let locations = redirectUrl.split('/');
+      if (locations.length > 2) {
+        if (!redirectMap[locations[1]]) {
+          let v = true;
+          for (const k in redirectMap) {
+            if (redirectMap[k]) {
+              this.$router.push("/" + k);
+              v = false;
+              break;
+            }
+          }
+          if (v) {
+            this.$router.push("/");
+          }
+        }
+      }
+      this.reloadTopMenus();
+      this.reload();
+    },
     change(projectId) {
       let currentProjectId = getCurrentProjectID();
       if (projectId === currentProjectId) {
@@ -109,7 +144,7 @@ export default {
         // 保存session里的projectId
         sessionStorage.setItem(PROJECT_ID, projectId);
         // 刷新路由
-        this.reload();
+        this.reloadPage();
         stopFullScreenLoading(loading, 1500);
         this.changeProjectName(projectId);
       }, () => {
