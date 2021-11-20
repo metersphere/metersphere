@@ -42,7 +42,7 @@ public class GroupController {
     }
 
     @GetMapping("/get/all")
-    public List<Group> getAllGroup() {
+    public List<GroupDTO> getAllGroup() {
         return groupService.getAllGroup();
     }
 

@@ -80,8 +80,8 @@ public class GroupService {
 
     public Pager<List<GroupDTO>> getGroupList(EditGroupRequest request) {
         SessionUser user = SessionUtils.getUser();
-        List<UserGroupDTO> userGroup = extUserGroupMapper.getUserGroup(Objects.requireNonNull(user).getId() , request.getProjectId());
-        List<String> groupTypeList = userGroup.stream().map(UserGroupDTO::getType).collect(Collectors.toList());
+        List<UserGroupDTO> userGroup = extUserGroupMapper.getUserGroup(Objects.requireNonNull(user).getId(), request.getProjectId());
+        List<String> groupTypeList = userGroup.stream().map(UserGroupDTO::getType).distinct().collect(Collectors.toList());
         return getGroups(groupTypeList, request);
     }
 
@@ -319,8 +319,11 @@ public class GroupService {
         return extUserGroupMapper.getProjectMemberGroups(projectId, userId);
     }
 
-    public List<Group> getAllGroup() {
-        return groupMapper.selectByExample(new GroupExample());
+    public List<GroupDTO> getAllGroup() {
+        List<String> types = map.get(UserGroupType.SYSTEM);
+        EditGroupRequest request = new EditGroupRequest();
+        request.setTypes(types);
+        return extGroupMapper.getGroupList(request);
     }
 
     public List<?> getResource(String type, String groupId) {
@@ -346,7 +349,9 @@ public class GroupService {
                 criteria.andIdEqualTo(workspaceId);
                 List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
                 List<String> list = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
-                pc.andWorkspaceIdIn(list);
+                if (CollectionUtils.isNotEmpty(list)) {
+                    pc.andWorkspaceIdIn(list);
+                }
             }
             return projectMapper.selectByExample(projectExample);
         }
