@@ -158,7 +158,7 @@ export default {
       }
     },
     getWorkspace() {
-      this.$get("/user/group/ws/" + getCurrentUserId(), res => {
+      this.$get("/workspace/list", res => {
         let data = res.data;
         if (data) {
           this.workspaces = data;
