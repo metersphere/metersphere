@@ -1073,12 +1073,28 @@ public class ApiAutomationService {
             for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : apiScenarios) {
                 try {
                     TestPlanApiScenario testPlanApiScenario = null;
-                    if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(apiScenarioWithBLOBs.getId())) {
-                        testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(request.getScenarioTestPlanIdMap().get(apiScenarioWithBLOBs.getId()));
-                    }
-                    boolean haveEnv = checkScenarioEnv(apiScenarioWithBLOBs, testPlanApiScenario);
-                    if (!haveEnv) {
-                        builder.append(apiScenarioWithBLOBs.getName()).append("; ");
+                    if(MapUtils.isNotEmpty(request.getScenarioTestPlanIdMap())){
+                        List<String> testPlanScenarioIds = new ArrayList<>();
+                        for (Map.Entry<String, String> entry: request.getScenarioTestPlanIdMap().entrySet()){
+                            String testPlanScenarioId = entry.getKey();
+                            String scenarioId = entry.getValue();
+                            if(StringUtils.equalsIgnoreCase(scenarioId,apiScenarioWithBLOBs.getId())){
+                                testPlanScenarioIds.add(testPlanScenarioId);
+                            }
+                        }
+
+                        for (String testPlanScenarioId : testPlanScenarioIds) {
+                            testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(request.getScenarioTestPlanIdMap().get(testPlanScenarioId));
+                            boolean haveEnv = checkScenarioEnv(apiScenarioWithBLOBs, testPlanApiScenario);
+                            if (!haveEnv) {
+                                builder.append(apiScenarioWithBLOBs.getName()).append("; ");
+                            }
+                        }
+                    }else {
+                        boolean haveEnv = checkScenarioEnv(apiScenarioWithBLOBs, testPlanApiScenario);
+                        if (!haveEnv) {
+                            builder.append(apiScenarioWithBLOBs.getName()).append("; ");
+                        }
                     }
                 } catch (Exception e) {
                     MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
