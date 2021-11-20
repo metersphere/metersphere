@@ -332,7 +332,7 @@ export default {
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       toggleAllSelection(this.$refs.userTable, this.tableData, this.selectRows);
     },
-    cascaderConfirm(batchProcessTypeParam, selectValueArr) {
+    cascaderConfirm(batchProcessTypeParam, selectValueArr, selectUserGroupId) {
       if (selectValueArr.length == 0) {
         this.$success(this.$t('commons.modify_success'));
       }
@@ -341,6 +341,7 @@ export default {
       params.workspaceId = getCurrentWorkspaceId();
       params.batchType = batchProcessTypeParam;
       params.batchProcessValue = selectValueArr;
+      params.selectUserGroupId = selectUserGroupId;
       this.$post('/user/special/batchProcessUserInfo', params, () => {
         this.$success(this.$t('commons.modify_success'));
         this.initTableData();
