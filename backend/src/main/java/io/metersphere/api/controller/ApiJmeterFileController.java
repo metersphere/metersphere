@@ -54,4 +54,13 @@ public class ApiJmeterFileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + testId + ".zip\"")
                 .body(bytes);
     }
+
+    @GetMapping("download/plug/jar")
+    public ResponseEntity<byte[]> downloadPlugFiles() {
+        byte[] bytes = apiJmeterFileService.downloadPlugJar();
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + UUID.randomUUID().toString() + ".zip\"")
+                .body(bytes);
+    }
 }

@@ -221,4 +221,10 @@ public class PluginService {
         }
         return null;
     }
+
+    public List<Plugin> list() {
+        PluginExample example = new PluginExample();
+        List<Plugin> plugins = pluginMapper.selectByExample(example);
+        return plugins;
+    }
 }
