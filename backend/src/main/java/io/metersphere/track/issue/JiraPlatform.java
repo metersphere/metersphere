@@ -139,7 +139,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void addIssue(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
 
         JiraConfig jiraConfig = setUserConfig();
         JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, jiraConfig.getIssuetype());
@@ -160,10 +160,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issuesRequest.setId(UUID.randomUUID().toString());
 
         // 插入缺陷表
-        insertIssues(issuesRequest);
+        IssuesWithBLOBs res = insertIssues(issuesRequest);
 
         // 用例与第三方缺陷平台中的缺陷关联
         handleTestCaseIssues(issuesRequest);
+
+        return res;
     }
 
     private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr) {

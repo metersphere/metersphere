@@ -1,20 +1,25 @@
 <template>
-  <ms-module-minder
-    v-loading="result.loading"
-    :tree-nodes="treeNodes"
-    :tags="tags"
-    minder-key="testCase"
-    :select-node="selectNode"
-    :distinct-tags="tags"
-    :module-disable="false"
-    :show-module-tag="true"
-    :tag-edit-check="tagEditCheck()"
-    @afterMount="handleAfterMount"
-    :priority-disable-check="priorityDisableCheck()"
-    :disabled="disabled"
-    @save="save"
-    ref="minder"
-  />
+  <div>
+    <ms-module-minder
+      v-loading="result.loading"
+      :tree-nodes="treeNodes"
+      :tags="tags"
+      minder-key="testCase"
+      :select-node="selectNode"
+      :distinct-tags="tags"
+      :module-disable="false"
+      :show-module-tag="true"
+      :tag-edit-check="tagEditCheck()"
+      @afterMount="handleAfterMount"
+      :priority-disable-check="priorityDisableCheck()"
+      :disabled="disabled"
+      @save="save"
+      ref="minder"
+    />
+    <IssueRelateList :case-id="getCurCaseId()"  @refresh="refreshRelateIssue" ref="issueRelate"/>
+    <test-plan-issue-edit :plan-id="null" :case-id="getCurCaseId()" @refresh="refreshIssue" ref="issueEdit"/>
+  </div>
+
 </template>
 
 <script>
@@ -31,9 +36,12 @@ import {
 } from "@/business/components/track/common/minder/minderUtils";
 import {getNodePath, getUUID, hasPermission} from "@/common/js/utils";
 import {getTestCasesForMinder, getMinderExtraNode} from "@/network/testCase";
+import {addIssueHotBox, getSelectedNodeData, handleIssueAdd, handleIssueBatch} from "./minderUtils";
+import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
+import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
 export default {
 name: "TestCaseMinder",
-  components: {MsModuleMinder},
+  components: {TestPlanIssueEdit, IssueRelateList, MsModuleMinder},
   data() {
     return{
       testCase: [],
@@ -120,6 +128,8 @@ name: "TestCaseMinder",
           this.setIsChange(true);
         }
       });
+
+      addIssueHotBox(this);
     },
     getParam() {
       return {
@@ -433,6 +443,15 @@ name: "TestCaseMinder",
         });
         this.needRefresh = false;
       }
+    },
+    getCurCaseId() {
+      return getSelectedNodeData().id;
+    },
+    refreshIssue(issue) {
+      handleIssueAdd(issue);
+    },
+    refreshRelateIssue(issues) {
+      handleIssueBatch(issues);
     }
   }
 }

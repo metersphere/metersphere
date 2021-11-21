@@ -82,7 +82,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/list/minder")
-    public List<TestCaseWithBLOBs> listDetail(@RequestBody QueryTestCaseRequest request) {
+    public List<TestCaseDTO> listDetail(@RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return testCaseService.listTestCaseForMinder(request);
     }

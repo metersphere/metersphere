@@ -492,7 +492,7 @@
              ) as temp
     </select>
 
-    <select id="listForMinder" resultType="io.metersphere.base.domain.TestCaseWithBLOBs">
+    <select id="listForMinder" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
         <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>,
         <include refid="io.metersphere.base.mapper.TestCaseMapper.Blob_Column_List"/>

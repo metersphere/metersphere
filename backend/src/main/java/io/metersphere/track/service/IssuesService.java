@@ -88,15 +88,17 @@ public class IssuesService {
     }
 
 
-    public void addIssues(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssues(IssuesUpdateRequest issuesRequest) {
         List<AbstractIssuePlatform> platformList = getAddPlatforms(issuesRequest);
-        platformList.forEach(platform -> {
-            platform.addIssue(issuesRequest);
-        });
+        IssuesWithBLOBs issues = null;
+        for (AbstractIssuePlatform platform : platformList) {
+            issues = platform.addIssue(issuesRequest);
+        }
         issuesRequest.getTestCaseIds().forEach(l -> {
             testCaseIssueService.updateIssuesCount(l);
         });
         saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
+        return issues;
     }
 
 

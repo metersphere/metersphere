@@ -91,7 +91,7 @@ public interface ExtTestCaseMapper {
     int getTestPlanPassCase(@Param("planId") String planId);
 
 
-    List<TestCaseWithBLOBs> listForMinder(@Param("request") QueryTestCaseRequest request);
+    List<TestCaseDTO> listForMinder(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseDTO> getTestCaseByIds(@Param("ids")List<String> ids);
 

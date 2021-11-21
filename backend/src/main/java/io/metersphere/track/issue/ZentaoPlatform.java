@@ -153,12 +153,14 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void addIssue(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
         setUserConfig();
 
         MultiValueMap<String, Object> param = buildUpdateParam(issuesRequest);
         AddIssueResponse.Issue issue = zentaoClient.addIssue(param);
         issuesRequest.setPlatformStatus(issue.getStatus());
+
+        IssuesWithBLOBs issues = null;
 
         String id = issue.getId();
         if (StringUtils.isNotBlank(id)) {
@@ -170,12 +172,13 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                     .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
             if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
                 // 插入缺陷表
-                insertIssues(issuesRequest);
+                issues = insertIssues(issuesRequest);
             }
 
             // 用例与第三方缺陷平台中的缺陷关联
             handleTestCaseIssues(issuesRequest);
         }
+        return issues;
     }
 
     @Override

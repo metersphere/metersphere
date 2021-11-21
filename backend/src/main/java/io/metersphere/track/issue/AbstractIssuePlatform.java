@@ -197,7 +197,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issuesMapper.insert(issues);
     }
 
-    protected void insertIssues(IssuesUpdateRequest issuesRequest) {
+    protected IssuesWithBLOBs insertIssues(IssuesUpdateRequest issuesRequest) {
         IssuesWithBLOBs issues = new IssuesWithBLOBs();
         BeanUtils.copyBean(issues, issuesRequest);
         issues.setId(issuesRequest.getId());
@@ -207,6 +207,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issues.setNum(getNextNum(issuesRequest.getProjectId()));
         issues.setPlatformStatus(issuesRequest.getPlatformStatus());
         issuesMapper.insert(issues);
+        return issues;
     }
 
     protected int getNextNum(String projectId) {
