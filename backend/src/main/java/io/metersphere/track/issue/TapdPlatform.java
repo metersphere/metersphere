@@ -71,7 +71,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void addIssue(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
 
         MultiValueMap<String, Object> param = buildUpdateParam(issuesRequest);
         TapdBug bug = tapdClient.addIssue(param);
@@ -82,10 +82,12 @@ public class TapdPlatform extends AbstractIssuePlatform {
         issuesRequest.setId(UUID.randomUUID().toString());
 
         // 插入缺陷表
-        insertIssues(issuesRequest);
+        IssuesWithBLOBs issues = insertIssues(issuesRequest);
 
         // 用例与第三方缺陷平台中的缺陷关联
         handleTestCaseIssues(issuesRequest);
+
+        return issues;
     }
 
     @Override

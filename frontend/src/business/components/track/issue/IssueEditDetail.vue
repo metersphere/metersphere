@@ -286,10 +286,10 @@ export default {
     _save() {
       let param = this.buildPram();
       this.parseOldFields(param);
-      this.result = this.$post(this.url, param, () => {
+      this.result = this.$post(this.url, param, (response) => {
         this.$emit('close');
         this.$success(this.$t('commons.save_success'));
-        this.$emit('refresh');
+        this.$emit('refresh', response.data);
       });
     },
     parseOldFields(param) {

@@ -12,6 +12,8 @@ public interface ExtIssuesMapper {
 
     List<IssuesDao> getIssuesByCaseId(@Param("request") IssuesRequest issuesRequest);
 
+    List<IssuesDao> getIssueForMinder(@Param("caseIds") List<String> caseIds);
+
     List<IssuesDao> getIssues(@Param("request") IssuesRequest issuesRequest);
 
     List<IssuesDao> getRelateIssues(@Param("request") IssuesRequest request);

@@ -15,6 +15,7 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
@@ -84,6 +85,9 @@ public class TestCaseService {
 
     @Resource
     ExtTestCaseMapper extTestCaseMapper;
+
+    @Resource
+    ExtIssuesMapper extIssuesMapper;
 
     @Resource
     UserService userService;
@@ -1567,9 +1571,34 @@ public class TestCaseService {
         return testCaseMapper.selectByExample(example);
     }
 
-    public List<TestCaseWithBLOBs> listTestCaseForMinder(QueryTestCaseRequest request) {
+    public List<TestCaseDTO> listTestCaseForMinder(QueryTestCaseRequest request) {
         setDefaultOrder(request);
-        return extTestCaseMapper.listForMinder(request);
+        List<TestCaseDTO> cases = extTestCaseMapper.listForMinder(request);
+        List<String> caseIds = cases.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
+        HashMap<String, List<IssuesDao>> issueMap = buildMinderIssueMap(caseIds);
+        for (TestCaseDTO item : cases) {
+            List<IssuesDao> issues = issueMap.get(item.getId());
+            if (issues != null) {
+                item.setIssueList(issues);
+            }
+        }
+        return cases;
+    }
+
+    public HashMap<String, List<IssuesDao>> buildMinderIssueMap(List<String> caseIds) {
+        HashMap<String, List<IssuesDao>> issueMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(caseIds)) {
+            List<IssuesDao> issues = extIssuesMapper.getIssueForMinder(caseIds);
+            for (IssuesDao item : issues) {
+                List<IssuesDao> list = issueMap.get(item.getCaseId());
+                if (list == null) {
+                    list = new ArrayList<>();
+                }
+                list.add(item);
+                issueMap.put(item.getCaseId(), list);
+            }
+        }
+        return issueMap;
     }
 
     public List<TestCaseDTO> getTestCaseByIds(List<String> testCaseIds) {

@@ -1,5 +1,6 @@
 package io.metersphere.track.dto;
 
+import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,4 +20,5 @@ public class TestCaseDTO extends TestCaseWithBLOBs {
     private String createName;
 
     private List<String> caseTags = new ArrayList<>();
+    private List<IssuesDao> issueList = new ArrayList<>();
 }

@@ -13,15 +13,6 @@
       <el-col :span="7">
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
-<!--          <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"-->
-<!--                     :placeholder="$t('test_track.please_related_requirements')" class="ms-case-input">-->
-<!--            <el-option-->
-<!--              v-for="item in demandOptions"-->
-<!--              :key="item.id"-->
-<!--              :label="item.platform + ': '+item.name"-->
-<!--              :value="item.id">-->
-<!--            </el-option>-->
-<!--          </el-select>-->
 
           <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" clearable/>
         </el-form-item>

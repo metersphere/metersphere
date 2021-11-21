@@ -63,6 +63,8 @@ public class TestPlanTestCaseService {
     private TestCaseTestMapper testCaseTestMapper;
     @Resource
     private TestCaseCommentService testCaseCommentService;
+    @Resource
+    private TestCaseService testCaseService;
 
     public List<TestPlanTestCaseWithBLOBs> listAll() {
         TestPlanTestCaseExample example = new TestPlanTestCaseExample();
@@ -307,7 +309,16 @@ public class TestPlanTestCaseService {
             }
         });
         request.setOrders(orders);
-        return extTestPlanTestCaseMapper.listForMinder(request);
+        List<TestPlanCaseDTO> cases = extTestPlanTestCaseMapper.listForMinder(request);
+        List<String> caseIds = cases.stream().map(TestPlanCaseDTO::getCaseId).collect(Collectors.toList());
+        HashMap<String, List<IssuesDao>> issueMap = testCaseService.buildMinderIssueMap(caseIds);
+        for (TestPlanCaseDTO item : cases) {
+            List<IssuesDao> issues = issueMap.get(item.getCaseId());
+            if (issues != null) {
+                item.setIssueList(issues);
+            }
+        }
+        return cases;
     }
 
     public void editTestCaseForMinder(List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {

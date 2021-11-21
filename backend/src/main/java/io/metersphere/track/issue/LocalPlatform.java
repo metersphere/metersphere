@@ -40,7 +40,7 @@ public class LocalPlatform extends LocalAbstractPlatform {
     }
 
     @Override
-    public void addIssue(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
         String issueStatus = "new";
         if (StringUtils.isNotBlank(issuesRequest.getCustomFields())) {
             List<TestCaseBatchRequest.CustomFiledRequest> fields = JSONObject.parseArray(issuesRequest.getCustomFields(), TestCaseBatchRequest.CustomFiledRequest.class);
@@ -67,6 +67,8 @@ public class LocalPlatform extends LocalAbstractPlatform {
 
         issuesRequest.setId(id);
         handleTestCaseIssues(issuesRequest);
+
+        return issues;
     }
 
     @Override

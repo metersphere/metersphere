@@ -1,5 +1,6 @@
 import i18n from "@/i18n/i18n";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
+import {warning} from "../../../../../common/js/message";
 
 export function listenNodeSelected(callback) {
   let minder = window.minder;
@@ -107,6 +108,23 @@ export function handleTestCaseAdd(pid, data) {
   });
 }
 
+export function handleIssueAdd(data) {
+  let pNode = getSelectedNode();
+    appendChildNode(pNode, getNodeData('缺陷ID：' + data.num, null, true));
+    expandNode(pNode);
+    pNode.render();
+}
+
+export function handleIssueBatch(issues) {
+  let pNode = getSelectedNode();
+  issues.forEach(item => {
+    appendChildNode(pNode, getNodeData('缺陷ID：' + item.num, null, true));
+  });
+  expandNode(pNode);
+  pNode.render();
+}
+
+
 export function handTestCaeEdit(data) {
   window.minder.getRoot().traverse(function(node) {
     if (node.data.id === data.id) {
@@ -181,7 +199,8 @@ export function appendCase(parent, item, isDisable, setParamCallback) {
     type: 'case',
     method: item.method,
     maintainer: item.maintainer,
-    stepModel: item.stepModel
+    stepModel: item.stepModel,
+    caseId: item.caseId
   }
   if (setParamCallback) {
     setParamCallback(caseData, item);
@@ -218,6 +237,12 @@ export function appendCase(parent, item, isDisable, setParamCallback) {
         }
       });
     }
+  }
+
+  if (item.issueList && item.issueList.length > 0) {
+    item.issueList.forEach(issue => {
+      appendChildNode(caseNode, getNodeData('缺陷ID：' + issue.num, null, true));
+    });
   }
 }
 
@@ -359,6 +384,11 @@ export function isModuleNodeData(data) {
   return data.type === 'node' || (resource && resource.indexOf(i18n.t('test_track.module.module')) > -1);
 }
 
+export function isCaseNodeData(data) {
+  let resource = data ? data.resource : null;
+  return data.type === 'case' || (resource && resource.indexOf(i18n.t('api_test.definition.request.case')) > -1);
+}
+
 export function isModuleNode(node) {
   return isModuleNodeData(node.data);
 }
@@ -426,4 +456,53 @@ export function getChildNodeId(rootNode, nodeIds) {
       getChildNodeId(rootNode.children[i], nodeIds);
     }
   }
+}
+
+export function getSelectedNode() {
+  return window.minder ? window.minder.getSelectedNode() : null;
+}
+
+export function getSelectedNodeData() {
+  let node = getSelectedNode();
+  return node ? node.data : {};
+}
+
+export function addIssueHotBox(vueObj) {
+  let hotbox = window.minder.hotbox;
+  let main = hotbox.state('main');
+  main.button({
+    position: 'ring',
+    label: '关联缺陷',
+    key: 'N',
+    action: function () {
+      if (getSelectedNodeData().id.length < 15) {
+        warning("请先保存用例");
+        return;
+      }
+      vueObj.$refs.issueRelate.open();
+    },
+    enable: function () {
+      return isCaseNodeData(getSelectedNodeData());
+    },
+    beforeShow: function () {
+    }
+  });
+
+  main.button({
+    position: 'ring',
+    label: '添加缺陷',
+    key: 'M',
+    action: function () {
+      if (getSelectedNodeData().id.length < 15) {
+        warning("请先保存用例");
+        return;
+      }
+      vueObj.$refs.issueEdit.open();
+    },
+    enable: function () {
+      return isCaseNodeData(getSelectedNodeData());
+    },
+    beforeShow: function () {
+    }
+  });
 }

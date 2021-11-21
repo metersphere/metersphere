@@ -7,7 +7,7 @@
     append-to-body
     ref="msEditDialog">
     <template v-slot:default="scope">
-      <issue-edit-detail :plan-id="planId" :case-id="caseId" :is-plan="true" @refresh="$emit('refresh')" @close="handleClose" ref="issueEditDetail"/>
+      <issue-edit-detail :plan-id="planId" :case-id="caseId" :is-plan="true" @refresh="refresh" @close="handleClose" ref="issueEditDetail"/>
     </template>
   </ms-edit-dialog>
 </template>
@@ -44,6 +44,9 @@ export default {
     },
     confirm() {
       this.$refs.issueEditDetail.save();
+    },
+    refresh(data) {
+      this.$emit('refresh', data);
     }
   }
 };

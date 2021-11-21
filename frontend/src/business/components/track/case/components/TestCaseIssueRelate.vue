@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button class="add-btn" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']" :disabled="readOnly" type="primary" size="mini" @click="appIssue">{{ $t('test_track.issue.add_issue') }}</el-button>
+    <el-button class="add-btn" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']" :disabled="readOnly" type="primary" size="mini" @click="addIssue">{{ $t('test_track.issue.add_issue') }}</el-button>
     <el-button class="add-btn" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"  :disabled="readOnly" type="primary" size="mini" @click="relateIssue">{{ $t('test_track.case.relate_issue') }}</el-button>
     <el-tooltip class="item" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"  effect="dark"
                 :content="$t('test_track.issue.platform_tip')"
@@ -86,7 +86,7 @@
     </ms-table>
 
     <test-plan-issue-edit :plan-id="planId" :case-id="caseId" @refresh="getIssues" ref="issueEdit"/>
-    <IssueRelateList :is-third-part="isThirdPart" :case-id="caseId"  @refresh="getIssues" ref="issueRelate"/>
+    <IssueRelateList :case-id="caseId"  @refresh="getIssues" ref="issueRelate"/>
   </div>
 </template>
 
@@ -120,7 +120,8 @@ export default {
           exec: this.deleteIssue
         }
       ],
-      status: []
+      status: [],
+      issueRelateVisible: false
     }
   },
   props: ['caseId', 'readOnly','planId'],
@@ -175,7 +176,7 @@ export default {
         this.page.result = result;
       }
     },
-    appIssue() {
+    addIssue() {
       if (!this.caseId) {
         this.$warning(this.$t('api_test.automation.save_case_info'));
         return;

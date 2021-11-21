@@ -1,30 +1,37 @@
 <template>
-  <ms-module-minder
-    v-loading="result.loading"
-    :tree-nodes="treeNodes"
-    :data-map="dataMap"
-    :tags="tags"
-    :tag-enable="true"
-    minder-key="testPlan"
-    :select-node="selectNode"
-    :distinct-tags="[...tags, this.$t('test_track.plan.plan_status_prepare')]"
-    :ignore-num="true"
-    @afterMount="handleAfterMount"
-    @save="save"
-    ref="minder"
-  />
+  <div>
+    <ms-module-minder
+      v-loading="result.loading"
+      :tree-nodes="treeNodes"
+      :data-map="dataMap"
+      :tags="tags"
+      :tag-enable="true"
+      minder-key="testPlan"
+      :select-node="selectNode"
+      :distinct-tags="[...tags, this.$t('test_track.plan.plan_status_prepare')]"
+      :ignore-num="true"
+      @afterMount="handleAfterMount"
+      @save="save"
+      ref="minder"
+    />
+    <IssueRelateList :case-id="getCurCaseId()"  @refresh="refreshRelateIssue" ref="issueRelate"/>
+    <test-plan-issue-edit :plan-id="planId" :case-id="getCurCaseId()" @refresh="refreshIssue" ref="issueEdit"/>
+  </div>
 </template>
 
 <script>
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
 import {
   handleExpandToLevel, listenBeforeExecCommand, listenNodeSelected, loadSelectNodes,
-  tagBatch,
+  tagBatch, getSelectedNodeData, handleIssueAdd, handleIssueBatch
 } from "@/business/components/track/common/minder/minderUtils";
 import {getPlanCasesForMinder} from "@/network/testCase";
+import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
+import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
+import {addIssueHotBox} from "./minderUtils";
 export default {
 name: "TestPlanMinder",
-  components: {MsModuleMinder},
+  components: {MsModuleMinder, TestPlanIssueEdit, IssueRelateList},
   data() {
     return{
       dataMap: new Map(),
@@ -81,6 +88,8 @@ name: "TestPlanMinder",
       });
 
       tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')]);
+
+      addIssueHotBox(this);
     },
     getParam() {
       return {
@@ -144,6 +153,15 @@ name: "TestPlanMinder",
         }
       }
       saveCases.push(testCase);
+    },
+    getCurCaseId() {
+      return getSelectedNodeData().caseId;
+    },
+    refreshIssue(issue) {
+      handleIssueAdd(issue);
+    },
+    refreshRelateIssue(issues) {
+      handleIssueBatch(issues);
     }
   }
 }
