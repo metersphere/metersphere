@@ -547,6 +547,7 @@ export default {
       obj.condition.status = "";
       this.$post('/api/testcase/batch/run', obj, () => {
         this.condition.ids = [];
+        this.$store.state.currentApiCase.case = true;
         this.$refs.batchRun.close();
         this.search();
       });
