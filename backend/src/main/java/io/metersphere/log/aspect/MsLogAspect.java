@@ -107,7 +107,6 @@ public class MsLogAspect {
                 }
             }
         } catch (Exception e) {
-            LogUtil.error(e);
         }
     }
 
@@ -266,7 +265,6 @@ public class MsLogAspect {
                 operatingLogService.create(msOperLog);
             }
         } catch (Exception e) {
-            LogUtil.error(e);
         }
     }
 }
