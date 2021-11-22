@@ -1,7 +1,7 @@
 <template>
   <div class="ms-content">
-    <el-row>
-      <el-col :span="4">
+    <el-row class="row-class">
+      <el-col :span="4" class="col-one">
         <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('trackTestCase')">
           <img src="@/assets/test_case_analysis_png.png" class="image">
           <div style="padding: 10px;">
@@ -93,6 +93,13 @@ export default {
 </script>
 
 <style scoped>
+.row-class{
+  display: flex;
+}
+.col-one{
+  display: flex;
+  align-items: stretch;
+}
 .time {
   font-size: 13px;
   color: #999;
