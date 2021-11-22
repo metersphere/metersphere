@@ -23,12 +23,13 @@
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
 import {
   handleExpandToLevel, listenBeforeExecCommand, listenNodeSelected, loadSelectNodes,
-  tagBatch, getSelectedNodeData, handleIssueAdd, handleIssueBatch
+  tagBatch, getSelectedNodeData, handleIssueAdd, handleIssueBatch, listenDblclick
 } from "@/business/components/track/common/minder/minderUtils";
 import {getPlanCasesForMinder} from "@/network/testCase";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
 import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
 import {addIssueHotBox} from "./minderUtils";
+import {getIssuesById} from "@/network/Issue";
 export default {
 name: "TestPlanMinder",
   components: {MsModuleMinder, TestPlanIssueEdit, IssueRelateList},
@@ -76,14 +77,24 @@ name: "TestPlanMinder",
     }
   },
   methods: {
-    handleAfterMount() {
+    handleAfterMount: function () {
       listenNodeSelected(() => {
-        loadSelectNodes(this.getParam(),  getPlanCasesForMinder, this.setParamCallback);
+        loadSelectNodes(this.getParam(), getPlanCasesForMinder, this.setParamCallback);
       });
       listenBeforeExecCommand((even) => {
         if (even.commandName === 'expandtolevel') {
           let level = Number.parseInt(even.commandArgs);
           handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getPlanCasesForMinder, this.setParamCallback);
+        }
+      });
+
+      listenDblclick(() => {
+        let data = getSelectedNodeData();
+        if (data.type === 'issue') {
+          getIssuesById(data.id, (data) => {
+            data.customFields = JSON.parse(data.customFields);
+            this.$refs.issueEdit.open(data);
+          });
         }
       });
 

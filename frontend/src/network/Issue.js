@@ -26,11 +26,15 @@ export function getIssues(page) {
 
 export function getIssuesByCaseId(caseId, page) {
   if (caseId) {
-    return get('issues/get/' + caseId, (response) => {
+    return get('issues/get/case/' + caseId, (response) => {
       page.data = response.data;
       buildIssues(page);
     });
   }
+}
+
+export function getIssuesById(id, callback) {
+  return id ? baseGet('/issues/get/' + id, callback) : {};
 }
 
 export function getIssuesByPlanId(planId, callback) {

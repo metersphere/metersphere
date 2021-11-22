@@ -57,9 +57,14 @@ public class IssuesController {
         issuesService.updateIssues(issuesRequest);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/get/case/{id}")
     public List<IssuesDao> getIssues(@PathVariable String id) {
         return issuesService.getIssues(id);
+    }
+
+    @GetMapping("/get/{id}")
+    public IssuesWithBLOBs getIssue(@PathVariable String id) {
+        return issuesService.getIssue(id);
     }
 
     @GetMapping("/plan/get/{planId}")

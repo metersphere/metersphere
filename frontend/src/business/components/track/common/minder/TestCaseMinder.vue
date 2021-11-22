@@ -39,6 +39,7 @@ import {getTestCasesForMinder, getMinderExtraNode} from "@/network/testCase";
 import {addIssueHotBox, getSelectedNodeData, handleIssueAdd, handleIssueBatch} from "./minderUtils";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
 import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
+import {getIssuesById} from "@/network/Issue";
 export default {
 name: "TestCaseMinder",
   components: {TestPlanIssueEdit, IssueRelateList, MsModuleMinder},
@@ -107,10 +108,16 @@ name: "TestCaseMinder",
         let minder = window.minder;
         let selectNodes = minder.getSelectedNodes();
         let isNotDisableNode = false;
-        // 如果鼠标双击了非模块的节点，表示已经编辑
         selectNodes.forEach(node => {
+          // 如果鼠标双击了非模块的节点，表示已经编辑
           if (!node.data.disable) {
             isNotDisableNode = true;
+          }
+          if (node.data.type === 'issue') {
+            getIssuesById(node.data.id, (data) => {
+              data.customFields = JSON.parse(data.customFields);
+              this.$refs.issueEdit.open(data);
+            });
           }
         });
         if (isNotDisableNode) {

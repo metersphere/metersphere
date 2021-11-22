@@ -176,6 +176,10 @@ public class IssuesService {
         return getIssuesByProjectIdOrCaseId(issueRequest);
     }
 
+    public IssuesWithBLOBs getIssue(String id) {
+        return issuesMapper.selectByPrimaryKey(id);
+    }
+
     public List<IssuesDao> getIssuesByProjectIdOrCaseId(IssuesRequest issueRequest) {
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issueRequest.getProjectId())) {
