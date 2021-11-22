@@ -88,15 +88,18 @@
         <div class="report-container">
           <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px;">
             <el-card class="ms-card-task" @click.native="showReport(item)">
-              <span class="ms-task-name-width"><el-link type="primary">
-                {{ getModeName(item.executionModule) }} </el-link>: {{ item.name }}
+              <span class="ms-task-name-width">
+                {{ getModeName(item.executionModule) }} : <el-link type="primary"> {{ item.name }} </el-link>
               </span>
-              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)" v-if="showStop(item.executionStatus)">
+              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)"
+                         v-if="showStop(item.executionStatus)">
                 {{ $t('report.stop_btn') }}
               </el-button>
               <br/>
               <span>
-                  执行器：{{ item.actuator }} 由 {{ item.executor }} {{ item.executionTime | timestampFormatDate }} {{ getMode(item.triggerMode) }}
+                  执行器：{{ item.actuator }} 由 {{ item.executor }} {{
+                  item.executionTime | timestampFormatDate
+                }} {{ getMode(item.triggerMode) }}
               </span>
               <br/>
               <el-row>
