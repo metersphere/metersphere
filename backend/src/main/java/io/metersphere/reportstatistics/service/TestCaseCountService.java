@@ -45,20 +45,17 @@ public class TestCaseCountService {
         XAxis xAxis = new XAxis();
         xAxis.setAxisLabel(new HashMap<String,Integer>(){ {this.put("interval",0);this.put("rotate",0);}});
 
-        // 组织charts格式数据
         Legend legend = new Legend();
         formatLegend(legend, request.getYaxis(), request);
         dto.setLegend(legend);
-        //根据X轴（分组计算字段）来整理不同表对应的字段 注意：x轴维护人/查询条件有维护人时 不查接口和性能； x轴为用例等级/查询条件有用例等级的，不查性能
 
+        //根据X轴（分组计算字段）来整理不同表对应的字段 注意：x轴维护人/查询条件有维护人时 不查接口和性能； x轴为用例等级/查询条件有用例等级的，不查性能
         boolean yAxisSelectTestCase = false;
         boolean yAxisSelectApi = false;
         boolean yAxisSelectScenarioCase = false;
         boolean yAxisSelectLoad = false;
-
         boolean selectApi = true;
         boolean selectLoad = true;
-
         boolean parseUser = false;
         boolean parseStatus = false;
 
@@ -791,51 +788,27 @@ public class TestCaseCountService {
 
         List<Map<String, String>> caseLevelList = new ArrayList<>();
         List<Map<String, String>> caseStatusList = new ArrayList<>();
-        Map<String, String> statusMap1 = new HashMap<>();
-        statusMap1.put("id", "Prepare");
-        statusMap1.put("label", Translator.get("test_case_status_prepare"));
 
-//        Map<String, String> statusMap2 = new HashMap<>();
-//        statusMap2.put("id", "Error");
-//        statusMap2.put("label", Translator.get("test_case_status_error"));
-//
-//        Map<String, String> statusMap3 = new HashMap<>();
-//        statusMap3.put("id", "Success");
-//        statusMap3.put("label", Translator.get("test_case_status_success"));
+        Map<String, String> statusPrepareMap = new HashMap<>();
+        statusPrepareMap.put("id", "Prepare");
+        statusPrepareMap.put("label", Translator.get("test_case_status_prepare"));
 
-//        Map<String, String> statusMap4 = new HashMap<>();
-//        statusMap4.put("id", "Trash");
-//        statusMap4.put("label", Translator.get("test_case_status_trash"));
+        Map<String, String> statusSavedMap = new HashMap<>();
+        statusSavedMap.put("id", "Saved");
+        statusSavedMap.put("label", Translator.get("test_case_status_saved"));
 
-//        Map<String, String> statusMap5 = new HashMap<>();
-//        statusMap5.put("id", "Underway");
-//        statusMap5.put("label", Translator.get("test_case_status_running"));
+        Map<String, String> statusRunningMap = new HashMap<>();
+        statusRunningMap.put("id", "Running");
+        statusRunningMap.put("label", Translator.get("test_case_status_running"));
 
-//        Map<String, String> statusMap6 = new HashMap<>();
-//        statusMap6.put("id", "Starting");
-//        statusMap6.put("label", Translator.get("test_case_status_running"));
+        Map<String, String> statusFinishedMap = new HashMap<>();
+        statusFinishedMap.put("id", "Finished");
+        statusFinishedMap.put("label", Translator.get("test_case_status_finished"));
 
-        Map<String, String> statusMap7 = new HashMap<>();
-        statusMap7.put("id", "Saved");
-        statusMap7.put("label", Translator.get("test_case_status_saved"));
-
-        Map<String, String> statusMap8 = new HashMap<>();
-        statusMap8.put("id", "Running");
-        statusMap8.put("label", Translator.get("test_case_status_running"));
-
-        Map<String, String> statusMap9 = new HashMap<>();
-        statusMap9.put("id", "Finished");
-        statusMap9.put("label", Translator.get("test_case_status_finished"));
-
-        caseStatusList.add(statusMap1);
-//        caseStatusList.add(statusMap2);
-//        caseStatusList.add(statusMap3);
-//        caseStatusList.add(statusMap4);
-//        caseStatusList.add(statusMap5);
-//        caseStatusList.add(statusMap6);
-        caseStatusList.add(statusMap7);
-        caseStatusList.add(statusMap8);
-        caseStatusList.add(statusMap9);
+        caseStatusList.add(statusPrepareMap);
+        caseStatusList.add(statusSavedMap);
+        caseStatusList.add(statusRunningMap);
+        caseStatusList.add(statusFinishedMap);
 
         Map<String, String> levelMap1 = new HashMap<>();
         levelMap1.put("id", "P0");
