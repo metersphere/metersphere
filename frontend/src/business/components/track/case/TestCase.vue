@@ -138,6 +138,7 @@ import TestCaseNodeTree from "../common/TestCaseNodeTree";
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMinder";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
+import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
 
 export default {
   name: "TestCase",
@@ -260,23 +261,10 @@ export default {
       });
     },
     updateActiveDom(activeDom) {
-      let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
-      if (this.activeDom !== 'left' && activeDom === 'left' && isTestCaseMinderChanged) {
-        this.$refs.isChangeConfirm.open();
-        this.tmpActiveDom = activeDom;
-        return;
-      }
-      this.activeDom = activeDom;
+      openMinderConfirm(this, activeDom);
     },
     changeConfirm(isSave) {
-      if (isSave) {
-        this.$refs.minder.save(window.minder.exportJson());
-      } else {
-        this.$store.commit('setIsTestCaseMinderChanged', false);
-      }
-      this.$nextTick(() => {
-        this.activeDom = this.tmpActiveDom;
-      });
+      saveMinderConfirm(this, isSave);
     },
     changeRedirectParam(redirectIDParam) {
       this.redirectID = redirectIDParam;
