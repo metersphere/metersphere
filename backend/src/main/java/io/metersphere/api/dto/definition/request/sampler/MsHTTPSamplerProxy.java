@@ -374,7 +374,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     try {
                         JSONObject authObject = environmentConfig.getAuthManager().getJSONObject("authManager");
                         if (authObject != null) {
-                            this.authManager = authObject.toJavaObject(MsAuthManager.class);
+                            if (authObject.containsKey("verification") && !StringUtils.equalsIgnoreCase(authObject.getString("verification"), "No Auth")) {
+                                this.authManager = authObject.toJavaObject(MsAuthManager.class);
+                            }
                         }
                     } catch (Exception e) {
                     }
