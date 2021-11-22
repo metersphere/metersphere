@@ -1,7 +1,7 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate} from "@/common/js/tableUtils";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
-import {baseGet} from "@/network/base-network";
+import {baseGet, basePost} from "@/network/base-network";
 
 export function buildIssues(page) {
   let data = page.data;
@@ -89,4 +89,6 @@ export function syncIssues(success) {
   });
 }
 
-
+export function deleteIssueRelate(param, callback) {
+  return basePost('/issues/delete/relate', param, callback);
+}

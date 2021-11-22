@@ -97,7 +97,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
-import {getIssuesByCaseId} from "@/network/Issue";
+import {deleteIssueRelate, getIssuesByCaseId} from "@/network/Issue";
 import {getIssueTemplate} from "@/network/custom-field-template";
 import {getCustomFieldValue, getTableHeaderWithCustomFields} from "@/common/js/tableUtils";
 export default {
@@ -201,10 +201,10 @@ export default {
       }
     },
     deleteIssue(row) {
-      this.page.result = this.$post("/issues/delete/relate", {id: row.id, caseId: this.caseId}, () => {
+      this.page.result = deleteIssueRelate({id: row.id, caseId: this.caseId}, () => {
         this.getIssues();
         this.$success(this.$t('commons.delete_success'));
-      })
+      });
     },
   }
 }

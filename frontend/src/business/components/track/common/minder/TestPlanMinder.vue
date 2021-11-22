@@ -23,7 +23,7 @@
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
 import {
   handleExpandToLevel, listenBeforeExecCommand, listenNodeSelected, loadSelectNodes,
-  tagBatch, getSelectedNodeData, handleIssueAdd, handleIssueBatch, listenDblclick
+  tagBatch, getSelectedNodeData, handleIssueAdd, handleIssueBatch, listenDblclick, handleMinderIssueDelete
 } from "@/business/components/track/common/minder/minderUtils";
 import {getPlanCasesForMinder} from "@/network/testCase";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
@@ -86,6 +86,9 @@ name: "TestPlanMinder",
           let level = Number.parseInt(even.commandArgs);
           handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getPlanCasesForMinder, this.setParamCallback);
         }
+
+        if (handleMinderIssueDelete(even.commandName, true))  return; // 删除缺陷不算有编辑脑图信息
+
       });
 
       listenDblclick(() => {
@@ -173,6 +176,7 @@ name: "TestPlanMinder",
     },
     refreshRelateIssue(issues) {
       handleIssueBatch(issues);
+      this.$success('关联成功');
     }
   }
 }

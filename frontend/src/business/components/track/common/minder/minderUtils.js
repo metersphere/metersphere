@@ -1,6 +1,7 @@
 import i18n from "@/i18n/i18n";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
-import {warning} from "../../../../../common/js/message";
+import {success, warning} from "../../../../../common/js/message";
+import {deleteIssueRelate} from "@/network/Issue";
 
 export function listenNodeSelected(callback) {
   let minder = window.minder;
@@ -36,6 +37,10 @@ export function listenBeforeExecCommand(callback) {
       callback(even);
     }
   });
+}
+
+export function getSelectedNodes() {
+  return window.minder.getSelectedNodes();
 }
 
 /**
@@ -111,6 +116,7 @@ export function handleTestCaseAdd(pid, data) {
 export function appendIssueChildNode(pNode, issue) {
   let data = getNodeData('缺陷ID：' + issue.num, null, true, 'issue');
   data.id = issue.id;
+  data.allowDelete = true;
   appendChildNode(pNode, data);
 }
 
@@ -516,4 +522,33 @@ export function addIssueHotBox(vueObj) {
     beforeShow: function () {
     }
   });
+}
+
+export function handleMinderIssueDelete(commandName, isPlan) {
+  if (commandName.toLocaleLowerCase() === 'removenode') {
+    let nodes = getSelectedNodes();
+    if (nodes && nodes.length > 0) {
+      let isAllIssue = true;
+      let promises = [];
+      nodes.forEach(node => {
+        let data = node.data;
+        if (data.type === 'issue') {
+          let caseId = isPlan ? node.parent.data.caseId : node.parent.data.id
+          let p = new Promise((resolve) => {
+            deleteIssueRelate({id: data.id, caseId: caseId}, () => {
+              resolve();
+            });
+          });
+          promises.push(p);
+        } else {
+          isAllIssue = false;
+        }
+      });
+      Promise.all(promises).then(() => {
+        success('取消缺陷关联成功');
+      });
+      return isAllIssue;
+    }
+  }
+  return false;
 }
