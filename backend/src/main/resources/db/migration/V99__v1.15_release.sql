@@ -63,3 +63,6 @@ CREATE TABLE IF NOT EXISTS `enterprise_test_report_send_record` (
     PRIMARY KEY (`id`),
     INDEX `enterprise_test_report_id` (`enterprise_test_report_id`) USING BTREE
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+
+CREATE INDEX issues_platform_id_IDX ON issues (platform_id);

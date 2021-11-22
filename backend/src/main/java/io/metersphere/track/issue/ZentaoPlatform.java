@@ -148,6 +148,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         issue.setTitle(bugObj.getTitle());
         issue.setDescription(steps);
         issue.setReporter(bugObj.getOpenedBy());
+        issue.setPlatform(key);
         issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), bug));
         return issue;
     }
@@ -311,13 +312,12 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     public List<ZentaoBuild> getBuilds() {
         String session = zentaoClient.login();;
-        String projectId1 = getProjectId(projectId);
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(httpHeaders);
         RestTemplate restTemplate = new RestTemplate();
         String buildGet = zentaoClient.requestUrl.getBuildsGet();
         ResponseEntity<String> responseEntity = restTemplate.exchange(buildGet + session,
-                HttpMethod.GET, requestEntity, String.class, projectId1);
+                HttpMethod.GET, requestEntity, String.class, getProjectId(projectId));
         String body = responseEntity.getBody();
         JSONObject obj = JSONObject.parseObject(body);
 

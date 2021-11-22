@@ -29,7 +29,8 @@ public abstract class ZentaoClient extends BaseClient {
         ENDPOINT = url;
     }
 
-    private static final String BUG_LIST_URL="?m=bug&f=browse&productID={0}&branch=&browseType=&param=0&orderBy=&pageID={1}&recPerPage={2}&t=json&zentaosid=";
+    // 注意 recTotal={1}&recPerPage={2}&pageID={3} 顺序不能调换，实在恶心
+    private static final String BUG_LIST_URL="?m=bug&f=browse&productID={0}&branch=&browseType=&param=0&orderBy=&recTotal={1}&recPerPage={2}&pageID={3}&t=json&zentaosid={4}";
 
     public String login() {
         GetUserResponse getUserResponse = new GetUserResponse();
@@ -121,7 +122,7 @@ public abstract class ZentaoClient extends BaseClient {
     public JSONArray getBugsByProjectId(String projectId, int pageNum, int pageSize) {
         String sessionId = login();
         ResponseEntity<String> response = restTemplate.exchange(getBaseUrl() + BUG_LIST_URL,
-                HttpMethod.GET, null, String.class, projectId, pageNum, pageSize, sessionId);
+                HttpMethod.GET, null, String.class, projectId, 9999999, pageSize, pageNum, sessionId);
         return JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONArray("bugs");
     }
 
