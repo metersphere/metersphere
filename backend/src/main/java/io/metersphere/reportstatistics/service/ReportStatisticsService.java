@@ -78,6 +78,9 @@ public class ReportStatisticsService {
         return blob;
     }
     private TestCaseCountTableDataDTO countShowTable(String groupName, List<String> yaxis, List<TestCaseCountTableDTO> dtos) {
+        if(yaxis == null){
+            yaxis = new ArrayList<>();
+        }
         TestCaseCountTableDataDTO returnDTO = new TestCaseCountTableDataDTO();
         String [] headers = new String[]{groupName,"总计","testCase","apiCase","scenarioCase","loadCaseCount"};
 
@@ -86,6 +89,7 @@ public class ReportStatisticsService {
         boolean showApi = true;
         boolean showScenario = true;
         boolean showLoad = true;
+
         for (String head : headers) {
             if(StringUtils.equalsAnyIgnoreCase(head,groupName,"总计") || yaxis.contains(head)){
                 TestCaseCountTableItemDataDTO headData = new TestCaseCountTableItemDataDTO();
