@@ -1652,7 +1652,7 @@ export default {
             }else if(data.refType==='CASE'){
               funcs.push(this.getApiTestCaseNumById(data.id));
             }
-          }else {
+          }else if(data.type==='scenario') {
             funcs.push(this.getScenarioNumById(data.id));
           }
         }
