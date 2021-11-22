@@ -82,8 +82,10 @@
           if (this.defaultHiddenBottomTop) {
             this.hiddenBottomTop =  this.defaultHiddenBottomTop + 'px';
           } else {
+            let e = document.getElementById(this.id);
+            if (!e) return;
             // 默认在 3/1 的位置
-            this.hiddenBottomTop = document.getElementById(this.id).clientHeight / 3 + 'px';
+            this.hiddenBottomTop = e.clientHeight / 3 + 'px';
           }
         }
       }
