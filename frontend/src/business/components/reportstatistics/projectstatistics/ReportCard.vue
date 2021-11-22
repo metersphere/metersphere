@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="4">
         <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('trackTestCase')">
-          <img style="height: 214px" src="@/assets/test_case_analysis_png.png" class="image">
+          <img src="@/assets/test_case_analysis_png.png" class="image">
           <div style="padding: 10px;">
             <span>{{ $t('commons.report_statistics.test_case_analysis') }}</span>
             <div class="bottom clearfix">
