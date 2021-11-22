@@ -330,6 +330,7 @@ name: "TestCaseMinder",
       if (node.children) {
         node.children.forEach((childNode) => {
           let childData = childNode.data;
+          if (childData.type === 'issue') return;
           if (childData.resource && childData.resource.indexOf(this.$t('test_track.case.prerequisite')) > -1) {
             testCase.prerequisite = childData.text;
           } else if (childData.resource && childData.resource.indexOf(this.$t('commons.remark')) > -1) {
