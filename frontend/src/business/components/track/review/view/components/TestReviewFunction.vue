@@ -11,7 +11,8 @@
     </template>
     <template v-slot:main>
       <ms-tab-button
-        :active-dom.sync="activeDom"
+        :active-dom="activeDom"
+        @update:activeDom="updateActiveDom"
         :left-tip="$t('test_track.case.list')"
         :left-content="$t('test_track.case.list')"
         :right-tip="$t('test_track.case.minder')"
@@ -32,6 +33,7 @@
           :condition="condition"
           :review-id="reviewId"
           v-if="activeDom === 'right'"
+          ref="minder"
         />
       </ms-tab-button>
     </template>
@@ -39,6 +41,13 @@
       @refresh="refresh"
       :review-id="reviewId"
       ref="testReviewRelevance"/>
+
+    <is-change-confirm
+      :title="'请保存脑图'"
+      :tip="'脑图未保存，确认保存脑图吗？'"
+      @confirm="changeConfirm"
+      ref="isChangeConfirm"/>
+
   </ms-test-plan-common-component>
 </template>
 
@@ -50,10 +59,13 @@ import TestReviewTestCaseList from "@/business/components/track/review/view/comp
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 import TestReviewMinder from "@/business/components/track/common/minder/TestReviewMinder";
 import {getCurrentProjectID} from "@/common/js/utils";
+import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
+import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
 
 export default {
   name: "TestReviewFunction",
   components: {
+    IsChangeConfirm,
     TestReviewMinder,
     MsTabButton,
     TestReviewTestCaseList,
@@ -69,7 +81,8 @@ export default {
       treeNodes: [],
       isMenuShow: true,
       activeDom: 'left',
-      condition: {}
+      condition: {},
+      tmpActiveDom: null
     }
   },
   props: [
@@ -112,6 +125,12 @@ export default {
     openTestReviewRelevanceDialog() {
       this.$refs.testReviewRelevance.openTestReviewRelevanceDialog();
     },
+    updateActiveDom(activeDom) {
+      openMinderConfirm(this, activeDom);
+    },
+    changeConfirm(isSave) {
+      saveMinderConfirm(this, isSave);
+    }
   }
 }
 </script>

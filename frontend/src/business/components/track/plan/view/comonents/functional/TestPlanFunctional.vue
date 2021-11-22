@@ -10,7 +10,8 @@
     </template>
     <template v-slot:main>
       <ms-tab-button
-        :active-dom.sync="activeDom"
+        :active-dom="activeDom"
+        @update:activeDom="updateActiveDom"
         :left-tip="$t('test_track.case.list')"
         :left-content="$t('test_track.case.list')"
         :right-tip="$t('test_track.case.minder')"
@@ -32,6 +33,7 @@
           :condition="condition"
           :plan-id="planId"
           v-if="activeDom === 'right'"
+          ref="minder"
         />
       </ms-tab-button>
     </template>
@@ -40,6 +42,12 @@
       @refresh="refresh"
       :plan-id="planId"
       ref="testCaseRelevance"/>
+
+    <is-change-confirm
+      :title="'请保存脑图'"
+      :tip="'脑图未保存，确认保存脑图吗？'"
+      @confirm="changeConfirm"
+      ref="isChangeConfirm"/>
   </ms-test-plan-common-component>
 
 </template>
@@ -53,10 +61,13 @@ import TestPlanMinder from "@/business/components/track/common/minder/TestPlanMi
 import {getCurrentProjectID} from "@/common/js/utils";
 import TestPlanFunctionalRelevance
   from "@/business/components/track/plan/view/comonents/functional/TestPlanFunctionalRelevance";
+import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
+import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
 
 export default {
   name: "TestPlanFunctional",
   components: {
+    IsChangeConfirm,
     TestPlanFunctionalRelevance,
     TestPlanMinder,
     MsTabButton,
@@ -71,7 +82,8 @@ export default {
       treeNodes: [],
       activeDom: 'left',
       selectNode: {},
-      condition: {}
+      condition: {},
+      tmpActiveDom: null
     };
   },
   props: [
@@ -147,6 +159,12 @@ export default {
         });
       }
     },
+    updateActiveDom(activeDom) {
+      openMinderConfirm(this, activeDom);
+    },
+    changeConfirm(isSave) {
+      saveMinderConfirm(this, isSave);
+    }
   }
 };
 

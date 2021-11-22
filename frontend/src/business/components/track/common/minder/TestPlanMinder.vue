@@ -62,6 +62,7 @@ name: "TestPlanMinder",
     }
   },
   mounted() {
+    this.setIsChange(false);
     if (this.selectNode && this.selectNode.data) {
       if (this.$refs.minder) {
         let importJson = this.$refs.minder.getImportJsonBySelectNode(this.selectNode.data);
@@ -89,6 +90,9 @@ name: "TestPlanMinder",
 
         if (handleMinderIssueDelete(even.commandName, true))  return; // 删除缺陷不算有编辑脑图信息
 
+        if (even.commandName.toLocaleLowerCase() === 'resource') {
+          this.setIsChange(true);
+        }
       });
 
       listenDblclick(() => {
@@ -133,6 +137,7 @@ name: "TestPlanMinder",
       this.buildSaveCase(data.root, saveCases);
       this.result = this.$post('/test/plan/case/minder/edit', saveCases, () => {
         this.$success(this.$t('commons.save_success'));
+        this.setIsChange(false);
       });
     },
     buildSaveCase(root, saveCases) {
@@ -177,7 +182,10 @@ name: "TestPlanMinder",
     refreshRelateIssue(issues) {
       handleIssueBatch(issues);
       this.$success('关联成功');
-    }
+    },
+    setIsChange(isChanged) {
+      this.$store.commit('setIsTestCaseMinderChanged', isChanged);
+    },
   }
 }
 </script>

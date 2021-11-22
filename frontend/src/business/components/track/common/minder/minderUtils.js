@@ -552,3 +552,25 @@ export function handleMinderIssueDelete(commandName, isPlan) {
   }
   return false;
 }
+
+
+export function openMinderConfirm(vueObj, activeDom) {
+  let isTestCaseMinderChanged = vueObj.$store.state.isTestCaseMinderChanged;
+  if (vueObj.activeDom !== 'left' && activeDom === 'left' && isTestCaseMinderChanged) {
+    vueObj.$refs.isChangeConfirm.open();
+    vueObj.tmpActiveDom = activeDom;
+    return;
+  }
+  vueObj.activeDom = activeDom;
+}
+
+export function saveMinderConfirm(vueObj, isSave) {
+  if (isSave) {
+    vueObj.$refs.minder.save(window.minder.exportJson());
+  } else {
+    vueObj.$store.commit('setIsTestCaseMinderChanged', false);
+  }
+  vueObj.$nextTick(() => {
+    vueObj.activeDom = vueObj.tmpActiveDom;
+  });
+}
