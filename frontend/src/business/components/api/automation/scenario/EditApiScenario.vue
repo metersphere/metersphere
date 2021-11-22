@@ -343,6 +343,7 @@ import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
 import {saveScenario} from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
+import {KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
 
 let jsonPath = require('jsonpath');
 export default {
@@ -538,7 +539,10 @@ export default {
         this.$post("/api/automation/setDomain", {definition: JSON.stringify(scenario)}, res => {
           if (res.data) {
             let data = JSON.parse(res.data);
-            this.scenarioDefinition = data.hashTree;
+            if (data.hashTree) {
+              this.sort(data.hashTree);
+              this.scenarioDefinition = data.hashTree;
+            }
             if (!flag) {
               this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
             }
@@ -989,6 +993,9 @@ export default {
         if (!stepArray[i].resourceId) {
           stepArray[i].resourceId = getUUID();
         }
+        if (stepArray[i].type === "HTTPSamplerProxy" && !stepArray[i].headers) {
+          stepArray[i].headers = [new KeyValue()];
+        }
         if (stepArray[i].type === ELEMENT_TYPE.LoopController
           && stepArray[i].loopType === "LOOP_COUNT"
           && stepArray[i].hashTree
@@ -1134,6 +1141,9 @@ export default {
     resetResourceId(hashTree) {
       hashTree.forEach(item => {
         item.resourceId = getUUID();
+        if (item && !item.headers) {
+          item.headers = [];
+        }
         if (item.hashTree && item.hashTree.length > 0) {
           this.resetResourceId(item.hashTree);
         }
@@ -1349,7 +1359,6 @@ export default {
           if (response.data) {
             this.path = "/api/automation/update";
             if (response.data.scenarioDefinition != null) {
-              // this.getEnv(response.data.scenarioDefinition);
               let obj = JSON.parse(response.data.scenarioDefinition);
               if (obj) {
                 this.currentEnvironmentId = obj.environmentId;
@@ -1398,7 +1407,6 @@ export default {
               this.path = "/api/automation/create";
             }
             this.$get('/api/automation/follow/' + this.currentScenario.id, response => {
-              // this.$set(this.currentScenario, 'follows', response.data);
               this.currentScenario.follows = response.data;
             });
           }
