@@ -108,17 +108,25 @@ export function handleTestCaseAdd(pid, data) {
   });
 }
 
+export function appendIssueChildNode(pNode, issue) {
+  let data = getNodeData('缺陷ID：' + issue.num, null, true, 'issue');
+  data.id = issue.id;
+  appendChildNode(pNode, data);
+}
+
 export function handleIssueAdd(data) {
-  let pNode = getSelectedNode();
-    appendChildNode(pNode, getNodeData('缺陷ID：' + data.num, null, true));
+  if (data && data.id) {
+    let pNode = getSelectedNode();
+    appendIssueChildNode(pNode, data);
     expandNode(pNode);
     pNode.render();
+  }
 }
 
 export function handleIssueBatch(issues) {
   let pNode = getSelectedNode();
   issues.forEach(item => {
-    appendChildNode(pNode, getNodeData('缺陷ID：' + item.num, null, true));
+    appendIssueChildNode(pNode, item);
   });
   expandNode(pNode);
   pNode.render();
@@ -241,12 +249,12 @@ export function appendCase(parent, item, isDisable, setParamCallback) {
 
   if (item.issueList && item.issueList.length > 0) {
     item.issueList.forEach(issue => {
-      appendChildNode(caseNode, getNodeData('缺陷ID：' + issue.num, null, true));
+      appendIssueChildNode(caseNode, issue);
     });
   }
 }
 
-function getNodeData(text, resource, isDisable) {
+function getNodeData(text, resource, isDisable, type) {
   if (text) {
     let data = {
         text: text,
@@ -254,6 +262,9 @@ function getNodeData(text, resource, isDisable) {
     };
     if (isDisable) {
       data.disable = true;
+    }
+    if (type) {
+      data.type = type;
     }
     return data;
   }

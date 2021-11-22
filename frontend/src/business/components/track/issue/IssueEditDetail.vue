@@ -275,7 +275,9 @@ export default {
       buildCustomFields(this.form, param, this.issueTemplate);
       if (this.isPlan) {
         param.testCaseIds = [this.caseId];
+        param.withCaseId = false;
       } else {
+        param.withCaseId = true;
         param.testCaseIds = Array.from(this.testCaseContainIds);
       }
       if (this.planId) {

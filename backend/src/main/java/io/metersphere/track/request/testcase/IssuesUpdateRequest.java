@@ -12,6 +12,8 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
     private String content;
     private String testCaseId;
     private String workspaceId;
+    // 带caseId的更新, 默认更新是同时保存用例的关联关系，脑图保存缺陷，不带caseId
+    private boolean withCaseId = true;
 
     private List<String> tapdUsers;
     /**

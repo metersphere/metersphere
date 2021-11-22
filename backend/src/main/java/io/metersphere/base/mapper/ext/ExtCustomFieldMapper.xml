@@ -45,7 +45,7 @@
                         not exists (
                             select id
                             from custom_field cf_child
-                            where cf_child.name = cf.name and cf_child.global != 1 and cf_child.workspace_id = #{request.workspaceId}
+                            where cf_child.name = cf.name and cf_child.scene = cf.scene and cf_child.global != 1 and cf_child.workspace_id = #{request.workspaceId}
                         )
                     )
                 )
