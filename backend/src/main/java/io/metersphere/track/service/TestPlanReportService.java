@@ -63,6 +63,8 @@ public class TestPlanReportService {
     @Resource
     TestPlanReportMapper testPlanReportMapper;
     @Resource
+    ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
     TestPlanReportDataMapper testPlanReportDataMapper;
     @Resource
     ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
@@ -1118,6 +1120,8 @@ public class TestPlanReportService {
             return null;
         }
         TestPlanReportContentWithBLOBs testPlanReportContent = testPlanReportContents.get(0);
+        //更新测试报告对应的最后执行结果
+        this.updateReportExecResult(testPlanReportContent);
         TestPlanSimpleReportDTO testPlanReportDTO = new TestPlanSimpleReportDTO();
         BeanUtils.copyBean(testPlanReportDTO, testPlanReportContent);
         if (StringUtils.isNotBlank(testPlanReportContent.getFunctionResult())) {
@@ -1160,6 +1164,40 @@ public class TestPlanReportService {
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
         testPlanReportDTO.setName(testPlanReport.getName());
         return testPlanReportDTO;
+    }
+
+    private void updateReportExecResult(TestPlanReportContentWithBLOBs testPlanReportContent) {
+        boolean isUpdate = false;
+        if (StringUtils.isNotBlank(testPlanReportContent.getScenarioAllCases())) {
+            List<TestPlanFailureScenarioDTO> allCases = JSONObject.parseArray(testPlanReportContent.getScenarioAllCases(), TestPlanFailureScenarioDTO.class);
+            for (TestPlanFailureScenarioDTO dto : allCases) {
+                if (StringUtils.equalsIgnoreCase(dto.getLastResult(), "Underway")) {
+                    isUpdate = true;
+                    ApiScenarioReport apiReport = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
+                    if (apiReport != null) {
+                        dto.setLastResult(apiReport.getStatus());
+                    }
+                }
+            }
+            testPlanReportContent.setScenarioAllCases(JSONArray.toJSONString(allCases));
+        }
+
+        if (StringUtils.isNotBlank(testPlanReportContent.getLoadAllCases())) {
+            List<TestPlanLoadCaseDTO> allCases = JSONObject.parseArray(testPlanReportContent.getLoadAllCases(), TestPlanLoadCaseDTO.class);
+            for (TestPlanLoadCaseDTO dto : allCases) {
+                if (StringUtils.equalsIgnoreCase(dto.getStatus(), "run")) {
+                    isUpdate = true;
+                    LoadTestReport report = loadTestReportMapper.selectByPrimaryKey(dto.getReportId());
+                    if (report != null) {
+                        dto.setStatus(report.getStatus());
+                    }
+                }
+            }
+            testPlanReportContent.setLoadAllCases(JSONArray.toJSONString(allCases));
+        }
+        if (isUpdate) {
+            testPlanReportContentMapper.updateByPrimaryKeyWithBLOBs(testPlanReportContent);
+        }
     }
 
     public void finishReport(TestPlanReport testPlanReport) {
