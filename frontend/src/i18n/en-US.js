@@ -2216,6 +2216,7 @@ export default {
     script_view: "View script",
   },
   mail: {
+    input_mail_subject: "Please input subject",
     mail_subject: "Subject ",
     mail_addressee: "To ",
     mail_duplicate: "Cc ",
