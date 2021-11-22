@@ -188,18 +188,18 @@ public class TestPlanScenarioCaseService {
         });
         List<TestPlanApiScenario> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + org.apache.commons.lang3.StringUtils.join(testPlanScenarioRequest.getPlanCaseIds(), ",") + "\"");
         List<String> scenarioIds = new ArrayList<>();
-        Map<String, String> scenarioIdApiScarionMap = new HashMap<>();
+        Map<String, String> scenarioPlanIdMap = new LinkedHashMap<>();
         for (TestPlanApiScenario apiScenario : testPlanApiScenarioList) {
             scenarioIds.add(apiScenario.getApiScenarioId());
-            scenarioIdApiScarionMap.put(apiScenario.getId(), apiScenario.getApiScenarioId());
+            scenarioPlanIdMap.put(apiScenario.getId(), apiScenario.getApiScenarioId());
         }
-        if (scenarioIdApiScarionMap.isEmpty()) {
+        if (scenarioPlanIdMap.isEmpty()) {
             MSException.throwException("未找到执行场景！");
         }
         RunScenarioRequest request = new RunScenarioRequest();
         request.setIds(scenarioIds);
         request.setReportId(testPlanScenarioRequest.getId());
-        request.setScenarioTestPlanIdMap(scenarioIdApiScarionMap);
+        request.setScenarioTestPlanIdMap(scenarioPlanIdMap);
         request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
         request.setId(testPlanScenarioRequest.getId());
         request.setExecuteType(ExecuteType.Saved.name());
