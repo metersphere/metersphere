@@ -22,9 +22,12 @@ public interface ExtApiDefinitionExecResultMapper {
 
     List<ExecutedCaseInfoResult> findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("startTimestamp") long startTimestamp);
 
-    String  selectExecResult(String resourceId);
+    String selectExecResult(String resourceId);
 
     ApiDefinitionExecResult selectPlanApiMaxResultByTestIdAndType(String resourceId, String type);
 
-    List<ApiDefinitionExecResult> selectStatusByIdList(@Param("ids")Collection<String> values);
+    List<ApiDefinitionExecResult> selectStatusByIdList(@Param("ids") Collection<String> values);
+
+    List<ApiDefinitionExecResult> selectApiResultByProjectId(String projectId);
+
 }

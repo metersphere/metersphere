@@ -32,4 +32,6 @@ public interface ExtApiScenarioReportMapper {
     List<ApiReportCountDTO> countByApiScenarioId();
 
     List<ApiScenarioReport> selectStatusByIds(@Param("ids") Collection<String> values);
+
+    List<ApiScenarioReport> selectReportByProjectId(String projectId);
 }
