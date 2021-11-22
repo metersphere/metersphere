@@ -75,21 +75,6 @@
                 <ms-input-tag :currentScenario="httpForm" ref="tag"/>
               </el-form-item>
             </el-col>
-<!--            <el-col :span="8">
-              <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
-                <el-select v-model="httpForm.follows"
-                           clearable multiple
-                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
-                           class="ms-http-textarea">
-                  <el-option
-                      v-for="item in maintainerOptions"
-                      :key="item.id"
-                      :label="item.id + ' (' + item.name + ')'"
-                      :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>-->
             <el-col :span="8">
               <el-form-item :label="$t('commons.description')" prop="description">
                 <el-input class="ms-http-textarea"
