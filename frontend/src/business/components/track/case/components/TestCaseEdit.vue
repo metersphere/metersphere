@@ -839,7 +839,7 @@ export default {
         }
         if (this.path === "/test/case/edit") {
           this.result.loading = true
-          this.$post('/test/case/edit/follows/' + this.currentTestCaseInfo.id, this.form.follows, () => {
+          this.$post('/test/case/edit/follows/' + this.form.id, this.form.follows, () => {
             this.result.loading = false
             this.$success(this.$t('commons.cancel_follow_success'));
           });
@@ -851,9 +851,10 @@ export default {
           this.form.follows = [];
         }
         this.form.follows.push(this.currentUser().id)
+
         if (this.path === "/test/case/edit") {
           this.result.loading = true
-          this.$post('/test/case/edit/follows/' + this.currentTestCaseInfo.id, this.form.follows, () => {
+          this.$post('/test/case/edit/follows/' + this.form.id, this.form.follows, () => {
             this.result.loading = false
             this.$success(this.$t('commons.follow_success'));
           });
