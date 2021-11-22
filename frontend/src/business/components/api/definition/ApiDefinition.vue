@@ -833,6 +833,7 @@ export default {
   cursor: pointer;
   margin-right: 10px;
   font-size: 16px;
+  z-index: 1;
 }
 
 /deep/ .el-table__empty-block {
