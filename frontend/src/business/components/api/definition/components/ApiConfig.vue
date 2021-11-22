@@ -251,6 +251,10 @@ export default {
       let bodyFiles = this.getBodyUploadFiles(data);
       data.requestId = data.request.id;
       if (data.request) {
+        // 历史数据处理
+        if(data.request.authManager){
+          data.request.authManager.clazzName = TYPE_TO_C.get(data.request.authManager.type);
+        }
         this.sort(data.request.hashTree);
       }
       this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
