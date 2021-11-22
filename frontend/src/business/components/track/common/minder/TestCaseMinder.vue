@@ -27,7 +27,7 @@ import MsModuleMinder from "@/business/components/common/components/MsModuleMind
 import {
   getChildNodeId,
   handleAfterSave,
-  handleExpandToLevel, handleTestCaseAdd, handTestCaeEdit, isModuleNode, isModuleNodeData,
+  handleExpandToLevel, handleMinderIssueDelete, handleTestCaseAdd, handTestCaeEdit, isModuleNode, isModuleNodeData,
   listenBeforeExecCommand, listenDblclick,
   listenNodeSelected,
   loadSelectNodes,
@@ -130,7 +130,10 @@ name: "TestCaseMinder",
           let level = Number.parseInt(even.commandArgs);
           handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getTestCasesForMinder);
         }
-        if (['priority', 'resource', 'removenode', 'appendchildnode', 'appendparentnode', 'appendsiblingnode'].indexOf(even.commandName) > 0) {
+
+        if (handleMinderIssueDelete(even.commandName))  return; // 删除缺陷不算有编辑脑图信息
+
+        if (['priority', 'resource', 'removenode', 'appendchildnode', 'appendparentnode', 'appendsiblingnode'].indexOf(even.commandName) > -1) {
           // 这些情况则脑图有改变
           this.setIsChange(true);
         }
