@@ -22,7 +22,7 @@
         inner join test_case_issues
         on test_case_issues.issues_id = issues.id
         where test_case_id in
-        <foreach collection="caseIds" open="(" close=")" item="item">
+        <foreach collection="caseIds" open="(" close=")" item="item" separator=",">
             #{item}
         </foreach>
         and (issues.platform_status != 'delete' or issues.platform_status is NULL)
