@@ -17,7 +17,7 @@
       </template>
 
       <template v-slot:afterTitle>
-        <span @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
+        <span v-if="request.refType==='API'||request.refType==='CASE'" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
       </template>
 
       <template v-slot:behindHeaderLeft>
