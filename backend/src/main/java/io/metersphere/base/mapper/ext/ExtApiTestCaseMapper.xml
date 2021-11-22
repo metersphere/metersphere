@@ -691,6 +691,9 @@
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>
+            <if test="request.filters == null || request.filters.size() == 0 ">
+                and (api_test_case.status is null or api_test_case.status != 'Trash')
+            </if>
         </where>
     </sql>
 
