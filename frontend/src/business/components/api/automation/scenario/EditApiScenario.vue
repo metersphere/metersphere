@@ -330,6 +330,8 @@ import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
 import {buttons, setComponent} from './menu/Menu';
 import {parseEnvironment} from "../../definition/model/EnvironmentModel";
 import {ELEMENT_TYPE, STEP, TYPE_TO_C, PLUGIN_ELEMENTS} from "./Setting";
+import {KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
+
 import {
   getUUID,
   objToStrMap,
@@ -554,7 +556,10 @@ export default {
         this.$post("/api/automation/setDomain", param, res => {
           if (res.data) {
             let data = JSON.parse(res.data);
-            this.scenarioDefinition = data.hashTree;
+            if (data.hashTree) {
+              this.sort(data.hashTree);
+              this.scenarioDefinition = data.hashTree;
+            }
             if (!flag) {
               this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
             }
@@ -1005,6 +1010,10 @@ export default {
         if (!stepArray[i].resourceId) {
           stepArray[i].resourceId = getUUID();
         }
+        // 历史数据处理
+        if (stepArray[i].type === "HTTPSamplerProxy" && !stepArray[i].headers) {
+          stepArray[i].headers = [new KeyValue()];
+        }
         if (stepArray[i].type === ELEMENT_TYPE.LoopController
           && stepArray[i].loopType === "LOOP_COUNT"
           && stepArray[i].hashTree
@@ -1365,16 +1374,9 @@ export default {
               let obj = JSON.parse(response.data.scenarioDefinition);
               if (obj) {
                 this.currentEnvironmentId = obj.environmentId;
-                // if (obj.environmentMap) {
-                //   this.projectEnvMap = objToStrMap(obj.environmentMap);
-                // } else {
-                //   // 兼容历史数据
-                //   this.projectEnvMap.set(this.projectId, obj.environmentId);
-                // }
                 if (response.data.environmentJson) {
                   this.projectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
-                }
-                else {
+                } else {
                   // 兼容历史数据
                   this.projectEnvMap.set(this.projectId, obj.environmentId);
                 }
@@ -1406,9 +1408,7 @@ export default {
                   this.onSampleError = obj.onSampleError;
                 }
                 this.dataProcessing(obj.hashTree);
-                 this.addNum(obj.hashTree);
-
-
+                this.addNum(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
               }
             }
@@ -1651,45 +1651,45 @@ export default {
     showHistory() {
       this.$refs.taskCenter.openScenarioHistory(this.currentScenario.id);
     },
-    saveFollow(){
-      if(this.showFollow){
+    saveFollow() {
+      if (this.showFollow) {
         this.showFollow = false;
         for (let i = 0; i < this.currentScenario.follows.length; i++) {
-          if(this.currentScenario.follows[i]===this.currentUser().id){
-            this.currentScenario.follows.splice(i,1)
+          if (this.currentScenario.follows[i] === this.currentUser().id) {
+            this.currentScenario.follows.splice(i, 1)
             break;
           }
         }
-        if(this.currentScenario.id){
-          this.$post("/api/automation/update/follows/"+this.currentScenario.id, this.currentScenario.follows,() => {
+        if (this.currentScenario.id) {
+          this.$post("/api/automation/update/follows/" + this.currentScenario.id, this.currentScenario.follows, () => {
             this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
-      }else {
+      } else {
         this.showFollow = true;
-        if(!this.currentScenario.follows){
+        if (!this.currentScenario.follows) {
           this.currentScenario.follows = [];
         }
         this.currentScenario.follows.push(this.currentUser().id)
-        if(this.currentScenario.id){
-          this.$post("/api/automation/update/follows/"+this.currentScenario.id, this.currentScenario.follows,() => {
+        if (this.currentScenario.id) {
+          this.$post("/api/automation/update/follows/" + this.currentScenario.id, this.currentScenario.follows, () => {
             this.$success(this.$t('commons.follow_success'));
           });
         }
       }
     },
-    addNum(hashTree){
+    addNum(hashTree) {
       let funcs = [];
       for (let i = 0; i < hashTree.length; i++) {
         let data = hashTree[i];
-        if(!data.num){
-          if(data.refType){
-            if(data.refType==='API'){
+        if (!data.num) {
+          if (data.refType) {
+            if (data.refType === 'API') {
               funcs.push(this.getApiDefinitionNumById(data.id));
-            }else if(data.refType==='CASE'){
+            } else if (data.refType === 'CASE') {
               funcs.push(this.getApiTestCaseNumById(data.id));
             }
-          }else if(data.type==='scenario') {
+          } else if (data.type === 'scenario') {
             funcs.push(this.getScenarioNumById(data.id));
           }
         }
@@ -1697,39 +1697,39 @@ export default {
       Promise.all(funcs).then(([result1, result2, result3]) => {
         for (let i = 0; i < hashTree.length; i++) {
           let data = hashTree[i];
-          if(!data.num){
-            if(data.refType){
-              if(data.refType==='API'){
-                this.$set(data,'num',result1);
-              }else if(data.refType==='CASE'){
-                this.$set(data,'num',result2);
+          if (!data.num) {
+            if (data.refType) {
+              if (data.refType === 'API') {
+                this.$set(data, 'num', result1);
+              } else if (data.refType === 'CASE') {
+                this.$set(data, 'num', result2);
               }
-            }else {
-              this.$set(data,'num',result3);
+            } else {
+              this.$set(data, 'num', result3);
             }
           }
         }
       });
     },
-    getApiDefinitionNumById(id){
+    getApiDefinitionNumById(id) {
       return new Promise((resolve) => {
-        let url = '/api/definition/get/'+id;
+        let url = '/api/definition/get/' + id;
         this.$get(url, response => {
           resolve(response.data.num);
         });
       });
     },
-    getApiTestCaseNumById(id){
+    getApiTestCaseNumById(id) {
       return new Promise((resolve) => {
-        let url = '/api/testcase/findById/'+id;
+        let url = '/api/testcase/findById/' + id;
         this.$get(url, response => {
           resolve(response.data.num);
         });
       });
     },
-    getScenarioNumById(id){
+    getScenarioNumById(id) {
       return new Promise((resolve) => {
-        let url = '/api/automation/getApiScenario/'+id;
+        let url = '/api/automation/getApiScenario/' + id;
         this.$get(url, response => {
           resolve(response.data.num);
         });
