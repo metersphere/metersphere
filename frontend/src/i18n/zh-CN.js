@@ -2228,6 +2228,7 @@ export default {
     script_view: "查看脚本",
   },
   mail: {
+    input_mail_subject: "请输入邮件主题",
     mail_subject: "邮件主题",
     mail_addressee: "收件人",
     mail_duplicate: "抄送人",

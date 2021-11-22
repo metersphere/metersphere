@@ -2227,6 +2227,7 @@ export default {
     script_view: "查看腳本",
   },
   mail: {
+    input_mail_subject: "請輸入郵件主題",
     mail_subject: "郵件主題",
     mail_addressee: "收件人",
     mail_duplicate: "抄送人",
