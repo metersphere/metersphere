@@ -10,7 +10,7 @@
       <i v-if="!asideHidden" class="el-icon-arrow-left"/>
       <i v-if="asideHidden" class="el-icon-arrow-right"/>
     </div>
-    <div style="overflow: scroll" :style="{'height': containerCalHeight }">
+    <div style="overflow: scroll" class="ms-aside-node-tree" :style="{'height': containerCalHeight }">
       <slot></slot>
     </div>
     <ms-horizontal-drag-bar/>
