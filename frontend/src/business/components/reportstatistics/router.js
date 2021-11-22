@@ -1,3 +1,5 @@
+const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
+
 export default {
   path: "/report",
   name: "report",
@@ -11,10 +13,6 @@ export default {
       name: 'projectStatistics',
       component: () => import('@/business/components/reportstatistics/projectstatistics/ProjectStatistics'),
     },
-    {
-      path: "/report/projectReport",
-      name: "projectReport",
-      component: () => import('@/business/components/xpack/reportstatistics/projectreport/ProjectReport'),
-    },
+    ...requireContext.keys().map(key => requireContext(key).enterpriseReport),
   ]
 }

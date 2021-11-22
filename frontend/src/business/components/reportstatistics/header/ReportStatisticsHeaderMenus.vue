@@ -7,7 +7,7 @@
           <el-menu-item :index="'/report/projectStatistics'">
             {{ $t("commons.report_statistics.menu.project_statistics") }}
           </el-menu-item>
-          <el-menu-item :index="'/report/projectReport'" v-if="licenseCheck" v-permission="['PROJECT_API_DEFINITION:READ']">
+          <el-menu-item :index="'/report/projectReport'" v-xpack v-permission="['PROJECT_API_DEFINITION:READ']">
             {{ $t("commons.report_statistics.menu.project_report") }}
           </el-menu-item>
 
