@@ -3,11 +3,11 @@
     <el-row>
       <el-col :span="4">
         <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('trackTestCase')">
-          <img src="@/assets/track.jpg" class="image">
+          <img style="height: 214px" src="@/assets/test_case_analysis_png.png" class="image">
           <div style="padding: 10px;">
-            <span>{{$t('commons.report_statistics.test_case_analysis')}}</span>
+            <span>{{ $t('commons.report_statistics.test_case_analysis') }}</span>
             <div class="bottom clearfix">
-              <time class="time">{{$t('commons.report_statistics.test_case_activity')}}</time>
+              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>
           </div>
         </el-card>
@@ -16,9 +16,9 @@
         <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('countTestCase')">
           <img src="@/assets/track.jpg" class="image">
           <div style="padding: 10px;">
-            <span>{{$t('commons.report_statistics.test_case_count')}}</span>
+            <span>{{ $t('commons.report_statistics.test_case_count') }}</span>
             <div class="bottom clearfix">
-              <time class="time">{{$t('commons.report_statistics.test_case_count_activity')}}</time>
+              <time class="time">{{ $t('commons.report_statistics.test_case_count_activity') }}</time>
             </div>
           </div>
         </el-card>
@@ -29,7 +29,7 @@
           <div style="padding: 10px;">
             <span>预留模块敬请期待</span>
             <div class="bottom clearfix">
-              <time class="time">{{$t('commons.report_statistics.test_case_activity')}}</time>
+              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>
           </div>
         </el-card>
@@ -40,7 +40,7 @@
           <div style="padding: 10px;">
             <span>预留模块敬请期待</span>
             <div class="bottom clearfix">
-              <time class="time">{{$t('commons.report_statistics.test_case_activity')}}</time>
+              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>
           </div>
         </el-card>
@@ -51,7 +51,7 @@
           <div style="padding: 10px;">
             <span>预留模块敬请期待</span>
             <div class="bottom clearfix">
-              <time class="time">{{$t('commons.report_statistics.test_case_activity')}}</time>
+              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>
           </div>
         </el-card>
@@ -62,7 +62,7 @@
           <div style="padding: 10px;">
             <span>预留模块敬请期待</span>
             <div class="bottom clearfix">
-              <time class="time">{{$t('commons.report_statistics.test_case_activity')}}</time>
+              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>
           </div>
         </el-card>
@@ -72,67 +72,67 @@
 </template>
 
 <script>
-  import {hasPermission} from "@/common/js/utils";
+import {hasPermission} from "@/common/js/utils";
 
-  export default {
-    name: "ReportCard",
-    components: {},
-    data() {
-      return {}
-    },
-    methods: {
-      openCard(type) {
-        if (!hasPermission('PROJECT_REPORT_ANALYSIS:READ')) {
-          this.$warning("无查看权限！");
-          return;
-        }
-        this.$emit('openCard', type);
+export default {
+  name: "ReportCard",
+  components: {},
+  data() {
+    return {}
+  },
+  methods: {
+    openCard(type) {
+      if (!hasPermission('PROJECT_REPORT_ANALYSIS:READ')) {
+        this.$warning("无查看权限！");
+        return;
       }
-    },
-  }
+      this.$emit('openCard', type);
+    }
+  },
+}
 </script>
 
 <style scoped>
-  .time {
-    font-size: 13px;
-    color: #999;
-  }
+.time {
+  font-size: 13px;
+  color: #999;
+}
 
-  .bottom {
-    margin-top: 13px;
-    line-height: 12px;
-  }
+.bottom {
+  margin-top: 13px;
+  line-height: 12px;
+}
 
-  .button {
-    padding: 0;
-    float: right;
-  }
+.button {
+  padding: 0;
+  float: right;
+}
 
-  .image {
-    width: 100%;
-    display: block;
-  }
+.image {
+  width: 100%;
+  display: block;
+}
 
-  .clearfix:before,
-  .clearfix:after {
-    display: table;
-    content: "";
-  }
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
 
-  .clearfix:after {
-    clear: both
-  }
+.clearfix:after {
+  clear: both
+}
 
-  .ms-col {
-    margin: 5px;
-  }
+.ms-col {
+  margin: 5px;
+}
 
-  .ms-content {
-    padding: 15px 10px 15px 15px;
-  }
+.ms-content {
+  padding: 15px 10px 15px 15px;
+}
 
-  .ms-col:hover {
-    cursor: pointer;
-    border-color: #783887;
-  }
+.ms-col:hover {
+  cursor: pointer;
+  border-color: #783887;
+}
 </style>
