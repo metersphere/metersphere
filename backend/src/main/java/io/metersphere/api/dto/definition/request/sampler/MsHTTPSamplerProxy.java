@@ -237,7 +237,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setDoMultipart(true);
             }
             if (CollectionUtils.isNotEmpty(bodyParams)) {
-                sampler.setArguments(httpArguments(bodyParams));
+                Arguments arguments = httpArguments(bodyParams);
+                if (arguments != null && !arguments.getArguments().isEmpty()) {
+                    sampler.setArguments(arguments);
+                }
             }
         }
 
