@@ -582,8 +582,10 @@ public class ApiDefinitionService {
         } else {
             test.setTags("");
         }
-        apiDefinitionMapper.insert(test);
-        saveFollows(test.getId(), request.getFollows());
+        if (apiDefinitionMapper.selectByPrimaryKey(test.getId()) == null) {
+            apiDefinitionMapper.insert(test);
+            saveFollows(test.getId(), request.getFollows());
+        }
         return test;
     }
 

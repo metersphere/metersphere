@@ -50,10 +50,10 @@
             </el-col>
             <el-col :span="16">
               <div class="tag-item" @click.stop>
-                <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
+                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
                   <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow"/>
                 </el-tooltip>
-                <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow">
+                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
                   <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="showFollow"/>
                 </el-tooltip>
               </div>
@@ -128,6 +128,7 @@
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
                    v-if="type!=='detail'"
+                   v-prevent-re-click
                    v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
           {{ $t('commons.save') }}
         </el-button>
@@ -218,8 +219,9 @@ export default {
       isShowInput: false,
       methodColorMap: new Map(API_METHOD_COLOUR),
       saveLoading: false,
-      showFollow:false,
+      showFollow: false,
       beforeRequest: {},
+      compare: [],
     }
   },
   props: {
@@ -267,7 +269,7 @@ export default {
       this.$get('/api/testcase/follow/' + this.apiCase.id, response => {
         this.apiCase.follows = response.data;
         for (let i = 0; i < response.data.length; i++) {
-          if(response.data[i]===this.currentUser().id){
+          if (response.data[i] === this.currentUser().id) {
             this.showFollow = true;
             break;
           }
@@ -449,6 +451,7 @@ export default {
         row.id = data.id;
         row.createTime = data.createTime;
         row.updateTime = data.updateTime;
+        this.compare = [];
         if (!row.message) {
           this.$success(this.$t('commons.save_success'));
           this.reload();
@@ -463,11 +466,14 @@ export default {
       });
     },
     saveTestCase(row, hideAlert) {
-      if (this.api.saved) {
-        this.addModule(row);
-      } else {
-        this.api.source = "editCase";
-        this.saveCase(row, hideAlert);
+      if (this.compare.indexOf(row.id) === -1) {
+        this.compare.push(row.id);
+        if (this.api.saved) {
+          this.addModule(row);
+        } else {
+          this.api.source = "editCase";
+          this.saveCase(row, hideAlert);
+        }
       }
     },
     showInput(row) {
@@ -508,28 +514,28 @@ export default {
     showHistory(id) {
       this.$emit("showHistory", id);
     },
-    saveFollow(){
-      if(this.showFollow){
+    saveFollow() {
+      if (this.showFollow) {
         this.showFollow = false;
         for (let i = 0; i < this.apiCase.follows.length; i++) {
-          if(this.apiCase.follows[i]===this.currentUser().id){
-            this.apiCase.follows.splice(i,1)
+          if (this.apiCase.follows[i] === this.currentUser().id) {
+            this.apiCase.follows.splice(i, 1)
             break;
           }
         }
-        if( this.apiCase.id){
-          this.$post("/api/testcase/update/follows/"+this.apiCase.id, this.apiCase.follows,() => {
+        if (this.apiCase.id) {
+          this.$post("/api/testcase/update/follows/" + this.apiCase.id, this.apiCase.follows, () => {
             this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
-      }else {
+      } else {
         this.showFollow = true;
-        if(!this.apiCase.follows){
+        if (!this.apiCase.follows) {
           this.apiCase.follows = [];
         }
         this.apiCase.follows.push(this.currentUser().id)
-        if( this.apiCase.id){
-          this.$post("/api/testcase/update/follows/"+this.apiCase.id, this.apiCase.follows,() => {
+        if (this.apiCase.id) {
+          this.$post("/api/testcase/update/follows/" + this.apiCase.id, this.apiCase.follows, () => {
             this.$success(this.$t('commons.follow_success'));
           });
         }
