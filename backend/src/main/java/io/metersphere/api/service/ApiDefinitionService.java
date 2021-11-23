@@ -1751,7 +1751,7 @@ public class ApiDefinitionService {
             if (body != null) {
                 String raw = body.getString("raw");
                 String dataType = body.getString("type");
-                if (StringUtils.isNotEmpty(raw) && StringUtils.isNotEmpty(dataType)) {
+                if ((StringUtils.isNotEmpty(raw) || StringUtils.isNotEmpty(body.getString("jsonSchema"))) && StringUtils.isNotEmpty(dataType)) {
                     if (StringUtils.equals(type, "JSON")) {
                         String format = body.getString("format");
                         if (StringUtils.equals(format, "JSON-SCHEMA") && StringUtils.isNotEmpty(body.getString("jsonSchema"))) {
