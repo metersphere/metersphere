@@ -319,7 +319,6 @@ export default {
         param.followIds = row.followIds
         this.$post('/test/case/review/edit/follows', param,() => {
           this.$success(this.$t('commons.cancel_follow_success'));
-          this.initTableData();
         });
         return
       }
@@ -332,7 +331,6 @@ export default {
         param.followIds = row.followIds
         this.$post('/test/case/review/edit/follows', param,() => {
           this.$success(this.$t('commons.follow_success'));
-          this.initTableData();
         });
       }
     }
