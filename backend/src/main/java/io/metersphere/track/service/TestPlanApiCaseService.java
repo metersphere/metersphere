@@ -342,7 +342,6 @@ public class TestPlanApiCaseService {
                 return jDBCSampler;
             }
         } catch (Exception e) {
-            e.printStackTrace();
             LogUtil.error(e);
         }
         return null;

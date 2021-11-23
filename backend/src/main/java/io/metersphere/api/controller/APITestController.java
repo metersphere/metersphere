@@ -17,10 +17,7 @@ import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.utils.CronUtils;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.controller.request.ScheduleRequest;
@@ -288,7 +285,7 @@ public class APITestController {
                 returnStr = df.format(coverageRageNumber) + "%";
             }
         }catch (Exception e){
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return  returnStr;
     }
@@ -308,7 +305,7 @@ public class APITestController {
             DecimalFormat df = new DecimalFormat("0.0");
             returnStr = df.format(intetfaceCoverageRageNumber) + "%";
         }catch (Exception e){
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return  returnStr;
     }

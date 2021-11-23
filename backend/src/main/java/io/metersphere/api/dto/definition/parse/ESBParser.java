@@ -16,6 +16,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.EsbApiParamsWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.swagger.models.Model;
 import org.apache.commons.lang3.StringUtils;
@@ -63,7 +64,7 @@ public class ESBParser extends EsbAbstractParser {
             wb.write(out);
             wb.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         } finally {
             if (out != null) {
                 try {
@@ -524,7 +525,7 @@ public class ESBParser extends EsbAbstractParser {
                     } catch (IllegalStateException e2) {
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtil.error(e);
                 }
                 break;
             default:

@@ -11,10 +11,7 @@ import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.GroupRequest;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.controller.request.group.EditGroupUserRequest;
@@ -170,7 +167,7 @@ public class GroupService {
                 List<GroupResourceDTO> dtoPermissions = dto.getPermissions();
                 dtoPermissions.addAll(getResourcePermission(resource, permissions, type, permissionList));
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return dto;

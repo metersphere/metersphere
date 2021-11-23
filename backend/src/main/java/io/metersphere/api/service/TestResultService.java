@@ -144,7 +144,6 @@ public class TestResultService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             LogUtil.error(e);
         }
     }

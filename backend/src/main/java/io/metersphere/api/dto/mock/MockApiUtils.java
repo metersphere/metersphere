@@ -191,7 +191,7 @@ public class MockApiUtils {
                     returnObj.put(key, values);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return returnObj;
@@ -480,7 +480,7 @@ public class MockApiUtils {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             return returnJson;
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(),"text/xml")) {
@@ -560,7 +560,7 @@ public class MockApiUtils {
             inputStream.close();
             result = new String(outSteam.toByteArray(), "UTF-8");
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return result;
     }

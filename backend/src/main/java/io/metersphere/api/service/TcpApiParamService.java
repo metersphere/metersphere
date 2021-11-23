@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +50,7 @@ public class TcpApiParamService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return tcpSampler;
     }

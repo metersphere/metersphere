@@ -50,7 +50,7 @@ public class JsonStructUtils {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             return lastMatchResultIsTrue && !hasNotMatchResult;
         } else {
@@ -76,7 +76,7 @@ public class JsonStructUtils {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             return true;
         } else {
@@ -99,7 +99,7 @@ public class JsonStructUtils {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             return false;
         } else {
@@ -143,7 +143,7 @@ public class JsonStructUtils {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             return isMatch;
         } else {

@@ -2,6 +2,7 @@ package io.metersphere.api.dto.automation.parse;
 
 import com.alibaba.fastjson.JSONArray;
 import io.metersphere.api.dto.automation.EsbDataStruct;
+import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -55,11 +56,11 @@ public class EsbDataParser {
                     xmlString = stringWriter.toString();
                     xmlWriter.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogUtil.error(e);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         if (StringUtils.isEmpty(xmlString)) {
             xmlString = "";

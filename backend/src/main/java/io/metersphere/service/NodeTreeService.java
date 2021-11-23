@@ -1,6 +1,7 @@
 package io.metersphere.service;
 
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.track.dto.TreeNodeDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,9 +23,9 @@ public class NodeTreeService<T extends TreeNodeDTO> {
         try {
             instance = (T) clazz.newInstance();
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return instance;
     }

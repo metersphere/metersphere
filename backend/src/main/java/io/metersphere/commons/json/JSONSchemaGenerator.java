@@ -2,6 +2,7 @@ package io.metersphere.commons.json;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.*;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,7 +23,7 @@ public class JSONSchemaGenerator {
             JsonObject rootElement = element.getAsJsonObject();
             analyzeRootSchemaElement(rootElement, rootObj);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
 
     }

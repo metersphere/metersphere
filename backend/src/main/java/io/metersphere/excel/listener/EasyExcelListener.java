@@ -107,7 +107,7 @@ public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> {
                     }
                 }
             } catch (NoSuchFieldException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         super.invokeHeadMap(headMap, context);

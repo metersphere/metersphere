@@ -125,7 +125,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 //                    }
 //                }
             } catch (NoSuchFieldException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
 //        }
         this.formatHeadMap();

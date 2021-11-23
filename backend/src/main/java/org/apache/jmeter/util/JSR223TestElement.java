@@ -288,8 +288,7 @@ public abstract class JSR223TestElement extends ScriptingTestElement
                     }
                     groovyScriptEngine.getClassLoader().addURL(file.toURI().toURL());
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    LogUtil.error(e.getMessage(), e);
+                    LogUtil.error(e);
                 }
             });
 

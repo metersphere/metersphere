@@ -811,7 +811,7 @@ public class PerformanceTestService {
             try {
                 fileMetadata = fileService.saveFile(file, FileUtil.readAsByteArray(file));
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             saveLoadTestFile(fileMetadata, loadTestId, sort);
         }

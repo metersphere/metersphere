@@ -1076,7 +1076,7 @@ public class TestPlanService {
             runModeConfig = JSONObject.parseObject(apiRunConfig, RunModeConfig.class);
             runModeConfig.setOnSampleError(false);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         if (runModeConfig == null) {
             runModeConfig = new RunModeConfig();
@@ -1157,7 +1157,7 @@ public class TestPlanService {
                     testPlanLoadCaseService.update(loadCase);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(),reportId);
             if (StringUtils.isNotEmpty(reportId)) {
@@ -1200,7 +1200,7 @@ public class TestPlanService {
                     Thread.sleep(10000);
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         });
     }

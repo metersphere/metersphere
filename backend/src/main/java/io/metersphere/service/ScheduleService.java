@@ -157,7 +157,6 @@ public class ScheduleService {
                 }
             } catch (Exception e) {
                 LogUtil.error("初始化任务失败", e);
-                e.printStackTrace();
             }
         });
     }

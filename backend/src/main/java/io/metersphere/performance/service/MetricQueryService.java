@@ -136,7 +136,7 @@ public class MetricQueryService {
                         timestamps.add(DateUtils.getTimeString((long) (timestamp * 1000)));
                     } catch (Exception e) {
                         LogUtil.error(e.getMessage(), e);
-                        e.printStackTrace();
+                        LogUtil.error(e);
                     }
                     values.add(ja.getDouble(1));
                 });

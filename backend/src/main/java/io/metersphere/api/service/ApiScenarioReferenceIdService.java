@@ -6,6 +6,7 @@ import io.metersphere.base.domain.ApiScenarioReferenceId;
 import io.metersphere.base.domain.ApiScenarioReferenceIdExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioReferenceIdMapper;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -91,7 +92,7 @@ public class ApiScenarioReferenceIdService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         if(MapUtils.isNotEmpty(refreceIdDic)){
             for (ApiScenarioReferenceId model:refreceIdDic.values()) {
@@ -106,7 +107,7 @@ public class ApiScenarioReferenceIdService {
             try{
                 apiScenarioReferenceIdMapper.insert(saveItem);
             }catch (Exception e){
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
     }
