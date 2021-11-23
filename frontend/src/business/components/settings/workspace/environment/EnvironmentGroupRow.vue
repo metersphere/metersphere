@@ -252,6 +252,9 @@ export default {
             if (obj.protocol && obj.domain) {
               this.$set(item, "domainName", obj.protocol + "://" + obj.domain);
             }
+          } else if (config.httpConfig.conditions.length > 1) {
+            this.$set(item, "moreDomain", true);
+            return;
           }
         }
       } else {
