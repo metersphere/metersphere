@@ -103,6 +103,8 @@
           <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP' || !form.stepModel"
                                :form="form" :read-only="readOnly"/>
 
+          <ms-form-divider :title="$t('test_track.case.other_info')"/>
+
           <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
                                      :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
@@ -929,7 +931,8 @@ export default {
   width: 56px;
 }
 
-.icon-style {
-
+.other-info-tabs {
+  padding-left: 60px;
+  margin-left: 40px;
 }
 </style>
