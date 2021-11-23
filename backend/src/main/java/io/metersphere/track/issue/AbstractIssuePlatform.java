@@ -37,6 +37,7 @@ import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -134,6 +135,19 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
      * @return 其他平台和本地项目绑定的属性值
      */
     public abstract String getProjectId(String projectId);
+
+    public String getProjectId(String projectId, Function<Project, String> getProjectKeyFuc) {
+        Project project;
+        if (StringUtils.isNotBlank(projectId)) {
+            project = projectService.getProjectById(projectId);
+        } else {
+            TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
+            project = projectService.getProjectById(testCase.getProjectId());
+        }
+        String projectKey = getProjectKeyFuc.apply(project);
+        if (StringUtils.isBlank(projectKey)) MSException.throwException("请在项目设置配置 " + key + "项目ID");
+        return projectKey;
+    }
 
     protected boolean isIntegratedPlatform(String workspaceId, String platform) {
         IntegrationRequest request = new IntegrationRequest();

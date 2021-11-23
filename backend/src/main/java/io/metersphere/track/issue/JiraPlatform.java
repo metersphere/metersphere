@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
@@ -34,7 +33,9 @@ import java.util.UUID;
 
 public class JiraPlatform extends AbstractIssuePlatform {
 
-    protected String key = IssuesManagePlatform.Jira.toString();
+    {
+        this.key = IssuesManagePlatform.Jira.name();
+    }
 
     protected JiraClientV2 jiraClientV2;
 
@@ -46,7 +47,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
-        issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
+        issuesRequest.setPlatform(key);
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
             issues = extIssuesMapper.getIssues(issuesRequest);
@@ -81,7 +82,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issue.setLastmodify(assignee == null ? "" : assignee.getString("displayName"));
         issue.setDescription(description);
         issue.setPlatformStatus(status);
-        issue.setPlatform(IssuesManagePlatform.Jira.toString());
+        issue.setPlatform(key);
         issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), jiraIssue.getFields()));
         return issue;
     }
@@ -112,7 +113,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 DemandDTO demandDTO = new DemandDTO();
                 demandDTO.setName(summary);
                 demandDTO.setId(issueKey);
-                demandDTO.setPlatform(IssuesManagePlatform.Jira.name());
+                demandDTO.setPlatform(key);
                 list.add(demandDTO);
             }
             startAt += maxResults;
@@ -170,7 +171,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr) {
 
-        issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
+        issuesRequest.setPlatform(key);
 
         String jiraKey = validateJiraKey(issuesRequest.getProjectId());
 
@@ -288,16 +289,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public String getProjectId(String projectId) {
-        if (StringUtils.isNotBlank(projectId)) {
-            return projectService.getProjectById(projectId).getJiraKey();
-        }
-        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-        Project project = projectService.getProjectById(testCase.getProjectId());
-        return project.getJiraKey();
+        return getProjectId(projectId, Project::getJiraKey);
     }
 
     public JiraConfig getConfig() {
-        return getConfig(IssuesManagePlatform.Jira.toString(), JiraConfig.class);
+        return getConfig(key, JiraConfig.class);
     }
 
     public JiraConfig setConfig() {

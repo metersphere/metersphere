@@ -37,7 +37,9 @@ import java.util.regex.Pattern;
 public class ZentaoPlatform extends AbstractIssuePlatform {
     protected final ZentaoClient zentaoClient;
 
-    protected String key = IssuesManagePlatform.Zentao.toString();
+    {
+        this.key = IssuesManagePlatform.Zentao.name();
+    }
 
     public ZentaoPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
@@ -49,17 +51,12 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public String getProjectId(String projectId) {
-        if (StringUtils.isNotBlank(projectId)) {
-            return projectService.getProjectById(projectId).getZentaoId();
-        }
-        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-        Project project = projectService.getProjectById(testCase.getProjectId());
-        return project.getZentaoId();
+        return getProjectId(projectId, Project::getZentaoId);
     }
 
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
-        issuesRequest.setPlatform(IssuesManagePlatform.Zentao.toString());
+        issuesRequest.setPlatform(key);
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
             issues = extIssuesMapper.getIssues(issuesRequest);
@@ -99,7 +96,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                         DemandDTO demandDTO = new DemandDTO();
                         demandDTO.setId(o.getString("id"));
                         demandDTO.setName(o.getString("title"));
-                        demandDTO.setPlatform(IssuesManagePlatform.Zentao.name());
+                        demandDTO.setPlatform(key);
                         list.add(demandDTO);
                     }
                 }
@@ -114,7 +111,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                         DemandDTO demandDTO = new DemandDTO();
                         demandDTO.setId(jsonObject.getString("id"));
                         demandDTO.setName(jsonObject.getString("title"));
-                        demandDTO.setPlatform(IssuesManagePlatform.Zentao.name());
+                        demandDTO.setPlatform(key);
                         list.add(demandDTO);
                     });
                 }
@@ -170,7 +167,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
             IssuesExample issuesExample = new IssuesExample();
             issuesExample.createCriteria().andIdEqualTo(id)
-                    .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
+                    .andPlatformEqualTo(key);
             if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
                 // 插入缺陷表
                 issues = insertIssues(issuesRequest);
@@ -191,7 +188,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     private MultiValueMap<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
-        issuesRequest.setPlatform(IssuesManagePlatform.Zentao.toString());
+        issuesRequest.setPlatform(key);
         String projectId = getProjectId(issuesRequest.getProjectId());
         if (StringUtils.isBlank(projectId)) {
             MSException.throwException("未关联禅道项目ID.");
@@ -246,7 +243,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     public ZentaoConfig getConfig() {
-        return getConfig(IssuesManagePlatform.Zentao.toString(), ZentaoConfig.class);
+        return getConfig(key, ZentaoConfig.class);
     }
 
     public ZentaoConfig setConfig() {
