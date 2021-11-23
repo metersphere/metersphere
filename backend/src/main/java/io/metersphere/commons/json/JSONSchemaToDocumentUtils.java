@@ -4,6 +4,7 @@ import com.google.gson.*;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -45,6 +46,12 @@ public class JSONSchemaToDocumentUtils {
             for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
                 String propertyKey = entry.getKey();
                 JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
+                if (propertyObj.get("required") != null) {
+                    JsonArray jsonElements = propertyObj.get("required").getAsJsonArray();
+                    for (JsonElement jsonElement : jsonElements) {
+                        requiredList.add(jsonElement.getAsString());
+                    }
+                }
                 analyzeProperty(roots, propertyKey, propertyObj, requiredList);
             }
         } else if (object.has("type") && object.get("type").getAsString().equals("array")) {
@@ -79,6 +86,9 @@ public class JSONSchemaToDocumentUtils {
                             int index = (int) (Math.random() * list.size());
                             value = list.get(index).toString();
                         }
+                    }
+                    if (value != null && value instanceof JsonPrimitive) {
+                        value = ((JsonPrimitive) value).getAsString();
                     }
                 } catch (Exception e) {
                     LogUtil.error(e);
@@ -157,7 +167,7 @@ public class JSONSchemaToDocumentUtils {
                         requiredItems.add(jsonElement.getAsString());
                     }
                 }
-                analyzeProperty(array, "0", obj.getAsJsonObject(), requiredItems);
+                analyzeProperty(array, String.valueOf(i), obj.getAsJsonObject(), CollectionUtils.isNotEmpty(requiredItems) ? requiredItems : requiredList);
             } else {
                 JsonPrimitive primitive = (JsonPrimitive) obj;
                 array.add(new DocumentElement(propertyName, primitive.getAsString(), "", requiredList.contains(propertyName), null));
@@ -193,7 +203,7 @@ public class JSONSchemaToDocumentUtils {
         List<DocumentElement> roots = new LinkedList<>();
         analyzeRootSchemaElement(rootElement, roots);
         if (rootElement.get("type") != null) {
-            if (rootElement.get("type").toString().equals("object")) {
+            if (rootElement.get("type").toString().equals("object") || rootElement.get("type").toString().equals("\"object\"")) {
                 return new LinkedList<DocumentElement>() {{
                     this.add(new DocumentElement().newRoot("root", roots));
                 }};
