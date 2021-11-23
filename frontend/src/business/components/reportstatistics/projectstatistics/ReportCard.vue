@@ -2,23 +2,23 @@
   <div class="ms-content">
     <el-row class="row-class">
       <el-col :span="4" class="col-one">
-        <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('trackTestCase')">
+        <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('countTestCase')">
           <img src="@/assets/test_case_analysis_png.png" class="image">
           <div style="padding: 10px;">
-            <span>{{ $t('commons.report_statistics.test_case_analysis') }}</span>
+            <span>{{ $t('commons.report_statistics.test_case_count') }}</span>
             <div class="bottom clearfix">
-              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
+              <time class="time">{{ $t('commons.report_statistics.test_case_count_activity') }}</time>
             </div>
           </div>
         </el-card>
       </el-col>
       <el-col :span="4">
-        <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('countTestCase')">
+        <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('trackTestCase')">
           <img src="@/assets/track.jpg" class="image">
           <div style="padding: 10px;">
-            <span>{{ $t('commons.report_statistics.test_case_count') }}</span>
+            <span>{{ $t('commons.report_statistics.test_case_analysis') }}</span>
             <div class="bottom clearfix">
-              <time class="time">{{ $t('commons.report_statistics.test_case_count_activity') }}</time>
+              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>
           </div>
         </el-card>
@@ -93,13 +93,15 @@ export default {
 </script>
 
 <style scoped>
-.row-class{
+.row-class {
   display: flex;
 }
-.col-one{
+
+.col-one {
   display: flex;
   align-items: stretch;
 }
+
 .time {
   font-size: 13px;
   color: #999;

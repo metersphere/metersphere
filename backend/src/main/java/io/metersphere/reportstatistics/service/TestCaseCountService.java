@@ -43,7 +43,12 @@ public class TestCaseCountService {
 
         List<Series> seriesList = new LinkedList<>();
         XAxis xAxis = new XAxis();
-        xAxis.setAxisLabel(new HashMap<String,Integer>(){ {this.put("interval",0);this.put("rotate",0);}});
+        xAxis.setAxisLabel(new HashMap<String, Integer>() {
+            {
+                this.put("interval", 0);
+                this.put("rotate", 0);
+            }
+        });
 
         Legend legend = new Legend();
         formatLegend(legend, request.getYaxis(), request);
@@ -134,18 +139,18 @@ public class TestCaseCountService {
                     Object valueObj = filterMap.get("values");
                     if (valueObj instanceof List) {
                         List<String> searchList = (List) valueObj;
-                        if(!searchList.isEmpty()){
+                        if (!searchList.isEmpty()) {
                             request.setFilterSearchList(filterType, searchList);
                         }
                     }
 
                     if (StringUtils.equalsIgnoreCase(filterType, "caselevel")) {
                         selectLoad = false;
-                    }else if (StringUtils.equalsIgnoreCase(filterType, "maintainer")) {
+                    } else if (StringUtils.equalsIgnoreCase(filterType, "maintainer")) {
                         selectApi = false;
                         selectLoad = false;
                     }
-                }else if(StringUtils.equalsAnyIgnoreCase(filterType, "casestatus")){
+                } else if (StringUtils.equalsAnyIgnoreCase(filterType, "casestatus")) {
                     List<String> searchList = new ArrayList<>();
                     Object valueObj = filterMap.get("values");
                     if (valueObj instanceof List) {
@@ -154,22 +159,22 @@ public class TestCaseCountService {
                         }
                     }
                     //如果包含Running
-                    if(searchList.contains("RUNNING")){
-                        if(!searchList.contains("Starting")){
+                    if (searchList.contains("RUNNING")) {
+                        if (!searchList.contains("Starting")) {
                             searchList.add("STARTING");
                         }
-                        if(!searchList.contains("Underway")){
+                        if (!searchList.contains("Underway")) {
                             searchList.add("UNDERWAY");
                         }
                     }
 
-                    if(searchList.contains("FINISHED")){
-                        if(!searchList.contains("Completed")){
+                    if (searchList.contains("FINISHED")) {
+                        if (!searchList.contains("Completed")) {
                             searchList.add("Completed");
                         }
                     }
 
-                    if(!searchList.isEmpty()){
+                    if (!searchList.isEmpty()) {
                         request.setFilterSearchList(filterType, searchList);
                     }
                     selectApi = false;
@@ -202,7 +207,7 @@ public class TestCaseCountService {
             }
         }
         //没有选择的话默认搜索条件是所有类型的案例
-        if(moreOptionsAboutCaseType.isEmpty()){
+        if (moreOptionsAboutCaseType.isEmpty()) {
             moreOptionsAboutCaseType.add("testCase");
             moreOptionsAboutCaseType.add("apiCase");
             moreOptionsAboutCaseType.add("scenarioCase");
@@ -210,20 +215,20 @@ public class TestCaseCountService {
         }
 
         //解析Y轴，判断要查询的案例类型
-        if(CollectionUtils.isNotEmpty(request.getYaxis())){
+        if (CollectionUtils.isNotEmpty(request.getYaxis())) {
 
-            for (String selectType:request.getYaxis()) {
-                if(moreOptionsAboutCaseType.contains(selectType)){
+            for (String selectType : request.getYaxis()) {
+                if (moreOptionsAboutCaseType.contains(selectType)) {
                     if (StringUtils.equalsIgnoreCase(selectType, "testCase")) {
                         yAxisSelectTestCase = true;
                     } else if (StringUtils.equalsIgnoreCase(selectType, "apiCase")) {
-                        if(selectApi){
+                        if (selectApi) {
                             yAxisSelectApi = true;
                         }
                     } else if (StringUtils.equalsIgnoreCase(selectType, "scenarioCase")) {
                         yAxisSelectScenarioCase = true;
                     } else if (StringUtils.equalsIgnoreCase(selectType, "loadCase")) {
-                        if(selectLoad){
+                        if (selectLoad) {
                             yAxisSelectLoad = true;
                         }
                     }
@@ -232,73 +237,95 @@ public class TestCaseCountService {
         }
 
 
-        if(yAxisSelectTestCase){
+        if (yAxisSelectTestCase) {
             functionCaseCountResult = extTestCaseCountMapper.getFunctionCaseCount(request);
+            if (functionCaseCountResult.isEmpty() && StringUtils.equalsIgnoreCase(request.getXaxis(), "casetype")) {
+                TestCaseCountChartResult result = new TestCaseCountChartResult();
+                result.setCountNum(0);
+                result.setGroupName(request.getTestCaseGroupColumn().substring(1, request.getTestCaseGroupColumn().length() - 1));
+                functionCaseCountResult.add(result);
+            }
         }
         if (yAxisSelectApi) {
-            Map<String,List<String>> apiCaseFilterList = new HashMap<>();
-            if(MapUtils.isNotEmpty(request.getFilterSearchList())){
-                for (Map.Entry<String,List<String>> entry : request.getFilterSearchList().entrySet()) {
+            Map<String, List<String>> apiCaseFilterList = new HashMap<>();
+            if (MapUtils.isNotEmpty(request.getFilterSearchList())) {
+                for (Map.Entry<String, List<String>> entry : request.getFilterSearchList().entrySet()) {
                     String type = entry.getKey();
-                    if(!StringUtils.equalsAnyIgnoreCase(type,"maintainer","casestatus")){
-                        apiCaseFilterList.put(entry.getKey(),entry.getValue());
+                    if (!StringUtils.equalsAnyIgnoreCase(type, "maintainer", "casestatus")) {
+                        apiCaseFilterList.put(entry.getKey(), entry.getValue());
                     }
                 }
             }
             request.setApiFilterSearchList(apiCaseFilterList);
             apiCaseCountResult = extTestCaseCountMapper.getApiCaseCount(request);
+            if (apiCaseCountResult.isEmpty() && StringUtils.equalsIgnoreCase(request.getXaxis(), "casetype")) {
+                TestCaseCountChartResult result = new TestCaseCountChartResult();
+                result.setCountNum(0);
+                result.setGroupName(request.getApiCaseGroupColumn().substring(1, request.getApiCaseGroupColumn().length() - 1));
+                apiCaseCountResult.add(result);
+            }
         }
-        if(yAxisSelectScenarioCase){
+        if (yAxisSelectScenarioCase) {
             scenarioCaseCount = extTestCaseCountMapper.getScenarioCaseCount(request);
+            if (scenarioCaseCount.isEmpty() && StringUtils.equalsIgnoreCase(request.getXaxis(), "casetype")) {
+                TestCaseCountChartResult result = new TestCaseCountChartResult();
+                result.setCountNum(0);
+                result.setGroupName(request.getScenarioCaseGroupColumn().substring(1, request.getScenarioCaseGroupColumn().length() - 1));
+                scenarioCaseCount.add(result);
+            }
         }
         if (yAxisSelectLoad) {
-            Map<String,List<String>> loadCaseFilterMap = new HashMap<>();
-            if(MapUtils.isNotEmpty(request.getFilterSearchList())){
-                for (Map.Entry<String,List<String>> entry : request.getFilterSearchList().entrySet()) {
+            Map<String, List<String>> loadCaseFilterMap = new HashMap<>();
+            if (MapUtils.isNotEmpty(request.getFilterSearchList())) {
+                for (Map.Entry<String, List<String>> entry : request.getFilterSearchList().entrySet()) {
                     String type = entry.getKey();
-                    if(!StringUtils.equalsAnyIgnoreCase(type,"maintainer","caselevel")){
-                        loadCaseFilterMap.put(entry.getKey(),entry.getValue());
+                    if (!StringUtils.equalsAnyIgnoreCase(type, "maintainer", "caselevel")) {
+                        loadCaseFilterMap.put(entry.getKey(), entry.getValue());
                     }
                 }
             }
             request.setLoadFilterSearchList(loadCaseFilterMap);
             loadCaseCount = extTestCaseCountMapper.getLoadCaseCount(request);
+            if (loadCaseCount.isEmpty() && StringUtils.equalsIgnoreCase(request.getXaxis(), "casetype")) {
+                TestCaseCountChartResult result = new TestCaseCountChartResult();
+                result.setCountNum(0);
+                result.setGroupName(request.getLoadCaseGroupColumn().substring(1, request.getLoadCaseGroupColumn().length() - 1));
+                loadCaseCount.add(result);
+            }
         }
 
         //默认值判断。 如：用例类型为 接口、功能、性能， 但是只查出了接口用例，那么功能、性能
-        if(request.getFilterSearchList() != null){
+        if (request.getFilterSearchList() != null) {
             List<String> xaxisColumnsList = new ArrayList<>();
-            if(request.getFilterSearchList().containsKey(request.getXaxis())){
+            if (request.getFilterSearchList().containsKey(request.getXaxis())) {
                 xaxisColumnsList = request.getFilterSearchList().get(request.getXaxis());
 
-                if(CollectionUtils.isNotEmpty(xaxisColumnsList)){
+                if (CollectionUtils.isNotEmpty(xaxisColumnsList)) {
                     for (String xcolum : xaxisColumnsList) {
-                        functionCaseCountResult = this.checkCountChartResultHasColumn(xcolum,functionCaseCountResult);
-                        apiCaseCountResult = this.checkCountChartResultHasColumn(xcolum,apiCaseCountResult);
-                        scenarioCaseCount = this.checkCountChartResultHasColumn(xcolum,scenarioCaseCount);
-                        loadCaseCount = this.checkCountChartResultHasColumn(xcolum,loadCaseCount);
+                        functionCaseCountResult = this.checkCountChartResultHasColumn(xcolum, functionCaseCountResult);
+                        apiCaseCountResult = this.checkCountChartResultHasColumn(xcolum, apiCaseCountResult);
+                        scenarioCaseCount = this.checkCountChartResultHasColumn(xcolum, scenarioCaseCount);
+                        loadCaseCount = this.checkCountChartResultHasColumn(xcolum, loadCaseCount);
                     }
                 }
-            }else if(StringUtils.equalsIgnoreCase(request.getXaxis(),"caseType")){
-                functionCaseCountResult = this.checkCountChartResultHasColumn("功能用例",functionCaseCountResult);
-                apiCaseCountResult = this.checkCountChartResultHasColumn("接口用例",apiCaseCountResult);
-                scenarioCaseCount = this.checkCountChartResultHasColumn("场景用例",scenarioCaseCount);
-                loadCaseCount = this.checkCountChartResultHasColumn("性能用例",loadCaseCount);
+            } else if (StringUtils.equalsIgnoreCase(request.getXaxis(), "caseType")) {
+                functionCaseCountResult = this.checkCountChartResultHasColumn("功能用例", functionCaseCountResult);
+                apiCaseCountResult = this.checkCountChartResultHasColumn("接口用例", apiCaseCountResult);
+                scenarioCaseCount = this.checkCountChartResultHasColumn("场景用例", scenarioCaseCount);
+                loadCaseCount = this.checkCountChartResultHasColumn("性能用例", loadCaseCount);
             }
         }
 
 
-
-
-        Map<String, TestCaseCountSummary> summaryMap = this.summaryCountResult(parseUser, parseStatus,request.getProjectId(),request.getOrder(),
+        Map<String, TestCaseCountSummary> summaryMap = this.summaryCountResult(parseUser, parseStatus, request.getProjectId(), request.getOrder(),
                 functionCaseCountResult, apiCaseCountResult, scenarioCaseCount, loadCaseCount);
 
-        formatXaxisSeries(xAxis, seriesList, dto, summaryMap);
+        formatXaxisSeries(xAxis, seriesList, dto, summaryMap, yAxisSelectTestCase, yAxisSelectApi, yAxisSelectScenarioCase, yAxisSelectLoad);
         formatTable(dtos, summaryMap);
 
-        formatPieChart(pieChartDTO, request.getXaxis(), summaryMap,yAxisSelectTestCase,yAxisSelectApi,yAxisSelectScenarioCase,yAxisSelectLoad);
+        formatPieChart(pieChartDTO, request.getXaxis(), summaryMap, yAxisSelectTestCase, yAxisSelectApi, yAxisSelectScenarioCase, yAxisSelectLoad);
 
-        TestCaseCountTableDataDTO showTable = this.countShowTable(request.getXaxis(),request.getYaxis(),dtos);
+        TestCaseCountTableDataDTO showTable = this.countShowTable(request.getXaxis(), request.getYaxis(), dtos);
 
         TestCaseCountResponse testCaseCountResult = new TestCaseCountResponse();
         testCaseCountResult.setBarChartDTO(dto);
@@ -311,7 +338,7 @@ public class TestCaseCountService {
 
     private TestCaseCountTableDataDTO countShowTable(String groupName, List<String> yaxis, List<TestCaseCountTableDTO> dtos) {
         TestCaseCountTableDataDTO returnDTO = new TestCaseCountTableDataDTO();
-        String [] headers = new String[]{groupName,"总计","testCase","apiCase","scenarioCase","loadCaseCount"};
+        String[] headers = new String[]{groupName, "总计", "testCase", "apiCase", "scenarioCase", "loadCaseCount"};
 
         List<TestCaseCountTableItemDataDTO> heads = new ArrayList<>();
         boolean showTestCase = true;
@@ -319,19 +346,19 @@ public class TestCaseCountService {
         boolean showScenario = true;
         boolean showLoad = true;
         for (String head : headers) {
-            if(StringUtils.equalsAnyIgnoreCase(head,groupName,"总计") || yaxis.contains(head)){
+            if (StringUtils.equalsAnyIgnoreCase(head, groupName, "总计") || yaxis.contains(head)) {
                 TestCaseCountTableItemDataDTO headData = new TestCaseCountTableItemDataDTO();
                 headData.setId(UUID.randomUUID().toString());
                 headData.setValue(head);
                 heads.add(headData);
-            }else {
-                if(StringUtils.equalsIgnoreCase(head,"testCase")){
+            } else {
+                if (StringUtils.equalsIgnoreCase(head, "testCase")) {
                     showTestCase = false;
-                }else if(StringUtils.equalsIgnoreCase(head,"apiCase")){
+                } else if (StringUtils.equalsIgnoreCase(head, "apiCase")) {
                     showApi = false;
-                }else if(StringUtils.equalsIgnoreCase(head,"scenarioCase")){
+                } else if (StringUtils.equalsIgnoreCase(head, "scenarioCase")) {
                     showScenario = false;
-                }else if(StringUtils.equalsIgnoreCase(head,"loadCaseCount")){
+                } else if (StringUtils.equalsIgnoreCase(head, "loadCaseCount")) {
                     showLoad = false;
                 }
             }
@@ -351,28 +378,28 @@ public class TestCaseCountService {
             countData.setValue(data.getAllCount());
             rowDataList.add(countData);
 
-            if(showTestCase){
+            if (showTestCase) {
                 TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
                 itemData.setId(UUID.randomUUID().toString());
                 itemData.setValue(data.getTestCaseCount());
                 rowDataList.add(itemData);
             }
 
-            if(showApi){
+            if (showApi) {
                 TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
                 itemData.setId(UUID.randomUUID().toString());
                 itemData.setValue(data.getApiCaseCount());
                 rowDataList.add(itemData);
             }
 
-            if(showScenario){
+            if (showScenario) {
                 TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
                 itemData.setId(UUID.randomUUID().toString());
                 itemData.setValue(data.getScenarioCaseCount());
                 rowDataList.add(itemData);
             }
 
-            if(showLoad){
+            if (showLoad) {
                 TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
                 itemData.setId(UUID.randomUUID().toString());
                 itemData.setValue(data.getLoadCaseCount());
@@ -388,15 +415,15 @@ public class TestCaseCountService {
         return returnDTO;
     }
 
-    private List<TestCaseCountChartResult> checkCountChartResultHasColumn(String xcolumn,List<TestCaseCountChartResult> resultList) {
+    private List<TestCaseCountChartResult> checkCountChartResultHasColumn(String xcolumn, List<TestCaseCountChartResult> resultList) {
         boolean hasResult = false;
-        for (TestCaseCountChartResult result: resultList) {
-            if(StringUtils.equals(result.getGroupName(),xcolumn)){
+        for (TestCaseCountChartResult result : resultList) {
+            if (StringUtils.equals(result.getGroupName(), xcolumn)) {
                 hasResult = true;
                 break;
             }
         }
-        if(!hasResult){
+        if (!hasResult) {
             TestCaseCountChartResult result = new TestCaseCountChartResult();
             result.setCountNum(0);
             result.setGroupName(xcolumn);
@@ -422,7 +449,7 @@ public class TestCaseCountService {
 
             List<Object> dataList = new ArrayList<>();
 
-            if(selectTestCase && summary.testCaseCount > 0){
+            if (selectTestCase && summary.testCaseCount > 0) {
                 PieData pieData = new PieData();
                 pieData.setName(caseDescMap.get("testCaseDesc"));
                 pieData.setValue(summary.testCaseCount);
@@ -430,7 +457,7 @@ public class TestCaseCountService {
                 dataList.add(pieData);
             }
 
-            if(selectApi && summary.apiCaseCount > 0){
+            if (selectApi && summary.apiCaseCount > 0) {
                 PieData apicasePieData = new PieData();
                 apicasePieData.setName(caseDescMap.get("apiCaseDesc"));
                 apicasePieData.setValue(summary.apiCaseCount);
@@ -438,7 +465,7 @@ public class TestCaseCountService {
                 dataList.add(apicasePieData);
             }
 
-            if(selectScenarioCase && summary.scenarioCaseCount > 0){
+            if (selectScenarioCase && summary.scenarioCaseCount > 0) {
                 PieData scenarioPieData = new PieData();
                 scenarioPieData.setName(caseDescMap.get("scenarioCaseDesc"));
                 scenarioPieData.setValue(summary.scenarioCaseCount);
@@ -446,7 +473,7 @@ public class TestCaseCountService {
                 dataList.add(scenarioPieData);
             }
 
-            if(selectLoad && summary.loadCaseCount > 0){
+            if (selectLoad && summary.loadCaseCount > 0) {
                 PieData loadCasePieData = new PieData();
                 loadCasePieData.setName(caseDescMap.get("loadCaseDesc"));
                 loadCasePieData.setValue(summary.loadCaseCount);
@@ -497,9 +524,9 @@ public class TestCaseCountService {
 
         if (CollectionUtils.isNotEmpty(functionCaseCountResult)) {
             for (TestCaseCountChartResult result : functionCaseCountResult) {
-                if(result.getGroupName() == null){
+                if (result.getGroupName() == null) {
                     result.setGroupName(groupNameParseMap.get("running"));
-                }else {
+                } else {
                     if (groupNameParseMap.containsKey(result.getGroupName().toLowerCase(Locale.ROOT))) {
                         result.setGroupName(groupNameParseMap.get(result.getGroupName().toLowerCase(Locale.ROOT)));
                     }
@@ -519,9 +546,9 @@ public class TestCaseCountService {
 
         if (CollectionUtils.isNotEmpty(apiCaseCountResult)) {
             for (TestCaseCountChartResult result : apiCaseCountResult) {
-                if(result.getGroupName() == null){
+                if (result.getGroupName() == null) {
                     result.setGroupName(groupNameParseMap.get("running"));
-                }else {
+                } else {
                     if (groupNameParseMap.containsKey(result.getGroupName().toLowerCase(Locale.ROOT))) {
                         result.setGroupName(groupNameParseMap.get(result.getGroupName().toLowerCase(Locale.ROOT)));
                     }
@@ -540,9 +567,9 @@ public class TestCaseCountService {
 
         if (CollectionUtils.isNotEmpty(scenarioCaseCount)) {
             for (TestCaseCountChartResult result : scenarioCaseCount) {
-                if(result.getGroupName() == null){
+                if (result.getGroupName() == null) {
                     result.setGroupName(groupNameParseMap.get("running"));
-                }else {
+                } else {
                     if (groupNameParseMap.containsKey(result.getGroupName().toLowerCase(Locale.ROOT))) {
                         result.setGroupName(groupNameParseMap.get(result.getGroupName().toLowerCase(Locale.ROOT)));
                     }
@@ -561,9 +588,9 @@ public class TestCaseCountService {
 
         if (CollectionUtils.isNotEmpty(loadCaseCount)) {
             for (TestCaseCountChartResult result : loadCaseCount) {
-                if(result.getGroupName() == null){
+                if (result.getGroupName() == null) {
                     result.setGroupName(groupNameParseMap.get("running"));
-                }else {
+                } else {
                     if (groupNameParseMap.containsKey(result.getGroupName().toLowerCase(Locale.ROOT))) {
                         result.setGroupName(groupNameParseMap.get(result.getGroupName().toLowerCase(Locale.ROOT)));
                     }
@@ -582,15 +609,15 @@ public class TestCaseCountService {
 
         Map<String, TestCaseCountSummary> returmMap = new LinkedHashMap<>();
 
-        if(StringUtils.equalsIgnoreCase(order,"desc")){
-            TreeMap<Long,List<TestCaseCountSummary>> treeMap = new TreeMap<>();
+        if (StringUtils.equalsIgnoreCase(order, "desc")) {
+            TreeMap<Long, List<TestCaseCountSummary>> treeMap = new TreeMap<>();
             for (TestCaseCountSummary model : summaryMap.values()) {
-                if(treeMap.containsKey(model.getAllCount())){
+                if (treeMap.containsKey(model.getAllCount())) {
                     treeMap.get(model.getAllCount()).add(model);
-                }else {
+                } else {
                     List<TestCaseCountSummary> list = new ArrayList<>();
                     list.add(model);
-                    treeMap.put(model.getAllCount(),list);
+                    treeMap.put(model.getAllCount(), list);
                 }
             }
             ArrayList<TestCaseCountSummary> sortedList = new ArrayList<>();
@@ -598,27 +625,27 @@ public class TestCaseCountService {
                 sortedList.addAll(list);
             }
 
-            for (int i = sortedList.size(); i > 0; i --) {
-                TestCaseCountSummary model = sortedList.get(i-1);
-                returmMap.put(model.groupName,model);
+            for (int i = sortedList.size(); i > 0; i--) {
+                TestCaseCountSummary model = sortedList.get(i - 1);
+                returmMap.put(model.groupName, model);
             }
-        }else if(StringUtils.equalsIgnoreCase(order,"asc")){
-            TreeMap<Long,List<TestCaseCountSummary>> treeMap = new TreeMap<>();
+        } else if (StringUtils.equalsIgnoreCase(order, "asc")) {
+            TreeMap<Long, List<TestCaseCountSummary>> treeMap = new TreeMap<>();
             for (TestCaseCountSummary model : summaryMap.values()) {
-                if(treeMap.containsKey(model.getAllCount())){
+                if (treeMap.containsKey(model.getAllCount())) {
                     treeMap.get(model.getAllCount()).add(model);
-                }else {
+                } else {
                     List<TestCaseCountSummary> list = new ArrayList<>();
                     list.add(model);
-                    treeMap.put(model.getAllCount(),list);
+                    treeMap.put(model.getAllCount(), list);
                 }
             }
             for (List<TestCaseCountSummary> list : treeMap.values()) {
-                for (TestCaseCountSummary model : list ) {
-                    returmMap.put(model.groupName,model);
+                for (TestCaseCountSummary model : list) {
+                    returmMap.put(model.groupName, model);
                 }
             }
-        }else {
+        } else {
             returmMap = summaryMap;
         }
 
@@ -672,8 +699,8 @@ public class TestCaseCountService {
     }
 
 
-    private void formatXaxisSeries(XAxis xAxis, List<Series> seriesList, TestAnalysisChartDTO dto,
-                                   Map<String, TestCaseCountSummary> summaryMap) {
+    private void formatXaxisSeries(XAxis xAxis, List<Series> seriesList, TestAnalysisChartDTO dto, Map<String, TestCaseCountSummary> summaryMap,
+                                   boolean selectTestCase, boolean selectApi, boolean selectScenarioCase, boolean selectLoad) {
         List<String> xAxisDataList = new ArrayList<>();
 
         List<Object> testCaseCountList = new ArrayList<>();
@@ -682,57 +709,82 @@ public class TestCaseCountService {
         List<Object> loadCaseCountList = new ArrayList<>();
         for (TestCaseCountSummary summary : summaryMap.values()) {
             xAxisDataList.add(summary.groupName);
-            testCaseCountList.add(String.valueOf(summary.testCaseCount));
-            apiCaseCountList.add(String.valueOf(summary.apiCaseCount));
-            scenarioCaseCountList.add(String.valueOf(summary.scenarioCaseCount));
-            loadCaseCountList.add(String.valueOf(summary.loadCaseCount));
+            if (summary.testCaseCount > 0) {
+                testCaseCountList.add(String.valueOf(summary.testCaseCount));
+            } else {
+                testCaseCountList.add(null);
+            }
+
+            if (summary.apiCaseCount > 0) {
+                apiCaseCountList.add(String.valueOf(summary.apiCaseCount));
+            } else {
+                apiCaseCountList.add(null);
+            }
+
+            if (summary.scenarioCaseCount > 0) {
+                scenarioCaseCountList.add(String.valueOf(summary.scenarioCaseCount));
+            } else {
+                scenarioCaseCountList.add(null);
+            }
+
+            if (summary.loadCaseCount > 0) {
+                loadCaseCountList.add(String.valueOf(summary.loadCaseCount));
+            } else {
+                loadCaseCountList.add(null);
+            }
+
         }
         xAxis.setData(xAxisDataList);
 
         Map<String, String> caseDescMap = this.getCaseDescMap();
 
         //柱状图上显示数字
-        Map<String,Object> labelMap = new HashMap<>();
-        labelMap.put("show",true);
-        labelMap.put("position","inside");
+        Map<String, Object> labelMap = new HashMap<>();
+        labelMap.put("show", true);
+        labelMap.put("position", "inside");
 
-        Series tetcaseSeries = new Series();
-        tetcaseSeries.setName(caseDescMap.get("testCaseDesc"));
-        tetcaseSeries.setColor("#F38F1F");
-        tetcaseSeries.setRadius("20%");
-        tetcaseSeries.setType("bar");
-        tetcaseSeries.setStack("total");
-        tetcaseSeries.setData(testCaseCountList);
-        tetcaseSeries.setBarWidth("50");
-        tetcaseSeries.setLabel(labelMap);
-        seriesList.add(tetcaseSeries);
-
-        Series apiSeries = new Series();
-        apiSeries.setName(caseDescMap.get("apiCaseDesc"));
-        apiSeries.setColor("#6FD999");
-        apiSeries.setType("bar");
-        apiSeries.setStack("total");
-        apiSeries.setData(apiCaseCountList);
-        apiSeries.setLabel(labelMap);
-        seriesList.add(apiSeries);
-
-        Series scenarioSeries = new Series();
-        scenarioSeries.setName(caseDescMap.get("scenarioCaseDesc"));
-        scenarioSeries.setColor("#2884F3");
-        scenarioSeries.setType("bar");
-        scenarioSeries.setStack("total");
-        scenarioSeries.setData(scenarioCaseCountList);
-        scenarioSeries.setLabel(labelMap);
-        seriesList.add(scenarioSeries);
-
-        Series loadSeries = new Series();
-        loadSeries.setName(caseDescMap.get("loadCaseDesc"));
-        loadSeries.setColor("#F45E53");
-        loadSeries.setType("bar");
-        loadSeries.setStack("total");
-        loadSeries.setData(loadCaseCountList);
-        loadSeries.setLabel(labelMap);
-        seriesList.add(loadSeries);
+        if (selectTestCase) {
+            Series tetcaseSeries = new Series();
+            tetcaseSeries.setName(caseDescMap.get("testCaseDesc"));
+            tetcaseSeries.setColor("#F38F1F");
+            tetcaseSeries.setRadius("20%");
+            tetcaseSeries.setType("bar");
+            tetcaseSeries.setStack("total");
+            tetcaseSeries.setData(testCaseCountList);
+            tetcaseSeries.setBarWidth("50");
+            tetcaseSeries.setLabel(labelMap);
+            seriesList.add(tetcaseSeries);
+        }
+        if (selectApi) {
+            Series apiSeries = new Series();
+            apiSeries.setName(caseDescMap.get("apiCaseDesc"));
+            apiSeries.setColor("#6FD999");
+            apiSeries.setType("bar");
+            apiSeries.setStack("total");
+            apiSeries.setData(apiCaseCountList);
+            apiSeries.setLabel(labelMap);
+            seriesList.add(apiSeries);
+        }
+        if (selectScenarioCase) {
+            Series scenarioSeries = new Series();
+            scenarioSeries.setName(caseDescMap.get("scenarioCaseDesc"));
+            scenarioSeries.setColor("#2884F3");
+            scenarioSeries.setType("bar");
+            scenarioSeries.setStack("total");
+            scenarioSeries.setData(scenarioCaseCountList);
+            scenarioSeries.setLabel(labelMap);
+            seriesList.add(scenarioSeries);
+        }
+        if (selectLoad) {
+            Series loadSeries = new Series();
+            loadSeries.setName(caseDescMap.get("loadCaseDesc"));
+            loadSeries.setColor("#F45E53");
+            loadSeries.setType("bar");
+            loadSeries.setStack("total");
+            loadSeries.setData(loadCaseCountList);
+            loadSeries.setLabel(labelMap);
+            seriesList.add(loadSeries);
+        }
 
         dto.setXAxis(xAxis);
         dto.setYAxis(new YAxis());
@@ -836,8 +888,8 @@ public class TestCaseCountService {
                         JSONObject jsonObject = optionsArr.getJSONObject(i);
                         if (jsonObject.containsKey("value") && jsonObject.containsKey("text")) {
                             String value = jsonObject.getString("value");
-                            if(!StringUtils.equalsAnyIgnoreCase(value, "Prepare", "Error", "Success", "Trash", "Underway", "Starting", "Saved",
-                                    "Completed","test_track.case.status_finished")){
+                            if (!StringUtils.equalsAnyIgnoreCase(value, "Prepare", "Error", "Success", "Trash", "Underway", "Starting", "Saved",
+                                    "Completed", "test_track.case.status_finished")) {
                                 Map<String, String> statusMap = new HashMap<>();
                                 statusMap.put("id", jsonObject.getString("value"));
                                 statusMap.put("label", jsonObject.getString("text"));
