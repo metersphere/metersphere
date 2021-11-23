@@ -1,7 +1,7 @@
 import i18n from "@/i18n/i18n";
-import {getTestCasesForMinder} from "@/network/testCase";
-import {getMinderExtraNode} from "@/network/testCase";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
+import {success, warning} from "../../../../../common/js/message";
+import {deleteIssueRelate} from "@/network/Issue";
 
 export function listenNodeSelected(callback) {
   let minder = window.minder;
@@ -37,6 +37,10 @@ export function listenBeforeExecCommand(callback) {
       callback(even);
     }
   });
+}
+
+export function getSelectedNodes() {
+  return window.minder.getSelectedNodes();
 }
 
 /**
@@ -109,6 +113,32 @@ export function handleTestCaseAdd(pid, data) {
   });
 }
 
+export function appendIssueChildNode(pNode, issue) {
+  let data = getNodeData('缺陷ID：' + issue.num, null, true, 'issue');
+  data.id = issue.id;
+  data.allowDelete = true;
+  appendChildNode(pNode, data);
+}
+
+export function handleIssueAdd(data) {
+  if (data && data.id) {
+    let pNode = getSelectedNode();
+    appendIssueChildNode(pNode, data);
+    expandNode(pNode);
+    pNode.render();
+  }
+}
+
+export function handleIssueBatch(issues) {
+  let pNode = getSelectedNode();
+  issues.forEach(item => {
+    appendIssueChildNode(pNode, item);
+  });
+  expandNode(pNode);
+  pNode.render();
+}
+
+
 export function handTestCaeEdit(data) {
   window.minder.getRoot().traverse(function(node) {
     if (node.data.id === data.id) {
@@ -180,10 +210,11 @@ export function appendCase(parent, item, isDisable, setParamCallback) {
     text: item.name,
     priority: Number.parseInt(item.priority.substring(item.priority.length - 1 )) + 1,
     resource: [i18n.t('api_test.definition.request.case')],
-    type: item.type,
+    type: 'case',
     method: item.method,
     maintainer: item.maintainer,
-    stepModel: item.stepModel
+    stepModel: item.stepModel,
+    caseId: item.caseId
   }
   if (setParamCallback) {
     setParamCallback(caseData, item);
@@ -221,9 +252,15 @@ export function appendCase(parent, item, isDisable, setParamCallback) {
       });
     }
   }
+
+  if (item.issueList && item.issueList.length > 0) {
+    item.issueList.forEach(issue => {
+      appendIssueChildNode(caseNode, issue);
+    });
+  }
 }
 
-function getNodeData(text, resource, isDisable) {
+function getNodeData(text, resource, isDisable, type) {
   if (text) {
     let data = {
         text: text,
@@ -231,6 +268,9 @@ function getNodeData(text, resource, isDisable) {
     };
     if (isDisable) {
       data.disable = true;
+    }
+    if (type) {
+      data.type = type;
     }
     return data;
   }
@@ -356,16 +396,34 @@ export function tagBatch(distinctTags) {
   });
 }
 
+export function isModuleNodeData(data) {
+  let resource = data ? data.resource : null;
+  return data.type === 'node' || (resource && resource.indexOf(i18n.t('test_track.module.module')) > -1);
+}
+
+export function isCaseNodeData(data) {
+  let resource = data ? data.resource : null;
+  return data.type === 'case' || (resource && resource.indexOf(i18n.t('api_test.definition.request.case')) > -1);
+}
+
+export function isModuleNode(node) {
+  return isModuleNodeData(node.data);
+}
+
 export function tagEditCheck(resourceName) {
   let minder = window.minder;
   let selectNodes = minder.getSelectedNodes();
   if (selectNodes && selectNodes.length > 0) {
-    let lastNodeResource = selectNodes[0].getParent().data.resource;
-    if ( resourceName === '模块') {
-      // 模块不能编辑
+    let type = selectNodes[0].data.type;
+    if (type === 'case' || type === 'node') {// 已存在的模块和用例不能修改标签
       return false;
     }
-    if (lastNodeResource && lastNodeResource.indexOf('用例') > -1 && resourceName === '用例') {
+    let parentIsModuleNode = isModuleNode(selectNodes[0].getParent());
+    if (resourceName === i18n.t('api_test.definition.request.case') && !parentIsModuleNode) {
+      return false;
+    }
+    // 父节点必须是模块
+    if (resourceName === i18n.t('test_track.module.module') && !parentIsModuleNode) {
       return false;
     }
   }
@@ -377,30 +435,142 @@ export function priorityDisableCheck() {
   let minder = window.minder;
   let selectNodes = minder.getSelectedNodes();
   if (selectNodes && selectNodes.length > 0) {
-    let resource = selectNodes[0].getParent().data.resource;
-    if (resource && resource.indexOf('用例') > -1) {
+    let parentNode = selectNodes[0].getParent();
+    let resource = parentNode ? parentNode.data.resource : null;
+    if (resource && resource.indexOf(i18n.t('api_test.definition.request.case')) > -1) {
       return true;
     }
   }
   return false;
 }
 
-export function handleAfterSave(pNode, param) {
-  let children = pNode.children;
-  if (children) {
-    for (let i = 0; i < children.length; i++) {
-      let item = children[i];
-      if (item.data.id === null || (item.data.id && item.data.id.length < 20)) {
-        pNode.data.loaded = false;
-        loadNode(pNode, param, getTestCasesForMinder, null, getMinderExtraNode);
-        return;
-      }
-      if (item.data.changed) {
-        item.data.changed = false;
-      }
-      if (item.data.type === 'node') {
-        handleAfterSave(item, param);
-      }
+export function handleAfterSave(rootNode) {
+  if (rootNode.data.newId) {
+    rootNode.data.id = rootNode.data.newId;
+    rootNode.data.newId = null;
+  }
+  rootNode.data.deleteChild = null;
+  rootNode.data.changed = false;
+  rootNode.data.contextChanged = false;
+  if (rootNode.children) {
+    for (let i = 0; i < rootNode.children.length; i++) {
+      handleAfterSave(rootNode.children[i]);
     }
   }
+}
+
+export function getChildNodeId(rootNode, nodeIds) {
+  //递归获取所有子节点ID
+  if (rootNode.data.id) {
+    if (rootNode.data.newId) {
+      nodeIds.push(rootNode.data.newId);
+    } else {
+      nodeIds.push(rootNode.data.id);
+    }
+  }
+  if (rootNode.children) {
+    for (let i = 0; i < rootNode.children.length; i++) {
+      getChildNodeId(rootNode.children[i], nodeIds);
+    }
+  }
+}
+
+export function getSelectedNode() {
+  return window.minder ? window.minder.getSelectedNode() : null;
+}
+
+export function getSelectedNodeData() {
+  let node = getSelectedNode();
+  return node ? node.data : {};
+}
+
+export function addIssueHotBox(vueObj) {
+  let hotbox = window.minder.hotbox;
+  let main = hotbox.state('main');
+  main.button({
+    position: 'ring',
+    label: '关联缺陷',
+    key: 'N',
+    action: function () {
+      if (getSelectedNodeData().id.length < 15) {
+        warning("请先保存用例");
+        return;
+      }
+      vueObj.$refs.issueRelate.open();
+    },
+    enable: function () {
+      return isCaseNodeData(getSelectedNodeData());
+    },
+    beforeShow: function () {
+    }
+  });
+
+  main.button({
+    position: 'ring',
+    label: '添加缺陷',
+    key: 'M',
+    action: function () {
+      if (getSelectedNodeData().id.length < 15) {
+        warning("请先保存用例");
+        return;
+      }
+      vueObj.$refs.issueEdit.open();
+    },
+    enable: function () {
+      return isCaseNodeData(getSelectedNodeData());
+    },
+    beforeShow: function () {
+    }
+  });
+}
+
+export function handleMinderIssueDelete(commandName, isPlan) {
+  if (commandName.toLocaleLowerCase() === 'removenode') {
+    let nodes = getSelectedNodes();
+    if (nodes && nodes.length > 0) {
+      let isAllIssue = true;
+      let promises = [];
+      nodes.forEach(node => {
+        let data = node.data;
+        if (data.type === 'issue') {
+          let caseId = isPlan ? node.parent.data.caseId : node.parent.data.id
+          let p = new Promise((resolve) => {
+            deleteIssueRelate({id: data.id, caseId: caseId}, () => {
+              resolve();
+            });
+          });
+          promises.push(p);
+        } else {
+          isAllIssue = false;
+        }
+      });
+      Promise.all(promises).then(() => {
+        success('取消缺陷关联成功');
+      });
+      return isAllIssue;
+    }
+  }
+  return false;
+}
+
+
+export function openMinderConfirm(vueObj, activeDom) {
+  let isTestCaseMinderChanged = vueObj.$store.state.isTestCaseMinderChanged;
+  if (vueObj.activeDom !== 'left' && activeDom === 'left' && isTestCaseMinderChanged) {
+    vueObj.$refs.isChangeConfirm.open();
+    vueObj.tmpActiveDom = activeDom;
+    return;
+  }
+  vueObj.activeDom = activeDom;
+}
+
+export function saveMinderConfirm(vueObj, isSave) {
+  if (isSave) {
+    vueObj.$refs.minder.save(window.minder.exportJson());
+  } else {
+    vueObj.$store.commit('setIsTestCaseMinderChanged', false);
+  }
+  vueObj.$nextTick(() => {
+    vueObj.activeDom = vueObj.tmpActiveDom;
+  });
 }

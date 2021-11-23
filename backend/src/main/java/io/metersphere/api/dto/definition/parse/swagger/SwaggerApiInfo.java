@@ -15,4 +15,5 @@ public class SwaggerApiInfo {
     private List<JSONObject> parameters; //  对应 API 的请求参数
     private JSONObject requestBody;
     private JSONObject responses;
+    private String description;
 }

@@ -13,7 +13,7 @@
           :title="$t('plugin.title')"
           @search="initPlugins"
           @import="importJar"
-          :show-import="true"/>
+          :show-import="true" :upload-permission="['SYSTEM_PLUGIN:UPLOAD']"/>
       </template>
 
       <el-table
@@ -33,8 +33,8 @@
         </el-table-column>
         <el-table-column prop="license" :label="$t('license.licenseVersion')">
           <template v-slot:default="scope">
-            <span v-if="scope.row.license">企业版</span>
-            <span v-else>开源版</span>
+            <span v-if="scope.row.license">{{ $t('commons.enterprise_edition') }}</span>
+            <span v-else>{{ $t('commons.open_source_version') }}</span>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" min-width="30">
@@ -44,13 +44,13 @@
                 :tip="$t('commons.delete')"
                 icon="el-icon-delete"
                 type="danger"
-                @exec="handleDelete(scope.row.id)"/>
+                @exec="handleDelete(scope.row.id)" v-permission="['SYSTEM_PLUGIN:DEL']"/>
             </div>
             <div v-else>
               <ms-table-operator-button
                 :tip="$t('plugin.script_view')"
                 icon="el-icon-view"
-                @exec="handleView(scope.row)"/>
+                @exec="handleView(scope.row)" v-permission="['SYSTEM_PLUGIN:READ']"/>
             </div>
           </template>
         </el-table-column>

@@ -144,6 +144,7 @@ export default {
           name: this.$t('test_track.home.function_case_count'),
           data: yAxis1,
           type: 'bar',
+          barWidth: 50,
           itemStyle: {
             color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER
           }

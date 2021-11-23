@@ -19,7 +19,7 @@
             </div>
 
             <el-divider/>
-            <div class="request-bottom">
+            <div class="request-middle">
               <api-report-reqest-header-item :title="$t('api_test.request.method')">
                 <span class="method"> {{request.method}}</span>
               </api-report-reqest-header-item>
@@ -60,7 +60,6 @@
                   {{$t('api_report.fail')}}
                 </el-tag>
               </api-report-reqest-header-item>
-
             </div>
           </div>
         </el-card>
@@ -76,12 +75,13 @@
   import MsMetricChart from "./components/MetricChart";
   import MsReportTitle from "../../../common/components/report/MsReportTitle";
   import MsReportExportTemplate from "../../../common/components/report/MsReportExportTemplate";
+  import MsAssertionResults from "@/business/components/api/automation/report/components/AssertionResults"
 
   export default {
     name: "MsApiReportExport",
     components: {
       MsReportExportTemplate,
-      MsReportTitle, MsMetricChart, ApiReportReqestHeaderItem, MsRequestResultTail, MsScenarioResult
+      MsReportTitle, MsMetricChart, ApiReportReqestHeaderItem, MsRequestResultTail, MsScenarioResult ,MsAssertionResults
     },
     props: {
       content: Object,
@@ -119,7 +119,7 @@
     font-weight: 500;
   }
 
-  .request-top, .request-bottom {
+  .request-top, .request-bottom , .request-middle{
     margin-left: 20px;
   }
 

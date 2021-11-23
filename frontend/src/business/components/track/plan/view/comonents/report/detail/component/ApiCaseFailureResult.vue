@@ -1,7 +1,6 @@
 <template>
-  <div>
-    <el-row class="scenario-info">
-      <el-col class="padding-col" :span="7">
+  <el-container>
+      <ms-aside-container width="500px" :default-hidden-bottom-top="200" :enable-auto-height="true">
         <el-card>
           <el-scrollbar>
             <ms-table v-loading="result.loading"
@@ -50,15 +49,14 @@
             </ms-table>
           </el-scrollbar>
         </el-card>
-      </el-col>
-      <el-col class="padding-col" :span="17" v-if="apiCases.length > 0">
+      </ms-aside-container>
+      <ms-main-container>
         <el-card v-if="showResponse">
           <ms-request-result-tail :response="response" ref="debugResult"/>
         </el-card>
         <div class="empty" v-else>内容为空</div>
-      </el-col>
-    </el-row>
-  </div>
+      </ms-main-container>
+  </el-container>
 </template>
 
 <script>
@@ -76,9 +74,13 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getApiReport, getShareApiReport} from "@/network/api";
 import MsRequestResultTail from "@/business/components/api/definition/components/response/RequestResultTail";
+import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 export default {
   name: "ApiCaseFailureResult",
   components: {
+    MsMainContainer,
+    MsAsideContainer,
     MsRequestResultTail,
     MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
   props: {
@@ -92,7 +94,7 @@ export default {
   },
   data() {
     return {
-      apiCases:  [],
+      apiCases: [],
       result: {},
       response: {},
       showResponse: false
@@ -155,13 +157,29 @@ export default {
           }
         });
       } else {
-        // todo
-        getApiReport(row.id, (data) => {
-          if (data && data.content) {
-            this.showResponse = true;
-            this.response = JSON.parse(data.content);
-          }
-        });
+        if (row.reportId) {
+          let url = "/api/definition/report/get/" + row.reportId;
+          this.$get(url, response => {
+            if (response.data) {
+              let data = response.data;
+              if (data && data.content) {
+                this.showResponse = true;
+                try {
+                  this.response = JSON.parse(data.content);
+                } catch (e) {
+                  this.response = {};
+                }
+              }
+            }
+          });
+        } else {
+          getApiReport(row.id, (data) => {
+            if (data && data.content) {
+              this.showResponse = true;
+              this.response = JSON.parse(data.content);
+            }
+          });
+        }
       }
     }
   }
@@ -171,11 +189,15 @@ export default {
 <style scoped>
 
 .el-card >>> .el-card__body {
-  height: 600px;
+  height: 550px;
 }
 
 /deep/ .text-container .pane {
   height: 550px !important;
 }
 
+.ms-aside-container {
+  border: 0px;
+  padding: 10px 0px 0px 10px;
+}
 </style>

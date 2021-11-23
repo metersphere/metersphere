@@ -148,7 +148,7 @@ public class WeakConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> {
                 try {
                     Thread.sleep(expiryInMillis / 2);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    LogUtil.error(e);
                 }
             }
         }

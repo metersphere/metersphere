@@ -7,6 +7,9 @@
         select ug.user_id, ug.group_id, ug.source_id, g.`name`, g.type
         from user_group ug join `group` g on ug.group_id = g.id
         where ug.user_id = #{userId}
+        <if test="projectId != null">
+            and ug.source_id = #{projectId}
+        </if>
     </select>
 
     <select id="getWorkspaceMemberGroups" resultType="io.metersphere.base.domain.Group">
@@ -66,6 +69,12 @@
         WHERE ug.user_id = #{userId}
         AND ug.source_id = #{sourceId}
         AND ug.group_id = #{groupId}
+    </select>
+
+    <select id="getUserGroupInfo" resultType="io.metersphere.dto.UserGroupInfoDTO">
+        select distinct user.id AS userId, user.name AS userName, user.email AS userEmail, g.`name` AS groupName, g.id AS groupId
+        from user INNER JOIN user_group ug on user.id = ug.user_id
+                  INNER JOIN `group` g ON ug.group_id = g.id;
     </select>
 
 </mapper>

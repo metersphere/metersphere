@@ -1,12 +1,12 @@
 <template>
-  <el-form label-position="right" label-width="100px" size="small">
-    <el-form-item :label="'禅道信息'">
-      <ms-instructions-icon size="10" :content="'该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用组织中配置的默认信息'"/>
+  <el-form label-position="right" label-width="135px" size="small">
+    <el-form-item :label="$t('organization.integration.zentao_info')">
+      <ms-instructions-icon size="10" :content="$t('organization.integration.zentao_prompt_information')"/>
     </el-form-item>
-    <el-form-item :label="'禅道' + $t('organization.integration.account')" prop="account">
+    <el-form-item :label="$t('organization.integration.zentao_account')" prop="account">
       <el-input v-model="data.zentaoUserName" :placeholder="$t('organization.integration.input_api_account')"/>
     </el-form-item>
-    <el-form-item :label="'禅道' + $t('organization.integration.password')" prop="password">
+    <el-form-item :label="$t('organization.integration.zentao_password')" prop="password">
       <el-input v-model="data.zentaoPassword" auto-complete="new-password"
                 :placeholder="$t('organization.integration.input_api_password')" show-password/>
     </el-form-item>

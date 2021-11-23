@@ -46,27 +46,38 @@ export default {
           children: [
             {
               title: this.$t('api_test.request.address'),
-              value: 'returnMsg.add(@address);',
+              value: 'var returnMsg = requestParams.get("address");\nreturn returnMsg;',
             },
             {
               title: "Header "+this.$t('api_test.definition.document.request_param'),
-              value: 'returnMsg.add(@header(${param}));',
+              value: 'var returnMsg = requestParams.get("header.${param}");\nreturn returnMsg;',
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable'),
-              value: 'returnMsg.add(@body(${param}));',
+              value: 'var returnMsg = requestParams.get("body.${param}");\nreturn returnMsg;\n' +
+                "\n"+
+                '//如果对象是多层JSON，需要引入fastjson协助解析:\n' +
+                '// 以"{\"name\":\"user\",\"rows\":[{\"type\":1}]}" 为demo,取rows第1个的type数据:\n' +
+                'import com.alibaba.fastjson.JSON;\n'+
+                'import com.alibaba.fastjson.JSONArray;\n'+
+                'import com.alibaba.fastjson.JSONObject;\n'+
+                '\n'+
+                'var jsonParam = requestParams.get("body.json");\n' +
+                'JSONObject jsonObject = JSONObject.parseObject(jsonParam);\n' +
+                'var returnMsg = jsonObject.getJSONArray("rows").getJSONObject(0).getString("type");\n' +
+                'return returnMsg;\n',
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable')+" (Raw)",
-              value: 'returnMsg.add(@bodyRaw);',
+              value: 'var returnMsg = requestParams.get("bodyRaw");\nreturn returnMsg;',
             },
             {
               title: "Query "+this.$t('api_test.definition.document.request_param'),
-              value: 'returnMsg.add(@query(${param}));',
+              value: 'var returnMsg = requestParams.get("query.${param}");\nreturn returnMsg;',
             },
             {
               title: "Rest "+this.$t('api_test.definition.document.request_param'),
-              value: 'returnMsg.add(@rest(${param}));',
+              value: 'var returnMsg = requestParams.get("rest.${param}");\nreturn returnMsg;',
             },
 
           ]
@@ -94,7 +105,7 @@ export default {
       ],
       isCodeEditAlive: true,
       languages: [
-        'beanshell',"groovy"
+        'beanshell'
         // , "python",  "nashornScript", "rhinoScript"
       ],
       codeEditModeMap: {

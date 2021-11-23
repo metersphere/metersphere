@@ -280,7 +280,7 @@ public class FileUtils {
                 jarFiles.add(byteArrayResource);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
 
         return jarFiles;

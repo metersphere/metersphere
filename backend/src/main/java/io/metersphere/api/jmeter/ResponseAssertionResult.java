@@ -9,6 +9,8 @@ public class ResponseAssertionResult {
 
     private String content;
 
+    private String script;
+
     private String message;
 
     private boolean pass;

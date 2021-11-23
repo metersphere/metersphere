@@ -14,6 +14,10 @@
     </template>
 
     <about-us ref="aboutUs"/>
+    <el-dialog :close-on-click-modal="false" width="80%"
+               :visible.sync="resVisible" class="api-import" destroy-on-close @close="closeDialog">
+      <ms-person-router @closeDialog = "closeDialog"/>
+    </el-dialog>
   </el-dropdown>
 </template>
 
@@ -22,14 +26,17 @@ import {getCurrentUser} from "@/common/js/utils";
 import AboutUs from "./AboutUs";
 import {logout} from "@/network/user";
 
+import  MsPersonRouter from "@/business/components/settings/components/PersonRouter"
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const auth = requireComponent.keys().length > 0 ? requireComponent("./auth/Auth.vue") : {};
 
 export default {
   name: "MsUser",
-  components: {AboutUs},
+  components: {AboutUs,MsPersonRouter},
   data() {
     return {
+      resVisible:false,
     }
   },
   computed: {
@@ -45,7 +52,8 @@ export default {
       switch (command) {
         case "personal":
           // TODO 优化路由跳转，避免重复添加路由
-          this.$router.push('/setting/personsetting').catch(error => error);
+         // this.$router.push('/setting/personsetting').catch(error => error);
+          this.resVisible = true;
           break;
         case "logout":
           this.logout();
@@ -70,8 +78,11 @@ export default {
       } else {
         window.location.href = "/#/api/home";
       }
-
+    },
+    closeDialog(){
+      this.resVisible = false;
     }
+
   }
 }
 </script>

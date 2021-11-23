@@ -1,6 +1,7 @@
 package io.metersphere.websocket.c.to.c;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.websocket.c.to.c.util.MsgDto;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -48,7 +49,7 @@ public class MsWebSocketClient extends WebSocketClient{
             dto.setToReport("3933abd9");
             client.send(JSON.toJSONString(dto));
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 }

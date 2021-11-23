@@ -1,16 +1,23 @@
 package io.metersphere.api.cache;
 
 
-import io.metersphere.api.dto.automation.APIScenarioReportResult;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
+import io.metersphere.api.jmeter.JmeterThreadUtils;
+import io.metersphere.api.jmeter.MessageCache;
+import io.metersphere.base.domain.ApiScenarioReport;
+import io.metersphere.base.domain.ApiScenarioReportExample;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TestPlanResourceType;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,9 +33,12 @@ public class TestPlanExecuteInfo {
     private Map<String, String> apiScenarioCaseExecInfo = new HashMap<>();
     private Map<String, String> loadCaseExecInfo = new HashMap<>();
 
-    private Map<String, ApiDefinitionExecResult> apiCaseExecuteReportMap = new HashMap<>();
-    private Map<String, APIScenarioReportResult> apiScenarioReportReportMap = new HashMap<>();
-    private Map<String,String> loadCaseReportIdMap = new HashMap<>();
+    private Map<String, String> apiCaseExecuteThreadMap = new HashMap<>();
+    private Map<String, String> apiScenarioThreadMap = new HashMap<>();
+    private Map<String, String> loadCaseReportIdMap = new HashMap<>();
+
+    private Map<String, String> apiCaseReportMap = new HashMap<>();
+    private Map<String, String> apiScenarioReportMap = new HashMap<>();
 
     private boolean reportDataInDataBase;
 
@@ -39,7 +49,7 @@ public class TestPlanExecuteInfo {
     private boolean isScenarioAllExecuted;
     private boolean isLoadCaseAllExecuted;
 
-    public TestPlanExecuteInfo(String reportId,String creator){
+    public TestPlanExecuteInfo(String reportId, String creator) {
         this.reportId = reportId;
         this.creator = creator;
     }
@@ -58,13 +68,13 @@ public class TestPlanExecuteInfo {
         }
     }
 
-    public synchronized void updateExecuteResult(Map<String, ApiDefinitionExecResult> apiCaseExecResultInfo, Map<String, APIScenarioReportResult> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
+    public synchronized void updateThreadResult(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
         if (MapUtils.isNotEmpty(apiCaseExecResultInfo)) {
-            this.apiCaseExecuteReportMap.putAll(apiCaseExecResultInfo);
+            this.apiCaseExecuteThreadMap.putAll(apiCaseExecResultInfo);
         }
 
         if (MapUtils.isNotEmpty(apiScenarioCaseExecResultInfo)) {
-            this.apiScenarioReportReportMap.putAll(apiScenarioCaseExecResultInfo);
+            this.apiScenarioThreadMap.putAll(apiScenarioCaseExecResultInfo);
         }
 
         if (MapUtils.isNotEmpty(loadCaseExecResultInfo)) {
@@ -164,23 +174,67 @@ public class TestPlanExecuteInfo {
             String executeResult = entry.getValue();
             if (StringUtils.equalsIgnoreCase(executeResult, TestPlanApiExecuteStatus.RUNNING.name())) {
                 apiCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
+                if (StringUtils.isNotEmpty(apiCaseExecuteThreadMap.get(resourceId))) {
+                    JmeterThreadUtils.stop(apiCaseExecuteThreadMap.get(resourceId));
+                }
+            }
+
+            if (apiCaseExecuteThreadMap.containsKey(resourceId)) {
+                MessageCache.executionQueue.remove(apiCaseExecuteThreadMap.get(resourceId));
             }
         }
+
+        List<String> updateScenarioReportList = new ArrayList<>();
         for (Map.Entry<String, String> entry : apiScenarioCaseExecInfo.entrySet()) {
             String resourceId = entry.getKey();
             String executeResult = entry.getValue();
             if (StringUtils.equalsIgnoreCase(executeResult, TestPlanApiExecuteStatus.RUNNING.name())) {
                 apiScenarioCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
+                updateScenarioReportList.add(apiScenarioThreadMap.get(resourceId));
+                if (StringUtils.isNotEmpty(apiScenarioThreadMap.get(resourceId))) {
+                    JmeterThreadUtils.stop(apiScenarioThreadMap.get(resourceId));
+                }
+            }
+
+            if (apiScenarioThreadMap.containsKey(resourceId)) {
+                MessageCache.executionQueue.remove(apiScenarioThreadMap.get(resourceId));
             }
         }
+        if(CollectionUtils.isNotEmpty(updateScenarioReportList)){
+            ApiScenarioReportMapper apiScenarioReportMapper = CommonBeanFactory.getBean(ApiScenarioReportMapper.class);
+            ApiScenarioReportExample example = new ApiScenarioReportExample();
+            example.createCriteria().andIdIn(updateScenarioReportList).andStatusEqualTo("Running");
+            ApiScenarioReport report = new ApiScenarioReport();
+            report.setStatus("Error");
+            apiScenarioReportMapper.updateByExampleSelective(report,example);
+        }
+
         for (Map.Entry<String, String> entry : loadCaseExecInfo.entrySet()) {
             String resourceId = entry.getKey();
             String executeResult = entry.getValue();
             if (StringUtils.equalsIgnoreCase(executeResult, TestPlanApiExecuteStatus.RUNNING.name())) {
+                if (StringUtils.isNotEmpty(loadCaseReportIdMap.get(resourceId))) {
+                    JmeterThreadUtils.stop(loadCaseReportIdMap.get(resourceId));
+                }
                 loadCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
+            }
+
+            if (loadCaseReportIdMap.containsKey(resourceId)) {
+                MessageCache.executionQueue.remove(loadCaseReportIdMap.get(resourceId));
             }
         }
 
         this.countUnFinishedNum();
+    }
+
+    public void updateReport(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo) {
+        if (MapUtils.isNotEmpty(apiCaseExecResultInfo)) {
+            this.apiCaseReportMap.putAll(apiCaseExecResultInfo);
+        }
+
+        if (MapUtils.isNotEmpty(apiScenarioCaseExecResultInfo)) {
+            this.apiScenarioReportMap.putAll(apiScenarioCaseExecResultInfo);
+        }
+
     }
 }

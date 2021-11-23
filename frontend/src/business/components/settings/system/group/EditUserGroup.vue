@@ -6,12 +6,12 @@
       <el-row>
         <el-col :span="11">
           <el-form-item :label="$t('commons.name')" prop="name">
-            <el-input v-model="form.name"></el-input>
+            <el-input v-model="form.name" class="form-input"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="11" :offset="2">
+        <el-col :span="11" >
           <el-form-item :label="$t('group.type')" prop="type">
-            <el-select v-model="form.type" :placeholder="$t('group.select_type')" style="width: 100%" @change="changeGroup" :disabled="dialogType === 'edit'">
+            <el-select v-model="form.type" :placeholder="$t('group.select_type')"  @change="changeGroup" :disabled="dialogType === 'edit'" class="form-input">
               <el-option :label="$t('group.system')" value="SYSTEM"></el-option>
               <el-option :label="$t('group.workspace')" value="WORKSPACE"></el-option>
               <el-option :label="$t('group.project')" value="PROJECT"></el-option>
@@ -20,14 +20,14 @@
         </el-col>
       </el-row>
       <el-form-item :label="$t('group.description')" prop="description">
-        <el-input type="textarea" v-model="form.description"></el-input>
+        <el-input type="textarea" v-model="form.description" style="width: 83%"></el-input>
       </el-form-item>
       <el-form-item :label="$t('group.global_group')">
         <el-switch v-model="form.global" :disabled="dialogType === 'edit' || form.type === 'SYSTEM'" @change="change(form.global)"></el-switch>
       </el-form-item>
 
       <el-form-item :label="$t('project.owning_workspace')" v-if="show" prop="scopeId">
-        <el-select v-model="form.scopeId" :placeholder="$t('project.please_choose_workspace')" style="width: 100%;" :disabled="dialogType === 'edit'" clearable>
+        <el-select v-model="form.scopeId" :placeholder="$t('project.please_choose_workspace')" :disabled="dialogType === 'edit'" clearable style="width: 83%">
           <el-option v-for="item in workspaces" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </el-form-item>
@@ -158,7 +158,7 @@ export default {
       }
     },
     getWorkspace() {
-      this.$get("/user/group/ws/" + getCurrentUserId(), res => {
+      this.$get("/workspace/list", res => {
         let data = res.data;
         if (data) {
           this.workspaces = data;
@@ -170,5 +170,7 @@ export default {
 </script>
 
 <style scoped>
-
+.form-input{
+  width: 80%;
+}
 </style>

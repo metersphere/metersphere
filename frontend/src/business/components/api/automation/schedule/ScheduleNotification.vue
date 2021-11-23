@@ -153,13 +153,13 @@ export default {
         '<body>\n' +
         '<div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        ${operator}执行接口测成功: ${name}, 报告: ${reportUrl}' +
+        '        ${operator}执行接口测试成功: ${name}, 报告: ${reportUrl}' +
         '    </div>\n' +
         '\n' +
         '</div>\n' +
         '</body>\n' +
         '</html>',
-      robotTitle: "${operator}执行接口测成功: ${name}, 报告: ${reportUrl}",
+      robotTitle: "${operator}执行接口测试成功: ${name}, 报告: ${reportUrl}",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",
@@ -209,7 +209,8 @@ export default {
         'deleteTime',
         'deleteUserId',
         'executeTimes',
-        'order'
+        'order',
+        'environment'
       ]
     };
   },

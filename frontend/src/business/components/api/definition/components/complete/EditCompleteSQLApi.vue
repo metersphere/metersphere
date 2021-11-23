@@ -4,7 +4,7 @@
     <el-row>
       <el-col>
         <!--操作按钮-->
-        <div style="float: right;margin-right: 20px;margin-top: 20px">
+        <div style="float: right;margin-right: 20px;margin-top: 20px" class="ms-opt-btn">
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="basisData.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
@@ -118,5 +118,10 @@ export default {
 </script>
 
 <style scoped>
+.ms-opt-btn {
+  position: fixed;
+  right: 50px;
+  z-index: 1;
+}
 
 </style>

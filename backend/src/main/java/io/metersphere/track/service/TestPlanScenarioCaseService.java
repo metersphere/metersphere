@@ -2,6 +2,9 @@ package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
@@ -14,6 +17,8 @@ import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.TestPlanUtils;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -26,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +61,9 @@ public class TestPlanScenarioCaseService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -107,10 +116,13 @@ public class TestPlanScenarioCaseService {
         return idList;
     }
 
-    public List<ApiScenarioDTO> relevanceList(ApiScenarioRequest request) {
+    public Pager<List<ApiScenarioDTO>> relevanceList(ApiScenarioRequest request, int goPage, int pageSize) {
         request.setNotInTestPlan(true);
-        List<ApiScenarioDTO> list = apiAutomationService.list(request);
-        return list;
+        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+            request.setNotInTestPlan(false);
+        }
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
     public int delete(String id) {
@@ -160,62 +172,93 @@ public class TestPlanScenarioCaseService {
         if (CollectionUtils.isEmpty(planCaseIdList)) {
             MSException.throwException("未找到执行场景！");
         }
-        if (testPlanScenarioRequest.getConfig() != null && !testPlanScenarioRequest.getConfig().getEnvMap().isEmpty()) {
-            this.setScenarioEnv(planCaseIdList, testPlanScenarioRequest.getConfig().getEnvMap());
+        RunModeConfig config = testPlanScenarioRequest.getConfig();
+        if (config != null) {
+            String envType = config.getEnvironmentType();
+            String envGroupId = config.getEnvironmentGroupId();
+            Map<String, String> envMap = config.getEnvMap();
+            if ((StringUtils.equals(envType, EnvironmentType.JSON.toString()) && envMap != null && !envMap.isEmpty())
+                    || (StringUtils.equals(envType, EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(envGroupId))) {
+                // 更新场景用例环境信息，运行时从数据库读取最新环境
+                this.setScenarioEnv(planCaseIdList, testPlanScenarioRequest.getConfig());
+            }
         }
         planCaseIdList.forEach(item -> {
             idStr.append("\"").append(item).append("\"").append(",");
         });
         List<TestPlanApiScenario> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + org.apache.commons.lang3.StringUtils.join(testPlanScenarioRequest.getPlanCaseIds(), ",") + "\"");
         List<String> scenarioIds = new ArrayList<>();
-        Map<String, String> scenarioIdApiScarionMap = new HashMap<>();
+        Map<String, String> scenarioPlanIdMap = new LinkedHashMap<>();
         for (TestPlanApiScenario apiScenario : testPlanApiScenarioList) {
             scenarioIds.add(apiScenario.getApiScenarioId());
-            scenarioIdApiScarionMap.put(apiScenario.getApiScenarioId(), apiScenario.getId());
+            scenarioPlanIdMap.put(apiScenario.getId(), apiScenario.getApiScenarioId());
         }
-        if(scenarioIdApiScarionMap.isEmpty()){
+        if (scenarioPlanIdMap.isEmpty()) {
             MSException.throwException("未找到执行场景！");
         }
         RunScenarioRequest request = new RunScenarioRequest();
         request.setIds(scenarioIds);
         request.setReportId(testPlanScenarioRequest.getId());
-        request.setScenarioTestPlanIdMap(scenarioIdApiScarionMap);
+        request.setScenarioTestPlanIdMap(scenarioPlanIdMap);
         request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
         request.setId(testPlanScenarioRequest.getId());
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(testPlanScenarioRequest.getTriggerMode());
         request.setConfig(testPlanScenarioRequest.getConfig());
+        request.setPlanCaseIds(planCaseIdList);
+        request.setRequestOriginator("TEST_PLAN");
         return apiAutomationService.run(request);
     }
 
-    public void setScenarioEnv(List<String> planScenarioIds, Map<String, String> envMap) {
-        if (CollectionUtils.isEmpty(planScenarioIds)) {
-            return;
-        }
+    public void setScenarioEnv(List<String> planScenarioIds, RunModeConfig runModeConfig) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
         testPlanApiScenarioExample.createCriteria().andIdIn(planScenarioIds);
         List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(testPlanApiScenarioExample);
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanApiScenarioMapper mapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
-        for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
-            String env = testPlanApiScenario.getEnvironment();
-            if (StringUtils.isBlank(env)) {
-                continue;
+
+        String environmentType = runModeConfig.getEnvironmentType();
+        String environmentGroupId = runModeConfig.getEnvironmentGroupId();
+
+        if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString())) {
+            Map<String, String> envMap = runModeConfig.getEnvMap();
+            if (CollectionUtils.isEmpty(planScenarioIds)) {
+                return;
             }
-            Map<String, String> map = JSON.parseObject(env, Map.class);
-            if (map.isEmpty()) {
-                continue;
-            }
-            Set<String> set = map.keySet();
-            for (String s : set) {
-                if (StringUtils.isNotBlank(envMap.get(s))) {
-                    map.put(s, envMap.get(s));
+            for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
+                String env = testPlanApiScenario.getEnvironment();
+                if (StringUtils.isBlank(env)) {
+                    if (envMap != null && !envMap.isEmpty()) {
+                        env = JSON.toJSONString(envMap);
+                    }
                 }
+                Map<String, String> map = JSON.parseObject(env, Map.class);
+                if (map.isEmpty()) {
+                    continue;
+                }
+                Set<String> set = map.keySet();
+                for (String s : set) {
+                    if (StringUtils.isNotBlank(envMap.get(s))) {
+                        map.put(s, envMap.get(s));
+                    }
+                }
+                testPlanApiScenario.setEnvironmentType(EnvironmentType.JSON.toString());
+                testPlanApiScenario.setEnvironment(JSON.toJSONString(map));
+                mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
             }
-            testPlanApiScenario.setEnvironment(JSON.toJSONString(map));
-            mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
+            sqlSession.flushStatements();
+            return;
         }
-        sqlSession.flushStatements();
+
+        if (StringUtils.equals(environmentType, EnvironmentType.GROUP.toString())) {
+            for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
+                testPlanApiScenario.setEnvironmentType(EnvironmentType.GROUP.toString());
+                testPlanApiScenario.setEnvironmentGroupId(environmentGroupId);
+                mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
+            }
+            sqlSession.flushStatements();
+        }
+
     }
 
     public List<TestPlanApiScenario> getCasesByPlanId(String planId) {
@@ -256,28 +299,40 @@ public class TestPlanScenarioCaseService {
 
     public void batchUpdateEnv(RelevanceScenarioRequest request) {
         Map<String, String> envMap = request.getEnvMap();
+        String envType = request.getEnvironmentType();
+        String envGroupId = request.getEnvGroupId();
         Map<String, List<String>> mapping = request.getMapping();
         Set<String> set = mapping.keySet();
+        request.setIds(new ArrayList<>(set));
         if (set.isEmpty()) {
             return;
         }
-        request.setIds(new ArrayList<>(set));
-        set.forEach(id -> {
-            Map<String, String> newEnvMap = new HashMap<>(16);
-            if (envMap != null && !envMap.isEmpty()) {
-                List<String> list = mapping.get(id);
-                list.forEach(l -> {
-                    newEnvMap.put(l, envMap.get(l));
-                });
-            }
-            if (!newEnvMap.isEmpty()) {
+        if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
+            set.forEach(id -> {
                 TestPlanApiScenario scenario = new TestPlanApiScenario();
                 scenario.setId(id);
-                scenario.setEnvironment(JSON.toJSONString(newEnvMap));
+                scenario.setEnvironmentType(EnvironmentType.GROUP.name());
+                scenario.setEnvironmentGroupId(envGroupId);
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(scenario);
-            }
-        });
-
+            });
+        } else if (StringUtils.equals(envType, EnvironmentType.JSON.name())) {
+            set.forEach(id -> {
+                Map<String, String> newEnvMap = new HashMap<>(16);
+                if (envMap != null && !envMap.isEmpty()) {
+                    List<String> list = mapping.get(id);
+                    list.forEach(l -> {
+                        newEnvMap.put(l, envMap.get(l));
+                    });
+                }
+                if (!newEnvMap.isEmpty()) {
+                    TestPlanApiScenario scenario = new TestPlanApiScenario();
+                    scenario.setId(id);
+                    scenario.setEnvironmentType(EnvironmentType.JSON.name());
+                    scenario.setEnvironment(JSON.toJSONString(newEnvMap));
+                    testPlanApiScenarioMapper.updateByPrimaryKeySelective(scenario);
+                }
+            });
+        }
 
     }
 
@@ -341,7 +396,7 @@ public class TestPlanScenarioCaseService {
         return testPlanApiScenarioMapper.countByExample(example) > 0 ? true : false;
     }
 
-    public Map<String, String> getScenarioCaseEnv(HashMap<String, String> map) {
+    public Map<String, String> getScenarioCaseEnv(Map<String, String> map) {
         Set<String> set = map.keySet();
         HashMap<String, String> envMap = new HashMap<>(16);
         if (set.isEmpty()) {
@@ -392,7 +447,7 @@ public class TestPlanScenarioCaseService {
         apiResult.setApiScenarioStepData(stepResult);
     }
 
-    private int getUnderwayStepsCounts(List<String> underwayIds){
+    private int getUnderwayStepsCounts(List<String> underwayIds) {
         if (CollectionUtils.isNotEmpty(underwayIds)) {
             List<Integer> underwayStepsCounts = extTestPlanScenarioCaseMapper.getUnderwaySteps(underwayIds);
             Optional<Integer> underwayStepCount = underwayStepsCounts.stream().reduce((total, count) -> {
@@ -439,9 +494,27 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> getAllCases(Collection<String> ids,String planId,String status) {
+    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String,String> idMap, boolean isFinish) {
         List<TestPlanFailureScenarioDTO> apiTestCases =
-                extTestPlanScenarioCaseMapper.getFailureListByIds(ids,planId, status);
+                extTestPlanScenarioCaseMapper.getFailureListByIds(idMap.keySet(), null);
+
+        String defaultStatus = "Running";
+        if(isFinish){
+            defaultStatus = "Error";
+        }
+        Map<String,String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
+        for (TestPlanFailureScenarioDTO dto: apiTestCases) {
+            String reportId = idMap.get(dto.getId());
+            dto.setReportId(reportId);
+            if(reportId != null){
+                String status = reportStatus.get(reportId);
+                if(status == null ){
+                    status = defaultStatus;
+                }
+                dto.setLastResult(status);
+            }
+
+        }
         return buildCases(apiTestCases);
     }
 
@@ -451,7 +524,7 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> buildCases(List<TestPlanFailureScenarioDTO> apiTestCases ) {
+    public List<TestPlanFailureScenarioDTO> buildCases(List<TestPlanFailureScenarioDTO> apiTestCases) {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
@@ -482,6 +555,7 @@ public class TestPlanScenarioCaseService {
 
     /**
      * 用例自定义排序
+     *
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {

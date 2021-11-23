@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card>
       <template v-slot:header>
-        <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE','ORGANIZATION_GROUP:READ+CREATE']"
+        <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE']"
                          :condition.sync="condition" @search="initData" @create="create"
                          :create-tip="$t('group.create')" :title="$t('group.group_permission')"/>
       </template>
@@ -12,7 +12,7 @@
         <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
         <el-table-column prop="type" :label="$t('group.type')">
           <template v-slot="scope">
-            <span>{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
+            <span>{{ userGroupType[scope.row.type] ? $t(userGroupType[scope.row.type]) : scope.row.type }}</span>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.member')" width="100">
@@ -22,7 +22,12 @@
             </el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="scopeName" :label="$t('group.scope')"/>
+        <el-table-column prop="scopeName" :label="$t('group.scope')">
+          <template v-slot="scope">
+            <span v-if="scope.row.scopeId ==='global'">{{ $t('group.global') }}</span>
+            <span v-else>{{ scope.row.scopeName }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -38,13 +43,13 @@
         <el-table-column :label="$t('commons.operating')" min-width="120">
           <template v-slot:default="scope">
             <div>
-              <ms-table-operator :edit-permission="['SYSTEM_GROUP:READ+EDIT', 'ORGANIZATION_GROUP:READ+EDIT']"
-                                 :delete-permission="['SYSTEM_GROUP:READ+DELETE', 'ORGANIZATION_GROUP:READ+DELETE']"
+              <ms-table-operator :edit-permission="['SYSTEM_GROUP:READ+EDIT']"
+                                 :delete-permission="['SYSTEM_GROUP:READ+DELETE']"
                                  @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
                 <template v-slot:middle>
                   <!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
                   <ms-table-operator-button
-                    v-permission="['SYSTEM_GROUP:READ+SETTING_PERMISSION', 'ORGANIZATION_GROUP:READ+SETTING_PERMISSION']"
+                    v-permission="['SYSTEM_GROUP:READ+SETTING_PERMISSION']"
                     :tip="$t('group.set_permission')" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
                 </template>
               </ms-table-operator>

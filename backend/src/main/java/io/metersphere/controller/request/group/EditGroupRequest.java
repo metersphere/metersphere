@@ -23,6 +23,7 @@ public class EditGroupRequest extends Group {
      */
     private Boolean global;
 
+    private String projectId;
     private List<GroupPermission> permissions;
     private String userGroupId;
     private List<OrderRequest> orders;

@@ -92,8 +92,8 @@ export default {
     },
     {
       path: 'wsenvlist',
-      component: () => import('@/business/components/settings/workspace/WsEnvironmentList'),
-      meta: {workspace: true, title: 'api_test.environment.environment_config', permissions: ['WORKSPACE_PROJECT_ENVIRONMENT:READ']}
+      component: () => import('@/business/components/settings/workspace/environment/EnvironmentManage'),
+      meta: {workspace: true, title: 'api_test.environment.environment_manage', permissions: ['WORKSPACE_PROJECT_ENVIRONMENT:READ']}
     },
     {
       path: 'operatingLog/system',
@@ -110,7 +110,7 @@ export default {
     {
       path: 'plugin',
       component: () => import('@/business/components/settings/plugin/PluginConfig'),
-      meta: {system: true, title: 'plugin.title', permissions: ['SYSTEM_USER:READ']}
+      meta: {system: true, title: 'plugin.title', permissions: ['SYSTEM_PLUGIN:READ']}
     },
   ]
 };

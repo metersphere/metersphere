@@ -1,6 +1,6 @@
 <template>
   <div class="table-card" v-loading="result.loading" body-style="padding:10px;">
-    <el-table border :data="tableData" class="adjust-table table-content" height="300px">
+    <el-table border :data="tableData" class="adjust-table table-content" height="260px">
       <el-table-column prop="num" :label="$t('api_test.home_page.new_case_list.table_coloum.index')" width="100"
                        show-overflow-tooltip>
         <template v-slot:default="{row}">
@@ -59,7 +59,7 @@
 
 <script>
 import MsTag from "@/business/components/common/components/MsTag";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_STATUS} from "@/business/components/api/definition/model/JsonData";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -197,9 +197,12 @@ export default {
       }
     },
     redirect(pageType, param) {
+      //api页面跳转
+      //传入UUID是为了进行页面重新加载判断
+      let uuid = getUUID();
       switch (pageType) {
         case "api":
-          this.$router.push('/api/definition?resourceId=' + param)
+          this.$router.push('/api/definition/' + uuid + '?resourceId=' + param)
           break;
         case "apiCase":
           this.$emit('redirectPage', 'api', 'apiTestCase', 'singleList:' + param);

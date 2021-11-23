@@ -13,7 +13,16 @@
     :show-btn="showBtn"
     color="#606266"
     background-color="#F4F4F5"
-    :title="$t('api_test.automation.scenario_import')">
+    title='场景'>
+
+    <template v-slot:afterTitle>
+      <span v-if="scenario.num" @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
+      <span v-else >
+        <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
+          <i class="el-icon-warning"/>
+        </el-tooltip>
+      </span>
+    </template>
 
     <template v-slot:behindHeaderLeft>
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
@@ -57,7 +66,8 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 export default {
   name: "ApiScenarioComponent",
@@ -161,7 +171,12 @@ export default {
     },
     setDomain() {
       if (this.scenario.environmentEnable) {
-        this.$post("/api/automation/setDomain", {definition: JSON.stringify(this.scenario)}, res => {
+        let param = {
+          environmentEnable: true,
+          id: this.scenario.id,
+          definition: JSON.stringify(this.scenario)
+        }
+        this.$post("/api/automation/setDomain", param, res => {
           if (res.data) {
             let data = JSON.parse(res.data);
             this.scenario.hashTree = data.hashTree;
@@ -235,7 +250,15 @@ export default {
         return project ? project.name : "";
       }
 
-    }
+    },
+
+    clickResource(resource) {
+      let automationData = this.$router.resolve({
+        name: 'ApiAutomation',
+        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id}
+      });
+      window.open(automationData.href, '_blank');
+    },
   }
 }
 </script>
@@ -295,5 +318,10 @@ export default {
 
 .ms-test-running {
   color: #6D317C;
+}
+.ms-num{
+  margin-left: 1rem;
+  font-size: 15px;
+  color: #de9d1c;
 }
 </style>

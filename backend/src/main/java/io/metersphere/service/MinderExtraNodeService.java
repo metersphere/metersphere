@@ -4,16 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.MinderExtraNode;
 import io.metersphere.base.domain.MinderExtraNodeExample;
 import io.metersphere.base.mapper.MinderExtraNodeMapper;
-import io.metersphere.track.request.MinderExtraNodeEditRequest;
+import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -22,8 +20,9 @@ public class MinderExtraNodeService {
     @Resource
     MinderExtraNodeMapper minderExtraNodeMapper;
 
-    public void batchEdit(MinderExtraNodeEditRequest request) {
-        Map<String, List<String>> data = request.getData();
+    public void batchEdit(TestCaseMinderEditRequest request) {
+        TestCaseMinderEditRequest.MinderExtraNodeEditRequest extraNodeRequest = request.getExtraNodeRequest();
+        Map<String, List<String>> data = extraNodeRequest.getData();
         if (data != null) {
             data.forEach((parentId, nodes) -> {
                 nodes.forEach(node -> {
@@ -32,16 +31,14 @@ public class MinderExtraNodeService {
                     minderExtraNode.setParentId(parentId);
                     JSONObject nodeObj = JSONObject.parseObject(node);
                     String id = nodeObj.getString("id");
-                    if (StringUtils.isBlank(id) || id.length() < 20) {
-                        minderExtraNode.setId(UUID.randomUUID().toString());
-                        minderExtraNode.setGroupId(request.getGroupId());
-                        minderExtraNode.setType(request.getType());
-                        nodeObj.put("id", minderExtraNode.getId());
+                    minderExtraNode.setId(id);
+                    if (nodeObj.getBoolean("isEdit")) {
+                        minderExtraNodeMapper.updateByPrimaryKeySelective(minderExtraNode);
+                    } else {
+                        minderExtraNode.setGroupId(extraNodeRequest.getGroupId());
+                        minderExtraNode.setType(extraNodeRequest.getType());
                         minderExtraNode.setNodeData(nodeObj.toJSONString());
                         minderExtraNodeMapper.insert(minderExtraNode);
-                    } else {
-                        minderExtraNode.setId(id);
-                        minderExtraNodeMapper.updateByPrimaryKeySelective(minderExtraNode);
                     }
                 });
             });

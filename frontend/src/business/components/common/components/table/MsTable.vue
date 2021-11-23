@@ -35,7 +35,7 @@
                        :resizable="false" align="center">
         <template v-slot:default="scope">
           <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
-          <show-more-btn :has-showed="hasBatchTipShow" :is-show="scope.row.showMore" :buttons="batchOperators"
+          <show-more-btn :has-showed="!scope.row.showBatchTip" :is-show="scope.row.showMore" :buttons="batchOperators"
                          :size="selectDataCounts"/>
         </template>
       </el-table-column>
@@ -132,7 +132,7 @@ export default {
       selectRows: new Set(),
       selectIds: [],
       tableActive: true,
-      hasBatchTipShow: false,
+      // hasBatchTipShow: false,
       defaultSort: {}
     };
   },
@@ -242,11 +242,18 @@ export default {
           this.doLayout();
           this.checkTableRowIsSelect();
           this.listenRowDrop();
+          this.initData();
         });
       }
     }
   },
   methods: {
+    initData(){
+      //初始化数据是否显示提示块
+      if(this.data.length > 0){
+        this.data[0].showBatchTip = true;
+      }
+    },
     // 批量操作提示, 第一次勾选提示, 之后不提示
     // 先添加 batch-popper 样式, 全选后再移除样式, 只保留可见框内第一条数据的提示
     removeBatchPopper() {
@@ -267,7 +274,8 @@ export default {
           if (i == index) {
             elements[i].classList.remove('batch-popper');
             setTimeout(() => {
-              this.hasBatchTipShow = true;
+              // this.hasBatchTipShow = true;
+              this.initData();
             }, 1500);
           }
         }

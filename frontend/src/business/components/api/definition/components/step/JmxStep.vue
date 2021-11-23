@@ -1,5 +1,5 @@
 <template>
-  <div v-if="request.hashTree && request.hashTree.length > 0">
+  <div v-if="loaded">
     <p class="tip">
       {{ $t('test_track.plan_view.step') }}
     </p>
@@ -55,6 +55,7 @@
             @copyRow="copyRow"
             @remove="remove"
             :response="response"
+            :apiId="apiId"
             :is-read-only="isReadOnly"
             :assertions="row"/>
         </div>
@@ -97,6 +98,7 @@ export default {
   props: {
     request: {},
     response: {},
+    apiId: String,
     showScript: {
       type: Boolean,
       default: true,
@@ -118,6 +120,11 @@ export default {
       default: false
     }
   },
+  watch: {
+    'request.body.typeChange'() {
+      this.showHide();
+    },
+  },
   data() {
     let validateURL = (rule, value, callback) => {
       try {
@@ -128,6 +135,7 @@ export default {
     };
     return {
       activeName: "headers",
+      loaded: true,
       rules: {
         name: [
           {max: 300, message: this.$t('commons.input_limit', [1, 300]), trigger: 'blur'}
@@ -169,7 +177,7 @@ export default {
       this.reload();
     },
     addAssertions() {
-      let assertions = new Assertions();
+      let assertions = new Assertions({id: getUUID()});
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
@@ -177,7 +185,7 @@ export default {
       this.reload();
     },
     addExtract() {
-      let jsonPostProcessor = new Extract();
+      let jsonPostProcessor = new Extract({id: getUUID()});
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
@@ -204,6 +212,12 @@ export default {
       this.isReloadData = true
       this.$nextTick(() => {
         this.isReloadData = false
+      })
+    },
+    showHide() {
+      this.loaded = false
+      this.$nextTick(() => {
+        this.loaded = true
       })
     },
     init() {

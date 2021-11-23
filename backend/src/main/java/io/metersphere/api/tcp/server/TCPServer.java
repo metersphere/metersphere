@@ -1,5 +1,7 @@
 package io.metersphere.api.tcp.server;
 
+import io.metersphere.commons.utils.LogUtil;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -55,7 +57,7 @@ public class TCPServer implements Runnable {
         try {
             this.openSocket();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 }

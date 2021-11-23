@@ -113,7 +113,7 @@ public class RsaUtil {
         try {
             key = (RSAPublicKey) keyFactory.generatePublic(x509KeySpec);
         } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return key;
     }
@@ -148,7 +148,7 @@ public class RsaUtil {
         try {
             key = (RSAPrivateKey) keyFactory.generatePrivate(pkcs8KeySpec);
         } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return key;
     }

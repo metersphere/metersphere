@@ -2,14 +2,13 @@ package io.metersphere.notice.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.http.HttpStatus;
+import io.metersphere.commons.utils.LogUtil;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -42,12 +41,12 @@ public class LarkClient {
                 sendResult.setIsSuccess(errcode.equals(0));
             }*/
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         } finally {
             try {
                 response.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return sendResult;

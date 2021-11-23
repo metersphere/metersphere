@@ -54,6 +54,7 @@
       confirm() {
         this.dialogVisible = false;
         this.$emit("batchSave", this.parameters);
+        this.parameters = "";
       }
     }
   }

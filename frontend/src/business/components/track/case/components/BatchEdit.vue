@@ -16,9 +16,16 @@
           </el-select>
         </el-form-item>
         <el-form-item  v-if="form.type === 'projectEnv'" :label="$t('test_track.case.updated_attr_value')">
-          <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+          <env-popover :env-map="projectEnvMap"
+                       :project-ids="projectIds"
+                       @setProjectEnvMap="setProjectEnvMap"
                        :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                       :project-list="projectList" ref="envPopover"/>
+                       :project-list="projectList"
+                       :environment-type.sync="environmentType"
+                       :group-id="envGroupId"
+                       :is-scenario="false"
+                       @setEnvGroup="setEnvGroup"
+                       ref="envPopover"/>
         </el-form-item>
         <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
           <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
@@ -42,7 +49,8 @@
 <script>
   import MsDialogFooter from "../../../common/components/MsDialogFooter";
   import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
-  import EnvPopover from "@/business/components/track/common/EnvPopover";
+  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+  import {ENV_TYPE} from "@/common/js/constants";
   export default {
     name: "BatchEdit",
     components: {
@@ -78,20 +86,29 @@
         projectEnvMap: new Map(),
         map: new Map(),
         isScenario: '',
-        result: {}
+        result: {},
+        environmentType: ENV_TYPE.JSON,
+        envGroupId: ""
+      }
+    },
+    computed: {
+      ENV_TYPE() {
+        return ENV_TYPE;
       }
     },
     methods: {
       submit(form) {
-        this.$refs[form].validate((valid) => {
+        this.$refs[form].validate(async (valid) => {
           if (valid) {
             this.form.projectEnvMap = this.projectEnvMap;
             if (this.form.type === 'projectEnv') {
-              if (!this.$refs.envPopover.checkEnv()) {
+              if (! await this.$refs.envPopover.checkEnv()) {
                 return false;
               }
               this.form.map = this.map;
             }
+            this.form.environmentType = this.environmentType;
+            this.form.envGroupId = this.envGroupId;
             this.$emit("batchEdit", this.form);
             this.dialogVisible = false;
           } else {
@@ -101,6 +118,9 @@
       },
       setProjectEnvMap(projectEnvMap) {
         this.projectEnvMap = projectEnvMap;
+      },
+      setEnvGroup(id) {
+        this.envGroupId = id;
       },
       open(size) {
         this.dialogVisible = true;

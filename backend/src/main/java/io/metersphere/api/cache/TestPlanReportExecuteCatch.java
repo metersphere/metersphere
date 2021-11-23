@@ -1,8 +1,5 @@
 package io.metersphere.api.cache;
 
-import io.metersphere.api.dto.automation.APIScenarioReportResult;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +43,10 @@ public class TestPlanReportExecuteCatch {
         }
     }
 
+    public synchronized static boolean containsReport(String reportId){
+        return testPlanReportMap != null && testPlanReportMap.containsKey(reportId);
+    }
+
     public synchronized static void updateApiTestPlanExecuteInfo(String reportId,
                                                                  Map<String, String> apiCaseExecInfo, Map<String, String> apiScenarioCaseExecInfo, Map<String, String> loadCaseExecInfo) {
         if(testPlanReportMap != null && testPlanReportMap.containsKey(reportId)){
@@ -53,12 +54,20 @@ public class TestPlanReportExecuteCatch {
         }
     }
 
-    public synchronized static void updateTestPlanExecuteResultInfo(String reportId,
-                                                                 Map<String, ApiDefinitionExecResult> apiCaseExecResultInfo, Map<String, APIScenarioReportResult> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
+    public synchronized static void updateTestPlanThreadInfo(String reportId,
+                                                             Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
         if(testPlanReportMap != null && testPlanReportMap.containsKey(reportId)){
-            testPlanReportMap.get(reportId).updateExecuteResult(apiCaseExecResultInfo,apiScenarioCaseExecResultInfo,loadCaseExecResultInfo);
+            testPlanReportMap.get(reportId).updateThreadResult(apiCaseExecResultInfo,apiScenarioCaseExecResultInfo,loadCaseExecResultInfo);
         }
     }
+
+    public synchronized static void updateTestPlanReport(String reportId,
+                                                             Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo) {
+        if(testPlanReportMap != null && testPlanReportMap.containsKey(reportId)){
+            testPlanReportMap.get(reportId).updateReport(apiCaseExecResultInfo,apiScenarioCaseExecResultInfo);
+        }
+    }
+
 
 
     public static TestPlanExecuteInfo getTestPlanExecuteInfo(String reportId){
@@ -73,6 +82,7 @@ public class TestPlanReportExecuteCatch {
 
     public static synchronized void remove(String reportId){
         if(testPlanReportMap.containsKey(reportId)){
+            testPlanReportMap.get(reportId).finishAllTask();
             testPlanReportMap.remove(reportId);
         }
     }

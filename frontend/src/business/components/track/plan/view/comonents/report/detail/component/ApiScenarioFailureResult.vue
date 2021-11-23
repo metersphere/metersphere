@@ -1,6 +1,6 @@
 <template>
-  <el-row class="scenario-info">
-      <el-col class="padding-col" :span="8">
+  <el-container class="scenario-info">
+    <ms-aside-container width="500px" :default-hidden-bottom-top="200" :enable-auto-height="true">
         <el-card>
           <el-scrollbar>
             <ms-table v-loading="result.loading"
@@ -49,12 +49,12 @@
             </ms-table>
           </el-scrollbar>
         </el-card>
-      </el-col>
-      <el-col :span="16" v-if="scenarioCases && scenarioCases.length > 0">
-        <ms-api-report v-if="showResponse" :is-plan="true" :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
-        <div class="empty" v-else>内容为空</div>
-      </el-col>
-    </el-row>
+    </ms-aside-container>
+    <ms-main-container>
+      <ms-api-report v-if="showResponse" :is-plan="true" :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
+      <div class="empty" v-else>内容为空</div>
+    </ms-main-container>
+    </el-container>
 </template>
 
 <script>
@@ -71,9 +71,13 @@ import {
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsApiReport from "@/business/components/api/automation/report/ApiReportDetail";
+import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 export default {
   name: "ApiScenarioFailureResult",
   components: {
+    MsMainContainer,
+    MsAsideContainer,
     MsApiReport,
     MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
   props: {
@@ -159,10 +163,15 @@ export default {
 }
 
 .el-card >>> .el-card__body {
-  height: 600px;
+  height: 588px;
 }
 
 /deep/ .ms-main-container {
   height: 620px !important;
+}
+
+.ms-aside-container {
+  border: 0px;
+  padding: 10px 0px 0px 10px;
 }
 </style>

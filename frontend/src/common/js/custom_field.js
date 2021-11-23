@@ -60,7 +60,11 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
         if (customField.name === item.name) {
           if (customField.type === 'multipleSelect') {
             if (typeof (customField.value) === 'string' || customField.value instanceof String) {
-              customField.value = JSON.parse(customField.value);
+              try {
+                customField.value = JSON.parse(customField.value);
+              } catch (e) {
+                console.log("JSON parse custom field value error.");
+              }
             }
           }
           setDefaultValue(item, customField.value);

@@ -8,6 +8,7 @@ import io.metersphere.api.dto.SaveHistoricalDataUpgrade;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.datacount.ApiMethodUrlDTO;
 import io.metersphere.api.dto.definition.request.MsScenario;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertionDuration;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
@@ -320,7 +321,7 @@ public class HistoricalDataUpgradeService {
              FileChannel outChannel = new FileOutputStream(new File(newPath)).getChannel();) {
             inChannel.transferTo(0, inChannel.size(), outChannel);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 

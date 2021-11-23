@@ -193,4 +193,9 @@ export const WORKSTATION={
   NODE:"node"
 }
 
+export const ENV_TYPE = {
+  JSON: "JSON",
+  GROUP: "GROUP"
+}
+
 

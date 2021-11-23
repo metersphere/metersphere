@@ -48,6 +48,7 @@ name: "TestReviewMinder",
     condition: Object
   },
   mounted() {
+    this.setIsChange(false);
     if (this.selectNode && this.selectNode.data) {
       if (this.$refs.minder) {
         let importJson = this.$refs.minder.getImportJsonBySelectNode(this.selectNode.data);
@@ -81,6 +82,10 @@ name: "TestReviewMinder",
           let level = Number.parseInt(even.commandArgs);
           handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getReviewCasesForMinder, this.setParamCallback);
         }
+
+        if (even.commandName.toLocaleLowerCase() === 'resource') {
+          this.setIsChange(true);
+        }
       });
 
       tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')]);
@@ -110,6 +115,7 @@ name: "TestReviewMinder",
       this.buildSaveCase(data.root, saveCases);
       this.result = this.$post('/test/review/case/minder/edit/' + this.reviewId, saveCases, () => {
         this.$success(this.$t('commons.save_success'));
+        this.setIsChange(false);
       });
     },
     buildSaveCase(root, saveCases) {
@@ -143,6 +149,9 @@ name: "TestReviewMinder",
       }
       saveCases.push(testCase);
     },
+    setIsChange(isChanged) {
+      this.$store.commit('setIsTestCaseMinderChanged', isChanged);
+    }
   }
 }
 </script>

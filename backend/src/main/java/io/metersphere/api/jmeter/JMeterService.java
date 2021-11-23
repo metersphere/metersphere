@@ -6,9 +6,11 @@ import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.NodeKafkaService;
+import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
-import io.metersphere.base.mapper.TestResourcePoolMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.TriggerMode;
@@ -51,6 +53,8 @@ public class JMeterService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private RestTemplate restTemplate;
+    @Resource
+    private NodeKafkaService nodeKafkaService;
 
     @PostConstruct
     public void init() {
@@ -69,7 +73,7 @@ public class JMeterService {
             HashTree testPlan = getHashTree(scriptWrapper);
             JMeterVars.addJSR223PostProcessor(testPlan);
             String runMode = StringUtils.isBlank(debugReportId) ? ApiRunMode.RUN.name() : ApiRunMode.DEBUG.name();
-            addBackendListener(testId, debugReportId, runMode, testPlan);
+            addBackendListener(testId, null, debugReportId, runMode, testPlan);
             LocalRunner runner = new LocalRunner(testPlan);
             runner.run(testId);
         } catch (Exception e) {
@@ -98,11 +102,14 @@ public class JMeterService {
         return (HashTree) field.get(scriptWrapper);
     }
 
-    private void addBackendListener(String testId, String debugReportId, String runMode, HashTree testPlan) {
+    private void addBackendListener(String testId, String amassReport, String debugReportId, String runMode, HashTree testPlan) {
         BackendListener backendListener = new BackendListener();
         backendListener.setName(testId);
         Arguments arguments = new Arguments();
         arguments.addArgument(APIBackendListenerClient.TEST_ID, testId);
+        if (StringUtils.isNotEmpty(amassReport)) {
+            arguments.addArgument(APIBackendListenerClient.AMASS_REPORT, amassReport);
+        }
         if (StringUtils.isNotBlank(runMode)) {
             arguments.addArgument("runMode", runMode);
         }
@@ -124,10 +131,10 @@ public class JMeterService {
     }
 
 
-    public void runLocal(String testId, HashTree testPlan, String debugReportId, String runMode) {
+    public void runLocal(String testId, RunModeConfig config, HashTree testPlan, String debugReportId, String runMode) {
         init();
         FixedTask.tasks.put(testId, System.currentTimeMillis());
-        addBackendListener(testId, debugReportId, runMode, testPlan);
+        addBackendListener(testId, config != null ? config.getAmassReport() : "", debugReportId, runMode, testPlan);
         if (ExecuteType.Debug.name().equals(debugReportId) || (ApiRunMode.SCENARIO.name().equals(runMode) && !TriggerMode.BATCH.name().equals(debugReportId))) {
             addResultCollector(testId, testPlan);
         }
@@ -158,6 +165,8 @@ public class JMeterService {
         }
         runRequest.setUrl(platformUrl);
         runRequest.setRunMode(runMode);
+        runRequest.setKafka(nodeKafkaService.getKafka());
+
         // 如果是K8S调用
         TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
         if (pool != null && pool.getApi() && pool.getType().equals(ResourcePoolTypeEnum.K8S.name())) {
@@ -170,16 +179,7 @@ public class JMeterService {
                 MSException.throwException(e.getMessage());
             }
         } else {
-            try {
-                this.send(runRequest, config, reportId);
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (MessageCache.cache.get(config.getAmassReport()) != null
-                        && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
-                    MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
-                }
-                MessageCache.batchTestCases.remove(reportId);
-            }
+            this.send(runRequest, config, reportId);
         }
     }
 
@@ -195,21 +195,12 @@ public class JMeterService {
             String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
             ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
-                // 清理零时报告
-                ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
-                apiScenarioReportService.delete(reportId);
-                MSException.throwException("执行失败：" + result);
-                if (MessageCache.cache.get(config.getAmassReport()) != null
-                        && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
-                    MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
-                }
+                RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+                remakeReportService.remake(runRequest, config, reportId);
             }
         } catch (Exception e) {
-            if (MessageCache.cache.get(config.getAmassReport()) != null
-                    && MessageCache.cache.get(config.getAmassReport()).getReportIds() != null) {
-                MessageCache.cache.get(config.getAmassReport()).getReportIds().remove(reportId);
-            }
-            MessageCache.batchTestCases.remove(reportId);
+            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+            remakeReportService.remake(runRequest, config, reportId);
         }
     }
 }

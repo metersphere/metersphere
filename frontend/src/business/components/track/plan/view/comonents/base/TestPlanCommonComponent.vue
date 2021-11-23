@@ -15,15 +15,27 @@
 </template>
 
 <script>
-    import MsMainContainer from "../../../../../common/components/MsMainContainer";
-    import MsAsideContainer from "../../../../../common/components/MsAsideContainer";
-    import MsContainer from "../../../../../common/components/MsContainer";
-    export default {
-        name: "MsTestPlanCommonComponent",
-      components: {MsContainer, MsAsideContainer, MsMainContainer}
-    }
+import MsMainContainer from "../../../../../common/components/MsMainContainer";
+import MsAsideContainer from "../../../../../common/components/MsAsideContainer";
+import MsContainer from "../../../../../common/components/MsContainer";
+
+export default {
+  name: "MsTestPlanCommonComponent",
+  components: {MsContainer, MsAsideContainer, MsMainContainer}
+};
 </script>
 
 <style scoped>
 
+.ms-main-container {
+  height: calc(100vh - 132px) !important;
+}
+
+.ms-aside-container {
+  height: calc(100vh - 132px) !important;
+}
+
+.ms-aside-container >>> .ms-aside-node-tree {
+  height: calc(100vh - 145px) !important;
+}
 </style>

@@ -2,6 +2,7 @@ package io.metersphere.api.tcp;
 
 import io.metersphere.api.tcp.server.TCPServer;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class TCPPool {
                 returnString = "OK";
             }catch (Exception e){
                 returnString = e.getMessage();
-                e.printStackTrace();
+                LogUtil.error(e);
                 MSException.throwException(e.getMessage());
             }
         }
@@ -81,7 +82,7 @@ public class TCPPool {
                 returnMsg = "OK";
             }catch (Exception e){
                 returnMsg = e.getMessage();
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             return returnMsg;
         }

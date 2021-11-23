@@ -5,8 +5,8 @@
 
   <insert id="insertIfNotExists" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
     -- 查询没有数据再插入
-    INSERT INTO test_plan_api_scenario(id, test_plan_id, api_scenario_id, create_time, update_time, environment, `order`)
-    SELECT #{request.id}, #{request.testPlanId}, #{request.apiScenarioId}, #{request.createTime}, #{request.updateTime}, #{request.environment}, #{request.order}
+    INSERT INTO test_plan_api_scenario(id, test_plan_id, api_scenario_id, create_time, update_time, environment, `order`, environment_group_id, environment_type)
+    SELECT #{request.id}, #{request.testPlanId}, #{request.apiScenarioId}, #{request.createTime}, #{request.updateTime}, #{request.environment}, #{request.order}, #{request.environmentGroupId}, #{request.environmentType}
       FROM DUAL
       WHERE NOT EXISTS(
         SELECT id FROM
@@ -20,6 +20,7 @@
         AND t.api_scenario_id IN (
             SELECT id FROM api_scenario WHERE status IS NULL OR status != 'Trash'
         )
+    ORDER BY `order` DESC
   </select>
 
   <select id="list" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
@@ -27,7 +28,7 @@
       t.id, t.environment, t.create_time, t.update_time, t.last_result, t.pass_rate, t.report_id, c.scenario_definition,
       c.id as case_id, c.user_id,c.api_scenario_module_id, c.module_path, c.name, c.level,
       c.status, c.principal, c.step_total, c.schedule, c.description, c.tags, t.create_user, c.project_id,
-      c.num, c.custom_num
+      c.num, c.custom_num, t.environment_group_id, t.environment_type
     from
       test_plan_api_scenario t
     inner join
@@ -228,12 +229,10 @@
       inner join
       api_scenario c
       on t.api_scenario_id = c.id and c.status != 'Trash'
-      and t.test_plan_id = #{planId}
       <if test="status != null">
         and t.last_result = 'Fail'
       </if>
-      where t.test_plan_id = #{planId}
-        and c.id IN
+      where t.id IN
       <foreach collection="ids" item="id" separator="," open="(" close=")">
         #{id}
       </foreach>

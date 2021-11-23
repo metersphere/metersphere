@@ -37,6 +37,7 @@ import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
+import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -95,6 +96,9 @@ public class ApiTestCaseService {
     @Resource
     @Lazy
     private APITestService apiTestService;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
@@ -225,13 +229,6 @@ public class ApiTestCaseService {
     public ApiTestCase create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         ApiTestCase test = createTest(request, bodyFiles);
         return test;
-    }
-
-    private void checkQuota() {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkAPITestQuota();
-        }
     }
 
     public ApiTestCase update(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
@@ -374,7 +371,7 @@ public class ApiTestCaseService {
         return test;
     }
 
-    private void saveFollows(String testId, List<String> follows) {
+    public void saveFollows(String testId, List<String> follows) {
         ApiTestCaseFollowExample example = new ApiTestCaseFollowExample();
         example.createCriteria().andCaseIdEqualTo(testId);
         apiTestCaseFollowMapper.deleteByExample(example);
@@ -544,6 +541,7 @@ public class ApiTestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
 
         ExtTestPlanApiCaseMapper batchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
+        TestPlanApiCaseMapper batchBaseMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
         Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanApiCaseMapper::getLastOrder);
 
         for (ApiTestCase apiTestCase : apiTestCases) {
@@ -557,7 +555,11 @@ public class ApiTestCaseService {
             testPlanApiCase.setUpdateTime(System.currentTimeMillis());
             testPlanApiCase.setOrder(nextOrder);
             nextOrder += 5000;
-            batchMapper.insertIfNotExists(testPlanApiCase);
+            if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+                batchBaseMapper.insert(testPlanApiCase);
+            } else {
+                batchMapper.insertIfNotExists(testPlanApiCase);
+            }
         }
 
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
@@ -705,7 +707,6 @@ public class ApiTestCaseService {
                         req.setPath(path);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
                     LogUtil.error(e);
                 }
                 String requestStr = JSON.toJSONString(req);
@@ -786,8 +787,8 @@ public class ApiTestCaseService {
         sqlSession.commit();
 
         for (RunCaseRequest runCaseRequest : executeQueue) {
+            MessageCache.caseExecResourceLock.put(runCaseRequest.getReportId(), runCaseRequest.getReport());
             run(runCaseRequest);
-            MessageCache.batchTestCases.put(runCaseRequest.getReportId(), runCaseRequest.getReport());
         }
     }
 
@@ -807,9 +808,16 @@ public class ApiTestCaseService {
             try {
                 HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs);
                 // 调用执行方法
-                jMeterService.runLocal(request.getReportId(), jmeterHashTree, null, request.getRunMode());
+                jMeterService.runLocal(request.getReportId(),null, jmeterHashTree, null, request.getRunMode());
 
             } catch (Exception ex) {
+                ApiDefinitionExecResult result = MessageCache.caseExecResourceLock.get(request.getReportId());
+                result.setStatus("error");
+                apiDefinitionExecResultMapper.updateByPrimaryKey(result);
+                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+                caseWithBLOBs.setStatus("error");
+                apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
+                MessageCache.caseExecResourceLock.remove(request.getReportId());
                 LogUtil.error(ex.getMessage(), ex);
             }
         }
@@ -826,7 +834,7 @@ public class ApiTestCaseService {
                 request.setTestPlanId(testPlanID);
                 HashTree jmeterHashTree = this.generateHashTree(request, apiCaseBolbs);
                 // 调用执行方法
-                jMeterService.runLocal(id, jmeterHashTree, debugReportId, runMode);
+                jMeterService.runLocal(id,null, jmeterHashTree, debugReportId, runMode);
             } catch (Exception ex) {
                 LogUtil.error(ex);
             }
@@ -874,6 +882,7 @@ public class ApiTestCaseService {
         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
         if (environment != null && environment.getConfig() != null) {
             EnvironmentConfig environmentConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            environmentConfig.setApiEnvironmentid(environment.getId());
             envConfig.put(testCaseWithBLOBs.getProjectId(), environmentConfig);
             parameterConfig.setConfig(envConfig);
         }

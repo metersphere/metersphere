@@ -3,7 +3,7 @@
     <el-row type="flex">
       <project-change :project-name="currentProject"/>
       <el-col :span="14">
-        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
+        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='currentPath'>
 
           <el-menu-item :index="'/api/home'">
             {{ $t("i18n.home") }}
@@ -40,6 +40,7 @@ export default {
   components: {SearchList, MsCreateButton, MsShowAll, MsRecentList, ProjectChange},
   data() {
     return {
+      currentPath: '',
       testRecent: {
         title: this.$t('load_test.recent'),
         url: "/api/recent/5",
@@ -63,6 +64,18 @@ export default {
       apiTestProjectPath: '',
       currentProject: ''
     };
+  },
+  watch: {
+    '$route': {
+      immediate: true,
+      handler(to) {
+        let path = to.path.split("/", 4);
+        this.currentPath = '/' + path[1] + '/' + path[2];
+        if (path[3] === "report") {
+          this.currentPath = this.currentPath + '/' + path[3];
+        }
+      }
+    }
   },
   methods: {
     reload() {

@@ -97,7 +97,6 @@ public class APITestService {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-        checkQuota();
         request.setBodyUploadIds(null);
         ApiTest test = createTest(request);
         saveFile(test, file);
@@ -140,7 +139,6 @@ public class APITestService {
     }
 
     public void copy(SaveAPITestRequest request) {
-        checkQuota();
 
         ApiTestExample example = new ApiTestExample();
         example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
@@ -452,13 +450,6 @@ public class APITestService {
         return reportId;
     }
 
-    private void checkQuota() {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkAPITestQuota();
-        }
-    }
-
     public void mergeCreate(SaveAPITestRequest request, MultipartFile file, List<String> selectIds) {
         ApiTest test = createTest(request, file);
         selectIds.forEach(sourceId -> {
@@ -520,13 +511,12 @@ public class APITestService {
                     //HTTPSamplerProxy， 进行附件转化： 1.elementProp里去掉路径； 2。elementProp->filePath获取路径并读出来
                     attachmentFilePathList.addAll(this.parseAttachmentFileInfo(element));
                 }
-
                 //如果存在证书文件，也要匹配出来
                 attachmentFilePathList.addAll(this.parseAttachmentFileInfo(innerHashTreeElement));
             }
             jmxString = root.asXML();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
 
         if (!jmxString.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
@@ -535,7 +525,10 @@ public class APITestService {
 
         //处理附件
         Map<String, String> attachmentFiles = new HashMap<>();
-
+        //去重处理
+        if(!CollectionUtils.isEmpty(attachmentFilePathList)){
+            attachmentFilePathList = attachmentFilePathList.stream().distinct().collect(Collectors.toList());
+        }
         List<FileMetadata> fileMetadataList = new ArrayList<>();
         for (String filePath: attachmentFilePathList) {
             File file  = new File(filePath);
@@ -545,7 +538,7 @@ public class APITestService {
                     fileMetadataList.add(fileMetadata);
                     attachmentFiles.put(fileMetadata.getId(),fileMetadata.getName());
                 }catch (Exception e){
-                    e.printStackTrace();
+                    LogUtil.error(e);
                 }
             }
         }
@@ -555,8 +548,8 @@ public class APITestService {
         return returnDTO;
     }
 
-    private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
-        List<String> attachmentFilePathList = new ArrayList<>();
+private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
+         List<String> attachmentFilePathList = new ArrayList<>();
         List<Element> parentElementList = parentHashTreeElement.elements();
         for (Element parentElement: parentElementList) {
             String qname = parentElement.getQName().getName();

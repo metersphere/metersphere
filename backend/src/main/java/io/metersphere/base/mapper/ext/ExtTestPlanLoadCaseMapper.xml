@@ -17,11 +17,13 @@
         select load_test.id
         from load_test
         where load_test.project_id = #{request.projectId}
-        and load_test.id not in (
-        select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
-        )
+          <if test="!request.repeatCase">
+              and load_test.id not in (
+              select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
+              )
+          </if>
         <if test="request.name != null and request.name != ''">
-            and load_test.name like CONCAT('%', #{request.name},'%')
+            and (load_test.name like CONCAT('%', #{request.name},'%') OR load_test.num like CONCAT('%', #{request.name},'%'))
         </if>
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">

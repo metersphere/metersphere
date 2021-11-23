@@ -50,16 +50,12 @@
             </el-col>
             <el-col :span="16">
               <div class="tag-item" @click.stop>
-                <el-select v-model="apiCase.follows" multiple clearable
-                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
-                           @change="saveTestCase(apiCase,true)" style="width: 100%" :disabled="loaded">
-                  <el-option
-                    v-for="item in maintainerOptions"
-                    :key="item.id"
-                    :label="item.id + ' (' + item.name + ')'"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
+                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+                  <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow"/>
+                </el-tooltip>
+                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+                  <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="showFollow"/>
+                </el-tooltip>
               </div>
             </el-col>
           </el-row>
@@ -71,7 +67,7 @@
         </el-col>
 
         <el-col :span="3">
-          <span @click.stop>
+          <span @click.stop v-if="!loaded">
             <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
                            class="run-button" size="mini" :disabled="!apiCase.id || loaded" circle v-if="!loading"/>
             <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
@@ -81,10 +77,8 @@
                 </div>
               </el-button>
             </el-tooltip>
-            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy" v-permission="['PROJECT_API_DEFINITION:READ+COPY_CASE']"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit || loaded" circle/>
-            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete" v-permission="['PROJECT_API_SCENARIO:READ+DELETE_CASE']"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
+          </span>
+          <span @click.stop>
             <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase"/>
           </span>
         </el-col>
@@ -130,10 +124,11 @@
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
         </div>
 
-        <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
+        <ms-jmx-step :request="apiCase.request" :api-id="api.id" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
                    v-if="type!=='detail'"
+                   v-prevent-re-click
                    v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
           {{ $t('commons.save') }}
         </el-button>
@@ -145,7 +140,7 @@
 </template>
 
 <script>
-import {_getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {_getBodyUploadFiles, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
 import {API_STATUS, PRIORITY} from "../../model/JsonData";
 import MsTag from "../../../../common/components/MsTag";
 import MsTipButton from "../../../../common/components/MsTipButton";
@@ -224,7 +219,9 @@ export default {
       isShowInput: false,
       methodColorMap: new Map(API_METHOD_COLOUR),
       saveLoading: false,
+      showFollow: false,
       beforeRequest: {},
+      compare: [],
     }
   },
   props: {
@@ -268,8 +265,15 @@ export default {
       this.isXpack = true;
     }
     if (this.apiCase && this.apiCase.id) {
+      this.showFollow = false;
       this.$get('/api/testcase/follow/' + this.apiCase.id, response => {
         this.apiCase.follows = response.data;
+        for (let i = 0; i < response.data.length; i++) {
+          if (response.data[i] === this.currentUser().id) {
+            this.showFollow = true;
+            break;
+          }
+        }
       });
     }
     if (this.currentApi && this.currentApi.request) {
@@ -277,6 +281,9 @@ export default {
     }
   },
   methods: {
+    currentUser: () => {
+      return getCurrentUser();
+    },
     hasPermission,
     openHis(row) {
       this.$refs.changeHistory.open(row.id, ["接口定义用例", "接口定義用例", "Api definition case"]);
@@ -335,6 +342,7 @@ export default {
         this.selectedEvent.currentTarget = $event.currentTarget;
         $event.currentTarget.className = "el-card is-always-shadow is-selected";
         this.currentApi.request = item.request;
+        this.currentApi.request.changeId = getUUID();
       }
     },
     changePriority(row) {
@@ -384,6 +392,9 @@ export default {
         for (let i in stepArray) {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
           }
           if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
             stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
@@ -440,6 +451,7 @@ export default {
         row.id = data.id;
         row.createTime = data.createTime;
         row.updateTime = data.updateTime;
+        this.compare = [];
         if (!row.message) {
           this.$success(this.$t('commons.save_success'));
           this.reload();
@@ -454,11 +466,14 @@ export default {
       });
     },
     saveTestCase(row, hideAlert) {
-      if (this.api.saved) {
-        this.addModule(row);
-      } else {
-        this.api.source = "editCase";
-        this.saveCase(row, hideAlert);
+      if (this.compare.indexOf(row.id) === -1) {
+        this.compare.push(row.id);
+        if (this.api.saved) {
+          this.addModule(row);
+        } else {
+          this.api.source = "editCase";
+          this.saveCase(row, hideAlert);
+        }
       }
     },
     showInput(row) {
@@ -499,6 +514,33 @@ export default {
     showHistory(id) {
       this.$emit("showHistory", id);
     },
+    saveFollow() {
+      if (this.showFollow) {
+        this.showFollow = false;
+        for (let i = 0; i < this.apiCase.follows.length; i++) {
+          if (this.apiCase.follows[i] === this.currentUser().id) {
+            this.apiCase.follows.splice(i, 1)
+            break;
+          }
+        }
+        if (this.apiCase.id) {
+          this.$post("/api/testcase/update/follows/" + this.apiCase.id, this.apiCase.follows, () => {
+            this.$success(this.$t('commons.cancel_follow_success'));
+          });
+        }
+      } else {
+        this.showFollow = true;
+        if (!this.apiCase.follows) {
+          this.apiCase.follows = [];
+        }
+        this.apiCase.follows.push(this.currentUser().id)
+        if (this.apiCase.id) {
+          this.$post("/api/testcase/update/follows/" + this.apiCase.id, this.apiCase.follows, () => {
+            this.$success(this.$t('commons.follow_success'));
+          });
+        }
+      }
+    }
   }
 }
 </script>

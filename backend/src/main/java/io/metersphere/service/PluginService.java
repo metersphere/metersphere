@@ -129,7 +129,7 @@ public class PluginService {
 
             method.invoke(classLoader, url);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 
@@ -220,5 +220,11 @@ public class PluginService {
             LogUtil.error("加载自定义方法失败：" + ex.getMessage());
         }
         return null;
+    }
+
+    public List<Plugin> list() {
+        PluginExample example = new PluginExample();
+        List<Plugin> plugins = pluginMapper.selectByExample(example);
+        return plugins;
     }
 }

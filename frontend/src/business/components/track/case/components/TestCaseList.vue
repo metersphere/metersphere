@@ -272,7 +272,8 @@ export default {
       deletePath: "/test/case/delete",
       enableOrderDrag: true,
       condition: {
-        components: TEST_CASE_CONFIGS
+        components: TEST_CASE_CONFIGS,
+        filters: {}
       },
       graphData: {},
       priorityFilters: [
@@ -409,11 +410,6 @@ export default {
   created: function () {
     this.getTemplateField();
     this.$emit('setCondition', this.condition);
-    if(this.trashEnable){
-      this.condition.filters = {status: ["Trash"]};
-    }else {
-      this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
-    }
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
@@ -439,7 +435,6 @@ export default {
   },
   activated() {
     this.getTemplateField();
-    this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
     let ids = this.$route.params.ids;
     if (ids) {
       this.condition.ids = ids;
@@ -575,6 +570,7 @@ export default {
       this.condition.selectThisWeedData = false;
       this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
+      this.condition.filters.reviewStatus = ["Prepare", "Pass", "UnPass"];
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
@@ -600,6 +596,9 @@ export default {
       }
       this.condition.filters.priority = this.condition.filters['用例等级'];
       this.condition.filters.status = this.condition.filters['用例状态'];
+      if(this.trashEnable){
+        this.condition.filters = {status: ["Trash"]};
+      }
       if (this.projectId) {
         this.condition.projectId = this.projectId;
         this.$emit('setCondition', this.condition);

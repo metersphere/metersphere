@@ -30,7 +30,7 @@
       </el-submenu>
     </el-submenu>
 
-    <el-submenu index="5">
+<!--    <el-submenu index="5">
       <template v-slot:title>
         <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
         <span>{{ $t('commons.personal_info') }}</span>
@@ -38,7 +38,7 @@
       <el-menu-item v-for="menu in persons" :key="menu.index" :index="menu.index" class="setting-item">
         {{ $t(menu.title) }}
       </el-menu-item>
-    </el-submenu>
+    </el-submenu>-->
 
 
   </el-menu>
@@ -72,7 +72,7 @@ export default {
       systems: getMenus('system'),
       organizations: getMenus('organization'),
       workspaces: getMenus('workspace'),
-      persons: getMenus('person'),
+     /* persons: getMenus('person'),*/
       project: getMenus('project'),
       workspaceTemplate: getMenus('workspaceTemplate'),
       systemPermission: [

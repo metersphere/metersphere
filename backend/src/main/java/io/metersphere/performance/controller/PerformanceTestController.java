@@ -247,4 +247,9 @@ public class PerformanceTestController {
     public List<String> getFollows(@PathVariable String testId) {
         return performanceTestService.getFollows(testId);
     }
+
+    @PostMapping("test/update/follows/{testId}")
+    public void saveFollows(@PathVariable String testId,@RequestBody List<String> follows) {
+        performanceTestService.saveFollows(testId,follows);
+    }
 }

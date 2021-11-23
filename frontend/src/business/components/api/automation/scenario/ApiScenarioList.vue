@@ -132,6 +132,39 @@
                            :field="item"
                            :fields-width="fieldsWidth"
                            sortable="custom"/>
+
+          <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="environmentMap"
+            :label="$t('commons.environment')"
+            min-width="180">
+            <template v-slot:default="{row}">
+              <div v-if="row.environmentMap">
+                <span v-for="(k, v, index) in row.environmentMap" :key="index">
+                  <span v-if="index===0">
+                    <span class="project-name" :title="v">{{v}}</span>:
+                    <el-tag type="success" size="mini" effect="plain">
+                      <span class="project-env">{{k}}</span>
+                    </el-tag>
+                    <br/>
+                  </span>
+                  <el-popover
+                    placement="top"
+                    width="350"
+                    trigger="click">
+                    <div v-for="(k, v, index) in row.environmentMap" :key="index">
+                      <span class="plan-case-env">{{v}}:
+                        <el-tag type="success" size="mini" effect="plain">{{k}}</el-tag><br/>
+                      </span>
+                    </div>
+                    <el-link v-if="index === 1" slot="reference" type="info" :underline="false" icon="el-icon-more"/>
+                  </el-popover>
+                </span>
+              </div>
+            </template>
+          </ms-table-column>
+
           <ms-table-column prop="updateTime"
                            :field="item"
                            :fields-width="fieldsWidth"
@@ -220,7 +253,7 @@
         <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true"
                    :modal="false"
                    size="90%">
-          <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb"
+          <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb" :show-cancel-button="false"
                                 :report-id="showReportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
@@ -237,6 +270,7 @@
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
     <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
+            :environment-type="environmentType" :environment-group-id="envGroupId"
             :run-data="debugData" ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
@@ -497,7 +531,9 @@ export default {
         projectEnv: [],
         projectId: ''
       },
-      graphData: {}
+      graphData: {},
+      environmentType: "",
+      envGroupId: ""
     };
   },
   created() {
@@ -722,6 +758,8 @@ export default {
         let param = {};
         param.mapping = strMapToObj(form.map);
         param.envMap = strMapToObj(form.projectEnvMap);
+        param.environmentType = form.environmentType;
+        param.environmentGroupId = form.envGroupId;
         this.$post('/api/automation/batch/update/env', param, () => {
           this.$success(this.$t('commons.save_success'));
           this.search();
@@ -772,6 +810,8 @@ export default {
 
       obj.mapping = strMapToObj(params[2]);
       obj.envMap = strMapToObj(params[1]);
+      obj.environmentType = params[3];
+      obj.envGroupId = params[4];
 
       this.$post("/api/automation/scenario/plan", obj, response => {
         this.$success(this.$t("commons.save_success"));
@@ -920,6 +960,9 @@ export default {
         if (!stepArray[i].clazzName) {
           stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
         }
+        if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+          stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+        }
         if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
           stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
         }
@@ -970,6 +1013,8 @@ export default {
           if (scenarioStep.environmentMap) {
             this.projectEnvMap = new Map(Object.entries(scenarioStep.environmentMap));
           }
+          this.environmentType = this.currentScenario.environmentType;
+          this.envGroupId = this.currentScenario.environmentGroupId;
           this.reportId = getUUID().substring(0, 8);
           this.runVisible = true;
           this.$set(row, "isStop", true);
@@ -1196,4 +1241,34 @@ export default {
   border-color: #dd3636;
   color: white;
 }
+
+.plan-case-env {
+  display: inline-block;
+  padding: 0 0;
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+  margin-left: 5px;
+}
+
+.project-name {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 80px;
+  vertical-align: middle;
+}
+
+.project-env{
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 50px;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
 </style>

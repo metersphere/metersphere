@@ -19,7 +19,7 @@
     </ms-aside-container>
 
     <ms-main-container>
-      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
+      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
         <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')">
           <test-case-list
             :checkRedirectID="checkRedirectID"
@@ -34,7 +34,6 @@
             @refresh="refresh"
             @refreshAll="refreshAll"
             @setCondition="setCondition"
-            @decrease="decrease"
             ref="testCaseTrashList">
           </test-case-list>
         </el-tab-pane>
@@ -133,12 +132,13 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getCurrentProjectID, getUUID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, hasPermission, setCurTabId} from "@/common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMinder";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
+import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
 
 export default {
   name: "TestCase",
@@ -171,7 +171,12 @@ export default {
   },
   mounted() {
     this.getProject();
-    this.init(this.$route);
+    let routeTestCase = this.$route.params.testCase;
+    if(routeTestCase && routeTestCase.add===true){
+      this.addTab({name: 'add'});
+    }else {
+      this.init(this.$route);
+    }
   },
   watch: {
     redirectID() {
@@ -181,14 +186,7 @@ export default {
         this.renderComponent = true;
       });
     },
-    '$route'(to, from) {
-      if (to.path.indexOf('/track/case/all') == -1) {
-        if (this.$refs && this.$refs.autoScenarioConfig) {
-          this.$refs.autoScenarioConfig.forEach(item => {
-            /*item.removeListener();*/
-          });
-        }
-      }
+    '$route'(to) {
       this.init(to);
     },
     activeName(newVal, oldVal) {
@@ -256,30 +254,16 @@ export default {
       });
     },
     updateActiveDom(activeDom) {
-      let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
-      if (this.activeDom !== 'left' && activeDom === 'left' && isTestCaseMinderChanged) {
-        this.$refs.isChangeConfirm.open();
-        this.tmpActiveDom = activeDom;
-        return;
-      }
-      this.activeDom = activeDom;
+      openMinderConfirm(this, activeDom);
     },
     changeConfirm(isSave) {
-      if (isSave) {
-        this.$refs.minder.save(window.minder.exportJson());
-      } else {
-        this.$store.commit('setIsTestCaseMinderChanged', false);
-      }
-      this.$nextTick(() => {
-        this.activeDom = this.tmpActiveDom;
-      });
+      saveMinderConfirm(this, isSave);
     },
     changeRedirectParam(redirectIDParam) {
       this.redirectID = redirectIDParam;
       if (redirectIDParam != null) {
         if (this.redirectFlag == "none") {
           this.activeName = "default";
-          this.addListener();
           this.redirectFlag = "redirected";
         }
       } else {
@@ -305,23 +289,57 @@ export default {
         label = tab.testCaseInfo.name;
         this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo});
       }
-      if (this.$refs && this.$refs.testCaseEdit) {
-        this.$refs.testCaseEdit.forEach(item => {
-          /* item.removeListener();*/
-        });  //  删除所有tab的 ctrl + s 监听
-        this.addListener();
-      }
+
+      setCurTabId(this, tab, 'testCaseEdit');
     },
     handleTabClose() {
-      this.tabs = [];
-      this.activeName = "default";
-      this.refresh();
+      let message = "";
+      this.tabs.forEach(t => {
+        if (t && this.$store.state.testCaseMap.has(t.testCaseInfo.id) && this.$store.state.testCaseMap.get(t.testCaseInfo.id) > 2) {
+          message += t.testCaseInfo.name + "，";
+        }
+      })
+      if (message !== "") {
+        this.$alert("用例[ " + message.substr(0, message.length - 1) + " ]未保存，是否确认关闭全部？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.testCaseMap.clear();
+              this.tabs = [];
+              this.activeName = "default";
+              this.refresh();
+            }
+          }
+        });
+      } else {
+        this.tabs = [];
+        this.activeName = "default";
+        this.refresh();
+      }
+    },
+    closeConfirm(targetName) {
+      let t = this.tabs.filter(tab => tab.name === targetName);
+      if (t && this.$store.state.testCaseMap.has(t[0].testCaseInfo.id) && this.$store.state.testCaseMap.get(t[0].testCaseInfo.id) > 2) {
+        this.$alert("用例[ " + t[0].testCaseInfo.name + " ]未保存，是否确认关闭？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.testCaseMap.delete(t[0].testCaseInfo.id);
+              this.removeTab(targetName);
+            }
+          }
+        });
+      } else {
+        this.$store.state.testCaseMap.delete(t[0].testCaseInfo.id);
+        this.removeTab(targetName);
+      }
     },
     removeTab(targetName) {
       this.tabs = this.tabs.filter(tab => tab.name !== targetName);
       if (this.tabs.length > 0) {
         this.activeName = this.tabs[this.tabs.length - 1].name;
-        this.addListener(); //  自动切换当前标签时，也添加监听
       } else {
         this.activeName = "default";
       }
@@ -332,16 +350,6 @@ export default {
         return;
       }
       this.$refs.testCaseList.exportTestCase(type);
-    },
-    addListener() {
-      let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index
-      if (index != -1) {   //  为当前选中的tab添加监听
-        this.$nextTick(() => {
-          /*
-                    this.$refs.testCaseEdit[index].addListener();
-          */
-        });
-      }
     },
     init(route) {
       let path = route.path;
@@ -385,17 +393,22 @@ export default {
       this.$refs.nodeTree.decrease(id);
     },
     editTestCase(testCase) {
-      this.type = "edit";
-      this.testCaseReadOnly = false;
-      if (testCase.label !== "redirect") {
-        if (this.treeNodes.length < 1) {
-          this.$warning(this.$t('test_track.case.create_module_first'));
-          return;
+      const index = this.tabs.find(p => p.testCaseInfo && p.testCaseInfo.id === testCase.id);
+      if (!index) {
+        this.type = "edit";
+        this.testCaseReadOnly = false;
+        if (testCase.label !== "redirect") {
+          if (this.treeNodes.length < 1) {
+            this.$warning(this.$t('test_track.case.create_module_first'));
+            return;
+          }
         }
+        let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
+        this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
+        this.addTab({name: 'edit', testCaseInfo: testCase});
+      } else {
+        this.activeName = index.name;
       }
-      let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
-      this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
-      this.addTab({name: 'edit', testCaseInfo: testCase});
     },
     handleCaseCreateOrEdit(data, type) {
       if (this.$refs.minder) {
@@ -497,6 +510,13 @@ export default {
 /deep/ .el-tabs__header {
   margin: 0 0 0px;
   /*width: calc(100% - 90px);*/
+}
+
+/deep/ .el-table__empty-block {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  padding-right: 100%;
 }
 
 </style>

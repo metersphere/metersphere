@@ -1,35 +1,45 @@
 <template>
   <div>
-    <el-tabs @tab-click="selectTab" v-model="active">
-      <el-tab-pane v-for="item in resource"
-                   :key="item.resourceId"
-                   :label="item.resourceName"
-                   v-loading="result.loading"
-                   class="logging-content">
-        <ul class="infinite-list" v-infinite-scroll="load(item.resourceId)">
-          <li class="infinite-list-item" v-for="(log, index) in logContent[item.resourceId]"
-              :key="item.resourceId+index">
-            {{ log.content }}
-          </li>
-        </ul>
-        <el-link type="primary" @click="downloadLogFile(item)">{{ $t('load_test.download_log_file') }}</el-link>
-      </el-tab-pane>
-    </el-tabs>
+    <el-row :gutter="10">
+      <el-col :span="4">
+        <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
+                   @change="changeInstance(currentInstance)">
+          <el-option
+            v-for="item in resource"
+            :key="item.resourceId"
+            :label="item.resourceName"
+            :value="item.resourceId">
+          </el-option>
+        </el-select>
+      </el-col>
+      <el-col :span="20">
+        <div v-if="currentInstance" class="logging-content">
+          <ul class="infinite-list" v-infinite-scroll="load(currentInstance)">
+            <li class="infinite-list-item" v-for="(log, index) in logContent[currentInstance]"
+                :key="currentInstance+index">
+              {{ log.content }}
+            </li>
+          </ul>
+          <el-link type="primary" @click="downloadLogFile(item)">{{ $t('load_test.download_log_file') }}</el-link>
+        </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
 
 import {
-  getPerformanceReportLogResource, getPerformanceReportLogResourceDetail,
-  getSharePerformanceReportLogResource, getSharePerformanceReportLogResourceDetail,
+  getPerformanceReportLogResource,
+  getPerformanceReportLogResourceDetail,
+  getSharePerformanceReportLogResource,
+  getSharePerformanceReportLogResourceDetail,
 } from "@/network/load-test";
 
 export default {
   name: "LogDetails",
   data() {
     return {
-      active: '0',
       resource: [],
       logContent: {},
       result: {},
@@ -37,18 +47,16 @@ export default {
       page: {},
       pageCount: 5,
       loading: false,
-      init: false,
-      logStatus: {}
+      logStatus: {},
+      currentInstance: ''
     };
   },
   props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
   methods: {
     getResource() {
-      // this.init = true;
-      this.active = '0';
       if (this.planReportTemplate) {
         this.handleGetLogResource(this.planReportTemplate.reportLogResource);
-      } else if (this.isShare){
+      } else if (this.isShare) {
         getSharePerformanceReportLogResource(this.shareId, this.id, (data) => {
           this.handleGetLogResource(data);
         });
@@ -60,8 +68,8 @@ export default {
     },
     handleGetLogResource(data) {
       this.resource = data;
-      if (!this.resource || this.resource.length === 0) {
-        this.init = false;
+      if (!this.currentInstance) {
+        this.currentInstance = this.resource[0]?.resourceId;
       }
       this.page = data.map(item => item.resourceId).reduce((result, curr) => {
         result[curr] = 1;
@@ -80,12 +88,12 @@ export default {
       this.loading = true;
       if (this.planReportTemplate) {
         // this.handleGetLogResourceDetail(this.planReportTemplate.logResourceDetail, resourceId);
-      } else if (this.isShare){
-        getSharePerformanceReportLogResourceDetail(this.shareId, this.id, resourceId, this.page[resourceId], data => {
+      } else if (this.isShare) {
+        getSharePerformanceReportLogResourceDetail(this.shareId, this.id, resourceId, this.page[resourceId] || 1, data => {
           this.handleGetLogResourceDetail(data, resourceId);
         });
       } else {
-        getPerformanceReportLogResourceDetail(this.id, resourceId, this.page[resourceId], data => {
+        getPerformanceReportLogResourceDetail(this.id, resourceId, this.page[resourceId] || 1, data => {
           this.handleGetLogResourceDetail(data, resourceId);
         });
       }
@@ -97,15 +105,15 @@ export default {
       this.page[resourceId]++;
       this.loading = false;
     },
-    selectTab(tab) {
-      let resourceId = tab.$vnode.key;
-      if (this.logStatus[resourceId]) {
+    changeInstance(instance) {
+      this.currentInstance = instance;
+      if (this.logStatus[instance]) {
         return;
       }
       this.loading = false;
-      this.page[resourceId] = 1;
-      this.logContent[resourceId] = [];
-      this.load(resourceId);
+      this.page[instance] = 1;
+      this.logContent[instance] = [];
+      this.load(instance);
     },
     downloadLogFile(item) {
       let config = {
@@ -139,7 +147,6 @@ export default {
     '$route'(to) {
       if (to.name === "perReportView") {
         this.id = to.path.split('/')[4];
-        this.init = false;
         this.getResource();
       }
     },
@@ -148,15 +155,10 @@ export default {
         if (!val.status || !val.id) {
           return;
         }
-        if (this.init) {
-          return;
-        }
         let status = val.status;
         this.id = val.id;
-        if (status === "Completed" || status === "Running") {
+        if (status === "Running") {
           this.getResource();
-        } else {
-          this.resource = [];
         }
       },
       deep: true
@@ -180,7 +182,7 @@ export default {
 }
 
 .infinite-list {
-  height: calc(100vh - 295px);
+  height: calc(100vh - 250px);
   padding: 0;
   margin: 0;
   list-style: none;

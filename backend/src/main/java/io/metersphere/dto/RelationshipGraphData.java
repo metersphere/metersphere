@@ -15,6 +15,11 @@ public class RelationshipGraphData {
     private List<Node> data;
     private List<Edge> links;
 
+    // x 轴占用了多少单位
+    private int xUnitCount;
+    // y 轴占用了多少单位
+    private int yUnitCount;
+
     public RelationshipGraphData() {
         this.data = new ArrayList<>();
         this.links = new ArrayList<>();

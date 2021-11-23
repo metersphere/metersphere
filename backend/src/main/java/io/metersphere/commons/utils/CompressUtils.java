@@ -142,7 +142,7 @@ public class CompressUtils {
                 file.delete();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 

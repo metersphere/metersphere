@@ -44,11 +44,19 @@ export default {
       this.$get(url + getCurrentWorkspaceId(), (response) => {
         this.templateOptions = response.data;
         if (!this.data[this.prop]) {
-          for(let item of this.templateOptions) {
-            if (item.system) {
-              this.$set(this.data, this.prop, item.id);
-              break;
+          for (let item of this.templateOptions) {
+            if (this.scene !== 'ISSUE') {
+              if (item.system) {
+                this.$set(this.data, this.prop, item.id);
+                break;
+              }
+            } else {
+              if (item.system && item.platform === 'metersphere' && item.name === 'default') {
+                this.$set(this.data, this.prop, item.id);
+                break;
+              }
             }
+
           }
         }
       });

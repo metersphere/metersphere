@@ -1,9 +1,7 @@
 package io.metersphere.job.sechedule;
 
 import io.metersphere.base.domain.Schedule;
-import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.LogUtil;
-import org.python.antlr.ast.Str;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +9,6 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class ScheduleManager {
@@ -313,7 +310,7 @@ public class ScheduleManager {
                 returnMap.put("groupName", groupName);
             }
         }catch (Exception e){
-            e.printStackTrace();
+            LogUtil.error(e);
         }
 
         return returnMap;

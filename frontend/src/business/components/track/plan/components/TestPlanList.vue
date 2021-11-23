@@ -92,7 +92,7 @@
           :min-width="110"
           :key="index">
           <template v-slot:default="scope">
-            <plan-stage-table-item :stage="scope.row.stage"/>
+            <plan-stage-table-item :option="stageOption" :stage="scope.row.stage"/>
           </template>
         </el-table-column>
         <el-table-column
@@ -185,7 +185,7 @@
         </el-table-column>
       </template>
       <el-table-column
-        min-width="180"
+        min-width="200"
         :label="$t('commons.operating')">
         <template slot="header">
           <header-label-operate @exec="customHeader"/>
@@ -207,6 +207,14 @@
                                           @exec="openReport(scope.row)"/>
               </template>
             </ms-table-operator>
+            <template>
+              <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!scope.row.showFollow">
+                <i   class="el-icon-star-off" style="color: #783987; font-size: 25px; cursor: pointer;padding-left: 5px;width: 28px;height: 28px; top: 5px; position: relative" @click="saveFollow(scope.row)"></i>
+              </el-tooltip>
+              <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="scope.row.showFollow" >
+                <i  class="el-icon-star-on" style="color: #783987; font-size: 30px; cursor: pointer;padding-left: 5px;width: 28px;height: 28px; top: 6px; position: relative" @click="saveFollow(scope.row)"></i>
+              </el-tooltip>
+            </template>
             <el-dropdown @command="handleCommand($event, scope.row)" class="scenario-ext-btn" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE','PROJECT_TRACK_PLAN:READ+SCHEDULE']">
               <el-link type="primary" :underline="false">
                 <el-icon class="el-icon-more"></el-icon>
@@ -266,10 +274,16 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/components/track/plan/components/ScheduleMaintain";
-import {getCurrentProjectID, getCurrentUserId, hasPermission} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+  hasPermission
+} from "@/common/js/utils";
 import PlanRunModeWithEnv from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import TestPlanReportReview from "@/business/components/track/report/components/TestPlanReportReview";
 import MsTaskCenter from "@/business/components/task/TaskCenter";
+import {getPlanStageOption} from "@/network/test-plan";
 
 export default {
   name: "TestPlanList",
@@ -318,7 +332,8 @@ export default {
         {text: this.$t('test_track.plan.system_test'), value: 'system'},
         {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
       ],
-      currentPlanId: ""
+      currentPlanId: "",
+      stageOption: []
     };
   },
   watch: {
@@ -335,10 +350,15 @@ export default {
     }
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
-
+    getPlanStageOption((data) => {
+      this.stageOption = data;
+    });
     this.initTableData();
   },
   methods: {
+    currentUser: () => {
+      return getCurrentUser();
+    },
     init() {
       this.initTableData();
     },
@@ -388,6 +408,7 @@ export default {
             let data = res.data;
             let follow = "";
             let followIds = data.map(d => d.id);
+            let showFollow = false;
             if (data) {
               data.forEach(d => {
                 if (follow !== "") {
@@ -395,11 +416,15 @@ export default {
                 } else {
                   follow = follow + d.name;
                 }
+                if(this.currentUser().id===d.id){
+                  showFollow = true;
+                }
               })
             }
             this.$set(item, "follow", follow);
             // 编辑时初始化id
             this.$set(item, "follows", followIds);
+            this.$set(item, "showFollow", showFollow);
           })
         });
       });
@@ -517,18 +542,50 @@ export default {
       })
     },
     _handleRun(config) {
-      let {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap} = config;
+      let {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap, environmentType, environmentGroupId} = config;
       let param = {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap};
       param.testPlanId = this.currentPlanId;
       param.projectId = getCurrentProjectID();
       param.userId = getCurrentUserId();
       param.triggerMode = 'MANUAL';
+      param.environmentType = environmentType;
+      param.environmentGroupId = environmentGroupId;
+      param.requestOriginator = "TEST_PLAN";
       this.$refs.taskCenter.open();
       this.result = this.$post('test/plan/run/', param,() => {
         this.$success(this.$t('commons.run_success'));
-      }, () => {
-        this.$error(this.$t('commons.run_fail'));
+      }, error => {
+        // this.$error(error.message);
       });
+    },
+    saveFollow(row){
+      if(row.showFollow){
+        row.showFollow = false;
+        for (let i = 0; i < row.follows.length; i++) {
+          if(row.follows[i]===this.currentUser().id){
+            row.follows.splice(i,1)
+            break;
+          }
+        }
+        this.$post('/test/plan/edit/follows/' + row.id, row.follows,() => {
+          this.$success(this.$t('commons.cancel_follow_success'));
+          this.initTableData();
+        });
+        return
+      }
+      if(!row.showFollow){
+        row.showFollow = true;
+        if(!row.follows){
+          row.follows = [];
+        }
+        row.follows.push(this.currentUser().id);
+        this.$post('/test/plan/edit/follows/' + row.id, row.follows,() => {
+          this.$success(this.$t('commons.follow_success'));
+          this.initTableData();
+        });
+        return
+      }
+
     }
   }
 };

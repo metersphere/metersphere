@@ -82,7 +82,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/list/minder")
-    public List<TestCaseWithBLOBs> listDetail(@RequestBody QueryTestCaseRequest request) {
+    public List<TestCaseDTO> listDetail(@RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return testCaseService.listTestCaseForMinder(request);
     }
@@ -121,8 +121,8 @@ public class TestCaseController {
 
     @PostMapping("/relate/{goPage}/{pageSize}")
     public Pager<List<TestCase>> getTestCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, testCaseService.getTestCaseRelateList(request));
+//        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return testCaseService.getTestCaseRelateList(request, goPage, pageSize);
     }
 
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
@@ -351,5 +351,11 @@ public class TestCaseController {
     @GetMapping("/follow/{caseId}")
     public List<String> getFollows(@PathVariable String caseId) {
         return testCaseService.getFollows(caseId);
+    }
+
+    @PostMapping("/edit/follows/{caseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
+    public void editTestFollows(@PathVariable String caseId,@RequestBody List<String> follows) {
+        testCaseService.saveFollows(caseId,follows);
     }
 }

@@ -11,6 +11,9 @@
           <el-menu-item :index="'/project/member'" v-permission="['PROJECT_USER:READ']">
             {{ $t('project.member') }}
           </el-menu-item>
+          <el-menu-item :index="'/project/usergroup'" v-permission="['PROJECT_GROUP:READ']">
+            {{ $t('project.group_permission') }}
+          </el-menu-item>
           <el-menu-item :index="'/project/env'" v-permission="['PROJECT_ENVIRONMENT:READ']"
                         popper-class="submenu">
             {{ $t('project.env') }}
@@ -66,7 +69,7 @@ export default {
   },
   methods: {
     clickPlanMenu() {
-      this.$info("功能正在规划中...");
+      this.$info(this.$t('commons.function_planning'));
       return false;
     }
   }

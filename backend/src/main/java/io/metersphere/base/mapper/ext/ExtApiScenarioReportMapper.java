@@ -7,6 +7,7 @@ import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.dto.ApiReportCountDTO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ExtApiScenarioReportMapper {
@@ -29,4 +30,8 @@ public interface ExtApiScenarioReportMapper {
     List<String> idList(@Param("request") QueryAPIReportRequest request);
 
     List<ApiReportCountDTO> countByApiScenarioId();
+
+    List<ApiScenarioReport> selectStatusByIds(@Param("ids") Collection<String> values);
+
+    List<ApiScenarioReport> selectReportByProjectId(String projectId);
 }

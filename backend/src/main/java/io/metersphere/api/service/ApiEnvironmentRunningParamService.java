@@ -3,9 +3,14 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.commons.exception.MSException;
+import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +25,11 @@ import javax.annotation.Resource;
 public class ApiEnvironmentRunningParamService {
     @Resource
     ApiTestEnvironmentService apiTestEnvironmentService;
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     public synchronized void addParam(String enviromentId, String key, String value) {
+
         if(StringUtils.isEmpty(key)){
             return;
         }
@@ -86,8 +94,20 @@ public class ApiEnvironmentRunningParamService {
             commonConfig.put("variables",variables);
             configObj.put("commonConfig",commonConfig);
         }
+
         apiTestEnvironmentWithBLOBs.setConfig(configObj.toJSONString());
-        apiTestEnvironmentService.update(apiTestEnvironmentWithBLOBs);
+
+        SqlSession sqlSession = null;
+        try {
+            sqlSession = sqlSessionFactory.openSession(ExecutorType.SIMPLE);
+            ApiTestEnvironmentMapper batchMapper = sqlSession.getMapper(ApiTestEnvironmentMapper.class);
+            batchMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironmentWithBLOBs);
+            sqlSession.commit();
+        }catch (Exception e){
+            sqlSession.rollback();
+        }finally {
+            sqlSession.close();
+        }
     }
 
     public void parseEvn(String envStr) {
@@ -102,8 +122,6 @@ public class ApiEnvironmentRunningParamService {
                         String envId = envAndKeyArr[0];
                         String [] keyArr = ArrayUtils.remove(envAndKeyArr,0);
                         String key = StringUtils.join(keyArr,".");
-//                        String [] valueArr = ArrayUtils.remove(envItem,0);
-//                        String value = StringUtils.join(valueArr,"=");
                         String value = StringUtils.substring(env,jmeterVarKey.length()+1);
                         if(StringUtils.isNoneEmpty(envId,key,value)){
                             this.addParam(envId,key,value);

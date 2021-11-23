@@ -275,14 +275,38 @@
     </select>
 
     <select id="selectPreviousReportByScenarioId" resultType="io.metersphere.base.domain.ApiScenarioReport">
-          select * from api_scenario_report
-            WHERE execute_type in ("Completed","Debug")  and scenario_id=#{scenarioId} and id != #{nowId} ORDER BY create_time desc LIMIT 5,1
+        select *
+        from api_scenario_report
+        WHERE execute_type in ("Completed", "Debug")
+          and scenario_id = #{scenarioId}
+          and id != #{nowId}
+        ORDER BY create_time desc LIMIT 5, 1
     </select>
 
     <select id="countByApiScenarioId" resultType="io.metersphere.dto.ApiReportCountDTO">
-        SELECT scenario_id AS id,count(id) AS countNum
+        SELECT scenario_id AS id, count(id) AS countNum
         FROM api_scenario_report
-        WHERE scenario_id is not null  GROUP BY scenario_id;
+        WHERE scenario_id is not null
+        GROUP BY scenario_id;
     </select>
 
+    <select id="selectReportByProjectId" resultType="io.metersphere.base.domain.ApiScenarioReport">
+        select t.*
+        from api_scenario_report t
+                 left join `user` t1 ON t.user_id = t1.id
+                 left join test_resource_pool t2 on t.actuator = t2.id
+        where to_days(FROM_UNIXTIME(t.create_time / 1000)) = to_days(now())
+          and t.execute_type !='Debug' and t.execute_type !='Marge'  and t.project_id=#{projectId}
+          and t.`STATUS` in ('running'
+            , 'waiting')
+
+    </select>
+
+    <select id="selectStatusByIds" resultType="io.metersphere.base.domain.ApiScenarioReport">
+        select id,status from api_scenario_report
+        WHERE id IN
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </select>
 </mapper>

@@ -37,9 +37,6 @@ public class LocalRealm extends BaseRealm {
     @Resource
     private UserService userService;
 
-    @Value("${run.mode:release}")
-    private String runMode;
-
     @Override
     public String getName() {
         return "LOCAL";
@@ -70,14 +67,6 @@ public class LocalRealm extends BaseRealm {
 
         String userId = token.getUsername();
         String password = String.valueOf(token.getPassword());
-
-        if (StringUtils.equals("local", runMode)) {
-            UserDTO user = getUserWithOutAuthenticate(userId);
-            userId = user.getId();
-            SessionUser sessionUser = SessionUser.fromUser(user);
-            SessionUtils.putUser(sessionUser);
-            return new SimpleAuthenticationInfo(userId, password, getName());
-        }
 
         if (StringUtils.equals(login, UserSource.LOCAL.name())) {
             return loginLocalMode(userId, password);

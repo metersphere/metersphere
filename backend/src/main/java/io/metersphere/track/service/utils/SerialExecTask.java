@@ -6,6 +6,7 @@ package io.metersphere.track.service.utils;
 import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.TestPlanLoadCase;
+import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.commons.exception.MSException;
@@ -35,7 +36,7 @@ public class SerialExecTask<T> implements Callable<T> {
         try {
             // 串行，开启轮询等待
             String reportId = performanceTestService.run(request);
-            TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+            TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
             testPlanLoadCase.setId(request.getTestPlanLoadId());
             testPlanLoadCase.setLoadReportId(reportId);
             testPlanLoadCase.setStatus("run");

@@ -9,8 +9,16 @@
       >
       </ms-table-header>
     </template>
-    <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                 :project-list="projectList" ref="envPopover" class="env-popover" style="float: right; margin-top: 4px;"/>
+    <env-popover :env-map="projectEnvMap"
+                 :project-ids="projectIds"
+                 @setProjectEnvMap="setProjectEnvMap"
+                 :environment-type.sync="environmentType"
+                 :group-id="envGroupId"
+                 :project-list="projectList"
+                 :is-scenario="false"
+                 @setEnvGroup="setEnvGroup"
+                 ref="envPopover"
+                 class="env-popover" style="float: right; margin-top: 4px;"/>
     <el-table
       border
       class="adjust-table"
@@ -67,7 +75,7 @@
         :label="$t('test_track.plan.plan_stage')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
-          <plan-stage-table-item :stage="scope.row.stage"/>
+          <plan-stage-table-item :option="stageOption" :stage="scope.row.stage"/>
         </template>
       </el-table-column>
       <el-table-column
@@ -153,9 +161,11 @@ import MsDeleteConfirm from "../../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-components";
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {_filter, _sort} from "@/common/js/tableUtils";
-import EnvPopover from "@/business/components/track/common/EnvPopover";
+import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
 import TestPlanEdit from "@/business/components/track/plan/components/TestPlanEdit";
 import TestPlansEdit from "@/business/components/api/automation/scenario/testplan/TestPlansEdit";
+import {ENV_TYPE} from "@/common/js/constants";
+import {getPlanStageOption} from "@/network/test-plan";
 
 export default {
   name: "TestPlanList",
@@ -203,6 +213,9 @@ export default {
         projectList: [],
         projectIds: new Set(),
         map: new Map(),
+        environmentType: ENV_TYPE.JSON,
+        envGroupId: "",
+        stageOption: []
       }
     },
     watch: {
@@ -215,6 +228,9 @@ export default {
     created() {
       this.projectId = this.$route.params.projectId;
       this.isTestManagerOrTestUser = true;
+      getPlanStageOption((data) => {
+        this.stageOption = data;
+      });
       this.initTableData();
       this.setScenarioSelectRows(this.row);
       this.getWsProjects();
@@ -228,7 +244,7 @@ export default {
           if (!sign) {
             return false;
           }
-          this.$emit('addTestPlan', this.selection, this.projectEnvMap, this.map);
+          this.$emit('addTestPlan', this.selection, this.projectEnvMap, this.map, this.environmentType, this.envGroupId);
         }
       },
       cancel(){
@@ -236,6 +252,9 @@ export default {
       },
       setProjectEnvMap(projectEnvMap) {
         this.projectEnvMap = projectEnvMap;
+      },
+      setEnvGroup(id) {
+        this.envGroupId = id;
       },
       select(selection) {
         this.selection = selection.map(s => s.id);

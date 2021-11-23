@@ -263,7 +263,7 @@ public class TestCaseReviewService {
         testCaseReviewUsersMapper.deleteByExample(example);
     }
 
-    private void editCaseRevieweFollow(SaveTestCaseReviewRequest testCaseReview) {
+    public void editCaseRevieweFollow(SaveTestCaseReviewRequest testCaseReview) {
         // 要更新的follows
         List<String> follows = testCaseReview.getFollowIds();
         if (CollectionUtils.isNotEmpty(follows)) {

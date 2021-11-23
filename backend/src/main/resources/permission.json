@@ -196,6 +196,11 @@
       "resourceId": "WORKSPACE_PROJECT_MANAGER"
     },
     {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+UPLOAD_JAR",
+      "name": "上传jar包",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
       "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ",
       "name": "查询环境",
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
@@ -279,6 +284,31 @@
       "id": "PROJECT_USER:READ+DELETE",
       "name": "移除成员",
       "resourceId": "PROJECT_USER"
+    },
+    {
+      "id": "PROJECT_GROUP:READ",
+      "name": "查询用户组与权限",
+      "resourceId": "PROJECT_GROUP"
+    },
+    {
+      "id": "PROJECT_GROUP:READ+CREATE",
+      "name": "创建用户组与权限",
+      "resourceId": "PROJECT_GROUP"
+    },
+    {
+      "id": "PROJECT_GROUP:READ+EDIT",
+      "name": "编辑用户组与权限",
+      "resourceId": "PROJECT_GROUP"
+    },
+    {
+      "id": "PROJECT_GROUP:READ+DELETE",
+      "name": "删除用户组与权限",
+      "resourceId": "PROJECT_GROUP"
+    },
+    {
+      "id": "PROJECT_GROUP:READ+SETTING_PERMISSION",
+      "name": "设置权限",
+      "resourceId": "PROJECT_GROUP"
     },
     {
       "id": "PROJECT_MANAGER:READ",
@@ -793,6 +823,51 @@
       "name": "另存为",
       "resourceId": "PROJECT_REPORT_ANALYSIS",
       "license": false
+    },
+    {
+      "id": "SYSTEM_PLUGIN:UPLOAD",
+      "name": "点击上传",
+      "resourceId": "SYSTEM_PLUGIN"
+    },
+    {
+      "id": "SYSTEM_PLUGIN:DEL",
+      "name": "删除",
+      "resourceId": "SYSTEM_PLUGIN"
+    },
+    {
+      "id": "SYSTEM_PLUGIN:READ",
+      "name": "查看脚本",
+      "resourceId": "SYSTEM_PLUGIN"
+    },
+    {
+      "id": "PROJECT_ENTERPRISE_REPORT:READ+EXPORT",
+      "name": "发送邮件",
+      "resourceId": "PROJECT_ENTERPRISE_REPORT",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ENTERPRISE_REPORT:READ+CREATE",
+      "name": "创建报告",
+      "resourceId": "PROJECT_ENTERPRISE_REPORT",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ENTERPRISE_REPORT:READ+DELETE",
+      "name": "删除报告",
+      "resourceId": "PROJECT_ENTERPRISE_REPORT",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ENTERPRISE_REPORT:READ+COPY",
+      "name": "复制报告",
+      "resourceId": "PROJECT_ENTERPRISE_REPORT",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ENTERPRISE_REPORT:READ+EDIT",
+      "name": "修改报告",
+      "resourceId": "PROJECT_ENTERPRISE_REPORT",
+      "license": true
     }
   ],
   "resource": [
@@ -865,6 +940,10 @@
       "name": "项目管理"
     },
     {
+      "id": "PROJECT_GROUP",
+      "name": "用户组与权限"
+    },
+    {
       "id": "PROJECT_ENVIRONMENT",
       "name": "环境设置"
     },
@@ -923,6 +1002,14 @@
     {
       "id": "PROJECT_REPORT_ANALYSIS",
       "name": "报表"
+    },
+    {
+      "id": "PROJECT_ENTERPRISE_REPORT",
+      "name": "项目报告"
+    },
+    {
+      "id": "SYSTEM_PLUGIN",
+      "name": "插件管理"
     }
   ]
 }

@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -52,6 +53,8 @@ public class WorkspaceService {
     private ExtUserMapper extUserMapper;
     @Resource
     private ScheduleService scheduleService;
+    @Resource
+    private EnvironmentGroupService environmentGroupService;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
@@ -120,6 +123,8 @@ public class WorkspaceService {
         userGroupExample.createCriteria().andSourceIdEqualTo(workspaceId);
         userGroupMapper.deleteByExample(userGroupExample);
 
+        environmentGroupService.deleteByWorkspaceId(workspaceId);
+
         // delete workspace
         workspaceMapper.deleteByPrimaryKey(workspaceId);
 
@@ -144,6 +149,9 @@ public class WorkspaceService {
                 .map(RelatedSource::getWorkspaceId)
                 .distinct()
                 .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(wsIds)) {
+            return new ArrayList<>();
+        }
         WorkspaceExample workspaceExample = new WorkspaceExample();
         workspaceExample.createCriteria().andIdIn(wsIds);
         return workspaceMapper.selectByExample(workspaceExample);

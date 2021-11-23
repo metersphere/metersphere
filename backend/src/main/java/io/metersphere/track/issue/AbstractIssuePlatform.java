@@ -1,10 +1,13 @@
 package io.metersphere.track.issue;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
+import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
@@ -13,6 +16,7 @@ import io.metersphere.dto.UserDTO;
 import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestCaseIssueService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
@@ -32,10 +36,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -60,6 +62,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected String key;
     protected String workspaceId;
     protected String userId;
+    protected String defaultCustomFields;
 
 
     public String getKey() {
@@ -91,6 +94,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.projectId = issuesRequest.getProjectId();
         this.workspaceId = issuesRequest.getWorkspaceId();
         this.userId = issuesRequest.getUserId();
+        this.defaultCustomFields = issuesRequest.getDefaultCustomFields();
     }
 
     public AbstractIssuePlatform() {
@@ -132,6 +136,19 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
      */
     public abstract String getProjectId(String projectId);
 
+    public String getProjectId(String projectId, Function<Project, String> getProjectKeyFuc) {
+        Project project;
+        if (StringUtils.isNotBlank(projectId)) {
+            project = projectService.getProjectById(projectId);
+        } else {
+            TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
+            project = projectService.getProjectById(testCase.getProjectId());
+        }
+        String projectKey = getProjectKeyFuc.apply(project);
+        if (StringUtils.isBlank(projectKey)) MSException.throwException("请在项目设置配置 " + key + "项目ID");
+        return projectKey;
+    }
+
     protected boolean isIntegratedPlatform(String workspaceId, String platform) {
         IntegrationRequest request = new IntegrationRequest();
         request.setPlatform(platform);
@@ -158,6 +175,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     protected void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
+        if (!issuesRequest.isWithCaseId()) return;
         String issuesId = issuesRequest.getId();
         if (StringUtils.isNotBlank(issuesRequest.getTestCaseId())) {
             insertTestCaseIssues(issuesId, issuesRequest.getTestCaseId());
@@ -194,7 +212,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issuesMapper.insert(issues);
     }
 
-    protected void insertIssues(IssuesUpdateRequest issuesRequest) {
+    protected IssuesWithBLOBs insertIssues(IssuesUpdateRequest issuesRequest) {
         IssuesWithBLOBs issues = new IssuesWithBLOBs();
         BeanUtils.copyBean(issues, issuesRequest);
         issues.setId(issuesRequest.getId());
@@ -204,6 +222,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issues.setNum(getNextNum(issuesRequest.getProjectId()));
         issues.setPlatformStatus(issuesRequest.getPlatformStatus());
         issuesMapper.insert(issues);
+        return issues;
     }
 
     protected int getNextNum(String projectId) {
@@ -234,7 +253,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected String msImg2HtmlImg(String input, String endpoint) {
         // ![中心主题.png](/resource/md/get/a0b19136_中心主题.png) -> <img src="xxx/resource/md/get/a0b19136_中心主题.png"/>
-        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        String regex = "(\\!\\[.*?\\]\\((.*)\\))";
         Pattern pattern = Pattern.compile(regex);
         if (StringUtils.isBlank(input)) {
             return "";
@@ -254,7 +273,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     protected String removeImage(String input) {
-        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        String regex = "(\\!\\[.*?\\]\\((.*)\\))";
         if (StringUtils.isBlank(input)) {
             return "";
         }
@@ -268,7 +287,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected String getImages(String input) {
         String result = "";
-        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        String regex = "(\\!\\[.*?\\]\\((.*)\\))";
         if (StringUtils.isBlank(input)) {
             return result;
         }
@@ -281,7 +300,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected String htmlImg2MsImg(String input) {
         // <img src="xxx/resource/md/get/a0b19136_中心主题.png"/> ->  ![中心主题.png](/resource/md/get/a0b19136_中心主题.png)
-        String regex = "(<img\\s*src=\\\"(.*?)\\\".*?>)";
+        String regex = "(<img\\s*src=\\\"(.*)\\\".*?>)";
         Pattern pattern = Pattern.compile(regex);
         if (StringUtils.isBlank(input)) {
             return "";
@@ -303,7 +322,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     public List<File> getImageFiles(String input) {
         List<File> files = new ArrayList<>();
-        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        String regex = "(\\!\\[.*?\\]\\((.*)\\))";
         Pattern pattern = Pattern.compile(regex);
         if (StringUtils.isBlank(input)) {
             return new ArrayList<>();
@@ -343,5 +362,105 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
                 paramMap.add(item.getCustomData(), item.getValue());
             }
         });
+    }
+
+
+    protected String syncIssueCustomField(String customFieldsStr, JSONObject issue) {
+        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
+        customFields.forEach(item -> {
+            String fieldName = item.getCustomData();
+            Object value = issue.get(fieldName);
+            if (value != null) {
+                if (value instanceof JSONObject) {
+                    if (!fieldName.equals("assignee") && !fieldName.equals("reporter")) { // 获取不到账号名
+                        item.setValue(((JSONObject)value).getString("id"));
+                    }
+                } else if (value instanceof JSONArray) {
+                    List<Object> values = new ArrayList<>();
+                    ((JSONArray)value).forEach(attr -> {
+                        if (attr instanceof JSONObject) {
+                            values.add(((JSONObject)attr).getString("id"));
+                        } else {
+                            values.add(attr);
+                        }
+                    });
+                    item.setValue(values);
+                } else {
+                    item.setValue(value);
+                }
+            }
+        });
+        return JSONObject.toJSONString(customFields);
+    }
+
+    @Override
+    public void syncAllIssues(Project project) {}
+
+    protected List<IssuesWithBLOBs> getIssuesByPlatformIds(List<String> platformIds) {
+        IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
+        return issuesService.getIssuesByPlatformIds(platformIds, projectId);
+    }
+
+    protected Map<String, IssuesWithBLOBs> getUuIdMap(List<IssuesWithBLOBs> issues) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(issues)) {
+            return issues.stream().collect(Collectors.toMap(Issues::getPlatformId, i -> i));
+        }
+        return new HashMap<>();
+    }
+
+    protected void deleteSyncIssue(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) return;
+        IssuesExample example = new IssuesExample();
+        IssuesWithBLOBs issue = new IssuesWithBLOBs();
+        issue.setPlatformStatus(IssuesStatus.DELETE.toString());
+        example.createCriteria().andIdIn(ids);
+        issuesMapper.updateByExampleSelective(issue, example);
+    }
+
+    protected List<String> updateSyncDeleteIds(List<String> uuIds, List<String> syncDeleteIds, String platform) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(uuIds)) {
+            // 每次获取不在当前查询的缺陷里的 id
+            List<String> notInIds = extIssuesMapper.selectIdNotInUuIds(projectId, platform, uuIds);
+            if (syncDeleteIds == null) {
+                syncDeleteIds = notInIds;
+            } else {
+                // 求交集，即不在所有查询里的缺陷，即要删除的缺陷
+                syncDeleteIds.retainAll(notInIds);
+            }
+        }
+        return syncDeleteIds;
+    }
+
+    protected void mergeCustomField(IssuesWithBLOBs issues, String defaultCustomField) {
+        if (StringUtils.isNotBlank(defaultCustomField)) {
+            String issuesCustomFields = issues.getCustomFields();
+            if (StringUtils.isBlank(issuesCustomFields) || issuesCustomFields.startsWith("{")) issuesCustomFields = "[]";
+            JSONArray issueFields = JSONArray.parseArray(issuesCustomFields);
+            Set<String> ids = issueFields.stream().map(i -> ((JSONObject) i).getString("id")).collect(Collectors.toSet());
+            JSONArray defaultFields = JSONArray.parseArray(defaultCustomField);
+            defaultFields.forEach(item -> { // 如果自定义字段里没有模板新加的字段，就把新字段加上
+                if (!ids.contains(((JSONObject) item).getString("id"))) {
+                    issueFields.add(item);
+                }
+            });
+            issues.setCustomFields(issueFields.toJSONString());
+        }
+    }
+
+    public <T> T getConfig(String platform, Class<T> clazz) {
+        String config = getPlatformConfig(platform);
+        if (StringUtils.isBlank(config)) MSException.throwException("配置为空");
+        return JSONObject.parseObject(config, clazz);
+    }
+
+    public void buildSyncCreate(IssuesWithBLOBs issue, String platformId, Integer nextNum) {
+        issue.setProjectId(projectId);
+        issue.setId(UUID.randomUUID().toString());
+        issue.setPlatformId(platformId);
+        issue.setCreateTime(System.currentTimeMillis());
+        issue.setUpdateTime(System.currentTimeMillis());
+        issue.setCreator(SessionUtils.getUserId());
+        issue.setNum(nextNum);
+        issuesMapper.insert(issue); // 批量新增
     }
 }

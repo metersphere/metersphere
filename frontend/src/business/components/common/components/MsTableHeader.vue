@@ -10,7 +10,7 @@
       <span class="operate-button">
         <ms-table-button v-permission="createPermission" v-if="showCreate" icon="el-icon-circle-plus-outline"
                          :content="createTip" @click="create"/>
-        <ms-table-button icon="el-icon-download" v-if="showImport"
+        <ms-table-button icon="el-icon-download" v-if="showImport" v-permission="uploadPermission"
                          :content="importTip" @click="importData"/>
         <ms-table-button v-if="showRun" icon="el-icon-video-play"
                          type="primary"
@@ -73,6 +73,12 @@
         }
       },
       createPermission: {
+        type: Array,
+        default() {
+          return []
+        }
+      },
+      uploadPermission: {
         type: Array,
         default() {
           return []

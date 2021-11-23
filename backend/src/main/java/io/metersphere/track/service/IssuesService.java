@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -12,11 +13,13 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
+import io.metersphere.dto.CustomFieldTemplateDao;
+import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
-import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.CustomFieldTemplateService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
@@ -59,15 +62,13 @@ public class IssuesService {
     @Resource
     private IssuesMapper issuesMapper;
     @Resource
-    private NoticeSendService noticeSendService;
-    @Resource
     private TestCaseIssuesMapper testCaseIssuesMapper;
     @Resource
     private IssueTemplateMapper issueTemplateMapper;
     @Resource
     private ExtIssuesMapper extIssuesMapper;
     @Resource
-    private WorkspaceMapper workspaceMapper;
+    private CustomFieldTemplateService customFieldTemplateService;
     @Resource
     private IssueTemplateService issueTemplateService;
     @Resource
@@ -76,6 +77,8 @@ public class IssuesService {
     private TestCaseIssueService testCaseIssueService;
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
+    @Resource
+    private IssueFollowMapper issueFollowMapper;
 
     public void testAuth(String workspaceId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
@@ -85,14 +88,17 @@ public class IssuesService {
     }
 
 
-    public void addIssues(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssues(IssuesUpdateRequest issuesRequest) {
         List<AbstractIssuePlatform> platformList = getAddPlatforms(issuesRequest);
-        platformList.forEach(platform -> {
-            platform.addIssue(issuesRequest);
-        });
+        IssuesWithBLOBs issues = null;
+        for (AbstractIssuePlatform platform : platformList) {
+            issues = platform.addIssue(issuesRequest);
+        }
         issuesRequest.getTestCaseIds().forEach(l -> {
             testCaseIssueService.updateIssuesCount(l);
         });
+        saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
+        return issues;
     }
 
 
@@ -102,9 +108,22 @@ public class IssuesService {
         platformList.forEach(platform -> {
             platform.updateIssue(issuesRequest);
         });
+        //saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
         // todo 缺陷更新事件？
     }
-
+    public void saveFollows(String issueId, List<String> follows) {
+        IssueFollowExample example = new IssueFollowExample();
+        example.createCriteria().andIssueIdEqualTo(issueId);
+        issueFollowMapper.deleteByExample(example);
+        if (!CollectionUtils.isEmpty(follows)) {
+            for (String follow : follows) {
+                IssueFollow issueFollow = new IssueFollow();
+                issueFollow.setIssueId(issueId);
+                issueFollow.setFollowId(follow);
+                issueFollowMapper.insert(issueFollow);
+            }
+        }
+    }
     public List<AbstractIssuePlatform> getAddPlatforms(IssuesUpdateRequest updateRequest) {
         List<String> platforms = new ArrayList<>();
         if (StringUtils.isNotBlank(updateRequest.getTestCaseId())) {
@@ -157,6 +176,10 @@ public class IssuesService {
         return getIssuesByProjectIdOrCaseId(issueRequest);
     }
 
+    public IssuesWithBLOBs getIssue(String id) {
+        return issuesMapper.selectByPrimaryKey(id);
+    }
+
     public List<IssuesDao> getIssuesByProjectIdOrCaseId(IssuesRequest issueRequest) {
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issueRequest.getProjectId())) {
@@ -175,7 +198,7 @@ public class IssuesService {
 
     public String getIssueTemplate(String projectId) {
         Project project = projectService.getProjectById(projectId);
-        IssueTemplate issueTemplate = null;
+        IssueTemplate issueTemplate;
         String id = project.getIssueTemplateId();
         if (StringUtils.isBlank(id)) {
             issueTemplate = issueTemplateService.getDefaultTemplate(project.getWorkspaceId());
@@ -346,6 +369,11 @@ public class IssuesService {
                     .collect(Collectors.toList());
             item.setCaseIds(caseIds);
             item.setCaseCount(testCaseIssues.size());
+            if(StringUtils.equals(item.getPlatform(),"Tapd")){
+                TapdPlatform platform = (TapdPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
+                List<String> tapdUsers = platform.getTapdUsers(item.getProjectId(), item.getPlatformId());
+                item.setTapdUsers(tapdUsers);
+            }
         });
         return issues;
     }
@@ -426,6 +454,9 @@ public class IssuesService {
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
             issuesRequest.setWorkspaceId(project.getWorkspaceId());
+            String defaultCustomFields = getDefaultCustomFields(projectId);
+            issuesRequest.setDefaultCustomFields(defaultCustomFields);
+
             if (CollectionUtils.isNotEmpty(tapdIssues)) {
                 TapdPlatform tapdPlatform = new TapdPlatform(issuesRequest);
                 syncThirdPartyIssues(tapdPlatform::syncIssues, project, tapdIssues);
@@ -450,6 +481,33 @@ public class IssuesService {
                 }
             }
         }
+    }
+
+    /**
+     * 获取默认的自定义字段的取值，同步之后更新成第三方平台的值
+     * @param projectId
+     * @return
+     */
+    public String getDefaultCustomFields(String projectId) {
+        IssueTemplateDao template = issueTemplateService.getTemplate(projectId);
+        CustomFieldTemplate request = new CustomFieldTemplate();
+        request.setTemplateId(template.getId());
+        List<CustomFieldTemplateDao> customFields = customFieldTemplateService.list(request);
+
+        JSONArray fields = new JSONArray();
+        customFields.forEach(item -> {
+            JSONObject field = new JSONObject(true);
+            field.put("customData", item.getCustomData());
+            field.put("id", item.getId());
+            field.put("name", item.getName());
+            field.put("type", item.getType());
+            String defaultValue = item.getDefaultValue();
+            if (StringUtils.isNotBlank(defaultValue)) {
+                field.put("value", JSONObject.parse(defaultValue));
+            }
+            fields.add(field);
+        });
+        return fields.toJSONString();
     }
 
     public void syncThirdPartyIssues(BiConsumer<Project, List<IssuesDao>> syncFuc, Project project, List<IssuesDao> issues) {
@@ -565,4 +623,29 @@ public class IssuesService {
         return extIssuesMapper.getCountByStatus(request);
 
     }
+
+    public List<String> getFollows(String issueId) {
+        List<String> result = new ArrayList<>();
+        if (StringUtils.isBlank(issueId)) {
+            return result;
+        }
+        IssueFollowExample example = new IssueFollowExample();
+        example.createCriteria().andIssueIdEqualTo(issueId);
+        List<IssueFollow> follows = issueFollowMapper.selectByExample(example);
+        if(follows==null||follows.size()==0){
+            return result;
+        }
+        result = follows.stream().map(IssueFollow::getFollowId).distinct().collect(Collectors.toList());
+        return result;
+    }
+
+    public List<IssuesWithBLOBs> getIssuesByPlatformIds(List<String> platformIds, String projectId) {
+        if (CollectionUtils.isEmpty(platformIds)) return new ArrayList<>();
+        IssuesExample example = new IssuesExample();
+        example.createCriteria()
+                .andPlatformIdIn(platformIds)
+                .andProjectIdEqualTo(projectId);
+        return issuesMapper.selectByExampleWithBLOBs(example);
+    }
+
 }

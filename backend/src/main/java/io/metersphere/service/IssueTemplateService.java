@@ -82,7 +82,7 @@ public class IssueTemplateService extends TemplateBaseService {
             String originId = request.getId();
             // 如果是全局字段，则创建对应工作空间字段
             String id = add(request);
-            projectService.updateIssueTemplate(originId, id);
+            projectService.updateIssueTemplate(originId, id, request.getWorkspaceId());
         } else {
             checkExist(request);
             customFieldTemplateService.deleteByTemplateId(request.getId());
@@ -206,7 +206,7 @@ public class IssueTemplateService extends TemplateBaseService {
     public IssueTemplateDao getTemplate(String projectId) {
         Project project = projectService.getProjectById(projectId);
         String issueTemplateId = project.getIssueTemplateId();
-        IssueTemplate issueTemplate = null;
+        IssueTemplate issueTemplate;
         IssueTemplateDao issueTemplateDao = new IssueTemplateDao();
         if (StringUtils.isNotBlank(issueTemplateId)) {
             issueTemplate = issueTemplateMapper.selectByPrimaryKey(issueTemplateId);

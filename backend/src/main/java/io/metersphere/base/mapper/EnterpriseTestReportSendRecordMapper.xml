@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.EnterpriseTestReportSendRecordMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.EnterpriseTestReportSendRecord">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="enterprise_test_report_id" jdbcType="VARCHAR" property="enterpriseTestReportId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.EnterpriseTestReportSendRecordWithBLOBs">
+    <result column="report_content" jdbcType="LONGVARCHAR" property="reportContent" />
+    <result column="addressee" jdbcType="LONGVARCHAR" property="addressee" />
+    <result column="duplicated" jdbcType="LONGVARCHAR" property="duplicated" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, enterprise_test_report_id, create_time, create_user, `status`
+  </sql>
+  <sql id="Blob_Column_List">
+    report_content, addressee, duplicated
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.EnterpriseTestReportSendRecordExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from enterprise_test_report_send_record
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.EnterpriseTestReportSendRecordExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from enterprise_test_report_send_record
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from enterprise_test_report_send_record
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from enterprise_test_report_send_record
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.EnterpriseTestReportSendRecordExample">
+    delete from enterprise_test_report_send_record
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.base.domain.EnterpriseTestReportSendRecordWithBLOBs">
+    insert into enterprise_test_report_send_record (id, enterprise_test_report_id, create_time, 
+      create_user, `status`, report_content, 
+      addressee, duplicated)
+    values (#{id,jdbcType=VARCHAR}, #{enterpriseTestReportId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{reportContent,jdbcType=LONGVARCHAR}, 
+      #{addressee,jdbcType=LONGVARCHAR}, #{duplicated,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.EnterpriseTestReportSendRecordWithBLOBs">
+    insert into enterprise_test_report_send_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="enterpriseTestReportId != null">
+        enterprise_test_report_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="reportContent != null">
+        report_content,
+      </if>
+      <if test="addressee != null">
+        addressee,
+      </if>
+      <if test="duplicated != null">
+        duplicated,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="enterpriseTestReportId != null">
+        #{enterpriseTestReportId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="reportContent != null">
+        #{reportContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="addressee != null">
+        #{addressee,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="duplicated != null">
+        #{duplicated,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.base.domain.EnterpriseTestReportSendRecordExample" resultType="java.lang.Long">
+    select count(*) from enterprise_test_report_send_record
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update enterprise_test_report_send_record
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enterpriseTestReportId != null">
+        enterprise_test_report_id = #{record.enterpriseTestReportId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reportContent != null">
+        report_content = #{record.reportContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.addressee != null">
+        addressee = #{record.addressee,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.duplicated != null">
+        duplicated = #{record.duplicated,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update enterprise_test_report_send_record
+    set id = #{record.id,jdbcType=VARCHAR},
+      enterprise_test_report_id = #{record.enterpriseTestReportId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      report_content = #{record.reportContent,jdbcType=LONGVARCHAR},
+      addressee = #{record.addressee,jdbcType=LONGVARCHAR},
+      duplicated = #{record.duplicated,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update enterprise_test_report_send_record
+    set id = #{record.id,jdbcType=VARCHAR},
+      enterprise_test_report_id = #{record.enterpriseTestReportId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.EnterpriseTestReportSendRecordWithBLOBs">
+    update enterprise_test_report_send_record
+    <set>
+      <if test="enterpriseTestReportId != null">
+        enterprise_test_report_id = #{enterpriseTestReportId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="reportContent != null">
+        report_content = #{reportContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="addressee != null">
+        addressee = #{addressee,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="duplicated != null">
+        duplicated = #{duplicated,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.EnterpriseTestReportSendRecordWithBLOBs">
+    update enterprise_test_report_send_record
+    set enterprise_test_report_id = #{enterpriseTestReportId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      report_content = #{reportContent,jdbcType=LONGVARCHAR},
+      addressee = #{addressee,jdbcType=LONGVARCHAR},
+      duplicated = #{duplicated,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.EnterpriseTestReportSendRecord">
+    update enterprise_test_report_send_record
+    set enterprise_test_report_id = #{enterpriseTestReportId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

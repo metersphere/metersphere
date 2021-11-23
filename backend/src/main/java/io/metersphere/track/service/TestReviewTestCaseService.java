@@ -356,7 +356,7 @@ public class TestReviewTestCaseService {
     }
 
     public void initOrderField() {
-        ServiceUtils.initOrderField(TestCaseReviewTestCase.class, TestCaseReviewMapper.class,
+        ServiceUtils.initOrderField(TestCaseReviewTestCase.class, TestCaseReviewTestCaseMapper.class,
                 extTestReviewCaseMapper::selectReviewIds,
                 extTestReviewCaseMapper::getIdsOrderByUpdateTime);
     }

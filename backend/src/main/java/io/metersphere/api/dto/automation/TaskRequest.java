@@ -6,5 +6,6 @@ import lombok.Data;
 public class TaskRequest {
     private String type;
     private String reportId;
+    private String projectId;
 
 }

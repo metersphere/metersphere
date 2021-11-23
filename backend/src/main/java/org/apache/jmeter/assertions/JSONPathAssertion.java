@@ -5,9 +5,9 @@
 
 package org.apache.jmeter.assertions;
 
-import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Predicate;
+import io.metersphere.api.dto.definition.request.assertions.document.DocumentUtils;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
@@ -20,17 +20,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.Map;
 
 public class JSONPathAssertion extends AbstractTestElement implements Serializable, Assertion, ThreadListener {
     private static final Logger log = LoggerFactory.getLogger(JSONPathAssertion.class);
     private static final long serialVersionUID = 2L;
     public static final String JSONPATH = "JSON_PATH";
-    public static final String EXPECTEDVALUE = "EXPECTED_VALUE";
-    public static final String JSONVALIDATION = "JSONVALIDATION";
+    public static final String EXPECTED_VALUE = "EXPECTED_VALUE";
+    public static final String JSON_VALIDATION = "JSONVALIDATION";
     public static final String EXPECT_NULL = "EXPECT_NULL";
     public static final String INVERT = "INVERT";
-    public static final String ISREGEX = "ISREGEX";
+    public static final String IS_REGEX = "ISREGEX";
     private static ThreadLocal<DecimalFormat> decimalFormatter = ThreadLocal.withInitial(JSONPathAssertion::createDecimalFormat);
 
     public JSONPathAssertion() {
@@ -45,6 +44,10 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
 
     public String getOption() {
         return getPropertyAsString("ASS_OPTION");
+    }
+
+    public String getElementCondition() {
+        return getPropertyAsString("ElementCondition");
     }
 
     public String getJsonPath() {
@@ -64,7 +67,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     }
 
     public void setJsonValidationBool(boolean jsonValidation) {
-        this.setProperty("JSONVALIDATION", jsonValidation);
+        this.setProperty(JSON_VALIDATION, jsonValidation);
     }
 
     public void setExpectNull(boolean val) {
@@ -76,7 +79,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     }
 
     public boolean isJsonValidationBool() {
-        return this.getPropertyAsBoolean("JSONVALIDATION");
+        return this.getPropertyAsBoolean(JSON_VALIDATION);
     }
 
     public void setInvert(boolean invert) {
@@ -88,11 +91,11 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     }
 
     public void setIsRegex(boolean flag) {
-        this.setProperty("ISREGEX", flag);
+        this.setProperty(IS_REGEX, flag);
     }
 
     public boolean isUseRegex() {
-        return this.getPropertyAsBoolean("ISREGEX", true);
+        return this.getPropertyAsBoolean(IS_REGEX, true);
     }
 
     private void doAssert(String jsonString) {
@@ -132,11 +135,14 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                         case "LT":
                             msg = "Value < '%s', but found '%s'";
                             break;
+                        case "DOCUMENT":
+                            msg = (StringUtils.isNotEmpty(this.getName()) ? this.getName().split("==")[1] : "") + "校验失败，实际返回：" + DocumentUtils.documentMsg(value, this.getElementCondition());
+                            break;
                     }
                 } else {
                     msg = "Value expected to be '%s', but found '%s'";
                 }
-                throw new IllegalStateException(String.format(msg, this.getExpectedValue(), objectToString(value)));
+                throw new IllegalStateException(String.format(msg, this.getExpectedValue(), DocumentUtils.objectToString(value, decimalFormatter)));
             }
         }
     }
@@ -176,7 +182,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     }
 
     private boolean isEquals(Object subj) {
-        String str = objectToString(subj);
+        String str = DocumentUtils.objectToString(subj, decimalFormatter);
         if (this.isUseRegex()) {
             Pattern pattern = JMeterUtils.getPatternCache().getPattern(this.getExpectedValue());
             return JMeterUtils.getMatcher().matches(str, pattern);
@@ -202,13 +208,16 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                     case "LT":
                         refFlag = isLt(str, getExpectedValue());
                         break;
-
+                    case "DOCUMENT":
+                        refFlag = DocumentUtils.documentChecked(subj, this.getElementCondition(), decimalFormatter);
+                        break;
                 }
                 return refFlag;
             }
             return str.equals(this.getExpectedValue());
         }
     }
+
 
     public AssertionResult getResult(SampleResult samplerResult) {
         AssertionResult result = new AssertionResult(this.getName());
@@ -248,20 +257,6 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         }
     }
 
-    public static String objectToString(Object subj) {
-        String str;
-        if (subj == null) {
-            str = "null";
-        } else if (subj instanceof Map) {
-            str = new Gson().toJson(subj);
-        } else if (!(subj instanceof Double) && !(subj instanceof Float)) {
-            str = subj.toString();
-        } else {
-            str = ((DecimalFormat) decimalFormatter.get()).format(subj);
-        }
-
-        return str;
-    }
 
     public void threadStarted() {
     }

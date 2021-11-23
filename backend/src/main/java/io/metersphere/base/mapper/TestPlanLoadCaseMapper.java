@@ -2,6 +2,7 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.TestPlanLoadCase;
 import io.metersphere.base.domain.TestPlanLoadCaseExample;
+import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,25 +13,25 @@ public interface TestPlanLoadCaseMapper {
 
     int deleteByPrimaryKey(String id);
 
-    int insert(TestPlanLoadCase record);
+    int insert(TestPlanLoadCaseWithBLOBs record);
 
-    int insertSelective(TestPlanLoadCase record);
+    int insertSelective(TestPlanLoadCaseWithBLOBs record);
 
-    List<TestPlanLoadCase> selectByExampleWithBLOBs(TestPlanLoadCaseExample example);
+    List<TestPlanLoadCaseWithBLOBs> selectByExampleWithBLOBs(TestPlanLoadCaseExample example);
 
     List<TestPlanLoadCase> selectByExample(TestPlanLoadCaseExample example);
 
-    TestPlanLoadCase selectByPrimaryKey(String id);
+    TestPlanLoadCaseWithBLOBs selectByPrimaryKey(String id);
 
-    int updateByExampleSelective(@Param("record") TestPlanLoadCase record, @Param("example") TestPlanLoadCaseExample example);
+    int updateByExampleSelective(@Param("record") TestPlanLoadCaseWithBLOBs record, @Param("example") TestPlanLoadCaseExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") TestPlanLoadCase record, @Param("example") TestPlanLoadCaseExample example);
+    int updateByExampleWithBLOBs(@Param("record") TestPlanLoadCaseWithBLOBs record, @Param("example") TestPlanLoadCaseExample example);
 
     int updateByExample(@Param("record") TestPlanLoadCase record, @Param("example") TestPlanLoadCaseExample example);
 
-    int updateByPrimaryKeySelective(TestPlanLoadCase record);
+    int updateByPrimaryKeySelective(TestPlanLoadCaseWithBLOBs record);
 
-    int updateByPrimaryKeyWithBLOBs(TestPlanLoadCase record);
+    int updateByPrimaryKeyWithBLOBs(TestPlanLoadCaseWithBLOBs record);
 
     int updateByPrimaryKey(TestPlanLoadCase record);
 }

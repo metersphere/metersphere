@@ -1,6 +1,7 @@
 package io.metersphere.track.issue;
 
 import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
@@ -27,7 +28,7 @@ public interface IssuesPlatform {
      *
      * @param issuesRequest issueRequest
      */
-    void addIssue(IssuesUpdateRequest issuesRequest);
+    IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest);
 
     /**
      * 更新缺陷
@@ -64,4 +65,10 @@ public interface IssuesPlatform {
      * @param tapdIssues
      */
     void syncIssues(Project project, List<IssuesDao> tapdIssues);
+
+    /**
+     * 同步缺陷全量的缺陷
+     * @param project
+     */
+    void syncAllIssues(Project project);
 }

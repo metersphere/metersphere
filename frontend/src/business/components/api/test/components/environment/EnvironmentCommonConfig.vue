@@ -1,26 +1,31 @@
 <template>
   <div>
-    <el-form :model="commonConfig" :rules="rules" ref="commonConfig" :disabled="isReadOnly">
-
-      <span>{{$t('api_test.environment.globalVariable')}}</span>
+    <el-form :model="commonConfig" :rules="rules" ref="commonConfig" :disabled="isReadOnly" label-width="30px">
       <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables"/>
-
       <el-form-item>
         <el-switch v-model="commonConfig.enableHost" active-text="Hosts"/>
       </el-form-item>
       <el-form-item>
-        <span>{{$t('api_test.environment.request_timeout')}}:</span>
-        <el-input-number style="margin-left: 20px" v-model="commonConfig.requestTimeout">{{$t('api_test.environment.globalVariable')}}</el-input-number>
-        <span style="margin-left: 30px">{{$t('api_test.environment.response_timeout')}}:</span>
-        <el-input-number style="margin-left: 20px" v-model="commonConfig.responseTimeout">{{$t('api_test.environment.globalVariable')}}</el-input-number>
+        <span>{{ $t('api_test.environment.request_timeout') }}:</span>
+        <el-input-number style="margin-left: 20px" controls-position="right" size="small"
+                         v-model="commonConfig.requestTimeout">
+          {{ $t('api_test.environment.globalVariable') }}
+        </el-input-number>
+        <span style="margin-left: 30px">{{ $t('api_test.environment.response_timeout') }}:</span>
+        <el-input-number style="margin-left: 20px" controls-position="right" size="small"
+                         v-model="commonConfig.responseTimeout">
+          {{ $t('api_test.environment.globalVariable') }}
+        </el-input-number>
       </el-form-item>
-      <ms-api-host-table v-if="commonConfig.enableHost" :hostTable="commonConfig.hosts" ref="refHostTable"/>
+      <el-form-item>
+        <ms-api-host-table v-if="commonConfig.enableHost" :hostTable="commonConfig.hosts" ref="refHostTable"/>
+      </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import {CommonConfig, Environment} from "../../model/EnvironmentModel";
+import {CommonConfig} from "../../model/EnvironmentModel";
 import MsApiScenarioVariables from "../ApiScenarioVariables";
 import MsApiHostTable from "../ApiHostTable";
 
@@ -36,26 +41,24 @@ export default {
   },
   data() {
     return {
-      rules: {
-
-      },
-    }
+      rules: {},
+    };
   },
   created() {
-    if(!this.commonConfig.requestTimeout){
-      this.commonConfig.requestTimeout = 60000;
+    if (!this.commonConfig.requestTimeout) {
+      this.$set(this.commonConfig, 'requestTimeout', 60000);
     }
-    if(!this.commonConfig.responseTimeout){
-      this.commonConfig.responseTimeout = 60000;
+    if (!this.commonConfig.responseTimeout) {
+      this.$set(this.commonConfig, 'responseTimeout', 60000);
     }
   },
   watch: {
-    commonConfig(){
-      if(!this.commonConfig.requestTimeout){
-        this.commonConfig.requestTimeout = 60000;
+    commonConfig() {
+      if (!this.commonConfig.requestTimeout) {
+        this.$set(this.commonConfig, 'requestTimeout', 60000);
       }
-      if(!this.commonConfig.responseTimeout){
-        this.commonConfig.responseTimeout = 60000;
+      if (!this.commonConfig.responseTimeout) {
+        this.$set(this.commonConfig, 'responseTimeout', 60000);
       }
     }
   },
@@ -83,7 +86,7 @@ export default {
       return isValidate;
     }
   }
-}
+};
 </script>
 
 <style scoped>

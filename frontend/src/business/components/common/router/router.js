@@ -7,7 +7,7 @@ import Performance from "@/business/components/performance/router";
 import Track from "@/business/components/track/router";
 import ReportStatistics from "@/business/components/reportstatistics/router";
 import Project from "@/business/components/project/router";
-import {getCurrentUserId} from "@/common/js/utils";
+import {getCurrentUserId, hasPermissions} from "@/common/js/utils";
 
 // const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 // const Report = requireContext.keys().map(key => requireContext(key).report);
@@ -16,7 +16,7 @@ Vue.use(VueRouter);
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 const router = new VueRouter({
   routes: [
-    {path: "/", redirect: '/setting/personsetting'},
+    {path: "/", redirect: '/setting'},
     {
       path: "/sidebar",
       components: {
@@ -61,16 +61,25 @@ VueRouter.prototype.push = function push(location) {
 function redirectLoginPath(originPath) {
   let redirectUrl = sessionStorage.getItem('redirectUrl');
   let loginSuccess = sessionStorage.getItem('loginSuccess');
-  sessionStorage.setItem('redirectUrl', originPath);
-  // 换一个用户登录同一个浏览器，跳转到 /
-  if (getCurrentUserId() !== sessionStorage.getItem('lastUser')) {
-    sessionStorage.setItem('lastUser', getCurrentUserId());
-    redirectUrl = '/';
+
+  if (!redirectUrl || redirectUrl === '/') {
+    if (hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ')) {
+      redirectUrl = '/project/home';
+    } else if (hasPermissions('WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ')) {
+      redirectUrl = '/setting/project/:type';
+    } else if (hasPermissions('SYSTEM_USER:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_GROUP:READ', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_SETTING:READ', 'SYSTEM_AUTH:READ', 'SYSTEM_QUOTA:READ', 'SYSTEM_OPERATING_LOG:READ')) {
+      redirectUrl = '/setting';
+    } else {
+      redirectUrl = '/';
+    }
   }
+
   if (redirectUrl && loginSuccess) {
     sessionStorage.removeItem('loginSuccess');
     router.push(redirectUrl);
   }
+  sessionStorage.setItem('lastUser', getCurrentUserId());
+  sessionStorage.setItem('redirectUrl', originPath);
   sessionStorage.removeItem('loginSuccess');
 }
 

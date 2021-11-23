@@ -29,7 +29,7 @@
       </div>
 
 
-      <ms-jmx-step :request="api.request" :response="responseData"/>
+      <ms-jmx-step :request="api.request" :apiId="api.id" :response="responseData"/>
     </el-card>
 
     <!-- 加载用例 -->

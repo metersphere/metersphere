@@ -24,6 +24,7 @@
     AND t.api_case_id IN (
         SELECT id FROM api_test_case WHERE status IS NULL OR status != 'Trash'
         )
+    ORDER BY `order` DESC
   </select>
   <select id="list" resultType="io.metersphere.api.dto.definition.TestPlanApiCaseDTO">
     select
@@ -283,12 +284,11 @@
     inner join
     api_test_case c
     on t.api_case_id = c.id
-    and t.test_plan_id = #{planId}
     <if test="status != null">
       and t.status = 'error'
     </if>
-    where c.id IN
-    <foreach collection="caseIdList" item="id" separator="," open="(" close=")">
+    where t.id IN
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
       #{id}
     </foreach>
   </select>

@@ -24,7 +24,9 @@
         <el-button v-if="!isPlan && (!debug || exportFlag) && !isTemplate" v-permission="['PROJECT_API_REPORT:READ+EXPORT']" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)" style="margin-right: 10px">
           {{ $t('test_track.plan_view.export_report') }}
         </el-button>
-
+        <el-button v-if="showCancelButton" class="export-button" plain  size="mini" @click="returnView()" >
+          {{$t('commons.cancel')}}
+        </el-button>
       </el-col>
     </el-row>
   </header>
@@ -37,6 +39,10 @@ export default {
   props: {
     report: {},
     debug: Boolean,
+    showCancelButton: {
+      type: Boolean,
+      default: true,
+    },
     isTemplate: Boolean,
     exportFlag: {
       type: Boolean,
@@ -80,6 +86,9 @@ export default {
     handleSave(name) {
       this.nameIsEdit = false;
       this.$emit('reportSave', name);
+    },
+    returnView(){
+      this.$router.push('/api/automation/report');
     }
   }
 }

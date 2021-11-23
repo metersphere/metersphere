@@ -29,7 +29,7 @@
           class="ms-api-button"
           ref="environmentSelect"/>
         <!-- 主框架列表 -->
-        <el-tabs v-model="apiDefaultTab" @edit="handleTabRemove" @tab-click="addTab">
+        <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab">
           <el-tab-pane
             name="trash"
             :label="$t('commons.trash')" v-if="trashEnable">
@@ -387,7 +387,6 @@ export default {
       });
     },
     '$route'(to, from) {  //  路由改变时，把接口定义界面中的 ctrl s 保存快捷键监听移除
-      window.location.reload();
       if (to.path.indexOf('/api/definition') === -1) {
         if (this.$refs && this.$refs.apiConfig) {
           this.$refs.apiConfig.forEach(item => {
@@ -527,9 +526,57 @@ export default {
     },
     handleTabClose() {
       let tabs = this.apiTabs[0];
-      this.apiTabs = [];
-      this.apiDefaultTab = tabs.name;
-      this.apiTabs.push(tabs);
+      let message = "";
+      let tab = this.apiTabs;
+      delete tab[0];
+      tab.forEach(t => {
+        if (t.api && this.$store.state.apiMap.has(t.api.id) && (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
+          this.$store.state.apiMap.get(t.api.id).get("fromChange") === true)) {
+          message += t.api.name + "，";
+        }
+      })
+      if (message !== "") {
+        this.$alert("接口[ " + message.substr(0, message.length - 1) + " ]未保存，是否确认关闭全部？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.apiMap.clear();
+              this.apiTabs = [];
+              this.apiDefaultTab = tabs.name;
+              this.apiTabs.push(tabs);
+            }
+          }
+        });
+      } else {
+        this.apiTabs = [];
+        this.apiDefaultTab = tabs.name;
+        this.apiTabs.push(tabs);
+      }
+    },
+    closeConfirm(targetName) {
+      let tabs = this.apiTabs;
+      if(!tabs[1].api) {
+        this.handleTabRemove(targetName);
+      }
+       if (tabs[1].api && this.$store.state.apiMap.size > 0) {
+        if (this.$store.state.apiMap.get(tabs[1].api.id).get("responseChange") === true || this.$store.state.apiMap.get(tabs[1].api.id).get("requestChange") === true ||
+          this.$store.state.apiMap.get(tabs[1].api.id).get("fromChange") === true) {
+          this.$alert("接口[ " + tabs[1].api.name + " ]未保存，是否确认关闭？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$store.state.apiMap.delete(tabs[1].api.id);
+                this.handleTabRemove(targetName);
+              }
+            }
+          });
+        }
+      } else{
+        this.handleTabRemove(targetName);
+      }
+
     },
     handleTabRemove(targetName) {
       let tabs = this.apiTabs;
@@ -598,6 +645,19 @@ export default {
       let routeTestCase = this.$route.params.apiDefinition;
       if (routeTestCase) {
         this.editApi(routeTestCase)
+      }
+      let dataRange = this.$route.params.dataSelectRange;
+      let dataType = this.$route.params.dataType;
+      if(dataRange){
+        let selectParamArr = dataRange.split("edit:");
+        if (selectParamArr.length === 2) {
+          let scenarioId = selectParamArr[1];
+          if(dataType==='api'){
+            this.$get('/api/definition/get/' + scenarioId, (response) => {
+              this.editApi(response.data);
+            });
+          }
+        }
       }
     },
     editApi(row) {
@@ -750,7 +810,6 @@ export default {
 
 /deep/ .el-tabs__header {
   margin: 0 0 0px;
-  width: calc(100% - 200px);
 }
 
 /deep/ .el-card {
@@ -765,7 +824,7 @@ export default {
 
 .ms-api-button {
   position: absolute;
-  top: 92px;
+  top: 86px;
   right: 10px;
   padding: 0;
   background: 0 0;
@@ -774,5 +833,13 @@ export default {
   cursor: pointer;
   margin-right: 10px;
   font-size: 16px;
+  z-index: 1;
+}
+
+/deep/ .el-table__empty-block {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  padding-right: 100%;
 }
 </style>

@@ -34,13 +34,6 @@
           ref="table"
         >
     <span v-for="(item) in fields" :key="item.key">
-<!--          <ms-table-column
-           :label="$t('test_track.issue.id')"
-           prop="id"
-           :field="item"
-           :fields-width="fieldsWidth"
-           v-if="false">
-          </ms-table-column>-->
         <ms-table-column width="1">
         </ms-table-column>
           <ms-table-column
@@ -78,7 +71,8 @@
                   :label="$t('test_track.issue.platform_status') "
                   prop="platformStatus">
             <template v-slot="scope">
-              {{ scope.row.platformStatus ? scope.row.platformStatus : '--'}}
+              <span v-if="scope.row.platform ==='Zentao'">{{ scope.row.platformStatus ? issueStatusMap[scope.row.platformStatus] : '--'}}</span>
+              <span v-else>{{ scope.row.platformStatus ? scope.row.platformStatus : '--'}}</span>
             </template>
           </ms-table-column>
 
@@ -167,9 +161,7 @@ import MsTableOperators from "@/business/components/common/components/MsTableOpe
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {
-  CUSTOM_FIELD_SCENE_OPTION,
-  CUSTOM_FIELD_TYPE_OPTION,
-  FIELD_TYPE_MAP, ISSUE_PLATFORM_OPTION,
+  ISSUE_PLATFORM_OPTION,
   ISSUE_STATUS_MAP,
   SYSTEM_FIELD_NAME_MAP
 } from "@/common/js/table-constants";
@@ -180,14 +172,13 @@ import {getIssues, syncIssues} from "@/network/Issue";
 import {
   getCustomFieldValue,
   getCustomTableWidth,
-  getPageInfo, getTableHeaderWithCustomFields,saveLastTableSortField,getLastTableSortField
+  getPageInfo, getTableHeaderWithCustomFields, getLastTableSortField
 } from "@/common/js/tableUtils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
 import {getProjectMember} from "@/network/user";
-import {post} from "@/common/js/ajax";
 
 export default {
   name: "IssueList",
@@ -255,22 +246,13 @@ export default {
             }
           }
         }
-        this.$refs.table.reloadTable();
+        if (this.$refs.table) this.$refs.table.reloadTable();
       });
     this.getIssues();
   },
   computed: {
-    fieldFilters() {
-      return CUSTOM_FIELD_TYPE_OPTION;
-    },
     platformFilters() {
      return ISSUE_PLATFORM_OPTION;
-    },
-    sceneFilters() {
-      return CUSTOM_FIELD_SCENE_OPTION;
-    },
-    fieldTypeMap() {
-      return FIELD_TYPE_MAP;
     },
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
@@ -281,21 +263,23 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
-
-
+    workspaceId(){
+      return getCurrentWorkspaceId();
+    }
   },
   created() {
     this.getMaintainerOptions();
   },
   methods: {
     tableDoLayout() {
-      this.$refs.table.doLayout();
+      if (this.$refs.table) this.$refs.table.doLayout();
     },
     getCustomFieldValue(row, field) {
       return getCustomFieldValue(row, field, this.members);
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
+      this.page.condition.workspaceId= this.workspaceId;
       this.page.condition.orders = getLastTableSortField(this.tableHeaderKey);
       this.page.result = getIssues(this.page);
     },

@@ -6,9 +6,9 @@
           <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
                      @change="getResource(currentInstance)">
             <el-option
-                v-for="item in instances"
-                :key="item.ip+item.port"
-                :value="item.ip+':'+item.port">
+              v-for="item in instances"
+              :key="item.ip+item.port"
+              :value="item.ip+':'+item.port">
               {{ item.ip }} {{ item.name }}
             </el-option>
           </el-select>
@@ -36,47 +36,47 @@
         <el-row>
           <el-col :offset="2" :span="20">
             <el-table
-                :data="tableData"
-                stripe
-                border
-                style="width: 100%">
+              :data="tableData"
+              stripe
+              border
+              style="width: 100%">
               <el-table-column label="Label" align="center">
                 <el-table-column
-                    prop="label"
-                    label="Label"
-                    sortable>
+                  prop="label"
+                  label="Label"
+                  sortable>
                 </el-table-column>
               </el-table-column>
               <el-table-column label="Aggregate" align="center">
                 <el-table-column
-                    prop="avg"
-                    label="Avg."
-                    width="100"
-                    sortable
+                  prop="avg"
+                  label="Avg."
+                  width="100"
+                  sortable
                 />
                 <el-table-column
-                    prop="min"
-                    label="Min."
-                    width="100"
-                    sortable
+                  prop="min"
+                  label="Min."
+                  width="100"
+                  sortable
                 />
                 <el-table-column
-                    prop="max"
-                    label="Max."
-                    width="100"
-                    sortable
+                  prop="max"
+                  label="Max."
+                  width="100"
+                  sortable
                 />
               </el-table-column>
               <el-table-column label="Range" align="center">
                 <el-table-column
-                    prop="startTime"
-                    label="Start"
-                    width="160"
+                  prop="startTime"
+                  label="Start"
+                  width="160"
                 />
                 <el-table-column
-                    prop="endTime"
-                    label="End"
-                    width="160"
+                  prop="endTime"
+                  label="End"
+                  width="160"
                 />
               </el-table-column>
             </el-table>
@@ -204,6 +204,10 @@ export default {
           this.instances = response.data.data;
           if (currentInstance) {
             this.currentInstance = currentInstance;
+            this.showChart = false;
+            this.$nextTick(() => {
+              this.showChart = true;
+            });
           } else {
             this.currentInstance = this.currentInstance || this.instances[0].ip + ":" + this.instances[0].port;
           }
@@ -222,13 +226,13 @@ export default {
     },
     handleChecked(id) {
       let curr = this.instances.filter(instance => id === instance.ip + ":" + instance.port)[0];
-      if (curr.monitorConfig) {
+      if (curr && curr.monitorConfig) {
         this.checkList = [];
         this.checkOptions = curr.monitorConfig.filter(mc => mc.value && mc.name)
-            .map(mc => {
-              this.checkList.push(mc.name);
-              return {key: mc.name, label: mc.name,};
-            });
+          .map(mc => {
+            this.checkList.push(mc.name);
+            return {key: mc.name, label: mc.name,};
+          });
         if (this.checkList.length === 0) {
           this.checkList = checkList;
           this.checkOptions = checkOptions;
@@ -238,9 +242,7 @@ export default {
         this.checkList = checkList;
       }
       this.totalOption = {};
-      this.showChart = false;
       this.$nextTick(() => {
-        this.showChart = true;
         this.totalOption = this.getOption(id);
         this.changeDataZoom({start: 0, end: 100});
       });

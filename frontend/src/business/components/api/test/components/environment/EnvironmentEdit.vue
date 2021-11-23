@@ -1,9 +1,8 @@
 <template>
   <el-main v-loading="result.loading" class="environment-edit" style="margin-left: 0px">
-    <el-form :model="environment" :rules="rules" ref="environment">
+    <el-form :model="environment" :rules="rules" ref="environment" label-width="80px">
 
-      <span>{{$t('api_test.environment.name')}}</span>
-      <el-form-item prop="name">
+      <el-form-item prop="name" :label="$t('api_test.environment.name')">
         <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')" clearable/>
       </el-form-item>
 
@@ -26,29 +25,49 @@
         <el-tab-pane :label="$t('commons.ssl.config')" name="ssl">
           <ms-environment-s-s-l-config :project-id="projectId" :ssl-config="environment.config.sslConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
-        <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="prescript">
-          <el-switch v-model="environment.config.preProcessor.connScenario" active-text="关联场景结果"
-            style="margin: 5px 5px 5px 5px"/>
-          <el-tooltip class="item" effect="dark" content="脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果" placement="right">
-            <i class="el-icon-info"/>
-          </el-tooltip>
+<!--        <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="prescript">-->
+<!--          <el-switch v-model="environment.config.preProcessor.connScenario" active-text="关联场景结果"-->
+<!--            style="margin: 5px 5px 5px 5px"/>-->
+<!--          <el-tooltip class="item" effect="dark" content="脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果" placement="right">-->
+<!--            <i class="el-icon-info"/>-->
+<!--          </el-tooltip>-->
 
-          <jsr233-processor-content v-if="isRefresh"
-                                    :jsr223-processor="environment.config.preProcessor"
-                                    :is-pre-processor="true"
-                                    :is-read-only="isReadOnly"/>
+<!--          <jsr233-processor-content v-if="isRefresh"-->
+<!--                                    :jsr223-processor="environment.config.preProcessor"-->
+<!--                                    :is-pre-processor="true"-->
+<!--                                    :is-read-only="isReadOnly"/>-->
+<!--        </el-tab-pane>-->
+        <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="prescript">
+          <environment-global-script v-if="isRefresh && environment.config.globalScriptConfig && environment.config.preProcessor && environment.config.preStepProcessor"
+                                     :filter-request.sync="environment.config.globalScriptConfig.filterRequestPreScript"
+                                     :exec-after-private-script.sync="environment.config.globalScriptConfig.isPreScriptExecAfterPrivateScript"
+                                     :conn-scenario.sync="environment.config.globalScriptConfig.connScenarioPreScript"
+                                      :script-processor="environment.config.preProcessor"
+                                      :scrpit-step-processor="environment.config.preStepProcessor"
+                                      :is-pre-processor="true"
+                                      :is-read-only="isReadOnly"
+                                     @updateGlobalScript="updateGlobalScript"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_post_script')" name="postscript">
-          <el-switch v-model="environment.config.postProcessor.connScenario" active-text="关联场景结果"
-                     style="margin: 5px 5px 5px 5px"/>
-          <el-tooltip class="item" effect="dark" content="脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果" placement="right">
-            <i class="el-icon-info"/>
-          </el-tooltip>
+          <environment-global-script v-if="isRefresh && environment.config.globalScriptConfig && environment.config.postProcessor && environment.config.postStepProcessor"
+                                     :filter-request.sync="environment.config.globalScriptConfig.filterRequestPostScript"
+                                     :exec-after-private-script.sync="environment.config.globalScriptConfig.isPostScriptExecAfterPrivateScript"
+                                     :conn-scenario.sync="environment.config.globalScriptConfig.connScenarioPostScript"
+                                     :script-processor="environment.config.postProcessor"
+                                     :scrpit-step-processor="environment.config.postStepProcessor"
+                                     :is-pre-processor="false"
+                                     :is-read-only="isReadOnly"
+                                     @updateGlobalScript="updateGlobalScript"/>
+<!--          <el-switch v-model="environment.config.postProcessor.connScenario" active-text="关联场景结果"-->
+<!--                     style="margin: 5px 5px 5px 5px"/>-->
+<!--          <el-tooltip class="item" effect="dark" content="脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果" placement="right">-->
+<!--            <i class="el-icon-info"/>-->
+<!--          </el-tooltip>-->
 
-          <jsr233-processor-content  v-if="isRefresh"
-                                     :jsr223-processor="environment.config.postProcessor"
-            :is-pre-processor="false"
-            :is-read-only="false"/>
+<!--          <jsr233-processor-content  v-if="isRefresh"-->
+<!--                                     :jsr223-processor="environment.config.postProcessor"-->
+<!--            :is-pre-processor="false"-->
+<!--            :is-read-only="false"/>-->
         </el-tab-pane>
         <!-- 认证配置 -->
         <el-tab-pane :label="$t('api_test.definition.request.all_auth_config')" name="authConfig" v-if="isRefresh">
@@ -79,12 +98,11 @@
   import MsEnvironmentCommonConfig from "./EnvironmentCommonConfig";
   import MsEnvironmentSSLConfig from "./EnvironmentSSLConfig";
   import MsApiAuthConfig from "@/business/components/api/definition/components/auth/ApiAuthConfig";
-
   import MsTcpConfig from "@/business/components/api/test/components/request/tcp/TcpConfig";
   import {getUUID} from "@/common/js/utils";
   import Jsr233ProcessorContent from "@/business/components/api/automation/scenario/common/Jsr233ProcessorContent";
   import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
-  import {KeyValue} from "@/business/components/api/test/model/ScenarioModel";
+  import EnvironmentGlobalScript from "@/business/components/api/test/components/environment/EnvironmentGlobalScript";
 
   export default {
     name: "EnvironmentEdit",
@@ -95,6 +113,7 @@
       MsEnvironmentCommonConfig,
       MsEnvironmentHttpConfig,
       MsEnvironmentSSLConfig,
+      EnvironmentGlobalScript,
       MsDatabaseConfig, MsApiHostTable, MsDialogFooter, MsApiKeyValue, MsApiScenarioVariables
     },
     props: {
@@ -124,22 +143,34 @@
       if(!this.environment.config.preProcessor){
         this.environment.config.preProcessor = createComponent("JSR223PreProcessor");
       }
-      if(!this.environment.config.preProcessor.connScenario){
-        this.environment.config.preProcessor.connScenario = false;
-      }
       if(!this.environment.config.postProcessor){
         this.environment.config.postProcessor = createComponent("JSR223PostProcessor");
       }
-      if(!this.environment.config.postProcessor.connScenario){
-        this.environment.config.postProcessor.connScenario = false;
+      if(!this.environment.config.preStepProcessor){
+        this.environment.config.preStepProcessor = createComponent("JSR223PreProcessor");
       }
+      if(!this.environment.config.postStepProcessor){
+        this.environment.config.postStepProcessor = createComponent("JSR223PostProcessor");
+      }
+      if(!this.environment.config.globalScriptConfig){
+        this.environment.config.globalScriptConfig = {
+          filterRequestPreScript:[],
+          filterRequestPostScript:[],
+          isPreScriptExecAfterPrivateScript:false,
+          isPostScriptExecAfterPrivateScript:false,
+          connScenarioPreScript:false,
+          connScenarioPostScript:false,
+        };
+      }
+      // if(!this.environment.config.postProcessor.connScenario){
+      //   this.environment.config.postProcessor.connScenario = false;
+      // }
       if(!this.environment.config.authManager){
         this.environment.config.authManager = {'hashTree':[]};
       }
       if(!this.environment.config.authManager.hashTree){
         this.environment.config.authManager.hashTree = [];
       }
-
     },
 
     watch: {
@@ -156,11 +187,21 @@
             this.environment.config.postProcessor.script = "";
           }
         }
-        if(!this.environment.config.preProcessor.connScenario){
-          this.environment.config.preProcessor.connScenario = false;
+        if(!this.environment.config.preStepProcessor){
+          this.environment.config.preStepProcessor = createComponent("JSR223PreProcessor");
         }
-        if(!this.environment.config.postProcessor.connScenario){
-          this.environment.config.postProcessor.connScenario = false;
+        if(!this.environment.config.postStepProcessor){
+          this.environment.config.postStepProcessor = createComponent("JSR223PostProcessor");
+        }
+        if(!this.environment.config.globalScriptConfig){
+          this.environment.config.globalScriptConfig = {
+            filterRequestPreScript:[],
+            filterRequestPostScript:[],
+            isPreScriptExecAfterPrivateScript:false,
+            isPostScriptExecAfterPrivateScript:false,
+            connScenarioPreScript:false,
+            connScenarioPostScript:false,
+          };
         }
 
         if(!this.environment.config.authManager){
@@ -178,6 +219,25 @@
       }
     },
     methods: {
+      updateGlobalScript(isPreScript,filedName,value){
+        if(isPreScript){
+          if(filedName === "connScenario"){
+            this.environment.config.globalScriptConfig.connScenarioPreScript = value;
+          }else if(filedName === "execAfterPrivateScript"){
+            this.environment.config.globalScriptConfig.isPreScriptExecAfterPrivateScript = value;
+          }else if(filedName === "filterRequest"){
+            this.environment.config.globalScriptConfig.filterRequestPreScript = value;
+          }
+        }else {
+          if(filedName === "connScenario"){
+            this.environment.config.globalScriptConfig.connScenarioPostScript = value;
+          }else if(filedName === "execAfterPrivateScript"){
+            this.environment.config.globalScriptConfig.isPostScriptExecAfterPrivateScript = value;
+          }else if(filedName === "filterRequest"){
+            this.environment.config.globalScriptConfig.filterRequestPostScript = value;
+          }
+        }
+      },
       save() {
         this.$refs['environment'].validate((valid) => {
           if (valid && this.$refs.commonConfig.validate() && this.$refs.httpConfig.validate()) {
@@ -285,8 +345,7 @@
     border: solid 1px #EBEEF5;
     margin-left: 200px;
     min-height: 400px;
-    max-height: 700px;
-
+    max-height: 550px;
   }
 
   .el-row {

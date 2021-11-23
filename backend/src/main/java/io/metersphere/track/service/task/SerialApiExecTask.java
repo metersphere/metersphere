@@ -34,14 +34,18 @@ public class SerialApiExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
-            if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+            if (runModeDataDTO.getReport() != null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
                 MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                 return null;
             }
             if (config != null && StringUtils.isNotBlank(config.getResourcePoolId())) {
                 jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getApiCaseId(), runMode, null, config);
             } else {
-                jMeterService.runLocal(runModeDataDTO.getApiCaseId(), runModeDataDTO.getHashTree(), runModeDataDTO.getReport() != null ? runModeDataDTO.getReport().getTriggerMode() : null, runMode);
+                String debugId = runModeDataDTO.getDebugReportId();
+                if(debugId == null){
+                    debugId = runModeDataDTO.getReport() != null ? runModeDataDTO.getReport().getTriggerMode() : null;
+                }
+                jMeterService.runLocal(runModeDataDTO.getApiCaseId()+":"+debugId, config, runModeDataDTO.getHashTree(), debugId, runMode);
             }
             // 轮询查看报告状态，最多200次，防止死循环
             ApiDefinitionExecResult report = null;
@@ -49,11 +53,11 @@ public class SerialApiExecTask<T> implements Callable<T> {
             while (index < 200) {
                 Thread.sleep(3000);
                 index++;
-                report = mapper.selectByPrimaryKey(runModeDataDTO.getApiCaseId());
+                 report = mapper.selectByPrimaryKey(runModeDataDTO.getApiCaseId());
                 if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
                     break;
                 }
-                if (runModeDataDTO.getReport()!=null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                if (runModeDataDTO.getReport() != null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
                     MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                     break;
                 }

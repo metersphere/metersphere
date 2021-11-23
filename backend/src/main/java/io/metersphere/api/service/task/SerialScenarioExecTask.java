@@ -37,21 +37,27 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                 MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                 return null;
             }
-            String testId;
+            String reportId;
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 String testPlanScenarioId = "";
                 if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(runModeDataDTO.getTestId())) {
-                    testPlanScenarioId = request.getScenarioTestPlanIdMap().get(runModeDataDTO.getTestId());
+                    testPlanScenarioId = runModeDataDTO.getTestId();
+                    String scenarioId = request.getScenarioTestPlanIdMap().get(runModeDataDTO.getTestId());
+                    runModeDataDTO.setTestId(scenarioId);
                 } else {
                     testPlanScenarioId = request.getPlanScenarioId();
                 }
-                testId = runModeDataDTO.getTestId();
-                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), testPlanScenarioId, request.getConfig());
+                if(runModeDataDTO.getReport()!= null){
+                    reportId = runModeDataDTO.getReport().getId();
+                }else {
+                    reportId = runModeDataDTO.getTestId();
+                }
+                jMeterService.runTest(runModeDataDTO.getTestId(), reportId, request.getRunMode(), testPlanScenarioId, request.getConfig());
             } else {
-                testId = runModeDataDTO.getReport().getId();
-                jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
+                reportId = runModeDataDTO.getReport().getId();
+                jMeterService.runLocal(runModeDataDTO.getReport().getId(),request.getConfig(), runModeDataDTO.getHashTree(), TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
             }
-            while (MessageCache.executionQueue.containsKey(testId)) {
+            while (MessageCache.executionQueue.containsKey(reportId)) {
                 long time = MessageCache.executionQueue.get(runModeDataDTO.getReport().getId());
                 long currentSecond = (System.currentTimeMillis() - time) / 1000 / 60;
                 // 设置五分钟超时
@@ -64,8 +70,8 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                     }
                     break;
                 }
-                if (runModeDataDTO.getReport() != null && MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
-                    MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
+                if (MessageCache.terminationOrderDeque.contains(reportId)) {
+                    MessageCache.terminationOrderDeque.remove(reportId);
                     break;
                 }
                 Thread.sleep(1000);

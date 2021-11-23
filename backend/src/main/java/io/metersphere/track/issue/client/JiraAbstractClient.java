@@ -1,11 +1,14 @@
 package io.metersphere.track.issue.client;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.track.issue.domain.Jira.JiraAddIssueResponse;
-import io.metersphere.track.issue.domain.Jira.JiraConfig;
-import io.metersphere.track.issue.domain.Jira.JiraField;
-import io.metersphere.track.issue.domain.Jira.JiraIssue;
+import io.metersphere.track.issue.domain.jira.JiraAddIssueResponse;
+import io.metersphere.track.issue.domain.jira.JiraConfig;
+import io.metersphere.track.issue.domain.jira.JiraField;
+import io.metersphere.track.issue.domain.jira.JiraIssue;
+import io.metersphere.track.issue.domain.jira.JiraIssueListResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
@@ -30,6 +33,15 @@ public abstract class JiraAbstractClient extends BaseClient {
         ResponseEntity<String> responseEntity;
         responseEntity = restTemplate.exchange(getBaseUrl() + "/issue/" + issuesId, HttpMethod.GET, getAuthHttpEntity(), String.class);
         return  (JiraIssue) getResultForObject(JiraIssue.class, responseEntity);
+    }
+
+    public JSONArray getDemands(String projectKey, String issueType, int startAt, int maxResults) {
+        String jql = getBaseUrl() + "/search?jql=project=" + projectKey + "+AND+issuetype=" + issueType
+                + "&maxResults=" + maxResults + "&startAt=" + startAt + "&fields=summary,issuetype";
+        ResponseEntity<String> responseEntity = restTemplate.exchange(jql,
+                HttpMethod.GET, getAuthHttpEntity(), String.class);
+        JSONObject jsonObject = JSONObject.parseObject(responseEntity.getBody());
+        return jsonObject.getJSONArray("issues");
     }
 
     public List<JiraField> getFields() {
@@ -123,5 +135,12 @@ public abstract class JiraAbstractClient extends BaseClient {
         ENDPOINT = url;
         USER_NAME = config.getAccount();
         PASSWD = config.getPassword();
+    }
+
+    public JiraIssueListResponse getProjectIssues(int startAt, int maxResults, String projectKey, String issueType) {
+        ResponseEntity<String> responseEntity;
+        responseEntity = restTemplate.exchange(getBaseUrl() + "/search?startAt={1}&maxResults={2}&jql=project={3}+AND+issuetype={4}", HttpMethod.GET, getAuthHttpEntity(), String.class,
+                startAt, maxResults, projectKey, issueType);
+        return  (JiraIssueListResponse)getResultForObject(JiraIssueListResponse.class, responseEntity);
     }
 }

@@ -15,31 +15,61 @@
     <div class="assertion-add" :draggable="draggable">
       <el-row :gutter="10">
         <el-col :span="4">
-          <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
-                     :placeholder="$t('api_test.request.assertions.select_type')"
-                     size="small">
+          <el-select :disabled="isReadOnly" class="assertion-item" v-model="type" :placeholder="$t('api_test.request.assertions.select_type')" size="small">
             <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
             <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
             <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
             <el-option :label="'XPath'" :value="options.XPATH2"/>
             <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.DURATION"/>
             <el-option :label="$t('api_test.request.assertions.jsr223')" :value="options.JSR223"/>
+            <el-option :label="$t('api_test.definition.request.document_structure')" :value="options.DOCUMENT"/>
           </el-select>
         </el-col>
         <el-col :span="20">
-          <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
-                                 :callback="after"/>
-
-          <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"
-                                  :callback="after"/>
-          <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath"
-                                      v-if="type === options.JSON_PATH" :callback="after"/>
-          <ms-api-assertion-x-path2 :is-read-only="isReadOnly" :list="assertions.xpath2" v-if="type === options.XPATH2"
-                                    :callback="after"/>
-          <ms-api-assertion-duration :is-read-only="isReadOnly" v-model="time" :duration="assertions.duration"
-                                     v-if="type === options.DURATION" :callback="after"/>
-          <ms-api-assertion-jsr223 :is-read-only="isReadOnly" :list="assertions.jsr223" v-if="type === options.JSR223"
-                                   :callback="after"/>
+          <ms-api-assertion-text
+            :is-read-only="isReadOnly"
+            :list="assertions.regex"
+            :callback="after"
+            v-if="type === options.TEXT"
+          />
+          <ms-api-assertion-regex
+            :is-read-only="isReadOnly"
+            :list="assertions.regex"
+            :callback="after"
+            v-if="type === options.REGEX"
+          />
+          <ms-api-assertion-json-path
+            :is-read-only="isReadOnly"
+            :list="assertions.jsonPath"
+            :callback="after"
+            v-if="type === options.JSON_PATH"
+          />
+          <ms-api-assertion-x-path2
+            :is-read-only="isReadOnly"
+            :list="assertions.xpath2"
+            :callback="after"
+            v-if="type === options.XPATH2"
+          />
+          <ms-api-assertion-duration
+            v-model="time"
+            :is-read-only="isReadOnly"
+            :duration="assertions.duration"
+            :callback="after"
+            v-if="type === options.DURATION"
+          />
+          <ms-api-assertion-jsr223
+            :is-read-only="isReadOnly"
+            :list="assertions.jsr223"
+            :callback="after"
+            v-if="type === options.JSR223"
+          />
+          <ms-api-assertion-document
+            :is-read-only="isReadOnly"
+            v-model="time"
+            :document="assertions.document"
+            :callback="after"
+            v-if="type === options.DOCUMENT"
+          />
           <el-button v-if="!type" :disabled="true" type="primary" size="small">
             {{ $t('api_test.request.assertions.add') }}
           </el-button>
@@ -47,12 +77,23 @@
       </el-row>
     </div>
 
-    <api-json-path-suggest-button :open-tip="$t('api_test.request.assertions.json_path_suggest')"
-                                  :clear-tip="$t('api_test.request.assertions.json_path_clear')" @open="suggestJsonOpen" @clear="clearJson"/>
+    <api-json-path-suggest-button
+      :open-tip="$t('api_test.request.assertions.json_path_suggest')"
+      :clear-tip="$t('api_test.request.assertions.json_path_clear')"
+      @open="suggestJsonOpen"
+      @clear="clearJson"/>
 
-    <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions" :reloadData="reloadData" style="margin-bottom: 20px"/>
+    <ms-api-assertions-edit
+      :is-read-only="isReadOnly"
+      :assertions="assertions"
+      :apiId="apiId"
+      :reloadData="reloadData"
+      style="margin-bottom: 20px"/>
 
-    <ms-api-jsonpath-suggest :tip="$t('api_test.request.extract.suggest_tip')" @addSuggest="addJsonPathSuggest" ref="jsonpathSuggest"/>
+    <ms-api-jsonpath-suggest
+      :tip="$t('api_test.request.extract.suggest_tip')"
+      @addSuggest="addJsonPathSuggest"
+      ref="jsonpathSuggest"/>
 
   </api-base-component>
 </template>
@@ -71,6 +112,7 @@ import {getUUID} from "@/common/js/utils";
 import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
 import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
 import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
+import MsApiAssertionDocument from "./document/DocumentHeader";
 
 export default {
   name: "MsApiAssertions",
@@ -82,7 +124,11 @@ export default {
     MsApiAssertionJsr223,
     MsApiJsonpathSuggestList,
     MsApiAssertionJsonPath,
-    MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
+    MsApiAssertionsEdit,
+    MsApiAssertionDuration,
+    MsApiAssertionRegex,
+    MsApiAssertionText,
+    MsApiAssertionDocument,
   },
   props: {
     draggable: {
@@ -100,6 +146,7 @@ export default {
     assertions: {},
     node: {},
     request: {},
+    apiId: String,
     response: {},
     customizeStyle: {
       type: String,

@@ -61,7 +61,7 @@
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
-import {CUSTOM_FIELD_SCENE_OPTION, ISSUE_PLATFORM_OPTION, ISSUE_STATUS_MAP} from "@/common/js/table-constants";
+import {ISSUE_PLATFORM_OPTION, ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import {getIssuesByPlanId, getShareIssuesByPlanId} from "@/network/Issue";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 export default {

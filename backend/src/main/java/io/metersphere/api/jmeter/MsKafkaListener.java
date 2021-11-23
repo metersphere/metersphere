@@ -50,7 +50,6 @@ public class MsKafkaListener {
                 return element;
             }
         } catch (Exception e) {
-            e.printStackTrace();
             LogUtil.error(e);
         }
         return null;

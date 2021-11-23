@@ -102,17 +102,17 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             jmterHashTree(testPlan, scenario);
             this.projectId = request.getProjectId();
             ScenarioImport scenarioImport = new ScenarioImport();
-            scenarioImport.setData(paseObj(scenario, request));
+            scenarioImport.setData(parseObj(scenario, request));
             scenarioImport.setProjectId(request.getProjectId());
             return scenarioImport;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
             MSException.throwException("当前JMX版本不兼容");
         }
         return null;
     }
 
-    private List<ApiScenarioWithBLOBs> paseObj(MsScenario msScenario, ApiTestImportRequest request) {
+    private List<ApiScenarioWithBLOBs> parseObj(MsScenario msScenario, ApiTestImportRequest request) {
         List<ApiScenarioWithBLOBs> scenarioWithBLOBsList = new ArrayList<>();
         ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
         ApiScenarioModule selectModule = null;
@@ -315,7 +315,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             body.getBinary().add(new KeyValue());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 
@@ -530,7 +530,9 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             RegexExtractor regexExtractor = (RegexExtractor) key;
             if (regexExtractor.useRequestHeaders()) {
                 regex.setUseHeaders("request_headers");
-            } else if (regexExtractor.useBody()) {
+            }if (regexExtractor.useHeaders()) {
+                regex.setUseHeaders("true");
+            } if (regexExtractor.useBody()) {
                 regex.setUseHeaders("false");
             } else if (regexExtractor.useUnescapedBody()) {
                 regex.setUseHeaders("unescaped");
@@ -641,7 +643,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             SaveService.saveElement(obj, baos);
             return baos.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
             LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
         }
         return null;

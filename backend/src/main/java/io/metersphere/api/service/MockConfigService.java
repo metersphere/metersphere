@@ -10,11 +10,11 @@ import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.mock.MockApiUtils;
+import io.metersphere.api.dto.mock.MockParamSuggestions;
 import io.metersphere.api.dto.mock.RequestMockParams;
 import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
-import io.metersphere.api.dto.mockconfig.response.JsonSchemaReturnObj;
 import io.metersphere.api.dto.mockconfig.response.MockConfigResponse;
 import io.metersphere.api.dto.mockconfig.response.MockExpectConfigResponse;
 import io.metersphere.base.domain.*;
@@ -44,6 +44,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -109,15 +110,38 @@ public class MockConfigService {
                 expectConfigResponseList.add(response);
 
             }
-            MockConfigResponse returnRsp = new MockConfigResponse(config, expectConfigResponseList);
-            return returnRsp;
+            return new MockConfigResponse(config, expectConfigResponseList);
         } else {
             return new MockConfigResponse(null, new ArrayList<>());
         }
     }
 
+    public void initExpectNum(){
+        MockExpectConfigExample example = new MockExpectConfigExample();
+        example.createCriteria().andExpectNumIsNull();
+        List<MockExpectConfigWithBLOBs> mockExpectConfigList = mockExpectConfigMapper.selectByExampleWithBLOBs(example);
+
+        Map<String,List<MockExpectConfigWithBLOBs>> mockConfigIdMap = mockExpectConfigList.stream().collect(Collectors.groupingBy(MockExpectConfig::getMockConfigId));
+        for (Map.Entry<String, List<MockExpectConfigWithBLOBs>> entry :
+                mockConfigIdMap.entrySet()) {
+            String mockConfigId = entry.getKey();
+            List<MockExpectConfigWithBLOBs> list = entry.getValue();
+            String apiNum = extMockExpectConfigMapper.selectApiNumberByMockConfigId(mockConfigId);
+            if(StringUtils.isEmpty(apiNum) || StringUtils.equalsIgnoreCase(apiNum,"null")){
+                continue;
+            }
+            int expectNumIndex = this.getMockExpectNumIndex(mockConfigId,apiNum);
+            for (MockExpectConfigWithBLOBs config : list) {
+                config.setExpectNum(apiNum+"_"+expectNumIndex);
+                mockExpectConfigMapper.updateByPrimaryKeySelective(config);
+                expectNumIndex ++;
+            }
+        }
+
+    }
+
     public MockConfigResponse genMockConfig(MockConfigRequest request) {
-        MockConfigResponse returnRsp = null;
+        MockConfigResponse returnRsp;
 
         MockConfigExample example = new MockConfigExample();
         MockConfigExample.Criteria criteria = example.createCriteria();
@@ -193,8 +217,11 @@ public class MockConfigService {
             this.checkNameIsExists(request);
         }
         long timeStmp = System.currentTimeMillis();
+
+        String expectNum = this.getMockExpectId(request.getMockConfigId());
         MockExpectConfigWithBLOBs model = new MockExpectConfigWithBLOBs();
         model.setId(request.getId());
+        model.setExpectNum(expectNum);
         model.setMockConfigId(request.getMockConfigId());
         model.setUpdateTime(timeStmp);
         model.setStatus(request.getStatus());
@@ -221,6 +248,54 @@ public class MockConfigService {
         }
         FileUtils.createBodyFiles(model.getId(), bodyFiles);
         return model;
+    }
+
+    private String getMockExpectId(String mockConfigId) {
+        List<String> savedExpectNumber = extMockExpectConfigMapper.selectExlectNumByMockConfigId(mockConfigId);
+        String apiNum = extMockExpectConfigMapper.selectApiNumberByMockConfigId(mockConfigId);
+        if(StringUtils.isEmpty(apiNum)){
+            apiNum = "";
+        }else {
+            apiNum = apiNum + "_";
+        }
+
+        int index = 1;
+        for(String expectNum : savedExpectNumber){
+            if(StringUtils.startsWith(expectNum,apiNum)){
+                String numStr = StringUtils.substringAfter(expectNum,apiNum);
+                try{
+                    int savedIndex = Integer.parseInt(numStr);
+                    if(index <= savedIndex){
+                        index = savedIndex+1;
+                    }
+                }catch (Exception ignored){}
+            }
+        }
+        return apiNum + index;
+    }
+
+    private int getMockExpectNumIndex(String mockConfigId,String apiNumber) {
+        List<String> savedExpectNumber = extMockExpectConfigMapper.selectExlectNumByMockConfigId(mockConfigId);
+        String apiNum = apiNumber;
+        if(StringUtils.isEmpty(apiNum)){
+            apiNum = "";
+        }else {
+            apiNum = apiNum + "_";
+        }
+
+        int index = 1;
+        for(String expectNum : savedExpectNumber){
+            if(StringUtils.startsWith(expectNum,apiNum)){
+                String numStr = StringUtils.substringAfter(expectNum,apiNum);
+                try{
+                    int savedIndex = Integer.parseInt(numStr);
+                    if(index <= savedIndex){
+                        index = savedIndex+1;
+                    }
+                }catch (Exception ignored ){}
+            }
+        }
+        return index;
     }
 
     private void checkNameIsExists(MockExpectConfigRequest request) {
@@ -259,19 +334,19 @@ public class MockConfigService {
                     continue;
                 }
                 JSONObject mockExpectRequestObj = model.getRequest();
-                boolean mathing = false;
+                boolean isMatch;
                 if (mockExpectRequestObj.containsKey("params")) {
-                    mathing = this.isRequestMockExpectMatchingByParams(requestHeaderMap, mockExpectRequestObj, requestMockParams);
+                    isMatch = this.isRequestMockExpectMatchingByParams(requestHeaderMap, mockExpectRequestObj, requestMockParams);
                 } else {
-                    mathing = this.isRequestMockExpectMatching(mockExpectRequestObj, requestMockParams.getQueryParamsObj());
+                    isMatch = this.isRequestMockExpectMatching(mockExpectRequestObj, requestMockParams);
                 }
 
-                if (mathing) {
+                if (isMatch) {
                     returnModel = model;
                     break;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return returnModel;
@@ -284,14 +359,11 @@ public class MockConfigService {
             JSONArray headerArr = expectParamsObj.getJSONArray("headers");
             for (int i = 0; i < headerArr.size(); i++) {
                 JSONObject jsonObject = headerArr.getJSONObject(i);
-                if (jsonObject.containsKey("enable") && jsonObject.containsKey("name") && jsonObject.containsKey("value")) {
-                    boolean isEnable = jsonObject.getBoolean("enable");
-                    if (isEnable) {
-                        String headerName = jsonObject.getString("name");
-                        String headerValue = jsonObject.getString("value");
-                        if (!requestHeaderMap.containsKey(headerName) || !StringUtils.equals(requestHeaderMap.get(headerName), headerValue)) {
-                            return false;
-                        }
+                if (jsonObject.containsKey("name") && jsonObject.containsKey("value")) {
+                    String headerName = jsonObject.getString("name");
+                    String headerValue = jsonObject.getString("value");
+                    if (!requestHeaderMap.containsKey(headerName) || !StringUtils.equals(requestHeaderMap.get(headerName), headerValue)) {
+                        return false;
                     }
                 }
             }
@@ -299,10 +371,17 @@ public class MockConfigService {
 
         if(expectParamsObj.containsKey("body")){
             JSONObject expectBodyObject = expectParamsObj.getJSONObject("body");
-            JSONArray mockExpectJsonArray = MockApiUtils.getExpectBodyParams(expectBodyObject);
+            JSON mockExpectJsonArray = MockApiUtils.getExpectBodyParams(expectBodyObject);
             JSONArray jsonArray = requestMockParams.getBodyParams();
-            if(!JsonStructUtils.checkJsonArrayCompliance(jsonArray, mockExpectJsonArray)){
-                return false;
+
+            if (mockExpectJsonArray instanceof JSONObject) {
+                if(!JsonStructUtils.checkJsonArrayCompliance(jsonArray, (JSONObject) mockExpectJsonArray)){
+                    return false;
+                }
+            }else if (mockExpectJsonArray instanceof JSONArray) {
+                if(!JsonStructUtils.checkJsonArrayCompliance(jsonArray, (JSONArray)mockExpectJsonArray)){
+                    return false;
+                }
             }
         }
 
@@ -383,7 +462,7 @@ public class MockConfigService {
         return true;
     }
 
-    private boolean isRequestMockExpectMatching(JSONObject mockExpectRequestObj, JSONObject reqJsonObj) {
+    private boolean isRequestMockExpectMatching(JSONObject mockExpectRequestObj, RequestMockParams requestMockParams) {
         boolean isJsonParam = mockExpectRequestObj.getBoolean("jsonParam");
         JSONObject mockExpectJson = new JSONObject();
         if (isJsonParam) {
@@ -417,8 +496,28 @@ public class MockConfigService {
             }
         }
 
-        boolean isMatching = JsonStructUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
-        return isMatching;
+        boolean matchRest = false;
+        boolean matchQuery = false;
+        boolean matchBody = false;
+
+        if(requestMockParams.getQueryParamsObj() != null){
+            matchQuery = JsonStructUtils.checkJsonObjCompliance(requestMockParams.getQueryParamsObj(), mockExpectJson);
+        }
+        if(requestMockParams.getRestParamsObj() != null){
+            matchRest = JsonStructUtils.checkJsonObjCompliance(requestMockParams.getRestParamsObj(), mockExpectJson);
+        }
+        if(requestMockParams.getBodyParams() != null){
+            for (int i = 0;i < requestMockParams.getBodyParams().size(); i ++) {
+                JSONObject reqJsonObj = requestMockParams.getBodyParams().getJSONObject(i);
+                matchBody = JsonStructUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
+                if(matchBody){
+                    break;
+                }
+            }
+        }
+
+//        boolean isMatching = JsonStructUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
+        return matchRest || matchQuery || matchBody;
     }
 
     private MockExpectConfigResponse getEmptyRequestMockExpectByParams(Map<String, String> requestHeaderMap, MockExpectConfigResponse model) {
@@ -436,11 +535,8 @@ public class MockConfigService {
                     JSONArray restArray = paramsObj.getJSONArray("rest");
                     for (int i = 0; i < restArray.size(); i++) {
                         JSONObject restObj = restArray.getJSONObject(i);
-                        if (restObj.containsKey("enable") && restObj.containsKey("name") && restObj.containsKey("value")) {
-                            boolean isEnable = restObj.getBoolean("enable");
-                            if (isEnable) {
-                                return null;
-                            }
+                        if (restObj.containsKey("name") && restObj.containsKey("value")) {
+                            return null;
                         }
                     }
                 }
@@ -449,11 +545,8 @@ public class MockConfigService {
                     JSONArray argumentsArray = paramsObj.getJSONArray("arguments");
                     for (int i = 0; i < argumentsArray.size(); i++) {
                         JSONObject argumentsObj = argumentsArray.getJSONObject(i);
-                        if (argumentsObj.containsKey("enable") && argumentsObj.containsKey("name") && argumentsObj.containsKey("value")) {
-                            boolean isEnable = argumentsObj.getBoolean("enable");
-                            if (isEnable) {
-                                return null;
-                            }
+                        if (argumentsObj.containsKey("name") && argumentsObj.containsKey("value")) {
+                            return null;
                         }
                     }
                 }
@@ -492,11 +585,8 @@ public class MockConfigService {
                                 JSONArray kvsArray = bodyObj.getJSONArray("kvs");
                                 for (int i = 0; i < kvsArray.size(); i++) {
                                     JSONObject kvsObj = kvsArray.getJSONObject(i);
-                                    if (kvsObj.containsKey("enable") && kvsObj.containsKey("name") && kvsObj.containsKey("value")) {
-                                        boolean isEnable = kvsObj.getBoolean("enable");
-                                        if (isEnable) {
-                                            return null;
-                                        }
+                                    if (kvsObj.containsKey("name") && kvsObj.containsKey("value")) {
+                                        return null;
                                     }
                                 }
                             }
@@ -635,7 +725,7 @@ public class MockConfigService {
                     break;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return returnModel;
@@ -658,14 +748,11 @@ public class MockConfigService {
                     JSONArray jsonArray = responseJsonObj.getJSONArray("headers");
                     for (int i = 0; i < jsonArray.size(); i++) {
                         JSONObject object = jsonArray.getJSONObject(i);
-                        if (object.containsKey("name") && object.containsKey("enable") && object.containsKey("value")) {
-                            boolean isEnable = object.getBoolean("enable");
-                            if (isEnable) {
-                                String name = String.valueOf(object.get("name")).trim();
-                                String value = String.valueOf(object.get("value")).trim();
-                                if (StringUtils.isNotEmpty(name)) {
-                                    response.setHeader(name, value);
-                                }
+                        if (object.containsKey("name") && object.containsKey("value")) {
+                            String name = String.valueOf(object.get("name")).trim();
+                            String value = String.valueOf(object.get("value")).trim();
+                            if (StringUtils.isNotEmpty(name)) {
+                                response.setHeader(name, value);
                             }
                         }
                     }
@@ -717,7 +804,7 @@ public class MockConfigService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return returnStr;
     }
@@ -850,7 +937,7 @@ public class MockConfigService {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return returnStr;
     }
@@ -892,9 +979,9 @@ public class MockConfigService {
         }
         mockConfigMapper.deleteByExample(configExample);
     }
-    public List<Map<String, String>> getApiParamsByApiDefinitionBLOBs(ApiDefinitionWithBLOBs apiModel) {
+    public Map<String, List<MockParamSuggestions>> getApiParamsByApiDefinitionBLOBs(ApiDefinitionWithBLOBs apiModel) {
         if (apiModel == null) {
-            return new ArrayList<>();
+            return new HashMap<>();
         } else if (StringUtils.equalsIgnoreCase("tcp", apiModel.getMethod())) {
             return this.getTCPApiParams(apiModel);
         } else {
@@ -902,8 +989,8 @@ public class MockConfigService {
         }
     }
 
-    private List<Map<String, String>> getTCPApiParams(ApiDefinitionWithBLOBs apiModel) {
-        List<Map<String, String>> list = new ArrayList<>();
+    private Map<String, List<MockParamSuggestions>> getTCPApiParams(ApiDefinitionWithBLOBs apiModel) {
+        Map<String, List<MockParamSuggestions>> returnMap = new HashMap<>();
         List<String> paramNameList = new ArrayList<>();
         if (apiModel != null) {
             if (apiModel.getRequest() != null) {
@@ -923,18 +1010,23 @@ public class MockConfigService {
                 }
             }
         }
-
-        for (String param : paramNameList) {
-            Map<String, String> map = new HashMap<>();
-            map.put("value", param);
-            list.add(map);
-        }
-        return list;
+        List<MockParamSuggestions> list = new ArrayList<>();
+        paramNameList.forEach(item -> {
+            MockParamSuggestions model = new MockParamSuggestions();
+            model.setValue(item);
+            list.add(model);
+        });
+        returnMap.put("value",list);
+        return returnMap;
     }
 
-    private List<Map<String, String>> getHTTPApiParams(ApiDefinitionWithBLOBs apiModel) {
-        List<Map<String, String>> list = new ArrayList<>();
-        List<String> paramNameList = new ArrayList<>();
+    private Map<String, List<MockParamSuggestions>> getHTTPApiParams(ApiDefinitionWithBLOBs apiModel) {
+        Map<String, List<MockParamSuggestions>> returnMap = new HashMap<>();
+
+        List<String> queryParamList = new ArrayList<>();
+        List<String> restParamList = new ArrayList<>();
+        List<String> formDataList = new ArrayList<>();
+
         if (apiModel != null) {
             if (apiModel.getRequest() != null) {
                 JSONObject requestObj = this.genJSONObject(apiModel.getRequest());
@@ -946,8 +1038,8 @@ public class MockConfigService {
                             for (int index = 0; index < headArr.size(); index++) {
 
                                 JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name") && !paramNameList.contains(headObj.containsKey("name"))) {
-                                    paramNameList.add(String.valueOf(headObj.get("name")));
+                                if (headObj.containsKey("name") && !queryParamList.contains(headObj.containsKey("name"))) {
+                                    queryParamList.add(String.valueOf(headObj.get("name")));
                                 }
                             }
                         } catch (Exception e) {
@@ -958,8 +1050,8 @@ public class MockConfigService {
                             JSONArray headArr = requestObj.getJSONArray("rest");
                             for (int index = 0; index < headArr.size(); index++) {
                                 JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name") && !paramNameList.contains(headObj.containsKey("name"))) {
-                                    paramNameList.add(String.valueOf(headObj.get("name")));
+                                if (headObj.containsKey("name") && !restParamList.contains(headObj.containsKey("name"))) {
+                                    restParamList.add(String.valueOf(headObj.get("name")));
                                 }
                             }
                         } catch (Exception e) {
@@ -978,8 +1070,8 @@ public class MockConfigService {
                                         Map<String, String> previewObjMap = new LinkedHashMap<>();
                                         for (int i = 0; i < kvsArr.size(); i++) {
                                             JSONObject kv = kvsArr.getJSONObject(i);
-                                            if (kv.containsKey("name") && !paramNameList.contains(kv.containsKey("name"))) {
-                                                paramNameList.add(String.valueOf(kv.get("name")));
+                                            if (kv.containsKey("name") && !formDataList.contains(kv.containsKey("name"))) {
+                                                formDataList.add(String.valueOf(kv.get("name")));
                                             }
                                         }
                                     }
@@ -993,12 +1085,34 @@ public class MockConfigService {
             }
         }
 
-        for (String param : paramNameList) {
-            Map<String, String> map = new HashMap<>();
-            map.put("value", param);
-            list.add(map);
+        if(CollectionUtils.isNotEmpty(queryParamList)){
+            List<MockParamSuggestions> list = new ArrayList<>();
+            queryParamList.forEach(item -> {
+                MockParamSuggestions model = new MockParamSuggestions();
+                model.setValue(item);
+                list.add(model);
+            });
+            returnMap.put("query",list);
         }
-        return list;
+        if(CollectionUtils.isNotEmpty(restParamList)){
+            List<MockParamSuggestions> list = new ArrayList<>();
+            restParamList.forEach(item -> {
+                MockParamSuggestions model = new MockParamSuggestions();
+                model.setValue(item);
+                list.add(model);
+            });
+            returnMap.put("rest",list);
+        }
+        if(CollectionUtils.isNotEmpty(formDataList)){
+            List<MockParamSuggestions> list = new ArrayList<>();
+            formDataList.forEach(item -> {
+                MockParamSuggestions model = new MockParamSuggestions();
+                model.setValue(item);
+                list.add(model);
+            });
+            returnMap.put("form",list);
+        }
+        return returnMap;
     }
 
     private JSONObject genJSONObject(String request) {
@@ -1083,6 +1197,7 @@ public class MockConfigService {
 
         if (!isMatch) {
             response.setStatus(404);
+            returnStr = "未找到匹配的Mock期望!";
         }
         return returnStr;
     }
@@ -1091,7 +1206,7 @@ public class MockConfigService {
             request, HttpServletResponse response) {
         String returnStr = "";
         boolean isMatch = false;
-        String url = request.getRequestURI();
+        String url = request.getRequestURL().toString();
         List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
@@ -1124,6 +1239,7 @@ public class MockConfigService {
 
         if (!isMatch) {
             response.setStatus(404);
+            returnStr = "未找到匹配的Mock期望!";
         }
         return returnStr;
     }

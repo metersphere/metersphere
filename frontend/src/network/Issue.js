@@ -1,7 +1,7 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate} from "@/common/js/tableUtils";
-import {getCurrentProjectID} from "@/common/js/utils";
-import {baseGet} from "@/network/base-network";
+import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {baseGet, basePost} from "@/network/base-network";
 
 export function buildIssues(page) {
   let data = page.data;
@@ -26,11 +26,15 @@ export function getIssues(page) {
 
 export function getIssuesByCaseId(caseId, page) {
   if (caseId) {
-    return get('issues/get/' + caseId, (response) => {
+    return get('issues/get/case/' + caseId, (response) => {
       page.data = response.data;
       buildIssues(page);
     });
   }
+}
+
+export function getIssuesById(id, callback) {
+  return id ? baseGet('/issues/get/' + id, callback) : {};
 }
 
 export function getIssuesByPlanId(planId, callback) {
@@ -74,11 +78,17 @@ export function getRelateIssues(page) {
 }
 
 export function syncIssues(success) {
-  return get('issues/sync/' + getCurrentProjectID(), (response) => {
+  let uri = 'issues/sync/';
+  if (hasLicense()) {
+    uri = 'xpack/issue/sync/';
+  }
+  return get(uri + getCurrentProjectID(), (response) => {
     if (success) {
       success(response);
     }
   });
 }
 
-
+export function deleteIssueRelate(param, callback) {
+  return basePost('/issues/delete/relate', param, callback);
+}

@@ -20,8 +20,13 @@ public class ZentaoPathInfoClient extends ZentaoClient {
     private static final String REPLACE_IMG_URL = "<img src=\"/zentao/file-read-$1\"/>";
     private static final Pattern IMG_PATTERN = Pattern.compile("file-read-(.*?)\"/>");
 
+    public ZentaoPathInfoClient(String url) {
+        super(url);
+    }
+
+    protected RequestUrl request = new RequestUrl();
+
     {
-        RequestUrl request = new RequestUrl();
         request.setLogin(getUrl(LOGIN));
         request.setSessionGet(getUrl(SESSION_GET));
         request.setBugCreate(getUrl(BUG_CREATE));
@@ -37,11 +42,7 @@ public class ZentaoPathInfoClient extends ZentaoClient {
         requestUrl = request;
     }
 
-    public ZentaoPathInfoClient(String url) {
-        super(url);
-    }
-
-    private String getUrl(String url) {
+    protected String getUrl(String url) {
         return getBaseUrl() + url;
     }
 }

@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <el-main>
+  <ms-container>
+    <ms-main-container>
       <el-card v-loading="result ? result.loading : false">
         <test-plan-report-buttons :is-db="isDb" :plan-id="planId" :is-share="isShare" :report="report"
                                   v-if="!isTemplate && !isShare"/>
@@ -10,9 +10,15 @@
         <test-plan-api-report v-if="apiEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
         <test-plan-load-report v-if="loadEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-card>
-    </el-main>
-    <test-plan-report-navigation-bar :is-template="isTemplate"/>
-  </div>
+    </ms-main-container>
+    <test-plan-report-navigation-bar
+      :api-enable="apiEnable"
+      :summary-enable="summaryEnable"
+      :functional-enable="functionalEnable"
+      :load-enable="loadEnable"
+      :overview-enable="overviewEnable"
+      :is-template="isTemplate"/>
+  </ms-container>
 </template>
 
 <script>
@@ -35,9 +41,13 @@ import TestPlanSummaryReport from "@/business/components/track/plan/view/comonen
 import TestPlanReportButtons from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportButtons";
 import TestPlanReportNavigationBar
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportNavigationBar";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 export default {
   name: "TestPlanReportContent",
   components: {
+    MsMainContainer,
+    MsContainer,
     TestPlanReportNavigationBar,
     TestPlanReportButtons,
     TestPlanSummaryReport,
@@ -218,6 +228,11 @@ export default {
 </script>
 
 <style scoped>
+
+.ms-main-container {
+  height: calc(100vh - 132px);
+}
+
 .el-card {
   /*width: 95% !important;*/
   padding: 15px;

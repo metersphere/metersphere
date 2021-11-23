@@ -224,4 +224,9 @@ public class ServiceUtils {
         Long lastOrder = getLastOrderFunc.apply(groupId, null);
        return (lastOrder == null ? 0 : lastOrder) + 5000;
     }
+
+    public static SqlSession getBatchSqlSession() {
+        SqlSessionFactory sqlSessionFactory = CommonBeanFactory.getBean(SqlSessionFactory.class);
+        return sqlSessionFactory.openSession(ExecutorType.BATCH);
+    }
 }

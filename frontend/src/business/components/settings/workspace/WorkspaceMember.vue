@@ -8,7 +8,22 @@
       </template>
       <el-table border class="adjust-table" :data="tableData" style="width: 100%"
                 :height="screenHeight"
+                @select-all="handleSelectAll"
+                @select="handleSelect"
                 ref="userTable">
+        <el-table-column type="selection" width="50"/>
+        <ms-table-header-select-popover v-show="total>0"
+                                        :page-size="pageSize>total?total:pageSize"
+                                        :total="total"
+                                        :select-data-counts="selectDataCounts"
+                                        :table-data-count-in-page="tableData.length"
+                                        @selectPageAll="isSelectDataAll(false)"
+                                        @selectAll="isSelectDataAll(true)"/>
+        <el-table-column width="30" min-width="30" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+          </template>
+        </el-table-column>
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
@@ -35,7 +50,7 @@
 
     <add-member :group-type="'WORKSPACE'" :group-scope-id="workspaceId" ref="addMember" @submit="submitForm"/>
 
-    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="40%"
                :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
@@ -72,6 +87,8 @@
     </el-dialog>
     <user-cascader :lable="batchAddLable" :title="batchAddTitle" @confirm="cascaderConfirm"
                    ref="cascaderDialog"></user-cascader>
+    <batch-to-project-group-cascader :title="$t('user.add_project_batch')" @confirm="cascaderConfirm"
+                                     :cascader-level="1" ref="cascaderDialog"/>
   </div>
 </template>
 
@@ -101,10 +118,13 @@ import UserCascader from "@/business/components/settings/system/components/UserC
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import {GROUP_WORKSPACE} from "@/common/js/constants";
 import AddMember from "@/business/components/settings/common/AddMember";
+import BatchToProjectGroupCascader from "@/business/components/settings/system/components/BatchToProjectGroupCascader";
+import GroupCascader from "@/business/components/settings/system/components/GroupCascader";
 
 export default {
   name: "MsMember",
   components: {
+    BatchToProjectGroupCascader, GroupCascader,
     AddMember, MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
     MsTableHeaderSelectPopover, UserCascader, ShowMoreBtn
   },
@@ -138,9 +158,9 @@ export default {
       referenced: false,
       batchAddUserRoleOptions: [],
       buttons: [
-        // {
-        //   name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
-        // }
+        {
+          name: this.$t('user.add_project_batch'), handleClick: this.addToProjectBatch
+        },
       ],
     };
   },
@@ -261,6 +281,9 @@ export default {
         }
       });
     },
+    addToProjectBatch(){
+      this.$refs.cascaderDialog.open();
+    },
     create() {
       let wsId = getCurrentWorkspaceId();
       if (typeof wsId == "undefined" || wsId == null || wsId == "") {
@@ -309,7 +332,7 @@ export default {
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       toggleAllSelection(this.$refs.userTable, this.tableData, this.selectRows);
     },
-    cascaderConfirm(batchProcessTypeParam, selectValueArr) {
+    cascaderConfirm(batchProcessTypeParam, selectValueArr, selectUserGroupId) {
       if (selectValueArr.length == 0) {
         this.$success(this.$t('commons.modify_success'));
       }
@@ -318,6 +341,7 @@ export default {
       params.workspaceId = getCurrentWorkspaceId();
       params.batchType = batchProcessTypeParam;
       params.batchProcessValue = selectValueArr;
+      params.selectUserGroupId = selectUserGroupId;
       this.$post('/user/special/batchProcessUserInfo', params, () => {
         this.$success(this.$t('commons.modify_success'));
         this.initTableData();
@@ -341,7 +365,7 @@ export default {
 }
 
 .select-width {
-  width: 100%;
+  width: 80%;
 }
 
 .workspace-member-name {
@@ -360,5 +384,8 @@ export default {
 
 /deep/ .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {
   top: -5px;
+}
+.el-input{
+  width: 80%;
 }
 </style>

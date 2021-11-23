@@ -3,7 +3,6 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.*;
-import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
@@ -23,8 +22,8 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class MsResultService {
     // 零时存放实时结果
-    private Cache cache = Cache.newHardMemoryCache(0, 3600 * 2);
-    private ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
+    private final Cache cache = Cache.newHardMemoryCache(0, 3600 * 2);
+    private final ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
 
     public ConcurrentHashMap<String, List<SampleResult>> getProcessCache() {
         return processCache;
@@ -57,7 +56,7 @@ public class MsResultService {
         this.processCache.put(key, testResult);
     }
 
-    public TestResult sysnSampleResult(String key) {
+    public TestResult synSampleResult(String key) {
         if (key.startsWith("[") && key.endsWith("]")) {
             key = JSON.parseArray(key).get(0).toString();
         }
@@ -103,21 +102,18 @@ public class MsResultService {
 
     public void formatTestResult(TestResult testResult, Map<String, ScenarioResult> scenarios, SampleResult result) {
         String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
-        String index = StringUtils.substringAfterLast(result.getThreadName(), THREAD_SPLIT);
-        String scenarioId = StringUtils.substringBefore(index, ID_SPLIT);
         ScenarioResult scenarioResult;
-        if (!scenarios.containsKey(scenarioId)) {
+        if (!scenarios.containsKey(scenarioName)) {
             scenarioResult = new ScenarioResult();
-            try {
-                scenarioResult.setId(Integer.parseInt(scenarioId));
-            } catch (Exception e) {
-                scenarioResult.setId(0);
-                LogUtil.error("场景ID转换异常: " + e.getMessage());
+            scenarioResult.setId(1);
+            if (StringUtils.equals(testResult.getTestId(), scenarioName)) {
+                scenarioResult.setName(scenarioName);
+            } else {
+                scenarioResult.setName(testResult.getTestId());
             }
-            scenarioResult.setName(scenarioName);
-            scenarios.put(scenarioId, scenarioResult);
+            scenarios.put(scenarioName, scenarioResult);
         } else {
-            scenarioResult = scenarios.get(scenarioId);
+            scenarioResult = scenarios.get(scenarioName);
         }
         if (result.isSuccessful()) {
             scenarioResult.addSuccess();
@@ -138,31 +134,32 @@ public class MsResultService {
     }
 
     public String getJmeterLogger(String testId, boolean removed) {
-        Long startTime = FixedTask.tasks.get(testId);
-        if (startTime == null) {
-            startTime = FixedTask.tasks.get("[" + testId + "]");
-        }
-        if (startTime == null) {
-            startTime = System.currentTimeMillis();
-        }
-        Long endTime = System.currentTimeMillis();
-        Long finalStartTime = startTime;
-        String logMessage = JmeterLoggerAppender.logger.entrySet().stream()
-                .filter(map -> map.getKey() > finalStartTime && map.getKey() < endTime)
-                .map(map -> map.getValue()).collect(Collectors.joining());
-        if (removed) {
-            if (processCache.get(testId) != null) {
-                try {
-                    Thread.sleep(2000);
-                } catch (Exception e) {
-                }
+        try {
+            Long startTime = FixedTask.tasks.get(testId);
+            if (startTime == null) {
+                startTime = FixedTask.tasks.get("[" + testId + "]");
             }
-            FixedTask.tasks.remove(testId);
+            if (startTime == null) {
+                startTime = System.currentTimeMillis();
+            }
+            Long endTime = System.currentTimeMillis();
+            Long finalStartTime = startTime;
+            String logMessage = FixedCapacityUtils.fixedCapacityCache.entrySet().stream()
+                    .filter(map -> map.getKey() > finalStartTime && map.getKey() < endTime)
+                    .map(map -> map.getValue()).collect(Collectors.joining());
+            if (removed) {
+                if (processCache.get(testId) != null) {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (Exception e) {
+                    }
+                }
+                FixedTask.tasks.remove(testId);
+            }
+            return logMessage;
+        } catch (Exception e) {
+            return "";
         }
-        if (FixedTask.tasks.isEmpty()) {
-            JmeterLoggerAppender.logger.clear();
-        }
-        return logMessage;
     }
 
     public RequestResult getRequestResult(SampleResult result) {
@@ -255,13 +252,21 @@ public class MsResultService {
         ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
         responseAssertionResult.setName(assertionResult.getName());
         if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().indexOf("==") != -1) {
-            String array[] = assertionResult.getName().split("==");
-            responseAssertionResult.setName(array[0]);
-            StringBuffer content = new StringBuffer();
-            for (int i = 1; i < array.length; i++) {
-                content.append(array[i]);
+            String[] array = assertionResult.getName().split("==");
+            if ("JSR223".equals(array[0])) {
+                responseAssertionResult.setName(array[1]);
+                responseAssertionResult.setContent(array[2]);
+                if (array.length > 3) {
+                    responseAssertionResult.setScript(array[3]);
+                }
+            } else {
+                responseAssertionResult.setName(array[0]);
+                StringBuffer content = new StringBuffer();
+                for (int i = 1; i < array.length; i++) {
+                    content.append(array[i]);
+                }
+                responseAssertionResult.setContent(content.toString());
             }
-            responseAssertionResult.setContent(content.toString());
         }
         responseAssertionResult.setPass(!assertionResult.isFailure() && !assertionResult.isError());
         if (!responseAssertionResult.isPass()) {

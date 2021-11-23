@@ -149,8 +149,18 @@ public class PerformanceReportController {
     }
 
     @GetMapping("get-jmx-content/{reportId}")
-    public LoadTestExportJmx getJmxContent(@PathVariable String reportId) {
+    public List<LoadTestExportJmx> getJmxContent(@PathVariable String reportId) {
         return performanceReportService.getJmxContent(reportId);
+    }
+
+    @GetMapping("/get-load-config/{reportId}")
+    public String getLoadConfiguration(@PathVariable String reportId) {
+        return performanceReportService.getLoadConfiguration(reportId);
+    }
+
+    @GetMapping("/get-advanced-config/{reportId}")
+    public String getAdvancedConfiguration(@PathVariable String reportId) {
+        return performanceReportService.getAdvancedConfiguration(reportId);
     }
 
     @PostMapping("rename")

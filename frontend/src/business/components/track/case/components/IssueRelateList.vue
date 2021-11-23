@@ -72,13 +72,15 @@ import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {getPageInfo} from "@/common/js/tableUtils";
 import {getCurrentProjectID} from "@/common/js/utils";
+import {getIssueTemplate} from "../../../../../network/custom-field-template";
 export default {
   name: "IssueRelateList",
   components: {MsTablePagination, IssueDescriptionTableItem, MsTableColumn, MsTable, MsEditDialog},
   data() {
     return {
       page: getPageInfo(),
-      visible: false
+      visible: false,
+      isThirdPart: false
     }
   },
   computed: {
@@ -89,7 +91,17 @@ export default {
       return getCurrentProjectID();
     }
   },
-  props: ['caseId', 'isThirdPart'],
+  props: ['caseId'],
+  created() {
+    getIssueTemplate()
+      .then((template) => {
+        if (template.platform === 'metersphere') {
+          this.isThirdPart = false;
+        } else {
+          this.isThirdPart = true;
+        }
+      });
+  },
   methods: {
     open() {
       this.getIssues();
@@ -107,7 +119,7 @@ export default {
       param.caseId = this.caseId;
       testCaseIssueRelate(param, () => {
         this.visible = false;
-        this.$emit('refresh');
+        this.$emit('refresh', this.$refs.table.selectRows);
       });
     }
   }

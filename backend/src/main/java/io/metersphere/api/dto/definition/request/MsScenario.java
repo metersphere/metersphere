@@ -7,6 +7,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -21,6 +22,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.EnvironmentGroupProjectService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -103,7 +105,7 @@ public class MsScenario extends MsTestElement {
                     ElementUtil.dataFormatting(element.getJSONArray("hashTree"));
                     this.setName(scenario.getName());
                     this.setProjectId(scenario.getProjectId());
-                    hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                    LinkedList<MsTestElement> sourceHashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                     });
                     // 场景变量
                     if (StringUtils.isNotEmpty(element.getString("variables"))) {
@@ -119,7 +121,10 @@ public class MsScenario extends MsTestElement {
                                 });
                         this.setHeaders(headers);
                     }
-
+                    if (element.get("environmentMap") != null) {
+                        this.setEnvironmentMap((Map) element.get("environmentMap"));
+                    }
+                    this.setHashTree(sourceHashTree);
                 }
 
             } catch (Exception ex) {
@@ -139,18 +144,7 @@ public class MsScenario extends MsTestElement {
                 }
             }
             if (this.environmentMap != null && !this.environmentMap.isEmpty()) {
-                this.environmentMap.keySet().forEach(projectId -> {
-                    ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-                    ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.environmentMap.get(projectId));
-                    if (environment != null && environment.getConfig() != null) {
-                        EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                        env.setApiEnvironmentid(environment.getId());
-                        envConfig.put(projectId, env);
-                        if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
-                            this.setMockEnvironment(true);
-                        }
-                    }
-                });
+                this.setEnv(this.environmentMap, envConfig);
                 config.setConfig(envConfig);
             }
         } else {
@@ -173,28 +167,41 @@ public class MsScenario extends MsTestElement {
         ElementUtil.addCounter(tree, variables);
         ElementUtil.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
-            //setHeader(tree, this.headers);
             config.setHeaders(this.headers);
         }
         ParameterConfig newConfig = new ParameterConfig();
-        if (this.isEnvironmentEnable() && this.environmentMap != null && !this.environmentMap.isEmpty()) {
-            environmentMap.keySet().forEach(projectId -> {
-                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-                ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.environmentMap.get(projectId));
-                if (environment != null && environment.getConfig() != null) {
-                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                    env.setApiEnvironmentid(environment.getId());
-                    envConfig.put(projectId, env);
-                    if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
-                        this.setMockEnvironment(true);
+        if (this.isEnvironmentEnable()) {
+            ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+            EnvironmentGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(EnvironmentGroupProjectService.class);
+            ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
+            String environmentType = scenario.getEnvironmentType();
+            String environmentJson = scenario.getEnvironmentJson();
+            String environmentGroupId = scenario.getEnvironmentGroupId();
+            if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+                this.environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+            } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                this.environmentMap = JSON.parseObject(environmentJson, Map.class);
+            }
+
+            if (this.environmentMap != null && !this.environmentMap.isEmpty()) {
+                environmentMap.keySet().forEach(projectId -> {
+                    ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                    ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.environmentMap.get(projectId));
+                    if (environment != null && environment.getConfig() != null) {
+                        EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                        env.setApiEnvironmentid(environment.getId());
+                        envConfig.put(projectId, env);
+                        if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
+                            this.setMockEnvironment(true);
+                        }
                     }
-                }
-            });
-            newConfig.setConfig(envConfig);
+                });
+                newConfig.setConfig(envConfig);
+            }
+
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
-                // 给所有孩子加一个父亲标志
                 el.setParent(this);
                 el.setMockEnvironment(this.isMockEnvironment());
                 if (this.isEnvironmentEnable()) {
@@ -263,5 +270,18 @@ public class MsScenario extends MsTestElement {
         return null;
     }
 
-
+    private void setEnv(Map<String, String> environmentMap, Map<String, EnvironmentConfig> envConfig) {
+        for (String projectId : environmentMap.keySet()) {
+            ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+            ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentMap.get(projectId));
+            if (environment != null && StringUtils.isNotEmpty(environment.getConfig())) {
+                EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                env.setApiEnvironmentid(environment.getId());
+                envConfig.put(projectId, env);
+                if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
+                    this.setMockEnvironment(true);
+                }
+            }
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package io.metersphere.track.issue.client;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -41,20 +43,41 @@ public class TapdClient extends BaseClient {
         return JSONObject.parseObject(data, Map.class);
     }
 
-    public TapdGetIssueResponse getIssueForPageByIds(String projectId, int pageNum, int limit, List<String> ids) {
-        String url = getBaseUrl() + "/bugs?workspace_id={1}&page={2}&limit={3}&fields={4}";
-        StringBuilder idStr = new StringBuilder();
-        ids.forEach(item -> {
-            idStr.append(item + ",");
-        });
-        if (!CollectionUtils.isEmpty(ids)) {
-            url += "&id={5}";
+    public JSONArray getPlatformUser(String projectId) {
+        String url = getBaseUrl() + "/workspaces/users?workspace_id=" + projectId;
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectId);
+        return JSONArray.parseObject(response.getBody()).getJSONArray("data");
+    }
+
+    public void auth() {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.exchange("https://api.tapd.cn/quickstart/testauth", HttpMethod.GET, getAuthHttpEntity(), String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("验证失败: " + e.getMessage());
         }
-        String fields = "id,title,description,priority,severity,reporter,status";
+    }
+
+    public TapdGetIssueResponse getIssueForPageByIds(String projectId, int pageNum, int limit, List<String> ids) {
+        String url = getBaseUrl() + "/bugs?workspace_id={1}&page={2}&limit={3}";
+        StringBuilder idStr = new StringBuilder();
+        if (!CollectionUtils.isEmpty(ids)) {
+            ids.forEach(item -> {
+                idStr.append(item + ",");
+            });
+            url += "&id={4}";
+        }
         LogUtil.info("ids: " + idStr);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class,
-                projectId, pageNum, limit, fields, idStr);
+                projectId, pageNum, limit, idStr);
         return (TapdGetIssueResponse) getResultForObject(TapdGetIssueResponse.class, response);
+    }
+
+    public JSONArray getDemands(String projectId) {
+        String url = getBaseUrl() + "/stories?workspace_id={1}";
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectId);
+        return JSONArray.parseObject(response.getBody()).getJSONArray("data");
     }
 
     public TapdBug addIssue(MultiValueMap<String, Object> paramMap) {

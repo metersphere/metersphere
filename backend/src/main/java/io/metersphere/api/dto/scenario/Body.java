@@ -71,12 +71,14 @@ public class Body {
                 sampler.setDoMultipart(true);
             }
         } else {
-            parseJonBodyMock();
-            KeyValue keyValue = new KeyValue("", "JSON-SCHEMA", this.getRaw(), true, true);
-            sampler.setPostBodyRaw(true);
-            keyValue.setEnable(true);
-            keyValue.setEncode(false);
-            body.add(keyValue);
+            if(StringUtils.isNotEmpty(this.getRaw()) || this.getJsonSchema()!= null ) {
+                parseJonBodyMock();
+                KeyValue keyValue = new KeyValue("", "JSON-SCHEMA", this.getRaw(), true, true);
+                sampler.setPostBodyRaw(true);
+                keyValue.setEnable(true);
+                keyValue.setUrlEncode(false);
+                body.add(keyValue);
+            }
         }
         return body;
     }

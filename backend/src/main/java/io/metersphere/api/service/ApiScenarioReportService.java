@@ -7,10 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
-import io.metersphere.api.dto.APIReportBatchRequest;
-import io.metersphere.api.dto.DeleteAPIReportRequest;
-import io.metersphere.api.dto.JvmInfoDTO;
-import io.metersphere.api.dto.QueryAPIReportRequest;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.ScenarioStatus;
@@ -84,6 +81,10 @@ public class ApiScenarioReportService {
     private UserService userService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private EnvironmentGroupMapper environmentGroupMapper;
+    @Resource
+    private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
 
     public ApiScenarioReport complete(TestResult result, String runMode) {
         // 更新场景
@@ -93,7 +94,6 @@ public class ApiScenarioReportService {
             } else if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 return updateSchedulePlanCase(result, runMode);
             } else {
-                updateScenarioStatus(result.getTestId());
                 return updateScenario(result);
             }
         }
@@ -156,8 +156,10 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport editReport(ScenarioResult test, long startTime) {
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(test.getName());
+        if (report == null) {
+            report = MessageCache.scenarioExecResourceLock.get(test.getName());
+        }
         if (report != null) {
-            report.setId(report.getId());
             report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
             report.setEndTime(System.currentTimeMillis());
             report.setUpdateTime(startTime);
@@ -166,6 +168,7 @@ public class ApiScenarioReportService {
             if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
                 report.setTriggerMode(TriggerMode.MANUAL.name());
             }
+            MessageCache.scenarioExecResourceLock.remove(report.getId());
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         }
         return report;
@@ -289,6 +292,7 @@ public class ApiScenarioReportService {
             }
             returnReport = report;
             reportIds.add(report.getId());
+            MessageCache.executionQueue.remove(report.getId());
         }
         return returnReport;
     }
@@ -304,7 +308,7 @@ public class ApiScenarioReportService {
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
         Map<String, String> scenarioAndErrorMap = new HashMap<>();
-        Map<String, APIScenarioReportResult> caseReportMap = new HashMap<>();
+        Map<String, String> planScenarioReportMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
 
             // 存储场景报告
@@ -341,13 +345,14 @@ public class ApiScenarioReportService {
             report.setTestPlanScenarioId(planScenarioId);
             report.setEndTime(System.currentTimeMillis());
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+            planScenarioReportMap.put(planScenarioId, report.getId());
 
 
             if (scenarioResult.getError() > 0) {
-                scenarioAndErrorMap.put(testPlanApiScenario.getApiScenarioId(), TestPlanApiExecuteStatus.FAILD.name());
+                scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.FAILD.name());
                 testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
             } else {
-                scenarioAndErrorMap.put(testPlanApiScenario.getApiScenarioId(), TestPlanApiExecuteStatus.SUCCESS.name());
+                scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.SUCCESS.name());
                 testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
             }
 
@@ -394,14 +399,13 @@ public class ApiScenarioReportService {
 
             lastReport = report;
 
-            APIScenarioReportResult reportResult = this.get(report.getId());
-            caseReportMap.put(testPlanApiScenario.getApiScenarioId(), reportResult);
+            MessageCache.executionQueue.remove(report.getId());
             reportIds.add(report.getId());
         }
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
         for (String reportId : testPlanReportIdList) {
             TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId, null, scenarioAndErrorMap, null);
-            TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId, null, caseReportMap, null);
+            TestPlanReportExecuteCatch.updateTestPlanReport(reportId, null, planScenarioReportMap);
         }
 
         return lastReport;
@@ -412,37 +416,14 @@ public class ApiScenarioReportService {
      *
      * @param reportId
      */
-    public void updateScenarioStatus(String reportId) {
+    public void updatePrevResult(String scenarioId, String reportId) {
         if (StringUtils.isNotEmpty(reportId)) {
-            List<String> list = new LinkedList<>();
-            try {
-                list = JSON.parseObject(reportId, List.class);
-            } catch (Exception e) {
-                list.add(reportId);
-            }
-            if (CollectionUtils.isNotEmpty(list)) {
-                ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
-                scenarioReportExample.createCriteria().andIdIn(list);
-                List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
-                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-                ApiScenarioReportMapper scenarioReportMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
-                if (CollectionUtils.isNotEmpty(reportList)) {
-                    reportList.forEach(report -> {
-                        report.setUpdateTime(System.currentTimeMillis());
-                        report.setEndTime(System.currentTimeMillis());
-                        String status = "Error";
-                        report.setStatus(status);
-                        scenarioReportMapper.updateByPrimaryKeySelective(report);
-                        // 把上一条调试的数据内容清空
-                        ApiScenarioReport prevResult = extApiScenarioReportMapper.selectPreviousReportByScenarioId(report.getScenarioId(), reportId);
-                        if (prevResult != null) {
-                            ApiScenarioReportDetailExample example = new ApiScenarioReportDetailExample();
-                            example.createCriteria().andReportIdEqualTo(prevResult.getId());
-                            apiScenarioReportDetailMapper.deleteByExample(example);
-                        }
-                    });
-                    sqlSession.flushStatements();
-                }
+            // 把上一条调试的数据内容清空
+            ApiScenarioReport prevResult = extApiScenarioReportMapper.selectPreviousReportByScenarioId(scenarioId, reportId);
+            if (prevResult != null) {
+                ApiScenarioReportDetailExample example = new ApiScenarioReportDetailExample();
+                example.createCriteria().andReportIdEqualTo(prevResult.getId());
+                apiScenarioReportDetailMapper.deleteByExample(example);
             }
         }
     }
@@ -530,25 +511,39 @@ public class ApiScenarioReportService {
     }
 
     private void counter(TestResult result) {
-        if (CollectionUtils.isEmpty(result.getScenarios())) {
-            if (StringUtils.isNotEmpty(result.getTestId())) {
-                List<String> list = new LinkedList<>();
-                try {
-                    list = JSON.parseObject(result.getTestId(), List.class);
-                } catch (Exception e) {
-                    list.add(result.getTestId());
+        if (CollectionUtils.isEmpty(result.getScenarios()) && StringUtils.isNotEmpty(result.getTestId())) {
+            List<String> list = new LinkedList<>();
+            try {
+                list = JSON.parseObject(result.getTestId(), List.class);
+            } catch (Exception e) {
+                list.add(result.getTestId());
+            }
+            ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+            scenarioReportExample.createCriteria().andScenarioIdIn(list);
+            List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
+
+            if (CollectionUtils.isEmpty(reportList)) {
+                ApiScenarioReportExample example = new ApiScenarioReportExample();
+                example.createCriteria().andIdIn(list);
+                reportList = apiScenarioReportMapper.selectByExample(example);
+            }
+
+            for (String item : list) {
+                if (MessageCache.scenarioExecResourceLock.containsKey(item)) {
+                    reportList.add(MessageCache.scenarioExecResourceLock.get(item));
                 }
-                ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
-                scenarioReportExample.createCriteria().andIdIn(list);
-                List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
-                for (ApiScenarioReport report : reportList) {
-                    if (report.getExecuteType().equals(ExecuteType.Marge.name())) {
-                        Object obj = MessageCache.cache.get(report.getScenarioId());
-                        if (obj != null) {
-                            ReportCounter counter = (ReportCounter) obj;
-                            counter.setNumber(counter.getNumber() + 1);
-                            MessageCache.cache.put(report.getScenarioId(), counter);
-                        }
+            }
+            for (ApiScenarioReport report : reportList) {
+                report.setStatus("Error");
+                apiScenarioReportMapper.updateByPrimaryKey(report);
+                MessageCache.scenarioExecResourceLock.remove(report.getId());
+                MessageCache.executionQueue.remove(report.getId());
+                if (StringUtils.equals(report.getExecuteType(), ExecuteType.Marge.name()) || StringUtils.equals(report.getScenarioId(), result.getSetReportId())) {
+                    Object obj = MessageCache.cache.get(result.getSetReportId());
+                    if (obj != null) {
+                        ReportCounter counter = (ReportCounter) obj;
+                        counter.getCompletedIds().add(report.getId());
+                        MessageCache.cache.put(result.getSetReportId(), counter);
                     }
                 }
             }
@@ -556,8 +551,6 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updateScenario(TestResult result) {
-        // 针对未正常返回结果的报告计数
-        counter(result);
         ApiScenarioReport lastReport = null;
         for (ScenarioResult item : result.getScenarios()) {
             // 更新报告状态
@@ -566,6 +559,7 @@ public class ApiScenarioReportService {
                 startTime = item.getRequestResults().get(0).getStartTime();
             }
             ApiScenarioReport report = editReport(item, startTime);
+
             if (report != null) {
                 // 合并并行报告
                 TestResult newResult = createTestResult(result.getTestId(), item);
@@ -579,7 +573,7 @@ public class ApiScenarioReportService {
                 detail.setProjectId(report.getProjectId());
                 apiScenarioReportDetailMapper.insert(detail);
                 // 更新场景状态
-                ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
+                ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
                 if (scenario != null) {
                     if (item.getError() > 0) {
                         scenario.setLastResult("Fail");
@@ -600,22 +594,52 @@ public class ApiScenarioReportService {
                     sendNotice(scenario, report);
                 }
                 lastReport = report;
+                MessageCache.executionQueue.remove(report.getId());
                 if (report.getExecuteType().equals(ExecuteType.Marge.name())) {
-                    Object obj = MessageCache.cache.get(report.getScenarioId());
+                    Object obj = MessageCache.cache.get(result.getSetReportId());
                     if (obj != null) {
                         ReportCounter counter = (ReportCounter) obj;
-                        counter.setNumber(counter.getNumber() + 1);
-                        MessageCache.cache.put(report.getScenarioId(), counter);
+                        counter.getCompletedIds().add(report.getId());
+                        MessageCache.cache.put(result.getSetReportId(), counter);
                     }
                 }
+                updatePrevResult(report.getScenarioId(), report.getId());
             }
         }
+        // 针对未正常返回结果的报告计数
+        counter(result);
 
         return lastReport;
     }
 
+    public String getEnvironment(ApiScenarioWithBLOBs apiScenario) {
+        String environment = "未配置";
+        String environmentType = apiScenario.getEnvironmentType();
+        if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+            String environmentJson = apiScenario.getEnvironmentJson();
+            JSONObject jsonObject = JSON.parseObject(environmentJson);
+            ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+            List<String> collect = jsonObject.values().stream().map(Object::toString).collect(Collectors.toList());
+            collect.add("-1");// 防止没有配置环境导致不能发送的问题
+            example.createCriteria().andIdIn(collect);
+            List<ApiTestEnvironment> envs = apiTestEnvironmentMapper.selectByExample(example);
+            String env = envs.stream().map(ApiTestEnvironment::getName).collect(Collectors.joining(","));
+            if (StringUtils.isNotBlank(env)) {
+                environment = env;
+            }
+        }
 
-    private void sendNotice(ApiScenario scenario, ApiScenarioReport result) {
+        if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+            String environmentGroupId = apiScenario.getEnvironmentGroupId();
+            EnvironmentGroup environmentGroup = environmentGroupMapper.selectByPrimaryKey(environmentGroupId);
+            if (environmentGroup != null) {
+                environment = environmentGroup.getName();
+            }
+        }
+        return environment;
+    }
+
+    private void sendNotice(ApiScenarioWithBLOBs scenario, ApiScenarioReport result) {
 
         BeanMap beanMap = new BeanMap(scenario);
 
@@ -634,6 +658,7 @@ public class ApiScenarioReportService {
         Map paramMap = new HashMap<>(beanMap);
         paramMap.put("operator", userDTO.getName());
         paramMap.put("status", scenario.getLastResult());
+        paramMap.put("environment", getEnvironment(scenario));
 
         String context = "${operator}执行接口自动化" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()
@@ -864,5 +889,17 @@ public class ApiScenarioReportService {
             LogUtil.error(e.getMessage());
         }
         return count;
+    }
+
+    public Map<String, String> getReportStatusByReportIds(Collection<String> values) {
+        if (CollectionUtils.isEmpty(values)) {
+            return new HashMap<>();
+        }
+        Map<String, String> map = new HashMap<>();
+        List<ApiScenarioReport> reportList = extApiScenarioReportMapper.selectStatusByIds(values);
+        for (ApiScenarioReport report : reportList) {
+            map.put(report.getId(), report.getStatus());
+        }
+        return map;
     }
 }

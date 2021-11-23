@@ -1,6 +1,9 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import io.metersphere.api.service.task.NamedThreadFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
@@ -10,9 +13,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.commons.utils.TestPlanUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -30,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,16 +59,23 @@ public class TestPlanLoadCaseService {
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
     private LoadTestMapper loadTestMapper;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
 
-    public List<LoadTest> relevanceList(LoadCaseRequest request) {
+    public Pager<List<LoadTest>> relevanceList(LoadCaseRequest request, int goPage, int pageSize) {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
         orders.forEach(i -> i.setPrefix("load_test"));
         request.setOrders(orders);
+        if (testPlanService.isAllowedRepeatCase(request.getTestPlanId())) {
+            request.setRepeatCase(true);
+        }
         List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request);
         if (CollectionUtils.isEmpty(ids)) {
-            return new ArrayList<>();
+            return PageUtils.setPageInfo(PageHelper.startPage(goPage, pageSize, true), new ArrayList<>());
         }
-        return performanceTestService.getLoadTestListByIds(ids);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, performanceTestService.getLoadTestListByIds(ids));
     }
 
     public List<TestPlanLoadCaseDTO> list(LoadCaseRequest request) {
@@ -91,7 +100,7 @@ public class TestPlanLoadCaseService {
         Collections.reverse(caseIds);
 
         for (String id : caseIds) {
-            TestPlanLoadCase t = new TestPlanLoadCase();
+            TestPlanLoadCaseWithBLOBs t = new TestPlanLoadCaseWithBLOBs();
             t.setId(UUID.randomUUID().toString());
             t.setCreateUser(SessionUtils.getUserId());
             t.setTestPlanId(planId);
@@ -103,6 +112,7 @@ public class TestPlanLoadCaseService {
             if (loadTest != null) {
                 t.setTestResourcePoolId(loadTest.getTestResourcePoolId());
                 t.setLoadConfiguration(loadTest.getLoadConfiguration());
+                t.setAdvancedConfiguration(loadTest.getAdvancedConfiguration());
             }
             nextOrder += 5000;
             testPlanLoadCaseMapper.insert(t);
@@ -133,7 +143,7 @@ public class TestPlanLoadCaseService {
 
     public String run(RunTestPlanRequest request) {
         String reportId = performanceTestService.run(request);
-        TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+        TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
         testPlanLoadCase.setId(request.getTestPlanLoadId());
         testPlanLoadCase.setLoadReportId(reportId);
         testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
@@ -145,7 +155,7 @@ public class TestPlanLoadCaseService {
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
                 serialRun(request);
             } else {
-                ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
+                ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(),new NamedThreadFactory("TestPlanLoadCaseService"));
                 request.getRequests().forEach(item -> {
                     executorService.submit(new ParallelExecTask(performanceTestService, testPlanLoadCaseMapper, item));
                 });
@@ -160,7 +170,7 @@ public class TestPlanLoadCaseService {
     }
 
     private void serialRun(RunBatchTestPlanRequest request) throws Exception {
-        ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
+        ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(),new NamedThreadFactory("TestPlanLoadCaseService-serial"));
         for (RunTestPlanRequest runTestPlanRequest : request.getRequests()) {
             Future<LoadTestReportWithBLOBs> future = executorService.submit(new SerialExecTask(performanceTestService, testPlanLoadCaseMapper, loadTestReportMapper, runTestPlanRequest, request.getConfig()));
             LoadTestReportWithBLOBs report = future.get();
@@ -183,7 +193,7 @@ public class TestPlanLoadCaseService {
         example.createCriteria().andIdEqualTo(reportId);
         List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(loadTestReports)) {
-            TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+            TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
             testPlanLoadCase.setId(testPlanLoadCaseId);
             testPlanLoadCase.setLoadReportId("");
             testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
@@ -231,7 +241,7 @@ public class TestPlanLoadCaseService {
         testPlanLoadCaseMapper.deleteByExample(example);
     }
 
-    public void update(TestPlanLoadCase testPlanLoadCase) {
+    public void update(TestPlanLoadCaseWithBLOBs testPlanLoadCase) {
         if (!StringUtils.isEmpty(testPlanLoadCase.getId())) {
             testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
         }
@@ -394,9 +404,21 @@ public class TestPlanLoadCaseService {
         if (StringUtils.isBlank(loadCaseId)) {
             return "";
         }
-        TestPlanLoadCase testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
+        TestPlanLoadCaseWithBLOBs testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
         if (testPlanLoadCase != null) {
             return testPlanLoadCase.getLoadConfiguration();
+        }
+        return "";
+    }
+
+
+    public String getAdvancedConfiguration(String loadCaseId) {
+        if (StringUtils.isBlank(loadCaseId)) {
+            return "";
+        }
+        TestPlanLoadCaseWithBLOBs testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
+        if (testPlanLoadCase != null) {
+            return testPlanLoadCase.getAdvancedConfiguration();
         }
         return "";
     }
@@ -419,7 +441,7 @@ public class TestPlanLoadCaseService {
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {
-        ServiceUtils.updateOrderField(request, TestPlanLoadCase.class,
+        ServiceUtils.updateOrderField(request, TestPlanLoadCaseWithBLOBs.class,
                 testPlanLoadCaseMapper::selectByPrimaryKey,
                 extTestPlanLoadCaseMapper::getPreOrder,
                 extTestPlanLoadCaseMapper::getLastOrder,

@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper">
     <delete id="deleteByResourceId" parameterType="java.lang.String">
-      delete from api_definition_exec_result  where resource_id = #{id,jdbcType=VARCHAR}
+        delete
+        from api_definition_exec_result  where resource_id = #{id,jdbcType=VARCHAR}
     </delete>
 
     <select id="selectMaxResultByResourceId" parameterType="java.lang.String" resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
@@ -92,4 +93,28 @@
         where resource_id = #{resourceId,jdbcType=VARCHAR} and `type` = #{type, jdbcType=VARCHAR}
         ORDER BY start_time DESC LIMIT 1
     </select>
+
+    <select id="selectStatusByIdList"
+            resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
+        select id,status from api_definition_exec_result
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
+
+    <select id="selectApiResultByProjectId" resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
+        select *
+        from api_definition_exec_result t
+                 left join `user` t1 ON t.user_id = t1.id
+                 left join test_resource_pool t2 on t.actuator = t2.id
+                 left join api_definition t3 on t.resource_id = t3.id
+                 left join api_test_case t4 on t4.id = t.resource_id
+                 left join test_plan_api_case t5 on t.resource_id = t5.id
+                 left join test_plan t6 on t5.test_plan_id = t6.id
+        where to_days(FROM_UNIXTIME(t.create_time / 1000)) = to_days(now())
+          and (t3.project_id = #{projectId} OR t4.project_id = #{projectId} OR t6.project_id = #{projectId})
+          and t.`STATUS` in ('running', 'waiting')
+    </select>
+
 </mapper>

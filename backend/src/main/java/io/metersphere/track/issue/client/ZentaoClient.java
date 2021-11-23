@@ -1,5 +1,6 @@
 package io.metersphere.track.issue.client;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -27,6 +28,9 @@ public abstract class ZentaoClient extends BaseClient {
     public ZentaoClient(String url) {
         ENDPOINT = url;
     }
+
+    // 注意 recTotal={1}&recPerPage={2}&pageID={3} 顺序不能调换，实在恶心
+    private static final String BUG_LIST_URL="?m=bug&f=browse&productID={0}&branch=&browseType=&param=0&orderBy=&recTotal={1}&recPerPage={2}&pageID={3}&t=json&zentaosid={4}";
 
     public String login() {
         GetUserResponse getUserResponse = new GetUserResponse();
@@ -106,13 +110,20 @@ public abstract class ZentaoClient extends BaseClient {
         }
     }
 
-    public GetIssueResponse.Issue getBugById(String id) {
+    public JSONObject getBugById(String id) {
         String sessionId = login();
         String bugGet = requestUrl.getBugGet();
         ResponseEntity<String> response = restTemplate.exchange(bugGet,
                 HttpMethod.GET, null, String.class, id, sessionId);
         GetIssueResponse getIssueResponse = (GetIssueResponse) getResultForObject(GetIssueResponse.class, response);
-        return JSONObject.parseObject(getIssueResponse.getData(), GetIssueResponse.Issue.class);
+        return JSONObject.parseObject(getIssueResponse.getData());
+    }
+
+    public JSONArray getBugsByProjectId(String projectId, int pageNum, int pageSize) {
+        String sessionId = login();
+        ResponseEntity<String> response = restTemplate.exchange(getBaseUrl() + BUG_LIST_URL,
+                HttpMethod.GET, null, String.class, projectId, 9999999, pageSize, pageNum, sessionId);
+        return JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONArray("bugs");
     }
 
     protected String getBaseUrl() {

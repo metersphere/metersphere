@@ -215,18 +215,11 @@ public class NoticeService {
 
             } catch (Exception e) {
                 task = new MessageTask();
-                List<DetailColumn> columns = ReflexObjectUtil.getColumns(task, SystemReference.messageColumns);
-                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(task.getId()), null,
-                        StatusReference.statusMap.containsKey(task.getTaskType()) ? StatusReference.statusMap.get(task.getTaskType()) : task.getTaskType(), task.getUserId(), columns);
-                return JSON.toJSONString(details);
             }
         }
-        if (task != null) {
-            List<DetailColumn> columns = ReflexObjectUtil.getColumns(task, SystemReference.messageColumns);
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(task.getId()), null,
-                    StatusReference.statusMap.containsKey(task.getTaskType()) ? StatusReference.statusMap.get(task.getTaskType()) : task.getTaskType(), task.getUserId(), columns);
-            return JSON.toJSONString(details);
-        }
-        return null;
+        List<DetailColumn> columns = ReflexObjectUtil.getColumns(task, SystemReference.messageColumns);
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(task.getId()), null,
+                StatusReference.statusMap.containsKey(task.getTaskType()) ? StatusReference.statusMap.get(task.getTaskType()) : task.getTaskType(), null, columns);
+        return JSON.toJSONString(details);
     }
 }

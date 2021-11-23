@@ -16,6 +16,15 @@
         <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
 
+      <template v-slot:afterTitle v-if="request.refType==='API'|| request.refType==='CASE'">
+        <span v-if="request.num" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
+        <span v-else >
+          <el-tooltip class="ms-num" effect="dark" :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')" placement="top">
+            <i class="el-icon-warning"/>
+          </el-tooltip>
+        </span>
+      </template>
+
       <template v-slot:behindHeaderLeft>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
@@ -32,10 +41,10 @@
       </template>
       <template v-slot:button>
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+          <el-button @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-          <el-button :disabled="!request.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+          <el-button @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
             <div style="transform: scale(0.66)">
               <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
             </div>
@@ -122,7 +131,7 @@
         </div>
       </template>
     </api-base-component>
-    <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
+    <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="environmentMap"
             @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
 
   </div>
@@ -140,6 +149,8 @@ import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
 import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+import {ENV_TYPE} from "@/common/js/constants";
+import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
@@ -167,7 +178,9 @@ export default {
     projectList: Array,
     expandedNode: Array,
     envMap: Map,
-    message: String
+    message: String,
+    environmentGroupId: String,
+    environmentType: String
   },
   components: {
     TemplateComponent,
@@ -187,7 +200,9 @@ export default {
       environment: {},
       result: {},
       apiActive: false,
-      reqSuccess: true
+      reqSuccess: true,
+      envType: this.environmentType,
+      environmentMap: this.envMap
     }
   },
   created() {
@@ -221,16 +236,23 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
     }
-    this.getEnvironments();
+    this.getEnvironments(this.environmentGroupId);
   },
   watch: {
-    envMap() {
+    envMap(val) {
       this.getEnvironments();
+      this.environmentMap = val;
     },
     message() {
       this.forStatus();
       this.reload();
     },
+    environmentGroupId(val) {
+      this.getEnvironments(val);
+    },
+    environmentType(val) {
+      this.envType = val;
+    }
   },
   computed: {
     displayColor() {
@@ -265,7 +287,7 @@ export default {
     },
     displayTitle() {
       if (this.isApiImport) {
-        return this.$t('api_test.automation.api_list_import');
+        return this.request.refType==='API'?'API':'CASE';
       } else if (this.isExternalImport) {
         return this.$t('api_test.automation.external_import');
       } else if (this.isCustomizeReq) {
@@ -339,14 +361,31 @@ export default {
         this.request.environmentId = this.environment.id;
       }
     },
-    getEnvironments() {
+    getEnvironments(groupId) {
       this.environment = {};
-      let id = this.envMap.get(this.request.projectId);
-      if (id) {
-        this.$get('/api/environment/get/' + id, response => {
-          this.environment = response.data;
-          this.initDataSource();
-        });
+      let id = undefined;
+      if (groupId) {
+        this.$get("/environment/group/project/map/" + groupId, res => {
+          let data = res.data;
+          if (data) {
+            this.environmentMap = new Map(Object.entries(data));
+            id = new Map(Object.entries(data)).get(this.request.projectId);
+            if (id) {
+              this.$get('/api/environment/get/' + id, response => {
+                this.environment = response.data;
+                this.initDataSource();
+              });
+            }
+          }
+        })
+      } else {
+        id = this.envMap.get(this.request.projectId);
+        if (id) {
+          this.$get('/api/environment/get/' + id, response => {
+            this.environment = response.data;
+            this.initDataSource();
+          });
+        }
       }
     },
     remove() {
@@ -371,10 +410,13 @@ export default {
     getApiInfo() {
       if (this.request.id && this.request.referenced === 'REF') {
         let requestResult = this.request.requestResult;
-        let url = this.request.refType && this.request.refType === 'CASE' ? "/api/testcase/get/" : "/api/definition/get/";
         let enable = this.request.enable;
-        this.$get(url + this.request.id, response => {
+        this.$get("/api/testcase/get/" + this.request.id, response => {
           if (response.data) {
+            let hashTree = [];
+            if (this.request.hashTree) {
+              hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
+            }
             Object.assign(this.request, JSON.parse(response.data.request));
             this.request.name = response.data.name;
             this.request.referenced = "REF";
@@ -382,7 +424,6 @@ export default {
             if (response.data.path && response.data.path != null) {
               this.request.path = response.data.path;
               this.request.url = response.data.url;
-              this.setUrl(this.request.path);
             }
             if (response.data.method && response.data.method != null) {
               this.request.method = response.data.method;
@@ -396,6 +437,11 @@ export default {
             this.request.disabled = true;
             this.request.root = true;
             this.request.projectId = response.data.projectId;
+            let req = JSON.parse(response.data.request);
+            if (req && this.request) {
+              this.request.hashTree = hashTree;
+              this.mergeHashTree(req.hashTree);
+            }
             this.reload();
             this.sort();
           } else {
@@ -404,22 +450,83 @@ export default {
         })
       }
     },
-    sort(arr) {
-      if (!arr) {
-        arr = this.request.hashTree;
+    mergeHashTree(targetHashTree) {
+      let sourceHashTree = this.request.hashTree;
+      // 历史数据兼容
+      if (sourceHashTree && targetHashTree && sourceHashTree.length < targetHashTree.length) {
+        this.request.hashTree = targetHashTree;
+        return;
       }
-      for (let i in arr) {
-        arr[i].disabled = true;
-        arr[i].index = Number(i) + 1;
-        if (!arr[i].resourceId) {
-          arr[i].resourceId = getUUID();
+      let sourceIds = [];
+      let delIds = [];
+      let updateMap = new Map();
+      if (!sourceHashTree || sourceHashTree.length == 0) {
+        if (targetHashTree) {
+          targetHashTree.forEach(item => {
+            item.disabled = true;
+          });
+          this.request.hashTree = targetHashTree;
         }
-        if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-          this.sort(arr[i].hashTree);
+        return;
+      }
+      if (targetHashTree) {
+        for (let i in targetHashTree) {
+          targetHashTree[i].disabled = true;
+          if (targetHashTree[i].id) {
+            updateMap.set(targetHashTree[i].id, targetHashTree[i]);
+          }
+        }
+      }
+
+      if (sourceHashTree && sourceHashTree.length > 0) {
+        for (let index in sourceHashTree) {
+          let source = sourceHashTree[index];
+          sourceIds.push(source.id);
+          // 历史数据兼容
+          if (source.label !== 'SCENARIO-REF-STEP' && source.id) {
+            if (updateMap.has(source.id)) {
+              Object.assign(sourceHashTree[index], updateMap.get(source.id));
+              sourceHashTree[index].disabled = true;
+              sourceHashTree[index].label = '';
+              sourceHashTree[index].enable = updateMap.get(source.id).enable;
+            } else {
+              delIds.push(source.id);
+            }
+          }
+          // 历史数据兼容
+          if (!source.id && source.label !== 'SCENARIO-REF-STEP' && index < targetHashTree.length) {
+            Object.assign(sourceHashTree[index], targetHashTree[index]);
+            sourceHashTree[index].disabled = true;
+            sourceHashTree[index].label = '';
+            sourceHashTree[index].enable = targetHashTree[index].enable;
+          }
+        }
+      }
+      // 删除多余的步骤
+      delIds.forEach(item => {
+        const removeIndex = sourceHashTree.findIndex(d => d.id && d.id === item);
+        sourceHashTree.splice(removeIndex, 1);
+      })
+
+      // 补充新增的源引用步骤
+      if (targetHashTree) {
+        targetHashTree.forEach(item => {
+          if (sourceIds.indexOf(item.id) === -1) {
+            item.disabled = true;
+            this.request.hashTree.push(item);
+          }
+        })
+      }
+    },
+    sort() {
+      for (let i in this.request.hashTree) {
+        this.request.hashTree[i].index = Number(i) + 1;
+        if (!this.request.hashTree[i].resourceId) {
+          this.request.hashTree[i].resourceId = getUUID();
         }
       }
     },
-    active(item) {
+    active() {
       this.request.active = !this.request.active;
       if (this.node) {
         this.node.expanded = this.request.active;
@@ -437,11 +544,11 @@ export default {
     run() {
       if (this.isApiImport || this.request.isRefEnvironment) {
         if (this.request.type && (this.request.type === "HTTPSamplerProxy" || this.request.type === "JDBCSampler" || this.request.type === "TCPSampler")) {
-          if (!this.envMap || this.envMap.size === 0) {
+          if (!this.environmentMap || this.environmentMap.size === 0) {
             this.$warning(this.$t('api_test.automation.env_message'));
             return false;
-          } else if (this.envMap && this.envMap.size > 0) {
-            const env = this.envMap.get(this.request.projectId);
+          } else if (this.environmentMap && this.environmentMap.size > 0) {
+            const env = this.environmentMap.get(this.request.projectId);
             if (!env) {
               this.$warning(this.$t('api_test.automation.env_message'));
               return false;
@@ -492,8 +599,54 @@ export default {
         const project = this.projectList.find(p => p.id === id);
         return project ? project.name : "";
       }
+    },
 
-    }
+    clickResource(resource) {
+      if(resource.refType&&resource.refType==='API'){
+        let definitionData = this.$router.resolve({
+          name: 'ApiDefinition',
+          params: {redirectID: getUUID(), dataType: "api", dataSelectRange: 'edit:' + resource.id}
+        });
+        window.open(definitionData.href, '_blank');
+      }else if(resource.refType&&resource.refType==='CASE'){
+        this.$get("/api/testcase/findById/" + resource.id, response => {
+          if (response.data) {
+            response.data.sourceId = resource.resourceId;
+            response.data.type = resource.type;
+            response.data.refType = resource.refType;
+            this.clickCase(response.data)
+          } else {
+            this.$error("接口用例场景场景已经被删除");
+          }
+        });
+      }
+
+    },
+    clickCase(resource) {
+      let uri = getUrl(resource);
+      let resourceId = resource.sourceId;
+      if (resourceId && resourceId.startsWith("\"" || resourceId.startsWith("["))) {
+        resourceId = JSON.parse(resource.sourceId);
+      }
+      if (resourceId instanceof Array) {
+        resourceId = resourceId[0];
+      }
+      this.$get('/user/update/currentByResourceId/' + resourceId, () => {
+        this.toPage(uri);
+      });
+    },
+    toPage(uri) {
+      let id = "new_a";
+      let a = document.createElement("a");
+      a.setAttribute("href", uri);
+      a.setAttribute("target", "_blank");
+      a.setAttribute("id", id);
+      document.body.appendChild(a);
+      a.click();
+
+      let element = document.getElementById(id);
+      element.parentNode.removeChild(element);
+    },
   }
 }
 </script>
@@ -540,7 +693,7 @@ export default {
 }
 
 .ms-tag {
-  margin-left: 10px;
+  margin-left: 0px;
 }
 
 .ms-step-debug-code {
@@ -571,4 +724,10 @@ export default {
   border-color: #EE6161;
   color: white;
 }
+.ms-num{
+  margin-left: 1rem;
+  font-size: 15px;
+  color: #de9d1c;
+}
+
 </style>

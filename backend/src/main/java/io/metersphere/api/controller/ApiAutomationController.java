@@ -47,7 +47,8 @@ public class ApiAutomationController {
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public Pager<List<ApiScenarioDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-
+        // 查询场景环境
+        request.setSelectEnvironment(true);
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
@@ -325,7 +326,7 @@ public class ApiAutomationController {
     @GetMapping(value = "/stop/{reportId}")
     public void stop(@PathVariable String reportId) {
         if (StringUtils.isNotEmpty(reportId)) {
-            MessageCache.batchTestCases.remove(reportId);
+            MessageCache.caseExecResourceLock.remove(reportId);
             new LocalRunner().stop(reportId);
         }
     }
@@ -337,7 +338,7 @@ public class ApiAutomationController {
 
     @PostMapping("/setDomain")
     public String setDomain(@RequestBody ApiScenarioEnvRequest request) {
-        return apiAutomationService.setDomain(request.getDefinition());
+        return apiAutomationService.setDomain(request);
     }
 
     @PostMapping(value = "/export/zip")
@@ -366,6 +367,10 @@ public class ApiAutomationController {
     @GetMapping("/follow/{scenarioId}")
     public List<String> getFollows(@PathVariable String scenarioId) {
         return apiAutomationService.getFollows(scenarioId);
+    }
+    @PostMapping("/update/follows/{scenarioId}")
+    public void saveFollows(@PathVariable String scenarioId,@RequestBody List<String> follows) {
+        apiAutomationService.saveFollows(scenarioId,follows);
     }
 }
 

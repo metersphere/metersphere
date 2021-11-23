@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TestPlanFailureApiDTO extends TestPlanApiCaseDTO {
-
-    private String projectName;
-
     private String response;
+    private String reportId;
 }

@@ -20,6 +20,9 @@ public class RunModeDataDTO {
     private String apiCaseId;
 
     private Map<String, String> planEnvMap;
+
+    private String debugReportId;
+
     public RunModeDataDTO(){
 
     }

@@ -1,10 +1,10 @@
 <template>
   <div>
     <!-- 场景步骤-->
-    <ms-container>
-      <ms-aside-container style="padding-top: 0px">
+    <ms-container :class="{'maximize-container': !asideHidden}">
+      <ms-aside-container @setAsideHidden="setAsideHidden" style="padding-top: 0px">
         <!-- 场景步骤内容 -->
-        <div v-loading="loading">
+        <div v-loading="loading" v-if="!asideHidden">
           <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
             <i class="el-icon-circle-plus-outline  ms-open-btn ms-open-btn-left" v-prevent-re-click @click="openExpansion"/>
           </el-tooltip>
@@ -26,6 +26,7 @@
               </div>
           </span>
           <el-tree node-key="resourceId"
+                   v-if="showHideTree && !asideHidden"
                    :props="props"
                    :data="scenarioDefinition"
                    :default-expanded-keys="expandedNode"
@@ -33,7 +34,7 @@
                    highlight-current
                    @node-expand="nodeExpand"
                    @node-collapse="nodeCollapse"
-                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable v-if="showHideTree">
+                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick">
               <span class="custom-tree-node father" slot-scope="{ node, data}">
                 <!-- 步骤组件-->
                  <ms-component-config
@@ -160,7 +161,8 @@ import {saveScenario} from "@/business/components/api/automation/api-automation"
 import {buttons, setComponent} from '../menu/Menu';
 import MsContainer from "../../../../common/components/MsContainer";
 import MsMainContainer from "../../../../common/components/MsMainContainer";
-import MsAsideContainer from "./MsLeftContainer";
+import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
+// import MsAsideContainer from "./MsLeftContainer";
 
 let jsonPath = require('jsonpath');
 export default {
@@ -181,9 +183,9 @@ export default {
     message: String,
   },
   components: {
+    MsAsideContainer,
     MsContainer,
     MsMainContainer,
-    MsAsideContainer,
     MsVariableList: () => import("../variable/VariableList"),
     ScenarioRelevance: () => import("../api/ScenarioRelevance"),
     ScenarioApiRelevance: () => import("../api/ApiRelevance"),
@@ -248,6 +250,7 @@ export default {
       debugLoading: false,
       buttonData: [],
       stepFilter: new STEP,
+      asideHidden: false
     }
   },
   created() {
@@ -359,6 +362,9 @@ export default {
     },
     addComponent(type) {
       setComponent(type, this);
+    },
+    setAsideHidden(data) {
+      this.asideHidden = data;
     },
     nodeClick(data, node) {
       if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
@@ -542,6 +548,9 @@ export default {
       const hashTree = parent.data.hashTree || parent.data;
       // 深度复制
       let obj = JSON.parse(JSON.stringify(row));
+      if (obj.hashTree && obj.hashTree.length > 0) {
+        this.resetResourceId(obj.hashTree);
+      }
       obj.resourceId = getUUID();
       if (obj.name) {
         obj.name = obj.name + '_copy';
@@ -554,6 +563,14 @@ export default {
       }
       this.sort();
       this.reload();
+    },
+    resetResourceId(hashTree) {
+      hashTree.forEach(item => {
+        item.resourceId = getUUID();
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.resetResourceId(item.hashTree);
+        }
+      })
     },
     showHide() {
       this.showHideTree = false
@@ -1063,4 +1080,11 @@ export default {
   margin-right: 10px;
 }
 
+.maximize-container .ms-aside-container {
+  min-width: 680px;
+}
+
+.ms-aside-container {
+  height: calc(100vh - 50px) !important;
+}
 </style>

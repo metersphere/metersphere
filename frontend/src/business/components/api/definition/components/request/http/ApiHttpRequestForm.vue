@@ -187,6 +187,23 @@ export default {
     }
     this.init();
   },
+  watch: {
+    'request.changeId'() {
+      if (this.request.headers && this.request.headers.length > 1) {
+        this.activeName = 'headers';
+      }
+      if (this.request.rest && this.request.rest.length > 1) {
+        this.activeName = 'rest';
+      }
+      if (this.request.arguments && this.request.arguments.length > 1) {
+        this.activeName = 'parameters';
+      }
+      if(this.request.body) {
+        this.request.body.typeChange = this.request.changeId;
+      }
+      this.reload();
+    }
+  },
   methods: {
     hasPermission,
     hasLicense,
@@ -290,7 +307,7 @@ export default {
           let required = false;
           keyValues.unshift(new KeyValue({
             name: line[0],
-            required: required,
+            required: !required,
             value: line[1],
             description: line[2],
             type: "text",

@@ -1,35 +1,30 @@
 package io.metersphere.track.issue;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.CustomFieldService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.JiraClientV2;
-import io.metersphere.track.issue.domain.Jira.JiraAddIssueResponse;
-import io.metersphere.track.issue.domain.Jira.JiraConfig;
-import io.metersphere.track.issue.domain.Jira.JiraIssue;
 import io.metersphere.track.issue.domain.PlatformUser;
+import io.metersphere.track.issue.domain.jira.JiraAddIssueResponse;
+import io.metersphere.track.issue.domain.jira.JiraConfig;
+import io.metersphere.track.issue.domain.jira.JiraIssue;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,40 +33,18 @@ import java.util.UUID;
 
 public class JiraPlatform extends AbstractIssuePlatform {
 
-    protected String key = IssuesManagePlatform.Jira.toString();
-
-    private JiraClientV2 jiraClientV2 = new JiraClientV2();
+    protected JiraClientV2 jiraClientV2;
 
     public JiraPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
-    }
-
-    public JiraConfig getConfig() {
-        String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
-        JiraConfig jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
-        validateConfig(jiraConfig);
-        return jiraConfig;
-    }
-
-    public JiraConfig getUserConfig() {
-        JiraConfig jiraConfig = null;
-        String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
-        if (StringUtils.isNotBlank(config)) {
-            jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
-            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(this.workspaceId);
-            if (userPlatInfo != null && StringUtils.isNotBlank(userPlatInfo.getJiraAccount())
-                    && StringUtils.isNotBlank(userPlatInfo.getJiraPassword())) {
-                jiraConfig.setAccount(userPlatInfo.getJiraAccount());
-                jiraConfig.setPassword(userPlatInfo.getJiraPassword());
-            }
-        }
-        validateConfig(jiraConfig);
-        return jiraConfig;
+        this.key = IssuesManagePlatform.Jira.name();
+        jiraClientV2 = new JiraClientV2();
+        setConfig();
     }
 
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
-        issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
+        issuesRequest.setPlatform(key);
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
             issues = extIssuesMapper.getIssues(issuesRequest);
@@ -81,13 +54,16 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return issues;
     }
 
-    public void parseIssue(IssuesWithBLOBs item, JiraIssue jiraIssue, String customFieldsStr) {
-        String lastmodify = "";
-        String status = "";
-        JSONObject fields = jiraIssue.getFields();
+    public IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, JiraIssue jiraIssue) {
+        if (issue == null) {
+            issue = new IssuesWithBLOBs();
+            issue.setCustomFields(defaultCustomFields);
+        } else {
+            mergeCustomField(issue, defaultCustomFields);
+        }
 
-        status = getStatus(fields);
-        JSONObject assignee = (JSONObject) fields.get("assignee");
+        JSONObject fields = jiraIssue.getFields();
+        String status = getStatus(fields);
         String description = fields.getString("description");
 
         Parser parser = Parser.builder().build();
@@ -97,52 +73,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
             description = renderer.render(document);
         }
 
-        if (assignee != null) {
-            lastmodify = assignee.getString("displayName");
-        }
-        item.setTitle(fields.getString("summary"));
-        item.setCreateTime(fields.getLong("created"));
-        item.setLastmodify(lastmodify);
-        item.setDescription(description);
-        item.setPlatformStatus(status);
-        item.setPlatform(IssuesManagePlatform.Jira.toString());
-        item.setCustomFields(parseIssueCustomField(customFieldsStr, jiraIssue));
-    }
-
-    public String parseIssueCustomField(String customFieldsStr, JiraIssue jiraIssue) {
-        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
-        JSONObject fields = jiraIssue.getFields();
-
-        customFields.forEach(item -> {
-            String fieldName = item.getCustomData();
-            Object value = fields.get(fieldName);
-            if (value != null) {
-                if (value instanceof JSONObject) {
-                    if (!fieldName.equals("assignee") && !fieldName.equals("reporter")) { // 获取不到账号名
-                        item.setValue(((JSONObject)value).getString("id"));
-                    }
-                } else {
-                    if (StringUtils.isNotBlank(item.getType()) &&
-                            StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
-                        List<String> values = new ArrayList<>();
-                        if (item.getValue() != null) {
-                            JSONArray attrs = (JSONArray) item.getValue();
-                            attrs.forEach(attr -> {
-                                if (attr instanceof JSONObject) {
-                                    values.add(((JSONObject)attr).getString("id"));
-                                } else {
-                                    values.add((String) attr);
-                                }
-                            });
-                        }
-                        item.setValue(values);
-                    } else {
-                        item.setValue(value);
-                    }
-                }
-            }
-        });
-        return JSONObject.toJSONString(customFields);
+        JSONObject assignee = (JSONObject) fields.get("assignee");
+        issue.setTitle(fields.getString("summary"));
+        issue.setCreateTime(fields.getLong("created"));
+        issue.setLastmodify(assignee == null ? "" : assignee.getString("displayName"));
+        issue.setDescription(description);
+        issue.setPlatformStatus(status);
+        issue.setPlatform(key);
+        issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), jiraIssue.getFields()));
+        return issue;
     }
 
     private String getStatus(JSONObject fields) {
@@ -157,62 +96,25 @@ public class JiraPlatform extends AbstractIssuePlatform {
     @Override
     public List<DemandDTO> getDemandList(String projectId) {
         List<DemandDTO> list = new ArrayList<>();
-
-        try {
-            String key = validateJiraKey(projectId);
-            String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
-            JSONObject object = JSON.parseObject(config);
-
-            if (object == null) {
-                MSException.throwException("jira config is null");
+        JiraConfig config = getConfig();
+        int maxResults = 50, startAt = 0;
+        JSONArray demands;
+        String key = validateJiraKey(projectId);
+        do {
+            demands = jiraClientV2.getDemands(key, config.getStorytype(), startAt, maxResults);
+            for (int i = 0; i < demands.size(); i++) {
+                JSONObject o = demands.getJSONObject(i);
+                String issueKey = o.getString("key");
+                JSONObject fields = o.getJSONObject("fields");
+                String summary = fields.getString("summary");
+                DemandDTO demandDTO = new DemandDTO();
+                demandDTO.setName(summary);
+                demandDTO.setId(issueKey);
+                demandDTO.setPlatform(key);
+                list.add(demandDTO);
             }
-
-            String account = object.getString("account");
-            String password = object.getString("password");
-            String url = object.getString("url");
-            String type = object.getString("storytype");
-            String auth = EncryptUtils.base64Encoding(account + ":" + password);
-            HttpHeaders requestHeaders = new HttpHeaders();
-            requestHeaders.add("Authorization", "Basic " + auth);
-            requestHeaders.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-            //HttpEntity
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestHeaders);
-            RestTemplate restTemplate = new RestTemplate();
-            //post
-            ResponseEntity<String> responseEntity = null;
-            int maxResults = 50, startAt = 0, total = 0, currentStartAt = 0;
-            do {
-                String jql = url + "/rest/api/2/search?jql=project=" + key + "+AND+issuetype=" + type
-                        + "&maxResults=" + maxResults + "&startAt=" + startAt + "&fields=summary,issuetype";
-                responseEntity = restTemplate.exchange(jql,
-                        HttpMethod.GET, requestEntity, String.class);
-                String body = responseEntity.getBody();
-                JSONObject jsonObject = JSONObject.parseObject(body);
-                JSONArray jsonArray = jsonObject.getJSONArray("issues");
-                if (jsonArray.size() == 0) {
-                    break;
-                }
-                total = jsonObject.getInteger("total");
-                startAt = startAt + maxResults;
-                currentStartAt = jsonObject.getInteger("startAt");
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    JSONObject o = jsonArray.getJSONObject(i);
-                    String issueKey = o.getString("key");
-                    JSONObject fields = o.getJSONObject("fields");
-                    String summary = fields.getString("summary");
-                    DemandDTO demandDTO = new DemandDTO();
-                    demandDTO.setName(summary);
-                    demandDTO.setId(issueKey);
-                    demandDTO.setPlatform(IssuesManagePlatform.Jira.name());
-                    list.add(demandDTO);
-                }
-            } while (currentStartAt + maxResults < total);
-
-
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
-
+            startAt += maxResults;
+        } while (demands.size() >= maxResults);
         return list;
     }
 
@@ -235,9 +137,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void addIssue(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
 
-        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest);
+        JiraConfig jiraConfig = setUserConfig();
+        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, jiraConfig.getIssuetype());
 
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
@@ -255,18 +158,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issuesRequest.setId(UUID.randomUUID().toString());
 
         // 插入缺陷表
-        insertIssues(issuesRequest);
+        IssuesWithBLOBs res = insertIssues(issuesRequest);
 
         // 用例与第三方缺陷平台中的缺陷关联
         handleTestCaseIssues(issuesRequest);
+
+        return res;
     }
 
-    private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest) {
+    private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr) {
 
-        issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
-
-        JiraConfig config = getUserConfig();
-        jiraClientV2.setConfig(config);
+        issuesRequest.setPlatform(key);
 
         String jiraKey = validateJiraKey(issuesRequest.getProjectId());
 
@@ -280,7 +182,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         project.put("key", jiraKey);
 
         JSONObject issuetype = new JSONObject();
-        issuetype.put("name", config.getIssuetype());
+        issuetype.put("name", issuetypeStr);
 
         fields.put("summary", issuesRequest.getTitle());
 //        fields.put("description", new JiraIssueDescription(desc));
@@ -291,7 +193,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
         addJiraIssueParam.put("fields", fields);
 
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
-        jiraClientV2.setConfig(config);
 
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
@@ -330,7 +231,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void updateIssue(IssuesUpdateRequest request) {
-        JSONObject param = buildUpdateParam(request);
+        JiraConfig jiraConfig = setUserConfig();
+        JSONObject param = buildUpdateParam(request, jiraConfig.getIssuetype());
         handleIssueUpdate(request);
         jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
     }
@@ -339,24 +241,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public void deleteIssue(String id) {
         IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
         super.deleteIssue(id);
-        setConfig();
         jiraClientV2.deleteIssue(issuesWithBLOBs.getPlatformId());
     }
 
     @Override
     public void testAuth() {
-        setConfig();
         jiraClientV2.auth();
     }
 
     @Override
     public void userAuth(UserDTO.PlatformInfo userInfo) {
-        String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
-        JiraConfig jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
-        jiraConfig.setAccount(userInfo.getJiraAccount());
-        jiraConfig.setPassword(userInfo.getJiraPassword());
-        validateConfig(jiraConfig);
-        jiraClientV2.setConfig(jiraConfig);
+        setUserConfig(userInfo);
         jiraClientV2.auth();
     }
 
@@ -368,10 +263,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
     @Override
     public void syncIssues(Project project, List<IssuesDao> issues) {
         issues.forEach(item -> {
-            setConfig();
             try {
                 IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
-                parseIssue(item, jiraClientV2.getIssues(item.getPlatformId()), issuesWithBLOBs.getCustomFields());
+                getUpdateIssue(item, jiraClientV2.getIssues(item.getPlatformId()));
                 String desc = htmlDesc2MsDesc(item.getDescription());
                 // 保留之前上传的图片
                 String images = getImages(issuesWithBLOBs.getDescription());
@@ -392,17 +286,33 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public String getProjectId(String projectId) {
-        if (StringUtils.isNotBlank(projectId)) {
-            return projectService.getProjectById(projectId).getJiraKey();
-        }
-        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-        Project project = projectService.getProjectById(testCase.getProjectId());
-        return project.getJiraKey();
+        return getProjectId(projectId, Project::getJiraKey);
+    }
+
+    public JiraConfig getConfig() {
+        return getConfig(key, JiraConfig.class);
     }
 
     public JiraConfig setConfig() {
         JiraConfig config = getConfig();
+        validateConfig(config);
         jiraClientV2.setConfig(config);
         return config;
+    }
+
+    public JiraConfig setUserConfig(UserDTO.PlatformInfo userInfo) {
+        JiraConfig config = getConfig();
+        if (userInfo != null && StringUtils.isNotBlank(userInfo.getJiraAccount())
+                && StringUtils.isNotBlank(userInfo.getJiraPassword())) {
+            config.setAccount(userInfo.getJiraAccount());
+            config.setPassword(userInfo.getJiraPassword());
+        }
+        validateConfig(config);
+        jiraClientV2.setConfig(config);
+        return config;
+    }
+
+    public JiraConfig setUserConfig() {
+        return setUserConfig(getUserPlatInfo(this.workspaceId));
     }
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtEnvironmentGroupMapper">
+
+    <select id="getList" resultType="io.metersphere.base.domain.EnvironmentGroup">
+        select * from environment_group
+        <where>
+            <if test="request.name != null and request.name!=''">
+                and environment_group.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.workspaceId != null and request.workspaceId!=''">
+                and environment_group.workspace_id = #{request.workspaceId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getRelateProject" resultType="io.metersphere.base.domain.EnvironmentGroup">
+        select distinct eg.*
+        from environment_group eg
+                 join environment_group_project egp on eg.id = egp.environment_group_id
+        where eg.workspace_id = #{wsId}
+          and egp.project_id = #{pId}
+    </select>
+
+</mapper>

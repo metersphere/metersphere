@@ -1,10 +1,41 @@
 <template>
   <div class="request-form">
     <keep-alive>
-      <component v-bind:is="component" :isMax="isMax" :show-btn="showBtn" :expandedNode="expandedNode"
-                 :scenario="scenario" :controller="scenario" :timer="scenario" :assertions="scenario" :extract="scenario" :jsr223-processor="scenario" :request="scenario" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" :node="node"
-                 :draggable="draggable" :title="title" :color="titleColor" :background-color="backgroundColor" @suggestClick="suggestClick(node)" :response="response"
-                 @remove="remove" @runScenario="runScenario" @stopScenario="stopScenario" @copyRow="copyRow" @refReload="refReload" @openScenario="openScenario" :project-list="projectList" :env-map="envMap" :message="message"/>
+      <component
+        v-bind:is="component"
+        :isMax="isMax"
+        :show-btn="showBtn"
+        :expandedNode="expandedNode"
+        :scenario="scenario"
+        :controller="scenario"
+        :timer="scenario"
+        :assertions="scenario"
+        :extract="scenario"
+        :jsr223-processor="scenario"
+        :request="scenario"
+        :currentScenario="currentScenario"
+        :currentEnvironmentId="currentEnvironmentId"
+        :node="node"
+        :draggable="draggable"
+        :title="title"
+        :color="titleColor"
+        :response="response"
+        :environmet-type="environmentType"
+        :environment-group-id="envGroupId"
+        :background-color="backgroundColor"
+        :project-list="projectList"
+        :env-map="envMap"
+        :message="message"
+        :api-id="apiId"
+        @suggestClick="suggestClick(node)"
+        @remove="remove"
+        @runScenario="runScenario"
+        @stopScenario="stopScenario"
+        @copyRow="copyRow"
+        @refReload="refReload"
+        @openScenario="openScenario"
+
+      />
     </keep-alive>
   </div>
 </template>
@@ -57,13 +88,16 @@ export default {
     response: {},
     node: {},
     projectList: Array,
-    envMap: Map
+    envMap: Map,
+    environmentType: String,
+    envGroupId: String
   },
   data() {
     return {
       title: "",
       titleColor: "",
       backgroundColor: "",
+      apiId: "",
     }
   },
   computed: {
@@ -95,7 +129,7 @@ export default {
           name = this.getComponent(ELEMENT_TYPE.JDBCPreProcessor);
           break;
         case ELEMENT_TYPE.Assertions:
-          name = "MsApiAssertions";
+          name = this.getComponent(ELEMENT_TYPE.Assertions);
           break;
         case ELEMENT_TYPE.Extract:
           name = "MsApiExtract";
@@ -145,7 +179,8 @@ export default {
         this.titleColor = "#783887";
         this.backgroundColor = "#F2ECF3";
         return "MsJsr233Processor";
-      }if (type === ELEMENT_TYPE.JDBCPreProcessor) {
+      }
+      if (type === ELEMENT_TYPE.JDBCPreProcessor) {
         this.title = this.$t('api_test.definition.request.pre_sql');
         this.titleColor = "#FE6F71";
         this.backgroundColor = "#F2ECF3";
@@ -155,13 +190,19 @@ export default {
         this.titleColor = "#1483F6";
         this.backgroundColor = "#F2ECF3";
         return "MsJdbcProcessor";
-      }
-      else if (type === ELEMENT_TYPE.Plugin) {
+      } else if (type === ELEMENT_TYPE.Plugin) {
         this.titleColor = "#1483F6";
         this.backgroundColor = "#F2ECF3";
         return "PluginComponent";
-      }
-      else {
+      } else if (type === ELEMENT_TYPE.Assertions) {
+        if (this.node && this.node.parent && this.node.parent.data && this.node.parent.data.referenced === "REF") {
+          this.apiId = this.node.parent.data.id;
+          this.scenario.document.nodeType = "scenario";
+        } else {
+          this.apiId = "none";
+        }
+        return "MsApiAssertions";
+      } else {
         this.title = this.$t('api_test.automation.customize_script');
         this.titleColor = "#7B4D12";
         this.backgroundColor = "#F1EEE9";
@@ -188,7 +229,7 @@ export default {
     runScenario(scenario) {
       this.$emit('runScenario', scenario);
     },
-    stopScenario(){
+    stopScenario() {
       this.$emit('stopScenario');
     }
   }

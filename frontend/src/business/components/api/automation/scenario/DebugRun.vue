@@ -16,6 +16,8 @@ export default {
     reportId: String,
     runData: Object,
     saved: Boolean,
+    environmentType: String,
+    environmentGroupId: String
   },
   data() {
     return {
@@ -38,6 +40,9 @@ export default {
         for (let i in stepArray) {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
           }
           if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
             stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
@@ -65,7 +70,8 @@ export default {
       this.sort(testPlan.hashTree);
       let reqObj = {
         id: this.reportId, reportId: this.reportId, scenarioName: this.runData.name, saved: this.saved,
-        scenarioId: this.runData.id, testElement: testPlan, projectId: getCurrentProjectID(), environmentMap: strMapToObj(map)
+        scenarioId: this.runData.id, testElement: testPlan, projectId: getCurrentProjectID(), environmentMap: strMapToObj(map),
+        environmentType: this.environmentType, environmentGroupId: this.environmentGroupId, environmentJson: JSON.stringify(strMapToObj(map))
       };
       saveScenario('/api/automation/run/debug', reqObj, this.runData.hashTree, this, (response) => {
         this.runId = response.data;

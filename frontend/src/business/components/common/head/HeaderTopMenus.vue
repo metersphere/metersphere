@@ -8,8 +8,7 @@
            @select="handleSelect"
            :key="menuKey"
            router>
-    <el-menu-item index="/workstation"   onselectstart="return false"
-                  v-permission="['PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ']">
+    <el-menu-item index="/workstation" v-xpack onselectstart="return false">
       {{ $t('commons.my_workstation') }}
     </el-menu-item>
     <el-menu-item index="/track" v-if="check('testTrack')" onselectstart="return false"
@@ -26,16 +25,18 @@
       {{ $t('commons.performance') }}
     </el-menu-item>
     <el-menu-item index="/report" v-if="check('reportStat')" onselectstart="return false"
-                  v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ']">
+                  v-permission="['PROJECT_REPORT_ANALYSIS:READ']">
       {{ $t('commons.report_statistics.title') }}
     </el-menu-item>
 
     <el-menu-item index="/project" onselectstart="return false"
                   v-permission="['PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ']">
-      {{$t('commons.project_setting')}}
+      {{ $t('commons.project_setting') }}
     </el-menu-item>
 
-    <el-menu-item index="/setting" onselectstart="return false">
+    <el-menu-item index="/setting" onselectstart="return false"
+                  v-permission="['SYSTEM_USER:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_GROUP:READ', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_SETTING:READ', 'SYSTEM_AUTH:READ', 'SYSTEM_QUOTA:READ','SYSTEM_OPERATING_LOG:READ',
+                  'WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ']">
       {{ $t('commons.system_setting') }}
     </el-menu-item>
   </el-menu>
@@ -43,7 +44,6 @@
 
 <script>
 import {LicenseKey} from '@/common/js/constants';
-import {mapGetters} from "vuex";
 import {hasLicense} from "@/common/js/utils";
 import {MODULE_CHANGE, ModuleEvent} from "@/business/components/common/head/ListEvent";
 

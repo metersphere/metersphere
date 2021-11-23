@@ -100,7 +100,7 @@ public class DateUtils {
             returnMap.put("firstTime", thisWeekFirstTime);
             returnMap.put("lastTime", thisWeekLastTime);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return returnMap;
 

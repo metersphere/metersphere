@@ -200,7 +200,7 @@ export default {
       if (data) {
         let keyValues = this._handleBatchVars(data);
         keyValues.forEach(item => {
-          this.format(this.headers,item);
+          this.format(this.headers, item);
         });
       }
     },
@@ -229,7 +229,7 @@ export default {
       }
     },
     handleClick(command) {
-      this.editData = {delimiter: ",",quotedData: 'false'};
+      this.editData = {delimiter: ",", quotedData: 'false'};
       this.editData.type = command;
       this.addParameters(this.editData);
     },
@@ -298,10 +298,32 @@ export default {
         this.$warning("请选择一条数据删除");
         return;
       }
+      let message = "";
       ids.forEach(row => {
-        const index = this.variables.findIndex(d => d.id === row);
-        this.variables.splice(index, 1);
+        const v = this.variables.find(d => d.id === row);
+        if (v.name) {
+          message += v.name + ";";
+        }
       });
+      if (message !== "") {
+        message = message.substr(0, message.length - 1);
+        this.$alert('是否确认删除变量：【 ' + message + " 】？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              ids.forEach(row => {
+                const index = this.variables.findIndex(d => d.id === row);
+                this.variables.splice(index, 1);
+              });
+            }
+          }
+        });
+      } else {
+        ids.forEach(row => {
+          const index = this.variables.findIndex(d => d.id === row);
+          this.variables.splice(index, 1);
+        });
+      }
       this.selection = [];
       this.editData = {type: "CONSTANT"};
     },

@@ -20,9 +20,10 @@
                     :request="mockExpectConfig.request" style="margin: 10px 10px;" ref="tcpParam"></tcp-params>
                 <mock-request-param
                     v-else
-                  :isShowEnable="true"
+                  :isShowEnable="false"
                   :referenced="true"
                   :is-read-only="false"
+                  :api-params="apiParams"
                   :request="mockExpectConfig.request.params"/>
               </el-row>
 
@@ -66,7 +67,7 @@ export default {
     MsDrawer,MockConfigHeader,MockRowVariables,MsCodeEdit,MockRequestParam,MockResponseParam,TcpParams
   },
   props: {
-    apiParams: Array,
+    apiParams: Object,
     apiId:String,
     mockConfigId:String,
     isTcp:{
@@ -85,6 +86,7 @@ export default {
         name: "",
         mockConfigId: "",
         request: {
+          reportType: "raw",
           jsonParam: false,
           variables: [],
           jsonData: "{}",
@@ -158,7 +160,7 @@ export default {
 
           if(this.mockExpectConfig.request.jsonParam && this.mockExpectConfig.request.jsonData){
             this.mockExpectConfig.request.params.body.type = "JSON";
-            this.mockExpectConfig.request.params.body.raw = this.mockExpectConfig.jsonData;
+            this.mockExpectConfig.request.params.body.raw = this.mockExpectConfig.request.jsonData;
           }else if(this.mockExpectConfig.request.variables){
             this.mockExpectConfig.request.params.body.type = "Form Data";
             let headerItem = {};

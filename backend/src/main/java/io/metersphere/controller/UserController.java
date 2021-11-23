@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("user")
 @RestController
@@ -254,5 +255,13 @@ public class UserController {
         String returnString = "success";
         userService.batchProcessUserInfo(request);
         return returnString;
+    }
+
+    /**
+     * 根据userId 获取 user 所属工作空间和所属工作项目
+     */
+    @GetMapping("/get/ws_pj/{userId}")
+    public Map<Object,Object> getWSAndProjectByUserId(@PathVariable String userId) {
+        return userService.getWSAndProjectByUserId(userId);
     }
 }

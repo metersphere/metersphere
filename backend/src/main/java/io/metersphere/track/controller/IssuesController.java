@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -44,8 +45,8 @@ public class IssuesController {
     @MsAuditLog(module = "track_bug", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.CREATE, mailTemplate = "track/IssuesCreate", subject = "缺陷通知")
-    public void addIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
-        issuesService.addIssues(issuesRequest);
+    public IssuesWithBLOBs addIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
+        return issuesService.addIssues(issuesRequest);
     }
 
     @PostMapping("/update")
@@ -56,9 +57,14 @@ public class IssuesController {
         issuesService.updateIssues(issuesRequest);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/get/case/{id}")
     public List<IssuesDao> getIssues(@PathVariable String id) {
         return issuesService.getIssues(id);
+    }
+
+    @GetMapping("/get/{id}")
+    public IssuesWithBLOBs getIssue(@PathVariable String id) {
+        return issuesService.getIssue(id);
     }
 
     @GetMapping("/plan/get/{planId}")
@@ -129,4 +135,13 @@ public class IssuesController {
         return issuesService.getCountByStatus(request);
     }
 
+    @GetMapping("/follow/{issueId}")
+    public List<String> getFollows(@PathVariable String issueId) {
+        return issuesService.getFollows(issueId);
+    }
+
+    @PostMapping("/up/follows/{issueId}")
+    public void saveFollows(@PathVariable String issueId,@RequestBody List<String> follows) {
+        issuesService.saveFollows(issueId,follows);
+    }
 }

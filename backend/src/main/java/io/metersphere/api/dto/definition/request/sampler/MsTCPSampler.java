@@ -11,9 +11,12 @@ import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.environment.GlobalScriptConfig;
+import io.metersphere.api.dto.scenario.environment.GlobalScriptFilterRequest;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
@@ -148,13 +151,60 @@ public class MsTCPSampler extends MsTestElement {
             samplerHashTree.add(tcpPreProcessor.getJSR223PreProcessor());
         }
 
+        MsJSR223PreProcessor preProcessor = null;
+        MsJSR223PostProcessor postProcessor = null;
+        GlobalScriptConfig globalScriptConfig = null;
+        if(envConfig != null){
+            preProcessor = envConfig.getPreProcessor();
+            postProcessor = envConfig.getPostProcessor();
+            globalScriptConfig = envConfig.getGlobalScriptConfig();
+        }
+
+        boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
+        boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
+        boolean globalPreScriptIsFilter = false;
+        boolean globalPostScriptIsFilter = false;
+        List<String> preFilterProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
+        List<String> postFilterProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
+        if(preFilterProtocal.contains(GlobalScriptFilterRequest.TCP.name())){
+            globalPreScriptIsFilter = true;
+        }
+        if(postFilterProtocal.contains(GlobalScriptFilterRequest.TCP.name())){
+            globalPostScriptIsFilter = true;
+        }
+
+        if(!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter){
+            this.addItemHashTree(preProcessor,samplerHashTree,config);
+        }
+        if(!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter){
+            this.addItemHashTree(postProcessor,samplerHashTree,config);
+        }
+
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }
-    }
 
+        if(isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter){
+            this.addItemHashTree(preProcessor,samplerHashTree,config);
+        }
+        if(isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter){
+            this.addItemHashTree(postProcessor,samplerHashTree,config);
+        }
+    }
+    private void addItemHashTree(MsTestElement element, HashTree samplerHashTree,ParameterConfig config){
+        if(element != null){
+            if (element.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    element.setEnvironmentId(useEnvironment);
+                } else {
+                    element.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            element.toHashTree(samplerHashTree, element.getHashTree(), config);
+        }
+    }
     private void setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
@@ -182,7 +232,11 @@ public class MsTCPSampler extends MsTestElement {
                 }
             }
             if (proxy != null) {
-                this.setHashTree(proxy.getHashTree());
+                if (StringUtils.equals(this.getRefType(), "CASE")) {
+                    ElementUtil.mergeHashTree(this, proxy.getHashTree());
+                }else {
+                    this.setHashTree(proxy.getHashTree());
+                }
                 this.setClassname(proxy.getClassname());
                 this.setServer(proxy.getServer());
                 this.setPort(proxy.getPort());

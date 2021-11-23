@@ -237,7 +237,7 @@ public class PerformanceTestService {
                 criteria.andIdNotEqualTo(request.getId());
             }
             if (loadTestMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("plan_name_already_exists"));
+                MSException.throwException(Translator.get("api_test_name_already_exists"));
             }
         }
     }
@@ -308,13 +308,13 @@ public class PerformanceTestService {
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
-        saveFollows(loadTest.getId(), request.getFollows());
+        //saveFollows(loadTest.getId(), request.getFollows());
         loadTestMapper.updateByPrimaryKeySelective(loadTest);
 
         return loadTest;
     }
 
-    private void saveFollows(String testId, List<String> follows) {
+    public void saveFollows(String testId, List<String> follows) {
         LoadTestFollowExample example = new LoadTestFollowExample();
         example.createCriteria().andTestIdEqualTo(testId);
         loadTestFollowMapper.deleteByExample(example);
@@ -402,11 +402,14 @@ public class PerformanceTestService {
             String testPlanLoadId = request.getTestPlanLoadId();
             if (StringUtils.isNotBlank(testPlanLoadId)) {
                 // 设置本次报告中的压力配置信息
-                TestPlanLoadCase testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(testPlanLoadId);
+                TestPlanLoadCaseWithBLOBs testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(testPlanLoadId);
                 if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getLoadConfiguration())) {
                     testReport.setLoadConfiguration(testPlanLoadCase.getLoadConfiguration());
                 }
-                if (StringUtils.isNotBlank(testPlanLoadCase.getTestResourcePoolId())) {
+                if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getAdvancedConfiguration())) {
+                    testReport.setAdvancedConfiguration(testPlanLoadCase.getAdvancedConfiguration());
+                }
+                if (testPlanLoadCase != null && StringUtils.isNotBlank(testPlanLoadCase.getTestResourcePoolId())) {
                     testReport.setTestResourcePoolId(testPlanLoadCase.getTestResourcePoolId());
                 }
             }
@@ -808,7 +811,7 @@ public class PerformanceTestService {
             try {
                 fileMetadata = fileService.saveFile(file, FileUtil.readAsByteArray(file));
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             saveLoadTestFile(fileMetadata, loadTestId, sort);
         }

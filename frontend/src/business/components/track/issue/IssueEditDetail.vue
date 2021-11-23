@@ -4,7 +4,13 @@
       <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
         <el-form-item :label="$t('commons.title')" prop="title">
-          <el-input v-model="form.title" autocomplete="off"></el-input>
+          <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
+          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+          </el-tooltip>
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow" >
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-left: 15px; cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+          </el-tooltip>
         </el-form-item>
 
         <!-- 自定义字段 -->
@@ -79,7 +85,7 @@ import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
 
 export default {
@@ -96,9 +102,11 @@ export default {
   },
   data() {
     return {
+      issueId:'',
       result: {},
       relateFields: [],
       isFormAlive: true,
+      showFollow:false,
       formLabelWidth: "150px",
       issueTemplate: {},
       customFieldForm: {},
@@ -117,7 +125,7 @@ export default {
       form: {
         title: '',
         description: '',
-        creator: null
+        creator: null,
       },
       tapdUsers: [],
       zentaoUsers: [],
@@ -156,6 +164,22 @@ export default {
           this.getThirdPartyInfo();
           initAddFuc(data);
         });
+      if(data&&data.id){
+        this.$get('/issues/follow/' + data.id, response => {
+          this.form.follows = response.data;
+          for (let i = 0; i < response.data.length; i++) {
+            if(response.data[i]===this.currentUser().id){
+              this.showFollow = true;
+              break;
+            }
+          }
+        })
+      }else {
+        this.form.follows = [];
+      }
+    },
+    currentUser: () => {
+      return getCurrentUser();
     },
     getThirdPartyInfo() {
       let platform = this.issueTemplate.platform;
@@ -194,6 +218,7 @@ export default {
           this.form.options = data.options ? JSON.parse(data.options) : [];
         }
         if (data.id) {
+          this.issueId  = data.id
           this.url = 'issues/update';
         } else {
           //copy
@@ -250,7 +275,9 @@ export default {
       buildCustomFields(this.form, param, this.issueTemplate);
       if (this.isPlan) {
         param.testCaseIds = [this.caseId];
+        param.withCaseId = false;
       } else {
+        param.withCaseId = true;
         param.testCaseIds = Array.from(this.testCaseContainIds);
       }
       if (this.planId) {
@@ -261,10 +288,10 @@ export default {
     _save() {
       let param = this.buildPram();
       this.parseOldFields(param);
-      this.result = this.$post(this.url, param, () => {
+      this.result = this.$post(this.url, param, (response) => {
         this.$emit('close');
         this.$success(this.$t('commons.save_success'));
-        this.$emit('refresh');
+        this.$emit('refresh', response.data);
       });
     },
     parseOldFields(param) {
@@ -278,12 +305,45 @@ export default {
         });
       }
     },
+    saveFollow(){
+      if(!this.form.follows){
+        this.form.follows = [];
+      }
+      if(this.showFollow){
+        this.showFollow = false;
+        for (let i = 0; i < this.form.follows.length; i++) {
+          if(this.form.follows[i]===this.currentUser().id){
+            this.form.follows.splice(i,1)
+            break;
+          }
+        }
+        if(this.url === "issues/update"){
+          this.$post("issues/up/follows/"+this.issueId, this.form.follows,() => {
+            this.$success(this.$t('commons.cancel_follow_success'));
+          });
+        }
+
+      }else {
+        this.showFollow = true;
+        if(!this.form.follows){
+          this.form.follows = [];
+        }
+        this.form.follows.push(this.currentUser().id)
+        if(this.url === "issues/update"){
+          this.$post("issues/up/follows/"+this.issueId, this.form.follows,() => {
+            this.$success(this.$t('commons.follow_success'));
+          });
+        }
+      }
+    }
   }
 };
 </script>
 
 <style scoped>
-
+.top-input-class{
+  width: 95%;
+}
 
 .filed-list {
   margin-top: 30px;

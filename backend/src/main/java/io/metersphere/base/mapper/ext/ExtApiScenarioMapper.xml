@@ -113,7 +113,7 @@
             </include>
         </if>
         <if test="${condition}.creator != null">
-            and api_scenario.user_id
+            and api_scenario.create_user
             <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
             </include>
@@ -141,7 +141,8 @@
 
     </sql>
     <select id="listModule" resultType="java.lang.Integer">
-        select count(id) from api_scenario
+        select count(api_scenario.id) from api_scenario
+        left join project on api_scenario.project_id = project.id
         <include refid="queryWhereCondition"/>
     </select>
 
@@ -152,7 +153,10 @@
     </select>
     <select id="list" resultMap="BaseResultMap">
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
-        api_scenario.custom_num, api_scenario.version,
+        api_scenario.custom_num, api_scenario.version, api_scenario.environment_type, api_scenario.environment_group_id,
+        <if test="request.selectEnvironment == true">
+            api_scenario.environment_json as env,
+        </if>
         api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
         api_scenario.status, api_scenario.principal, api_scenario.step_total,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
@@ -292,7 +296,7 @@
             <if test="request.executeStatus == 'executePass'">
                 and api_scenario.last_result = 'Success'
             </if>
-            <if test="request.notInTestPlan == true ">
+            <if test="request.notInTestPlan">
                 and api_scenario.id not in (
                 select pc.api_scenario_id
                 from test_plan_api_scenario pc
@@ -607,4 +611,5 @@
         </foreach>
         and api_scenario.status != 'Trash';
     </select>
+
 </mapper>

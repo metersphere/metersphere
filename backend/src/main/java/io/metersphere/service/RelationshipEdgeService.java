@@ -49,6 +49,13 @@ public class RelationshipEdgeService {
         relationshipEdgeMapper.deleteByExample(example);
     }
 
+    public void delete(String sourceId ,List<String> targetIds) {
+        RelationshipEdgeExample example = new RelationshipEdgeExample();
+        example.createCriteria().andSourceIdEqualTo(sourceId).andTargetIdIn(targetIds);
+
+        relationshipEdgeMapper.deleteByExample(example);
+    }
+
     /**
      * 删除边后，若形成两个不连通子图，则拆分图
      * @param graphId
@@ -63,7 +70,7 @@ public class RelationshipEdgeService {
 
         // 去掉要删除的边
         edges = edges.stream()
-                .filter(i -> i.getSourceId() != sourceId || i.getTargetId() != targetId)
+                .filter(i -> !i.getSourceId().equals(sourceId) && !i.getTargetId().equals(targetId))
                 .collect(Collectors.toList());
 
         Set<String> nodes = new HashSet<>();
@@ -114,7 +121,7 @@ public class RelationshipEdgeService {
         }
 
         nextLevelNodes.forEach(nextNode -> {
-            if (!markSet.contains(node)) {
+            if (!markSet.contains(nextNode)) {
                 dfsForMark(nextNode, edges, markSet, true);
                 dfsForMark(nextNode, edges, markSet, false);
             }
@@ -232,6 +239,9 @@ public class RelationshipEdgeService {
             if (addEdgesIds.contains(item.getSourceId() + item.getTargetId())) {
                 if(batchMapper.selectByPrimaryKey(item) == null ) {
                     batchMapper.insert(item);
+                }else{
+                    item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
+                    batchMapper.updateByPrimaryKey(item);
                 }
             } else {
                 item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id

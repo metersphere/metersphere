@@ -23,7 +23,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
     @Resource
     private MailService mailService;
 
-    private void sendMail(String context, NoticeModel noticeModel) throws MessagingException {
+    public void sendMail(String context, NoticeModel noticeModel) throws MessagingException {
         LogUtil.debug("发送邮件开始 ");
         JavaMailSenderImpl javaMailSender = mailService.getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -49,6 +49,39 @@ public class MailNoticeSender extends AbstractNoticeSender {
 
         String[] users = super.getUserDetails(userIds).stream()
                 .map(UserDetail::getEmail)
+                .distinct()
+                .toArray(String[]::new);
+
+        LogUtil.info("收件人地址: {}", userIds);
+        helper.setText(context, true);
+        helper.setTo(users);
+        javaMailSender.send(mimeMessage);
+    }
+
+    public void sendExternalMail(String context, NoticeModel noticeModel) throws MessagingException {
+        LogUtil.debug("发送邮件开始 ");
+        JavaMailSenderImpl javaMailSender = mailService.getMailSender();
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        if (javaMailSender.getUsername().contains("@")) {
+            helper.setFrom(javaMailSender.getUsername());
+        } else {
+            String mailHost = javaMailSender.getHost();
+            String domainName = mailHost.substring(mailHost.indexOf(".") + 1, mailHost.length());
+            helper.setFrom(javaMailSender.getUsername() + "@" + domainName);
+        }
+        LogUtil.debug("发件人地址" + javaMailSender.getUsername());
+        LogUtil.debug("helper" + helper);
+        helper.setSubject(noticeModel.getSubject());
+        List<String> userIds = noticeModel.getReceivers().stream()
+                .map(Receiver::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
+
+        String[] users = userIds.stream()
                 .distinct()
                 .toArray(String[]::new);
 

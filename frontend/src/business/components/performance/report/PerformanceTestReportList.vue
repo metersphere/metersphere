@@ -42,11 +42,11 @@
           </el-table-column>
           <el-table-column
             prop="maxUsers"
-            width="65"
+            min-width="65"
             :label="$t('report.max_users')">
           </el-table-column>
           <el-table-column
-            width="100"
+            min-width="100"
             prop="avgResponseTime"
             :label="$t('report.response_time')">
           </el-table-column>
@@ -55,7 +55,7 @@
             label="TPS">
           </el-table-column>
           <el-table-column
-            width="100"
+            min-width="100"
             prop="testStartTime"
             :label="$t('report.test_start_time') ">
             <template v-slot:default="scope">
@@ -63,7 +63,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            width="100"
+            min-width="100"
             prop="testEndTime"
             :label="$t('report.test_end_time')">
             <template v-slot:default="scope">
@@ -71,7 +71,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            width="90"
+            min-width="90"
             prop="testDuration"
             :label="$t('report.test_execute_time')">
             <template v-slot:default="scope">

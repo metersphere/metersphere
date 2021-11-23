@@ -11,12 +11,16 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.CommonConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.environment.GlobalScriptConfig;
+import io.metersphere.api.dto.scenario.environment.GlobalScriptFilterRequest;
 import io.metersphere.api.dto.ssl.KeyStoreConfig;
 import io.metersphere.api.dto.ssl.KeyStoreFile;
 import io.metersphere.api.dto.ssl.MsKeyStore;
@@ -154,7 +158,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             }
             if (proxy != null) {
-                this.setHashTree(proxy.getHashTree());
+                if (StringUtils.equals(this.getRefType(), "CASE")) {
+                    ElementUtil.mergeHashTree(this, proxy.getHashTree());
+                } else {
+                    this.setHashTree(proxy.getHashTree());
+                }
                 this.setMethod(proxy.getMethod());
                 this.setBody(proxy.getBody());
                 this.setRest(proxy.getRest());
@@ -229,7 +237,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setDoMultipart(true);
             }
             if (CollectionUtils.isNotEmpty(bodyParams)) {
-                sampler.setArguments(httpArguments(bodyParams));
+                Arguments arguments = httpArguments(bodyParams);
+                if (arguments != null && !arguments.getArguments().isEmpty()) {
+                    sampler.setArguments(arguments);
+                }
             }
         }
 
@@ -268,6 +279,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         addCertificate(config, httpSamplerTree);
 
+        //根据配置增加全局前后至脚本
+        if (httpConfig != null) {
+            this.setScript(httpConfig, httpSamplerTree, config, false);
+        }
+
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 if (el.getEnvironmentId() == null) {
@@ -281,6 +297,49 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
 
+        //根据配置增加全局前后至脚本
+        if (httpConfig != null) {
+            this.setScript(httpConfig, httpSamplerTree, config, true);
+        }
+    }
+
+    private void setScript(HttpConfig httpConfig, HashTree httpSamplerTree, ParameterConfig config, boolean isAfterPrivateScript) {
+        MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
+        MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
+        GlobalScriptConfig globalScriptConfig = httpConfig.getGlobalScriptConfig();
+        List<String> filterPreProtocal = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
+        List<String> filterPostProtocal = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
+
+        boolean filterPre = filterPreProtocal.contains(GlobalScriptFilterRequest.HTTP.name());
+        boolean filterPost = filterPostProtocal.contains(GlobalScriptFilterRequest.HTTP.name());
+
+        boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
+        boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
+
+        if (!filterPre && preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
+            if ((isPreScriptExecAfterPrivateScript && isAfterPrivateScript) || (!isPreScriptExecAfterPrivateScript && !isAfterPrivateScript)) {
+                if (preProcessor.getEnvironmentId() == null) {
+                    if (this.getEnvironmentId() == null) {
+                        preProcessor.setEnvironmentId(useEnvironment);
+                    } else {
+                        preProcessor.setEnvironmentId(this.getEnvironmentId());
+                    }
+                }
+                preProcessor.toHashTree(httpSamplerTree, preProcessor.getHashTree(), config);
+            }
+        }
+        if (!filterPost && postProcessor != null && StringUtils.isNotEmpty(postProcessor.getScript())) {
+            if ((isPostScriptExecAfterPrivateScript && isAfterPrivateScript) || (!isPostScriptExecAfterPrivateScript && !isAfterPrivateScript)) {
+                if (postProcessor.getEnvironmentId() == null) {
+                    if (this.getEnvironmentId() == null) {
+                        postProcessor.setEnvironmentId(useEnvironment);
+                    } else {
+                        postProcessor.setEnvironmentId(this.getEnvironmentId());
+                    }
+                }
+                postProcessor.toHashTree(httpSamplerTree, postProcessor.getHashTree(), config);
+            }
+        }
     }
 
     private void initConnectAndResponseTimeout(ParameterConfig config) {
@@ -318,7 +377,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     try {
                         JSONObject authObject = environmentConfig.getAuthManager().getJSONObject("authManager");
                         if (authObject != null) {
-                            this.authManager = authObject.toJavaObject(MsAuthManager.class);
+                            if (authObject.containsKey("verification") && !StringUtils.equalsIgnoreCase(authObject.getString("verification"), "No Auth")) {
+                                this.authManager = authObject.toJavaObject(MsAuthManager.class);
+                            }
                         }
                     } catch (Exception e) {
                     }
@@ -327,6 +388,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     this.setEnvironmentId(useEvnId);
                 }
                 HttpConfig httpConfig = matchConfig(config);
+                httpConfig.setPreProcessor(environmentConfig.getPreProcessor());
+                httpConfig.setPostProcessor(environmentConfig.getPostProcessor());
+                httpConfig.setGlobalScriptConfig(environmentConfig.getGlobalScriptConfig());
                 return httpConfig;
             }
         }
@@ -380,7 +444,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                         }
                         String envPath = "";
-                        if (!isCustomizeReqCompleteUrl(this.path)) {
+                        if (!isCustomizeReqCompleteUrl(this.path) || isRefEnvironment) {
                             URL urlObject = new URL(url);
                             envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
                             if (StringUtils.isNotBlank(this.getPath())) {
@@ -399,6 +463,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
                             sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                             sampler.setProtocol(urlObject.getProtocol());
+                        }
+                        if (StringUtils.isNotEmpty(envPath) && !envPath.startsWith("/")) {
+                            envPath = "/" + envPath;
                         }
                         sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8"));
                     }
@@ -523,7 +590,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
      * @return
      */
     private boolean isCustomizeReqCompleteUrl(String url) {
-        if (isCustomizeReq() && (url.startsWith("http://") || url.startsWith("https://"))) {
+        if (isCustomizeReq() && StringUtils.isNotEmpty(url) && (url.startsWith("http://") || url.startsWith("https://"))) {
             return true;
         }
         return false;
@@ -603,10 +670,20 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         stringBuffer.append(path);
         stringBuffer.append("/");
         Map<String, String> keyValueMap = new HashMap<>();
-        this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).filter(KeyValue::valueIsNotEmpty).forEach(keyValue ->
-                keyValueMap.put(keyValue.getName(), keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
-                        ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue())
-        );
+        List<KeyValue> list = this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid)
+                .filter(KeyValue::valueIsNotEmpty).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(list)) {
+            list.forEach(keyValue -> {
+                try {
+                    String value = keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
+                            ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                    value = keyValue.isUrlEncode() ? URLEncoder.encode(value, "utf-8") : value;
+                    keyValueMap.put(keyValue.getName(), value);
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
+            });
+        }
         try {
             Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
             Matcher m = p.matcher(path);
@@ -629,8 +706,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue -> {
             stringBuffer.append(keyValue.getName());
             if (keyValue.getValue() != null) {
-                stringBuffer.append("=").append(keyValue.getValue().startsWith("@") ?
-                        ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue());
+                try {
+                    String value = keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                    value = keyValue.isUrlEncode() ? URLEncoder.encode(value, "utf-8") : value;
+                    stringBuffer.append("=").append(value);
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
             }
             stringBuffer.append("&");
         });
@@ -639,16 +721,24 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private Arguments httpArguments(List<KeyValue> list) {
         Arguments arguments = new Arguments();
-        list.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue -> {
-                    HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue());
-                    if (keyValue.getValue() == null) {
-                        httpArgument.setValue("");
+        list.stream().
+                filter(KeyValue::isValid).
+                filter(KeyValue::isEnable).forEach(keyValue -> {
+                    try {
+                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                        value = keyValue.isUrlEncode() ? URLEncoder.encode(value, "utf-8") : value;
+                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                        if (keyValue.getValue() == null) {
+                            httpArgument.setValue("");
+                        }
+                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                            httpArgument.setContentType(keyValue.getContentType());
+                        }
+                        arguments.addArgument(httpArgument);
+                    } catch (Exception e) {
+
                     }
-                    httpArgument.setAlwaysEncoded(keyValue.isEncode());
-                    if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                        httpArgument.setContentType(keyValue.getContentType());
-                    }
-                    arguments.addArgument(httpArgument);
                 }
         );
         return arguments;

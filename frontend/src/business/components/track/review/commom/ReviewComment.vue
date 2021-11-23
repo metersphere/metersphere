@@ -206,4 +206,8 @@ export default {
   height: 300px;
   overflow: auto
 }
+
+.review-mavon-editor {
+  position: initial;
+}
 </style>

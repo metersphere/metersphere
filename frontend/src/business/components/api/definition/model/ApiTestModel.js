@@ -103,6 +103,7 @@ export const ASSERTION_TYPE = {
   DURATION: "Duration",
   JSR223: "JSR223",
   XPATH2: "XPath2",
+  DOCUMENT: "Document",
 }
 
 export const ASSERTION_REGEX_SUBJECT = {
@@ -126,8 +127,7 @@ export class BaseConfig {
         if (!(this[name] instanceof Array)) {
           if (notUndefined === true) {
             this[name] = options[name] === undefined ? this[name] : options[name];
-          }
-          else {
+          } else {
             this[name] = options[name];
           }
         }
@@ -782,8 +782,34 @@ export class Assertions extends BaseConfig {
     this.xpath2 = [];
     this.duration = undefined;
     this.enable = true;
+    this.document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
     this.set(options);
     this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223, xpath2: XPath2}, options);
+  }
+
+  initOptions(options) {
+    options = options || {};
+    options.duration = new Duration(options.duration);
+    return options;
+  }
+}
+
+export class AssertionDocument extends BaseConfig {
+  constructor(options) {
+    super();
+    this.id = uuid();
+    this.name = "root";
+    this.status = true;
+    this.groupId = "";
+    this.rowspan = 1;
+    this.include = false;
+    this.typeVerification = false;
+    this.type = "object";
+    this.arrayVerification = false;
+    this.contentVerifications = "none";
+    this.expectedOutcome = "";
+    this.children = [];
+    this.set(options);
   }
 
   initOptions(options) {
@@ -846,6 +872,7 @@ export class JSR223Processor extends BaseConfig {
     this.resourceId = uuid();
     this.active = false;
     this.type = "JSR223Processor";
+    this.label = "";
     this.script = undefined;
     this.scriptLanguage = "beanshell";
     this.enable = true;
@@ -1114,7 +1141,7 @@ export class TransactionController extends Controller {
   label() {
     if (this.isValid()) {
       let label = this.$t('api_test.automation.transcation_controller');
-      if(this.name != null && this.name !== ""){
+      if (this.name != null && this.name !== "") {
         label = this.name;
       }
       return label;

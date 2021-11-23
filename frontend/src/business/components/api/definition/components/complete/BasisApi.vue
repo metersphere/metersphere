@@ -92,6 +92,43 @@
       moduleOptions: Array,
       basisData: {},
     },
+    watch: {
+      'basicForm.name': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.apiMapStatus();
+          }
+        }
+      },
+      'basicForm.moduleId': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.apiMapStatus();
+          }
+        }
+      },
+      'basicForm.status': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.apiMapStatus();
+          }
+        }
+      },
+      'basicForm.follows': {
+        handler(v, v1) {
+          if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
+            this.apiMapStatus();
+          }
+        }
+      },
+      'basicForm.description': {
+        handler(v, v1) {
+          if (v && v1 && v !== v1) {
+            this.apiMapStatus();
+          }
+        }
+      },
+    },
     created() {
       this.getMaintainerOptions();
       this.basicForm = this.basisData;
@@ -124,8 +161,14 @@
       }
     },
     methods: {
+      apiMapStatus() {
+        this.$store.state.apiStatus.set("fromChange", true);
+        if (this.httpForm.id) {
+          this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+        }
+      },
       getMaintainerOptions() {
-        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
           this.maintainerOptions = response.data;
         });
       },

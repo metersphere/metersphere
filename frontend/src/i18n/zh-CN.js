@@ -77,6 +77,7 @@ export default {
     group: '用户组',
     personal_info: '个人信息',
     api_keys: 'API Keys',
+    third_account:'第三方平台账号',
     quota: '配额管理',
     status: '状态',
     show_all: '显示全部',
@@ -85,6 +86,7 @@ export default {
     user: '用户',
     system: '系统',
     personal_setting: '个人设置',
+    personal_password_info:'新旧密码相同',
     test_resource_pool: '测试资源池',
     system_setting: '系统设置',
     api: '接口测试',
@@ -95,6 +97,7 @@ export default {
     create: '新建',
     edit: '编辑',
     copy: '复制',
+    follow:'关注',
     refresh: '刷新',
     remark: '备注',
     delete: '删除',
@@ -188,6 +191,8 @@ export default {
     run_success: "执行成功",
     run_completed: "执行完成",
     run_fail: "执行失败",
+    follow_success:"关注成功",
+    cancel_follow_success:"取消关注成功",
     relationship: {
       name: '依赖关系',
       pre_case: '前置用例',
@@ -275,6 +280,18 @@ export default {
       default_module: "默认模块",
     },
     report_statistics: {
+      menu: {
+        project_statistics: "项目报表",
+        project_report: "项目报告",
+      },
+      project_report: {
+        create_report: "创建报告",
+        report_name: "报告名称",
+        report_send_time: "发送时间",
+        report_send_freq: "发送频率",
+        report_detail: "报告内容",
+        show: "查看",
+      },
       title: "报表统计",
       test_case_analysis: "测试用例趋势",
       test_case_activity: "测试用例活动情况",
@@ -321,7 +338,22 @@ export default {
         cannot_add_more_options: "无法添加更多条件",
         end_time_cannot_over_than_start_time: "结束时间不能超过当前时间",
       },
-    }
+    },
+    enterprise_edition: "企业版",
+    open_source_version: "开源版",
+    function_planning: "功能正在规划中...",
+    system_data: "系统数据",
+    system_user: "系统用户",
+    system_workspace: "工作空间",
+    system_project: "项目",
+    user_unit: "人",
+    workspace_unit: "个",
+    dash_board:'仪表盘',
+    all_project:'全部项目',
+    to_be_completed:'待完成',
+    pending_upgrade:'待更新',
+    information:'信息',
+    nick_name:'昵称'
   },
   license: {
     title: '授权管理',
@@ -342,8 +374,12 @@ export default {
   workstation:{
     dash_board: '我的仪表盘',
     upcoming: '我的待办',
-    focus: '我关注的',
+    focus: '我的关注',
     creation: '我创建的',
+    creation_case:'我创建的用例',
+    creation_issue:'我创建的缺陷',
+    creation_case_tip:'暂时还没有创建用例，马上创建',
+    creation_issue_tip:'暂时还没有创建缺陷，马上创建',
     table_name:{
       track_case:'功能用例',
       track_plan:'测试计划',
@@ -353,6 +389,7 @@ export default {
       api_automation:'接口自动化',
       api_case:'接口用例',
       performance:'性能测试',
+      scenario_case:'场景用例'
     }
   },
   display: {
@@ -431,6 +468,20 @@ export default {
     template_manage: "模版管理",
     case_template_manage: "用例模版",
     issue_template_manage: "缺陷模版",
+    custom_filed: {
+      input: '输入框',
+      textarea: '文本框',
+      select: '单选下拉列表',
+      multipleSelect: '多选下拉列表',
+      radio: '单选框',
+      checkbox: '多选框',
+      member: '单选成员',
+      multipleMember: '多选成员',
+      data: '日期',
+      int: '整型',
+      float: '浮点型',
+      multipleInput: '多值输入框'
+    }
   },
   organization: {
     create: '创建组织',
@@ -494,6 +545,10 @@ export default {
       zentao_request: '请求方式',
       input_zentao_request: '请输入Zentao请求方式',
       input_zentao_url: '请输入Zentao地址，例：http://xx.xx.xx.xx/zentao/',
+      zentao_info:'禅道信息',
+      zentao_account:'禅道账户',
+      zentao_password:'禅道密码',
+      zentao_prompt_information:'该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用工作空间中配置的默认信息',
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 账号信息在"公司管理-安全与集成-开放平台"中查询',
       use_tip_jira: 'Jira software server 认证信息为 账号密码，Jira software cloud 认证信息为 账号+令牌(账户设置-安全-创建API令牌)',
@@ -520,6 +575,7 @@ export default {
       input_azure_url: '请输入 Azure Devops 地址',
       input_azure_organization_id: '请输入 Azure 组织ID',
       use_tip_azure: 'Azure Devops 地址+令牌(账户设置-个人访问令牌-创建令牌)',
+      jira_prompt_information:'该信息为通过Jira提交缺陷的用户认证信息，若未填写，则使用工作空间中配置的默认信息'
     }
   },
   project: {
@@ -542,6 +598,8 @@ export default {
     zentao_id: 'Zentao项目ID',
     azureDevops_id: 'AzureDevops项目ID',
     manager: '项目管理',
+    group_permission: '用户组与权限',
+    global: '全局',
     no_data: '无数据',
     select: '选择项目',
     repeatable: '接口定义URL可重复',
@@ -582,10 +640,13 @@ export default {
     creator: '创建人',
     create_time: '创建时间',
     member_desc: '添加项目成员以及项目成员管理',
+    group_desc: '添加用户组与权限以及全局配置',
     env_desc: '项目运行环境以及全局配置',
     file_desc: 'jar包以及资源文件管理',
     log_desc: '项目全部操作过程',
-    code_segment_desc: '自定义代码片段'
+    code_segment_desc: '自定义代码片段',
+    test_case_custom_id: '测试用例自定义ID',
+    scenario_custom_id: '场景自定义ID',
   },
   member: {
     create: '添加成员',
@@ -631,9 +692,11 @@ export default {
       add_user_role_batch: '批量添加角色',
     },
     select_project: '请选择项目',
+    select_workspace: '请选择工作空间',
     select_group: '请选择用户组',
     add_user_group_batch: '批量添加用户组',
     add_project_batch: '批量添加到项目',
+    add_workspace_batch: "批量添加到工作空间",
     add_project_batch_tip: '默认为成员添加只读用户组(系统)',
   },
   group: {
@@ -664,7 +727,9 @@ export default {
     operation_object: '操作对象',
     check_all: '全选',
     permission: '权限',
-    please_select_group: '请选择用户组'
+    please_select_group: '请选择用户组',
+    global: '全局',
+    ws_admin_global: '工作空间管理员才可以创建全局用户组'
   },
   role: {
     please_choose_role: '请选择角色',
@@ -689,6 +754,7 @@ export default {
     test_error_log: '错误记录',
     test_log_details: '日志详情',
     test_monitor_details: '监控详情',
+    test_config: '测试配置',
     test_details: '测试详情',
     test_duration: '执行时长：{0} 分钟 {1} 秒',
     test_execute_time: '执行时长',
@@ -763,12 +829,16 @@ export default {
     duration: '压测时长',
     granularity: '聚合时间（秒）',
     input_duration: '请输入时长',
-    rps_limit: 'RPS上限：',
+    rps_limit: 'RPS上限',
+    rps_limit_enable: 'RPS开启',
+    resource_strategy: '分配策略',
+    run_mode: '执行方式',
     input_rps_limit: '请输入限制',
+    ramp_up_time: '预热时间',
     ramp_up_time_within: '在',
     ramp_up_time_minutes: '秒内，分',
     ramp_up_time_seconds: '秒内增加并发用户',
-    iterate_num: '迭代次数 (次): ',
+    iterate_num: '迭代次数',
     by_iteration: '按迭代次数',
     by_duration: '按持续时间',
     ramp_up_time_times: '次增加并发用户',
@@ -792,10 +862,10 @@ export default {
     separated_by_commas: '按逗号分隔',
     create: '创建测试',
     run: '一键运行',
-    select_resource_pool: '请选择资源池',
-    serialize_threadgroups: '场景是否顺序执行',
-    autostop_threadgroups: '自动停止开启',
-    reaches_duration: '到达执行时间',
+    select_resource_pool: '资源池',
+    serialize_threadgroups: '顺序执行场景',
+    autostop_threadgroups: '自动停止',
+    reaches_duration: '延迟时间',
     autostop_delay: '秒后停止测试',
     resource_pool_is_null: '资源池为空',
     download_log_file: '下载完整日志文件',
@@ -803,6 +873,10 @@ export default {
     user_name: '创建人',
     special_characters_are_not_supported: '测试名称不支持特殊字符',
     pressure_config_params_is_empty: '压力配置参数不能为空!',
+    pressure_config_custom_error: '自定义策略之和必须为1',
+    auto_ratio: '自动分配',
+    custom_ratio: '自定义',
+    specify_resource: '固定节点',
     schedule_tip: '间隔时间不能小于压测时长',
     delete_threadgroup_confirm: '确认删除场景',
     scenario_list: '场景列表',
@@ -922,6 +996,7 @@ export default {
         add_data: "去添加"
       },
       request: {
+        document_structure: "文档结构校验",
         grade_info: "按等级筛选",
         grade_order_asc: "按用例等级从低到高",
         grade_order_desc: "按用例等级从高到低",
@@ -1094,7 +1169,10 @@ export default {
         follow_people: "关注人",
         select_table: "选择可见数据",
         select_all: "选择全部数据",
-        check_case: "请勾选场景用例"
+        check_case: "请勾选场景用例",
+        api_none:"原始API不存在",
+        case_none:"原始CASE不存在",
+        num_none:"原始场景不存在"
       },
       report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',
@@ -1118,6 +1196,8 @@ export default {
       globalVariable: "全局变量",
       environment_list: "环境列表",
       environment_config: "环境配置",
+      environment_manage: "环境管理",
+      please_input_env_group_name: "请输入环境组名称",
       config_environment: "配置环境",
       copy_environment: "复制环境",
       environment: "环境",
@@ -1154,7 +1234,8 @@ export default {
       reference: "引用",
       clone: "复制",
       cant_reference: '历史测试文件，重新保存后才可被引用',
-      share_cookie: '共享cookie'
+      share_cookie: '共享cookie',
+
     },
     request: {
       debug: "调试",
@@ -1180,7 +1261,7 @@ export default {
       jmeter_func: "JMeter 方法",
       parameters_filter_example: "示例",
       parameters_filter_tips: "只支持 MockJs 函数结果预览",
-      parameters_advance: "return",
+      parameters_advance: "参数设置",
       parameters_preview: "预览",
       parameters_mock_filter_tips: "请输入关键字进行过滤",
       parameters_pre_request: "前置请求提取",
@@ -1777,7 +1858,7 @@ export default {
       review_progress: "评审进度",
       case_count: "用例数量统计",
       relevance_case: "关联用例数量统计",
-      case_maintenance: "用例维护人分布",
+      case_maintenance: "用例责任人分布",
       bug_count: "遗留缺陷统计",
       case_review: "用例评审",
       review_rate: "评审率",
@@ -2152,5 +2233,11 @@ export default {
     script_entry: "脚本执行入口",
     plugin_id: "插件ID",
     script_view: "查看脚本",
+  },
+  mail: {
+    input_mail_subject: "请输入邮件主题",
+    mail_subject: "邮件主题",
+    mail_addressee: "收件人",
+    mail_duplicate: "抄送人",
   }
 };

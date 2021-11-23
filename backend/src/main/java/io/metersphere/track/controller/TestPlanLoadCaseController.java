@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.TestPlanLoadCase;
+import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.PageUtils;
@@ -31,8 +32,7 @@ public class TestPlanLoadCaseController {
 
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<LoadTest>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, testPlanLoadCaseService.relevanceList(request));
+        return testPlanLoadCaseService.relevanceList(request, goPage, pageSize);
     }
 
     @PostMapping("/relevance")
@@ -88,7 +88,7 @@ public class TestPlanLoadCaseController {
 
     @PostMapping("/update")
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
-    public void update(@RequestBody TestPlanLoadCase testPlanLoadCase) {
+    public void update(@RequestBody TestPlanLoadCaseWithBLOBs testPlanLoadCase) {
         testPlanLoadCaseService.update(testPlanLoadCase);
     }
 
@@ -111,6 +111,11 @@ public class TestPlanLoadCaseController {
     @GetMapping("/get-load-config/{loadCaseId}")
     public String getPlanLoadCaseConfig(@PathVariable String loadCaseId) {
         return testPlanLoadCaseService.getPlanLoadCaseConfig(loadCaseId);
+    }
+
+    @GetMapping("/get-advanced-config/{loadCaseId}")
+    public String getAdvancedConfiguration(@PathVariable String loadCaseId) {
+        return testPlanLoadCaseService.getAdvancedConfiguration(loadCaseId);
     }
 
     @GetMapping("/get/{loadCaseId}")

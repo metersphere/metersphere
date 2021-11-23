@@ -146,25 +146,46 @@
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
                         <choose>
-
                             <when test="key=='stage'">
                                 and test_plan.stage in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
                             </when>
-                            <otherwise>
-                                and test_plan.status in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </otherwise>
+                            <when test="key=='status'">
+                                <choose>
+                                    <when test="request.executorOrPrincipal != null">
+                                        AND (( test_plan_principal.principal_id  = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
+                                                test_plan.status in
+                                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                                    #{value}
+                                                </foreach>
+                                               )
+                                               or
+                                                (test_plan_test_case.executor = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
+                                                    test_plan_test_case.status in
+                                                    <foreach collection="values" item="value" separator="," open="(" close=")">
+                                                        #{value}
+                                                    </foreach>
+                                                ))
+                                    </when>
+                                    <otherwise >
+                                        and test_plan.status in
+                                        <foreach collection="values" item="value" separator="," open="(" close=")">
+                                            #{value}
+                                        </foreach>
+                                    </otherwise>
+                                </choose>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
             </if>
-            <if test="request.executorOrPrincipal != null">
-                AND ( test_plan.creator = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' or  test_plan_principal.principal_id  = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' or  test_plan_test_case.executor = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}')
+            <if test="request.byFilter == true">
+                and test_plan.status in
+                <foreach collection="request.filterStatus" item="value" separator="," open="(" close=")">
+                    #{value}
+                </foreach>
             </if>
         </where>
 
@@ -239,9 +260,8 @@
     </select>
 
     <select id="selectTestPlanByRelevancy" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        SELECT * FROM test_plan p LEFT JOIN test_plan_project t ON t.test_plan_id=p.id
+        SELECT * FROM test_plan p
         <where>
-            AND (t.project_id = #{request.projectId} or p.project_id = #{request.projectId})
             <if test="request.scenarioId != null">
                 AND p.id IN (SELECT test_plan_id FROM test_plan_api_scenario WHERE api_scenario_id = #{request.scenarioId} )
             </if>

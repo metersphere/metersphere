@@ -1,9 +1,16 @@
 <template>
   <div>
     <el-card v-loading="result.loading">
-      <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+      <env-popover :env-map="projectEnvMap"
+                   :project-ids="projectIds"
+                   @setProjectEnvMap="setProjectEnvMap"
+                   :environment-type.sync="environmentType"
+                   :group-id="envGroupId"
+                   :is-scenario="false"
+                   @setEnvGroup="setEnvGroup"
                    :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                   :project-list="projectList" ref="envPopover" class="env-popover"/>
+                   :project-list="projectList"
+                   ref="envPopover" class="env-popover"/>
       <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
                 @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
       <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
@@ -65,10 +72,11 @@
   import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
   import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
-  import EnvPopover from "@/business/components/track/common/EnvPopover";
+  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
   import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
   import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
   import {TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
+  import {ENV_TYPE} from "@/common/js/constants";
 
   export default {
     name: "RelevanceScenarioList",
@@ -115,7 +123,14 @@
         projectList: [],
         projectIds: new Set(),
         map: new Map(),
-        customNum: false
+        customNum: false,
+        environmentType: ENV_TYPE.JSON,
+        envGroupId: ""
+      }
+    },
+    computed: {
+      ENV_TYPE() {
+        return ENV_TYPE;
       }
     },
     watch: {
@@ -178,6 +193,9 @@
       },
       setProjectEnvMap(projectEnvMap) {
         this.projectEnvMap = projectEnvMap;
+      },
+      setEnvGroup(id) {
+        this.envGroupId = id;
       },
       getWsProjects() {
         this.$get("/project/listAll", res => {

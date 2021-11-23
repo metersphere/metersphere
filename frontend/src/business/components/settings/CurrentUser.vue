@@ -1,21 +1,29 @@
 <template>
-  <el-row type="flex" align="middle" class="current-user">
-    <div class="icon-title">
-      {{ currentUser.name.substring(0, 1) }}
-    </div>
-    <span class="username">{{ currentUser.name }}</span>
-  </el-row>
+  <div>
+    <el-row type="flex" align="middle" class="current-user">
+      <div class="icon-title" @click="resVisible = true">
+        {{ currentUser.name.substring(0, 1) }}
+      </div>
+      <span class="username"  @click="resVisible = true" style="cursor: pointer">{{ currentUser.name }}</span>
+    </el-row>
+    <el-dialog :close-on-click-modal="false" width="80%"
+               :visible.sync="resVisible" class="api-import" destroy-on-close @close="closeDialog">
+      <ms-person-router @closeDialog = "closeDialog"/>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
 import {getCurrentUser} from "@/common/js/utils";
+import MsPersonRouter from "@/business/components/settings/components/PersonRouter";
 
 export default {
   name: "MsCurrentUser",
-
+  components:{MsPersonRouter},
   data() {
     return {
       editVisible: false,
+      resVisible:false,
       id: "123456",
       form: {}
     }
@@ -27,7 +35,10 @@ export default {
     },
     submit() {
       this.editVisible = false;
-    }
+    },
+    closeDialog(){
+      this.resVisible = false;
+    },
   },
   computed: {
     currentUser: () => {
@@ -53,6 +64,7 @@ export default {
 
 .current-user .edit {
   opacity: 0;
+
 }
 
 .current-user:hover .edit {
@@ -68,6 +80,7 @@ export default {
   text-align: center;
   border-radius: 30px;
   font-size: 14px;
+  cursor: pointer;
 }
 
 </style>

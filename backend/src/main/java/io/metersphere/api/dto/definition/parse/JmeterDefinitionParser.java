@@ -16,6 +16,7 @@ import io.metersphere.api.dto.definition.request.extract.MsExtractRegex;
 import io.metersphere.api.dto.definition.request.extract.MsExtractXPath;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -59,6 +60,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
+
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -103,7 +105,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = buildApiDefinition(element);
                 if (apiDefinitionWithBLOBs != null) {
                     definitions.add(apiDefinitionWithBLOBs);
-                    ApiTestCaseWithBLOBs apiTestCase =  new ApiTestCaseWithBLOBs();
+                    ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                     BeanUtils.copyBean(apiTestCase, apiDefinitionWithBLOBs);
                     apiTestCase.setApiDefinitionId(apiDefinitionWithBLOBs.getId());
                     apiTestCase.setStatus("Prepare");
@@ -115,7 +117,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             apiImport.setCases(definitionCases);
             return apiImport;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
             MSException.throwException("当前JMX版本不兼容");
         }
         return null;
@@ -246,7 +248,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         apiDefinition.setName(element.getName());
         apiDefinition.setProjectId(this.projectId);
         apiDefinition.setRequest(JSON.toJSONString(element));
-        if (this.selectModule != null) {
+        if (this.apiModule != null) {
             apiDefinition.setModuleId(this.apiModule.getId());
             if (StringUtils.isNotBlank(this.selectModulePath)) {
                 apiDefinition.setModulePath(this.selectModulePath + "/" + this.apiModule.getName());
@@ -478,6 +480,8 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             RegexExtractor regexExtractor = (RegexExtractor) key;
             if (regexExtractor.useRequestHeaders()) {
                 regex.setUseHeaders("request_headers");
+            } else if (regexExtractor.useHeaders()) {
+                regex.setUseHeaders("true");
             } else if (regexExtractor.useBody()) {
                 regex.setUseHeaders("false");
             } else if (regexExtractor.useUnescapedBody()) {
@@ -663,7 +667,6 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             samplerProxy.setConnectTimeout(source.getConnectTimeout() + "");
             samplerProxy.setResponseTimeout(source.getResponseTimeout() + "");
             samplerProxy.setPort(source.getPropertyAsString("HTTPSampler.port"));
-            samplerProxy.setDomain(source.getDomain());
             String bodyType = this.getBodyType(samplerProxy.getHeaders());
             if (source.getArguments() != null) {
                 if (source.getPostBodyRaw()) {
@@ -693,19 +696,15 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 }
                 samplerProxy.getBody().initBinary();
             }
-             samplerProxy.setPath(source.getPath());
+            samplerProxy.setPath(source.getPath());
             samplerProxy.setMethod(source.getMethod());
-            MsJmeterParser jmeterParser = new MsJmeterParser();
-            if (jmeterParser.getUrl(source) != null) {
-                samplerProxy.setUrl(jmeterParser.getUrl(source));
-            }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");
             body.getKvs().add(new KeyValue());
             body.getBinary().add(new KeyValue());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 

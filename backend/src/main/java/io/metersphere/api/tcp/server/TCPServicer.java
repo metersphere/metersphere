@@ -5,6 +5,7 @@ import io.metersphere.api.dto.mock.MockApiUtils;
 import io.metersphere.api.service.MockConfigService;
 import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,7 +33,7 @@ public class TCPServicer {
             returnMsg = this.getReturnMsg(message);
             os.write(returnMsg.getBytes());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }finally {
             this.close();
         }
@@ -51,7 +52,7 @@ public class TCPServicer {
                     delayed = responseObj.getInteger("delayed");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
             if(responseObj.containsKey("responseResult")){
                 JSONObject respResultObj = responseObj.getJSONObject("responseResult");
@@ -63,7 +64,7 @@ public class TCPServicer {
                         delayed = respResultObj.getInteger("delayed");
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtil.error(e);
                 }
             }else {
                 returnMsg = responseObj.getString("body");
@@ -73,7 +74,7 @@ public class TCPServicer {
             try {
                 Thread.sleep(delayed);
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return returnMsg;

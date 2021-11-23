@@ -17,19 +17,17 @@
           <el-form-item :label="$t('load_test.serialize_threadgroups')">
             <el-switch v-model="serializeThreadGroups"/>
           </el-form-item>
-          <br>
           <el-form-item :label="$t('load_test.autostop_threadgroups')">
             <el-switch v-model="autoStop"/>
           </el-form-item>
-          <el-form-item :label="$t('load_test.reaches_duration')">
-            <el-input-number
-              :disabled="isReadOnly || !autoStop"
-              v-model="autoStopDelay"
-              :min="1"
-              :max="9999"
-              size="mini"/>
+          <el-form-item v-if="autoStop" :label="$t('load_test.reaches_duration')">
+            <el-input-number controls-position="right"
+                             :disabled="isReadOnly"
+                             v-model="autoStopDelay"
+                             :min="1"
+                             :max="9999"
+                             size="mini"/>
           </el-form-item>
-          <el-form-item :label="$t('load_test.autostop_delay')"/>
         </el-form>
       </el-col>
     </el-row>
@@ -69,16 +67,17 @@
                 </el-col>
               </el-row>
             </template>
-            <el-form :inline="true">
+            <el-form :inline="true" label-width="100px">
               <el-form-item :label="$t('load_test.thread_num')">
-                <el-input-number
-                  :disabled="isReadOnly"
-                  v-model="threadGroup.threadNumber"
-                  @change="calculateTotalChart()"
-                  :min="1"
-                  :max="maxThreadNumbers"
-                  size="mini"/>
+                <el-input-number controls-position="right"
+                                 :disabled="isReadOnly"
+                                 v-model="threadGroup.threadNumber"
+                                 @change="calculateTotalChart()"
+                                 :min="1"
+                                 :max="maxThreadNumbers"
+                                 size="mini"/>
               </el-form-item>
+              <br>
               <el-form-item :label="$t('load_test.on_sample_error')">
                 <el-select v-model="threadGroup.onSampleError" :disabled="isReadOnly" size="mini">
                   <el-option
@@ -90,15 +89,14 @@
                 </el-select>
               </el-form-item>
               <br>
-              <el-form-item>
-                <el-radio-group v-model="threadGroup.threadType" @change="calculateTotalChart()">
-                  <el-radio label="DURATION">{{ $t('load_test.by_duration') }}</el-radio>
-                  <el-radio label="ITERATION">{{ $t('load_test.by_iteration') }}</el-radio>
+              <el-form-item label="执行方式">
+                <el-radio-group v-model="threadGroup.threadType" @change="calculateTotalChart()" size="mini">
+                  <el-radio-button label="DURATION">{{ $t('load_test.by_duration') }}</el-radio-button>
+                  <el-radio-button label="ITERATION">{{ $t('load_test.by_iteration') }}</el-radio-button>
                 </el-radio-group>
               </el-form-item>
-              <br>
               <div v-if="threadGroup.threadType === 'DURATION'">
-                <el-form-item>
+                <el-form-item :label="$t('load_test.duration')">
                   <el-input-number controls-position="right"
                                    :disabled="isReadOnly"
                                    v-model="threadGroup.durationHours"
@@ -107,7 +105,7 @@
                                    @change="calculateTotalChart()"
                                    size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('schedule.cron.hours')"/>
+                <el-form-item :label="$t('schedule.cron.hours')" label-width="40px"/>
                 <el-form-item>
                   <el-input-number controls-position="right"
                                    :disabled="isReadOnly"
@@ -117,7 +115,7 @@
                                    @change="calculateTotalChart()"
                                    size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('schedule.cron.minutes')"/>
+                <el-form-item :label="$t('schedule.cron.minutes')" label-width="40px"/>
                 <el-form-item>
                   <el-input-number controls-position="right"
                                    :disabled="isReadOnly"
@@ -127,11 +125,12 @@
                                    @change="calculateTotalChart()"
                                    size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('schedule.cron.seconds')"/>
+                <el-form-item :label="$t('schedule.cron.seconds')" label-width="20px"/>
                 <br>
-                <el-form-item :label="$t('load_test.rps_limit')">
+                <el-form-item :label="$t('load_test.rps_limit_enable')">
                   <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
-                  &nbsp;
+                </el-form-item>
+                <el-form-item :label="$t('load_test.rps_limit')">
                   <el-input-number controls-position="right"
                                    :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
                                    v-model="threadGroup.rpsLimit"
@@ -140,9 +139,8 @@
                                    :max="99999"
                                    size="mini"/>
                 </el-form-item>
-                <br>
                 <div v-if="threadGroup.tgType === 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup'">
-                  <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                  <el-form-item label="Ramp-Up">
                     <el-input-number controls-position="right"
                                      :disabled="isReadOnly"
                                      :min="1"
@@ -152,7 +150,7 @@
                                      @change="calculateTotalChart()"
                                      size="mini"/>
                   </el-form-item>
-                  <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
+                  <el-form-item label="Step" label-width="50px">
                     <el-input-number controls-position="right"
                                      :disabled="isReadOnly"
                                      :min="1"
@@ -161,11 +159,10 @@
                                      @change="calculateTotalChart()"
                                      size="mini"/>
                   </el-form-item>
-                  <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
                 </div>
 
                 <div v-if="threadGroup.tgType === 'ThreadGroup'">
-                  <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                  <el-form-item label="Ramp-Up">
                     <el-input-number controls-position="right"
                                      :disabled="isReadOnly"
                                      v-if="rampUpTimeVisible"
@@ -175,40 +172,75 @@
                                      @change="calculateTotalChart()"
                                      size="mini"/>
                   </el-form-item>
-                  <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
                 </div>
 
               </div>
               <div v-if="threadGroup.threadType === 'ITERATION'">
                 <el-form-item :label="$t('load_test.iterate_num')">
-                  <el-input-number
-                    :disabled="isReadOnly"
-                    v-model="threadGroup.iterateNum"
-                    :min="1"
-                    :max="9999999"
-                    @change="calculateTotalChart()"
-                    size="mini"/>
+                  <el-input-number controls-position="right"
+                                   :disabled="isReadOnly"
+                                   v-model="threadGroup.iterateNum"
+                                   :min="1"
+                                   :max="9999999"
+                                   @change="calculateTotalChart()"
+                                   size="mini"/>
                 </el-form-item>
                 <br>
-                <el-form-item :label="$t('load_test.rps_limit')">
+                <el-form-item :label="$t('load_test.rps_limit_enable')">
                   <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
-                  &nbsp;
-                  <el-input-number
-                    :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
-                    v-model="threadGroup.rpsLimit"
-                    :min="1"
-                    :max="99999"
-                    size="mini"/>
+                </el-form-item>
+                <el-form-item :label="$t('load_test.rps_limit')">
+                  <el-input-number controls-position="right"
+                                   :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
+                                   v-model="threadGroup.rpsLimit"
+                                   :min="1"
+                                   :max="99999"
+                                   size="mini"/>
                 </el-form-item>
                 <br>
-                <el-form-item :label="$t('load_test.ramp_up_time_within')">
-                  <el-input-number
-                    :disabled="isReadOnly"
-                    :min="1"
-                    v-model="threadGroup.iterateRampUp"
-                    size="mini"/>
+                <el-form-item label="Ramp-Up">
+                  <el-input-number controls-position="right"
+                                   :disabled="isReadOnly"
+                                   :min="1"
+                                   v-model="threadGroup.iterateRampUp"
+                                   size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
+              </div>
+              <!-- 资源池自己配置各个节点的并发 -->
+              <div v-if="resourcePoolType === 'NODE'">
+                <el-form-item :label="$t('load_test.resource_strategy')">
+                  <el-radio-group v-model="threadGroup.strategy" :disabled="isReadOnly" size="mini">
+                    <el-radio-button label="auto">{{ $t('load_test.auto_ratio') }}</el-radio-button>
+                    <el-radio-button label="specify">{{ $t('load_test.specify_resource') }}</el-radio-button>
+                    <el-radio-button label="custom">{{ $t('load_test.custom_ratio') }}</el-radio-button>
+                  </el-radio-group>
+                </el-form-item>
+                <div v-if="threadGroup.strategy === 'auto'"></div>
+                <div v-else-if="threadGroup.strategy === 'specify'">
+                  <el-form-item :label="$t('load_test.specify_resource')">
+                    <el-select v-model="threadGroup.resourceNodeIndex" :disabled="isReadOnly" size="mini">
+                      <el-option
+                        v-for="(node, index) in resourceNodes"
+                        :key="node.ip"
+                        :label="node.ip"
+                        :value="index">
+                      </el-option>
+                    </el-select>
+                  </el-form-item>
+                </div>
+                <div v-else>
+                  <el-table class="adjust-table" :data="threadGroup.resourceNodes" :max-height="200">
+                    <el-table-column type="index" width="50"/>
+                    <el-table-column prop="ip" label="IP"/>
+                    <el-table-column prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"/>
+                    <el-table-column prop="ratio" :label="$t('test_track.home.percentage')">
+                      <template v-slot:default="{row}">
+                        <el-input-number size="mini" v-model="row.ratio" :min="0" :step=".1" controls-position="right"
+                                         :max="1"></el-input-number>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </div>
               </div>
             </el-form>
           </el-collapse-item>
@@ -249,11 +281,10 @@ const THREAD_TYPE = "threadType";
 const ITERATE_NUM = "iterateNum";
 const ENABLED = "enabled";
 const DELETED = "deleted";
+const STRATEGY = "strategy";
+const RESOURCE_NODE_INDEX = "resourceNodeIndex";
+const RATIOS = "ratios";
 
-const hexToRgba = function (hex, opacity) {
-  return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
-    + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
-};
 const hexToRgb = function (hex) {
   return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
     + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
@@ -287,6 +318,8 @@ export default {
       rpsLimitEnable: false,
       options: {},
       resourcePools: [],
+      resourceNodes: [],
+      resourcePoolType: null,
       activeNames: ["0"],
       threadGroups: [],
       maxThreadNumbers: 5000,
@@ -343,10 +376,19 @@ export default {
       this.$get('/test/plan/load/case/get-load-config/' + this.loadCaseId, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
-          let oldVersion;
-          for (let i = 0; i < data.length; i++) {
-            let d = data[i];
-            d.forEach(item => {
+
+          for (let i = 0; i < this.threadGroups.length; i++) {
+            let handler = this.threadGroups[i].handler;
+
+            let j = 0;
+            for (; j < data.length; j++) {
+              let res = data[j].filter(v => v.key === HANDLER && v.value === handler);
+              if (res.length > 0) {
+                break;
+              }
+            }
+
+            data[j].forEach(item => {
               switch (item.key) {
                 case TARGET_LEVEL:
                   this.threadGroups[i].threadNumber = item.value;
@@ -402,6 +444,15 @@ export default {
                 case ON_SAMPLE_ERROR:
                   this.threadGroups[i].onSampleError = item.value;
                   break;
+                case STRATEGY:
+                  this.threadGroups[i].strategy = item.value;
+                  break;
+                case RESOURCE_NODE_INDEX:
+                  this.threadGroups[i].resourceNodeIndex = item.value;
+                  break;
+                case RATIOS:
+                  this.threadGroups[i].ratios = item.value;
+                  break;
                 case SERIALIZE_THREAD_GROUPS:
                   this.serializeThreadGroups = item.value;// 所有的线程组值一样
                   break;
@@ -430,6 +481,7 @@ export default {
             tg.durationMinutes = Math.floor((tg.duration / 60 % 60));
             tg.durationSeconds = Math.floor((tg.duration % 60));
           }
+          this.resourcePoolChange();
           this.calculateTotalChart();
         }
       });
@@ -454,15 +506,45 @@ export default {
       let result = this.resourcePools.filter(p => p.id === this.resourcePool);
       if (result.length === 1) {
         let threadNumber = 0;
+        this.resourceNodes = [];
+        this.resourcePoolType = result[0].type;
         result[0].resources.forEach(resource => {
-          threadNumber += JSON.parse(resource.configuration).maxConcurrency;
+          let config = JSON.parse(resource.configuration);
+          threadNumber += config.maxConcurrency;
+          this.resourceNodes.push(config);
         });
         this.$set(this, 'maxThreadNumbers', threadNumber);
         this.threadGroups.forEach(tg => {
           if (tg.threadNumber > threadNumber) {
             this.$set(tg, "threadNumber", threadNumber);
           }
+          let tgRatios = tg.ratios;
+          let resourceNodes = JSON.parse(JSON.stringify(this.resourceNodes));
+          let ratios = resourceNodes.map(n => n.maxConcurrency).reduce((total, curr) => {
+            total += curr;
+            return total;
+          }, 0);
+          let preSum = 0;
+          for (let i = 0; i < resourceNodes.length; i++) {
+            let n = resourceNodes[i];
+            if (resourceNodes.length === tgRatios.length) {
+              n.ratio = tgRatios[i];
+              continue;
+            }
+
+            if (i === resourceNodes.length - 1) {
+              n.ratio = (1 - preSum).toFixed(2);
+            } else {
+              n.ratio = (n.maxConcurrency / ratios).toFixed(2);
+              preSum += Number.parseFloat(n.ratio);
+            }
+          }
+          this.$set(tg, "resourceNodes", resourceNodes);
+          if (tg.resourceNodeIndex > resourceNodes.length - 1) {
+            this.$set(tg, "resourceNodeIndex", 0);
+          }
         });
+
         this.calculateTotalChart();
       }
     },
@@ -505,7 +587,7 @@ export default {
           tg.rampUpTime = tg.duration;
         }
         if (tg.rampUpTime < tg.step) {
-          tg.step = tg.rampUpTime;
+          tg.step = tg.rampUpTime || 1; // 至少1步
         }
         let seriesData = {
           name: tg.attributes.testname,
@@ -598,6 +680,21 @@ export default {
         tg.durationMinutes = tg.durationMinutes || 0;
         tg.durationSeconds = tg.durationSeconds || 0;
         this.getDuration(tg);
+        if (tg.enabled === 'false') {
+          continue;
+        }
+
+        if (tg.strategy === "custom") {
+          let sum = tg.resourceNodes.map(n => n.ratio).reduce((total, curr) => {
+            total += curr;
+            return total;
+          }, 0);
+          if (sum !== 1) {
+            this.$warning(this.$t('load_test.pressure_config_custom_error'));
+            return false;
+          }
+        }
+
         if (!tg.threadNumber || !tg.duration
           || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
           this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
@@ -620,6 +717,9 @@ export default {
     getDuration(tg) {
       tg.duration = tg.durationHours * 60 * 60 + tg.durationMinutes * 60 + tg.durationSeconds;
       return tg.duration;
+    },
+    getRatios(tg) {
+      return tg.resourceNodes.map(node => node.ratio);
     },
     convertProperty() {
       /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？
@@ -646,6 +746,9 @@ export default {
           {key: ENABLED, value: this.threadGroups[i].enabled},
           {key: DELETED, value: this.threadGroups[i].deleted},
           {key: ON_SAMPLE_ERROR, value: this.threadGroups[i].onSampleError},
+          {key: STRATEGY, value: this.threadGroups[i].strategy},
+          {key: RESOURCE_NODE_INDEX, value: this.threadGroups[i].resourceNodeIndex},
+          {key: RATIOS, value: this.getRatios(this.threadGroups[i])},
           {key: THREAD_GROUP_TYPE, value: this.threadGroups[i].tgType},
           {key: SERIALIZE_THREAD_GROUPS, value: this.serializeThreadGroups},
           {key: AUTO_STOP, value: this.autoStop},
@@ -713,4 +816,13 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.duration-input .el-input-number--mini {
+  width: 100px;
+}
+
+.el-select--mini {
+  width: 130px;
+}
+
 </style>

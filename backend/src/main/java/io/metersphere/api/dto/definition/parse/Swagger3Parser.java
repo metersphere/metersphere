@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.SwaggerApiExportResult;
 import io.metersphere.api.dto.definition.parse.swagger.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.request.variable.JsonSchemaItem;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -109,6 +110,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 if (operation != null) {
                     MsHTTPSamplerProxy request = buildRequest(operation, pathName, method);
                     ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method, importRequest);
+                    apiDefinition.setDescription(operation.getDescription());
                     parseParameters(operation, request);
                     parseRequestBody(operation.getRequestBody(), request.getBody());
                     addBodyHeader(request);
@@ -130,7 +132,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     private ApiDefinitionWithBLOBs buildApiDefinition(String id, Operation operation, String path, String method, ApiTestImportRequest importRequest) {
-        String name = "";
+        String name;
         if (StringUtils.isNotBlank(operation.getSummary())) {
             name = operation.getSummary();
         } else if (StringUtils.isNotBlank(operation.getOperationId())) {
@@ -199,12 +201,19 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         msResponse.setType(RequestType.HTTP);
         // todo 状态码要调整？
         msResponse.setStatusCode(new ArrayList<>());
+        ApiResponse apiResponse = responses.get("200");
         if (responses != null) {
-            responses.forEach((responseCode, response) -> {
-                parseResponseHeader(response, msResponse.getHeaders());
-                parseResponseBody(response, msResponse.getBody());
-                parseResponseCode(responseCode, msResponse);
-            });
+            if (apiResponse == null) {
+                responses.forEach((responseCode, response) -> {
+                    parseResponseHeader(response, msResponse.getHeaders());
+                    parseResponseBody(response, msResponse.getBody());
+                    parseResponseCode(responseCode, msResponse);
+                });
+            } else {
+                parseResponseHeader(apiResponse, msResponse.getHeaders());
+                parseResponseBody(apiResponse, msResponse.getBody());
+                parseResponseCode("200", msResponse);
+            }
         }
         return msResponse;
     }
@@ -251,7 +260,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return;
         }
         // 多个contentType ，优先取json
-        String contentType = "";
+        String contentType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
         MediaType mediaType = content.get(contentType);
         if (mediaType == null) {
             Set<String> contentTypes = content.keySet();
@@ -263,17 +272,15 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 return;
             }
             mediaType = content.get(contentType);
-        } else {
-            contentType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
         }
 
         Set<String> refSet = new HashSet<>();
         Map<String, Schema> infoMap = new HashMap();
         Schema schema = mediaType.getSchema();
-        Object bodyData = parseSchema(schema, refSet, infoMap);
-
-        if (bodyData == null) {
-            return;
+        Object bodyData = null;
+        if (!StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
+            bodyData = parseSchemaToJson(schema, refSet, infoMap);
+            if (bodyData == null) return;
         }
 
         body.setType(getBodyType(contentType));
@@ -283,7 +290,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
             parseKvBody(schema, body, bodyData, infoMap);
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
-            body.setRaw(bodyData.toString());
+            body.setJsonSchema(parseSchema(schema, refSet));
+            body.setFormat("JSON-SCHEMA");
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_XML_VALUE)) {
             body.setRaw(parseXmlBody(schema, bodyData));
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
@@ -293,38 +301,73 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
     }
 
+    private Object parseSchemaToJson(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
+        if (schema == null) {
+            return new JSONObject(true);
+        }
+        infoMap.put(schema.getName(), schema);
+        if (StringUtils.isNotBlank(schema.get$ref())) {
+            if (refSet.contains(schema.get$ref())) {
+                return new JSONObject(true);
+            }
+            refSet.add(schema.get$ref());
+            Object propertiesResult = parseSchemaPropertiesToJson(getModelByRef(schema.get$ref()), refSet, infoMap);
+            return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
+        } else if (schema instanceof ArraySchema) {
+            JSONArray jsonArray = new JSONArray();
+            Schema items = ((ArraySchema) schema).getItems();
+            parseSchemaToJson(items, refSet, infoMap);
+            jsonArray.add(parseSchemaToJson(items, refSet, infoMap));
+            return jsonArray;
+        } else if (schema instanceof BinarySchema) {
+            return getDefaultValueByPropertyType(schema);
+        } else if (schema instanceof ObjectSchema) {
+            Object propertiesResult = parseSchemaPropertiesToJson(schema, refSet, infoMap);
+            return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
+        } else {
+            return schema;
+        }
+    }
+
+    private Object parseSchemaPropertiesToJson(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
+        if (schema == null) return null;
+        Map<String, Schema> properties = schema.getProperties();
+        if (MapUtils.isEmpty(properties)) return null;
+        JSONObject jsonObject = new JSONObject(true);
+        properties.forEach((key, value) -> {
+            jsonObject.put(key, parseSchemaToJson(value, refSet, infoMap));
+        });
+        return jsonObject;
+    }
+
     private void parseKvBody(Schema schema, Body body, Object data, Map<String, Schema> infoMap) {
         if (data instanceof JSONObject) {
             ((JSONObject) data).forEach((k, v) -> {
-                KeyValue kv = new KeyValue(k, v.toString());
-                Schema schemaInfo = infoMap.get(k);
-                if (schemaInfo != null) {
-                    kv.setDescription(schemaInfo.getDescription());
-//                    kv.setRequired(schemaInfo.getRequired());
-                    if (schemaInfo instanceof BinarySchema) {
-                        kv.setType("file");
-                    }
-                }
-                if (body.getKvs() == null) {  //  防止空指针
-                    body.setKvs(new ArrayList<>());
-                }
-                body.getKvs().add(kv);
+                parseKvBodyItem(schema, body, k, infoMap);
             });
         } else {
-            KeyValue kv = new KeyValue(schema.getName(), data.toString(), schema.getDescription());
-            Schema schemaInfo = infoMap.get(schema.getName());
-            if (schemaInfo != null) {
-                kv.setDescription(schemaInfo.getDescription());
-                if (schemaInfo instanceof BinarySchema) {
-                    kv.setType("file");
-                }
+            if(data instanceof  Schema) {
+                Schema dataSchema = (Schema) data;
+                parseKvBodyItem(schema, body, dataSchema.getName(), infoMap);
             }
-            if (body != null) {
-                if (body.getKvs() == null) {
-                    body.setKvs(new ArrayList<>());
-                }
-                body.getKvs().add(kv);
+        }
+    }
+
+    private void parseKvBodyItem(Object schemaObject, Body body, String name, Map<String, Schema> infoMap) {
+        Schema schema = (Schema) schemaObject;
+        if (schema == null) return;
+        KeyValue kv = new KeyValue(name, String.valueOf(schema.getExample() == null ? "" : schema.getExample()), schema.getDescription());
+        Schema schemaInfo = infoMap.get(name);
+        if (schemaInfo != null) {
+            if (schemaInfo instanceof BinarySchema) {
+                kv.setType("file");
             }
+        }
+        if (body != null) {
+            if (body.getKvs() == null) {
+                body.setKvs(new ArrayList<>());
+            }
+            body.getKvs().add(kv);
         }
     }
 
@@ -333,7 +376,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return XMLUtils.jsonToXmlStr((JSONObject) data);
         } else {
             JSONObject object = new JSONObject();
-            object.put(schema.getName(), getDefaultValueByPropertyType(schema));
+            object.put(schema.getName(), schema.getExample());
             return XMLUtils.jsonToXmlStr(object);
         }
     }
@@ -348,59 +391,56 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         return this.components.getSchemas().get(ref);
     }
 
-    private Object parseSchema(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
-        if (schema == null) {
-            return new JSONObject(true);
-        }
-        infoMap.put(schema.getName(), schema);
+    private JsonSchemaItem parseSchema(Schema schema, Set<String> refSet) {
+        if (schema == null) return null;
+        JsonSchemaItem item = new JsonSchemaItem();
         if (StringUtils.isNotBlank(schema.get$ref())) {
-            if (refSet.contains(schema.get$ref())) {
-                return new JSONObject(true);
-            }
+            if (refSet.contains(schema.get$ref())) return item;
+            item.setType("object");
             refSet.add(schema.get$ref());
-            Object propertiesResult = parseSchemaProperties(getModelByRef(schema.get$ref()), refSet, infoMap);
-            return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
+            item.setProperties(parseSchemaProperties(getModelByRef(schema.get$ref()), refSet));
         } else if (schema instanceof ArraySchema) {
-            JSONArray jsonArray = new JSONArray();
             Schema items = ((ArraySchema) schema).getItems();
-            parseSchema(items, refSet, infoMap);
-            jsonArray.add(parseSchema(items, refSet, infoMap));
-            return jsonArray;
-        } else if (schema instanceof BinarySchema) {
-            return getDefaultValueByPropertyType(schema);
+            item.setType("array");
+            item.setItems(new ArrayList<>());
+            JsonSchemaItem arrayItem = parseSchema(items, refSet);
+            if (arrayItem != null) item.getItems().add(arrayItem);
+        } else if (schema instanceof ObjectSchema) {
+            item.setType("object");
+            item.setProperties(parseSchemaProperties(schema, refSet));
+        } else if (schema instanceof StringSchema) {
+            item.setType("string");
+        } else if (schema instanceof IntegerSchema) {
+            item.setType("integer");
+        } else if (schema instanceof NumberSchema) {
+            item.setType("number");
+        } else if (schema instanceof BooleanSchema) {
+            item.setType("boolean");
         } else {
-            if (schema.getType() != null) {  //  特判属性不是对象的情况，直接将基本类型赋值进去
-                if (StringUtils.equals(schema.getType(), "string")) {
-                    Object exampleObj = schema.getExample();
-                    String example = null;
-                    if (exampleObj != null) {
-                        example = exampleObj.toString();
-                    }
-                    return example == null ? "" : example;
-                } else if (StringUtils.equals(schema.getType(), "boolean")) {
-                    return schema.getExample();
-                } else if (StringUtils.equals(schema.getType(), "double")) {
-                    return schema.getExample();
-                }
-            }
-            Object propertiesResult = parseSchemaProperties(schema, refSet, infoMap);
-            return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
+            return null;
         }
+
+        if (schema.getExample() != null) {
+            item.getMock().put("mock", schema.getExample());
+        } else {
+            item.getMock().put("mock", "");
+        }
+        item.setDescription(schema.getDescription());
+        return item;
     }
 
-    private Object parseSchemaProperties(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
-        if (schema == null) {
-            return null;
-        }
+    private Map<String, JsonSchemaItem> parseSchemaProperties(Schema schema, Set<String> refSet) {
+        if (schema == null) return null;
         Map<String, Schema> properties = schema.getProperties();
-        if (MapUtils.isEmpty(properties)) {
-            return null;
-        }
-        JSONObject jsonObject = new JSONObject(true);
+        if (MapUtils.isEmpty(properties)) return null;
+        Map<String, JsonSchemaItem> JsonSchemaProperties = new LinkedHashMap<>();
         properties.forEach((key, value) -> {
-            jsonObject.put(key, parseSchema(value, refSet, infoMap));
+            JsonSchemaItem item = new JsonSchemaItem();
+            item.setDescription(schema.getDescription());
+            JsonSchemaItem proItem = parseSchema(value, refSet);
+            if (proItem != null) JsonSchemaProperties.put(key, proItem);
         });
-        return jsonObject;
+        return JsonSchemaProperties;
     }
 
     private Object getDefaultValueByPropertyType(Schema value) {
@@ -409,6 +449,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return example == null ? 0 : example;
         } else if (value instanceof NumberSchema) {
             return example == null ? 0.0 : example;
+        } else if (value instanceof StringSchema) {
+            return example == null ? "" : example;
         } else {// todo 其他类型?
             return getDefaultStringValue(value.getDescription());
         }
@@ -490,6 +532,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             //  设置请求参数列表
             List<JSONObject> paramsList = buildParameters(requestObject);
             swaggerApiInfo.setParameters(paramsList);
+            swaggerApiInfo.setDescription(apiDefinition.getDescription());
             JSONObject methodDetail = JSON.parseObject(JSON.toJSONString(swaggerApiInfo));
             if (paths.getJSONObject(apiDefinition.getPath()) == null) {
                 paths.put(apiDefinition.getPath(), new JSONObject());
@@ -711,8 +754,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         JSONObject properties = new JSONObject();
         for (String key : kvs.keySet()) {
             JSONObject property = new JSONObject();
-            property.put("type", "string");
-            property.put("example", kvs.getString(key));
+            JSONObject obj = ((JSONObject) kvs.get(key));
+            property.put("type", StringUtils.isNotEmpty(obj.getString("type")) ? obj.getString("type") : "string");
+            String value = obj.getString("value");
+            property.put("example", value);
+            property.put("description", obj.getString("description"));
+            property.put("required", obj.getString("required"));
             properties.put(key, property);
         }
         schema.put("properties", properties);
@@ -724,9 +771,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         for (Object item : requestBody) {
             if (item instanceof JSONObject) {
                 String name = ((JSONObject) item).getString("name");
-                String value = ((JSONObject) item).getString("value");
                 if (name != null) {
-                    result.put(name, value);
+                    result.put(name, item);
                 }
             }
         }
@@ -755,7 +801,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             for (Object item : headValueList) {
                 if (item instanceof JSONObject && ((JSONObject) item).getString("name") != null) {
                     JSONObject head = new JSONObject(), headSchema = new JSONObject();
-                    head.put("description", "");
+                    head.put("description", ((JSONObject) item).getString("description"));
                     head.put("example", ((JSONObject) item).getString("value"));
                     headSchema.put("type", "string");
                     head.put("schema", headSchema);

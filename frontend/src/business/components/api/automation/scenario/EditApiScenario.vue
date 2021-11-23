@@ -5,6 +5,12 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
+          <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
+          </el-tooltip>
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
+          </el-tooltip>
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
 
           <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario"
@@ -55,21 +61,6 @@
               <el-form-item :label="$t('test_track.case.priority')" prop="level">
                 <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">
                   <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="7">
-              <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
-                <el-select v-model="currentScenario.follows"
-                           clearable multiple
-                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
-                           class="ms-scenario-input">
-                  <el-option
-                    v-for="item in maintainerOptions"
-                    :key="item.id"
-                    :label="item.id + ' (' + item.name + ')'"
-                    :value="item.id">
-                  </el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -141,10 +132,13 @@
                 <el-col :span="8">
                   <div style="float: right;width: 300px">
                     <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
-                                 :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
+                                 :project-ids="projectIds" :result="envResult"
+                                 :environment-type.sync="environmentType" :isReadOnly="scenarioDefinition.length < 1"
+                                 :group-id="envGroupId" :project-list="projectList"
                                  :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                                 :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
-                                 :project-list="projectList" ref="envPopover" class="ms-message-right"/>
+                                 @setProjectEnvMap="setProjectEnvMap" @setEnvGroup="setEnvGroup"
+                                 @showPopover="showPopover"
+                                 ref="envPopover" class="ms-message-right"/>
                     <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
                       <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
                         {{ $t('api_test.request.debug') }}
@@ -210,6 +204,7 @@
                          :node="node"
                          :project-list="projectList"
                          :env-map="projectEnvMap"
+                         :env-group-id="envGroupId"
                          @remove="remove"
                          @copyRow="copyRow"
                          @suggestClick="suggestClick"
@@ -259,7 +254,7 @@
 
       <!--执行组件-->
       <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId" :saved="!debug"
-              :run-data="debugData"
+              :run-data="debugData" :environment-type="environmentType" :environment-group-id="envGroupId"
               @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
@@ -284,9 +279,13 @@
             :scenarioDefinition="scenarioDefinition"
             :enableCookieShare="enableCookieShare"
             :onSampleError="onSampleError"
+            :environment-type="environmentType"
+            :group-id="envGroupId"
             :execDebug="stopDebug"
             :isFullUrl.sync="isFullUrl"
             :clearMessage="clearMessage"
+            @setEnvType="setEnvType"
+            @envGroupId="setEnvGroup"
             @closePage="close"
             @unFullScreen="unFullScreen"
             @showAllBtn="showAllBtn"
@@ -331,18 +330,21 @@ import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
 import {buttons, setComponent} from './menu/Menu';
 import {parseEnvironment} from "../../definition/model/EnvironmentModel";
 import {ELEMENT_TYPE, STEP, TYPE_TO_C, PLUGIN_ELEMENTS} from "./Setting";
+import {KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
+
 import {
   getUUID,
   objToStrMap,
   strMapToObj,
   handleCtrlSEvent,
   getCurrentProjectID,
-  handleCtrlREvent, hasLicense
+  handleCtrlREvent, hasLicense, getCurrentUser
 } from "@/common/js/utils";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
 import {saveScenario} from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
+import {ENV_TYPE} from "@/common/js/constants";
 
 let jsonPath = require('jsonpath');
 export default {
@@ -459,6 +461,9 @@ export default {
       plugins: [],
       clearMessage: "",
       runScenario: undefined,
+      showFollow: false,
+      envGroupId: "",
+      environmentType: ENV_TYPE.JSON
     }
   },
   watch: {
@@ -472,15 +477,12 @@ export default {
       },
       deep: true
     },
-    scenarioDefinition: {
-      handler(newObj, oldObj) {
-        if (this.$store.state.scenarioMap) {
-          let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
-          change = change + 1;
-          this.$store.state.scenarioMap.set(this.currentScenario.id, change);
-        }
-      },
-      deep: true
+    'currentScenario.tags'() {
+      if (this.$store.state.scenarioMap) {
+        let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
+        change = change + 1;
+        this.$store.state.scenarioMap.set(this.currentScenario.id, change);
+      }
     },
   },
   created() {
@@ -503,6 +505,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       this.addListener();
+      this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
     });
     if (!this.currentScenario.name) {
       this.$refs.refFab.openMenu();
@@ -517,8 +520,14 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+    ENV_TYPE() {
+      return ENV_TYPE;
+    }
   },
   methods: {
+    currentUser: () => {
+      return getCurrentUser();
+    },
     setDomain(flag) {
       if (this.projectEnvMap && this.projectEnvMap.size > 0) {
         let scenario = {
@@ -535,12 +544,20 @@ export default {
           onSampleError: this.onSampleError,
           projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
         };
-        this.$post("/api/automation/setDomain", {definition: JSON.stringify(scenario)}, res => {
+        let param = {
+          definition: JSON.stringify(scenario),
+          environmentType: this.environmentType,
+          environmentMap: strMapToObj(this.projectEnvMap),
+          environmentGroupId: this.envGroupId,
+          environmentEnable: false,
+        };
+        this.$post("/api/automation/setDomain", param, res => {
           if (res.data) {
             let data = JSON.parse(res.data);
-            this.scenarioDefinition = data.hashTree;
-            if (!flag) {
-              this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
+            if (data.hashTree) {
+              this.sort(data.hashTree);
+              this.addNum(data.hashTree);
+              this.scenarioDefinition = data.hashTree;
             }
           }
         })
@@ -829,36 +846,33 @@ export default {
     handleCommand() {
       this.debug = false;
       /*触发执行操作*/
-      this.$refs['currentScenario'].validate((valid) => {
+      this.$refs['currentScenario'].validate(async (valid) => {
         if (valid) {
           this.debugLoading = true;
           let definition = JSON.parse(JSON.stringify(this.currentScenario));
           definition.hashTree = this.scenarioDefinition;
-          this.getEnv(JSON.stringify(definition)).then(() => {
-            let promise = this.$refs.envPopover.initEnv();
-            promise.then(() => {
-              let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
-              if (!sign) {
-                this.debugLoading = false;
-                return;
-              }
-              this.editScenario().then(() => {
-                this.debugData = {
-                  id: this.currentScenario.id,
-                  name: this.currentScenario.name,
-                  type: "scenario",
-                  variables: this.currentScenario.variables,
-                  referenced: 'Created',
-                  onSampleError: this.onSampleError,
-                  enableCookieShare: this.enableCookieShare,
-                  headers: this.currentScenario.headers,
-                  environmentMap: this.projectEnvMap,
-                  hashTree: this.scenarioDefinition
-                };
-                this.reportId = getUUID().substring(0, 8);
-                this.debugLoading = false;
-              })
-            })
+          await this.getEnv(JSON.stringify(definition));
+          await this.$refs.envPopover.initEnv();
+          const sign = await this.$refs.envPopover.checkEnv(this.isFullUrl);
+          if (!sign) {
+            this.debugLoading = false;
+            return;
+          }
+          this.editScenario().then(() => {
+            this.debugData = {
+              id: this.currentScenario.id,
+              name: this.currentScenario.name,
+              type: "scenario",
+              variables: this.currentScenario.variables,
+              referenced: 'Created',
+              onSampleError: this.onSampleError,
+              enableCookieShare: this.enableCookieShare,
+              headers: this.currentScenario.headers,
+              environmentMap: this.projectEnvMap,
+              hashTree: this.scenarioDefinition
+            };
+            this.reportId = getUUID().substring(0, 8);
+            this.debugLoading = false;
           })
         }
       })
@@ -948,7 +962,7 @@ export default {
       setComponent(type, this, plugin);
     },
     nodeClick(data, node) {
-      if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled && this.stepFilter) {
+      if ((data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled && this.stepFilter) || data.refType === 'CASE') {
         this.operatingElements = this.stepFilter.get(data.type);
       } else {
         this.operatingElements = [];
@@ -988,6 +1002,10 @@ export default {
         stepArray[i].index = Number(i) + 1;
         if (!stepArray[i].resourceId) {
           stepArray[i].resourceId = getUUID();
+        }
+        // 历史数据处理
+        if (stepArray[i].type === "HTTPSamplerProxy" && !stepArray[i].headers) {
+          stepArray[i].headers = [new KeyValue()];
         }
         if (stepArray[i].type === ELEMENT_TYPE.LoopController
           && stepArray[i].loopType === "LOOP_COUNT"
@@ -1180,47 +1198,44 @@ export default {
       this.clearResult(this.scenarioDefinition);
       this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
       /*触发执行操作*/
-      this.$refs.currentScenario.validate((valid) => {
+      this.$refs.currentScenario.validate(async (valid) => {
         if (valid) {
           let definition = JSON.parse(JSON.stringify(this.currentScenario));
           definition.hashTree = this.scenarioDefinition;
-          this.getEnv(JSON.stringify(definition)).then(() => {
-            let promise = this.$refs.envPopover.initEnv();
-            promise.then(() => {
-              let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
-              if (!sign) {
-                this.buttonIsLoading = false;
-                this.clearMessage = getUUID().substring(0, 8);
-                return;
-              }
-              let scenario = undefined;
-              if (runScenario && runScenario.type === 'scenario') {
-                scenario = runScenario;
-                this.runScenario = runScenario;
-              }
-              //调试时不再保存
-              this.debugData = {
-                id: scenario ? scenario.id : this.currentScenario.id,
-                name: scenario ? scenario.name : this.currentScenario.name,
-                type: "scenario",
-                variables: scenario ? scenario.variables : this.currentScenario.variables,
-                referenced: 'Created',
-                enableCookieShare: scenario ? scenario.enableCookieShare : this.enableCookieShare,
-                headers: scenario ? scenario.headers : this.currentScenario.headers,
-                environmentMap: scenario && scenario.environmentEnable ? scenario.environmentMap : this.projectEnvMap,
-                hashTree: scenario ? scenario.hashTree : this.scenarioDefinition,
-                onSampleError: scenario ? scenario.onSampleError : this.onSampleError,
-              };
-              if (scenario && scenario.environmentEnable) {
-                this.debugData.environmentEnable = scenario.environmentEnable;
-                this.debugLoading = false;
-              } else {
-                this.debugLoading = true;
-              }
-              this.reportId = getUUID().substring(0, 8);
-              this.debug = true;
-            })
-          })
+          await this.getEnv(JSON.stringify(definition));
+          await this.$refs.envPopover.initEnv();
+          const sign = await this.$refs.envPopover.checkEnv(this.isFullUrl);
+          if (!sign) {
+            this.buttonIsLoading = false;
+            this.clearMessage = getUUID().substring(0, 8);
+            return;
+          }
+          let scenario = undefined;
+          if (runScenario && runScenario.type === 'scenario') {
+            scenario = runScenario;
+            this.runScenario = runScenario;
+          }
+          //调试时不再保存
+          this.debugData = {
+            id: scenario ? scenario.id : this.currentScenario.id,
+            name: scenario ? scenario.name : this.currentScenario.name,
+            type: "scenario",
+            variables: scenario ? scenario.variables : this.currentScenario.variables,
+            referenced: 'Created',
+            enableCookieShare: scenario ? scenario.enableCookieShare : this.enableCookieShare,
+            headers: scenario ? scenario.headers : this.currentScenario.headers,
+            environmentMap: scenario && scenario.environmentEnable ? scenario.environmentMap : this.projectEnvMap,
+            hashTree: scenario ? scenario.hashTree : this.scenarioDefinition,
+            onSampleError: scenario ? scenario.onSampleError : this.onSampleError,
+          };
+          if (scenario && scenario.environmentEnable) {
+            this.debugData.environmentEnable = scenario.environmentEnable;
+            this.debugLoading = false;
+          } else {
+            this.debugLoading = true;
+          }
+          this.reportId = getUUID().substring(0, 8);
+          this.debug = true;
         } else {
           this.clearMessage = getUUID().substring(0, 8);
         }
@@ -1349,16 +1364,17 @@ export default {
           if (response.data) {
             this.path = "/api/automation/update";
             if (response.data.scenarioDefinition != null) {
-              // this.getEnv(response.data.scenarioDefinition);
               let obj = JSON.parse(response.data.scenarioDefinition);
               if (obj) {
                 this.currentEnvironmentId = obj.environmentId;
-                if (obj.environmentMap) {
-                  this.projectEnvMap = objToStrMap(obj.environmentMap);
+                if (response.data.environmentJson) {
+                  this.projectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
                 } else {
                   // 兼容历史数据
                   this.projectEnvMap.set(this.projectId, obj.environmentId);
                 }
+                this.envGroupId = response.data.environmentGroupId;
+                this.environmentType = response.data.environmentType;
                 this.currentScenario.variables = [];
                 let index = 1;
                 if (obj.variables) {
@@ -1384,13 +1400,8 @@ export default {
                 } else {
                   this.onSampleError = obj.onSampleError;
                 }
-                if (obj.hashTree) {
-                  obj.hashTree.forEach(item => {
-                    if (!item.hashTree) {
-                      item.hashTree = [];
-                    }
-                  });
-                }
+                this.dataProcessing(obj.hashTree);
+                this.addNum(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
               }
             }
@@ -1398,8 +1409,13 @@ export default {
               this.path = "/api/automation/create";
             }
             this.$get('/api/automation/follow/' + this.currentScenario.id, response => {
-              // this.$set(this.currentScenario, 'follows', response.data);
               this.currentScenario.follows = response.data;
+              for (let i = 0; i < response.data.length; i++) {
+                if (response.data[i] === this.currentUser().id) {
+                  this.showFollow = true;
+                  break;
+                }
+              }
             });
           }
           this.loading = false;
@@ -1413,6 +1429,22 @@ export default {
         })
       }
     },
+    dataProcessing(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].hashTree) {
+            stepArray[i].hashTree = [];
+          }
+          if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+          }
+          if (stepArray[i].hashTree.length > 0) {
+            this.dataProcessing(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
+
     formatData(hashTree) {
       for (let i in hashTree) {
         if (!hashTree[i].clazzName) {
@@ -1450,6 +1482,9 @@ export default {
       if (scenario.hashTree) {
         this.formatData(scenario.hashTree);
       }
+      this.currentScenario.environmentType = this.environmentType;
+      this.currentScenario.environmentJson = JSON.stringify(strMapToObj(this.projectEnvMap));
+      this.currentScenario.environmentGroupId = this.envGroupId;
       this.currentScenario.scenarioDefinition = scenario;
       if (this.currentScenario.tags instanceof Array) {
         this.currentScenario.tags = JSON.stringify(this.currentScenario.tags);
@@ -1506,6 +1541,13 @@ export default {
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
       this.setDomain(true);
+    },
+    setEnvGroup(id) {
+      this.envGroupId = id;
+      this.setDomain(true);
+    },
+    setEnvType(val) {
+      this.environmentType = val;
     },
     getWsProjects() {
       this.$get("/project/listAll", res => {
@@ -1601,6 +1643,96 @@ export default {
     },
     showHistory() {
       this.$refs.taskCenter.openScenarioHistory(this.currentScenario.id);
+    },
+    saveFollow() {
+      if (this.showFollow) {
+        this.showFollow = false;
+        for (let i = 0; i < this.currentScenario.follows.length; i++) {
+          if (this.currentScenario.follows[i] === this.currentUser().id) {
+            this.currentScenario.follows.splice(i, 1)
+            break;
+          }
+        }
+        if (this.currentScenario.id) {
+          this.$post("/api/automation/update/follows/" + this.currentScenario.id, this.currentScenario.follows, () => {
+            this.$success(this.$t('commons.cancel_follow_success'));
+          });
+        }
+      } else {
+        this.showFollow = true;
+        if (!this.currentScenario.follows) {
+          this.currentScenario.follows = [];
+        }
+        this.currentScenario.follows.push(this.currentUser().id)
+        if (this.currentScenario.id) {
+          this.$post("/api/automation/update/follows/" + this.currentScenario.id, this.currentScenario.follows, () => {
+            this.$success(this.$t('commons.follow_success'));
+          });
+        }
+      }
+    },
+    addNum(hashTree) {
+      let funcs = [];
+      for (let i = 0; i < hashTree.length; i++) {
+        let data = hashTree[i];
+        if (!data.num) {
+          if (data.refType) {
+            if (data.refType === 'API') {
+              funcs.push(this.getApiDefinitionNumById(data.id));
+            } else if (data.refType === 'CASE') {
+              funcs.push(this.getApiTestCaseNumById(data.id));
+            }
+          } else if (data.type === 'scenario') {
+            funcs.push(this.getScenarioNumById(data.id));
+          }
+        }
+      }
+      Promise.all(funcs).then(([result1, result2, result3]) => {
+        for (let i = 0; i < hashTree.length; i++) {
+          let data = hashTree[i];
+          if (!data.num) {
+            if (data.refType) {
+              if (data.refType === 'API') {
+                this.$set(data, 'num', result1);
+              } else if (data.refType === 'CASE') {
+                this.$set(data, 'num', result2);
+              }
+            } else {
+              this.$set(data, 'num', result3);
+            }
+          }
+        }
+      });
+    },
+    getApiDefinitionNumById(id) {
+      return new Promise((resolve) => {
+        let url = '/api/definition/get/' + id;
+        this.$get(url, response => {
+          if (response.data && response.data.num) {
+            resolve(response.data.num);
+          }
+        });
+      });
+    },
+    getApiTestCaseNumById(id) {
+      return new Promise((resolve) => {
+        let url = '/api/testcase/get/' + id;
+        this.$get(url, response => {
+          if (response.data && response.data.num) {
+            resolve(response.data.num);
+          }
+        });
+      });
+    },
+    getScenarioNumById(id) {
+      return new Promise((resolve) => {
+        let url = '/api/automation/getApiScenario/' + id;
+        this.$get(url, response => {
+          if (response.data && response.data.num) {
+            resolve(response.data.num);
+          }
+        });
+      });
     }
   }
 }

@@ -13,6 +13,7 @@ import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -21,6 +22,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
@@ -38,6 +40,8 @@ public class ApiTestEnvironmentService {
 
     @Resource
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
+    @Resource
+    private EnvironmentGroupProjectService environmentGroupProjectService;
 
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
@@ -70,6 +74,7 @@ public class ApiTestEnvironmentService {
 
     public void delete(String id) {
         apiTestEnvironmentMapper.deleteByPrimaryKey(id);
+        environmentGroupProjectService.deleteRelateEnv(id);
     }
 
     public void update(ApiTestEnvironmentWithBLOBs apiTestEnvironment) {
@@ -234,7 +239,7 @@ public class ApiTestEnvironmentService {
                 }
             } catch (Exception e) {
                 needUpdate = true;
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         if (needUpdate) {
@@ -427,7 +432,7 @@ public class ApiTestEnvironmentService {
                     }
                 }
             }catch (Exception e){
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return returnStr;

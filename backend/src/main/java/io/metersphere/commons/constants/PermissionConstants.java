@@ -8,12 +8,12 @@ public class PermissionConstants {
     public static final String SYSTEM_USER_READ_EDIT = "SYSTEM_USER:READ+EDIT";
     public static final String SYSTEM_USER_READ_DELETE = "SYSTEM_USER:READ+DELETE";
     public static final String SYSTEM_USER_READ_EDIT_PASSWORD = "SYSTEM_USER:READ+EDIT_PASSWORD";
-    
+
     public static final String SYSTEM_ORGANIZATION_READ = "SYSTEM_ORGANIZATION:READ";
     public static final String SYSTEM_ORGANIZATION_READ_CREATE = "SYSTEM_ORGANIZATION:READ+CREATE";
     public static final String SYSTEM_ORGANIZATION_READ_EDIT = "SYSTEM_ORGANIZATION:READ+EDIT";
     public static final String SYSTEM_ORGANIZATION_READ_DELETE = "SYSTEM_ORGANIZATION:READ+DELETE";
-    
+
     public static final String SYSTEM_WORKSPACE_READ = "SYSTEM_WORKSPACE:READ";
     public static final String SYSTEM_WORKSPACE_READ_CREATE = "SYSTEM_WORKSPACE:READ+CREATE";
     public static final String SYSTEM_WORKSPACE_READ_EDIT = "SYSTEM_WORKSPACE:READ+EDIT";
@@ -29,7 +29,7 @@ public class PermissionConstants {
     public static final String SYSTEM_GROUP_READ_EDIT = "SYSTEM_GROUP:READ+EDIT";
     public static final String SYSTEM_GROUP_READ_SETTING_PERMISSION = "SYSTEM_GROUP:READ+SETTING_PERMISSION";
     public static final String SYSTEM_GROUP_READ_DELETE = "SYSTEM_GROUP:READ+DELETE";
-    
+
     public static final String SYSTEM_SETTING_READ = "SYSTEM_SETTING:READ";
     public static final String SYSTEM_SETTING_READ_EDIT = "SYSTEM_SETTING:READ+EDIT";
     public static final String SYSTEM_SETTING_READ_AUTH_MANAGE = "SYSTEM_SETTING:READ+AUTH_MANAGE";
@@ -38,13 +38,13 @@ public class PermissionConstants {
     public static final String SYSTEM_AUTH_READ = "SYSTEM_AUTH:READ";
     public static final String SYSTEM_AUTH_READ_EDIT = "SYSTEM_AUTH:READ+EDIT";
 
-    
+
     public static final String WORKSPACE_SERVICE_READ = "WORKSPACE_SERVICE:READ";
     public static final String WORKSPACE_SERVICE_READ_EDIT = "WORKSPACE_SERVICE:READ+EDIT";
     public static final String WORKSPACE_MESSAGE_READ = "WORKSPACE_MESSAGE:READ";
     public static final String WORKSPACE_MESSAGE_READ_EDIT = "WORKSPACE_MESSAGE:READ+EDIT";
-    
-    
+
+
     public static final String WORKSPACE_USER_READ = "WORKSPACE_USER:READ";
     public static final String WORKSPACE_USER_READ_CREATE = "WORKSPACE_USER:READ+CREATE";
     public static final String WORKSPACE_USER_READ_EDIT = "WORKSPACE_USER:READ+EDIT";
@@ -79,6 +79,12 @@ public class PermissionConstants {
     public static final String PROJECT_MANAGER_READ_CREATE = "PROJECT_MANAGER:READ+CREATE";
     public static final String PROJECT_MANAGER_READ_EDIT = "PROJECT_MANAGER:READ+EDIT";
     public static final String PROJECT_MANAGER_READ_DELETE = "PROJECT_MANAGER:READ+DELETE";
+
+    public static final String PROJECT_GROUP_READ = "PROJECT_GROUP:READ";
+    public static final String PROJECT_GROUP_READ_CREATE = "PROJECT_GROUP:READ+CREATE";
+    public static final String PROJECT_GROUP_READ_EDIT = "PROJECT_GROUP:READ+EDIT";
+    public static final String PROJECT_GROUP_READ_DELETE = "PROJECT_GROUP:READ+DELETE";
+    public static final String PROJECT_GROUP_READ_SETTING_PERMISSION = "PROJECT_GROUP:READ+SETTING_PERMISSION";
 
     public static final String PROJECT_ENVIRONMENT_READ = "PROJECT_ENVIRONMENT:READ";
     public static final String PROJECT_ENVIRONMENT_READ_CREATE = "PROJECT_ENVIRONMENT:READ+CREATE";
@@ -165,4 +171,9 @@ public class PermissionConstants {
     public static final String PROJECT_PERFORMANCE_REPORT_READ_DELETE = "PROJECT_PERFORMANCE_REPORT:READ+DELETE";
     public static final String PROJECT_PERFORMANCE_REPORT_READ_EXPORT = "PROJECT_PERFORMANCE_REPORT:READ+EXPORT";
 
+    public static final String PROJECT_ENTERPRISE_REPORT_EXPORT = "PROJECT_ENTERPRISE_REPORT:READ+EXPORT";
+    public static final String PROJECT_ENTERPRISE_REPORT_CREATE = "PROJECT_ENTERPRISE_REPORT:READ+CREATE";
+    public static final String PROJECT_ENTERPRISE_REPORT_EDIT = "PROJECT_ENTERPRISE_REPORT:READ+EDIT";
+    public static final String PROJECT_ENTERPRISE_REPORT_DELETE = "PROJECT_ENTERPRISE_REPORT:READ+DELETE";
+    public static final String PROJECT_ENTERPRISE_REPORT_COPY = "PROJECT_ENTERPRISE_REPORT:READ+COPY";
 }

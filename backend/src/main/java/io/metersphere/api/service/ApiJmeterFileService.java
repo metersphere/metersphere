@@ -1,11 +1,10 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.JarConfig;
-import io.metersphere.base.domain.TestPlanApiScenario;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -13,7 +12,9 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.JarConfigService;
+import io.metersphere.service.PluginService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -39,6 +41,8 @@ public class ApiJmeterFileService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private EnvironmentGroupProjectService environmentGroupProjectService;
 
     public byte[] downloadJmeterFiles(List<BodyFile> bodyFileList) {
         Map<String, byte[]> files = new LinkedHashMap<>();
@@ -52,27 +56,46 @@ public class ApiJmeterFileService {
         return listBytesToZip(files);
     }
 
-    public byte[] downloadJmeterFiles(String runMode, String testId, String reportId, String testPlanScenarioId) {
+    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String testPlanScenarioId) {
         Map<String, String> planEnvMap = new HashMap<>();
         if (StringUtils.isNotEmpty(testPlanScenarioId)) {
             // 获取场景用例单独的执行环境
             TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
-            String environment = planApiScenario.getEnvironment();
-            if (StringUtils.isNotBlank(environment)) {
-                planEnvMap = JSON.parseObject(environment, Map.class);
+            if(planApiScenario != null){
+                String envType = planApiScenario.getEnvironmentType();
+                String environmentGroupId = planApiScenario.getEnvironmentGroupId();
+                String environment = planApiScenario.getEnvironment();
+                if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(environment)) {
+                    planEnvMap = JSON.parseObject(environment, Map.class);
+                } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
+                    planEnvMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+                }
             }
         }
-        HashTree hashTree = null;
-        if (ApiRunMode.DEFINITION.name().equals(runMode) || ApiRunMode.API_PLAN.name().equals(runMode)) {
+        HashTree hashTree;
+        if (ApiRunMode.DEFINITION.name().equals(runMode) || ApiRunMode.API_PLAN.name().equals(runMode) || ApiRunMode.MANUAL_PLAN.name().equals(runMode)) {
+            String testId = remoteTestId;
+            if(remoteTestId.contains(":")){
+                //执行测试计划案例时会有拼接ID,ID为 planTestCaseId:测试计划报告ID
+                testId = remoteTestId.split(":")[0];
+            }
             hashTree = testPlanApiCaseService.generateHashTree(testId);
         } else {
-            ApiScenarioWithBLOBs item = apiScenarioMapper.selectByPrimaryKey(testId);
+            ApiScenarioWithBLOBs item = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
             if (item == null) {
                 MSException.throwException("未找到执行场景。");
             }
+            String envType = item.getEnvironmentType();
+            String envJson = item.getEnvironmentJson();
+            String envGroupId = item.getEnvironmentGroupId();
+            if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
+                planEnvMap = JSON.parseObject(envJson, Map.class);
+            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
+                planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
+            }
             hashTree = apiAutomationService.generateHashTree(item, reportId, planEnvMap);
         }
-        return zipFilesToByteArray(testId, hashTree);
+        return zipFilesToByteArray(remoteTestId, hashTree);
     }
 
     public byte[] downloadJmx(String runMode, String testId, String reportId, String testPlanScenarioId) {
@@ -113,6 +136,19 @@ public class ApiJmeterFileService {
         return listBytesToZip(files);
     }
 
+    public byte[] downloadPlugJar() {
+        Map<String, byte[]> files = new HashMap<>();
+        // 获取JAR
+        Map<String, byte[]> jarFiles = this.getPlugJar();
+        if (!com.alibaba.excel.util.CollectionUtils.isEmpty(jarFiles)) {
+            for (String k : jarFiles.keySet()) {
+                byte[] v = jarFiles.get(k);
+                files.put(k, v);
+            }
+        }
+        return listBytesToZip(files);
+    }
+
     private Map<String, byte[]> getJar() {
         Map<String, byte[]> jarFiles = new LinkedHashMap<>();
         // jar 包
@@ -133,6 +169,33 @@ public class ApiJmeterFileService {
                 LogUtil.error(e.getMessage(), e);
             }
         });
+        return jarFiles;
+    }
+
+    private Map<String, byte[]> getPlugJar() {
+        Map<String, byte[]> jarFiles = new LinkedHashMap<>();
+        // jar 包
+        PluginService pluginService = CommonBeanFactory.getBean(PluginService.class);
+
+        List<Plugin> plugins = pluginService.list();
+        if (CollectionUtils.isNotEmpty(plugins)) {
+            plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
+                    -> new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
+
+            if (CollectionUtils.isNotEmpty(plugins)) {
+                plugins.forEach(item -> {
+                    String path = item.getSourcePath();
+                    File file = new File(path);
+                    if (file.isDirectory() && !path.endsWith("/")) {
+                        file = new File(path + "/");
+                    }
+                    byte[] fileByte = FileUtils.fileToByte(file);
+                    if (fileByte != null) {
+                        jarFiles.put(file.getName(), fileByte);
+                    }
+                });
+            }
+        }
         return jarFiles;
     }
 
