@@ -467,7 +467,7 @@ public class TestPlanScenarioCaseService {
                 if(status == null ){
                     status = defaultStatus;
                 }
-                dto.setStatus(status);
+                dto.setLastResult(status);
             }
 
         }
