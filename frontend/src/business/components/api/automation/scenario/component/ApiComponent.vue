@@ -17,7 +17,7 @@
       </template>
 
       <template v-slot:afterTitle v-if="request.refType==='API'|| request.refType==='CASE'">
-        <span v-if="request.num" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
+        <span v-if="isShowNum" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
         <span v-else >
           <el-tooltip class="ms-num" effect="dark" :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')" placement="top">
             <i class="el-icon-warning"/>
@@ -202,7 +202,8 @@ export default {
       apiActive: false,
       reqSuccess: true,
       envType: this.environmentType,
-      environmentMap: this.envMap
+      environmentMap: this.envMap,
+      isShowNum:false,
     }
   },
   created() {
@@ -408,11 +409,17 @@ export default {
       }
     },
     getApiInfo() {
+      console.log("看看num")
+      console.log(this.request.id);
+      console.log(this.request.referenced);
       if (this.request.id && this.request.referenced === 'REF') {
+        console.log(this.request.id);
+        console.log(this.request.referenced);
         let requestResult = this.request.requestResult;
         let enable = this.request.enable;
         this.$get("/api/testcase/get/" + this.request.id, response => {
           if (response.data) {
+            console.log(response.data)
             let hashTree = [];
             if (this.request.hashTree) {
               hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
@@ -432,6 +439,10 @@ export default {
               this.request.requestResult = [requestResult];
             } else {
               this.request.requestResult = requestResult;
+            }
+            if(response.data.num){
+              this.request.num = response.data.num;
+              this.isShowNum = true;
             }
             this.request.id = response.data.id;
             this.request.disabled = true;
@@ -614,6 +625,10 @@ export default {
             response.data.sourceId = resource.resourceId;
             response.data.type = resource.type;
             response.data.refType = resource.refType;
+            if(response.data.num){
+              this.request.num = response.data.num;
+              this.isShowNum = true;
+            }
             this.clickCase(response.data)
           } else {
             this.$error("接口用例场景场景已经被删除");
