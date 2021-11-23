@@ -98,8 +98,8 @@
         this.moduleOptions = data;
       },
 
-      saveCaseRelevance() {
-        const sign = this.$refs.apiScenarioList.checkEnv();
+      async saveCaseRelevance() {
+        const sign = await this.$refs.apiScenarioList.checkEnv();
         if (!sign) {
           return false;
         }
