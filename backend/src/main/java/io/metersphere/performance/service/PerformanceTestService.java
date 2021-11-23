@@ -237,7 +237,7 @@ public class PerformanceTestService {
                 criteria.andIdNotEqualTo(request.getId());
             }
             if (loadTestMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("plan_name_already_exists"));
+                MSException.throwException(Translator.get("api_test_name_already_exists"));
             }
         }
     }
