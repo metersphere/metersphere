@@ -145,7 +145,9 @@ export default {
         pageSize: 10,
         total: 0,
         items: [],
-        condition: {},
+        condition: {
+          times: [new Date().getTime() - 3600 * 1000 * 24 * 7, new Date().getTime()],
+        },
         tableData: [],
         userList: [],
         screenHeight: 'calc(100vh - 270px)',
@@ -275,7 +277,6 @@ export default {
         this.initTableData();
       },
       initProject(url) {
-        this.condition = {};
         this.result = this.$get(url, response => {
           let projects = response.data;
           let projectIds = [];
