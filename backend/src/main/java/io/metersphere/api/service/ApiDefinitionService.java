@@ -692,7 +692,9 @@ public class ApiDefinitionService {
             apiDefinition.setOriginalState(sameRequest.get(0).getOriginalState());
             apiDefinition.setCaseStatus(sameRequest.get(0).getCaseStatus());
             apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
-            apiDefinition.setTags(sameRequest.get(0).getTags()); //tag 不变
+            if (!StringUtils.equalsIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Metersphere.name())) {
+                apiDefinition.setTags(sameRequest.get(0).getTags()); // 其他格式 tag 不变，MS 格式替换
+            }
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 //如果存在则修改
                 apiDefinition.setId(sameRequest.get(0).getId());
