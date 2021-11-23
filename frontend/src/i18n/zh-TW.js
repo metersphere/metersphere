@@ -1166,7 +1166,10 @@ export default {
         follow_people: "關註人",
         select_table: "選擇可見數據",
         select_all: "選擇全部數據",
-        check_case: "請勾選場景用例"
+        check_case: "請勾選場景用例",
+        api_none:"原始API不存在",
+        case_none:"原始CASE不存在",
+        num_none:"原始場景不存在"
       },
       report_name_info: '請輸入報告名稱',
       save_case_info: '請先保存用例',
