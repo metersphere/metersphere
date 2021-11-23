@@ -488,3 +488,14 @@ export function getShareId() {
   }
   return "";
 }
+
+export function setCurTabId(vueObj, tab, ref) {
+  vueObj.$nextTick(() => {
+    if (vueObj.$refs && vueObj.$refs[ref]) {
+      let index = tab.index ? Number.parseInt(tab.index) : vueObj.tabs.length;
+      let cutEditTab = vueObj.$refs[ref][index - 1];
+      let curTabId = cutEditTab ? cutEditTab.tabId : null;
+      vueObj.$store.commit('setCurTabId', curTabId);
+    }
+  })
+}

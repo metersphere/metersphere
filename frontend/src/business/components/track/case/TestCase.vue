@@ -132,7 +132,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getCurrentProjectID, getUUID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, hasPermission, setCurTabId} from "@/common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -186,14 +186,7 @@ export default {
         this.renderComponent = true;
       });
     },
-    '$route'(to, from) {
-      if (to.path.indexOf('/track/case/all') == -1) {
-        if (this.$refs && this.$refs.autoScenarioConfig) {
-          this.$refs.autoScenarioConfig.forEach(item => {
-            /*item.removeListener();*/
-          });
-        }
-      }
+    '$route'(to) {
       this.init(to);
     },
     activeName(newVal, oldVal) {
@@ -271,7 +264,6 @@ export default {
       if (redirectIDParam != null) {
         if (this.redirectFlag == "none") {
           this.activeName = "default";
-          this.addListener();
           this.redirectFlag = "redirected";
         }
       } else {
@@ -297,12 +289,8 @@ export default {
         label = tab.testCaseInfo.name;
         this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo});
       }
-      if (this.$refs && this.$refs.testCaseEdit) {
-        this.$refs.testCaseEdit.forEach(item => {
-          /* item.removeListener();*/
-        });  //  删除所有tab的 ctrl + s 监听
-        this.addListener();
-      }
+
+      setCurTabId(this, tab, 'testCaseEdit');
     },
     handleTabClose() {
       let message = "";
@@ -352,7 +340,6 @@ export default {
       this.tabs = this.tabs.filter(tab => tab.name !== targetName);
       if (this.tabs.length > 0) {
         this.activeName = this.tabs[this.tabs.length - 1].name;
-        this.addListener(); //  自动切换当前标签时，也添加监听
       } else {
         this.activeName = "default";
       }
@@ -363,16 +350,6 @@ export default {
         return;
       }
       this.$refs.testCaseList.exportTestCase(type);
-    },
-    addListener() {
-      let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index
-      if (index != -1) {   //  为当前选中的tab添加监听
-        this.$nextTick(() => {
-          /*
-                    this.$refs.testCaseEdit[index].addListener();
-          */
-        });
-      }
     },
     init(route) {
       let path = route.path;
