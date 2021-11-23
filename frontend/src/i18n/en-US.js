@@ -1161,7 +1161,10 @@ export default {
         follow_people: "Follow people",
         select_table: "Select table",
         select_all: "Select all",
-        check_case: "Please check the Scene Use Case"
+        check_case: "Please check the Scene Use Case",
+        api_none:"The original api does not exist",
+        case_none:"The original case does not exist",
+        num_none:"The original scene does not exist"
       },
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',

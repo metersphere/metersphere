@@ -1168,7 +1168,10 @@ export default {
         follow_people: "关注人",
         select_table: "选择可见数据",
         select_all: "选择全部数据",
-        check_case: "请勾选场景用例"
+        check_case: "请勾选场景用例",
+        api_none:"原始API不存在",
+        case_none:"原始CASE不存在",
+        num_none:"原始场景不存在"
       },
       report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',
@@ -1230,7 +1233,8 @@ export default {
       reference: "引用",
       clone: "复制",
       cant_reference: '历史测试文件，重新保存后才可被引用',
-      share_cookie: '共享cookie'
+      share_cookie: '共享cookie',
+
     },
     request: {
       debug: "调试",
