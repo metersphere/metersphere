@@ -444,7 +444,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                         }
                         String envPath = "";
-                        if (!isCustomizeReqCompleteUrl(this.path)) {
+                        if (!isCustomizeReqCompleteUrl(this.path) || isRefEnvironment) {
                             URL urlObject = new URL(url);
                             envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
                             if (StringUtils.isNotBlank(this.getPath())) {
@@ -463,6 +463,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
                             sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                             sampler.setProtocol(urlObject.getProtocol());
+                        }
+                        if (StringUtils.isNotEmpty(envPath) && !envPath.startsWith("/")) {
+                            envPath = "/" + envPath;
                         }
                         sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8"));
                     }

@@ -477,15 +477,12 @@ export default {
       },
       deep: true
     },
-    scenarioDefinition: {
-      handler(newObj, oldObj) {
-        if (this.$store.state.scenarioMap) {
-          let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
-          change = change + 1;
-          this.$store.state.scenarioMap.set(this.currentScenario.id, change);
-        }
-      },
-      deep: true
+    'currentScenario.tags'() {
+      if (this.$store.state.scenarioMap) {
+        let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
+        change = change + 1;
+        this.$store.state.scenarioMap.set(this.currentScenario.id, change);
+      }
     },
   },
   created() {
@@ -508,6 +505,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       this.addListener();
+      this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
     });
     if (!this.currentScenario.name) {
       this.$refs.refFab.openMenu();
@@ -560,9 +558,6 @@ export default {
               this.sort(data.hashTree);
               this.addNum(data.hashTree);
               this.scenarioDefinition = data.hashTree;
-            }
-            if (!flag) {
-              this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
             }
           }
         })
@@ -1713,7 +1708,7 @@ export default {
       return new Promise((resolve) => {
         let url = '/api/definition/get/' + id;
         this.$get(url, response => {
-          if(response.data&&response.data.num){
+          if (response.data && response.data.num) {
             resolve(response.data.num);
           }
         });
@@ -1723,7 +1718,7 @@ export default {
       return new Promise((resolve) => {
         let url = '/api/testcase/get/' + id;
         this.$get(url, response => {
-          if(response.data&&response.data.num){
+          if (response.data && response.data.num) {
             resolve(response.data.num);
           }
         });
@@ -1733,7 +1728,7 @@ export default {
       return new Promise((resolve) => {
         let url = '/api/automation/getApiScenario/' + id;
         this.$get(url, response => {
-          if(response.data&&response.data.num){
+          if (response.data && response.data.num) {
             resolve(response.data.num);
           }
         });

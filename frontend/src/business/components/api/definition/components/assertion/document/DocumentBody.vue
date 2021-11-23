@@ -230,7 +230,7 @@ export default {
       }
     },
     objectSpanMethod({row, column, rowIndex, columnIndex}) {
-      if (columnIndex === 0 || columnIndex === 1 || columnIndex === 2 || columnIndex === 3 || columnIndex === 4) {
+      if (columnIndex === 0 || columnIndex === 1 || columnIndex === 2 || columnIndex === 3) {
         return {
           rowspan: row.rowspan,
           colspan: row.rowspan > 0 ? 1 : 0
