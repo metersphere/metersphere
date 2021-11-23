@@ -20,7 +20,6 @@ const state = {
 
   testReviewSelectNode: {},
   testReviewSelectNodeIds: [],
-  testReviewModuleOptions: [],
   useEnvironment: "",
   testPlanViewSelectNode: {},
   selectStep: {},
@@ -33,7 +32,8 @@ const state = {
   scenarioMap: new Map(),
   apiMap: new Map(),
   apiStatus: new Map(),
-  testCaseMap: new Map()
+  testCaseMap: new Map(),
+  curTabId: null
 }
 
 const store = new Vuex.Store({

@@ -13,13 +13,11 @@ const mutations = {
 
   setTestReviewSelectNode: (state, value) => state.testReviewSelectNode = value,
   setTestReviewSelectNodeIds: (state, value) => state.testReviewSelectNodeIds = value,
-  setTestReviewModuleOptions: (state, value) => state.testReviewModuleOptions = value,
   setTestPlanViewSelectNode: (state, value) => state.testPlanViewSelectNode = value,
   setIsTestCaseMinderChanged: (state, value) => state.isTestCaseMinderChanged = value,
   setCurrentProjectIsCustomNum: (state, value) => state.currentProjectIsCustomNum = value,
-  setTestCaseTemplate: (state, value) => {
-    state.testCaseTemplate = value
-  },
+  setTestCaseTemplate: (state, value) => state.testCaseTemplate = value,
+  setCurTabId: (state, value) => state.curTabId = value,
 }
 
 export default mutations;

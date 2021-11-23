@@ -149,7 +149,7 @@ import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {
   getCurrentProjectID,
   getCurrentUser,
-  getNodePath,
+  getNodePath, getUUID,
   handleCtrlSEvent, hasPermission,
   listenGoBack,
   removeGoBackListener
@@ -280,6 +280,7 @@ export default {
         id: 'id',
         label: 'name',
       },
+      tabId: getUUID()
     };
   },
   props: {
@@ -338,6 +339,9 @@ export default {
       },
       deep: true
     }
+  },
+  beforeDestroy() {
+    this.removeListener();
   },
   mounted() {
     this.getSelectOptions();
@@ -828,7 +832,9 @@ export default {
       document.removeEventListener("keydown", this.createCtrlSHandle);
     },
     createCtrlSHandle(event) {
-      handleCtrlSEvent(event, this.saveCase);
+      let curTabId = this.$store.state.curTabId;
+      if (curTabId === this.tabId)
+        handleCtrlSEvent(event, this.saveCase);
     },
     saveFollow() {
       if (this.showFollow) {
