@@ -52,7 +52,26 @@ public class TapdPlatform extends AbstractIssuePlatform {
         } else {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }
+        for (IssuesDao issue : issues) {
+            if(StringUtils.isNotBlank(issue.getPlatform())&&issue.getPlatform().equals("Tapd")){
+                List<String> tapdUsers = getTapdUsers(issue.getProjectId(), issue.getPlatformId());
+                issue.setTapdUsers(tapdUsers);
+            }
+        }
         return issues;
+    }
+
+    public List<String> getTapdUsers(String projectId,String num){
+        List<String>ids = new ArrayList<>(1);
+        ids.add(num);
+        List<JSONObject> tapdIssues = tapdClient.getIssueForPageByIds(getProjectId(projectId),1,50,ids).getData();
+        List<String>tapdUsers = new ArrayList<>(tapdIssues.size());
+        for (JSONObject tapdIssue : tapdIssues) {
+            JSONObject bug = tapdIssue.getJSONObject("Bug");
+            String currentOwner = bug.getString("current_owner");
+            tapdUsers.add(currentOwner);
+        }
+        return tapdUsers;
     }
 
     @Override

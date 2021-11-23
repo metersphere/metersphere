@@ -176,7 +176,7 @@ import {
 } from "@/common/js/tableUtils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
 import {getProjectMember} from "@/network/user";
 
@@ -263,8 +263,9 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
-
-
+    workspaceId(){
+      return getCurrentWorkspaceId();
+    }
   },
   created() {
     this.getMaintainerOptions();
@@ -278,6 +279,7 @@ export default {
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
+      this.page.condition.workspaceId= this.workspaceId;
       this.page.condition.orders = getLastTableSortField(this.tableHeaderKey);
       this.page.result = getIssues(this.page);
     },
