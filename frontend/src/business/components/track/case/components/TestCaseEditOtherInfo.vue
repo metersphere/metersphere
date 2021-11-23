@@ -308,12 +308,8 @@ export default {
   padding: 20px 0px;
 }
 
-.other-info-tabs {
-  padding: 10px 60px;
-}
-
 .remark-item {
-  padding: 0px 15px;
+  padding: 0px 3px;
 }
 
 .el-cascader >>> .el-input {

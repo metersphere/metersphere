@@ -98,8 +98,10 @@
 
                     <test-case-step-item :label-width="formLabelWidth" :read-only="true" v-if="testCase.stepModel === 'STEP'" :form="testCase"/>
 
-                    <test-case-edit-other-info @openTest="openTest" :read-only="true" :is-test-plan="true"
-                                               :project-id="projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
+                    <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
+                      <test-case-edit-other-info @openTest="openTest" :read-only="true" :is-test-plan="true"
+                                                 :project-id="projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
+                    </el-form-item >
 
                   </el-form>
                 </div>

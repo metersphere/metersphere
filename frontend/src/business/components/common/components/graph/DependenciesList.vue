@@ -78,5 +78,6 @@ export default {
 .graph-icon {
   float: right;
   margin-right: 20px;
+  color: var(--primary_color);
 }
 </style>
