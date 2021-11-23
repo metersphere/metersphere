@@ -239,7 +239,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected String msImg2HtmlImg(String input, String endpoint) {
         // ![中心主题.png](/resource/md/get/a0b19136_中心主题.png) -> <img src="xxx/resource/md/get/a0b19136_中心主题.png"/>
-        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        String regex = "(\\!\\[.*?\\]\\((.*)\\))";
         Pattern pattern = Pattern.compile(regex);
         if (StringUtils.isBlank(input)) {
             return "";
@@ -259,7 +259,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     protected String removeImage(String input) {
-        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        String regex = "(\\!\\[.*?\\]\\((.*)\\))";
         if (StringUtils.isBlank(input)) {
             return "";
         }
@@ -273,7 +273,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected String getImages(String input) {
         String result = "";
-        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        String regex = "(\\!\\[.*?\\]\\((.*)\\))";
         if (StringUtils.isBlank(input)) {
             return result;
         }
@@ -286,7 +286,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected String htmlImg2MsImg(String input) {
         // <img src="xxx/resource/md/get/a0b19136_中心主题.png"/> ->  ![中心主题.png](/resource/md/get/a0b19136_中心主题.png)
-        String regex = "(<img\\s*src=\\\"(.*?)\\\".*?>)";
+        String regex = "(<img\\s*src=\\\"(.*)\\\".*?>)";
         Pattern pattern = Pattern.compile(regex);
         if (StringUtils.isBlank(input)) {
             return "";
@@ -308,7 +308,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     public List<File> getImageFiles(String input) {
         List<File> files = new ArrayList<>();
-        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        String regex = "(\\!\\[.*?\\]\\((.*)\\))";
         Pattern pattern = Pattern.compile(regex);
         if (StringUtils.isBlank(input)) {
             return new ArrayList<>();
