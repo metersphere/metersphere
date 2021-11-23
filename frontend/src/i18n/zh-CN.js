@@ -754,6 +754,7 @@ export default {
     test_error_log: '错误记录',
     test_log_details: '日志详情',
     test_monitor_details: '监控详情',
+    test_config: '测试配置',
     test_details: '测试详情',
     test_duration: '执行时长：{0} 分钟 {1} 秒',
     test_execute_time: '执行时长',

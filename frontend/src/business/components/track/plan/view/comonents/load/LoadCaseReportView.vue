@@ -73,7 +73,7 @@
               <monitor-card :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
                             :share-id="shareId"/>
             </el-tab-pane>
-            <el-tab-pane :label="$t('测试配置')">
+            <el-tab-pane :label="$t('report.test_config')">
               <ms-test-configuration :report-id="reportId"/>
             </el-tab-pane>
           </el-tabs>

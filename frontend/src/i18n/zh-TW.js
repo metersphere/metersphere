@@ -753,6 +753,7 @@ export default {
     test_error_log: '錯誤記錄',
     test_log_details: '日誌詳情',
     test_monitor_details: '監控詳情',
+    test_config: '測試配置',
     test_details: '測試詳情',
     test_duration: '執行時長：{0} 分鐘 {1} 秒',
     test_execute_time: '執行時長',
