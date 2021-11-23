@@ -558,6 +558,7 @@ export default {
             let data = JSON.parse(res.data);
             if (data.hashTree) {
               this.sort(data.hashTree);
+              this.addNum(data.hashTree);
               this.scenarioDefinition = data.hashTree;
             }
             if (!flag) {
