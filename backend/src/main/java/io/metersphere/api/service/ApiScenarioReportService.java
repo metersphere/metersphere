@@ -7,10 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
-import io.metersphere.api.dto.APIReportBatchRequest;
-import io.metersphere.api.dto.DeleteAPIReportRequest;
-import io.metersphere.api.dto.JvmInfoDTO;
-import io.metersphere.api.dto.QueryAPIReportRequest;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.ScenarioStatus;
@@ -84,6 +81,10 @@ public class ApiScenarioReportService {
     private UserService userService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private EnvironmentGroupMapper environmentGroupMapper;
+    @Resource
+    private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
 
     public ApiScenarioReport complete(TestResult result, String runMode) {
         // 更新场景
@@ -307,7 +308,7 @@ public class ApiScenarioReportService {
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
         Map<String, String> scenarioAndErrorMap = new HashMap<>();
-        Map<String,String> planScenarioReportMap = new HashMap<>();
+        Map<String, String> planScenarioReportMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
 
             // 存储场景报告
@@ -344,7 +345,7 @@ public class ApiScenarioReportService {
             report.setTestPlanScenarioId(planScenarioId);
             report.setEndTime(System.currentTimeMillis());
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-            planScenarioReportMap.put(planScenarioId,report.getId());
+            planScenarioReportMap.put(planScenarioId, report.getId());
 
 
             if (scenarioResult.getError() > 0) {
@@ -572,7 +573,7 @@ public class ApiScenarioReportService {
                 detail.setProjectId(report.getProjectId());
                 apiScenarioReportDetailMapper.insert(detail);
                 // 更新场景状态
-                ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
+                ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
                 if (scenario != null) {
                     if (item.getError() > 0) {
                         scenario.setLastResult("Fail");
@@ -612,7 +613,7 @@ public class ApiScenarioReportService {
     }
 
 
-    private void sendNotice(ApiScenario scenario, ApiScenarioReport result) {
+    private void sendNotice(ApiScenarioWithBLOBs scenario, ApiScenarioReport result) {
 
         BeanMap beanMap = new BeanMap(scenario);
 
@@ -631,6 +632,23 @@ public class ApiScenarioReportService {
         Map paramMap = new HashMap<>(beanMap);
         paramMap.put("operator", userDTO.getName());
         paramMap.put("status", scenario.getLastResult());
+        String environmentType = scenario.getEnvironmentType();
+
+        if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+            String environmentJson = scenario.getEnvironmentJson();
+            JSONObject jsonObject = JSON.parseObject(environmentJson);
+            ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+            example.createCriteria().andIdIn(jsonObject.values().stream().map(Object::toString).collect(Collectors.toList()));
+            List<ApiTestEnvironment> envs = apiTestEnvironmentMapper.selectByExample(example);
+            String env = envs.stream().map(ApiTestEnvironment::getName).collect(Collectors.joining(","));
+            paramMap.put("environment", env);
+        }
+
+        if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+            String environmentGroupId = scenario.getEnvironmentGroupId();
+            EnvironmentGroup environmentGroup = environmentGroupMapper.selectByPrimaryKey(environmentGroupId);
+            paramMap.put("environment", environmentGroup.getName());
+        }
 
         String context = "${operator}执行接口自动化" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()
@@ -864,13 +882,13 @@ public class ApiScenarioReportService {
     }
 
     public Map<String, String> getReportStatusByReportIds(Collection<String> values) {
-        if(CollectionUtils.isEmpty(values)){
-            return  new HashMap<>();
+        if (CollectionUtils.isEmpty(values)) {
+            return new HashMap<>();
         }
         Map<String, String> map = new HashMap<>();
         List<ApiScenarioReport> reportList = extApiScenarioReportMapper.selectStatusByIds(values);
         for (ApiScenarioReport report : reportList) {
-            map.put(report.getId(),report.getStatus());
+            map.put(report.getId(), report.getStatus());
         }
         return map;
     }
