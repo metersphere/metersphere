@@ -1,6 +1,5 @@
 package io.metersphere.api.service;
 
-import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -63,7 +62,7 @@ public class TestResultService {
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
                 ApiDefinitionExecResult apiResult = apiDefinitionExecResultService.getInfo(apiTestCaseWithBLOBs.getLastResultId());
                 //环境
-                String name = apiAutomationService.get(debugReportId).getName();
+                String name = apiAutomationService.getEnvironment(debugReportId).getName();
                 //执行人
                 String userName = apiAutomationService.getUser(apiTestCaseWithBLOBs.getCreateUserId());
                 //报告内容
@@ -74,7 +73,7 @@ public class TestResultService {
                 reportTask.setName(apiTestCaseWithBLOBs.getName());
                 reportTask.setExecutor(userName);
                 reportTask.setExecutionTime(DateUtils.getTimeString(apiTestCaseWithBLOBs.getCreateTime()));
-                reportTask.setExecutionEnvironment(name);
+                reportTask.setEnvironment(name);
                 //测试计划用例，定时，jenkins
             } else if (StringUtils.equalsAny(runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
                 //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
@@ -82,7 +81,7 @@ public class TestResultService {
                     apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, debugReportId, runMode);
                 } else {
                     String testResultTestId = testResult.getTestId();
-                    if(testResultTestId.contains(":")){
+                    if (testResultTestId.contains(":")) {
                         testResult.setTestId(testResultTestId.split(":")[0]);
                     }
                     apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(), TriggerMode.MANUAL.name());
@@ -94,19 +93,13 @@ public class TestResultService {
                 //环境
                 if (scenarioReport != null) {
                     ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
-                    String name = "";
+                    String environment = "";
                     //执行人
                     String userName = "";
                     //负责人
                     String principal = "";
                     if (apiScenario != null) {
-                        String executionEnvironment = apiScenario.getScenarioDefinition();
-                        JSONObject json = JSONObject.parseObject(executionEnvironment);
-                        if (json != null && json.getString("environmentMap") != null && json.getString("environmentMap").length() > 2) {
-                            JSONObject environment = JSONObject.parseObject(json.getString("environmentMap"));
-                            String environmentId = environment.get(apiScenario.getProjectId()).toString();
-                            name = apiAutomationService.get(environmentId).getName();
-                        }
+                        environment = apiScenarioReportService.getEnvironment(apiScenario);
                         userName = apiAutomationService.getUser(apiScenario.getUserId());
                         principal = apiAutomationService.getUser(apiScenario.getPrincipal());
                     }
@@ -120,7 +113,7 @@ public class TestResultService {
                         reportTask.setExecutor(userName);
                         reportTask.setPrincipal(principal);
                         reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
-                        reportTask.setExecutionEnvironment(name);
+                        reportTask.setEnvironment(environment);
                         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
                         assert systemParameterService != null;
                     }
@@ -147,6 +140,7 @@ public class TestResultService {
             LogUtil.error(e);
         }
     }
+
 
     /**
      * 更新测试计划关联接口测试的功能用例的状态
@@ -193,7 +187,7 @@ public class TestResultService {
 
         String subject = "";
         String event = "";
-        String successContext = "${operator}执行接口测成功: ${name}" + ", 报告: ${reportUrl}";
+        String successContext = "${operator}执行接口测试成功: ${name}" + ", 报告: ${reportUrl}";
         String failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: ${reportUrl}";
 
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
