@@ -255,8 +255,8 @@ export default {
       data.requestId = data.request.id;
       if (data.request) {
         // 历史数据处理
-        if(data.request.authManager){
-          data.request.authManager.clazzName = TYPE_TO_C.get(data.request.authManager.type);
+        if (data.request.authManager) {
+          data.request.authManager.clazzName = TYPE_TO_C.get("AuthManager");
         }
         this.sort(data.request.hashTree);
       }
