@@ -64,7 +64,7 @@ export default {
       isResourceShow: 0,
       props: {
         multiple: true,
-        lazy: true,
+        lazy: false,
         value: 'id',
         label: 'name',
         lazyLoad(node, resolve) {
