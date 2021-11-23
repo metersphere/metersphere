@@ -19,7 +19,7 @@ public class DocumentUtils {
             boolean isTrue = true;
             if (CollectionUtils.isNotEmpty(elementCondition.getConditions())) {
                 for (Condition item : elementCondition.getConditions()) {
-                    String expectedValue = ifValue(item.getValue());
+                    String expectedValue = item.getValue() != null ? item.getValue().toString() : "";
                     String resValue = objectToString(subj, decimalFormatter);
                     switch (item.getKey()) {
                         case "value_eq":
@@ -32,16 +32,16 @@ public class DocumentUtils {
                             isTrue = StringUtils.contains(resValue, expectedValue);
                             break;
                         case "length_eq":
-                            isTrue = getLength(subj, decimalFormatter) == getLength(item.getValue(), decimalFormatter);
+                            isTrue = getLength(subj, decimalFormatter) == numberOf(item.getValue());
                             break;
                         case "length_not_eq":
-                            isTrue = getLength(subj, decimalFormatter) != getLength(item.getValue(), decimalFormatter);
+                            isTrue = getLength(subj, decimalFormatter) != numberOf(item.getValue());
                             break;
                         case "length_gt":
-                            isTrue = getLength(subj, decimalFormatter) < getLength(item.getValue(), decimalFormatter);
+                            isTrue = getLength(subj, decimalFormatter) > numberOf(item.getValue());
                             break;
                         case "length_lt":
-                            isTrue = getLength(subj, decimalFormatter) > getLength(item.getValue(), decimalFormatter);
+                            isTrue = getLength(subj, decimalFormatter) < numberOf(item.getValue());
                             break;
                         case "regular":
                             Pattern pattern = JMeterUtils.getPatternCache().getPattern(expectedValue);
@@ -69,7 +69,6 @@ public class DocumentUtils {
         } else {
             str = ((DecimalFormat) decimalFormatter.get()).format(subj);
         }
-
         return str;
     }
 
@@ -82,13 +81,6 @@ public class DocumentUtils {
             return value.toString().length();
         }
         return 0;
-    }
-
-    private static String ifValue(Object value) {
-        if (value != null) {
-            return value.toString();
-        }
-        return "";
     }
 
     private static int getLength(Object value, ThreadLocal<DecimalFormat> decimalFormatter) {
@@ -106,6 +98,16 @@ public class DocumentUtils {
         return 0;
     }
 
+    private static long numberOf(Object value) {
+        if (value != null) {
+            try {
+                return Long.parseLong(value.toString());
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+        return 0;
+    }
 
     public static String documentMsg(Object resValue, String condition) {
         String msg = "";
@@ -125,5 +127,4 @@ public class DocumentUtils {
         }
         return msg;
     }
-
 }
