@@ -1,12 +1,10 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.JarConfig;
-import io.metersphere.base.domain.Plugin;
-import io.metersphere.base.domain.TestPlanApiScenario;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -14,6 +12,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.PluginService;
 import io.metersphere.track.service.TestPlanApiCaseService;
@@ -42,6 +41,8 @@ public class ApiJmeterFileService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private EnvironmentGroupProjectService environmentGroupProjectService;
 
     public byte[] downloadJmeterFiles(List<BodyFile> bodyFileList) {
         Map<String, byte[]> files = new LinkedHashMap<>();
@@ -61,9 +62,13 @@ public class ApiJmeterFileService {
             // 获取场景用例单独的执行环境
             TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
             if(planApiScenario != null){
+                String envType = planApiScenario.getEnvironmentType();
+                String environmentGroupId = planApiScenario.getEnvironmentGroupId();
                 String environment = planApiScenario.getEnvironment();
-                if (StringUtils.isNotBlank(environment)) {
+                if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(environment)) {
                     planEnvMap = JSON.parseObject(environment, Map.class);
+                } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
+                    planEnvMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
                 }
             }
         }
