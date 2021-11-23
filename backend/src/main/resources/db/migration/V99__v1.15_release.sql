@@ -119,3 +119,6 @@ CREATE TABLE IF NOT EXISTS `enterprise_test_report_send_record` (
 
 
 CREATE INDEX issues_platform_id_IDX ON issues (platform_id);
+
+ALTER TABLE issues MODIFY COLUMN title varchar(300);
+ALTER TABLE issues MODIFY COLUMN description LONGTEXT;
