@@ -851,36 +851,33 @@ export default {
     handleCommand() {
       this.debug = false;
       /*触发执行操作*/
-      this.$refs['currentScenario'].validate((valid) => {
+      this.$refs['currentScenario'].validate(async (valid) => {
         if (valid) {
           this.debugLoading = true;
           let definition = JSON.parse(JSON.stringify(this.currentScenario));
           definition.hashTree = this.scenarioDefinition;
-          this.getEnv(JSON.stringify(definition)).then(() => {
-            let promise = this.$refs.envPopover.initEnv();
-            promise.then(() => {
-              let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
-              if (!sign) {
-                this.debugLoading = false;
-                return;
-              }
-              this.editScenario().then(() => {
-                this.debugData = {
-                  id: this.currentScenario.id,
-                  name: this.currentScenario.name,
-                  type: "scenario",
-                  variables: this.currentScenario.variables,
-                  referenced: 'Created',
-                  onSampleError: this.onSampleError,
-                  enableCookieShare: this.enableCookieShare,
-                  headers: this.currentScenario.headers,
-                  environmentMap: this.projectEnvMap,
-                  hashTree: this.scenarioDefinition
-                };
-                this.reportId = getUUID().substring(0, 8);
-                this.debugLoading = false;
-              })
-            })
+          await this.getEnv(JSON.stringify(definition));
+          await this.$refs.envPopover.initEnv();
+          const sign = await this.$refs.envPopover.checkEnv(this.isFullUrl);
+          if (!sign) {
+            this.debugLoading = false;
+            return;
+          }
+          this.editScenario().then(() => {
+            this.debugData = {
+              id: this.currentScenario.id,
+              name: this.currentScenario.name,
+              type: "scenario",
+              variables: this.currentScenario.variables,
+              referenced: 'Created',
+              onSampleError: this.onSampleError,
+              enableCookieShare: this.enableCookieShare,
+              headers: this.currentScenario.headers,
+              environmentMap: this.projectEnvMap,
+              hashTree: this.scenarioDefinition
+            };
+            this.reportId = getUUID().substring(0, 8);
+            this.debugLoading = false;
           })
         }
       })

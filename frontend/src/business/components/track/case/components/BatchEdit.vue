@@ -98,11 +98,11 @@
     },
     methods: {
       submit(form) {
-        this.$refs[form].validate((valid) => {
+        this.$refs[form].validate(async (valid) => {
           if (valid) {
             this.form.projectEnvMap = this.projectEnvMap;
             if (this.form.type === 'projectEnv') {
-              if (!this.$refs.envPopover.checkEnv()) {
+              if (! await this.$refs.envPopover.checkEnv()) {
                 return false;
               }
               this.form.map = this.map;
