@@ -369,6 +369,11 @@ public class IssuesService {
                     .collect(Collectors.toList());
             item.setCaseIds(caseIds);
             item.setCaseCount(testCaseIssues.size());
+            if(StringUtils.equals(item.getPlatform(),"Tapd")){
+                TapdPlatform platform = (TapdPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
+                List<String> tapdUsers = platform.getTapdUsers(item.getProjectId(), item.getPlatformId());
+                item.setTapdUsers(tapdUsers);
+            }
         });
         return issues;
     }
@@ -642,4 +647,5 @@ public class IssuesService {
                 .andProjectIdEqualTo(projectId);
         return issuesMapper.selectByExampleWithBLOBs(example);
     }
+
 }

@@ -16,4 +16,5 @@ public class IssuesDao extends IssuesWithBLOBs {
     private List<String> caseIds;
     private String caseId;
     private int totalIssueCount;
+    private List<String> tapdUsers;
 }
