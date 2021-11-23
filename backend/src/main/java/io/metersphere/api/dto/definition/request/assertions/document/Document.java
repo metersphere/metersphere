@@ -128,7 +128,7 @@ public class Document {
         StringBuilder conditionStr = new StringBuilder();
         if (elementCondition != null && CollectionUtils.isNotEmpty(elementCondition.getConditions())) {
             elementCondition.getConditions().forEach(condition -> {
-                conditionStr.append(item.getLabel(item.getContentVerification()).replace("'%'", (item.getExpectedOutcome() != null ? item.getExpectedOutcome().toString() : "")));
+                conditionStr.append(item.getLabel(condition.getKey()).replace("'%'", (condition.getValue() != null ? condition.getValue().toString() : "")));
                 conditionStr.append(" and ");
             });
         }
