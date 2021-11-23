@@ -94,7 +94,7 @@ export default {
   },
   data() {
     return {
-      apiCases:  [],
+      apiCases: [],
       result: {},
       response: {},
       showResponse: false
@@ -157,18 +157,22 @@ export default {
           }
         });
       } else {
-        if(row.reportId){
+        if (row.reportId) {
           let url = "/api/definition/report/get/" + row.reportId;
           this.$get(url, response => {
             if (response.data) {
               let data = response.data;
               if (data && data.content) {
                 this.showResponse = true;
-                this.response = JSON.parse(data.content);
+                try {
+                  this.response = JSON.parse(data.content);
+                } catch (e) {
+                  this.response = {};
+                }
               }
             }
           });
-        }else {
+        } else {
           getApiReport(row.id, (data) => {
             if (data && data.content) {
               this.showResponse = true;
