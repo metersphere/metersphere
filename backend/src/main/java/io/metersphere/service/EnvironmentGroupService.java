@@ -98,6 +98,20 @@ public class EnvironmentGroupService {
         environmentGroupProjectMapper.deleteByExample(example);
     }
 
+    public void deleteByWorkspaceId(String workspaceId) {
+        if (StringUtils.isBlank(workspaceId)) {
+            return;
+        }
+        EnvironmentGroupExample example = new EnvironmentGroupExample();
+        example.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        List<EnvironmentGroup> environmentGroups = environmentGroupMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(environmentGroups)) {
+            environmentGroups.forEach(environmentGroup -> {
+                delete(environmentGroup.getId());
+            });
+        }
+    }
+
     public EnvironmentGroup update(EnvironmentGroupRequest request) {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         if (StringUtils.isNotBlank(request.getName())) {
