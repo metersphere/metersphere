@@ -14,8 +14,9 @@
                @click="switchMenu"></i>
           </div>
         </div>
-        <el-col :span="menuSpan" class="script-index">
-          <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" style="margin-bottom: 5px;margin-left: 15px;"
+        <el-col :span="menuSpan" class="script-index" v-if="isReadOnly !== true">
+          <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages"
+                       style="margin-bottom: 5px;margin-left: 15px;"
                        @command="languageChange"/>
           <script-nav-menu ref="scriptNavMenu" :language="jsr223ProcessorData.scriptLanguage" :menus="codeTemplates"
                            @handleCode="handleCodeTemplate"/>
