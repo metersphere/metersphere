@@ -21,7 +21,7 @@
     </el-menu>
 
     <el-drawer :visible.sync="taskVisible" :destroy-on-close="true" direction="rtl"
-               :withHeader="true" :modal="false" :title="$t('commons.notice_center')" size="600px"
+               :withHeader="true" :modal="false" :title="$t('commons.notice_center')" size="550px"
                custom-class="ms-drawer-task">
       <div style="margin: 0px 20px 0px">
         <el-tabs :active-name="activeName">

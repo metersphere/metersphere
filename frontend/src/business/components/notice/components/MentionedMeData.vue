@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="padding-left: 320px; padding-bottom: 5px; width: 100%">
+    <div style="padding-left: 270px; padding-bottom: 5px; width: 100%">
       <span style="color: gray; padding-right: 10px">({{ totalCount }} {{ $t('commons.notice_count') }})</span>
       <el-dropdown @command="handleCommand" style="padding-right: 10px">
         <span class="el-dropdown-link" v-if="totalPage > 0">
@@ -17,30 +17,35 @@
       <el-button icon="el-icon-arrow-right" size="mini" :disabled="goPage === totalPage" @click="nextPage"/>
     </div>
     <div class="report-container">
-      <div v-for="item in systemNoticeData" :key="item.id" style="margin-bottom: 5px">
-        <el-card class="ms-card-task">
-          <el-row type="flex" justify="space-between">
-            <el-col :span="12">
-
-            </el-col>
-            <el-col :span="6">
-              {{ item.createTime | timestampFormatDate }}
-            </el-col>
-          </el-row>
-          <el-row type="flex" align="start" class="current-user">
-            <div class="icon-title">
-              {{ item.user.name.substring(0, 1) }}
-            </div>
-            <span class="username">{{ item.user.name }}</span>
-            <span class="operation">
-             {{ getOperation(item.operation) }}{{ getResource(item) }}:
-              <span v-if="item.resourceId && item.operation.indexOf('DELETE') < 0"
-                    @click="clickResource(item)" style="color: #783887; cursor: pointer;">{{ item.resourceName }}</span>
-              <span v-else>{{ item.resourceName }}</span>
+      <el-table :data="systemNoticeData"
+                :show-header="false"
+                :highlight-current-row="true"
+                style="width: 100%">
+        <el-table-column prop="content" :label="$t('commons.name')">
+          <template slot-scope="{row}">
+            <el-row type="flex" align="start" class="current-user">
+              <div class="icon-title">
+                {{ row.user.name.substring(0, 1) }}
+              </div>
+              <span class="username">{{ row.user.name }}</span>
+              <span class="operation">
+             {{ getOperation(row.operation) }}{{ getResource(row) }}:
+              <span v-if="row.resourceId && row.operation.indexOf('DELETE') < 0"
+                    @click="clickResource(row)" style="color: #783887; cursor: pointer;">{{ row.resourceName }}</span>
+              <span v-else>{{ row.resourceName }}</span>
             </span>
-          </el-row>
-        </el-card>
-      </div>
+            </el-row>
+            <el-row type="flex" justify="space-between">
+              <el-col :span="12">
+
+              </el-col>
+              <el-col :span="6">
+                <span class="time-style">{{ row.createTime | timestampFormatDate }}</span>
+              </el-col>
+            </el-row>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
     <div style="color: gray; padding-top:20px; text-align: center">
       - {{ $t('commons.notice_tips') }} -
@@ -214,4 +219,7 @@ export default {
   background: rgba(255, 0, 0, 0.4);
 }
 
+.time-style {
+  font-size: 10px;
+}
 </style>
