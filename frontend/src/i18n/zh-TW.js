@@ -598,6 +598,8 @@ export default {
     jira_key: 'JIRA項目key',
     zentao_id: 'Zentao項目ID',
     azureDevops_id: 'AzureDevops項目ID',
+    azureDevops_info:'AzureDevops 信息',
+    azureDevops_tip:'該信息為通過Azure Devops提交缺陷的用戶令牌信息，若未填寫，則使用工作空間中配置的默認信息',
     manager: '項目管理',
     no_data: '無數據',
     select: '選擇項目',

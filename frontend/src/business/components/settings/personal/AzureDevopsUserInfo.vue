@@ -1,7 +1,7 @@
 <template>
   <el-form label-position="right" label-width="160px" size="small">
-    <el-form-item :label="'AzureDevops 信息'">
-      <ms-instructions-icon size="10" :content="'该信息为通过Azure Devops提交缺陷的用户令牌信息，若未填写，则使用工作空间中配置的默认信息'"/>
+    <el-form-item :label="$t('project.azureDevops_info')">
+      <ms-instructions-icon size="10" :content="$t('project.azureDevops_tip')"/>
     </el-form-item>
     <el-form-item :label="$t('organization.integration.azure_pat')" prop="pat">
       <el-input v-model="data.azureDevopsPat" :placeholder="$t('organization.integration.input_azure_pat')"/>
