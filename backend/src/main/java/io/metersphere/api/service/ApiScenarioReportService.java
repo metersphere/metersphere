@@ -638,16 +638,26 @@ public class ApiScenarioReportService {
             String environmentJson = scenario.getEnvironmentJson();
             JSONObject jsonObject = JSON.parseObject(environmentJson);
             ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
-            example.createCriteria().andIdIn(jsonObject.values().stream().map(Object::toString).collect(Collectors.toList()));
+            List<String> collect = jsonObject.values().stream().map(Object::toString).collect(Collectors.toList());
+            collect.add("-1");// 防止没有配置环境导致不能发送的问题
+            example.createCriteria().andIdIn(collect);
             List<ApiTestEnvironment> envs = apiTestEnvironmentMapper.selectByExample(example);
             String env = envs.stream().map(ApiTestEnvironment::getName).collect(Collectors.joining(","));
-            paramMap.put("environment", env);
+            if (StringUtils.isNotBlank(env)) {
+                paramMap.put("environment", env);
+            } else {
+                paramMap.put("environment", "未配置");
+            }
         }
 
         if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
             String environmentGroupId = scenario.getEnvironmentGroupId();
             EnvironmentGroup environmentGroup = environmentGroupMapper.selectByPrimaryKey(environmentGroupId);
-            paramMap.put("environment", environmentGroup.getName());
+            if (environmentGroup != null) {
+                paramMap.put("environment", environmentGroup.getName());
+            } else {
+                paramMap.put("environment", "未配置");
+            }
         }
 
         String context = "${operator}执行接口自动化" + status + ": ${name}";
