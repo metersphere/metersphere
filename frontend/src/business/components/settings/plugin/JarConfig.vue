@@ -114,6 +114,7 @@ export default {
             this.result = this.$fileUpload(url, this.fileList[0], null, null, () => {
               this.$success(this.$t('organization.integration.successful_operation'));
               this.$emit("close");
+              this.fileList = [];
             });
           } else {
             return false;
