@@ -53,6 +53,8 @@ public class WorkspaceService {
     private ExtUserMapper extUserMapper;
     @Resource
     private ScheduleService scheduleService;
+    @Resource
+    private EnvironmentGroupService environmentGroupService;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
@@ -120,6 +122,8 @@ public class WorkspaceService {
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria().andSourceIdEqualTo(workspaceId);
         userGroupMapper.deleteByExample(userGroupExample);
+
+        environmentGroupService.deleteByWorkspaceId(workspaceId);
 
         // delete workspace
         workspaceMapper.deleteByPrimaryKey(workspaceId);
