@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.automation;
 
+import io.metersphere.commons.utils.LogUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
@@ -123,7 +124,7 @@ public class EsbDataStruct {
                 element.addAttribute("attr", attrString);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
 
         if (element != null) {
@@ -162,7 +163,7 @@ public class EsbDataStruct {
                 element.addAttribute("attr", attrString);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
 
         if (element != null) {

@@ -106,7 +106,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             scenarioImport.setProjectId(request.getProjectId());
             return scenarioImport;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
             MSException.throwException("当前JMX版本不兼容");
         }
         return null;
@@ -315,7 +315,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             body.getBinary().add(new KeyValue());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 
@@ -643,7 +643,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             SaveService.saveElement(obj, baos);
             return baos.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
             LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
         }
         return null;

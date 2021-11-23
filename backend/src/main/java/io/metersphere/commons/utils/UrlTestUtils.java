@@ -16,7 +16,7 @@ public class UrlTestUtils {
                 return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
             return false;
         }
         return false;

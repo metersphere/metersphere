@@ -1723,8 +1723,7 @@ public class TestCaseService {
                 isUpdated = easyExcelListener.isUpdated();
             } catch (Exception e) {
 
-                e.printStackTrace();
-                LogUtil.error(e.getMessage(), e);
+                LogUtil.error(e);
                 MSException.throwException(e.getMessage());
             }
         }

@@ -310,7 +310,7 @@ public class ScheduleManager {
                 returnMap.put("groupName", groupName);
             }
         }catch (Exception e){
-            e.printStackTrace();
+            LogUtil.error(e);
         }
 
         return returnMap;

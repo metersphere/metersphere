@@ -516,7 +516,7 @@ public class APITestService {
             }
             jmxString = root.asXML();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
 
         if (!jmxString.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
@@ -538,7 +538,7 @@ public class APITestService {
                     fileMetadataList.add(fileMetadata);
                     attachmentFiles.put(fileMetadata.getId(),fileMetadata.getName());
                 }catch (Exception e){
-                    e.printStackTrace();
+                    LogUtil.error(e);
                 }
             }
         }

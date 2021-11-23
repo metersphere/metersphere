@@ -16,6 +16,7 @@ import io.metersphere.api.dto.definition.request.extract.MsExtractRegex;
 import io.metersphere.api.dto.definition.request.extract.MsExtractXPath;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -116,7 +117,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             apiImport.setCases(definitionCases);
             return apiImport;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
             MSException.throwException("当前JMX版本不兼容");
         }
         return null;
@@ -703,7 +704,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             body.getBinary().add(new KeyValue());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 

@@ -8,6 +8,7 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ShareInfo;
+import io.metersphere.commons.utils.LogUtil;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -68,7 +69,7 @@ public class ShareInfoController {
         try{
             returnDTO = shareInfoService.conversionModelToDTO(apiModel);
         }catch (Exception e){
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         returnDTO.setSelectedFlag(true);
         return returnDTO;

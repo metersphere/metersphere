@@ -953,7 +953,7 @@ public class ApiAutomationService {
                 }
             }
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 
@@ -1040,7 +1040,7 @@ public class ApiAutomationService {
                 scenario.setVariables(variables);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
             LogUtil.error(e);
         }
     }
@@ -2625,7 +2625,7 @@ public class ApiAutomationService {
                 urlList = new ArrayList<>(unionList);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return urlList;
     }

@@ -13,6 +13,7 @@ import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -238,7 +239,7 @@ public class ApiTestEnvironmentService {
                 }
             } catch (Exception e) {
                 needUpdate = true;
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         if (needUpdate) {
@@ -431,7 +432,7 @@ public class ApiTestEnvironmentService {
                     }
                 }
             }catch (Exception e){
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return returnStr;

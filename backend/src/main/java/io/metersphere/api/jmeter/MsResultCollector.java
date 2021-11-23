@@ -105,7 +105,7 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
                 client.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 
@@ -120,7 +120,7 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
             client = new MsWebSocketClient("ws://127.0.0.1:8081/ws/" + "send." + this.getName());
             client.connect();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 

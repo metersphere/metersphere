@@ -346,7 +346,7 @@ public class MockConfigService {
                     break;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return returnModel;
@@ -725,7 +725,7 @@ public class MockConfigService {
                     break;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return returnModel;
@@ -804,7 +804,7 @@ public class MockConfigService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return returnStr;
     }
@@ -937,7 +937,7 @@ public class MockConfigService {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return returnStr;
     }

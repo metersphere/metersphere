@@ -3,6 +3,7 @@ package io.metersphere.api.dto.definition.request.auth;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -95,7 +96,7 @@ public class MsAuthManager extends MsTestElement {
             authManager.addAuth(auth);
             tree.add(authManager);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 }

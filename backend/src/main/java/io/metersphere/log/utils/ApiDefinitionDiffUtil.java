@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.log.utils.diff.json.JacksonDiff;
 import io.metersphere.log.utils.diff.json.JsonDiff;
 import io.metersphere.log.vo.DetailColumn;
@@ -71,7 +72,7 @@ public class ApiDefinitionDiffUtil {
                 return JSON.toJSONString(diffMap);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return null;
     }
@@ -273,7 +274,7 @@ public class ApiDefinitionDiffUtil {
                 diffMap.put("body_xml", diffPatch);
             }
         }
-        // 对比BODY-RAW参数 
+        // 对比BODY-RAW参数
         if (!StringUtils.equals(tcpNew.getRawDataStruct(), tcpOld.getRawDataStruct())) {
             diffMap.put("body_raw_1", tcpNew.getRawDataStruct());
             diffMap.put("body_raw_2", tcpOld.getRawDataStruct());

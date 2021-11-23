@@ -129,7 +129,7 @@ public class PluginService {
 
             method.invoke(classLoader, url);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 

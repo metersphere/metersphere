@@ -707,7 +707,6 @@ public class ApiTestCaseService {
                         req.setPath(path);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
                     LogUtil.error(e);
                 }
                 String requestStr = JSON.toJSONString(req);

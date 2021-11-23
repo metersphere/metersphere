@@ -6,6 +6,7 @@ import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
 import io.metersphere.api.dto.automation.parse.EsbDataParser;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
@@ -220,7 +221,7 @@ public class EsbApiParamService {
             //更新EsbApiParams类
 //            EsbApiParamsWithBLOBs esbApiParams = this.createEsbApiParam(request.getId(), request.getEsbDataStruct(), request.getBackEsbDataStruct(), request.getBackScript());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return request;
     }
@@ -239,7 +240,7 @@ public class EsbApiParamService {
             //更新EsbApiParams类
             EsbApiParamsWithBLOBs esbApiParams = this.createEsbApiParam(request.getId(), request.getEsbDataStruct(), request.getBackEsbDataStruct(), request.getBackScript());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return request;
     }
@@ -276,7 +277,7 @@ public class EsbApiParamService {
 //            //更新EsbApiParams类
 //            EsbApiParamsWithBLOBs esbApiParams = this.createEsbApiParam(request.getId(), request.getEsbDataStruct(), request.getBackEsbDataStruct(), request.getBackScript());
 //        } catch (Exception e) {
-//            e.printStackTrace();
+//            LogUtil.error(e);
 //        }
 //        return request;
 //    }
@@ -307,7 +308,7 @@ public class EsbApiParamService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return keyValueList;
     }
@@ -336,7 +337,7 @@ public class EsbApiParamService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return keyValueList;
     }
@@ -364,7 +365,7 @@ public class EsbApiParamService {
             //更新EsbApiParams类
             EsbApiParamsWithBLOBs esbApiParams = this.createEsbApiParam(request.getId(), request.getEsbDataStruct(), request.getBackEsbDataStruct(), request.getBackEsbDataStruct());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return request;
     }
@@ -377,7 +378,7 @@ public class EsbApiParamService {
                 tcpSampler.setParameters(keyValueList);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
     }
 
@@ -422,7 +423,7 @@ public class EsbApiParamService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         }
         return request;
     }
