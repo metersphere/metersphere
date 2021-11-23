@@ -741,13 +741,13 @@ public class TestPlanApiCaseService {
             String reportId = testPlanApiCaseReportMap.get(testPlanApiCaseId);
             dto.setReportId(reportId);
             if(StringUtils.isEmpty(reportId)){
-                dto.setStatus(defaultStatus);
+                dto.setExecResult(defaultStatus);
             }else {
                 String status = reportResult.get(reportId);
                 if(status == null){
                     status = defaultStatus;
                 }
-                dto.setStatus(status);
+                dto.setExecResult(status);
             }
         }
         return buildCases(apiTestCases);
