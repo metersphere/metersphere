@@ -85,6 +85,14 @@ public class ApiJmeterFileService {
             if (item == null) {
                 MSException.throwException("未找到执行场景。");
             }
+            String envType = item.getEnvironmentType();
+            String envJson = item.getEnvironmentJson();
+            String envGroupId = item.getEnvironmentGroupId();
+            if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
+                planEnvMap = JSON.parseObject(envJson, Map.class);
+            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
+                planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
+            }
             hashTree = apiAutomationService.generateHashTree(item, reportId, planEnvMap);
         }
         return zipFilesToByteArray(remoteTestId, hashTree);
