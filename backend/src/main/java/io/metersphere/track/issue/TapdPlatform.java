@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
@@ -35,19 +34,18 @@ import java.util.stream.Collectors;
 
 public class TapdPlatform extends AbstractIssuePlatform {
 
-    protected String key = IssuesManagePlatform.Tapd.toString();
-
     protected TapdClient tapdClient;
 
     public TapdPlatform(IssuesRequest issueRequest) {
         super(issueRequest);
         tapdClient = new TapdClient();
         setConfig();
+        this.key = IssuesManagePlatform.Tapd.name();
     }
 
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
-        issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
+        issuesRequest.setPlatform(key);
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
             issues = extIssuesMapper.getIssues(issuesRequest);
@@ -64,7 +62,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         for (int i = 0; i < demands.size(); i++) {
             JSONObject o = demands.getJSONObject(i);
             DemandDTO demand = o.getObject("Story", DemandDTO.class);
-            demand.setPlatform(IssuesManagePlatform.Tapd.name());
+            demand.setPlatform(key);
             demandList.add(demand);
         }
         return demandList;
@@ -99,7 +97,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     private MultiValueMap<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
-        issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
+        issuesRequest.setPlatform(key);
 
         String tapdId = getProjectId(issuesRequest.getProjectId());
 
@@ -228,16 +226,11 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     @Override
     public String getProjectId(String projectId) {
-        if (StringUtils.isNotBlank(projectId)) {
-            return projectService.getProjectById(projectId).getTapdId();
-        }
-        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-        Project project = projectService.getProjectById(testCase.getProjectId());
-        return project.getTapdId();
+        return getProjectId(projectId, Project::getTapdId);
     }
 
     public TapdConfig getConfig() {
-        return getConfig(IssuesManagePlatform.Tapd.toString(), TapdConfig.class);
+        return getConfig(key, TapdConfig.class);
     }
 
     public TapdConfig setConfig() {

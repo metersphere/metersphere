@@ -34,13 +34,6 @@
           ref="table"
         >
     <span v-for="(item) in fields" :key="item.key">
-<!--          <ms-table-column
-           :label="$t('test_track.issue.id')"
-           prop="id"
-           :field="item"
-           :fields-width="fieldsWidth"
-           v-if="false">
-          </ms-table-column>-->
         <ms-table-column width="1">
         </ms-table-column>
           <ms-table-column
@@ -179,7 +172,7 @@ import {getIssues, syncIssues} from "@/network/Issue";
 import {
   getCustomFieldValue,
   getCustomTableWidth,
-  getPageInfo, getTableHeaderWithCustomFields,saveLastTableSortField,getLastTableSortField
+  getPageInfo, getTableHeaderWithCustomFields, getLastTableSortField
 } from "@/common/js/tableUtils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
@@ -253,7 +246,7 @@ export default {
             }
           }
         }
-        this.$refs.table.reloadTable();
+        if (this.$refs.table) this.$refs.table.reloadTable();
       });
     this.getIssues();
   },
@@ -278,7 +271,7 @@ export default {
   },
   methods: {
     tableDoLayout() {
-      this.$refs.table.doLayout();
+      if (this.$refs.table) this.$refs.table.doLayout();
     },
     getCustomFieldValue(row, field) {
       return getCustomFieldValue(row, field, this.members);
