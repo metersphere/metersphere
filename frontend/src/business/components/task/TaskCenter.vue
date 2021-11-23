@@ -44,7 +44,7 @@
 
       <el-card style="width: 550px;float: right" v-loading="loading">
         <div style="color: #2B415C;margin: 0px 20px 0px;">
-          <el-form label-width="68px" class="ms-el-form-item">
+          <el-form label-width="95px" class="ms-el-form-item">
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
