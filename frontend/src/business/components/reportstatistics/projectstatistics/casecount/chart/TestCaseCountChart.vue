@@ -83,7 +83,6 @@ export default {
     }
   },
   created() {
-    this.selectedPicType = this.chartType;
     this.dataOption = this.loadOption;
     if (this.needFullScreen) {
       this.w = document.documentElement.clientWidth;
@@ -95,7 +94,7 @@ export default {
       this.countChartWidth();
     },
     chartType() {
-      this.$emit("updateChartType",this.chartType);
+      this.$emit("updateChartType", this.chartType);
       this.countChartWidth();
     },
   },
@@ -111,7 +110,7 @@ export default {
       this.$emit('orderCharts', this.order);
     },
     generateOption(chartTypeParam) {
-      if(chartTypeParam){
+      if (chartTypeParam) {
         this.chartType = chartTypeParam;
       }
       if (this.chartType === 'pie') {
