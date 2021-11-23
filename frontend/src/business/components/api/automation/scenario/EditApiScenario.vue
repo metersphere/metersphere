@@ -1721,7 +1721,7 @@ export default {
     },
     getApiTestCaseNumById(id) {
       return new Promise((resolve) => {
-        let url = '/api/testcase/findById/' + id;
+        let url = '/api/testcase/get/' + id;
         this.$get(url, response => {
           resolve(response.data.num);
         });
