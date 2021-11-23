@@ -1632,9 +1632,9 @@ public class TestPlanService {
                                 String loadConfiguration = performanceTestService.getLoadConfiguration(item.getId());
                                 response.setFixLoadConfiguration(loadConfiguration);
                             }
-                            LoadTestExportJmx jmxContent = performanceReportService.getJmxContent(reportId);
-                            if (jmxContent != null) {
-                                response.setJmxContent(JSONObject.toJSONString(jmxContent));
+                            List<LoadTestExportJmx> jmxContent = performanceReportService.getJmxContent(reportId);
+                            if (!CollectionUtils.isEmpty(jmxContent)) {
+                                response.setJmxContent(JSONObject.toJSONString(jmxContent.get(0)));
                             }
                             List<LoadTestExportJmx> fixJmxContent = performanceTestService.getJmxContent(item.getId());
                             response.setFixJmxContent(fixJmxContent);

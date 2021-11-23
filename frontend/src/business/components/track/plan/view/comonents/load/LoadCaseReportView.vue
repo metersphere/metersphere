@@ -74,7 +74,7 @@
                             :share-id="shareId"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('测试配置')">
-              <ms-test-configuration :report="report" :test="test" :test-id="testId"/>
+              <ms-test-configuration :report-id="reportId"/>
             </el-tab-pane>
           </el-tabs>
         </div>

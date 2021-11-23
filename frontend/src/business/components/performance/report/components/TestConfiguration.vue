@@ -1,10 +1,10 @@
 <template>
   <el-tabs>
     <el-tab-pane :label="$t('load_test.pressure_config')">
-      <performance-pressure-config :is-read-only="true" :test="test" :test-id="testId"/>
+      <performance-pressure-config :is-read-only="true" :test="test" :report-id="reportId"/>
     </el-tab-pane>
     <el-tab-pane :label="$t('load_test.advanced_config')">
-      <performance-advanced-config :is-read-only="true" :test-id="testId"/>
+      <performance-advanced-config :is-read-only="true" :report-id="reportId"/>
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -18,9 +18,9 @@ export default {
   name: "TestConfiguration",
   components: {PerformanceBasicConfig, PerformancePressureConfig, PerformanceAdvancedConfig},
   props: {
-    report: Object,
     test: Object,
     testId: String,
+    reportId: String,
   }
 };
 </script>

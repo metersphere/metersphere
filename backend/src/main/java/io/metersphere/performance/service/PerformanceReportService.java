@@ -43,9 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -377,12 +375,13 @@ public class PerformanceReportService {
         return "";
     }
 
-    public LoadTestExportJmx getJmxContent(String reportId) {
+    public List<LoadTestExportJmx> getJmxContent(String reportId) {
         LoadTestReportWithBLOBs loadTestReportWithBLOBs = loadTestReportMapper.selectByPrimaryKey(reportId);
         if (loadTestReportWithBLOBs == null) {
-            return null;
+            return new ArrayList<>();
         }
-        return new LoadTestExportJmx(loadTestReportWithBLOBs.getTestName(), loadTestReportWithBLOBs.getJmxContent());
+        LoadTestExportJmx loadTestExportJmx = new LoadTestExportJmx(loadTestReportWithBLOBs.getTestName(), loadTestReportWithBLOBs.getJmxContent());
+        return Collections.singletonList(loadTestExportJmx);
     }
 
     public void renameReport(RenameReportRequest request) {
@@ -431,5 +430,21 @@ public class PerformanceReportService {
         } catch (Exception e) {
             return new ArrayList<>();
         }
+    }
+
+    public String getLoadConfiguration(String reportId) {
+        LoadTestReportWithBLOBs loadTestReportWithBLOBs = loadTestReportMapper.selectByPrimaryKey(reportId);
+        if (loadTestReportWithBLOBs == null) {
+            return null;
+        }
+        return loadTestReportWithBLOBs.getLoadConfiguration();
+    }
+
+    public String getAdvancedConfiguration(String reportId) {
+        LoadTestReportWithBLOBs loadTestReportWithBLOBs = loadTestReportMapper.selectByPrimaryKey(reportId);
+        if (loadTestReportWithBLOBs == null) {
+            return null;
+        }
+        return loadTestReportWithBLOBs.getAdvancedConfiguration();
     }
 }
