@@ -204,7 +204,8 @@ export default {
         'deleteTime',
         'deleteUserId',
         'executeTimes',
-        'order'
+        'order',
+        'environment'
       ]
     };
   },
