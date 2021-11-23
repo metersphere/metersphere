@@ -163,7 +163,7 @@ public class ShareController {
 
     @GetMapping("/performance/report/get-jmx-content/{shareId}/{reportId}")
     public LoadTestExportJmx getJmxContent(@PathVariable String shareId, @PathVariable String reportId) {
-        return performanceReportService.getJmxContent(reportId);
+        return performanceReportService.getJmxContent(reportId).get(0);
     }
 
     @GetMapping("/performance/get-jmx-content/{shareId}/{testId}")

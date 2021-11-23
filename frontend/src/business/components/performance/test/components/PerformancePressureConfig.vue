@@ -6,11 +6,11 @@
           <el-form-item :label="$t('load_test.select_resource_pool')">
             <el-select v-model="resourcePool" size="mini" @change="resourcePoolChange">
               <el-option
-                  v-for="item in resourcePools"
-                  :key="item.id"
-                  :label="item.name"
-                  :disabled="!item.performance"
-                  :value="item.id">
+                v-for="item in resourcePools"
+                :key="item.id"
+                :label="item.name"
+                :disabled="!item.performance"
+                :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
@@ -80,10 +80,10 @@
               <el-form-item :label="$t('load_test.on_sample_error')">
                 <el-select v-model="threadGroup.onSampleError" size="mini">
                   <el-option
-                      v-for="item in onSampleErrors"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                    v-for="item in onSampleErrors"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -221,10 +221,10 @@
                   <el-form-item :label="$t('load_test.specify_resource')">
                     <el-select v-model="threadGroup.resourceNodeIndex" size="mini">
                       <el-option
-                          v-for="(node, index) in resourceNodes"
-                          :key="node.ip"
-                          :label="node.ip"
-                          :value="index">
+                        v-for="(node, index) in resourceNodes"
+                        :key="node.ip"
+                        :label="node.ip"
+                        :value="index">
                       </el-option>
                     </el-select>
                   </el-form-item>
@@ -289,7 +289,7 @@ const RATIOS = "ratios";
 
 const hexToRgb = function (hex) {
   return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
-      + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
+    + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
 };
 
 export default {
@@ -300,6 +300,9 @@ export default {
       type: Object
     },
     testId: {
+      type: String
+    },
+    reportId: {
       type: String
     },
     isReadOnly: {
@@ -346,6 +349,8 @@ export default {
   mounted() {
     if (this.testId) {
       this.getJmxContent();
+    } else if (this.reportId) {
+      this.getJmxContent();
     } else {
       this.calculateTotalChart();
     }
@@ -369,6 +374,14 @@ export default {
       }
       this.getResourcePools();
     },
+    reportId() {
+      if (this.reportId) {
+        this.getJmxContent();
+      } else {
+        this.calculateTotalChart();
+      }
+      this.getResourcePools();
+    },
   },
   methods: {
     getResourcePools() {
@@ -383,7 +396,17 @@ export default {
       });
     },
     getLoadConfig() {
-      this.$get('/performance/get-load-config/' + this.testId, (response) => {
+      let url = '';
+      if (this.testId) {
+        url = '/performance/get-load-config/' + this.testId;
+      }
+      if (this.reportId) {
+        url = '/performance/report/get-load-config/' + this.reportId;
+      }
+      if (!url) {
+        return;
+      }
+      this.$get(url, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
           for (let i = 0; i < this.threadGroups.length; i++) {
@@ -395,6 +418,10 @@ export default {
               if (res.length > 0) {
                 break;
               }
+            }
+            // 这里是报告查询
+            if (this.reportId) {
+              j = i;
             }
 
             data[j].forEach(item => {
@@ -496,20 +523,28 @@ export default {
       });
     },
     getJmxContent() {
+      let url = '';
       if (this.testId) {
-        let threadGroups = [];
-        this.$get('/performance/get-jmx-content/' + this.testId, (response) => {
-          response.data.forEach(d => {
-            threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
-            threadGroups.forEach(tg => {
-              tg.options = {};
-            });
-          });
-          this.threadGroups = threadGroups;
-          this.$emit('fileChange', threadGroups);
-          this.getLoadConfig();
-        });
+        url = '/performance/get-jmx-content/' + this.testId;
       }
+      if (this.reportId) {
+        url = '/performance/report/get-jmx-content/' + this.reportId;
+      }
+      if (!url) {
+        return;
+      }
+      let threadGroups = [];
+      this.$get(url, (response) => {
+        response.data.forEach(d => {
+          threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+          threadGroups.forEach(tg => {
+            tg.options = {};
+          });
+        });
+        this.threadGroups = threadGroups;
+        this.$emit('fileChange', threadGroups);
+        this.getLoadConfig();
+      });
     },
     resourcePoolChange() {
       let result = this.resourcePools.filter(p => p.id === this.resourcePool);
@@ -588,8 +623,8 @@ export default {
         let tg = handler.threadGroups[i];
 
         if (tg.enabled === 'false' ||
-            tg.deleted === 'true' ||
-            tg.threadType === 'ITERATION') {
+          tg.deleted === 'true' ||
+          tg.threadType === 'ITERATION') {
           continue;
         }
         if (this.getDuration(tg) < tg.rampUpTime) {
@@ -704,7 +739,7 @@ export default {
         }
 
         if (!tg.threadNumber || !tg.duration
-            || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
+          || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
           this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
           this.$emit('changeActive', '1');
           return false;

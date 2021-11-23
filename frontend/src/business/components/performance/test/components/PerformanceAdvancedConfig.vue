@@ -422,6 +422,9 @@ export default {
   },
   props: {
     testId: String,
+    reportId: {
+      type: String
+    },
     isReadOnly: {
       type: Boolean,
       default() {
@@ -432,6 +435,8 @@ export default {
   mounted() {
     if (this.testId) {
       this.getAdvancedConfig();
+    } else if (this.reportId) {
+      this.getAdvancedConfig('report');
     }
   },
   watch: {
@@ -450,8 +455,12 @@ export default {
     }
   },
   methods: {
-    getAdvancedConfig() {
-      this.$get('/performance/get-advanced-config/' + this.testId, (response) => {
+    getAdvancedConfig(type) {
+      let url = '/performance/get-advanced-config/' + this.testId;
+      if (type) {
+        url = '/performance/report/get-advanced-config/' + this.reportId;
+      }
+      this.$get(url, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
           this.timeout = data.timeout;
