@@ -88,8 +88,10 @@
         <div class="report-container">
           <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px;">
             <el-card class="ms-card-task" @click.native="showReport(item)">
-              <span class="ms-task-name-width">
-                {{ getModeName(item.executionModule) }} : <el-link type="primary"> {{ item.name }} </el-link>
+              <span>
+                {{ getModeName(item.executionModule) }} : <el-link type="primary" class="ms-task-name-width"> {{
+                  item.name
+                }} </el-link>
               </span>
               <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)"
                          v-if="showStop(item.executionStatus)">
@@ -544,7 +546,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 360px;
+  width: 300px;
 }
 
 .ms-el-form-item >>> .el-form-item {
