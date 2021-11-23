@@ -1706,7 +1706,6 @@ public class TestPlanService {
         if (MapUtils.isEmpty(executeInfo.getApiCaseExecInfo()) && MapUtils.isEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
             return;
         }
-        ApiDefinitionExecResultMapper apiDefinitionExecResultMapper = CommonBeanFactory.getBean(ApiDefinitionExecResultMapper.class);
         if (checkReportConfig(config, "api")) {
             List<TestPlanFailureApiDTO> apiAllCases = null;
             List<TestPlanFailureScenarioDTO> scenarioAllCases = null;

@@ -44,7 +44,8 @@
                 <template v-slot:default="scope">
                   <status-table-item v-if="scope.row.execResult === 'success'" :value="'Pass'"/>
                   <status-table-item v-if="scope.row.execResult === 'error'" :value="'Failure'"/>
-                  <status-table-item v-if="scope.row.execResult != 'error' && scope.row.execResult != 'success'" :value="'Prepare'"/>
+                  <status-table-item v-if="scope.row.execResult != 'error' && scope.row.execResult != 'success'"
+                                     :value="'Prepare'"/>
                 </template>
               </ms-table-column>
             </ms-table>
@@ -76,11 +77,13 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getApiReport, getShareApiReport} from "@/network/api";
 import MsRequestResultTail from "@/business/components/api/definition/components/response/RequestResultTail";
+
 export default {
   name: "ApiCaseFailureResult",
   components: {
     MsRequestResultTail,
-    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
+    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem
+  },
   props: {
     planId: String,
     isTemplate: Boolean,
@@ -92,7 +95,7 @@ export default {
   },
   data() {
     return {
-      apiCases:  [],
+      apiCases: [],
       result: {},
       response: {},
       showResponse: false
@@ -155,18 +158,22 @@ export default {
           }
         });
       } else {
-        if(row.reportId){
+        if (row.reportId) {
           let url = "/api/definition/report/get/" + row.reportId;
           this.$get(url, response => {
             if (response.data) {
               let data = response.data;
               if (data && data.content) {
                 this.showResponse = true;
-                this.response = JSON.parse(data.content);
+                try {
+                  this.response = JSON.parse(data.content);
+                } catch (e) {
+                  this.response = {};
+                }
               }
             }
           });
-        }else {
+        } else {
           getApiReport(row.id, (data) => {
             if (data && data.content) {
               this.showResponse = true;
