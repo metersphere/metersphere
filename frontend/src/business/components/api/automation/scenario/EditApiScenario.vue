@@ -1715,7 +1715,9 @@ export default {
       return new Promise((resolve) => {
         let url = '/api/definition/get/' + id;
         this.$get(url, response => {
-          resolve(response.data.num);
+          if(response.data&&response.data.num){
+            resolve(response.data.num);
+          }
         });
       });
     },
@@ -1723,7 +1725,9 @@ export default {
       return new Promise((resolve) => {
         let url = '/api/testcase/get/' + id;
         this.$get(url, response => {
-          resolve(response.data.num);
+          if(response.data&&response.data.num){
+            resolve(response.data.num);
+          }
         });
       });
     },
@@ -1731,7 +1735,9 @@ export default {
       return new Promise((resolve) => {
         let url = '/api/automation/getApiScenario/' + id;
         this.$get(url, response => {
-          resolve(response.data.num);
+          if(response.data&&response.data.num){
+            resolve(response.data.num);
+          }
         });
       });
     }

@@ -22,7 +22,7 @@
               <span>{{ data.name }}</span>
             </el-tooltip>
             <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{ getMethod() }}</el-tag>
-            <slot name = "afterTitle" v-if="data.num"/>
+            <slot name = "afterTitle"/>
           </span>
 
         </slot>
