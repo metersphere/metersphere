@@ -16,7 +16,7 @@
     title='场景'>
 
     <template v-slot:afterTitle>
-      <span v-if="scenario.num" @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
+      <span v-if="isShowNum" @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
       <span v-else >
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
           <i class="el-icon-warning"/>
@@ -119,7 +119,10 @@ export default {
           if (this.scenario.hashTree) {
             this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
           }
-          //this.scenario.disabled = true;
+          if(response.data.num){
+            this.scenario.num = response.data.num;
+            this.isShowNum = true;
+          }
           this.scenario.name = response.data.name;
           this.scenario.headers = obj.headers;
           this.scenario.variables = obj.variables;
@@ -136,6 +139,7 @@ export default {
     return {
       loading: false,
       isShowInput: false,
+      isShowNum:false,
     }
   },
   computed: {

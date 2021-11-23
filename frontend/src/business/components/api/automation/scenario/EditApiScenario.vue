@@ -556,7 +556,6 @@ export default {
             let data = JSON.parse(res.data);
             if (data.hashTree) {
               this.sort(data.hashTree);
-              this.addNum(data.hashTree);
               this.scenarioDefinition = data.hashTree;
             }
           }
@@ -1401,7 +1400,6 @@ export default {
                   this.onSampleError = obj.onSampleError;
                 }
                 this.dataProcessing(obj.hashTree);
-                this.addNum(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
               }
             }
@@ -1671,69 +1669,6 @@ export default {
         }
       }
     },
-    addNum(hashTree) {
-      let funcs = [];
-      for (let i = 0; i < hashTree.length; i++) {
-        let data = hashTree[i];
-        if (!data.num) {
-          if (data.refType) {
-            if (data.refType === 'API') {
-              funcs.push(this.getApiDefinitionNumById(data.id));
-            } else if (data.refType === 'CASE') {
-              funcs.push(this.getApiTestCaseNumById(data.id));
-            }
-          } else if (data.type === 'scenario') {
-            funcs.push(this.getScenarioNumById(data.id));
-          }
-        }
-      }
-      Promise.all(funcs).then(([result1, result2, result3]) => {
-        for (let i = 0; i < hashTree.length; i++) {
-          let data = hashTree[i];
-          if (!data.num) {
-            if (data.refType) {
-              if (data.refType === 'API') {
-                this.$set(data, 'num', result1);
-              } else if (data.refType === 'CASE') {
-                this.$set(data, 'num', result2);
-              }
-            } else {
-              this.$set(data, 'num', result3);
-            }
-          }
-        }
-      });
-    },
-    getApiDefinitionNumById(id) {
-      return new Promise((resolve) => {
-        let url = '/api/definition/get/' + id;
-        this.$get(url, response => {
-          if (response.data && response.data.num) {
-            resolve(response.data.num);
-          }
-        });
-      });
-    },
-    getApiTestCaseNumById(id) {
-      return new Promise((resolve) => {
-        let url = '/api/testcase/get/' + id;
-        this.$get(url, response => {
-          if (response.data && response.data.num) {
-            resolve(response.data.num);
-          }
-        });
-      });
-    },
-    getScenarioNumById(id) {
-      return new Promise((resolve) => {
-        let url = '/api/automation/getApiScenario/' + id;
-        this.$get(url, response => {
-          if (response.data && response.data.num) {
-            resolve(response.data.num);
-          }
-        });
-      });
-    }
   }
 }
 </script>
