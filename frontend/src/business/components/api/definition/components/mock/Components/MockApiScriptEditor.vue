@@ -54,7 +54,18 @@ export default {
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable'),
-              value: 'var returnMsg = requestParams.get("body.${param}");\nreturn returnMsg;',
+              value: 'var returnMsg = requestParams.get("body.${param}");\nreturn returnMsg;\n' +
+                "\n"+
+                '//如果对象是多层JSON，需要引入fastjson协助解析:\n' +
+                '// 以"{\"name\":\"user\",\"rows\":[{\"type\":1}]}" 为demo,取rows第1个的type数据:\n' +
+                'import com.alibaba.fastjson.JSON;\n'+
+                'import com.alibaba.fastjson.JSONArray;\n'+
+                'import com.alibaba.fastjson.JSONObject;\n'+
+                '\n'+
+                'var jsonParam = requestParams.get("body.json");\n' +
+                'JSONObject jsonObject = JSONObject.parseObject(jsonParam);\n' +
+                'var returnMsg = jsonObject.getJSONArray("rows").getJSONObject(0).getString("type");\n' +
+                'return returnMsg;\n',
             },
             {
               title: this.$t('api_test.request.body')+this.$t('api_test.variable')+" (Raw)",
