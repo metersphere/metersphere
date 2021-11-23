@@ -16,7 +16,12 @@
     title='场景'>
 
     <template v-slot:afterTitle>
-      <span @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
+      <span v-if="scenario.num" @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
+      <span v-else >
+        <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
+          <i class="el-icon-warning"/>
+        </el-tooltip>
+      </span>
     </template>
 
     <template v-slot:behindHeaderLeft>
@@ -313,5 +318,10 @@ export default {
 
 .ms-test-running {
   color: #6D317C;
+}
+.ms-num{
+  margin-left: 1rem;
+  font-size: 15px;
+  color: #de9d1c;
 }
 </style>

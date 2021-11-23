@@ -16,8 +16,13 @@
         <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
 
-      <template v-slot:afterTitle>
-        <span v-if="request.refType==='API'||request.refType==='CASE'" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
+      <template v-slot:afterTitle v-if="request.refType==='API'|| request.refType==='CASE'">
+        <span v-if="request.num" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
+        <span v-else >
+          <el-tooltip class="ms-num" effect="dark" :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')" placement="top">
+            <i class="el-icon-warning"/>
+          </el-tooltip>
+        </span>
       </template>
 
       <template v-slot:behindHeaderLeft>
@@ -719,4 +724,10 @@ export default {
   border-color: #EE6161;
   color: white;
 }
+.ms-num{
+  margin-left: 1rem;
+  font-size: 15px;
+  color: #de9d1c;
+}
+
 </style>
