@@ -39,11 +39,11 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     public ZentaoPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
+        this.key = IssuesManagePlatform.Zentao.name();
         ZentaoConfig zentaoConfig = getConfig();
         this.workspaceId = issuesRequest.getWorkspaceId();
         this.zentaoClient = ZentaoFactory.getInstance(zentaoConfig.getUrl(), zentaoConfig.getRequest());
         this.zentaoClient.setConfig(zentaoConfig);
-        this.key = IssuesManagePlatform.Zentao.name();
     }
 
     @Override

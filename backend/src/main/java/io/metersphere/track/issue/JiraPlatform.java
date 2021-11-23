@@ -37,9 +37,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     public JiraPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
+        this.key = IssuesManagePlatform.Jira.name();
         jiraClientV2 = new JiraClientV2();
         setConfig();
-        this.key = IssuesManagePlatform.Jira.name();
     }
 
     @Override
