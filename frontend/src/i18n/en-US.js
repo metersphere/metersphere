@@ -749,6 +749,7 @@ export default {
     test_error_log: 'Test Error Log',
     test_log_details: 'Test Log Details',
     test_monitor_details: 'Test Monitor Details',
+    test_config: 'Test Configuration',
     test_details: 'Test Details',
     test_duration: 'Execution Time：{0} minutes {1} seconds',
     test_execute_time: 'Execution Time',

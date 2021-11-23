@@ -100,7 +100,7 @@
             <el-tab-pane :label="$t('report.test_monitor_details')">
               <monitor-card :report="report"/>
             </el-tab-pane>
-            <el-tab-pane :label="$t('测试配置')">
+            <el-tab-pane :label="$t('report.test_config')">
               <ms-test-configuration :test="test" :report-id="reportId"/>
             </el-tab-pane>
           </el-tabs>
