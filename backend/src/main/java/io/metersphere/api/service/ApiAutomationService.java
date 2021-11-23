@@ -1912,10 +1912,10 @@ public class ApiAutomationService {
 
     public ReferenceDTO getReference(ApiScenarioRequest request) {
         ReferenceDTO dto = new ReferenceDTO();
-        request.setProjectId(null);
         dto.setScenarioList(extApiScenarioMapper.selectReference(request));
         QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
         planRequest.setScenarioId(request.getId());
+        planRequest.setProjectId(request.getProjectId());
         dto.setTestPlanList(extTestPlanMapper.selectTestPlanByRelevancy(planRequest));
         return dto;
     }
