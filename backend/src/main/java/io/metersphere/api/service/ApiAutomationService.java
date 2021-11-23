@@ -1376,12 +1376,6 @@ public class ApiAutomationService {
                         executeQueue.put(report.getId(), new RunModeDataDTO(hashTree, report));
                     } catch (Exception ex) {
                         if (StringUtils.equalsAny(request.getTriggerMode(), TriggerMode.BATCH.name(), TriggerMode.SCHEDULE.name())) {
-//                            String testPlanScenarioId;
-//                            if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
-//                                testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
-//                            } else {
-//                                testPlanScenarioId = request.getPlanScenarioId();
-//                            }
                             remakeReportService.remakeScenario(request.getRunMode(), testPlanScenarioId, request.getConfig(), scenario, report);
                         } else {
                             MSException.throwException(ex);
@@ -1536,7 +1530,7 @@ public class ApiAutomationService {
                         }
                     }
                     // 清理未执行的队列
-                    if (reportIds.size() < executeQueue.size()) {
+                    if (reportIds.size() < executeQueue.size() && StringUtils.isNotEmpty(serialReportId)) {
                         List<String> removeList = executeQueue.entrySet().stream().filter(map -> !reportIds.contains(map.getKey()))
                                 .map(map -> map.getKey()).collect(Collectors.toList());
                         ApiScenarioReportExample example = new ApiScenarioReportExample();

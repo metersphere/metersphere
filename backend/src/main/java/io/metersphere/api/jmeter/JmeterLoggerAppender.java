@@ -26,10 +26,12 @@ public class JmeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEve
                         }
                     }
                 }
-                if (FixedCapacityUtils.fixedCapacityCache.containsKey(event.getTimeStamp())) {
-                    FixedCapacityUtils.fixedCapacityCache.get(event.getTimeStamp()).append(message);
-                } else {
-                    FixedCapacityUtils.fixedCapacityCache.put(event.getTimeStamp(), message);
+                if (message != null && !message.toString().contains("java.net.UnknownHostException")) {
+                    if (FixedCapacityUtils.fixedCapacityCache.containsKey(event.getTimeStamp())) {
+                        FixedCapacityUtils.fixedCapacityCache.get(event.getTimeStamp()).append(message);
+                    } else {
+                        FixedCapacityUtils.fixedCapacityCache.put(event.getTimeStamp(), message);
+                    }
                 }
             }
         } catch (Exception e) {
