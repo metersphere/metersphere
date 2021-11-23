@@ -404,7 +404,10 @@ public class XmindCaseParser {
                     rc.append(replace(item.getTitle(), RC_REGEX));
                     rc.append("\n");
                 } else if (isAvailable(item.getTitle(), TAG_REGEX)) {
-                    tags.add(replace(item.getTitle(), TAG_REGEX));
+                    String tag = replace(item.getTitle(), TAG_REGEX);
+                    if (StringUtils.isNotEmpty(tag)) {
+                        tags.add(tag);
+                    }
                 } else if (isAvailable(item.getTitle(), ID_REGEX)) {
                     customId.append(replace(item.getTitle(), ID_REGEX));
                 } else {
