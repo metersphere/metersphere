@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.MessageCache;
+import io.metersphere.api.jmeter.RequestResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
@@ -69,6 +70,13 @@ public class ApiDefinitionExecResultService {
             final boolean[] isFirst = {true};
             result.getScenarios().forEach(scenarioResult -> {
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
+                    int countExpectProcessResultCount = 0;
+                    for (RequestResult resultItem : scenarioResult.getRequestResults()) {
+                        if (!StringUtils.startsWithAny(resultItem.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
+                            countExpectProcessResultCount++;
+                        }
+                    }
+                    final int expectProcessResultCount = countExpectProcessResultCount;
                     scenarioResult.getRequestResults().forEach(item -> {
                         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                             ApiDefinitionExecResult saveResult = MessageCache.caseExecResourceLock.get(result.getTestId());
@@ -77,7 +85,7 @@ public class ApiDefinitionExecResultService {
                             }
                             item.getResponseResult().setConsole(result.getConsole());
                             boolean saved = true;
-                            if (saveResult == null || scenarioResult.getRequestResults().size() > 1) {
+                            if (saveResult == null || expectProcessResultCount > 1) {
                                 saveResult = new ApiDefinitionExecResult();
                                 if (isFirst[0]) {
                                     isFirst[0] = false;
@@ -240,11 +248,11 @@ public class ApiDefinitionExecResultService {
         Map<String, String> caseReportMap = new HashMap<>();
 
         String testId = result.getTestId();
-        if(testId.contains(":")){
-            String [] testIdArr = testId.split(":");
-            if(testIdArr.length == 3){
+        if (testId.contains(":")) {
+            String[] testIdArr = testId.split(":");
+            if (testIdArr.length == 3) {
                 result.setTestId(testIdArr[2]);
-            }else {
+            } else {
                 result.setTestId(testIdArr[0]);
             }
             testPlanReportId = testIdArr[1];
@@ -254,6 +262,15 @@ public class ApiDefinitionExecResultService {
             result.getScenarios().forEach(scenarioResult -> {
                 final boolean[] isFirst = {true};
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
+
+                    int countExpectProcessResultCount = 0;
+                    for (RequestResult resultItem : scenarioResult.getRequestResults()) {
+                        if (!StringUtils.startsWithAny(resultItem.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
+                            countExpectProcessResultCount++;
+                        }
+                    }
+                    final int expectProcessResultCount = countExpectProcessResultCount;
+
                     scenarioResult.getRequestResults().forEach(item -> {
                         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                             ApiDefinitionExecResult saveResult = MessageCache.caseExecResourceLock.get(result.getTestId());
@@ -263,7 +280,7 @@ public class ApiDefinitionExecResultService {
                             }
                             item.getResponseResult().setConsole(result.getConsole());
                             boolean saved = true;
-                            if (saveResult == null || scenarioResult.getRequestResults().size() > 1) {
+                            if (saveResult == null || expectProcessResultCount > 1) {
                                 saveResult = new ApiDefinitionExecResult();
                                 if (isFirst[0]) {
                                     isFirst[0] = false;
@@ -425,15 +442,15 @@ public class ApiDefinitionExecResultService {
     }
 
     public Map<String, String> selectReportResultByReportIds(Collection<String> values) {
-        if(CollectionUtils.isEmpty(values)){
-            return  new HashMap<>();
-        }else {
+        if (CollectionUtils.isEmpty(values)) {
+            return new HashMap<>();
+        } else {
             Map<String, String> returnMap = new HashMap<>();
             List<ApiDefinitionExecResult> idStatusList = extApiDefinitionExecResultMapper.selectStatusByIdList(values);
-            for (ApiDefinitionExecResult model: idStatusList){
+            for (ApiDefinitionExecResult model : idStatusList) {
                 String id = model.getId();
                 String status = model.getStatus();
-                returnMap.put(id,status);
+                returnMap.put(id, status);
             }
             return returnMap;
         }
