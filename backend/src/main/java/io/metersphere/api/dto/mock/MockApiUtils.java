@@ -102,7 +102,6 @@ public class MockApiUtils {
                 if (bodyObj.containsKey("raw")) {
                     String xmlStr = bodyObj.getString("raw");
                     JSONObject matchObj = XMLUtils.XmlToJson(xmlStr);
-//                    returnJsonArray.add(matchObj);
                     returnJson  = matchObj;
                 }
             } else if (StringUtils.equalsIgnoreCase(type,  "Raw")) {
@@ -111,7 +110,6 @@ public class MockApiUtils {
                     if(StringUtils.isNotEmpty(raw)){
                         JSONObject rawObject = new JSONObject();
                         rawObject.put("raw",raw);
-//                        returnJsonArray.add(rawObject);
                         returnJson  = rawObject;
                     }
                 }
@@ -134,7 +132,6 @@ public class MockApiUtils {
                             bodyParamArr.put(kv.getString("name"), values);
                         }
                     }
-//                    returnJsonArray.add(bodyParamArr);
                     returnJson  = bodyParamArr;
                 }
             }
@@ -388,11 +385,17 @@ public class MockApiUtils {
                 JSONObject bodyParamObj = requestMockParams.getBodyParams().getJSONObject(0);
                 for(String key : bodyParamObj.keySet()){
                     String value = String.valueOf(bodyParamObj.get(key));
+                    value = StringUtils.replace(value,"\\","\\\\");
+                    value = StringUtils.replace(value,"\"","\\\"");
                     scriptStringBuffer.append("requestParams.put(\"body."+key+"\",\""+value+"\");\n");
                     if(StringUtils.equalsIgnoreCase(key,"raw")){
                         scriptStringBuffer.append("requestParams.put(\"bodyRaw\",\""+value+"\");\n");
                     }
                 }
+                String jsonBody = bodyParamObj.toJSONString();
+                jsonBody = StringUtils.replace(jsonBody,"\\","\\\\");
+                jsonBody = StringUtils.replace(jsonBody,"\"","\\\"");
+                scriptStringBuffer.append("requestParams.put(\"body.json\",\""+jsonBody+"\");\n");
             }else {
                 scriptStringBuffer.append("requestParams.put(\"bodyRaw\",\""+requestMockParams.getBodyParams().toJSONString()+"\");\n");
             }
@@ -416,7 +419,6 @@ public class MockApiUtils {
         }
         return scriptStringBuffer.toString();
     }
-
     private static String runScript(String script, String scriptLanguage) throws ScriptException {
         JSR223Sampler jmeterScriptSampler = new JSR223Sampler();
         jmeterScriptSampler.setScriptLanguage(scriptLanguage);
