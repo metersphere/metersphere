@@ -612,6 +612,32 @@ public class ApiScenarioReportService {
         return lastReport;
     }
 
+    public String getEnvironment(ApiScenarioWithBLOBs apiScenario) {
+        String environment = "未配置";
+        String environmentType = apiScenario.getEnvironmentType();
+        if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+            String environmentJson = apiScenario.getEnvironmentJson();
+            JSONObject jsonObject = JSON.parseObject(environmentJson);
+            ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+            List<String> collect = jsonObject.values().stream().map(Object::toString).collect(Collectors.toList());
+            collect.add("-1");// 防止没有配置环境导致不能发送的问题
+            example.createCriteria().andIdIn(collect);
+            List<ApiTestEnvironment> envs = apiTestEnvironmentMapper.selectByExample(example);
+            String env = envs.stream().map(ApiTestEnvironment::getName).collect(Collectors.joining(","));
+            if (StringUtils.isNotBlank(env)) {
+                environment = env;
+            }
+        }
+
+        if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+            String environmentGroupId = apiScenario.getEnvironmentGroupId();
+            EnvironmentGroup environmentGroup = environmentGroupMapper.selectByPrimaryKey(environmentGroupId);
+            if (environmentGroup != null) {
+                environment = environmentGroup.getName();
+            }
+        }
+        return environment;
+    }
 
     private void sendNotice(ApiScenarioWithBLOBs scenario, ApiScenarioReport result) {
 
@@ -632,33 +658,7 @@ public class ApiScenarioReportService {
         Map paramMap = new HashMap<>(beanMap);
         paramMap.put("operator", userDTO.getName());
         paramMap.put("status", scenario.getLastResult());
-        String environmentType = scenario.getEnvironmentType();
-
-        if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
-            String environmentJson = scenario.getEnvironmentJson();
-            JSONObject jsonObject = JSON.parseObject(environmentJson);
-            ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
-            List<String> collect = jsonObject.values().stream().map(Object::toString).collect(Collectors.toList());
-            collect.add("-1");// 防止没有配置环境导致不能发送的问题
-            example.createCriteria().andIdIn(collect);
-            List<ApiTestEnvironment> envs = apiTestEnvironmentMapper.selectByExample(example);
-            String env = envs.stream().map(ApiTestEnvironment::getName).collect(Collectors.joining(","));
-            if (StringUtils.isNotBlank(env)) {
-                paramMap.put("environment", env);
-            } else {
-                paramMap.put("environment", "未配置");
-            }
-        }
-
-        if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
-            String environmentGroupId = scenario.getEnvironmentGroupId();
-            EnvironmentGroup environmentGroup = environmentGroupMapper.selectByPrimaryKey(environmentGroupId);
-            if (environmentGroup != null) {
-                paramMap.put("environment", environmentGroup.getName());
-            } else {
-                paramMap.put("environment", "未配置");
-            }
-        }
+        paramMap.put("environment", getEnvironment(scenario));
 
         String context = "${operator}执行接口自动化" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()

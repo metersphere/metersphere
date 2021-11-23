@@ -168,7 +168,7 @@ public class ApiAutomationService {
         return null;
     }
 
-    public ApiTestEnvironment get(String id) {
+    public ApiTestEnvironment getEnvironment(String id) {
         return apiTestEnvironmentMapper.selectByPrimaryKey(id);
     }
 

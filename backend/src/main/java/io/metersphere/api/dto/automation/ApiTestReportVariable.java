@@ -7,6 +7,6 @@ import lombok.Data;
 public class ApiTestReportVariable extends ApiTestReport {
     public String executionTime;
     public String executor;
-    public String executionEnvironment;
+    public String environment;
     public String principal;
 }
