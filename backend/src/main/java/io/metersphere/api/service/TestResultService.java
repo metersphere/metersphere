@@ -92,7 +92,7 @@ public class TestResultService {
                 ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, runMode);
                 //环境
                 if (scenarioReport != null) {
-                    ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
+                    ApiScenarioWithBLOBs apiScenario = apiAutomationService.getApiScenario(scenarioReport.getScenarioId());
                     String environment = "";
                     //执行人
                     String userName = "";
