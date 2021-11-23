@@ -597,6 +597,8 @@ export default {
     jira_key: 'JIRA项目key',
     zentao_id: 'Zentao项目ID',
     azureDevops_id: 'AzureDevops项目ID',
+    azureDevops_info:'AzureDevops 信息',
+    azureDevops_tip:'该信息为通过Azure Devops提交缺陷的用户令牌信息，若未填写，则使用工作空间中配置的默认信息',
     manager: '项目管理',
     group_permission: '用户组与权限',
     global: '全局',
