@@ -34,16 +34,13 @@ import java.util.stream.Collectors;
 
 public class TapdPlatform extends AbstractIssuePlatform {
 
-    {
-        this.key = IssuesManagePlatform.Tapd.name();
-    }
-
     protected TapdClient tapdClient;
 
     public TapdPlatform(IssuesRequest issueRequest) {
         super(issueRequest);
         tapdClient = new TapdClient();
         setConfig();
+        this.key = IssuesManagePlatform.Tapd.name();
     }
 
     @Override

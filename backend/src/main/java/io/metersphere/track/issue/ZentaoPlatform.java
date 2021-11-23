@@ -37,16 +37,13 @@ import java.util.regex.Pattern;
 public class ZentaoPlatform extends AbstractIssuePlatform {
     protected final ZentaoClient zentaoClient;
 
-    {
-        this.key = IssuesManagePlatform.Zentao.name();
-    }
-
     public ZentaoPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
         ZentaoConfig zentaoConfig = getConfig();
         this.workspaceId = issuesRequest.getWorkspaceId();
         this.zentaoClient = ZentaoFactory.getInstance(zentaoConfig.getUrl(), zentaoConfig.getRequest());
         this.zentaoClient.setConfig(zentaoConfig);
+        this.key = IssuesManagePlatform.Zentao.name();
     }
 
     @Override

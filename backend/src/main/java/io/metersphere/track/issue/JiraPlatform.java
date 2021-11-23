@@ -33,16 +33,13 @@ import java.util.UUID;
 
 public class JiraPlatform extends AbstractIssuePlatform {
 
-    {
-        this.key = IssuesManagePlatform.Jira.name();
-    }
-
     protected JiraClientV2 jiraClientV2;
 
     public JiraPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
         jiraClientV2 = new JiraClientV2();
         setConfig();
+        this.key = IssuesManagePlatform.Jira.name();
     }
 
     @Override
