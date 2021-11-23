@@ -1176,6 +1176,7 @@ public class TestPlanReportService {
                     ApiScenarioReport apiReport = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
                     if (apiReport != null) {
                         dto.setLastResult(apiReport.getStatus());
+                        dto.setStatus(apiReport.getStatus());
                     }
                 }
             }
