@@ -239,6 +239,8 @@ export default {
       name: "觸發方式",
       manual: "手動觸發",
       schedule: "定時任務",
+      test_plan_schedule: "計劃定時任務",
+      test_plan_api: "計劃API調用",
       api: "API調用",
       case: "用例觸發"
     },

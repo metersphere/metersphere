@@ -239,6 +239,8 @@ export default {
       name: "触发方式",
       manual: "手动触发",
       schedule: "定时任务",
+      test_plan_schedule: "计划定时任务",
+      test_plan_api: "计划API调用",
       api: "API调用",
       case: "用例触发"
     },

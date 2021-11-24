@@ -184,7 +184,11 @@ export default {
       triggerFilters: [
         {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},
         {text: this.$t('commons.trigger_mode.schedule'), value: 'SCHEDULE'},
+        {text: this.$t('commons.trigger_mode.test_plan_schedule'), value: 'TEST_PLAN_SCHEDULE'},
+        {text: this.$t('commons.trigger_mode.test_plan_api'), value: 'TEST_PLAN_API'},
         {text: this.$t('commons.trigger_mode.api'), value: 'API'},
+        {text: this.$t('commons.trigger_mode.case'), value: 'CASE'},
+        {text: this.$t('api_test.automation.batch_execute'), value: 'BATCH'},
       ],
       buttons: [
         {
