@@ -6,7 +6,7 @@
     <el-form-item :label="'Jira ' + $t('organization.integration.account')" prop="account">
       <el-input v-model="data.jiraAccount" :placeholder="$t('organization.integration.input_api_account')"/>
     </el-form-item>
-    <el-form-item :label="'Jira ' + $t('organization.integration.password')" prop="password">
+    <el-form-item label="Token" prop="password">
       <el-input v-model="data.jiraPassword" auto-complete="new-password"
                 :placeholder="$t('organization.integration.input_api_password')" show-password/>
     </el-form-item>
