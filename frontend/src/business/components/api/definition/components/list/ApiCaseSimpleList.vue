@@ -81,6 +81,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="120px"
+            sortable
             :label="$t('test_track.case.priority')">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>

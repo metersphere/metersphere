@@ -132,6 +132,13 @@ export default {
       this.formatContent(this.scenario.scenarioDefinition.hashTree, obj);
       this.fullTreeNodes.push(obj);
     },
+    compare(){
+      return function(a,b){
+        let v1 = a.value.sort;
+        let v2 = b.value.sort;
+        return v1 - v2;
+      }
+    },
     setTreeValue(arr) {
       arr.forEach(item => {
         if (this.debugResult && this.debugResult.get(item.resId)) {
@@ -161,6 +168,7 @@ export default {
           this.setTreeValue(item.children);
         }
       })
+      arr.sort(this.compare());
     },
     getType(type) {
       switch (type) {
@@ -301,7 +309,9 @@ export default {
           this.content.passAssertions += item.passAssertions
           this.content.totalAssertions += item.totalAssertions;
           if (item && item.requestResults) {
-            item.requestResults.forEach(req => {
+            for(let index in item.requestResults){
+              let req = item.requestResults[index];
+              req.sort = index;
               req.responseResult.console = res.console;
               if (req.method === 'Request' && req.subRequestResults && req.subRequestResults.length > 0) {
                 this.getTransaction(req.subRequestResults, resMap);
@@ -327,7 +337,7 @@ export default {
                   this.endTime = req.endTime;
                 }
               }
-            })
+            }
           }
         })
       }

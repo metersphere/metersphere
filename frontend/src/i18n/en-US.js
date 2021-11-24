@@ -238,6 +238,8 @@ export default {
       name: "Trigger Mode",
       manual: "Manual trigger",
       schedule: "Scheduled Task",
+      test_plan_schedule: "TestPlan Scheduled Task",
+      test_plan_api: "TestPlan API call",
       api: "API call",
       case: "Case"
     },
@@ -594,6 +596,8 @@ export default {
     jira_key: 'JIRA Project key',
     zentao_id: 'Zentao Project ID',
     azureDevops_id: 'AzureDevops Project ID',
+    azureDevops_info:'AzureDevops Information',
+    azureDevops_tip:'This information is the user token information for submitting defects through Azure Devops. If not filled in, the default information configured in the workspace will be used',
     manager: 'Manager',
     no_data: 'No Data',
     select: 'Select',

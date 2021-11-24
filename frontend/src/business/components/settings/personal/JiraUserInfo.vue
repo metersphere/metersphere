@@ -1,12 +1,12 @@
 <template>
   <el-form label-position="right" label-width="110px" size="small">
     <el-form-item :label="'Jira '+ $t('commons.information')">
-      <ms-instructions-icon size="10" :content="$t('organization.message.integration.jira_prompt_information')"/>
+      <ms-instructions-icon size="10" :content="$t('organization.integration.jira_prompt_information')"/>
     </el-form-item>
     <el-form-item :label="'Jira ' + $t('organization.integration.account')" prop="account">
       <el-input v-model="data.jiraAccount" :placeholder="$t('organization.integration.input_api_account')"/>
     </el-form-item>
-    <el-form-item :label="'Jira ' + $t('organization.integration.password')" prop="password">
+    <el-form-item label="Token" prop="password">
       <el-input v-model="data.jiraPassword" auto-complete="new-password"
                 :placeholder="$t('organization.integration.input_api_password')" show-password/>
     </el-form-item>

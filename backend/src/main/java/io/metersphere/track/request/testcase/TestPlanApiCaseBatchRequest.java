@@ -23,4 +23,6 @@ public class TestPlanApiCaseBatchRequest extends TestPlanTestCase {
     private Map<String, String> projectEnvMap;
 
     private ApiCaseBatchCondition condition;
+    private String environmentType;
+    private String environmentGroupId;
 }

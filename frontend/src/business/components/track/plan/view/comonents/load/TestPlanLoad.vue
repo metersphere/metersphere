@@ -9,20 +9,20 @@
     </template>
     <template v-slot:main>
       <test-plan-load-case-list
-        class="table-list"
-        @refresh="refresh"
-        :plan-id="planId"
-        :clickType="clickType"
-        :select-project-id="selectProjectId"
-        :select-parent-nodes="selectParentNodes"
-        @relevanceCase="openTestCaseRelevanceDialog"
-        ref="testPlanLoadCaseList"/>
+          class="table-list"
+          @refresh="refresh"
+          :plan-id="planId"
+          :clickType="clickType"
+          :select-project-id="selectProjectId"
+          :select-parent-nodes="selectParentNodes"
+          @relevanceCase="openTestCaseRelevanceDialog"
+          ref="testPlanLoadCaseList"/>
     </template>
 
     <test-case-load-relevance
-      @refresh="refresh"
-      :plan-id="planId"
-      ref="testCaseLoadRelevance"/>
+        @refresh="refresh"
+        :plan-id="planId"
+        ref="testCaseLoadRelevance"/>
   </ms-test-plan-common-component>
 </template>
 
@@ -49,7 +49,7 @@ export default {
       selectParentNodes: [],
       selectProjectId: "",
       treeNodes: [],
-    }
+    };
   },
   props: [
     'planId',
@@ -85,15 +85,13 @@ export default {
     },
     getNodeTreeByPlanId() {
       if (this.planId) {
-        this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
+        this.result = this.$get("/performance/module/list/plan/" + this.planId, response => {
           this.treeNodes = response.data;
-          // 性能测试与模块无关，过滤项目下模块
-          this.treeNodes.map(node => node.children = null);
         });
       }
     },
   }
-}
+};
 </script>
 
 <style scoped>

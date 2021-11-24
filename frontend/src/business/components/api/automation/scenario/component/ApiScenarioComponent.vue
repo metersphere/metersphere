@@ -16,7 +16,7 @@
     title='场景'>
 
     <template v-slot:afterTitle>
-      <span v-if="scenario.num" @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
+      <span v-if="isShowNum" @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
       <span v-else >
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
           <i class="el-icon-warning"/>
@@ -28,7 +28,7 @@
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-      <span class="ms-tag">{{ getProjectName(scenario.projectId) }}</span>
+      <span class="ms-tag ms-step-name-api">{{ getProjectName(scenario.projectId) }}</span>
     </template>
     <template v-slot:debugStepCode>
        <span v-if="node.data.testing" class="ms-test-running">
@@ -119,7 +119,10 @@ export default {
           if (this.scenario.hashTree) {
             this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
           }
-          //this.scenario.disabled = true;
+          if(response.data.num){
+            this.scenario.num = response.data.num;
+            this.isShowNum = true;
+          }
           this.scenario.name = response.data.name;
           this.scenario.headers = obj.headers;
           this.scenario.variables = obj.variables;
@@ -136,6 +139,7 @@ export default {
     return {
       loading: false,
       isShowInput: false,
+      isShowNum:false,
     }
   },
   computed: {
@@ -271,6 +275,10 @@ export default {
 
 .icon.is-active {
   transform: rotate(90deg);
+}
+
+.ms-step-name-api {
+  padding-left: 10px;
 }
 
 .ms-tag {

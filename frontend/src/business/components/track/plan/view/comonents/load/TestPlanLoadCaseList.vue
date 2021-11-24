@@ -305,6 +305,9 @@ export default {
       if (this.selectProjectId && this.selectProjectId !== 'root') {
         this.condition.projectId = this.selectProjectId;
       }
+      if (this.selectProjectId === 'root') {
+        this.condition.projectId = null;
+      }
       if (this.clickType) {
         if (this.status == 'default') {
           this.condition.status = this.clickType;

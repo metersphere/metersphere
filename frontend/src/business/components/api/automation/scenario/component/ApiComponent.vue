@@ -12,12 +12,9 @@
       :is-max="isMax"
       :show-btn="showBtn"
       :title="displayTitle">
-      <template v-slot:message>
-        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
-      </template>
 
       <template v-slot:afterTitle v-if="request.refType==='API'|| request.refType==='CASE'">
-        <span v-if="request.num" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
+        <span v-if="isShowNum" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
         <span v-else >
           <el-tooltip class="ms-num" effect="dark" :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')" placement="top">
             <i class="el-icon-warning"/>
@@ -29,6 +26,7 @@
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
          <span v-if="request.testing" class="ms-test-running">
@@ -202,7 +200,8 @@ export default {
       apiActive: false,
       reqSuccess: true,
       envType: this.environmentType,
-      environmentMap: this.envMap
+      environmentMap: this.envMap,
+      isShowNum:false,
     }
   },
   created() {
@@ -433,6 +432,10 @@ export default {
             } else {
               this.request.requestResult = requestResult;
             }
+            if(response.data.num){
+              this.request.num = response.data.num;
+              this.isShowNum = true;
+            }
             this.request.id = response.data.id;
             this.request.disabled = true;
             this.request.root = true;
@@ -448,6 +451,90 @@ export default {
             this.request.referenced = "Deleted";
           }
         })
+      }
+      if(this.request.id && this.request.referenced === 'Copy'){
+        let requestResult = this.request.requestResult;
+        let enable = this.request.enable;
+        if(this.request.refType==='CASE'){
+          this.$get("/api/testcase/get/" + this.request.id, response => {
+            if (response.data) {
+              let hashTree = [];
+              if (this.request.hashTree) {
+                hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
+              }
+              Object.assign(this.request, JSON.parse(response.data.request));
+              this.request.name = response.data.name;
+              this.request.referenced = "Copy";
+              this.request.enable = enable;
+              if (response.data.path && response.data.path != null) {
+                this.request.path = response.data.path;
+                this.request.url = response.data.url;
+              }
+              if (response.data.method && response.data.method != null) {
+                this.request.method = response.data.method;
+              }
+              if (requestResult && Object.prototype.toString.call(requestResult) !== '[object Array]') {
+                this.request.requestResult = [requestResult];
+              } else {
+                this.request.requestResult = requestResult;
+              }
+              if(response.data.num){
+                this.request.num = response.data.num;
+                this.isShowNum = true;
+              }
+              this.request.id = response.data.id;
+              this.request.root = true;
+              this.request.projectId = response.data.projectId;
+              let req = JSON.parse(response.data.request);
+              if (req && this.request) {
+                this.request.hashTree = hashTree;
+                this.mergeHashTree(req.hashTree);
+              }
+              this.reload();
+              this.sort();
+            }
+          })
+        }
+        if(this.request.refType==='API'){
+          this.$get("/api/definition/get/" + this.request.id, response => {
+            if (response.data) {
+              let hashTree = [];
+              if (this.request.hashTree) {
+                hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
+              }
+              Object.assign(this.request, JSON.parse(response.data.request));
+              this.request.name = response.data.name;
+              this.request.referenced = "Copy";
+              this.request.enable = enable;
+              if (response.data.path && response.data.path != null) {
+                this.request.path = response.data.path;
+                this.request.url = response.data.url;
+              }
+              if (response.data.method && response.data.method != null) {
+                this.request.method = response.data.method;
+              }
+              if (requestResult && Object.prototype.toString.call(requestResult) !== '[object Array]') {
+                this.request.requestResult = [requestResult];
+              } else {
+                this.request.requestResult = requestResult;
+              }
+              if(response.data.num){
+                this.request.num = response.data.num;
+                this.isShowNum = true;
+              }
+              this.request.id = response.data.id;
+              this.request.root = true;
+              this.request.projectId = response.data.projectId;
+              let req = JSON.parse(response.data.request);
+              if (req && this.request) {
+                this.request.hashTree = hashTree;
+                this.mergeHashTree(req.hashTree);
+              }
+              this.reload();
+              this.sort();
+            }
+          })
+        }
       }
     },
     mergeHashTree(targetHashTree) {
@@ -682,14 +769,7 @@ export default {
 }
 
 .ms-step-name-api {
-  display: inline-block;
-  margin: 0 5px;
-  overflow-x: hidden;
-  padding-bottom: 0;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 60px;
+  padding-left: 10px;
 }
 
 .ms-tag {

@@ -569,7 +569,6 @@ export default {
         }
         this.$post('/test/plan/edit/follows/' + row.id, row.follows,() => {
           this.$success(this.$t('commons.cancel_follow_success'));
-          this.initTableData();
         });
         return
       }
@@ -581,7 +580,6 @@ export default {
         row.follows.push(this.currentUser().id);
         this.$post('/test/plan/edit/follows/' + row.id, row.follows,() => {
           this.$success(this.$t('commons.follow_success'));
-          this.initTableData();
         });
         return
       }

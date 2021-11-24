@@ -106,6 +106,7 @@ export default {
     open() {
       listenGoBack(this.close);
       this.dialogVisible = true;
+      this.getGroup();
     },
     confirm() {
       let checkNodes = this.$refs.cascadeSelector.getCheckedNodes(true);

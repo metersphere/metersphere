@@ -107,9 +107,11 @@ export default {
       };
       file.prefix = param.id;
       this.result.loading = true;
+      // 带括号和空格，可能无法展示
+      param.fileName = file.name.replace("(", "").replace(")", "").replace(" ", "");
       this.$fileUpload('/resource/md/upload', file, null, param, () => {
         this.$success(this.$t('commons.save_success'));
-        this.$refs.md.$img2Url(pos, '/resource/md/get/'  + param.id + '_' + file.name);
+        this.$refs.md.$img2Url(pos, '/resource/md/get/'  + param.id + '_' + param.fileName);
         this.result.loading = false;
       });
       this.$emit('imgAdd', file);
