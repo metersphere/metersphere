@@ -1005,7 +1005,8 @@
     },
     {
       "id": "PROJECT_ENTERPRISE_REPORT",
-      "name": "项目报告"
+      "name": "项目报告",
+      "license": true
     },
     {
       "id": "SYSTEM_PLUGIN",
