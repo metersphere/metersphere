@@ -233,12 +233,20 @@ public class TestPlanApiCaseService {
         Map<String, String> rows = request.getSelectRows();
         Set<String> ids = rows.keySet();
         request.setIds(new ArrayList<>(ids));
-        Map<String, String> env = request.getProjectEnvMap();
+        Map<String, String> env = new HashMap<>();
+        String environmentType = request.getEnvironmentType();
+        String environmentGroupId = request.getEnvironmentGroupId();
+        if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+            env = request.getProjectEnvMap();
+        } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
+            env = environmentGroupProjectService.getEnvMap(environmentGroupId);
+        }
         if (env != null && !env.isEmpty()) {
+            Map<String, String> finalEnv = env;
             ids.forEach(id -> {
                 TestPlanApiCase apiCase = new TestPlanApiCase();
                 apiCase.setId(id);
-                apiCase.setEnvironmentId(env.get(rows.get(id)));
+                apiCase.setEnvironmentId(finalEnv.get(rows.get(id)));
                 testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
             });
         }
