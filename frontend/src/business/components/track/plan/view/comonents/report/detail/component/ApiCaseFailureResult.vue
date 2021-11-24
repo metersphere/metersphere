@@ -198,6 +198,11 @@ export default {
 
 .ms-aside-container {
   border: 0px;
+  height: 550px;
   padding: 10px 0px 0px 10px;
+}
+
+.ms-main-container {
+  height: 580px;
 }
 </style>
