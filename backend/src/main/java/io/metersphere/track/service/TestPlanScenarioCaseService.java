@@ -500,7 +500,7 @@ public class TestPlanScenarioCaseService {
 
         String defaultStatus = "Running";
         if(isFinish){
-            defaultStatus = "Error";
+            defaultStatus = "Fail";
         }
         Map<String,String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
         for (TestPlanFailureScenarioDTO dto: apiTestCases) {
@@ -510,10 +510,14 @@ public class TestPlanScenarioCaseService {
                 String status = reportStatus.get(reportId);
                 if(status == null ){
                     status = defaultStatus;
+                }else {
+                    if(StringUtils.equalsIgnoreCase(status,"Error")){
+                        status = "Fail";
+                    }
                 }
                 dto.setLastResult(status);
+                dto.setStatus(status);
             }
-
         }
         return buildCases(apiTestCases);
     }
