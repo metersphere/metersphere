@@ -396,9 +396,14 @@ public class TestPlanApiCaseService {
         if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
             apiResult.setActuator(request.getConfig().getResourcePoolId());
         }
-        if (SessionUtils.getUser() != null) {
-            apiResult.setUserId(SessionUtils.getUser().getId());
+        if(StringUtils.isEmpty(request.getUserId())){
+            if (SessionUtils.getUser() != null) {
+                apiResult.setUserId(SessionUtils.getUser().getId());
+            }
+        }else {
+            apiResult.setUserId(request.getUserId());
         }
+
         apiResult.setResourceId(key.getApiCaseId());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.API_PLAN.name());
