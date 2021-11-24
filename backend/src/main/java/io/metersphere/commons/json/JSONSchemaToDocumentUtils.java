@@ -74,7 +74,7 @@ public class JSONSchemaToDocumentUtils {
             Object value = null;
             boolean required = requiredList.contains(propertyName);
             if (object.has("default")) {
-                value = object.get("default") != null ? object.get("default").toString() : "";
+                value = object.get("default") != null ? object.get("default").getAsString() : "";
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (object.has("enum")) {
                 try {
@@ -97,7 +97,7 @@ public class JSONSchemaToDocumentUtils {
             } else if (propertyObjType.equals("string")) {
                 // 先设置空值
                 if (object.has("default")) {
-                    value = object.get("default") != null ? object.get("default").toString() : "";
+                    value = object.get("default") != null ? object.get("default").getAsString() : "";
                 }
                 if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString()) && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
                     value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
@@ -140,7 +140,7 @@ public class JSONSchemaToDocumentUtils {
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (propertyObjType.equals("array")) {
                 List<DocumentElement> elements = new LinkedList<>();
-                concept.add(new DocumentElement(propertyName, propertyObjType, "", requiredList.contains(propertyName), elements));
+                concept.add(new DocumentElement(propertyName, propertyObjType, "", requiredList.contains(propertyName), true, elements));
                 JsonArray jsonArray = object.get("items").getAsJsonArray();
                 analyzeArray(propertyName, jsonArray, elements, requiredList);
             } else if (propertyObjType.equals("object")) {

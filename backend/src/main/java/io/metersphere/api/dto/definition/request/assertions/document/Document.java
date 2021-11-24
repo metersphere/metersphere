@@ -81,7 +81,16 @@ public class Document {
             if (StringUtils.isEmpty(item.getGroupId())) {
                 if (!item.getId().equals("root")) {
                     if (parentNode != null) {
-                        item.setJsonPath(parentNode.getJsonPath() + "." + item.getName());
+                        if (parentNode.getType().equals("array") && item.getType().equals("string")) {
+                            try {
+                                int index = StringUtils.isNotEmpty(item.getName()) ? Integer.parseInt(item.getName()) : 0;
+                                item.setJsonPath(parentNode.getJsonPath() + "[" + index + "]");
+                            } catch (Exception e) {
+                                item.setJsonPath(parentNode.getJsonPath() + "." + item.getName());
+                            }
+                        } else {
+                            item.setJsonPath(parentNode.getJsonPath() + "." + item.getName());
+                        }
                     } else {
                         item.setJsonPath("$." + item.getName());
                     }
@@ -107,7 +116,16 @@ public class Document {
         for (DocumentElement item : dataList) {
             if (StringUtils.isEmpty(item.getGroupId())) {
                 if (parentNode != null) {
-                    item.setJsonPath(parentNode.getJsonPath() + "." + item.getName());
+                    if (StringUtils.equals(parentNode.getType(), "array") && item.getType().equals("string")) {
+                        try {
+                            int index = StringUtils.isNotEmpty(item.getName()) ? Integer.parseInt(item.getName()) : 0;
+                            item.setJsonPath(parentNode.getJsonPath() + "[" + index + "]");
+                        } catch (Exception e) {
+                            item.setJsonPath(parentNode.getJsonPath() + "." + item.getName());
+                        }
+                    } else {
+                        item.setJsonPath(parentNode.getJsonPath() + "." + item.getName());
+                    }
                 } else {
                     item.setJsonPath("$." + item.getName());
                 }
