@@ -81,23 +81,7 @@ public class TestPlanLoadCaseService {
     public List<TestPlanLoadCaseDTO> list(LoadCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList = extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(request);
-        this.syncReportStatus(testPlanLoadCaseDTOList);
         return testPlanLoadCaseDTOList;
-    }
-
-    private void syncReportStatus(List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList) {
-        for (TestPlanLoadCaseDTO dto : testPlanLoadCaseDTOList) {
-            if (StringUtils.isNotEmpty(dto.getLoadReportId()) && StringUtils.equalsIgnoreCase(dto.getStatus(), "run")) {
-                LoadTestReport report = loadTestReportMapper.selectByPrimaryKey(dto.getLoadReportId());
-                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), "Starting", "Running", "Reporting")) {
-                    dto.setStatus(report.getStatus());
-                    TestPlanLoadCaseWithBLOBs updateModel = new TestPlanLoadCaseWithBLOBs();
-                    updateModel.setId(dto.getId());
-                    updateModel.setStatus(report.getStatus());
-                    testPlanLoadCaseMapper.updateByPrimaryKeySelective(updateModel);
-                }
-            }
-        }
     }
 
     public List<String> selectTestPlanLoadCaseIds(LoadCaseRequest request) {
