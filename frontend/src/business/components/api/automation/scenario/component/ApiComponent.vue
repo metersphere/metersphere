@@ -12,9 +12,6 @@
       :is-max="isMax"
       :show-btn="showBtn"
       :title="displayTitle">
-      <template v-slot:message>
-        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
-      </template>
 
       <template v-slot:afterTitle v-if="request.refType==='API'|| request.refType==='CASE'">
         <span v-if="isShowNum" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
@@ -29,6 +26,7 @@
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
          <span v-if="request.testing" class="ms-test-running">
@@ -777,14 +775,7 @@ export default {
 }
 
 .ms-step-name-api {
-  display: inline-block;
-  margin: 0 5px;
-  overflow-x: hidden;
-  padding-bottom: 0;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 60px;
+  padding-left: 10px;
 }
 
 .ms-tag {
