@@ -409,17 +409,11 @@ export default {
       }
     },
     getApiInfo() {
-      console.log("看看num")
-      console.log(this.request.id);
-      console.log(this.request.referenced);
       if (this.request.id && this.request.referenced === 'REF') {
-        console.log(this.request.id);
-        console.log(this.request.referenced);
         let requestResult = this.request.requestResult;
         let enable = this.request.enable;
         this.$get("/api/testcase/get/" + this.request.id, response => {
           if (response.data) {
-            console.log(response.data)
             let hashTree = [];
             if (this.request.hashTree) {
               hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
@@ -459,6 +453,96 @@ export default {
             this.request.referenced = "Deleted";
           }
         })
+      }
+      if(this.request.id && this.request.referenced === 'Copy'){
+        let requestResult = this.request.requestResult;
+        let enable = this.request.enable;
+        if(this.request.refType==='CASE'){
+          this.$get("/api/testcase/get/" + this.request.id, response => {
+            if (response.data) {
+              let hashTree = [];
+              if (this.request.hashTree) {
+                hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
+              }
+              Object.assign(this.request, JSON.parse(response.data.request));
+              this.request.name = response.data.name;
+              this.request.referenced = "Copy";
+              this.request.enable = enable;
+              if (response.data.path && response.data.path != null) {
+                this.request.path = response.data.path;
+                this.request.url = response.data.url;
+              }
+              if (response.data.method && response.data.method != null) {
+                this.request.method = response.data.method;
+              }
+              if (requestResult && Object.prototype.toString.call(requestResult) !== '[object Array]') {
+                this.request.requestResult = [requestResult];
+              } else {
+                this.request.requestResult = requestResult;
+              }
+              if(response.data.num){
+                this.request.num = response.data.num;
+                this.isShowNum = true;
+              }
+              this.request.id = response.data.id;
+              this.request.disabled = true;
+              this.request.root = true;
+              this.request.projectId = response.data.projectId;
+              let req = JSON.parse(response.data.request);
+              if (req && this.request) {
+                this.request.hashTree = hashTree;
+                this.mergeHashTree(req.hashTree);
+              }
+              this.reload();
+              this.sort();
+            } else {
+              this.request.referenced = "Deleted";
+            }
+          })
+        }
+        if(this.request.refType==='API'){
+          this.$get("/api/definition/get/" + this.request.id, response => {
+            if (response.data) {
+              let hashTree = [];
+              if (this.request.hashTree) {
+                hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
+              }
+              Object.assign(this.request, JSON.parse(response.data.request));
+              this.request.name = response.data.name;
+              this.request.referenced = "Copy";
+              this.request.enable = enable;
+              if (response.data.path && response.data.path != null) {
+                this.request.path = response.data.path;
+                this.request.url = response.data.url;
+              }
+              if (response.data.method && response.data.method != null) {
+                this.request.method = response.data.method;
+              }
+              if (requestResult && Object.prototype.toString.call(requestResult) !== '[object Array]') {
+                this.request.requestResult = [requestResult];
+              } else {
+                this.request.requestResult = requestResult;
+              }
+              if(response.data.num){
+                this.request.num = response.data.num;
+                this.isShowNum = true;
+              }
+              this.request.id = response.data.id;
+              this.request.disabled = true;
+              this.request.root = true;
+              this.request.projectId = response.data.projectId;
+              let req = JSON.parse(response.data.request);
+              if (req && this.request) {
+                this.request.hashTree = hashTree;
+                this.mergeHashTree(req.hashTree);
+              }
+              this.reload();
+              this.sort();
+            } else {
+              this.request.referenced = "Deleted";
+            }
+          })
+        }
       }
     },
     mergeHashTree(targetHashTree) {
@@ -625,10 +709,6 @@ export default {
             response.data.sourceId = resource.resourceId;
             response.data.type = resource.type;
             response.data.refType = resource.refType;
-            if(response.data.num){
-              this.request.num = response.data.num;
-              this.isShowNum = true;
-            }
             this.clickCase(response.data)
           } else {
             this.$error("接口用例场景场景已经被删除");
