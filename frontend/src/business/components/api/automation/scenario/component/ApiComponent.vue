@@ -483,7 +483,6 @@ export default {
                 this.isShowNum = true;
               }
               this.request.id = response.data.id;
-              this.request.disabled = true;
               this.request.root = true;
               this.request.projectId = response.data.projectId;
               let req = JSON.parse(response.data.request);
@@ -493,8 +492,6 @@ export default {
               }
               this.reload();
               this.sort();
-            } else {
-              this.request.referenced = "Deleted";
             }
           })
         }
@@ -526,7 +523,6 @@ export default {
                 this.isShowNum = true;
               }
               this.request.id = response.data.id;
-              this.request.disabled = true;
               this.request.root = true;
               this.request.projectId = response.data.projectId;
               let req = JSON.parse(response.data.request);
@@ -536,8 +532,6 @@ export default {
               }
               this.reload();
               this.sort();
-            } else {
-              this.request.referenced = "Deleted";
             }
           })
         }
