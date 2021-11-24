@@ -172,11 +172,13 @@ public class JSONSchemaGenerator {
                 List<Object> array = new LinkedList<>();
 
                 JsonArray jsonArray = new JsonArray();
-                if (object.has("items") && object.get("items").isJsonArray()) {
-                    jsonArray = object.get("items").getAsJsonArray();
-                } else {
-                    JsonObject itemsObject = object.get("items").getAsJsonObject();
-                    array.add(itemsObject);
+                if (object.has("items")) {
+                    if(object.get("items").isJsonArray()){
+                        jsonArray = object.get("items").getAsJsonArray();
+                    }else {
+                        JsonObject itemsObject = object.get("items").getAsJsonObject();
+                        array.add(itemsObject);
+                    }
                 }
 
                 for (int i = 0; i < jsonArray.size(); i++) {
