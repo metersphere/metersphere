@@ -167,13 +167,18 @@ public class JsonStructUtils {
                     return false;
                 } else {
                     for (int i = 0; i < matchArr.size(); i++) {
-                        for (int j = i; j < sourceArr.size(); j++) {
+                        boolean finalChack = false;
+                        sourceForeach:for (int j = i; j < sourceArr.size(); j++) {
                             Object matchItemObj = matchArr.get(i);
                             Object sourceItemObj = sourceArr.get(j);
                             boolean check = checkObjCompliance(sourceItemObj, matchItemObj);
-                            if (!check) {
-                                return check;
+                            if (check) {
+                                finalChack = true;
+                                break;
                             }
+                        }
+                        if(!finalChack){
+                            return false;
                         }
                     }
                     return true;
