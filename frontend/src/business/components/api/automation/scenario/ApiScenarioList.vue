@@ -279,7 +279,7 @@
 </template>
 
 <script>
-import {downloadFile, getCurrentProjectID, getUUID, setDefaultTheme, strMapToObj} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
@@ -1007,11 +1007,11 @@ export default {
             onSampleError: scenarioStep.onSampleError,
             enableCookieShare: scenarioStep.enableCookieShare,
             headers: scenarioStep.headers,
-            environmentMap: scenarioStep.environmentMap ? new Map(Object.entries(scenarioStep.environmentMap)) : new Map,
+            environmentMap: this.currentScenario.environmentJson ? objToStrMap(JSON.parse(this.currentScenario.environmentJson)) : new Map,
             hashTree: scenarioStep.hashTree
           };
-          if (scenarioStep.environmentMap) {
-            this.projectEnvMap = new Map(Object.entries(scenarioStep.environmentMap));
+          if (this.currentScenario.environmentJson) {
+            this.projectEnvMap = objToStrMap(JSON.parse(this.currentScenario.environmentJson));
           }
           this.environmentType = this.currentScenario.environmentType;
           this.envGroupId = this.currentScenario.environmentGroupId;
