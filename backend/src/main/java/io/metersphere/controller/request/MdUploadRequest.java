@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class MdUploadRequest {
     private String id;
+    private String fileName;
 }
