@@ -238,6 +238,8 @@ export default {
       name: "Trigger Mode",
       manual: "Manual trigger",
       schedule: "Scheduled Task",
+      test_plan_schedule: "TestPlan Scheduled Task",
+      test_plan_api: "TestPlan API call",
       api: "API call",
       case: "Case"
     },
