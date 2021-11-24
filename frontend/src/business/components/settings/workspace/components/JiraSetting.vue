@@ -6,7 +6,7 @@
         <el-form-item :label="$t('organization.integration.account')" prop="account">
           <el-input v-model="form.account" :placeholder="$t('organization.integration.input_api_account')"/>
         </el-form-item>
-        <el-form-item :label="$t('organization.integration.password')" prop="password">
+        <el-form-item label="Token" prop="password">
           <el-input v-model="form.password" auto-complete="new-password" v-if="showInput"
                     :placeholder="$t('organization.integration.input_api_password')" show-password/>
         </el-form-item>

@@ -3,7 +3,7 @@ package io.metersphere.api.dto.scenario;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.metersphere.api.dto.scenario.request.BodyFile;
-import io.metersphere.commons.json.JSONSchemaGenerator;
+import io.metersphere.commons.json.JSONSchemaRunTest;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import lombok.Data;
@@ -87,7 +87,7 @@ public class Body {
         if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {
             if(StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
                     && "JSON-SCHEMA".equals(this.format)) {
-                this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
+                this.raw = JSONSchemaRunTest.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
             } else {    //  json 文本也支持 mock 参数
                 try {
                     JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(this.getRaw());

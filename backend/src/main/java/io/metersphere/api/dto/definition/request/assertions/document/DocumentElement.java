@@ -46,12 +46,12 @@ public class DocumentElement {
         }
     }
 
-    public DocumentElement(String name, String type, Object expectedOutcome, boolean typeVerification, List<DocumentElement>children) {
+    public DocumentElement(String name, String type, Object expectedOutcome, boolean include, List<DocumentElement> children) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.expectedOutcome = expectedOutcome;
         this.type = type;
-        this.typeVerification = typeVerification;
+        this.include = include;
         this.children = children == null ? this.children = new LinkedList<>() : children;
         this.rowspan = 1;
         this.contentVerification = "value_eq";
@@ -61,6 +61,25 @@ public class DocumentElement {
             this.contentVerification = "none";
         }
     }
+
+
+    public DocumentElement(String name, String type, Object expectedOutcome, boolean typeVerification, boolean arrayVerification, List<DocumentElement> children) {
+        this.id = UUID.randomUUID().toString();
+        this.name = name;
+        this.expectedOutcome = expectedOutcome;
+        this.type = type;
+        this.typeVerification = typeVerification;
+        this.arrayVerification = arrayVerification;
+        this.children = children == null ? this.children = new LinkedList<>() : children;
+        this.rowspan = 1;
+        this.contentVerification = "value_eq";
+        if (StringUtils.equalsAny(type, "object", "array")) {
+            this.contentVerification = "none";
+        } else if (expectedOutcome == null || StringUtils.isEmpty(expectedOutcome.toString())) {
+            this.contentVerification = "none";
+        }
+    }
+
 
     public DocumentElement(String id, String name, String type, Object expectedOutcome, List<DocumentElement> children) {
         this.id = id;

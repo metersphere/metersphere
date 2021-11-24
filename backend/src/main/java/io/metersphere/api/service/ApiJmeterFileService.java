@@ -61,7 +61,7 @@ public class ApiJmeterFileService {
         if (StringUtils.isNotEmpty(testPlanScenarioId)) {
             // 获取场景用例单独的执行环境
             TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
-            if(planApiScenario != null){
+            if (planApiScenario != null) {
                 String envType = planApiScenario.getEnvironmentType();
                 String environmentGroupId = planApiScenario.getEnvironmentGroupId();
                 String environment = planApiScenario.getEnvironment();
@@ -73,9 +73,9 @@ public class ApiJmeterFileService {
             }
         }
         HashTree hashTree;
-        if (ApiRunMode.DEFINITION.name().equals(runMode) || ApiRunMode.API_PLAN.name().equals(runMode) || ApiRunMode.MANUAL_PLAN.name().equals(runMode)) {
+        if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             String testId = remoteTestId;
-            if(remoteTestId.contains(":")){
+            if (remoteTestId.contains(":")) {
                 //执行测试计划案例时会有拼接ID,ID为 planTestCaseId:测试计划报告ID
                 testId = remoteTestId.split(":")[0];
             }
@@ -85,13 +85,15 @@ public class ApiJmeterFileService {
             if (item == null) {
                 MSException.throwException("未找到执行场景。");
             }
-            String envType = item.getEnvironmentType();
-            String envJson = item.getEnvironmentJson();
-            String envGroupId = item.getEnvironmentGroupId();
-            if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
-                planEnvMap = JSON.parseObject(envJson, Map.class);
-            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
-                planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
+            if (StringUtils.isBlank(testPlanScenarioId)) {
+                String envType = item.getEnvironmentType();
+                String envJson = item.getEnvironmentJson();
+                String envGroupId = item.getEnvironmentGroupId();
+                if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
+                    planEnvMap = JSON.parseObject(envJson, Map.class);
+                } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
+                    planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
+                }
             }
             hashTree = apiAutomationService.generateHashTree(item, reportId, planEnvMap);
         }

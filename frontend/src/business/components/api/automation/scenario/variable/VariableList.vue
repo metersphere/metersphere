@@ -272,8 +272,6 @@ export default {
         this.headers = headers;
       }
       this.visible = true;
-      this.editData = {type: "CONSTANT"};
-      this.addParameters(this.editData);
       this.disabled = disabled;
     },
     save() {

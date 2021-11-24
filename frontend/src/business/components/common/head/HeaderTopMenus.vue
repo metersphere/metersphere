@@ -43,9 +43,10 @@
 </template>
 
 <script>
-import {LicenseKey} from '@/common/js/constants';
 import {hasLicense} from "@/common/js/utils";
 import {MODULE_CHANGE, ModuleEvent} from "@/business/components/common/head/ListEvent";
+import {validateAndSetLicense} from "@/business/permission";
+import axios from "axios";
 
 // const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 // const report = requireContext.keys().map(key => requireContext(key).report);
@@ -75,18 +76,26 @@ export default {
       this.handleSelect(this.activeIndex);
     }
   },
+  created() {
+
+  },
   mounted() {
     if (this.$route.matched.length > 0) {
       this.activeIndex = this.$route.matched[0].path;
     }
-    let license = localStorage.getItem(LicenseKey);
-    if (license != "valid") {
-      this.isReport = false;
-    } else {
-      if (module.default) {
-        module.default.listModules(this);
+
+    axios.get('/license/valid').then(response => {
+      validateAndSetLicense(response.data.data); // 在调用 listModules 之前删除校验失败的 license, axios 失败不弹框
+      if (!hasLicense()) {
+        this.isReport = false;
+      } else {
+        if (module.default) {
+          module.default.listModules(this);
+        }
       }
-    }
+    }).catch(error => {
+      window.console.error(error.response || error.message);
+    });
 
     this.registerEvents();
   },

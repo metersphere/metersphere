@@ -1087,7 +1087,7 @@ public class TestPlanService {
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    TestPlanScheduleReportInfoDTO genTestPlanReport(String projectID, String planId, String userId, String triggerMode){
+    TestPlanScheduleReportInfoDTO genTestPlanReport(String projectID, String planId, String userId, String triggerMode) {
         TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, planId, userId, triggerMode);
         return reportInfoDTO;
     }
@@ -1181,14 +1181,14 @@ public class TestPlanService {
             } catch (Exception e) {
                 LogUtil.error(e);
             }
-            performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(),reportId);
+            performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(), reportId);
             if (StringUtils.isNotEmpty(reportId)) {
                 executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.RUNNING.name());
             } else {
                 executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.PREPARE.name());
             }
         }
-        TestPlanReportExecuteCatch.updateTestPlanThreadInfo(planReportId,null,null,performaneThreadIDMap);
+        TestPlanReportExecuteCatch.updateTestPlanThreadInfo(planReportId, null, null, performaneThreadIDMap);
         if (!performaneReportIDMap.isEmpty()) {
             //性能测试时保存性能测试报告ID，在结果返回时用于捕捉并进行
             testPlanReportService.updatePerformanceInfo(testPlanReport, performaneReportIDMap, triggerMode);
@@ -1205,7 +1205,7 @@ public class TestPlanService {
         testPlanLog.info("ReportId[" + planReportId + "] start run. TestPlanID:[" + testPlanID + "].  Execute api :" + JSONObject.toJSONString(executeApiCaseIdMap) + "; Execute scenario:" + JSONObject.toJSONString(executeScenarioCaseIdMap) + "; Execute performance:" + JSONObject.toJSONString(executePerformanceIdMap));
         TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(planReportId, executeApiCaseIdMap, executeScenarioCaseIdMap, executePerformanceIdMap);
         //执行接口案例任务
-        this.executeApiTestCase(triggerMode, planReportId, new ArrayList<>(planApiCaseMap.keySet()), runModeConfig);
+        this.executeApiTestCase(triggerMode, planReportId, userId, new ArrayList<>(planApiCaseMap.keySet()), runModeConfig);
         //执行场景执行任务
         this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, planScenarioIdsMap);
         this.listenTaskExecuteStatus(planReportId);
@@ -1227,11 +1227,9 @@ public class TestPlanService {
         });
     }
 
-    private void executeApiTestCase(String triggerMode, String planReportId, List<String> planCaseIds, RunModeConfig runModeConfig) {
+    private void executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfig runModeConfig) {
         executorService.submit(() -> {
             BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
-//            List<String> planIdList = new ArrayList<>(1);
-//            planIdList.add(testPlanId);
             if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
                 request.setTriggerMode(ApiRunMode.JENKINS_API_PLAN.name());
             } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
@@ -1239,10 +1237,10 @@ public class TestPlanService {
             } else {
                 request.setTriggerMode(ApiRunMode.SCHEDULE_API_PLAN.name());
             }
-
             request.setPlanIds(planCaseIds);
             request.setPlanReportId(planReportId);
             request.setConfig(runModeConfig);
+            request.setUserId(userId);
             testPlanApiCaseService.run(request);
         });
     }
@@ -1502,7 +1500,7 @@ public class TestPlanService {
                 continue;
             }
             if ((StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isBlank(env))
-                || StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isBlank(envGroupId)) {
+                    || StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isBlank(envGroupId)) {
                 continue;
             }
             Map<String, String> map = new HashMap<>();
@@ -1746,7 +1744,7 @@ public class TestPlanService {
         }
     }
 
-    public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo,boolean isFinish) {
+    public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo, boolean isFinish) {
         if (MapUtils.isEmpty(executeInfo.getApiCaseExecInfo()) && MapUtils.isEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
             return;
         }
@@ -1756,12 +1754,12 @@ public class TestPlanService {
             if (checkReportConfig(config, "api", "all")) {
                 if (MapUtils.isNotEmpty(executeInfo.getApiCaseExecInfo())) {
                     // 接口
-                    apiAllCases = testPlanApiCaseService.getByApiExecReportIds(executeInfo.getApiCaseExecuteThreadMap(),isFinish);
+                    apiAllCases = testPlanApiCaseService.getByApiExecReportIds(executeInfo.getApiCaseExecuteThreadMap(), isFinish);
                     report.setApiAllCases(apiAllCases);
                 }
                 if (MapUtils.isNotEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
                     //场景
-                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioThreadMap(),isFinish);
+                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioThreadMap(), isFinish);
                     report.setScenarioAllCases(scenarioAllCases);
                 }
             }

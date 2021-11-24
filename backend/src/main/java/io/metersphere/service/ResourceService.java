@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 
 @Service
@@ -18,14 +20,20 @@ import java.util.Date;
 public class ResourceService {
 
     public void mdUpload(MdUploadRequest request, MultipartFile file) {
-        FileUtils.uploadFile(file, FileUtils.MD_IMAGE_DIR, request.getId() + "_" + file.getOriginalFilename());
+        FileUtils.uploadFile(file, FileUtils.MD_IMAGE_DIR, request.getId() + "_" + request.getFileName());
     }
 
     public ResponseEntity<FileSystemResource> getMdImage(String name) {
         File file = new File(FileUtils.MD_IMAGE_DIR + "/" + name);
         HttpHeaders headers = new HttpHeaders();
+        String fileName = "";
+        try {
+            fileName = URLEncoder.encode(file.getName(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Content-Disposition", "attachment; filename=" + file.getName());
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
         headers.add("Last-Modified", new Date().toString());

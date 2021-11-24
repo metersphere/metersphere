@@ -80,7 +80,8 @@ public class TestPlanLoadCaseService {
 
     public List<TestPlanLoadCaseDTO> list(LoadCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        return extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(request);
+        List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList = extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(request);
+        return testPlanLoadCaseDTOList;
     }
 
     public List<String> selectTestPlanLoadCaseIds(LoadCaseRequest request) {
@@ -155,7 +156,7 @@ public class TestPlanLoadCaseService {
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
                 serialRun(request);
             } else {
-                ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(),new NamedThreadFactory("TestPlanLoadCaseService"));
+                ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(), new NamedThreadFactory("TestPlanLoadCaseService"));
                 request.getRequests().forEach(item -> {
                     executorService.submit(new ParallelExecTask(performanceTestService, testPlanLoadCaseMapper, item));
                 });
@@ -170,7 +171,7 @@ public class TestPlanLoadCaseService {
     }
 
     private void serialRun(RunBatchTestPlanRequest request) throws Exception {
-        ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(),new NamedThreadFactory("TestPlanLoadCaseService-serial"));
+        ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(), new NamedThreadFactory("TestPlanLoadCaseService-serial"));
         for (RunTestPlanRequest runTestPlanRequest : request.getRequests()) {
             Future<LoadTestReportWithBLOBs> future = executorService.submit(new SerialExecTask(performanceTestService, testPlanLoadCaseMapper, loadTestReportMapper, runTestPlanRequest, request.getConfig()));
             LoadTestReportWithBLOBs report = future.get();
@@ -378,8 +379,8 @@ public class TestPlanLoadCaseService {
         return buildCases(cases);
     }
 
-    public List<TestPlanLoadCaseDTO> getAllCases(Collection<String> ids,String planId,String status) {
-        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCasesByIds(ids,planId, status);
+    public List<TestPlanLoadCaseDTO> getAllCases(Collection<String> ids, String planId, String status) {
+        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCasesByIds(ids, planId, status);
         return buildCases(cases);
     }
 
@@ -438,6 +439,7 @@ public class TestPlanLoadCaseService {
 
     /**
      * 用例自定义排序
+     *
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {
@@ -450,7 +452,7 @@ public class TestPlanLoadCaseService {
 
     public void checkStatusByDeleteLoadCaseReportId(String reportId) {
         List<String> updatedId = extTestPlanLoadCaseMapper.selectIdByLoadCaseReportIdAndStatusIsRun(reportId);
-        if(CollectionUtils.isNotEmpty(updatedId)){
+        if (CollectionUtils.isNotEmpty(updatedId)) {
             for (String id : updatedId) {
                 extTestPlanLoadCaseMapper.updateStatusNullById(id);
             }

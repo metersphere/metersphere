@@ -229,10 +229,6 @@ export default {
 
 <style scoped>
 
-.ms-main-container {
-  height: calc(100vh - 132px);
-}
-
 .el-card {
   /*width: 95% !important;*/
   padding: 15px;

@@ -84,14 +84,14 @@ public class MsJDBCSampler extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
+        if (config != null && !config.isOperating() && !this.isEnable()) {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.setRefElement();
             hashTree = this.getHashTree();
         }
-        if (config.getConfig() == null) {
+        if (config != null && config.getConfig() == null) {
             // 单独接口执行
             this.setProjectId(config.getProjectId());
             config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(useEnvironment) ? useEnvironment : environmentId, this.getProjectId(), this.isMockEnvironment()));
@@ -100,7 +100,7 @@ public class MsJDBCSampler extends MsTestElement {
         // 数据兼容处理
         if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
             // 1.8 之后 当前正常数据
-        } else if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
+        } else if ( config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
             // 1.8 前后 混合数据
             this.setProjectId(getParentProjectId());
         } else {
@@ -153,60 +153,78 @@ public class MsJDBCSampler extends MsTestElement {
             tree.add(arguments);
         }
 
-        MsJSR223PreProcessor preProcessor = null;
-        MsJSR223PostProcessor postProcessor = null;
-        GlobalScriptConfig globalScriptConfig = null;
-        if(envConfig != null){
-            preProcessor = envConfig.getPreProcessor();
-            postProcessor = envConfig.getPostProcessor();
-            globalScriptConfig = envConfig.getGlobalScriptConfig();
-        }
-        boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
-        boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
-        boolean globalPreScriptIsFilter = false;
-        boolean globalPostScriptIsFilter = false;
-        List<String> preFilterProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
-        List<String> postFilterProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
-        if(preFilterProtocal.contains(GlobalScriptFilterRequest.JDBC.name())){
-            globalPreScriptIsFilter = true;
-        }
-        if(postFilterProtocal.contains(GlobalScriptFilterRequest.JDBC.name())){
-            globalPostScriptIsFilter = true;
+        // 环境通用请求头
+        Arguments envArguments = getConfigArguments(config);
+        if (envArguments != null) {
+            tree.add(envArguments);
         }
 
-        if(!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter){
-            this.addItemHashTree(preProcessor,samplerHashTree,config);
-        }
-        if(!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter){
-            this.addItemHashTree(postProcessor,samplerHashTree,config);
-        }
+        MsJSR223PreProcessor preProcessor = envConfig != null ? envConfig.getPreProcessor() : null;
+        MsJSR223PostProcessor postProcessor = envConfig != null ? envConfig.getPostProcessor() : null;
+        GlobalScriptConfig globalScriptConfig = envConfig != null ? envConfig.getGlobalScriptConfig() : null;
+        if (globalScriptConfig != null) {
+            boolean isPreScriptExecAfterPrivateScript = globalScriptConfig.isPreScriptExecAfterPrivateScript();
+            boolean isPostScriptExecAfterPrivateScript = globalScriptConfig.isPostScriptExecAfterPrivateScript();
+            List<String> preFilters = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
+            List<String> postFilters = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
+            boolean globalPreScriptIsFilter = preFilters.contains(GlobalScriptFilterRequest.JDBC.name());
+            boolean globalPostScriptIsFilter = postFilters.contains(GlobalScriptFilterRequest.JDBC.name());
 
+            if (!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter) {
+                this.addItemHashTree(preProcessor, samplerHashTree, config);
+            }
+            if (!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter) {
+                this.addItemHashTree(postProcessor, samplerHashTree, config);
+            }
+
+            if (isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter) {
+                this.addItemHashTree(preProcessor, samplerHashTree, config);
+            }
+            if (isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter) {
+                this.addItemHashTree(postProcessor, samplerHashTree, config);
+            }
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }
 
-        if(isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter){
-            this.addItemHashTree(preProcessor,samplerHashTree,config);
-        }
-        if(isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter){
-            this.addItemHashTree(postProcessor,samplerHashTree,config);
-        }
-
     }
 
-    private void addItemHashTree(MsTestElement element, HashTree samplerHashTree,ParameterConfig config){
-        if(element != null){
-            if (element.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    element.setEnvironmentId(useEnvironment);
-                } else {
-                    element.setEnvironmentId(this.getEnvironmentId());
-                }
+    private void addItemHashTree(MsTestElement element, HashTree samplerHashTree, ParameterConfig config) {
+        if (element != null && element.getEnvironmentId() == null) {
+            if (this.getEnvironmentId() == null) {
+                element.setEnvironmentId(useEnvironment);
+            } else {
+                element.setEnvironmentId(this.getEnvironmentId());
             }
             element.toHashTree(samplerHashTree, element.getHashTree(), config);
         }
+    }
+
+    /**
+     * 环境通用变量
+     */
+    private Arguments getConfigArguments(ParameterConfig config) {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+        // 环境通用变量
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+            // 清空变量，防止重复添加
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
+        }
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
     }
 
     private boolean isDataSource(List<DatabaseConfig> databaseConfigs) {

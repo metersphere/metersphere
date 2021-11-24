@@ -40,6 +40,9 @@
     created() {
       if (this.schema.mock && Object.prototype.toString.call(this.schema.mock).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
         this.mock = this.schema.mock;
+        if(typeof(this.mock.mock) === 'number'){
+          this.mock.mock = this.mock.mock+"";
+        }
       } else {
         this.schema.mock = this.mock;
       }

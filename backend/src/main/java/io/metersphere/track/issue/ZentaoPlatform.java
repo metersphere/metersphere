@@ -172,6 +172,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
             // 用例与第三方缺陷平台中的缺陷关联
             handleTestCaseIssues(issuesRequest);
+        } else {
+            MSException.throwException("请确认该Zentao账号是否开启超级modle调用接口权限");
         }
         return issues;
     }
@@ -235,7 +237,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public void userAuth(UserDTO.PlatformInfo userInfo) {
-        setUserConfig();
+        setUserConfig(userInfo);
         zentaoClient.login();
     }
 

@@ -57,7 +57,7 @@
 
       </el-table>
     </el-card>
-    <el-dialog :title="$t('commons.import')" :visible.sync="dialogVisible" @close="close">
+    <el-dialog :title="$t('commons.import')" :visible.sync="dialogVisible" @close="close" destroy-on-close>
       <ms-jar-config @close="close"/>
     </el-dialog>
     <ms-script-view ref="scriptView"/>

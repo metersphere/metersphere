@@ -152,6 +152,10 @@ export function saveLicense(data) {
   localStorage.setItem(LicenseKey, data);
 }
 
+export function removeLicense() {
+  localStorage.removeItem(LicenseKey);
+}
+
 export function jsonToMap(jsonStr) {
   let obj = JSON.parse(jsonStr);
   let strMap = new Map();
