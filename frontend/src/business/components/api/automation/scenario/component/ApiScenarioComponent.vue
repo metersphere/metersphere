@@ -28,7 +28,7 @@
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-      <span class="ms-tag">{{ getProjectName(scenario.projectId) }}</span>
+      <span class="ms-tag ms-step-name-api">{{ getProjectName(scenario.projectId) }}</span>
     </template>
     <template v-slot:debugStepCode>
        <span v-if="node.data.testing" class="ms-test-running">
@@ -275,6 +275,10 @@ export default {
 
 .icon.is-active {
   transform: rotate(90deg);
+}
+
+.ms-step-name-api {
+  padding-left: 10px;
 }
 
 .ms-tag {
