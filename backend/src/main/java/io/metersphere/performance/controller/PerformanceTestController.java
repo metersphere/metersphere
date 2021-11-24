@@ -20,6 +20,7 @@ import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
+import io.metersphere.performance.dto.LoadModuleDTO;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.request.*;
 import io.metersphere.performance.service.PerformanceTestService;
@@ -249,7 +250,12 @@ public class PerformanceTestController {
     }
 
     @PostMapping("test/update/follows/{testId}")
-    public void saveFollows(@PathVariable String testId,@RequestBody List<String> follows) {
-        performanceTestService.saveFollows(testId,follows);
+    public void saveFollows(@PathVariable String testId, @RequestBody List<String> follows) {
+        performanceTestService.saveFollows(testId, follows);
+    }
+
+    @GetMapping("module/list/plan/{planId}")
+    public List<LoadModuleDTO> getNodeByPlanId(@PathVariable String planId) {
+        return performanceTestService.getNodeByPlanId(planId);
     }
 }
