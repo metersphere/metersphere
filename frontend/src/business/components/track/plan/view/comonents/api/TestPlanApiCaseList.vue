@@ -542,6 +542,8 @@ export default {
           let dataRows = response.data;
           let map = new Map();
           param.projectEnvMap = strMapToObj(form.projectEnvMap);
+          param.environmentType = form.environmentType;
+          param.environmentGroupId = form.envGroupId;
           dataRows.forEach(row => {
             map[row.id] = row.projectId;
           });
