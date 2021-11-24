@@ -22,6 +22,7 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.api.service.task.NamedThreadFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -190,6 +191,10 @@ public class TestPlanService {
     private TestPlanFollowMapper testPlanFollowMapper;
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private LoadTestMapper loadTestMapper;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20, new NamedThreadFactory("TestPlanService"));
 
@@ -581,6 +586,8 @@ public class TestPlanService {
 
                     for (TestCaseTest l : list) {
                         if (StringUtils.equals(l.getTestType(), TestCaseStatus.performance.name())) {
+                            String id = l.getTestId();
+                            LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(id);
                             TestPlanLoadCaseWithBLOBs t = new TestPlanLoadCaseWithBLOBs();
                             t.setId(UUID.randomUUID().toString());
                             t.setTestPlanId(request.getPlanId());
@@ -588,6 +595,11 @@ public class TestPlanService {
                             t.setCreateTime(System.currentTimeMillis());
                             t.setUpdateTime(System.currentTimeMillis());
                             t.setOrder(nextLoadOrder);
+                            if (loadTest != null) {
+                                t.setTestResourcePoolId(loadTest.getTestResourcePoolId());
+                                t.setLoadConfiguration(loadTest.getLoadConfiguration());
+                                t.setAdvancedConfiguration(loadTest.getAdvancedConfiguration());
+                            }
                             nextLoadOrder += 5000;
                             TestPlanLoadCaseExample testPlanLoadCaseExample = new TestPlanLoadCaseExample();
                             testPlanLoadCaseExample.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andLoadCaseIdEqualTo(t.getLoadCaseId());
@@ -600,11 +612,13 @@ public class TestPlanService {
                             TestPlanApiCase t = new TestPlanApiCase();
                             ApiTestCaseWithBLOBs apitest = apiTestCaseMapper.selectByPrimaryKey(l.getTestId());
                             if (null != apitest) {
-                                ApiDefinitionWithBLOBs apidefinition = apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
                                 t.setId(UUID.randomUUID().toString());
                                 t.setTestPlanId(request.getPlanId());
                                 t.setApiCaseId(l.getTestId());
-                                t.setEnvironmentId(apidefinition.getEnvironmentId());
+                                ApiTestEnvironment apiCaseEnvironment = apiTestCaseService.getApiCaseEnvironment(l.getTestId());
+                                if (apiCaseEnvironment != null && StringUtils.isNotBlank(apiCaseEnvironment.getId())) {
+                                    t.setEnvironmentId(apiCaseEnvironment.getId());
+                                }
                                 t.setCreateTime(System.currentTimeMillis());
                                 t.setUpdateTime(System.currentTimeMillis());
                                 t.setOrder(nextApiOrder);
@@ -631,6 +645,9 @@ public class TestPlanService {
                                 t.setCreateTime(System.currentTimeMillis());
                                 t.setUpdateTime(System.currentTimeMillis());
                                 t.setOrder(nextScenarioOrder);
+                                t.setEnvironmentType(testPlanApiScenario.getEnvironmentType());
+                                t.setEnvironment(testPlanApiScenario.getEnvironmentJson());
+                                t.setEnvironmentGroupId(testPlanApiScenario.getEnvironmentGroupId());
                                 nextScenarioOrder += 5000;
                                 TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
                                 example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
