@@ -73,9 +73,9 @@ public class ApiJmeterFileService {
             }
         }
         HashTree hashTree;
-        if (ApiRunMode.DEFINITION.name().equals(runMode) || ApiRunMode.API_PLAN.name().equals(runMode) || ApiRunMode.MANUAL_PLAN.name().equals(runMode)) {
+        if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             String testId = remoteTestId;
-            if(remoteTestId.contains(":")){
+            if (remoteTestId.contains(":")) {
                 //执行测试计划案例时会有拼接ID,ID为 planTestCaseId:测试计划报告ID
                 testId = remoteTestId.split(":")[0];
             }
