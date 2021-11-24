@@ -1,5 +1,5 @@
 <template>
-  <el-form label-position="right" label-width="160px" size="small">
+  <el-form label-position="right" label-width="175px" size="small">
     <el-form-item :label="$t('project.azureDevops_info')">
       <ms-instructions-icon size="10" :content="$t('project.azureDevops_tip')"/>
     </el-form-item>
