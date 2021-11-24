@@ -175,7 +175,6 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     protected void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
-        if (!issuesRequest.isWithCaseId()) return;
         String issuesId = issuesRequest.getId();
         if (StringUtils.isNotBlank(issuesRequest.getTestCaseId())) {
             insertTestCaseIssues(issuesId, issuesRequest.getTestCaseId());
