@@ -1155,12 +1155,17 @@ public class TestPlanReportService {
         if (StringUtils.isNotBlank(testPlanReportContent.getScenarioAllCases())) {
             List<TestPlanFailureScenarioDTO> allCases = JSONObject.parseArray(testPlanReportContent.getScenarioAllCases(), TestPlanFailureScenarioDTO.class);
             for (TestPlanFailureScenarioDTO dto : allCases) {
-                if (StringUtils.equalsIgnoreCase(dto.getLastResult(), "Underway")) {
+                if (StringUtils.equalsAnyIgnoreCase("Underway",dto.getStatus(), dto.getLastResult())) {
                     isUpdate = true;
                     ApiScenarioReport apiReport = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
                     if (apiReport != null) {
                         dto.setLastResult(apiReport.getStatus());
+                        dto.setStatus(apiReport.getStatus());
                     }
+                }else if (StringUtils.equalsAnyIgnoreCase("Error",dto.getStatus(), dto.getLastResult())) {
+                    isUpdate = true;
+                    dto.setLastResult("Fail");
+                    dto.setStatus("Fail");
                 }
             }
             testPlanReportContent.setScenarioAllCases(JSONArray.toJSONString(allCases));
