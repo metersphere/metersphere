@@ -117,6 +117,7 @@ export default {
               this.fileList = [];
             });
           } else {
+            this.fileList = [];
             return false;
           }
         }
