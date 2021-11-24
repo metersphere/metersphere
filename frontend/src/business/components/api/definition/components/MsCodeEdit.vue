@@ -1,5 +1,5 @@
 <template>
-  <editor v-model="formatData" :lang="mode" @init="editorInit" :theme="theme" :height="height"/>
+  <editor v-model="formatData" :lang="mode" @init="editorInit" :theme="theme" :height="height" :key="readOnly"/>
 </template>
 
 <script>
