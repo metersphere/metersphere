@@ -231,6 +231,7 @@
         <el-row>
           <el-col :span="24">
             <ms-chart ref="chart2"
+                      v-if="refresh"
                       class="chart-config"
                       :options="totalOption"
                       @datazoom="changeDataZoom"
@@ -240,47 +241,47 @@
         <el-row>
           <el-col :offset="2" :span="20">
             <el-table
-              :data="tableData"
-              stripe
-              border
-              style="width: 100%">
+                :data="tableData"
+                stripe
+                border
+                style="width: 100%">
               <el-table-column label="Label" align="center">
                 <el-table-column
-                  prop="label"
-                  label="Label"
-                  sortable>
+                    prop="label"
+                    label="Label"
+                    sortable>
                 </el-table-column>
               </el-table-column>
               <el-table-column label="Aggregate" align="center">
                 <el-table-column
-                  prop="avg"
-                  label="Avg."
-                  width="100"
-                  sortable
+                    prop="avg"
+                    label="Avg."
+                    width="100"
+                    sortable
                 />
                 <el-table-column
-                  prop="min"
-                  label="Min."
-                  width="100"
-                  sortable
+                    prop="min"
+                    label="Min."
+                    width="100"
+                    sortable
                 />
                 <el-table-column
-                  prop="max"
-                  label="Max."
-                  width="100"
-                  sortable
+                    prop="max"
+                    label="Max."
+                    width="100"
+                    sortable
                 />
               </el-table-column>
               <el-table-column label="Range" align="center">
                 <el-table-column
-                  prop="startTime"
-                  label="Start"
-                  width="160"
+                    prop="startTime"
+                    label="Start"
+                    width="160"
                 />
                 <el-table-column
-                  prop="endTime"
-                  label="End"
-                  width="160"
+                    prop="endTime"
+                    label="End"
+                    width="160"
                 />
               </el-table-column>
             </el-table>
@@ -293,10 +294,7 @@
 
 <script>
 import MsChart from "@/business/components/common/chart/MsChart";
-import {
-  getPerformanceReportDetailContent,
-  getSharePerformanceReportDetailContent,
-} from "@/network/load-test";
+import {getPerformanceReportDetailContent, getSharePerformanceReportDetailContent,} from "@/network/load-test";
 
 const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
 
@@ -341,6 +339,7 @@ export default {
         label: 'label'
       },
       init: false,
+      refresh: true,
       tableData: [],
       baseOption: {
         color: color,
@@ -438,20 +437,15 @@ export default {
       }
     },
     handleChecked(name) {
-      // let minus = this.checkOptions[name].filter((v) => {
-      //   return this.checkList[name].indexOf(v) === -1;
-      // })
-      // let groupName = this.$t('load_test.report.' + name) + ': ';
-      // for (const m of minus) {
-      //   this.chartData = this.chartData.filter(c => c.groupName !== groupName + m);
-      // }
-      // this.totalOption = this.generateOption(this.baseOption, this.chartData);
-      // this.getChart(name, this.checkList[name]);
+
       this.getTotalChart();
+
+      this.refresh = false;
+      this.$nextTick(() => {
+        this.refresh = true;
+      });
     },
     initTableData() {
-      // this.init = true;
-
       for (const name of CHART_MAP) {
         this.getCheckOptions(name);
       }
@@ -462,7 +456,7 @@ export default {
       if (this.planReportTemplate) {
         let data = this.planReportTemplate.checkOptions[reportKey];
         this.handleGetCheckOptions(data, reportKey);
-      } else if (this.isShare){
+      } else if (this.isShare) {
         return getSharePerformanceReportDetailContent(this.shareId, reportKey, this.id).then(res => {
           this.handleGetCheckOptions(res.data.data, reportKey);
         });
@@ -493,7 +487,7 @@ export default {
         let chars = [];
         for (let name in this.checkList) {
           let data = this.planReportTemplate.checkOptions[name];
-          chars.push({data, 'reportKey' : name});
+          chars.push({data, 'reportKey': name});
         }
         this.handleGetTotalChart(chars);
       } else {
@@ -544,7 +538,7 @@ export default {
         return;
       }
       this.totalOption = {};
-      if (this.isShare){
+      if (this.isShare) {
         return getSharePerformanceReportDetailContent(this.shareId, reportKey, this.id).then(res => {
           return this.handleGetChart(res.data.data, reportKey, checkList);
         });
@@ -593,28 +587,6 @@ export default {
         item.groupName = this.$t('load_test.report.' + reportKey) + ': ' + item.groupName;
       });
       return {data, reportKey};
-      // if (this.baseOption.yAxis.length === 0) {
-      //   this.baseOption.yAxis.push({
-      //     name: this.$t('load_test.report.' + reportKey),
-      //     type: 'value',
-      //     min: 0,
-      //     position: 'left',
-      //     boundaryGap: [0, '100%']
-      //   });
-      // } else {
-      //   this.baseOption.yAxis.push({
-      //     name: this.$t('load_test.report.' + reportKey),
-      //     type: 'value',
-      //     min: 0,
-      //     position: 'right',
-      //     nameRotate: 20,
-      //     offset: (this.baseOption.yAxis.length - 1) * 50,
-      //     boundaryGap: [0, '100%']
-      //   });
-      //   this.baseOption.grid.right = (this.baseOption.yAxis.length - 1) * 5 + '%';
-      // }
-      // let yAxisIndex = this.baseOption.yAxis.length - 1;
-      // this.totalOption = this.generateOption(this.baseOption, data, yAxisIndex);
     },
     generateOption(option, data, yAxisIndex) {
       let chartData = data;
