@@ -73,6 +73,8 @@ alter table test_plan_api_scenario
 alter table test_plan_api_scenario
     add environment_group_id varchar(50) null comment '场景使用的环境组ID';
 
+update test_plan_api_scenario set test_plan_api_scenario.environment_type = 'JSON' where test_plan_api_scenario.environment_type is null;
+
 CREATE TABLE `environment_group`
 (
     `id`           varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT '环境组id',
