@@ -1778,6 +1778,10 @@ export default {
       api_case: "接口測試用例",
       scenario_case: "場景測試用例",
       execute_result: "執行結果",
+      test_plan_test_case_count: "功能用例數",
+      test_plan_api_case_count: "接口用例數",
+      test_plan_api_scenario_count: "場景用例數",
+      test_plan_load_case_count: "性能用例數",
       load_case: {
         case: "性能用例",
         execution_status: "執行狀態",
