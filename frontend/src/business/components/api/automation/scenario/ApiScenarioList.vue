@@ -52,7 +52,6 @@
                            :fields-width="fieldsWidth"
                            min-width="120px">
             <template slot-scope="scope">
-              <!--<span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>-->
               <el-tooltip content="编辑">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
@@ -66,7 +65,6 @@
             :fields-width="fieldsWidth"
             min-width="120px">
             <template slot-scope="scope">
-              <!--<span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.customNum }} </span>-->
               <el-tooltip content="编辑">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.customNum }} </a>
               </el-tooltip>
@@ -537,14 +535,6 @@ export default {
     };
   },
   created() {
-    // if (!hasLicense()) {
-    //   for (let i = 0; i < this.unTrashButtons.length; i++) {
-    //     if (this.unTrashButtons[i].handleClick === this.generateGraph) {
-    //       this.unTrashButtons.splice(i,1);
-    //       break;
-    //     }
-    //   }
-    // }
     scenario.$on('hide', id => {
       this.hideStopBtn(id);
     });
