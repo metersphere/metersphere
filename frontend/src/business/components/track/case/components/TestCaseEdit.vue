@@ -457,6 +457,7 @@ export default {
       if (!this.form.remark) {
         this.form.remark = "";
       }
+      this.$store.state.testCaseMap.set(this.form.id, 0);
     },
     handleCommand(e) {
       if (e === "ADD_AND_CREATE") {
@@ -498,7 +499,10 @@ export default {
     },
     reload() {
       this.isStepTableAlive = false;
-      this.$nextTick(() => (this.isStepTableAlive = true));
+      this.$nextTick(() => {
+        this.isStepTableAlive = true;
+        this.$store.state.testCaseMap.set(this.form.id, 0);
+      });
     },
     reloadForm() {
       this.isFormAlive = false;
@@ -606,7 +610,6 @@ export default {
           this.showInputTag = true;
         });
       });
-      this.$store.state.testCaseMap.set(this.form.id, 0);
     },
     async setFormData(testCase) {
       try {
@@ -635,7 +638,6 @@ export default {
       this.setDefaultValue();
       // 重新渲染，显示自定义字段的必填校验
       this.reloadForm();
-      this.$store.state.testCaseMap.set(this.form.id, 0);
     },
     setTestCaseExtInfo(testCase) {
       this.testCase = {};
@@ -692,7 +694,6 @@ export default {
             callback(this);
           }
           // 保存用例后刷新附件
-          this.$refs.otherInfo.getFileMetaData(this.form.id);
         });
       }
     },
