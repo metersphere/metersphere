@@ -502,9 +502,13 @@ export default {
         let url = "/api/definition/report/get/" + apiCase.lastResultId;
         this.$get(url, response => {
           if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.response = data;
-            this.resVisible = true;
+            try {
+              let data = JSON.parse(response.data.content);
+              this.response = data;
+              this.resVisible = true;
+            } catch (error) {
+              this.resVisible = true;
+            }
           }
         });
       }
@@ -653,9 +657,9 @@ export default {
       } else if (this.selectDataRange != null) {
         let selectParamArr = this.selectDataRange.split(":");
         if (selectParamArr.length === 2) {
-          if(selectParamArr[0] === "single") {
+          if (selectParamArr[0] === "single") {
             this.condition.id = selectParamArr[1];
-          }else {
+          } else {
             this.condition.apiDefinitionId = selectParamArr[1];
           }
         }

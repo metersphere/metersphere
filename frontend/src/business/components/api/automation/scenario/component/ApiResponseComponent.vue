@@ -36,7 +36,6 @@ export default {
       this.getExecResult();
     } else {
       this.response = this.result;
-      // this.isActive = true;
     }
     if(this.apiActive){
       this.isActive = false
@@ -62,10 +61,14 @@ export default {
         let url = "/api/definition/report/getReport/" + this.apiItem.id;
         this.$get(url, response => {
           if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.response = data;
-            this.$set(this.apiItem, 'responseData', data);
-            this.isActive = true;
+            try {
+              let data = JSON.parse(response.data.content);
+              this.response = data;
+              this.$set(this.apiItem, 'responseData', data);
+              this.isActive = true;
+            }catch (error){
+              this.isActive = true;
+            }
           }
         });
       }
