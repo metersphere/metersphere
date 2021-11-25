@@ -121,10 +121,8 @@ public class MsScenario extends MsTestElement {
                                 });
                         this.setHeaders(headers);
                     }
-                    if (element.get("environmentMap") != null) {
-                        this.setEnvironmentMap((Map) element.get("environmentMap"));
-                    }
                     this.setHashTree(sourceHashTree);
+                    hashTree = sourceHashTree;
                 }
 
             } catch (Exception ex) {
