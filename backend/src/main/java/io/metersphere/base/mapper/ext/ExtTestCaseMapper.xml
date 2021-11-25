@@ -214,21 +214,14 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="listByMethod" resultType="io.metersphere.track.dto.TestCaseDTO">
-        SELECT id,name,project_id,"api" as type from api_test
-        <where>
-            <if test="request.projectId!=null">
-                and project_id=#{request.projectId}
-            </if>
-        </where>
-        UNION ALL
-        select id,name,project_id,"perform" as type from load_test
+        select id,name,project_id,'性能测试' as type from load_test
         <where>
             <if test="request.projectId!=null">
                 and project_id= #{request.projectId}
             </if>
         </where>
         UNION ALL
-        select id,name,project_id,"scenario" as type from api_scenario
+        select id,name,project_id,'接口场景' as type from api_scenario
 
         <where>
             <if test="request.projectId!=null">
@@ -237,7 +230,7 @@
         </where>
         and api_scenario.status!='Trash'
         UNION ALL
-        select b.id,b.name,b.project_id,"definition" as type from api_test_case b
+        select b.id,b.name,b.project_id,'接口用例' as type from api_test_case b
         inner join
         api_definition a
         on
