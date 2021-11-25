@@ -295,7 +295,7 @@ export default {
     handleTabClose() {
       let message = "";
       this.tabs.forEach(t => {
-        if (t && this.$store.state.testCaseMap.has(t.testCaseInfo.id) && this.$store.state.testCaseMap.get(t.testCaseInfo.id) > 2) {
+        if (t && this.$store.state.testCaseMap.has(t.testCaseInfo.id) && this.$store.state.testCaseMap.get(t.testCaseInfo.id) > 1) {
           message += t.testCaseInfo.name + "，";
         }
       })
@@ -320,7 +320,7 @@ export default {
     },
     closeConfirm(targetName) {
       let t = this.tabs.filter(tab => tab.name === targetName);
-      if (t && this.$store.state.testCaseMap.has(t[0].testCaseInfo.id) && this.$store.state.testCaseMap.get(t[0].testCaseInfo.id) > 2) {
+      if (t && this.$store.state.testCaseMap.has(t[0].testCaseInfo.id) && this.$store.state.testCaseMap.get(t[0].testCaseInfo.id) > 1) {
         this.$alert("用例[ " + t[0].testCaseInfo.name + " ]未保存，是否确认关闭？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
