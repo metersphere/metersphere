@@ -800,9 +800,7 @@ public class ApiTestCaseService {
             //通过测试计划id查询环境
             request.setReportId(request.getTestPlanId());
         }
-        if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS.name())) {
-            request.setReportId(request.getEnvironmentId());
-        }
+
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
