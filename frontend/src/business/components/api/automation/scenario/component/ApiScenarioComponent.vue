@@ -133,6 +133,16 @@ export default {
         }
       })
     }
+    if(this.scenario.id && this.scenario.referenced === 'Copy' && !this.scenario.loaded){
+      this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
+        if (response.data) {
+          if(response.data.num){
+            this.scenario.num = response.data.num;
+            this.isShowNum = true;
+          }
+        }
+      })
+    }
   },
   components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
   data() {
