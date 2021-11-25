@@ -2,6 +2,8 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.CustomFieldMapper;
+import io.metersphere.base.mapper.CustomFieldTemplateMapper;
 import io.metersphere.base.mapper.IssueTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtIssueTemplateMapper;
 import io.metersphere.commons.constants.TemplateConstants;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +49,12 @@ public class IssueTemplateService extends TemplateBaseService {
 
     @Resource
     ProjectService projectService;
+
+    @Resource
+    CustomFieldMapper customFieldMapper;
+
+    @Resource
+    CustomFieldTemplateMapper customFieldTemplateMapper;
 
     public String add(UpdateIssueTemplateRequest request) {
         checkExist(request);
@@ -223,12 +232,39 @@ public class IssueTemplateService extends TemplateBaseService {
     }
 
     public String getLogDetails(String id) {
+        List<DetailColumn> columns = new LinkedList<>();
         IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(id);
-        if (templateWithBLOBs != null) {
-            List<DetailColumn> columns = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.issueFieldColumns);
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), null, templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
-            return JSON.toJSONString(details);
+        if(templateWithBLOBs==null){
+            return null;
         }
-        return null;
+        CustomFieldTemplateExample example = new CustomFieldTemplateExample();
+        example.createCriteria().andTemplateIdEqualTo(templateWithBLOBs.getId());
+        example.createCriteria().andSceneEqualTo("ISSUE");
+        List<CustomFieldTemplate> customFieldTemplates = customFieldTemplateMapper.selectByExample(example);
+        return getCustomFieldColums(columns, templateWithBLOBs, customFieldTemplates);
+
+    }
+
+    public String getLogDetails(UpdateIssueTemplateRequest request) {
+        List<DetailColumn> columns = new LinkedList<>();
+        IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(request.getId());
+        if(templateWithBLOBs==null){
+            return null;
+        }
+        List<CustomFieldTemplate> customFields = request.getCustomFields();
+        return getCustomFieldColums(columns, templateWithBLOBs, customFields);
+    }
+
+    private String getCustomFieldColums(List<DetailColumn> columns, IssueTemplate templateWithBLOBs, List<CustomFieldTemplate> customFields) {
+        for (CustomFieldTemplate customFieldTemplate : customFields) {
+            CustomField customField = customFieldMapper.selectByPrimaryKey(customFieldTemplate.getFieldId());
+            customField.setDefaultValue(customFieldTemplate.getDefaultValue());
+            List<DetailColumn> columnsField = ReflexObjectUtil.getColumns(customField, SystemReference.issueFieldColumns);
+            columns.addAll(columnsField);
+        }
+        List<DetailColumn> columnIssues = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.issueFieldColumns);
+        columns.addAll(columnIssues);
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), null, templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
+        return JSON.toJSONString(details);
     }
 }

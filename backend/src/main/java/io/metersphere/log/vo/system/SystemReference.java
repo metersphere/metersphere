@@ -101,6 +101,11 @@ public class SystemReference {
         issueFieldColumns.put("title", "标题");
         issueFieldColumns.put("content", "缺陷内容");
         issueFieldColumns.put("description", "描述");
+        issueFieldColumns.put("scene", "使用场景");
+        issueFieldColumns.put("type", "属性类型");
+        issueFieldColumns.put("system", "系统字段");
+        issueFieldColumns.put("remark", "字段备注");
+        issueFieldColumns.put("defaultValue", "字段值");
 
         projectColumns.put("name", "名称");
         projectColumns.put("description", "描述");

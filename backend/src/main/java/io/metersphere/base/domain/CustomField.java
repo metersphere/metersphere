@@ -30,5 +30,7 @@ public class CustomField implements Serializable {
 
     private String options;
 
+    private String defaultValue;
+
     private static final long serialVersionUID = 1L;
 }
