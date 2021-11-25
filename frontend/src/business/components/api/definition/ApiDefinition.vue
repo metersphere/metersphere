@@ -555,27 +555,29 @@ export default {
       }
     },
     closeConfirm(targetName) {
-      let tabs = this.apiTabs;
-      if(!tabs[1].api) {
-        this.handleTabRemove(targetName);
-      }
-       if (tabs[1].api && this.$store.state.apiMap.size > 0) {
-        if (this.$store.state.apiMap.get(tabs[1].api.id).get("responseChange") === true || this.$store.state.apiMap.get(tabs[1].api.id).get("requestChange") === true ||
-          this.$store.state.apiMap.get(tabs[1].api.id).get("fromChange") === true) {
-          this.$alert("接口[ " + tabs[1].api.name + " ]未保存，是否确认关闭？", '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this.$store.state.apiMap.delete(tabs[1].api.id);
-                this.handleTabRemove(targetName);
-              }
+      let tab = this.apiTabs;
+      tab.forEach(t => {
+        if (t.name === targetName) {
+          if (t.api && this.$store.state.apiMap.size > 0 && this.$store.state.apiMap.has(t.api.id)) {
+            if (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
+              this.$store.state.apiMap.get(t.api.id).get("fromChange") === true) {
+              this.$alert("接口[ " + t.api.name + " ]未保存，是否确认关闭？", '', {
+                confirmButtonText: this.$t('commons.confirm'),
+                cancelButtonText: this.$t('commons.cancel'),
+                callback: (action) => {
+                  if (action === 'confirm') {
+                    this.$store.state.apiMap.delete(t.api.id);
+                    this.handleTabRemove(targetName);
+                  }
+                }
+              });
             }
-          });
+          } else {
+            this.handleTabRemove(targetName);
+          }
         }
-      } else{
-        this.handleTabRemove(targetName);
-      }
+      })
+
 
     },
     handleTabRemove(targetName) {
