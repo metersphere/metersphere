@@ -50,6 +50,15 @@ export function getResource(d) {
   switch (d.resourceType) {
     case "JENKINS_TASK" :
       resourceType = "Jenkins";
+      if (d.operation === 'EXECUTE_SUCCESSFUL') {
+        resourceType = "Jenkins 成功";
+      }
+      if (d.operation === 'EXECUTE_FAILED') {
+        resourceType = "Jenkins 失败";
+      }
+      if (d.operation === 'EXECUTE_COMPLETED') {
+        resourceType = "Jenkins 完成";
+      }
       break;
     case "TEST_PLAN_TASK" :
       resourceType = "测试计划";
@@ -133,7 +142,7 @@ export function getUrl(d) {
       url += "/api/automation?resourceId=" + d.resourceId;
       break;
     case "API_DEFINITION_TASK" :
-      if (d.operation.startsWith('CASE_') || d.operation.startsWith('EXECUTE_') ) {
+      if (d.operation.startsWith('CASE_') || d.operation.startsWith('EXECUTE_')) {
         url += "/api/definition?caseId=" + d.resourceId;
       } else {
         url += "/api/definition?resourceId=" + d.resourceId;
