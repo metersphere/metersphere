@@ -76,7 +76,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
             NoticeModel noticeModel = NoticeModel.builder()
                     .operator(loadTestReport.getUserId())
                     .successContext(successContext)
-                    .successMailTemplate("PerformanceApiSuccessNotification")
+                    .successMailTemplate("PerformanceSuccessNotification")
                     .failedContext(failedContext)
                     .failedMailTemplate("PerformanceFailedNotification")
                     .testId(loadTestReport.getTestId())
