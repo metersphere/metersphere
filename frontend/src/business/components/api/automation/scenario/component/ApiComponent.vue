@@ -447,8 +447,6 @@ export default {
             }
             this.reload();
             this.sort();
-          } else {
-            this.request.referenced = "Deleted";
           }
         })
       }
