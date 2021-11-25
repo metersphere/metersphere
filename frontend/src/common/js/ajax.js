@@ -107,7 +107,7 @@ export function post(url, data, success, failure) {
   }
 }
 
-export function request(axiosRequestConfig, success, failure) {
+export function request(axiosRequestConfig, success, failure, hideError) {
   let result = {loading: true};
   if (!success) {
     return axios.request(axiosRequestConfig);
@@ -115,7 +115,9 @@ export function request(axiosRequestConfig, success, failure) {
     axios.request(axiosRequestConfig).then(response => {
       then(success, response, result);
     }).catch(error => {
-      exception(error, result);
+      if (!hideError) {
+        exception(error, result);
+      }
       if (failure) {
         then(failure, error, result);
       }

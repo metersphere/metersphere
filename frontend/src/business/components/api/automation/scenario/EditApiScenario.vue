@@ -1501,7 +1501,10 @@ export default {
         this.initMessageSocket();
       }
     },
-    errorRefresh() {
+    errorRefresh(error) {
+      if (error && (error + "").indexOf("code 400") !== -1) {
+        this.$warning("步骤内容解析失败，检查是否有已经移除的插件步骤。")
+      }
       this.debug = false;
       this.isTop = false;
       this.debugLoading = false;
