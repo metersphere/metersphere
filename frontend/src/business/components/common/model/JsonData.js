@@ -39,6 +39,10 @@ export const Test_Plan_List = [
   {id: 'executionTimes', label: i18n.t('commons.execution_times')},
   {id: 'passRate', label: i18n.t('commons.pass_rate')},
   {id: 'createUser', label: i18n.t('commons.create_user')},
+  {id: 'testPlanTestCaseCount', label: i18n.t('test_track.plan.test_plan_test_case_count')},
+  {id: 'testPlanApiCaseCount', label: i18n.t('test_track.plan.test_plan_api_case_count')},
+  {id: 'testPlanApiScenarioCount', label: i18n.t('test_track.plan.test_plan_api_scenario_count')},
+  {id: 'testPlanLoadCaseCount', label: i18n.t('test_track.plan.test_plan_load_case_count')}
 ]
 //接口定义-api列表
 export const Api_List = [
