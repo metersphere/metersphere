@@ -37,6 +37,7 @@
   import MsApiScenarioList from "../../../../../api/automation/scenario/ApiScenarioList";
   import MsApiScenarioModule from "../../../../../api/automation/scenario/ApiScenarioModule";
   import RelevanceScenarioList from "./RelevanceScenarioList";
+  import {ENV_TYPE} from "@/common/js/constants";
 
   export default {
     name: "TestCaseScenarioRelevance",
@@ -109,6 +110,17 @@
         let map = this.$refs.apiScenarioList.map;
         let envType = this.$refs.apiScenarioList.environmentType;
         let envGroupId = this.$refs.apiScenarioList.envGroupId;
+        if (!map || map.size < 1) {
+          this.$warning("请选择用例！");
+          return false;
+        }
+        if (envType === ENV_TYPE.JSON && (!envMap || envMap.size < 1)) {
+          this.$warning("请选择环境！");
+          return false;
+        } else if (envType === ENV_TYPE.GROUP && !envGroupId) {
+          this.$warning("请选择环境！");
+          return false;
+        }
         param.planId = this.planId;
         param.mapping = strMapToObj(map);
         param.envMap = strMapToObj(envMap);
