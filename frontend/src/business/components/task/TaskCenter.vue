@@ -360,9 +360,13 @@ export default {
         let url = "/api/definition/report/get/" + reportId;
         this.$get(url, response => {
           if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.response = data;
-            this.visible = true;
+            try {
+              let data = JSON.parse(response.data.content);
+              this.response = data;
+              this.visible = true;
+            } catch (error) {
+              this.visible = true;
+            }
           }
         });
       }
