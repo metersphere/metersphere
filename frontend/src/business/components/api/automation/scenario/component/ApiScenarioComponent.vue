@@ -128,8 +128,6 @@ export default {
           this.scenario.variables = obj.variables;
           this.scenario.environmentMap = obj.environmentMap;
           this.$emit('refReload');
-        } else {
-          this.scenario.referenced = "Deleted";
         }
       })
     }
