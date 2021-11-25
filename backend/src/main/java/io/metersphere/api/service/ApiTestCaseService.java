@@ -801,6 +801,11 @@ public class ApiTestCaseService {
             request.setReportId(request.getTestPlanId());
         }
 
+        if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS.name())) {
+            testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+            request.setReportId(request.getEnvironmentId());
+        }
+
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
