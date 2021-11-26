@@ -124,7 +124,18 @@ export function getUrl(d) {
   let url = "/#";
   switch (d.resourceType) {
     case "JENKINS_TASK" :
-      url += "/track/plan/all";
+      // jenkins 跳转需要特殊处理
+      if (d.content.indexOf("接口用例") > -1) {
+        url += "/api/definition?caseId=" + d.resourceId;
+      } else if (d.content.indexOf("性能测试") > -1) {
+        url += "/performance/report/view/" + d.resourceId;
+      } else if (d.content.indexOf("接口测试") > -1) {
+        url += "/api/automation/report/view/" + d.resourceId;
+      } else if (d.content.indexOf("测试计划") > -1) {
+        url += "/track/plan/view/" + d.resourceId;
+      } else {
+        url += "/track/plan/all";
+      }
       break;
     case "TEST_PLAN_TASK" :
       url += "/track/plan/view/" + d.resourceId;
