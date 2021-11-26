@@ -3,7 +3,7 @@
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :create-tip="btnTips" :condition.sync="condition" :show-create="!readOnly"
-                         @search="search" @create="createEnvironment">
+                         @search="search" @create="createEnvironment" :create-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE_GROUP']">
         </ms-table-header>
       </template>
       <el-table :data="environmentGroupList"
@@ -26,7 +26,7 @@
             </span>
             <span v-else>
               <span>{{ scope.row.name }}</span>
-              <i class="el-icon-edit" style="cursor:pointer;margin-left: 4px;" @click="editName(scope.row)"/>
+              <i class="el-icon-edit" style="cursor:pointer;margin-left: 4px;" @click="editName(scope.row)" v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT_GROUP']"/>
             </span>
           </template>
         </el-table-column>
@@ -38,9 +38,13 @@
         <el-table-column :label="$t('commons.operating')" width="350">
           <template v-slot:default="scope">
             <div v-if="!readOnly">
-              <ms-table-operator @editClick="editEnvironment(scope.row)" @deleteClick="deleteEnvironment(scope.row)">
+              <ms-table-operator @editClick="editEnvironment(scope.row)"
+                                 :edit-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT_GROUP']"
+                                 :delete-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE_GROUP']"
+                                 @deleteClick="deleteEnvironment(scope.row)">
                 <template v-slot:middle>
                   <ms-table-operator-button :tip="$t('commons.copy')" @exec="copyEnvironment(scope.row)"
+                                            v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY_GROUP']"
                                             icon="el-icon-document-copy" type="info"/>
                 </template>
               </ms-table-operator>

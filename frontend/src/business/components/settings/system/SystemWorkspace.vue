@@ -14,7 +14,7 @@
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-link type="primary" class="member-size" @click="cellClick(scope.row)">
+            <el-link type="primary" class="member-size" @click="cellClick(scope.row)" :disabled="disabledEditWorkspaceMember">
               {{ scope.row.memberSize }}
             </el-link>
           </template>
@@ -161,7 +161,7 @@ import MsTableOperator from "../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
-  getCurrentWorkspaceId,
+  getCurrentWorkspaceId, hasPermission,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -400,6 +400,9 @@ export default {
   computed: {
     workspaceId() {
       return getCurrentWorkspaceId();
+    },
+    disabledEditWorkspaceMember() {
+      return !hasPermission('SYSTEM_WORKSPACE:READ+EDIT');
     }
   },
   data() {
