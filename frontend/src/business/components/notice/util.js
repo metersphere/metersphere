@@ -128,7 +128,7 @@ export function getUrl(d) {
       if (d.content.indexOf("接口用例") > -1) {
         url += "/api/definition?caseId=" + d.resourceId;
       } else if (d.content.indexOf("性能测试") > -1) {
-        url += "/performance/report/view/" + d.resourceId;
+        url += "/performance/test/edit/" + d.resourceId;
       } else if (d.content.indexOf("接口测试") > -1) {
         url += "/api/automation/report/view/" + d.resourceId;
       } else if (d.content.indexOf("测试计划") > -1) {
