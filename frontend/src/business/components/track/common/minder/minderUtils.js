@@ -567,10 +567,18 @@ export function openMinderConfirm(vueObj, activeDom) {
 export function saveMinderConfirm(vueObj, isSave) {
   if (isSave) {
     vueObj.$refs.minder.save(window.minder.exportJson());
-  } else {
-    vueObj.$store.commit('setIsTestCaseMinderChanged', false);
   }
+  vueObj.$store.commit('setIsTestCaseMinderChanged', false);
   vueObj.$nextTick(() => {
-    vueObj.activeDom = vueObj.tmpActiveDom;
+    if (vueObj.tmpActiveDom) {
+      vueObj.activeDom = vueObj.tmpActiveDom;
+      vueObj.tmpActiveDom = null;
+    }
+    if (vueObj.tmpPath) {
+      vueObj.$router.push({
+        path: vueObj.tmpPath
+      });
+      vueObj.tmpPath = null;
+    }
   });
 }
