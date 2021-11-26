@@ -22,6 +22,46 @@ export function getUrl(d) {
         break;
       }
       break;
+    case "JDBCSampler":
+      switch (d.refType){
+        case "API":
+          url += "/api/definition?resourceId=" + resourceId;
+          break;
+        case "CASE":
+          url += "/api/definition?caseId=" + d.id;
+          break;
+      }
+      break;
+    case "DebugSampler":
+      switch (d.refType){
+        case "API":
+          url += "/api/definition?resourceId=" + resourceId;
+          break;
+        case "CASE":
+          url += "/api/definition?caseId=" + d.id;
+          break;
+      }
+      break;
+    case "DubboSampler":
+      switch (d.refType){
+        case "API":
+          url += "/api/definition?resourceId=" + resourceId;
+          break;
+        case "CASE":
+          url += "/api/definition?caseId=" + d.id;
+          break;
+      }
+      break;
+    case "TCPSampler":
+      switch (d.refType){
+        case "API":
+          url += "/api/definition?resourceId=" + resourceId;
+          break;
+        case "CASE":
+          url += "/api/definition?caseId=" + d.id;
+          break;
+      }
+      break;
     case "scenario":
       url += "/api/automation?resourceId=" + resourceId;
       break;
