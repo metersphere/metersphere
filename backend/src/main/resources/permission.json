@@ -106,11 +106,6 @@
       "resourceId": "SYSTEM_SETTING"
     },
     {
-      "id": "SYSTEM_SETTING:READ+AUTH_MANAGE",
-      "name": "授权管理",
-      "resourceId": "SYSTEM_SETTING"
-    },
-    {
       "id": "SYSTEM_QUOTA:READ",
       "name": "查询系统配额",
       "resourceId": "SYSTEM_QUOTA"
@@ -202,7 +197,7 @@
     },
     {
       "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ",
-      "name": "查询环境",
+      "name": "查询",
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
     },
     {
@@ -236,6 +231,26 @@
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
     },
     {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE_GROUP",
+      "name": "创建环境组",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT_GROUP",
+      "name": "编辑环境组",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY_GROUP",
+      "name": "复制环境组",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE_GROUP",
+      "name": "删除环境组",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
       "id": "WORKSPACE_OPERATING_LOG:READ",
       "name": "查询操作日志",
       "resourceId": "WORKSPACE_OPERATING_LOG"
@@ -258,11 +273,6 @@
     {
       "id": "WORKSPACE_TEMPLATE:READ+CUSTOM",
       "name": "自定义字段",
-      "resourceId": "WORKSPACE_TEMPLATE"
-    },
-    {
-      "id": "WORKSPACE_TEMPLATE:READ+REPORT_TEMPLATE",
-      "name": "测试报告模版",
       "resourceId": "WORKSPACE_TEMPLATE"
     },
     {

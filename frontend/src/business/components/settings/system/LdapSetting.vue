@@ -31,7 +31,7 @@
       <el-button type="primary" size="small" :disabled="!showLogin || !show" @click="testLogin">
         {{ $t('ldap.test_login') }}
       </el-button>
-      <el-button v-if="showEdit" size="small" @click="edit">{{ $t('ldap.edit') }}</el-button>
+      <el-button v-if="showEdit" size="small" @click="edit" v-permission="['SYSTEM_SETTING:READ+EDIT']">{{ $t('ldap.edit') }}</el-button>
       <el-button type="success" v-if="showSave" size="small" @click="save('form')">{{ $t('commons.save') }}
       </el-button>
       <el-button type="info" v-if="showCancel" size="small" @click="cancel">{{ $t('commons.cancel') }}</el-button>

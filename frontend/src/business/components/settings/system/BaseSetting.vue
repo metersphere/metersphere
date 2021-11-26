@@ -19,7 +19,7 @@
       </el-row>
     </el-form>
     <div>
-      <el-button @click="edit" v-if="showEdit" size="small">{{ $t('commons.edit') }}</el-button>
+      <el-button @click="edit" v-if="showEdit" size="small" v-permission="['SYSTEM_SETTING:READ+EDIT']">{{ $t('commons.edit') }}</el-button>
       <el-button type="success" @click="save('formInline')" v-if="showSave" :disabled="disabledSave" size="small">
         {{ $t('commons.save') }}
       </el-button>
