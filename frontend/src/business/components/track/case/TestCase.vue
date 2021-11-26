@@ -166,7 +166,8 @@ export default {
       type: '',
       activeDom: 'left',
       tmpActiveDom: null,
-      total: 0
+      total: 0,
+      tmpPath: null
     };
   },
   mounted() {
@@ -176,6 +177,14 @@ export default {
       this.addTab({name: 'add'});
     }else {
       this.init(this.$route);
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    if (this.$store.state.isTestCaseMinderChanged) {
+      this.$refs.isChangeConfirm.open();
+      this.tmpPath = to.path;
+    } else {
+      next();
     }
   },
   watch: {
