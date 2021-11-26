@@ -267,6 +267,8 @@ export default {
         this.$emit('saveApi', data);
       });
       this.$store.state.apiMap.delete(this.currentApi.id);
+      this.responseCount = 0;
+      this.count = 0
     },
     handleSave() {
       if (this.$refs.httpApi) {

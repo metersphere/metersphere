@@ -72,7 +72,7 @@
           <el-row>
             <el-col :span="8">
               <el-form-item :label="$t('commons.tag')" prop="tag">
-                <ms-input-tag :currentScenario="httpForm" ref="tag"/>
+                <ms-input-tag :currentScenario="httpForm" ref="tag" v-model="httpForm.tags"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
@@ -179,6 +179,7 @@
           label: 'name',
         },
         mockBaseUrl: "",
+        count: 0
       }
     },
     props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
@@ -228,6 +229,14 @@
       'httpForm.description': {
         handler(v, v1) {
           if (v && v1 && v !== v1) {
+            this.apiMapStatus();
+          }
+        }
+      },
+      'httpForm.tags': {
+        handler(v, v1) {
+          this.count++;
+          if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1) && this.count > 1) {
             this.apiMapStatus();
           }
         }
@@ -337,6 +346,8 @@
           if (valid) {
             this.setParameter();
             this.$emit('saveApi', this.httpForm);
+            this.count = 0;
+            this.$store.state.apiMap.delete(this.httpForm.id);
           } else {
             return false;
           }
