@@ -7,6 +7,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.definition.parse.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
@@ -307,12 +308,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
         MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
         GlobalScriptConfig globalScriptConfig = httpConfig.getGlobalScriptConfig();
-        List<String> filterPreProtocal = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
-        List<String> filterPostProtocal = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
+        List<String> filterPreProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPreScript();
+        List<String> filterPostProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPostScript();
 
-        boolean filterPre = filterPreProtocal.contains(GlobalScriptFilterRequest.HTTP.name());
-        boolean filterPost = filterPostProtocal.contains(GlobalScriptFilterRequest.HTTP.name());
-
+        boolean filterPre = JMeterScriptUtil.isScriptFilter(filterPreProtocal, GlobalScriptFilterRequest.HTTP.name());
+        boolean filterPost = JMeterScriptUtil.isScriptFilter(filterPostProtocal, GlobalScriptFilterRequest.HTTP.name());
         boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
         boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
 
@@ -724,22 +724,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                    try {
-                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                        if (keyValue.getValue() == null) {
-                            httpArgument.setValue("");
-                        }
-                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                            httpArgument.setContentType(keyValue.getContentType());
-                        }
-                        arguments.addArgument(httpArgument);
-                    } catch (Exception e) {
+                            try {
+                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                                if (keyValue.getValue() == null) {
+                                    httpArgument.setValue("");
+                                }
+                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                                    httpArgument.setContentType(keyValue.getContentType());
+                                }
+                                arguments.addArgument(httpArgument);
+                            } catch (Exception e) {
 
-                    }
-                }
-        );
+                            }
+                        }
+                );
         return arguments;
     }
 
