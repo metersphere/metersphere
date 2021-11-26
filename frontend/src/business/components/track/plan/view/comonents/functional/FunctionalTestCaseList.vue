@@ -450,7 +450,7 @@ export default {
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields);
         this.result.loading = false;
-        this.$refs.table.reloadTable();
+        if (this.$refs.table) this.$refs.table.reloadTable();
       });
     },
     getCustomFieldValue(row, field) {

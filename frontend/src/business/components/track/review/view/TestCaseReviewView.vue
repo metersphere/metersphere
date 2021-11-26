@@ -17,7 +17,7 @@
       </template>
     </ms-test-plan-header-bar>
     <test-review-function v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
-                          :clickType="clickType" :review-id="reviewId"></test-review-function>
+                          :clickType="clickType" :review-id="reviewId" ref="testReviewFunction"/>
   </div>
 
 </template>
@@ -85,6 +85,13 @@ export default {
   mounted() {
     this.initData();
     this.openTestCaseEdit(this.$route.path);
+  },
+  beforeRouteLeave(to, from, next) {
+    if (!this.$refs.testReviewFunction) {
+      next();
+    } else if (this.$refs.testReviewFunction.handleBeforeRouteLeave(to)) {
+      next();
+    }
   },
   watch: {
     '$route'(to, from) {

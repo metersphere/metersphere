@@ -58,7 +58,9 @@ export default {
     open() {
       this.init();
       this.$refs.baseRelevance.open();
-      this.$refs.apiCaseList.clear();
+      if (this.$refs.apiCaseList) {
+        this.$refs.apiCaseList.clear();
+      }
     },
     init() {
       if (this.$refs.apiCaseList) {

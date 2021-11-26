@@ -82,7 +82,8 @@ export default {
       isMenuShow: true,
       activeDom: 'left',
       condition: {},
-      tmpActiveDom: null
+      tmpActiveDom: null,
+      tmpPath: null
     }
   },
   props: [
@@ -130,7 +131,16 @@ export default {
     },
     changeConfirm(isSave) {
       saveMinderConfirm(this, isSave);
-    }
+    },
+    handleBeforeRouteLeave(to) {
+      if (this.$store.state.isTestCaseMinderChanged) {
+        this.$refs.isChangeConfirm.open();
+        this.tmpPath = to.path;
+        return false;
+      } else {
+        return true;
+      }
+    },
   }
 }
 </script>

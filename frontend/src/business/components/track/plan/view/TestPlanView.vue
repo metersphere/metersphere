@@ -20,7 +20,7 @@
       </template>
     </ms-test-plan-header-bar>
     <test-plan-functional v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
-                          :clickType="clickType" :plan-id="planId"/>
+                          :clickType="clickType" :plan-id="planId" ref="testPlanFunctional"/>
     <test-plan-api v-if="activeIndex === 'api'" :redirectCharType="redirectCharType" :clickType="clickType"
                    :plan-id="planId"/>
     <test-plan-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
@@ -80,6 +80,13 @@ export default {
     '$route.params.planId'() {
       this.genRedirectParam();
       this.getTestPlans();
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    if (!this.$refs.testPlanFunctional) {
+      next();
+    } else if (this.$refs.testPlanFunctional.handleBeforeRouteLeave(to)) {
+      next();
     }
   },
   created() {
