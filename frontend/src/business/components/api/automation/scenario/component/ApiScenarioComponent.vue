@@ -99,6 +99,9 @@ export default {
     },
   },
   created() {
+    if(this.scenario.num){
+      this.isShowNum = true;
+    }
     if (!this.scenario.projectId) {
       this.scenario.projectId = getCurrentProjectID();
     }
@@ -131,7 +134,7 @@ export default {
         }
       })
     }
-    if(this.scenario.id && this.scenario.referenced === 'Copy' && !this.scenario.loaded){
+    else if(this.scenario.id && this.scenario.referenced === 'Copy' && !this.scenario.loaded){
       this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
         if (response.data) {
           if(response.data.num){
