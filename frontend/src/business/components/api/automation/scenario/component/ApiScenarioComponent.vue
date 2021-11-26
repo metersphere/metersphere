@@ -41,7 +41,7 @@
     </template>
     <template v-slot:scenarioEnable>
       <el-tooltip content="启用场景环境：当前步骤使用场景原始环境配置运行" placement="top">
-        <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv">启用场景环境</el-checkbox>
+        <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">启用场景环境</el-checkbox>
       </el-tooltip>
     </template>
     <template v-slot:button>
@@ -66,8 +66,7 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
-import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
+import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 
 export default {
   name: "ApiScenarioComponent",
@@ -88,7 +87,10 @@ export default {
       default: false,
     },
     currentEnvironmentId: String,
-    projectList: Array
+    projectList: Array,
+    environmentType: String,
+    environmentGroupId: String,
+    envMap: Map
   },
   watch: {
     message() {
@@ -174,30 +176,31 @@ export default {
       this.$emit('stopScenario');
       this.reload();
     },
-    checkEnv() {
+    checkEnv(val) {
       this.$post("/api/automation/checkScenarioEnv", {scenarioDefinition: JSON.stringify(this.scenario), projectId: this.projectId}, res => {
         if (this.scenario.environmentEnable && !res.data) {
           this.scenario.environmentEnable = false;
           this.$warning("当前场景没有环境，需要先设置自身环境");
           return;
         }
-        this.setDomain();
+        this.setDomain(val);
       });
     },
-    setDomain() {
-      if (this.scenario.environmentEnable) {
-        let param = {
-          environmentEnable: true,
-          id: this.scenario.id,
-          definition: JSON.stringify(this.scenario)
-        }
-        this.$post("/api/automation/setDomain", param, res => {
-          if (res.data) {
-            let data = JSON.parse(res.data);
-            this.scenario.hashTree = data.hashTree;
-          }
-        })
+    setDomain(val) {
+      let param = {
+        environmentEnable: val,
+        id: this.scenario.id,
+        environmentType: this.environmentType,
+        environmentGroupId: this.environmentGroupId,
+        environmentMap: strMapToObj(this.envMap),
+        definition: JSON.stringify(this.scenario)
       }
+      this.$post("/api/automation/setDomain", param, res => {
+        if (res.data) {
+          let data = JSON.parse(res.data);
+          this.scenario.hashTree = data.hashTree;
+        }
+      })
     },
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
