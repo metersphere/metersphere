@@ -464,6 +464,13 @@
             <version>2.4</version>
             <classifier>jdk15</classifier>
         </dependency>
+
+        <dependency>
+            <artifactId>guava</artifactId>
+            <groupId>com.google.guava</groupId>
+            <version>31.0.1-jre</version>
+        </dependency>
+
     </dependencies>
 
     <build>
