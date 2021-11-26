@@ -174,9 +174,9 @@ public class MsAssertions extends MsTestElement {
         JSR223Assertion assertion = new JSR223Assertion();
         assertion.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(assertionJSR223.getDesc())) {
-            assertion.setName("JSR223" + "==" + this.getName() + "==" + assertionJSR223.getDesc() + "==" + assertionJSR223.getScript());
+            assertion.setName("JSR223" + "==" + this.getName() + "==" + assertionJSR223.getDesc() + "&&" + assertionJSR223.getScript());
         } else {
-            assertion.setName("JSR223" + "==" + this.getName() + "==" + "JSR223Assertion" + "==" + assertionJSR223.getScript());
+            assertion.setName("JSR223" + "==" + this.getName() + "==" + "JSR223Assertion" + "&&" + assertionJSR223.getScript());
         }
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
