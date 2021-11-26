@@ -124,7 +124,7 @@
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
         </div>
 
-        <ms-jmx-step :request="apiCase.request" :api-id="api.id" :response="apiCase.responseData"/>
+        <ms-jmx-step v-if="apiCase.request.hashTree && apiCase.request.hashTree.length > 0" :request="apiCase.request" :api-id="api.id" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
                    v-if="type!=='detail'"
