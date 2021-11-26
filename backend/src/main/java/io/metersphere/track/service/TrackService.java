@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.performance.base.ChartsData;
+import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.response.BugStatustics;
 import io.metersphere.track.response.TestPlanBugCount;
@@ -40,6 +41,8 @@ public class TrackService {
     private TestPlanScenarioCaseService testPlanScenarioCaseService;
     @Resource
     private TestPlanLoadCaseService testPlanLoadCaseService;
+    @Resource
+    private ProjectService projectService;
 
     public List<TrackCountResult> countPriority(String projectId) {
         return extTestCaseMapper.countPriority(projectId);
@@ -115,7 +118,6 @@ public class TrackService {
         List<TestPlanBugCount> list = new ArrayList<>();
         BugStatustics bugStatustics = new BugStatustics();
         int index = 1;
-        int totalBugSize = 0;
         int totalCaseSize = 0;
         for (TestPlan plan : plans) {
             int planBugSize = getPlanBugSize(plan.getId());
@@ -137,12 +139,11 @@ public class TrackService {
             double planPassRage = getPlanPassRage(plan.getId());
             testPlanBug.setPassRage(planPassRage + "%");
             list.add(testPlanBug);
-
-            totalBugSize += planBugSize;
             totalCaseSize += planCaseSize;
 
         }
 
+        int totalBugSize = projectService.getProjectBugSize(projectId);
         bugStatustics.setList(list);
         float rage =totalCaseSize == 0 ? 0 : (float) totalBugSize * 100 / totalCaseSize;
         DecimalFormat df = new DecimalFormat("0.0");
