@@ -131,28 +131,17 @@ public class TestPlanReportService {
     }
 
     public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String projectID, String planId, String userId, String triggerMode) {
-        Map<String, List<String>> apiTestCaseIdMap = new LinkedHashMap<>();
-
         Map<String, String> planScenarioIdMap = new LinkedHashMap<>();
-        Map<String, String> apiTestCaseDataMap = new LinkedHashMap<>();
+        Map<String, String> planTestCaseIdMap = new LinkedHashMap<>();
         Map<String, String> performanceIdMap = new LinkedHashMap<>();
-
         List<TestPlanApiScenario> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectLegalDataByTestPlanId(planId);
         for (TestPlanApiScenario model : testPlanApiScenarioList) {
             planScenarioIdMap.put(model.getId(), model.getApiScenarioId());
         }
         List<TestPlanApiCase> testPlanApiCaseList = extTestPlanApiCaseMapper.selectLegalDataByTestPlanId(planId);
         for (TestPlanApiCase model : testPlanApiCaseList) {
-            if (apiTestCaseIdMap.containsKey(model.getApiCaseId())) {
-                apiTestCaseIdMap.get(model.getApiCaseId()).add(model.getId());
-            } else {
-                List<String> list = new ArrayList<>();
-                list.add(model.getId());
-                apiTestCaseIdMap.put(model.getApiCaseId(), list);
-            }
-
+            planTestCaseIdMap.put(model.getId(), model.getApiCaseId());
         }
-
         LoadCaseRequest loadCaseRequest = new LoadCaseRequest();
         loadCaseRequest.setTestPlanId(planId);
         loadCaseRequest.setProjectId(projectID);
@@ -160,29 +149,12 @@ public class TestPlanReportService {
         for (TestPlanLoadCaseDTO dto : testPlanLoadCaseDTOList) {
             performanceIdMap.put(dto.getId(), dto.getLoadCaseId());
         }
-
         String planReportId = UUID.randomUUID().toString();
 
         Map<String, String> apiCaseInfoMap = new HashMap<>();
-        if (!apiTestCaseIdMap.isEmpty()) {
-            //筛选出未被删除/放入回收站的案例
-            ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
-            apiTestCaseExample.createCriteria().andIdIn(new ArrayList<>(apiTestCaseIdMap.keySet()));
-            List<ApiTestCase> apiCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
-            if (!apiCaseList.isEmpty()) {
-                Map<String, ApiTestCase> apiCaseDataMap = apiCaseList.stream().collect(Collectors.toMap(ApiTestCase::getId, k -> k));
-                for (String id : apiCaseDataMap.keySet()) {
-                    List<String> testPlanCaseIdList = apiTestCaseIdMap.get(id);
-                    if (CollectionUtils.isNotEmpty(testPlanCaseIdList)) {
-                        for (String testPlanCaseId : testPlanCaseIdList) {
-                            apiCaseInfoMap.put(testPlanCaseId, TestPlanApiExecuteStatus.PREPARE.name());
-                            apiTestCaseDataMap.put(testPlanCaseId, id);
-                        }
-                    }
-                }
-            }
+        for (String id : planTestCaseIdMap.keySet()) {
+            apiCaseInfoMap.put(id, TestPlanApiExecuteStatus.PREPARE.name());
         }
-
         Map<String, String> scenarioInfoMap = new HashMap<>();
         for (String id : planScenarioIdMap.keySet()) {
             scenarioInfoMap.put(id, TestPlanApiExecuteStatus.PREPARE.name());
@@ -192,14 +164,13 @@ public class TestPlanReportService {
             performanceInfoMap.put(id, TestPlanApiExecuteStatus.PREPARE.name());
         }
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(planReportId, planId, userId, triggerMode,
-                apiTestCaseDataMap.size() > 0, planScenarioIdMap.size() > 0, performanceIdMap.size() > 0,
+                planTestCaseIdMap.size() > 0, planScenarioIdMap.size() > 0, performanceIdMap.size() > 0,
                 apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
         TestPlanReport report = this.genTestPlanReport(saveRequest);
-
         TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
         returnDTO.setTestPlanReport(report);
         returnDTO.setPlanScenarioIdMap(planScenarioIdMap);
-        returnDTO.setApiTestCaseDataMap(apiTestCaseDataMap);
+        returnDTO.setApiTestCaseDataMap(planTestCaseIdMap);
         returnDTO.setPerformanceIdMap(performanceIdMap);
         return returnDTO;
     }
@@ -1171,14 +1142,14 @@ public class TestPlanReportService {
         if (StringUtils.isNotBlank(testPlanReportContent.getScenarioAllCases())) {
             List<TestPlanFailureScenarioDTO> allCases = JSONObject.parseArray(testPlanReportContent.getScenarioAllCases(), TestPlanFailureScenarioDTO.class);
             for (TestPlanFailureScenarioDTO dto : allCases) {
-                if (StringUtils.equalsAnyIgnoreCase("Underway",dto.getStatus(), dto.getLastResult())) {
+                if (StringUtils.equalsAnyIgnoreCase("Underway", dto.getStatus(), dto.getLastResult())) {
                     isUpdate = true;
                     ApiScenarioReport apiReport = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
                     if (apiReport != null) {
                         dto.setLastResult(apiReport.getStatus());
                         dto.setStatus(apiReport.getStatus());
                     }
-                }else if (StringUtils.equalsAnyIgnoreCase("Error",dto.getStatus(), dto.getLastResult())) {
+                } else if (StringUtils.equalsAnyIgnoreCase("Error", dto.getStatus(), dto.getLastResult())) {
                     isUpdate = true;
                     dto.setLastResult("Fail");
                     dto.setStatus("Fail");
