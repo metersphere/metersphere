@@ -157,11 +157,11 @@ export default {
         '</head>\n' +
         '<body>\n' +
         '<div>\n' +
-        '${operator}所执行的 ${name} ${type}测试运行成功' +
+        '${operator}执行 Jenkins 成功: ${name}' +
         '</div>\n' +
         '</body>\n' +
         '</html>',
-      robotTitle: "${operator}所执行的 ${name} ${type}测试运行成功",
+      robotTitle: "${operator}执行 Jenkins 成功: ${name}",
       jenkinsTask: [{
         taskType: "jenkinsTask",
         event: "",

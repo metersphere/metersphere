@@ -1,5 +1,6 @@
 package io.metersphere.notice.sender.impl;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.Notification;
 import io.metersphere.commons.constants.NotificationConstants;
 import io.metersphere.commons.utils.LogUtil;
@@ -38,7 +39,7 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
             Map<String, Object> paramMap = noticeModel.getParamMap();
             Notification notification = new Notification();
             notification.setTitle(noticeModel.getSubject());
-            notification.setContent(context);
+            notification.setContent(JSON.toJSONString(paramMap));
             notification.setOperator(noticeModel.getOperator());
             notification.setOperation(noticeModel.getEvent());
             notification.setResourceId((String) paramMap.get("id"));

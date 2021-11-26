@@ -99,7 +99,7 @@ export function saveScenario(url, scenario, scenarioDefinition, _this, success) 
       success(response);
     }
   }, error => {
-    _this.$emit('errorRefresh', {});
+    _this.$emit('errorRefresh', error);
   });
 }
 

@@ -72,6 +72,7 @@ public class TestResultService {
                 reportTask.setTriggerMode(TriggerMode.API.name());
                 reportTask.setName(apiTestCaseWithBLOBs.getName());
                 reportTask.setExecutor(userName);
+                reportTask.setUserId(apiTestCaseWithBLOBs.getCreateUserId());
                 reportTask.setExecutionTime(DateUtils.getTimeString(apiTestCaseWithBLOBs.getCreateTime()));
                 reportTask.setEnvironment(name);
                 //测试计划用例，定时，jenkins
@@ -105,18 +106,17 @@ public class TestResultService {
                     }
                     //报告内容
                     reportTask = new ApiTestReportVariable();
-                    if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO.name())) {
-                        reportTask.setStatus(scenarioReport.getStatus());
-                        reportTask.setId(scenarioReport.getId());
-                        reportTask.setTriggerMode(scenarioReport.getTriggerMode());
-                        reportTask.setName(scenarioReport.getName());
-                        reportTask.setExecutor(userName);
-                        reportTask.setPrincipal(principal);
-                        reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
-                        reportTask.setEnvironment(environment);
-                        SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
-                        assert systemParameterService != null;
-                    }
+                    reportTask.setStatus(scenarioReport.getStatus());
+                    reportTask.setId(scenarioReport.getId());
+                    reportTask.setTriggerMode(scenarioReport.getTriggerMode());
+                    reportTask.setName(scenarioReport.getName());
+                    reportTask.setExecutor(userName);
+                    reportTask.setUserId(scenarioReport.getUserId());
+                    reportTask.setPrincipal(principal);
+                    reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
+                    reportTask.setEnvironment(environment);
+                    SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+                    assert systemParameterService != null;
                     testResult.setTestId(scenarioReport.getScenarioId());
                     planScenarioId = scenarioReport.getTestPlanScenarioId();
                 }

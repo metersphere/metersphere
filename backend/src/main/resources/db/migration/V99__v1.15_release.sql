@@ -33,37 +33,9 @@ alter table api_scenario
 alter table api_scenario
     add environment_group_id varchar(50) null;
 
-DELIMITER $$
-DROP PROCEDURE IF EXISTS proc_loop_test$$
-CREATE PROCEDURE proc_loop_test()
-BEGIN
-    DECLARE int_val INT DEFAULT 0;
-    DECLARE size INT DEFAULT 10;
-    DECLARE count_scenario INT DEFAULT 0;
-    SELECT COUNT(1) INTO count_scenario FROM api_scenario;
-    test_loop :
-    LOOP
-        IF (int_val > count_scenario / size)
-        THEN
-            UPDATE api_scenario
-            SET environment_json = api_scenario.scenario_definition -> '$.environmentMap'
-            WHERE api_scenario.id IN (SELECT id FROM (SELECT id FROM api_scenario LIMIT int_val, size) l);
-            #
-            LEAVE test_loop;
-        END IF;
-
-        UPDATE api_scenario
-        SET environment_json = api_scenario.scenario_definition -> '$.environmentMap'
-        WHERE api_scenario.id IN (SELECT id FROM (SELECT id FROM api_scenario LIMIT int_val, size) l);
-
-        SET int_val = int_val + size;
-    END LOOP;
-END$$
-
-DELIMITER ;
-CALL proc_loop_test();
-DROP PROCEDURE proc_loop_test;
-
+update api_scenario
+set environment_json = api_scenario.scenario_definition -> '$.environmentMap'
+where api_scenario.environment_json is null;
 
 update api_scenario set environment_type = 'JSON';
 

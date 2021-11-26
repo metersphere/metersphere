@@ -24,7 +24,7 @@ public class IssueTemplateController {
     private IssueTemplateService issueTemplateService;
 
     @PostMapping("/add")
-    @MsAuditLog(module = "workspace_template_settings_issue", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = IssueTemplateService.class)
+    @MsAuditLog(module = "workspace_template_settings_issue", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request)", msClass = IssueTemplateService.class)
     public void add(@RequestBody UpdateIssueTemplateRequest request) {
         issueTemplateService.add(request);
     }
@@ -42,7 +42,7 @@ public class IssueTemplateController {
     }
 
     @PostMapping("/update")
-    @MsAuditLog(module = "workspace_template_settings_issue", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = IssueTemplateService.class)
+    @MsAuditLog(module = "workspace_template_settings_issue", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id,#request.customFields)", content = "#msClass.getLogDetails(#request)", msClass = IssueTemplateService.class)
     public void update(@RequestBody UpdateIssueTemplateRequest request) {
         issueTemplateService.update(request);
     }

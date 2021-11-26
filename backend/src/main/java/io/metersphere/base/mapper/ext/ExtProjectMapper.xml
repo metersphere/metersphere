@@ -244,4 +244,11 @@
     <select id="getProjectByUserId" resultType="io.metersphere.base.domain.Project">
         SELECT * from project where project.id in (SELECT user_group.source_id from user_group where user_group.user_id = #{userId})
     </select>
+    <select id="getProjectPlanBugSize" resultType="java.lang.Integer">
+        select count(distinct(tci.issues_id)) from test_plan_test_case tptc
+            join test_case_issues tci on tptc.case_id = tci.test_case_id
+            join issues on tci.issues_id  = issues.id
+            join test_plan on tptc.plan_id = test_plan.id
+        where test_plan.project_id = #{projectId} and (issues.status != 'closed' or issues.status is null);
+    </select>
 </mapper>

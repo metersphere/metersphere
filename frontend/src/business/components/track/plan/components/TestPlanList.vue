@@ -129,6 +129,38 @@
           :key="index">
         </el-table-column>
         <el-table-column
+          v-if="item.id == 'testPlanTestCaseCount'"
+          prop="testPlanTestCaseCount"
+          :label="$t('test_track.plan.test_plan_test_case_count')"
+          show-overflow-tooltip
+          :min-width="100"
+          :key="index">
+        </el-table-column>
+        <el-table-column
+          v-if="item.id == 'testPlanApiCaseCount'"
+          prop="testPlanApiCaseCount"
+          :label="$t('test_track.plan.test_plan_api_case_count')"
+          show-overflow-tooltip
+          :min-width="100"
+          :key="index">
+        </el-table-column>
+        <el-table-column
+          v-if="item.id == 'testPlanApiScenarioCount'"
+          prop="testPlanApiScenarioCount"
+          :label="$t('test_track.plan.test_plan_api_scenario_count')"
+          show-overflow-tooltip
+          :min-width="100"
+          :key="index">
+        </el-table-column>
+        <el-table-column
+          v-if="item.id == 'testPlanLoadCaseCount'"
+          prop="testPlanLoadCaseCount"
+          :label="$t('test_track.plan.test_plan_load_case_count')"
+          show-overflow-tooltip
+          :min-width="100"
+          :key="index">
+        </el-table-column>
+        <el-table-column
           v-if="item.id == 'passRate'"
           prop="passRate"
           :label="$t('commons.pass_rate')"

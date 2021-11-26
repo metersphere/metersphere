@@ -736,16 +736,20 @@ public class ApiTestCaseService {
         return ids;
     }
 
-    private ApiDefinitionExecResult addResult(String id, String status) {
+    private ApiDefinitionExecResult addResult(String resourceId, String status, String reportId) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
-        apiResult.setId(UUID.randomUUID().toString());
+        if (StringUtils.isEmpty(reportId)) {
+            apiResult.setId(UUID.randomUUID().toString());
+        } else {
+            apiResult.setId(reportId);
+        }
         apiResult.setCreateTime(System.currentTimeMillis());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setEndTime(System.currentTimeMillis());
         apiResult.setTriggerMode(TriggerMode.BATCH.name());
         apiResult.setActuator("LOCAL");
         apiResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-        apiResult.setResourceId(id);
+        apiResult.setResourceId(resourceId);
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.DEFINITION.name());
         apiResult.setStatus(status);
@@ -765,7 +769,7 @@ public class ApiTestCaseService {
 
         ApiTestCaseMapper sqlSessionMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
         for (ApiTestCaseWithBLOBs caseWithBLOBs : list) {
-            ApiDefinitionExecResult report = addResult(caseWithBLOBs.getId(), APITestStatus.Running.name());
+            ApiDefinitionExecResult report = addResult(caseWithBLOBs.getId(), APITestStatus.Running.name(), null);
             report.setName(caseWithBLOBs.getName());
             caseWithBLOBs.setLastResultId(report.getId());
             caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
@@ -792,6 +796,38 @@ public class ApiTestCaseService {
         }
     }
 
+    public String jenkinsRun(RunCaseRequest request) {
+        ApiTestCaseWithBLOBs caseWithBLOBs = null;
+        if (request.getBloBs() == null) {
+            caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+            if (caseWithBLOBs == null) {
+                return null;
+            }
+            request.setBloBs(caseWithBLOBs);
+        } else {
+            caseWithBLOBs = request.getBloBs();
+        }
+        if (caseWithBLOBs == null) {
+            return null;
+        }
+        if (StringUtils.isBlank(request.getEnvironmentId())) {
+            request.setEnvironmentId(extApiTestCaseMapper.getApiCaseEnvironment(request.getCaseId()));
+        }
+        //提前生成报告
+        ApiDefinitionExecResult report = addResult(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId());
+        report.setName(caseWithBLOBs.getName());
+        report.setTriggerMode(ApiRunMode.API.name());
+        report.setType(ApiRunMode.JENKINS.name());
+        apiDefinitionExecResultMapper.insert(report);
+        //更新接口案例的最后执行状态等信息
+        caseWithBLOBs.setLastResultId(report.getId());
+        caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        caseWithBLOBs.setStatus(APITestStatus.Running.name());
+        apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
+        request.setReport(report);
+        return this.run(request);
+    }
+
     public String run(RunCaseRequest request) {
         ApiTestCaseWithBLOBs testCaseWithBLOBs = request.getBloBs();
         if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
@@ -800,15 +836,13 @@ public class ApiTestCaseService {
             //通过测试计划id查询环境
             request.setReportId(request.getTestPlanId());
         }
-        if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS.name())) {
-            request.setReportId(request.getEnvironmentId());
-        }
+
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
                 HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs);
                 // 调用执行方法
-                jMeterService.runLocal(request.getReportId(),null, jmeterHashTree, null, request.getRunMode());
+                jMeterService.runLocal(request.getReportId(), null, jmeterHashTree, null, request.getRunMode());
 
             } catch (Exception ex) {
                 ApiDefinitionExecResult result = MessageCache.caseExecResourceLock.get(request.getReportId());
@@ -834,7 +868,7 @@ public class ApiTestCaseService {
                 request.setTestPlanId(testPlanID);
                 HashTree jmeterHashTree = this.generateHashTree(request, apiCaseBolbs);
                 // 调用执行方法
-                jMeterService.runLocal(id,null, jmeterHashTree, debugReportId, runMode);
+                jMeterService.runLocal(id, null, jmeterHashTree, debugReportId, runMode);
             } catch (Exception ex) {
                 LogUtil.error(ex);
             }
@@ -1171,9 +1205,7 @@ public class ApiTestCaseService {
         if (StringUtils.isBlank(environmentId)) {
             return null;
         }
-        // "environmentId"
         try {
-            environmentId = environmentId.substring(1, environmentId.length() - 1);
             return apiTestEnvironmentMapper.selectByPrimaryKey(environmentId);
         } catch (Exception e) {
             LogUtil.error("api case environmentId incorrect parsing. api case id: " + caseId);

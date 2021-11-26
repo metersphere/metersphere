@@ -52,7 +52,7 @@
       <!--请求内容-->
       <template v-slot:request>
         <legend style="width: 100%">
-          <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
+          <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
           <ms-api-request-form
             v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
@@ -217,6 +217,9 @@ export default {
       this.request.projectId = getCurrentProjectID();
     }
     this.request.customizeReq = this.isCustomizeReq;
+    if(this.request.num){
+      this.isShowNum = true;
+    }
     // 加载引用对象数据
     this.getApiInfo();
     if (this.request.protocol === 'HTTP') {
@@ -447,91 +450,30 @@ export default {
             }
             this.reload();
             this.sort();
-          } else {
-            this.request.referenced = "Deleted";
           }
         })
       }
-      if(this.request.id && this.request.referenced === 'Copy'){
-        let requestResult = this.request.requestResult;
-        let enable = this.request.enable;
+      else if(this.request.id && this.request.referenced === 'Copy'){
         if(this.request.refType==='CASE'){
           this.$get("/api/testcase/get/" + this.request.id, response => {
             if (response.data) {
-              let hashTree = [];
-              if (this.request.hashTree) {
-                hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
-              }
-              Object.assign(this.request, JSON.parse(response.data.request));
-              this.request.name = response.data.name;
-              this.request.referenced = "Copy";
-              this.request.enable = enable;
-              if (response.data.path && response.data.path != null) {
-                this.request.path = response.data.path;
-                this.request.url = response.data.url;
-              }
-              if (response.data.method && response.data.method != null) {
-                this.request.method = response.data.method;
-              }
-              if (requestResult && Object.prototype.toString.call(requestResult) !== '[object Array]') {
-                this.request.requestResult = [requestResult];
-              } else {
-                this.request.requestResult = requestResult;
-              }
+
               if(response.data.num){
                 this.request.num = response.data.num;
                 this.isShowNum = true;
               }
               this.request.id = response.data.id;
-              this.request.root = true;
-              this.request.projectId = response.data.projectId;
-              let req = JSON.parse(response.data.request);
-              if (req && this.request) {
-                this.request.hashTree = hashTree;
-                this.mergeHashTree(req.hashTree);
-              }
-              this.reload();
-              this.sort();
             }
           })
         }
-        if(this.request.refType==='API'){
+        else if(this.request.refType==='API'){
           this.$get("/api/definition/get/" + this.request.id, response => {
             if (response.data) {
-              let hashTree = [];
-              if (this.request.hashTree) {
-                hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
-              }
-              Object.assign(this.request, JSON.parse(response.data.request));
-              this.request.name = response.data.name;
-              this.request.referenced = "Copy";
-              this.request.enable = enable;
-              if (response.data.path && response.data.path != null) {
-                this.request.path = response.data.path;
-                this.request.url = response.data.url;
-              }
-              if (response.data.method && response.data.method != null) {
-                this.request.method = response.data.method;
-              }
-              if (requestResult && Object.prototype.toString.call(requestResult) !== '[object Array]') {
-                this.request.requestResult = [requestResult];
-              } else {
-                this.request.requestResult = requestResult;
-              }
               if(response.data.num){
                 this.request.num = response.data.num;
                 this.isShowNum = true;
               }
               this.request.id = response.data.id;
-              this.request.root = true;
-              this.request.projectId = response.data.projectId;
-              let req = JSON.parse(response.data.request);
-              if (req && this.request) {
-                this.request.hashTree = hashTree;
-                this.mergeHashTree(req.hashTree);
-              }
-              this.reload();
-              this.sort();
             }
           })
         }
@@ -674,6 +616,9 @@ export default {
       this.request.result = undefined;
       this.loading = false;
       this.$emit('refReload', this.request, this.node);
+    },
+    setDomain() {
+      this.$emit("setDomain");
     },
     reload() {
       this.loading = true

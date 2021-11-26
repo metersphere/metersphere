@@ -12,4 +12,8 @@ public class TestPlanDTOWithMetric extends TestPlanDTO {
     private Integer tested;
     private Integer total;
     private String createUser;
+    private Integer testPlanTestCaseCount;
+    private Integer testPlanApiCaseCount;
+    private Integer testPlanApiScenarioCount;
+    private Integer testPlanLoadCaseCount;
 }

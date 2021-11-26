@@ -1769,6 +1769,10 @@ export default {
       api_case: "Api case",
       scenario_case: "Scenario case",
       execute_result: "Execute Result",
+      test_plan_test_case_count: "Track case count",
+      test_plan_api_case_count: "Api case count",
+      test_plan_api_scenario_count: "Scenario case count",
+      test_plan_load_case_count: "Load case count",
       load_case: {
         case: "Load Case",
         execution_status: "Execution status",

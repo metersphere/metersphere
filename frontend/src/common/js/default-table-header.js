@@ -119,6 +119,10 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'executionTimes', key: 'c', label: 'commons.execution_times'},
     {id: 'passRate', key: 'd', label: 'commons.pass_rate'},
     {id: 'createUser', key: 'e', label: 'commons.create_user'},
+    {id: 'testPlanTestCaseCount', key: 'f', label: 'test_track.plan.test_plan_test_case_count'},
+    {id: 'testPlanApiCaseCount', key: 'g', label: 'test_track.plan.test_plan_api_case_count'},
+    {id: 'testPlanApiScenarioCount', key: 'h', label: 'test_track.plan.test_plan_api_scenario_count'},
+    {id: 'testPlanLoadCaseCount', key: 'i', label: 'test_track.plan.test_plan_load_case_count'}
   ],
   //测试计划-功能用例
   TEST_PLAN_FUNCTION_TEST_CASE: [
