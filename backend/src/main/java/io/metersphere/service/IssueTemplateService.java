@@ -231,7 +231,7 @@ public class IssueTemplateService extends TemplateBaseService {
         return issueTemplateDao;
     }
 
-    public String getLogDetails(String id) {
+    public String getLogDetails(String id, List<CustomFieldTemplate>newCustomFieldTemplates) {
         List<DetailColumn> columns = new LinkedList<>();
         IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(id);
         if(templateWithBLOBs==null){
@@ -241,6 +241,13 @@ public class IssueTemplateService extends TemplateBaseService {
         example.createCriteria().andTemplateIdEqualTo(templateWithBLOBs.getId());
         example.createCriteria().andSceneEqualTo("ISSUE");
         List<CustomFieldTemplate> customFieldTemplates = customFieldTemplateMapper.selectByExample(example);
+        if(newCustomFieldTemplates.size()>customFieldTemplates.size()){
+            for (int i = 0; i < newCustomFieldTemplates.size()-customFieldTemplates.size(); i++) {
+                CustomFieldTemplate customFieldTemplate = new CustomFieldTemplate();
+                customFieldTemplates.add(customFieldTemplate);
+            }
+        }
+
         return getCustomFieldColums(columns, templateWithBLOBs, customFieldTemplates);
 
     }
@@ -251,8 +258,18 @@ public class IssueTemplateService extends TemplateBaseService {
         if(templateWithBLOBs==null){
             return null;
         }
-        List<CustomFieldTemplate> customFields = request.getCustomFields();
-        return getCustomFieldColums(columns, templateWithBLOBs, customFields);
+        List<CustomFieldTemplate> newCustomFieldTemplates = request.getCustomFields();
+        CustomFieldTemplateExample example = new CustomFieldTemplateExample();
+        example.createCriteria().andTemplateIdEqualTo(templateWithBLOBs.getId());
+        example.createCriteria().andSceneEqualTo("ISSUE");
+        List<CustomFieldTemplate> customFieldTemplates = customFieldTemplateMapper.selectByExample(example);
+        if(newCustomFieldTemplates.size()<customFieldTemplates.size()){
+            for (int i = 0; i < customFieldTemplates.size()-newCustomFieldTemplates.size(); i++) {
+                CustomFieldTemplate customFieldTemplate = new CustomFieldTemplate();
+                newCustomFieldTemplates.add(customFieldTemplate);
+            }
+        }
+        return getCustomFieldColums(columns, templateWithBLOBs, newCustomFieldTemplates);
     }
 
     private String getCustomFieldColums(List<DetailColumn> columns, IssueTemplate templateWithBLOBs, List<CustomFieldTemplate> customFields) {
