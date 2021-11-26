@@ -252,14 +252,22 @@ public class MsResultService {
         ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
         responseAssertionResult.setName(assertionResult.getName());
         if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().indexOf("==") != -1) {
-            String[] array = assertionResult.getName().split("==");
-            if ("JSR223".equals(array[0])) {
-                responseAssertionResult.setName(array[1]);
-                responseAssertionResult.setContent(array[2]);
-                if (array.length > 3) {
-                    responseAssertionResult.setScript(array[3]);
+            if (assertionResult.getName().indexOf("JSR223") != -1) {
+                String[] array = assertionResult.getName().split("==", 3);
+                if ("JSR223".equals(array[0])) {
+                    responseAssertionResult.setName(array[1]);
+                    if (array[2].indexOf("&&") != -1) {
+                        String[] content = array[2].split("&&");
+                        responseAssertionResult.setContent(content[0]);
+                        if (content.length > 1) {
+                            responseAssertionResult.setScript(content[1]);
+                        }
+                    } else {
+                        responseAssertionResult.setContent(array[2]);
+                    }
                 }
             } else {
+                String[] array = assertionResult.getName().split("==");
                 responseAssertionResult.setName(array[0]);
                 StringBuffer content = new StringBuffer();
                 for (int i = 1; i < array.length; i++) {
