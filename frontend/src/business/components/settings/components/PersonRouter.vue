@@ -6,7 +6,7 @@
       <el-tab-pane   name="third_account" :label="$t('commons.third_account')" class="setting-item"></el-tab-pane>
     </el-tabs>
     <ms-main-container>
-      <ms-person-from-setting v-if="activeIndex==='commons.personal_setting'" @getPlatformInfo = "getPlatformInfo" @cancel = "cancel"/>
+      <ms-person-from-setting v-if="activeIndex==='commons.personal_setting'" :form = form @getPlatformInfo = "getPlatformInfo" @cancel = "cancel" />
       <ms-api-keys v-if="activeIndex==='commons.api_keys'"/>
       <password-info v-if="activeIndex==='change_password'" :rule-form = "ruleForm"></password-info>
       <el-form v-if="activeIndex==='third_account'">
@@ -31,7 +31,7 @@
   import MsApiKeys from "@/business/components/settings/personal/ApiKeys";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
   import PasswordInfo from "@/business/components/settings/personal/PasswordInfo";
-  import {getCurrentWorkspaceId} from "@/common/js/utils";
+  import {getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
   import ZentaoUserInfo from "@/business/components/settings/personal/ZentaoUserInfo";
   import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
   import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
@@ -78,10 +78,15 @@
           zentaoPassword: '',
           azureDevopsPat: ''
         },
-        result:{}
+        result:{},
+        workspaceList:[],
+        projectList:[]
       }
     },
     methods:{
+      currentUser: () => {
+        return getCurrentUser();
+      },
       handleAuth(type) {
         let param = {...this.currentPlatformInfo};
         param.workspaceId = getCurrentWorkspaceId();
@@ -91,13 +96,15 @@
         });
       },
       getPlatformInfo(row) {
+        let orgId = getCurrentWorkspaceId();
         if (row.platformInfo) {
           this.form = row;
-          this.form.platformInfo = JSON.parse(row.platformInfo);
+          if (!row.platformInfo[orgId]) {
+            this.form.platformInfo = JSON.parse(row.platformInfo);
+          }
         } else {
           this.form.platformInfo = {};
         }
-        let orgId = getCurrentWorkspaceId();
         if (!this.form.platformInfo[orgId]) {
           this.form.platformInfo[orgId] = {};
         }
@@ -123,15 +130,43 @@
       },
       updateUser(updateUserForm) {
         let param = {};
+        if(!this.form.id){
+          console.log(this.$refs.personFrom)
+          //this.form.id = this.$refs.personFrom.form.id
+        }
+        console.log("this.form")
+        console.log(this.form)
         Object.assign(param, this.form);
         param.platformInfo = JSON.stringify(this.form.platformInfo);
         this.result = this.$post(this.updatePath, param, response => {
           this.$success(this.$t('commons.modify_success'));
           localStorage.setItem(TokenKey, JSON.stringify(response.data));
           this.$emit('closeDialog', false);
+          this.initTableData()
           this.reload();
         });
       },
+      initTableData() {
+        this.result = this.$get("/user/info/" + encodeURIComponent(this.currentUser().id), response => {
+          let data = response.data;
+          this.isLocalUser = response.data.source === 'LOCAL';
+          let dataList = [];
+          dataList[0] = data;
+          this.form = data;
+          this.getPlatformInfo(data);
+          this.getWsAndPj();
+        });
+      },
+      getWsAndPj(){
+        this.$get("/user/get/ws_pj/" + encodeURIComponent(this.currentUser().id), response => {
+          let data = response.data;
+          this.workspaceList = data.workspace;
+          this.projectList = data.project
+        });
+      },
+    },
+    created() {
+      this.initTableData();
     }
 
   }
