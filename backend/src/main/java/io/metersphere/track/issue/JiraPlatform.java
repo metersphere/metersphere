@@ -76,6 +76,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject assignee = (JSONObject) fields.get("assignee");
         issue.setTitle(fields.getString("summary"));
         issue.setCreateTime(fields.getLong("created"));
+        issue.setUpdateTime(fields.getLong("updated"));
         issue.setLastmodify(assignee == null ? "" : assignee.getString("displayName"));
         issue.setDescription(description);
         issue.setPlatformStatus(status);

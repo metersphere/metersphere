@@ -240,6 +240,8 @@ public class TapdPlatform extends AbstractIssuePlatform {
         issue.setDescription(htmlDesc2MsDesc(issue.getDescription()));
         issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), bug));
         issue.setPlatform(key);
+        issue.setCreateTime(bug.getLong("created"));
+        issue.setUpdateTime(bug.getLong("modified"));
         return issue;
     }
 
