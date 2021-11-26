@@ -745,4 +745,8 @@ public class ProjectService {
     public long getProjectMemberSize(String id) {
         return extProjectMapper.getProjectMemberSize(id);
     }
+
+    public int getProjectBugSize(String projectId) {
+        return extProjectMapper.getProjectPlanBugSize(projectId);
+    }
 }
