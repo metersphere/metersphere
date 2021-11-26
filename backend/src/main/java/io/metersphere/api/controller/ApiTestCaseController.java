@@ -196,7 +196,7 @@ public class ApiTestCaseController {
     @PostMapping(value = "/jenkins/run")
     @MsAuditLog(module = "api_definition_case", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
     public String jenkinsRun(@RequestBody RunCaseRequest request) {
-        return apiTestCaseService.run(request);
+        return apiTestCaseService.jenkinsRun(request);
     }
 
     @GetMapping(value = "/jenkins/exec/result/{id}")
