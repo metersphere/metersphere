@@ -217,6 +217,9 @@ export default {
       this.request.projectId = getCurrentProjectID();
     }
     this.request.customizeReq = this.isCustomizeReq;
+    if(this.request.num){
+      this.isShowNum = true;
+    }
     // 加载引用对象数据
     this.getApiInfo();
     if (this.request.protocol === 'HTTP') {
@@ -450,7 +453,7 @@ export default {
           }
         })
       }
-      if(this.request.id && this.request.referenced === 'Copy'){
+      else if(this.request.id && this.request.referenced === 'Copy'){
         if(this.request.refType==='CASE'){
           this.$get("/api/testcase/get/" + this.request.id, response => {
             if (response.data) {
@@ -463,7 +466,7 @@ export default {
             }
           })
         }
-        if(this.request.refType==='API'){
+        else if(this.request.refType==='API'){
           this.$get("/api/definition/get/" + this.request.id, response => {
             if (response.data) {
               if(response.data.num){
