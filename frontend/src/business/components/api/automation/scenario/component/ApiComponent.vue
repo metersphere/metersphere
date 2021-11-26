@@ -646,6 +646,7 @@ export default {
             response.data.sourceId = resource.resourceId;
             response.data.type = resource.type;
             response.data.refType = resource.refType;
+            debugger
             this.clickCase(response.data)
           } else {
             this.$error("接口用例场景场景已经被删除");
