@@ -52,7 +52,7 @@
       <!--请求内容-->
       <template v-slot:request>
         <legend style="width: 100%">
-          <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
+          <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
           <ms-api-request-form
             v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
@@ -616,6 +616,9 @@ export default {
       this.request.result = undefined;
       this.loading = false;
       this.$emit('refReload', this.request, this.node);
+    },
+    setDomain() {
+      this.$emit("setDomain");
     },
     reload() {
       this.loading = true
