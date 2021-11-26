@@ -125,17 +125,39 @@ export function getUrl(d) {
   switch (d.resourceType) {
     case "JENKINS_TASK" :
       // jenkins 跳转需要特殊处理
-      if (d.content.indexOf("接口用例") > -1) {
-        url += "/api/definition?caseId=" + d.resourceId;
-      } else if (d.content.indexOf("性能测试") > -1) {
-        url += "/performance/test/edit/" + d.resourceId;
-      } else if (d.content.indexOf("接口测试") > -1) {
-        url += "/api/automation/report/view/" + d.resourceId;
-      } else if (d.content.indexOf("测试计划") > -1) {
-        url += "/track/plan/view/" + d.resourceId;
-      } else {
-        url += "/track/plan/all";
+      try {
+        let obj = JSON.parse(d.content);
+        // 接口自动化，性能测试
+        if (obj.reportUrl) {
+          let s = obj.reportUrl.indexOf('#');
+          url += obj.reportUrl.substring(s + 1);
+        }
+        // 接口用例
+        else if (obj.caseStatus) {
+          url += "/api/definition?caseId=" + d.resourceId;
+        }
+        // 测试计划
+        else if (obj.url) {
+          let s = obj.url.indexOf('#');
+          url += obj.url.substring(s + 1);
+        } else {
+          url += "/track/plan/all";
+        }
+      } catch (e) {
+        // jenkins 跳转需要特殊处理
+        if (d.content.indexOf("接口用例") > -1) {
+          url += "/api/definition?caseId=" + d.resourceId;
+        } else if (d.content.indexOf("性能测试") > -1) {
+          url += "/performance/test/edit/" + d.resourceId;
+        } else if (d.content.indexOf("接口测试") > -1) {
+          url += "/api/automation/report/view/" + d.resourceId;
+        } else if (d.content.indexOf("测试计划运行") > -1) {
+          url += "/track/plan/view/" + d.resourceId;
+        } else {
+          url += "/track/plan/all";
+        }
       }
+
       break;
     case "TEST_PLAN_TASK" :
       url += "/track/plan/view/" + d.resourceId;
