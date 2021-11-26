@@ -187,8 +187,8 @@ public class TestResultService {
 
         String subject = "";
         String event = "";
-        String successContext = "${operator}执行接口测试成功: ${name}" + ", 报告: ${reportUrl}";
-        String failedContext = "${operator}执行接口测试失败: ${name}" + ", 报告: ${reportUrl}";
+        String successContext = "${operator}执行接口自动化成功: ${name}" + ", 报告: ${reportUrl}";
+        String failedContext = "${operator}执行接口自动化失败: ${name}" + ", 报告: ${reportUrl}";
 
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
             subject = Translator.get("task_notification_jenkins");
