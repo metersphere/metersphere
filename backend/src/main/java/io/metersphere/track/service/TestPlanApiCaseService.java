@@ -391,22 +391,22 @@ public class TestPlanApiCaseService {
         if (caseWithBLOBs != null) {
             apiResult.setName(caseWithBLOBs.getName());
         }
-        if(StringUtils.equalsIgnoreCase(request.getTriggerMode(),ApiRunMode.SCHEDULE_API_PLAN.name())) {
+        if (StringUtils.equalsIgnoreCase(request.getTriggerMode(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             apiResult.setTriggerMode(TriggerMode.SCHEDULE.name());
-        }else if(StringUtils.equalsIgnoreCase(request.getTriggerMode(),ApiRunMode.JENKINS_API_PLAN.name())){
+        } else if (StringUtils.equalsIgnoreCase(request.getTriggerMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
             apiResult.setTriggerMode(TriggerMode.MANUAL.name());
-        }else {
+        } else {
             apiResult.setTriggerMode(TriggerMode.BATCH.name());
         }
         apiResult.setActuator("LOCAL");
         if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
             apiResult.setActuator(request.getConfig().getResourcePoolId());
         }
-        if(StringUtils.isEmpty(request.getUserId())){
+        if (StringUtils.isEmpty(request.getUserId())) {
             if (SessionUtils.getUser() != null) {
                 apiResult.setUserId(SessionUtils.getUser().getId());
             }
-        }else {
+        } else {
             apiResult.setUserId(request.getUserId());
         }
 
@@ -423,6 +423,7 @@ public class TestPlanApiCaseService {
         List<String> ids = request.getPlanIds();
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andIdIn(ids);
+        example.setOrderByClause("`order` DESC");
         List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
@@ -449,13 +450,13 @@ public class TestPlanApiCaseService {
             planApiCases.forEach(testPlanApiCase -> {
                 ApiDefinitionExecResult report = addResult(request, testPlanApiCase, APITestStatus.Waiting.name(), batchMapper);
                 executeQueue.put(testPlanApiCase, report);
-                executeThreadIdMap.put(testPlanApiCase.getId(),report.getId());
+                executeThreadIdMap.put(testPlanApiCase.getId(), report.getId());
             });
 
             //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
-            if(TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())){
+            if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
                 if (!executeThreadIdMap.isEmpty()) {
-                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
+                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap, null, null);
                 }
             }
 
@@ -503,7 +504,7 @@ public class TestPlanApiCaseService {
                                 mapper.updateByPrimaryKey(execResult);
                                 modeDataDTO.setApiCaseId(execResult.getId());
                                 modeDataDTO.setDebugReportId(request.getPlanReportId());
-                                modeDataDTO.setTestId(modeDataDTO.getTestId()+":"+request.getPlanReportId()+ ":"+ execResult.getId());
+                                modeDataDTO.setTestId(modeDataDTO.getTestId() + ":" + request.getPlanReportId() + ":" + execResult.getId());
                                 Future<ApiDefinitionExecResult> future = executorService.submit(new SerialApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), request.getTriggerMode()));
                                 ApiDefinitionExecResult report = future.get();
                                 // 如果开启失败结束执行，则判断返回结果状态
@@ -533,11 +534,11 @@ public class TestPlanApiCaseService {
                         }
 
                         //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
-                        if(TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())){
+                        if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
                             if (!executeErrorList.isEmpty()) {
-                                Map<String,String> executeErrorMap = new HashMap<>();
-                                for(String id : executeErrorList){
-                                    executeErrorMap.put(id,TestPlanApiExecuteStatus.FAILD.name());
+                                Map<String, String> executeErrorMap = new HashMap<>();
+                                for (String id : executeErrorList) {
+                                    executeErrorMap.put(id, TestPlanApiExecuteStatus.FAILD.name());
                                 }
                                 TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(request.getPlanReportId(), executeErrorMap, null, null);
                             }
@@ -558,14 +559,14 @@ public class TestPlanApiCaseService {
             planApiCases.forEach(testPlanApiCase -> {
                 ApiDefinitionExecResult report = addResult(request, testPlanApiCase, APITestStatus.Running.name(), batchMapper);
                 executeQueue.put(report.getId(), testPlanApiCase);
-                executeThreadIdMap.put(testPlanApiCase.getId(),report.getId());
+                executeThreadIdMap.put(testPlanApiCase.getId(), report.getId());
                 MessageCache.caseExecResourceLock.put(report.getId(), report);
             });
             sqlSession.commit();
             //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
-            if(TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())){
+            if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
                 if (!executeThreadIdMap.isEmpty()) {
-                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap,null, null);
+                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap, null, null);
                 }
             }
 
@@ -577,28 +578,28 @@ public class TestPlanApiCaseService {
                 try {
                     String debugId = request.getPlanReportId();
                     if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-                        String testId = testPlanApiCase.getId()+":"+ request.getPlanReportId() + ":" +reportId;
+                        String testId = testPlanApiCase.getId() + ":" + request.getPlanReportId() + ":" + reportId;
                         jMeterService.runTest(testId, reportId, request.getTriggerMode(), request.getPlanReportId(), request.getConfig());
                     } else {
                         HashTree hashTree = generateHashTree(testPlanApiCase.getId());
-                        if(StringUtils.isEmpty(debugId)){
+                        if (StringUtils.isEmpty(debugId)) {
                             debugId = TriggerMode.BATCH.name();
                         }
-                        String testId = reportId+":"+ request.getPlanReportId();
-                        jMeterService.runLocal(testId,request.getConfig(), hashTree, debugId, request.getTriggerMode());
+                        String testId = reportId + ":" + request.getPlanReportId();
+                        jMeterService.runLocal(testId, request.getConfig(), hashTree, debugId, request.getTriggerMode());
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     executeErrorList.add(testPlanApiCase.getId());
                 }
 
             }
 
             //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
-            if(TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())){
+            if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
                 if (!executeErrorList.isEmpty()) {
-                    Map<String,String> executeErrorMap = new HashMap<>();
-                    for(String id : executeErrorList){
-                        executeErrorMap.put(id,TestPlanApiExecuteStatus.FAILD.name());
+                    Map<String, String> executeErrorMap = new HashMap<>();
+                    for (String id : executeErrorList) {
+                        executeErrorMap.put(id, TestPlanApiExecuteStatus.FAILD.name());
                     }
                     TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(request.getPlanReportId(), executeErrorMap, null, null);
                 }
@@ -745,25 +746,25 @@ public class TestPlanApiCaseService {
                 testPlanApiCaseMapper::updateByPrimaryKeySelective);
     }
 
-    public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String,String> testPlanApiCaseReportMap,boolean isFinish) {
+    public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String, String> testPlanApiCaseReportMap, boolean isFinish) {
         if (testPlanApiCaseReportMap.isEmpty()) {
             return new ArrayList<>();
         }
         String defaultStatus = "Running";
-        if(isFinish){
+        if (isFinish) {
             defaultStatus = "error";
         }
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(testPlanApiCaseReportMap.keySet(),null);
-        Map<String,String> reportResult = apiDefinitionExecResultService.selectReportResultByReportIds(testPlanApiCaseReportMap.values());
+        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(testPlanApiCaseReportMap.keySet(), null);
+        Map<String, String> reportResult = apiDefinitionExecResultService.selectReportResultByReportIds(testPlanApiCaseReportMap.values());
         for (TestPlanFailureApiDTO dto : apiTestCases) {
             String testPlanApiCaseId = dto.getId();
             String reportId = testPlanApiCaseReportMap.get(testPlanApiCaseId);
             dto.setReportId(reportId);
-            if(StringUtils.isEmpty(reportId)){
+            if (StringUtils.isEmpty(reportId)) {
                 dto.setExecResult(defaultStatus);
-            }else {
+            } else {
                 String status = reportResult.get(reportId);
-                if(status == null){
+                if (status == null) {
                     status = defaultStatus;
                 }
                 dto.setExecResult(status);
