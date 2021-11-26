@@ -338,7 +338,7 @@ public class IssuesService {
     }
 
     public List<IssuesDao> list(IssuesRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
         List<IssuesDao> issues = extIssuesMapper.getIssues(request);
 
         List<String> ids = issues.stream()

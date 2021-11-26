@@ -58,6 +58,10 @@ public class ServiceUtils {
         return orders;
     }
 
+    public static List<OrderRequest> getDefaultOrderByField(List<OrderRequest> orders, String field) {
+        return getDefaultOrderByField(null, orders, field);
+    }
+
     /**
      * 获取前端全选的id列表
      *
