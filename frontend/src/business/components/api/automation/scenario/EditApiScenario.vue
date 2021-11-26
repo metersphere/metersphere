@@ -205,12 +205,14 @@
                          :project-list="projectList"
                          :env-map="projectEnvMap"
                          :env-group-id="envGroupId"
+                         :environment-type="environmentType"
                          @remove="remove"
                          @copyRow="copyRow"
                          @suggestClick="suggestClick"
                          @refReload="refReload"
                          @runScenario="runDebug"
                          @stopScenario="stop"
+                         @setDomain="setDomain"
                          @openScenario="openScenario"/>
                     </span>
               </el-tree>
@@ -528,7 +530,7 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
-    setDomain(flag) {
+    setDomain() {
       if (this.projectEnvMap && this.projectEnvMap.size > 0) {
         let scenario = {
           id: this.currentScenario.id,

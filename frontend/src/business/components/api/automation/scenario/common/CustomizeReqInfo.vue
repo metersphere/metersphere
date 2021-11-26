@@ -9,7 +9,7 @@
         <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.url"
                   style="width: 50%" size="small" @blur="urlChange" :disabled="request.disabled">
         </el-input>
-        <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment">
+        <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment" @change="setDomain" :disabled="request.disabled">
           {{ $t('api_test.request.refer_to_environment') }}
         </el-checkbox>
       </div>
@@ -123,6 +123,9 @@ export default {
         this.$error(this.$t('api_test.request.url_invalid'), 2000);
       }
     },
+    setDomain() {
+      this.$emit("setDomain");
+    }
   }
 }
 </script>

@@ -20,7 +20,7 @@
         :title="title"
         :color="titleColor"
         :response="response"
-        :environmet-type="environmentType"
+        :environment-type="environmentType"
         :environment-group-id="envGroupId"
         :background-color="backgroundColor"
         :project-list="projectList"
@@ -34,7 +34,7 @@
         @copyRow="copyRow"
         @refReload="refReload"
         @openScenario="openScenario"
-
+        @setDomain="setDomain"
       />
     </keep-alive>
   </div>
@@ -231,6 +231,9 @@ export default {
     },
     stopScenario() {
       this.$emit('stopScenario');
+    },
+    setDomain() {
+      this.$emit("setDomain");
     }
   }
 }
