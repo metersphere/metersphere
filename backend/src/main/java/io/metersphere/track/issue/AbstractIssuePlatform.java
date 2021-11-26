@@ -401,10 +401,11 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     protected Map<String, IssuesWithBLOBs> getUuIdMap(List<IssuesWithBLOBs> issues) {
+        HashMap<String, IssuesWithBLOBs> issueMap = new HashMap<>();
         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(issues)) {
-            return issues.stream().collect(Collectors.toMap(Issues::getPlatformId, i -> i));
+            issues.forEach(item -> issueMap.put(item.getPlatformId(), item));
         }
-        return new HashMap<>();
+        return issueMap;
     }
 
     protected void deleteSyncIssue(List<String> ids) {
@@ -456,10 +457,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issue.setProjectId(projectId);
         issue.setId(UUID.randomUUID().toString());
         issue.setPlatformId(platformId);
-        issue.setCreateTime(System.currentTimeMillis());
-        issue.setUpdateTime(System.currentTimeMillis());
         issue.setCreator(SessionUtils.getUserId());
         issue.setNum(nextNum);
-        issuesMapper.insert(issue); // 批量新增
     }
 }
