@@ -810,6 +810,9 @@ public class ApiTestCaseService {
         if (caseWithBLOBs == null) {
             return null;
         }
+        if (StringUtils.isBlank(request.getEnvironmentId())) {
+            request.setEnvironmentId(extApiTestCaseMapper.getApiCaseEnvironment(request.getCaseId()));
+        }
         //提前生成报告
         ApiDefinitionExecResult report = addResult(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId());
         report.setName(caseWithBLOBs.getName());
@@ -1202,9 +1205,7 @@ public class ApiTestCaseService {
         if (StringUtils.isBlank(environmentId)) {
             return null;
         }
-        // "environmentId"
         try {
-            environmentId = environmentId.substring(1, environmentId.length() - 1);
             return apiTestEnvironmentMapper.selectByPrimaryKey(environmentId);
         } catch (Exception e) {
             LogUtil.error("api case environmentId incorrect parsing. api case id: " + caseId);
