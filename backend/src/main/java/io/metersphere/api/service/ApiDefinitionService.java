@@ -514,11 +514,13 @@ public class ApiDefinitionService {
         }
         this.setModule(test);
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
-        // 同步修改用例
-        List<String> ids = new ArrayList<>();
-        ids.add(request.getId());
-        apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol());
-        //saveFollows(test.getId(), request.getFollows());
+
+        // 同步修改用例路径
+        if (StringUtils.equals(test.getProtocol(), "HTTP")) {
+            List<String> ids = new ArrayList<>();
+            ids.add(request.getId());
+            apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol());
+        }
         return test;
     }
 
