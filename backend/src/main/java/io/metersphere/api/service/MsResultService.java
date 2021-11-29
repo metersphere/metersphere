@@ -102,6 +102,9 @@ public class MsResultService {
 
     public void formatTestResult(TestResult testResult, Map<String, ScenarioResult> scenarios, SampleResult result) {
         String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
+        if (StringUtils.equals(scenarioName, "parallel")) {
+            scenarioName = testResult.getTestId();
+        }
         ScenarioResult scenarioResult;
         if (!scenarios.containsKey(scenarioName)) {
             scenarioResult = new ScenarioResult();
