@@ -20,7 +20,7 @@
               {{ log.content }}
             </li>
           </ul>
-          <el-link type="primary" @click="downloadLogFile(item)">{{ $t('load_test.download_log_file') }}</el-link>
+          <el-link type="primary" @click="downloadLogFile(currentInstance)">{{ $t('load_test.download_log_file') }}</el-link>
         </div>
       </el-col>
     </el-row>
@@ -115,9 +115,9 @@ export default {
       this.logContent[instance] = [];
       this.load(instance);
     },
-    downloadLogFile(item) {
+    downloadLogFile(resourceId) {
       let config = {
-        url: '/performance/report/log/download/' + this.id + '/' + item.resourceId,
+        url: '/performance/report/log/download/' + this.id + '/' + resourceId,
         method: 'get',
         responseType: 'blob'
       };
