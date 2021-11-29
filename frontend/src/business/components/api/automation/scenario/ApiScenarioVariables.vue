@@ -56,22 +56,26 @@
     },
     methods: {
       remove: function (index) {
-        this.items.splice(index, 1);
-        this.$emit('change', this.items);
+        if(this.items) {
+          this.items.splice(index, 1);
+          this.$emit('change', this.items);
+        }
       },
       change: function () {
         let isNeedCreate = true;
         let removeIndex = -1;
-        this.items.forEach((item, index) => {
-          if (!item.name && !item.value) {
-            // 多余的空行
-            if (index !== this.items.length - 1) {
-              removeIndex = index;
+        if(this.items) {
+          this.items.forEach((item, index) => {
+            if (!item.name && !item.value) {
+              // 多余的空行
+              if (index !== this.items.length - 1) {
+                removeIndex = index;
+              }
+              // 没有空行，需要创建空行
+              isNeedCreate = false;
             }
-            // 没有空行，需要创建空行
-            isNeedCreate = false;
-          }
-        });
+          });
+        }
         if (isNeedCreate) {
           this.items.push(new KeyValue({enable: true}));
         }

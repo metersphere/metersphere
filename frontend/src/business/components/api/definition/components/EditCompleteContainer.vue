@@ -78,12 +78,10 @@
     </div>
 
     <div v-if="showMock && (currentProtocol === 'HTTP')" class="ms-api-div">
-      <!--      <mock-config :base-mock-config-data="baseMockConfigData" type="http"/>-->
       <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="false"/>
     </div>
     <div v-if="showMock && (currentProtocol === 'TCP')" class="ms-api-div">
       <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="true"/>
-      <!--      <tcp-mock-config :base-mock-config-data="baseMockConfigData" type="tcp"/>-->
     </div>
     <div v-if="showTestCaseList">
       <!--测试用例列表-->
@@ -263,9 +261,6 @@ export default {
       this.$emit("refresh");
     },
     changeTab(tabType) {
-      if (this.$refs.apiConfig) {
-        this.$refs.apiConfig.handleSave();
-      }
       this.refreshButtonActiveClass(tabType);
     },
     removeListener() {
