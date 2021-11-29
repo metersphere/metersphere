@@ -73,7 +73,6 @@ import EnvironmentEdit from "@/business/components/api/test/components/environme
 import MsAsideItem from "@/business/components/common/components/MsAsideItem";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import ProjectSwitch from "@/business/components/common/head/ProjectSwitch";
-import SearchList from "@/business/components/common/head/SearchList";
 import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
 import EnvironmentGroupRow from "@/business/components/settings/workspace/environment/EnvironmentGroupRow";
 import EditEnvironmentGroup from "@/business/components/settings/workspace/environment/EditEnvironmentGroup";
@@ -84,7 +83,6 @@ export default {
   components: {
     EditEnvironmentGroup,
     EnvironmentImport,
-    SearchList,
     ProjectSwitch,
     MsAsideContainer,
     MsAsideItem,
