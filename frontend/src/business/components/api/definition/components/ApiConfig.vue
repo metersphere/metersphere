@@ -73,17 +73,18 @@ export default {
       },
       deep: true
     },
-  },
-  response: {
-    handler(newObj, oldObj) {
-      this.responseCount++;
-      if (this.responseCount > 1) {
-        this.$store.state.apiStatus.set("responseChange", true);
-        this.$store.state.apiMap.set(this.currentApi.id, this.$store.state.apiStatus);
-      }
+    response: {
+      handler(newObj, oldObj) {
+        this.responseCount++;
+        if (this.responseCount > 1) {
+          this.$store.state.apiStatus.set("responseChange", true);
+          this.$store.state.apiMap.set(this.currentApi.id, this.$store.state.apiStatus);
+        }
+      },
+      deep: true
     },
-    deep: true
   },
+
   created() {
     this.getMaintainerOptions();
     switch (this.currentProtocol) {
