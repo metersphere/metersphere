@@ -47,12 +47,11 @@
 import MsShowAll from "@/business/components/common/head/ShowAll";
 import MsRecentList from "@/business/components/common/head/RecentList";
 import MsCreateButton from "@/business/components/common/head/CreateButton";
-import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 
 export default {
   name: "ProjectHeaderMenus",
-  components: {ProjectChange, SearchList, MsShowAll, MsRecentList, MsCreateButton},
+  components: {ProjectChange, MsShowAll, MsRecentList, MsCreateButton},
   data() {
     return {
       currentProject: '',

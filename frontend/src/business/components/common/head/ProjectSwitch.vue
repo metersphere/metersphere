@@ -9,7 +9,9 @@
         </span>
       </template>
       <search-list :current-project.sync="currentProject"/>
-      <el-divider/>
+      <div v-permission="['WORKSPACE_PROJECT_MANAGER:READ']">
+        <el-divider/>
+      </div>
       <el-menu-item :index="'/setting/project/create'" v-permission="['WORKSPACE_PROJECT_MANAGER:READ+CREATE']">
         <font-awesome-icon :icon="['fa', 'plus']"/>
         <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
