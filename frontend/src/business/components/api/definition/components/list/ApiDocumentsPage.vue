@@ -1,6 +1,8 @@
 <template>
   <div>
-    <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable" :project-id="projectId" :module-ids="moduleIds"></api-document-anchor>
+    <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable"
+                         :project-id="projectId" :module-ids="moduleIds"
+                         ref="documentAnchor"/>
   </div>
 </template>
 
@@ -15,13 +17,14 @@ export default {
   },
   data() {
     return {
-      isSharePage:false,
-    }
+      isSharePage: false,
+      condition: {},
+    };
   },
   props: {
-    projectId:String,
-    moduleIds:Array,
-    activeDom:String,
+    projectId: String,
+    moduleIds: Array,
+    activeDom: String,
     trashEnable: {
       type: Boolean,
       default: false,
@@ -29,14 +32,15 @@ export default {
   },
   created: function () {
   },
-  watch: {
-  },
-  computed: {
-
-  },
+  watch: {},
+  computed: {},
   methods: {
+    initApiDocSimpleList() {
+      Object.assign(this.$refs.documentAnchor.apiSearch, this.condition);
+      this.$refs.documentAnchor.initApiDocSimpleList();
+    }
   },
-}
+};
 </script>
 
 <style scoped>

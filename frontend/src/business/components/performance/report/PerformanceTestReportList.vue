@@ -36,6 +36,17 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="versionEnable"
+            :label="$t('project.version.name')"
+            :filters="versionFilters"
+            column-key="versionId"
+            min-width="100px"
+            prop="versionId">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.versionName }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             prop="userName"
             :label="$t('report.user_name')"
             show-overflow-tooltip>
@@ -129,13 +140,13 @@ import MsTablePagination from "../../common/pagination/TablePagination";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceReportStatus from "./PerformanceReportStatus";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import ShowMoreBtn from "../../track/case/components/ShowMoreBtn";
-import {_filter, _sort,saveLastTableSortField,getLastTableSortField} from "@/common/js/tableUtils";
+import {_filter, _sort, getLastTableSortField, saveLastTableSortField} from "@/common/js/tableUtils";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 
@@ -156,10 +167,12 @@ export default {
   created: function () {
     this.testId = this.$route.path.split('/')[3];
     this.initTableData();
+    this.getVersionOptions();
+    this.checkVersionEnable();
   },
   data() {
     return {
-      tableHeaderKey:"PERFORMANCE_REPORT_TABLE",
+      tableHeaderKey: "PERFORMANCE_REPORT_TABLE",
       result: {},
       deletePath: "/performance/report/delete/",
       condition: {
@@ -196,6 +209,10 @@ export default {
         }
       ],
       selectRows: new Set(),
+      versionFilters: [],
+      versionOptions: [],
+      currentVersion: '',
+      versionEnable: false,
     };
   },
   watch: {
@@ -334,7 +351,7 @@ export default {
         this.condition.orders = [];
       }
       _sort(column, this.condition);
-      this.saveSortField(this.tableHeaderKey,this.condition.orders);
+      this.saveSortField(this.tableHeaderKey, this.condition.orders);
       this.initTableData();
     },
     filter(filters) {
@@ -350,8 +367,8 @@ export default {
         this.selectRows.add(row);
       }
     },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
+    saveSortField(key, orders) {
+      saveLastTableSortField(key, JSON.stringify(orders));
     },
     handleSelectAll(selection) {
       if (selection.length > 0) {
@@ -383,7 +400,27 @@ export default {
           }
         },
       });
-    }
+    },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionOptions = response.data;
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
+    },
+    checkVersionEnable() {
+      if (!getCurrentProjectID()) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + getCurrentProjectID(), response => {
+          this.versionEnable = response.data;
+        });
+      }
+    },
   }
 };
 </script>

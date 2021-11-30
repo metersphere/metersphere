@@ -552,6 +552,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     public long countTrashApiData(String projectId, String protocol) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andStatusEqualTo("Trash");
-        return apiDefinitionMapper.countByExample(example);
+        return extApiDefinitionMapper.countByExample(example);
     }
 }

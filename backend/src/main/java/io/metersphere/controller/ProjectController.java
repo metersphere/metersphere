@@ -141,4 +141,9 @@ public class ProjectController {
     public String genTcpMockPort(@PathVariable String id){
         return projectService.genTcpMockPort(id);
     }
+
+    @GetMapping("version/enable/{projectId}")
+    public boolean isVersionEnable(@PathVariable String projectId) {
+        return projectService.isVersionEnable(projectId);
+    }
 }

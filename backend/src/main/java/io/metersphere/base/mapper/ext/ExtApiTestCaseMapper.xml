@@ -278,10 +278,12 @@
     <select id="selectApiCaseInfoByPrimaryKey" resultType="io.metersphere.api.dto.definition.ApiTestCaseInfo">
         SELECT
             t1.*,
-            a.method AS apiMethod
+            a.method AS apiMethod, project_version.name as version_name, project.version_enable
         FROM
             api_test_case t1
             inner join api_definition a on  t1.api_definition_id = a.id
+            LEFT JOIN project_version on a.project_id = project_version.project_id AND project_version.id = t1.version_id
+            LEFT JOIN project on a.project_id = project.id
         WHERE t1.id = #{0}
     </select>
 
@@ -314,13 +316,14 @@
         select
         t1.id, t1.project_id, t1.name,t1.case_status, t1.api_definition_id, t1.priority, t1.description, t1.create_user_id, t1.update_user_id, t1.create_time, t1.update_time, t1.num,
         a.module_id, a.path, a.protocol, t1.tags,t1.status,t2.STATUS AS execResult, t1.last_result_id as lastResultId, project.name as project_name,
-        t1.delete_time, deleteUser.name AS deleteUser,CONCAT(FORMAT(SUM(IF (t2.`status`='success',1,0))/COUNT(t2.id)*100,2),'%') passRate
+        t1.delete_time, deleteUser.name AS deleteUser,CONCAT(FORMAT(SUM(IF (t2.`status`='success',1,0))/COUNT(t2.id)*100,2),'%') passRate, project_version.name as version_name
         from
         api_test_case t1
         LEFT JOIN api_definition_exec_result t2 ON t1.id = t2.resource_id
         LEFT JOIN user deleteUser ON t1.delete_user_id = deleteUser.id
         LEFT JOIN api_definition a on t1.api_definition_id = a.id
         LEFT JOIN project ON t1.project_id = project.id
+        LEFT JOIN project_version on project.id = project_version.project_id AND project_version.id = t1.version_id
         WHERE 1=1
         <if test="request.protocol != null and request.protocol!=''">
             and a.protocol = #{request.protocol}
@@ -409,6 +412,9 @@
         </if>
         <if test="request.toUpdate !=null and request.toUpdate == true">
             and (t1.update_time >= #{request.updateTime} or t2.status = 'error')
+        </if>
+        <if test="request.versionId != null">
+            AND t1.version_id = #{request.versionId}
         </if>
         GROUP BY  t1.id,
         t1.project_id,

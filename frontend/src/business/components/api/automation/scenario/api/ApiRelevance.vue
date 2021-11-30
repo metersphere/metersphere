@@ -17,20 +17,34 @@
     <scenario-relevance-api-list
       v-if="isApiListEnable"
       :project-id="projectId"
+      :version-filters="versionFilters"
+      :current-version="currentVersion"
       :current-protocol="currentProtocol"
       :select-node-ids="selectNodeIds"
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange"
-      ref="apiList"/>
+      ref="apiList">
+      <template v-slot:version>
+        <version-select v-xpack :project-id="projectId" :default-version="currentVersion"
+                        @changeVersion="currentVersionChange"/>
+      </template>
+    </scenario-relevance-api-list>
 
     <scenario-relevance-case-list
       v-if="!isApiListEnable"
       :project-id="projectId"
+      :version-filters="versionFilters"
+      :current-version="currentVersion"
       :current-protocol="currentProtocol"
       :select-node-ids="selectNodeIds"
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange"
-      ref="apiCaseList"/>
+      ref="apiCaseList">
+      <template v-slot:version>
+        <version-select v-xpack :project-id="projectId" :default-version="currentVersion"
+                        @changeVersion="currentVersionChange"/>
+      </template>
+    </scenario-relevance-case-list>
 
     <template v-slot:headerBtn>
       <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent size="mini">
@@ -53,11 +67,14 @@ import MsMainContainer from "../../../../common/components/MsMainContainer";
 import ScenarioRelevanceApiList from "./RelevanceApiList";
 import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
 import TestCaseRelevanceBase from "@/business/components/track/plan/view/comonents/base/TestCaseRelevanceBase";
-import {getUUID} from "@/common/js/utils";
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "ApiRelevance",
   components: {
+    'VersionSelect': VersionSelect.default,
     TestCaseRelevanceBase,
     RelevanceDialog,
     ScenarioRelevanceApiList,
@@ -65,15 +82,17 @@ export default {
   },
   data() {
     return {
-      buttonIsWorking:false,
+      buttonIsWorking: false,
       result: {},
       currentProtocol: null,
       saveOtherPageData: false,
       selectNodeIds: [],
       moduleOptions: {},
       isApiListEnable: true,
-      projectId: ""
-    }
+      projectId: "",
+      versionFilters: [],
+      currentVersion: null,
+    };
   },
   watch: {
     projectId() {
@@ -82,7 +101,7 @@ export default {
     }
   },
   methods: {
-    changeButtonLoadingType(){
+    changeButtonLoadingType() {
       this.refresh();
       this.buttonIsWorking = false;
     },
@@ -103,14 +122,14 @@ export default {
         let params = this.$refs.apiList.getConditions();
         this.result = this.$post("/api/definition/list/batch", params, (response) => {
           let apis = response.data;
-          if(apis.length === 0){
+          if (apis.length === 0) {
             this.$warning('请选择接口');
             this.buttonIsWorking = false;
-          }else {
+          } else {
             this.$emit('save', apis, 'API', reference);
             this.$refs.baseRelevance.close();
           }
-        },(error) => {
+        }, (error) => {
           this.buttonIsWorking = false;
         });
 
@@ -118,14 +137,14 @@ export default {
         let params = this.$refs.apiCaseList.getConditions();
         this.result = this.$post("/api/testcase/get/caseBLOBs/request", params, (response) => {
           let apiCases = response.data;
-          if(apiCases.length === 0) {
+          if (apiCases.length === 0) {
             this.$warning('请选择案例');
             this.buttonIsWorking = false;
-          }else{
+          } else {
             this.$emit('save', apiCases, 'CASE', reference);
             this.$refs.baseRelevance.close();
           }
-        },(error) => {
+        }, (error) => {
           this.buttonIsWorking = false;
         });
       }
@@ -141,6 +160,9 @@ export default {
     },
     isApiListEnableChange(data) {
       this.isApiListEnable = data;
+    },
+    currentVersionChange(currentVersion) {
+      this.currentVersion = currentVersion || null;
     },
     nodeChange(node, nodeIds, pNodes) {
       this.selectNodeIds = nodeIds;
@@ -162,11 +184,14 @@ export default {
       this.projectId = projectId;
     },
   }
-}
+};
 </script>
 
 <style scoped>
 /deep/ .filter-input {
   width: 140px !important;
+}
+.version-select {
+  padding-left: 10px;
 }
 </style>

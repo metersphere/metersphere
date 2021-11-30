@@ -30,6 +30,8 @@
     <result column="order" jdbcType="BIGINT" property="order" />
     <result column="environment_type" jdbcType="VARCHAR" property="environmentType" />
     <result column="environment_group_id" jdbcType="VARCHAR" property="environmentGroupId" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioWithBLOBs">
     <result column="scenario_definition" jdbcType="LONGVARCHAR" property="scenarioDefinition" />
@@ -99,7 +101,7 @@
     id, project_id, tags, user_id, api_scenario_module_id, module_path, `name`, `level`, 
     `status`, principal, step_total, schedule, create_time, update_time, pass_rate, last_result, 
     report_id, num, original_state, custom_num, create_user, version, delete_time, delete_user_id, 
-    execute_times, `order`, environment_type, environment_group_id
+    execute_times, `order`, environment_type, environment_group_id, version_id, ref_id
   </sql>
   <sql id="Blob_Column_List">
     scenario_definition, description, use_url, environment_json
@@ -162,9 +164,9 @@
       original_state, custom_num, create_user, 
       version, delete_time, delete_user_id, 
       execute_times, `order`, environment_type, 
-      environment_group_id, scenario_definition, 
-      description, use_url, environment_json
-      )
+      environment_group_id, version_id, ref_id, 
+      scenario_definition, description, 
+      use_url, environment_json)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
@@ -174,9 +176,9 @@
       #{originalState,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{version,jdbcType=INTEGER}, #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, 
       #{executeTimes,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, #{environmentType,jdbcType=VARCHAR}, 
-      #{environmentGroupId,jdbcType=VARCHAR}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR}, #{useUrl,jdbcType=LONGVARCHAR}, #{environmentJson,jdbcType=LONGVARCHAR}
-      )
+      #{environmentGroupId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
+      #{scenarioDefinition,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
+      #{useUrl,jdbcType=LONGVARCHAR}, #{environmentJson,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
     insert into api_scenario
@@ -264,6 +266,12 @@
       </if>
       <if test="environmentGroupId != null">
         environment_group_id,
+      </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
+      <if test="refId != null">
+        ref_id,
       </if>
       <if test="scenarioDefinition != null">
         scenario_definition,
@@ -362,6 +370,12 @@
       </if>
       <if test="environmentGroupId != null">
         #{environmentGroupId,jdbcType=VARCHAR},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
       </if>
       <if test="scenarioDefinition != null">
         #{scenarioDefinition,jdbcType=LONGVARCHAR},
@@ -470,6 +484,12 @@
       <if test="record.environmentGroupId != null">
         environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR},
       </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
       <if test="record.scenarioDefinition != null">
         scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
@@ -517,6 +537,8 @@
       `order` = #{record.order,jdbcType=BIGINT},
       environment_type = #{record.environmentType,jdbcType=VARCHAR},
       environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
       scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
       use_url = #{record.useUrl,jdbcType=LONGVARCHAR},
@@ -554,7 +576,9 @@
       execute_times = #{record.executeTimes,jdbcType=INTEGER},
       `order` = #{record.order,jdbcType=BIGINT},
       environment_type = #{record.environmentType,jdbcType=VARCHAR},
-      environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR}
+      environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -643,6 +667,12 @@
       <if test="environmentGroupId != null">
         environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
       </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
       <if test="scenarioDefinition != null">
         scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
@@ -687,6 +717,8 @@
       `order` = #{order,jdbcType=BIGINT},
       environment_type = #{environmentType,jdbcType=VARCHAR},
       environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
       scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
       use_url = #{useUrl,jdbcType=LONGVARCHAR},
@@ -721,7 +753,9 @@
       execute_times = #{executeTimes,jdbcType=INTEGER},
       `order` = #{order,jdbcType=BIGINT},
       environment_type = #{environmentType,jdbcType=VARCHAR},
-      environment_group_id = #{environmentGroupId,jdbcType=VARCHAR}
+      environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

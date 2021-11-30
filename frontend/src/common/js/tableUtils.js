@@ -1,4 +1,4 @@
-import {getCurrentProjectID, getCurrentUser, getUUID, humpToLine} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getUUID, hasLicense, humpToLine} from "@/common/js/utils";
 import {CUSTOM_TABLE_HEADER} from "@/common/js/default-table-header";
 import {updateCustomFieldTemplate} from "@/network/custom-field-template";
 import i18n from "@/i18n/i18n";
@@ -322,6 +322,10 @@ export function translateLabel(fieldSetting) {
  */
 export function getAllFieldWithCustomFields(key, customFields) {
   let fieldSetting = [...CUSTOM_TABLE_HEADER[key]];
+  // 如果没有 license, 排除 xpack
+  if (!hasLicense()) {
+    fieldSetting = fieldSetting.filter(v => !v.xpack);
+  }
   fieldSetting = JSON.parse(JSON.stringify(fieldSetting));
   translateLabel(fieldSetting);
   if (customFields) {
