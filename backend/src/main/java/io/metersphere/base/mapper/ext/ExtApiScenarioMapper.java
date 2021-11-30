@@ -85,4 +85,6 @@ public interface ExtApiScenarioMapper {
 
     List<RelationshipGraphData.Node> getTestCaseForGraph(@Param("ids") Set<String> ids);
 
+    void setScenarioEnvGroupIdNull(@Param("environmentGroupId") String environmentGroupId);
+
 }

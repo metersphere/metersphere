@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.base.mapper.EnvironmentGroupMapper;
@@ -43,6 +44,8 @@ public class EnvironmentGroupService {
     private ProjectMapper projectMapper;
     @Resource
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
+    @Resource
+    private ApiAutomationService apiAutomationService;
 
     public EnvironmentGroup add(EnvironmentGroupRequest request) {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -93,6 +96,7 @@ public class EnvironmentGroupService {
             return;
         }
         environmentGroupMapper.deleteByPrimaryKey(id);
+        apiAutomationService.setScenarioEnvGroupIdNull(id);
         EnvironmentGroupProjectExample example = new EnvironmentGroupProjectExample();
         example.createCriteria().andEnvironmentGroupIdEqualTo(id);
         environmentGroupProjectMapper.deleteByExample(example);
