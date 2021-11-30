@@ -89,7 +89,6 @@
       },
       handleAuth(type) {
         let param = {...this.currentPlatformInfo};
-        debugger
         if(type==='Jira'){
           if(!param.jiraAccount){
             this.$error(this.$t('organization.integration.input_api_account'));
