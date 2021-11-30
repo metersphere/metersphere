@@ -3033,6 +3033,12 @@ public class ApiAutomationService {
         return this.checkScenarioEnv(request, null);
     }
 
+    public boolean checkScenarioEnv(String scenarioId) {
+        ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(scenarioId);
+        this.setScenarioEnv(apiScenarioWithBLOBs);
+        return this.checkScenarioEnv(apiScenarioWithBLOBs, null);
+    }
+
     public List<String> getFollows(String scenarioId) {
         List<String> result = new ArrayList<>();
         if (StringUtils.isBlank(scenarioId)) {
