@@ -3043,4 +3043,8 @@ public class ApiAutomationService {
         List<ApiScenarioFollow> follows = apiScenarioFollowMapper.selectByExample(example);
         return follows.stream().map(ApiScenarioFollow::getFollowId).distinct().collect(Collectors.toList());
     }
+
+    public void setScenarioEnvGroupIdNull(String envGroupId) {
+        extApiScenarioMapper.setScenarioEnvGroupIdNull(envGroupId);
+    }
 }
