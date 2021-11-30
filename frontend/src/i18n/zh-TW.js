@@ -757,6 +757,20 @@ export default {
     test_case_custom_id_info: '用例ID默認為系統自增ID',
     scenario_custom_id: '場景自定義ID',
     scenario_custom_id_info: '場景用例ID默認為系統自增ID',
+    version: {
+      name: '版本',
+      create_version: '創建版本',
+      edit_version: '編輯版本',
+      version_closed: '已關閉',
+      version_open: '未關閉',
+      publish_time: '發佈時間',
+      start_time: '開始時間',
+      end_time: '結束時間',
+      delete_version: '刪除版本',
+      please_input_version: '請輸入版本',
+      tips: '注意: 已關閉的版本不會出現在系統字段<strong>版本</strong>下拉框選項中',
+      enable: '啟用版本管理',
+    }
   },
   member: {
     create: '添加成員',
@@ -2537,7 +2551,7 @@ export default {
     before_change: "變更前",
     after_change: "變更後",
     share: "分享",
-    change_history: "變更歷史",
+    change_history: "變更記錄",
     change_content: "變更內容"
   },
   plugin: {

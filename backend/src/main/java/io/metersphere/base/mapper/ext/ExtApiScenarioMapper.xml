@@ -154,6 +154,7 @@
     <select id="list" resultMap="BaseResultMap">
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
         api_scenario.custom_num, api_scenario.version, api_scenario.environment_type, api_scenario.environment_group_id,
+        api_scenario.version_id, api_scenario.ref_id, project_version.name as version_name,
         <if test="request.selectEnvironment == true">
             api_scenario.environment_json as env,
         </if>
@@ -168,6 +169,7 @@
         left join user on api_scenario.user_id = user.id
         left join user deleteUser on api_scenario.delete_user_id = deleteUser.id
         left join user u2 on api_scenario.principal = u2.id
+        left join project_version on api_scenario.project_id = project_version.project_id AND project_version.id = api_scenario.version_id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -287,6 +289,12 @@
                                 </foreach>
                             </when>
 
+                            <when test="key=='version_id'">
+                                and api_scenario.version_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
@@ -308,6 +316,32 @@
                 select pc.api_scenario_id
                 from test_plan_api_scenario pc
                 where pc.test_plan_id = #{request.planId}
+                )
+            </if>
+            <if test="request.refId != null">
+                AND ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId != null">
+                AND version_id = #{request.versionId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND (
+                version_id = (SELECT project_version.id
+                FROM api_scenario tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                WHERE ref_id = api_scenario.ref_id
+                LIMIT 1)
+                OR
+                version_id = (SELECT project_version.id
+                FROM api_scenario tmp
+                JOIN project_version ON tmp.project_id = project_version.project_id AND
+                tmp.version_id = project_version.id
+                WHERE ref_id = api_scenario.ref_id
+                GROUP BY ref_id
+                HAVING MAX(latest) = 0
+                ORDER BY MAX(project_version.create_time) DESC
+                LIMIT 1)
                 )
             </if>
         </where>
@@ -460,7 +494,7 @@
         WHERE use_url IS NULL
     </select>
     <select id="selectTrash" resultType="java.lang.Integer">
-        select count(1)
+        select count(DISTINCT ref_id)
         from api_scenario
         where project_id = #{projectId}
           and status = 'Trash'
@@ -622,4 +656,11 @@
         and api_scenario.status != 'Trash';
     </select>
 
+    <select id="selectById" resultMap="BaseResultMap">
+        select api_scenario.*, project_version.name as version_name, project.version_enable
+        from api_scenario
+        LEFT JOIN project_version on project_version.project_id = api_scenario.project_id and project_version.id = version_id
+        LEFT JOIN project on api_scenario.project_id = project.id
+        WHERE api_scenario.id = #{id}
+    </select>
 </mapper>

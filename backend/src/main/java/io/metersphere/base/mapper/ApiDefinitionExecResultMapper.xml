@@ -13,6 +13,7 @@
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="actuator" jdbcType="VARCHAR" property="actuator" />
     <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionExecResult">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -77,7 +78,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, resource_id, `status`, user_id, start_time, end_time, create_time, `type`, 
-    actuator, trigger_mode
+    actuator, trigger_mode, version_id
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -134,13 +135,13 @@
     insert into api_definition_exec_result (id, `name`, resource_id, 
       `status`, user_id, start_time, 
       end_time, create_time, `type`, 
-      actuator, trigger_mode, content
-      )
+      actuator, trigger_mode, version_id, 
+      content)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{type,jdbcType=VARCHAR}, 
-      #{actuator,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
-      )
+      #{actuator,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, 
+      #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">
     insert into api_definition_exec_result
@@ -177,6 +178,9 @@
       </if>
       <if test="triggerMode != null">
         trigger_mode,
+      </if>
+      <if test="versionId != null">
+        version_id,
       </if>
       <if test="content != null">
         content,
@@ -215,6 +219,9 @@
       </if>
       <if test="triggerMode != null">
         #{triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -263,6 +270,9 @@
       <if test="record.triggerMode != null">
         trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
@@ -284,6 +294,7 @@
       `type` = #{record.type,jdbcType=VARCHAR},
       actuator = #{record.actuator,jdbcType=VARCHAR},
       trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -301,7 +312,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       `type` = #{record.type,jdbcType=VARCHAR},
       actuator = #{record.actuator,jdbcType=VARCHAR},
-      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR}
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -339,6 +351,9 @@
       <if test="triggerMode != null">
         trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -357,6 +372,7 @@
       `type` = #{type,jdbcType=VARCHAR},
       actuator = #{actuator,jdbcType=VARCHAR},
       trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -371,7 +387,8 @@
       create_time = #{createTime,jdbcType=BIGINT},
       `type` = #{type,jdbcType=VARCHAR},
       actuator = #{actuator,jdbcType=VARCHAR},
-      trigger_mode = #{triggerMode,jdbcType=VARCHAR}
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

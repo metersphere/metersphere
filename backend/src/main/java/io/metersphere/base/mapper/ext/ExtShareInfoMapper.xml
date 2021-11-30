@@ -30,6 +30,21 @@
                 #{apiId}
             </foreach>
         </if>
+        <if test="request.refId != null">
+            AND api.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId != null">
+            AND api.version_id = #{request.versionId}
+        </if>
+        <if test="request.versionId == null and request.refId == null">
+            AND api.version_id = (SELECT project_version.id
+            FROM api_definition tmp
+            JOIN project_version
+            ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id
+            WHERE ref_id = api.ref_id
+            ORDER BY project_version.create_time DESC
+            LIMIT 1)
+        </if>
         <if test="request.orderCondition == 'createTimeDesc'">
             ORDER BY api.create_time DESC
         </if>

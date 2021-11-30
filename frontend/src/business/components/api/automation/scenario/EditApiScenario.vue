@@ -6,13 +6,18 @@
         <!--操作按钮-->
         <div class="ms-opt-btn">
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
           </el-tooltip>
           <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
           </el-tooltip>
-          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
-
+          <el-link type="primary" style="margin-right: 5px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
+          <!--  版本历史 -->
+          <ms-version-history v-xpack
+                              ref="versionHistory"
+                              :version-data="versionData"
+                              :current-id="currentScenario.id"
+                              @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario"
                      title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
             {{ $t('commons.save') }}
@@ -64,20 +69,20 @@
                 </el-select>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
             <el-col :span="7">
               <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
                 <ms-input-tag :currentScenario="currentScenario" ref="tag"/>
               </el-form-item>
             </el-col>
+          </el-row>
+          <el-row>
             <el-col :span="7">
               <el-form-item :label="$t('commons.description')" prop="description">
                 <el-input class="ms-http-textarea"
                           v-model="currentScenario.description"
                           type="textarea"
-                          :autosize="{ minRows: 2, maxRows: 10}"
-                          :rows="2" size="small"/>
+                          :autosize="{ minRows: 1, maxRows: 10}"
+                          :rows="1" size="small"/>
               </el-form-item>
             </el-col>
             <el-col :span="7" v-if="customNum">
@@ -129,7 +134,7 @@
                   <el-checkbox v-model="onSampleError"><span style="font-size: 13px;">{{ $t('commons.failure_continues') }}</span></el-checkbox>
                 </el-col>
 
-                <el-col :span="8">
+                <el-col :span="7">
                   <div style="float: right;width: 300px">
                     <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
                                  :project-ids="projectIds" :result="envResult"
@@ -331,22 +336,27 @@
 import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
 import {buttons, setComponent} from './menu/Menu';
 import {parseEnvironment} from "../../definition/model/EnvironmentModel";
-import {ELEMENT_TYPE, STEP, TYPE_TO_C, PLUGIN_ELEMENTS} from "./Setting";
+import {ELEMENT_TYPE, STEP, TYPE_TO_C} from "./Setting";
 import {KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
 
 import {
-  getUUID,
-  objToStrMap,
-  strMapToObj,
-  handleCtrlSEvent,
   getCurrentProjectID,
-  handleCtrlREvent, hasLicense, getCurrentUser
+  getCurrentUser,
+  getUUID,
+  handleCtrlREvent,
+  handleCtrlSEvent,
+  hasLicense,
+  objToStrMap,
+  strMapToObj
 } from "@/common/js/utils";
-import "@/common/css/material-icons.css"
+import "@/common/css/material-icons.css";
 import OutsideClick from "@/common/js/outside-click";
 import {savePreciseEnvProjectIds, saveScenario} from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "@/common/js/constants";
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
 
 let jsonPath = require('jsonpath');
 export default {
@@ -361,6 +371,7 @@ export default {
     }
   },
   components: {
+    'MsVersionHistory': versionHistory.default,
     MsComponentConfig,
     MsVariableList: () => import("./variable/VariableList"),
     ScenarioRelevance: () => import("./api/ScenarioRelevance"),
@@ -465,7 +476,8 @@ export default {
       runScenario: undefined,
       showFollow: false,
       envGroupId: "",
-      environmentType: ENV_TYPE.JSON
+      environmentType: ENV_TYPE.JSON,
+      versionData: []
     }
   },
   watch: {
@@ -504,6 +516,10 @@ export default {
     this.getPlugins().then(() => {
       this.initPlugins();
     });
+
+    if (hasLicense()) {
+      this.getVersionHistory();
+    }
   },
   mounted() {
     this.$nextTick(() => {
@@ -1265,6 +1281,11 @@ export default {
         this.$refs['currentScenario'].validate(async (valid) => {
           if (valid) {
             await this.setParameter();
+            if (!this.currentScenario.versionId) {
+              if (this.$refs.versionHistory) {
+                this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
+              }
+            }
             saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
               this.$store.state.scenarioMap.delete(this.currentScenario.id);
@@ -1273,6 +1294,8 @@ export default {
               if (response.data) {
                 this.currentScenario.id = response.data.id;
               }
+              // 保存成功后刷新历史版本
+              this.getVersionHistory();
               if (this.currentScenario.tags instanceof String) {
                 this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
               }
@@ -1624,6 +1647,48 @@ export default {
         }
       }
     },
+    getVersionHistory() {
+      this.$get('/api/automation/versions/' + this.currentScenario.id, response => {
+        this.versionData = response.data;
+      });
+    },
+    compare(row) {
+      // console.log(row);
+    },
+    checkout(row) {
+      let api = this.versionData.filter(v => v.versionId === row.id)[0];
+      if (api.tags && api.tags.length > 0) {
+        api.tags = JSON.parse(api.tags);
+      }
+      Object.assign(this.currentScenario, api);
+      this.getApiScenario();
+      this.getVersionHistory();
+    },
+    create(row) {
+      // 创建新版本
+      this.currentScenario.versionId = row.id;
+      this.loading = true;
+      this.editScenario()
+        .then(() => {
+          this.loading = false;
+        })
+        .catch(() => {
+          this.loading = false;
+        });
+    },
+    del(row) {
+      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.$get('/api/automation/delete/' + row.id + '/' + this.currentScenario.refId, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.getVersionHistory();
+            });
+          }
+        }
+      });
+    }
   }
 }
 </script>

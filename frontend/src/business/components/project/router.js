@@ -8,6 +8,8 @@ const ProjectFileManage = () => import('@/business/components/project/menu/file/
 const ProjectUserGroup = () => import('@/business/components/project/menu/UserGroup')
 const ProjectAppManage = () => import('@/business/components/project/menu/appmanage/AppManage')
 
+const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
+const ProjectVersion = requireContext.keys().map(key => requireContext(key).projectVersion);
 
 export default {
   path: "/project",
@@ -50,10 +52,10 @@ export default {
       path: 'file/manage',
       component: ProjectFileManage
     },
-
     {
       path: 'app',
       component: ProjectAppManage
     },
+    ...ProjectVersion,
   ]
 };

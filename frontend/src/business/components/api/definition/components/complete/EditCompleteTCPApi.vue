@@ -6,16 +6,24 @@
         <!--操作按钮-->
         <div style="float: right;margin-right: 20px;margin-top: 20px" class="ms-opt-btn">
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+            <i class="el-icon-star-off"
+               style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
                @click="saveFollow"/>
           </el-tooltip>
           <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+            <i class="el-icon-star-on"
+               style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
                @click="saveFollow"/>
           </el-tooltip>
-          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="basisData.id">
+          <el-link type="primary" style="margin-right: 5px" @click="openHis" v-if="basisData.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
+          <!--  版本历史 -->
+          <ms-version-history v-xpack
+                              ref="versionHistory"
+                              :version-data="versionData"
+                              :current-id="basisData.id"
+                              @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
         </div>
       </el-col>
@@ -25,7 +33,8 @@
     <br/>
     <el-row>
       <el-col>
-        <ms-tcp-basic-api :method-types="methodTypes" @createRootModelInTree="createRootModelInTree" :moduleOptions="moduleOptions"
+        <ms-tcp-basic-api :method-types="methodTypes" @createRootModelInTree="createRootModelInTree"
+                          :moduleOptions="moduleOptions"
                           :basisData="basisData" ref="basicForm"
                           @changeApiProtocol="changeApiProtocol" @callback="callback"/>
       </el-col>
@@ -58,7 +67,8 @@
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :request="request" ref="esbDefinition"/>
       <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-      <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :show-options-button="true" :request="request"/>
+      <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :show-options-button="true"
+                               :request="request"/>
       <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
     </div>
     <api-other-info :api="basisData"/>
@@ -73,18 +83,21 @@
 import MsTcpBasicApi from "./TCPBasicApi";
 import MsTcpFormatParameters from "../request/tcp/TcpFormatParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
-import {hasLicense, getCurrentProjectID, getUUID, getCurrentUser} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, hasLicense} from "@/common/js/utils";
 import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
 const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
+const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
+
 export default {
   name: "MsAddCompleteTcpApi",
   components: {
     ApiOtherInfo, MsTcpBasicApi, MsTcpFormatParameters, MsChangeHistory,
     "esbDefinition": esbDefinition.default,
-    "esbDefinitionResponse": esbDefinitionResponse.default
+    "esbDefinitionResponse": esbDefinitionResponse.default,
+    'MsVersionHistory': versionHistory.default,
   },
   props: {
     request: {},
@@ -109,7 +122,8 @@ export default {
         }
       ],
       showXpackCompnent: false,
-    }
+      versionData: [],
+    };
   },
   created: function () {
     if (this.basisData.method != 'TCP' && this.basisData.method != 'ESB') {
@@ -140,6 +154,9 @@ export default {
       }
     });
     this.getMockInfo();
+    if (hasLicense()) {
+      this.getVersionHistory();
+    }
   },
   watch: {
     syncTabs() {
@@ -153,7 +170,7 @@ export default {
               if (item === this.basisData.id) {
                 return true;
               }
-            })
+            });
             this.syncTabs.splice(index, 1);
             Object.assign(this.request, request);
           }
@@ -256,7 +273,7 @@ export default {
         this.showFollow = false;
         for (let i = 0; i < this.basisData.follows.length; i++) {
           if (this.basisData.follows[i] === getCurrentUser().id) {
-            this.basisData.follows.splice(i, 1)
+            this.basisData.follows.splice(i, 1);
             break;
           }
         }
@@ -270,16 +287,49 @@ export default {
         if (!this.basisData.follows) {
           this.basisData.follows = [];
         }
-        this.basisData.follows.push(getCurrentUser().id)
+        this.basisData.follows.push(getCurrentUser().id);
         if (this.basisData.id) {
           this.$post("/api/definition/update/follows/" + this.basisData.id, this.basisData.follows, () => {
             this.$success(this.$t('commons.follow_success'));
           });
         }
       }
+    },
+    getVersionHistory() {
+      this.$get('/api/definition/versions/' + this.basisData.id, response => {
+        this.versionData = response.data;
+      });
+    },
+    compare(row) {
+      // console.log(row);
+    },
+    checkout(row) {
+      let api = this.versionData.filter(v => v.versionId === row.id)[0];
+      if (api.tags && api.tags.length > 0) {
+        api.tags = JSON.parse(api.tags);
+      }
+      this.$emit("checkout", api);
+    },
+    create(row) {
+      // 创建新版本
+      this.basisData.versionId = row.id;
+      this.saveApi();
+    },
+    del(row) {
+      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.$get('/api/definition/delete/' + row.id + '/' + this.basisData.refId, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.getVersionHistory();
+            });
+          }
+        }
+      });
     }
   },
-}
+};
 </script>
 
 <style scoped>
@@ -290,6 +340,7 @@ export default {
 .ms-opt-btn {
   position: fixed;
   right: 50px;
-  z-index: 1;
+  z-index: 120;
+  top: 107px;
 }
 </style>

@@ -87,4 +87,5 @@ public interface ExtApiScenarioMapper {
 
     void setScenarioEnvGroupIdNull(@Param("environmentGroupId") String environmentGroupId);
 
+    ApiScenarioDTO selectById(@Param("id") String id);
 }

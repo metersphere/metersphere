@@ -6,22 +6,26 @@
                                :request="request" :response="response" :project-id="projectId"
                                @mockConfig="mockConfig"
                                @changeTab="changeTab"
+                               @checkout="checkout"
                                :basisData="currentApi" :moduleOptions="moduleOptions" :syncTabs="syncTabs"
                                v-if="currentProtocol === 'HTTP'" ref="httpApi"/>
     <!-- TCP -->
     <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
                               @saveApi="saveApi" :basisData="currentApi"
                               @changeTab="changeTab"
+                              @checkout="checkout"
                               :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'TCP'"
                               ref="tcpApi"/>
     <!--DUBBO-->
     <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
                                 @saveApi="saveApi" :basisData="currentApi"
+                                @checkout="checkout"
                                 :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'DUBBO'"
                                 ref="dubboApi"/>
     <!--SQL-->
     <ms-edit-complete-sql-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
                               @saveApi="saveApi" :basisData="currentApi"
+                              @checkout="checkout"
                               :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'SQL'"
                               ref="sqlApi"/>
   </div>
@@ -145,6 +149,9 @@ export default {
     mockConfig(data) {
       this.$emit('mockConfig', data);
     },
+    checkout(data) {
+      this.$emit('checkout', data);
+    },
     createRootModelInTree() {
       this.$emit("createRootModel");
     },
@@ -261,10 +268,12 @@ export default {
         }
         this.sort(data.request.hashTree);
       }
-      this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
+      this.$fileUpload(this.reqUrl, null, bodyFiles, data, (response) => {
         this.$success(this.$t('commons.save_success'));
         this.reqUrl = "/api/definition/update";
         this.currentApi.isCopy = false;
+        // 创建了新版本的api，之后id变了，ref_id 保存了原始id
+        data.id = response.data.id;
         this.$emit('saveApi', data);
       });
       this.$store.state.apiMap.delete(this.currentApi.id);

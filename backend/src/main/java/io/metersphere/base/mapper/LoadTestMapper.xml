@@ -16,6 +16,8 @@
     <result column="scenario_version" jdbcType="INTEGER" property="scenarioVersion" />
     <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
     <result column="order" jdbcType="BIGINT" property="order" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestWithBLOBs">
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
@@ -81,7 +83,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, description, create_time, update_time, `status`, test_resource_pool_id, 
-    user_id, num, create_user, scenario_version, scenario_id, `order`
+    user_id, num, create_user, scenario_version, scenario_id, `order`, version_id, ref_id
   </sql>
   <sql id="Blob_Column_List">
     load_configuration, advanced_configuration
@@ -139,14 +141,16 @@
       description, create_time, update_time, 
       `status`, test_resource_pool_id, user_id, 
       num, create_user, scenario_version, 
-      scenario_id, `order`, load_configuration, 
-      advanced_configuration)
+      scenario_id, `order`, version_id, 
+      ref_id, load_configuration, advanced_configuration
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{status,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
       #{num,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{scenarioVersion,jdbcType=INTEGER}, 
-      #{scenarioId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
-      #{advancedConfiguration,jdbcType=LONGVARCHAR})
+      #{scenarioId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, 
+      #{refId,jdbcType=VARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     insert into load_test
@@ -192,6 +196,12 @@
       </if>
       <if test="order != null">
         `order`,
+      </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
+      <if test="refId != null">
+        ref_id,
       </if>
       <if test="loadConfiguration != null">
         load_configuration,
@@ -242,6 +252,12 @@
       </if>
       <if test="order != null">
         #{order,jdbcType=BIGINT},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
       </if>
       <if test="loadConfiguration != null">
         #{loadConfiguration,jdbcType=LONGVARCHAR},
@@ -302,6 +318,12 @@
       <if test="record.order != null">
         `order` = #{record.order,jdbcType=BIGINT},
       </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
       <if test="record.loadConfiguration != null">
         load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       </if>
@@ -329,6 +351,8 @@
       scenario_version = #{record.scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -350,7 +374,9 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       scenario_version = #{record.scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
-      `order` = #{record.order,jdbcType=BIGINT}
+      `order` = #{record.order,jdbcType=BIGINT},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -397,6 +423,12 @@
       <if test="order != null">
         `order` = #{order,jdbcType=BIGINT},
       </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
       <if test="loadConfiguration != null">
         load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       </if>
@@ -421,6 +453,8 @@
       scenario_version = #{scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{scenarioId,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -439,7 +473,9 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       scenario_version = #{scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{scenarioId,jdbcType=VARCHAR},
-      `order` = #{order,jdbcType=BIGINT}
+      `order` = #{order,jdbcType=BIGINT},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

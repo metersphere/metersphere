@@ -753,6 +753,20 @@ export default {
     test_case_custom_id_info: 'The Case ID defaults to the system self incrementing ID',
     scenario_custom_id: 'Scenario Custom ID',
     scenario_custom_id_info: 'The scenario use case ID defaults to the system self-incremented ID',
+    version: {
+      name: 'Version',
+      create_version: 'Create version',
+      edit_version: 'Edit version',
+      version_closed: 'Closed',
+      version_open: 'Open',
+      publish_time: 'Publish time',
+      start_time: 'Start time',
+      end_time: 'End time',
+      delete_version: 'Delete version',
+      please_input_version: 'Please input version',
+      tips: 'Note: The closed version will not appear in the system field <strong>Version</strong> drop-down box option',
+      enable: 'Enable version management',
+    }
   },
   member: {
     create: 'Create',
@@ -2534,7 +2548,7 @@ export default {
     before_change: "Before change",
     after_change: "After change",
     share: "Share",
-    change_history: "Change history",
+    change_history: "Change log",
     change_content: "Change content"
   },
   plugin: {

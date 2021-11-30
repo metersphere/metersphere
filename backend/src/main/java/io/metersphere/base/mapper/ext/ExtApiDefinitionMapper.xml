@@ -246,11 +246,13 @@
         api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
         api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, project.name as
-        project_name, user.name as user_name,deleteUser.name AS delete_user,api_definition.delete_time, api_definition.remark
+        project_name, user.name as user_name,deleteUser.name AS delete_user,api_definition.delete_time, api_definition.remark, api_definition.version_id,
+        project_version.name as version_name, api_definition.ref_id, project.version_enable
         from api_definition
         left join project on api_definition.project_id = project.id
         left join user on api_definition.user_id = user.id
         left join user deleteUser on api_definition.delete_user_id = deleteUser.id
+        LEFT JOIN project_version on project.id = project_version.project_id AND project_version.id = api_definition.version_id
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
@@ -602,6 +604,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key=='version_id'">
+                            and api_definition.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
                     </choose>
                 </if>
             </foreach>
@@ -672,6 +680,32 @@
                 and api_definition.id in
                 (SELECT api_definition_id FROM api_test_case)
             </if>
+            <if test="request.refId != null">
+                AND ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId != null">
+                AND version_id = #{request.versionId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND (
+                version_id = (SELECT project_version.id
+                    FROM api_definition tmp
+                    JOIN project_version
+                    ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                    WHERE ref_id = api_definition.ref_id
+                    LIMIT 1)
+                OR
+                version_id = (SELECT project_version.id
+                    FROM api_definition tmp
+                    JOIN project_version ON tmp.project_id = project_version.project_id AND
+                    tmp.version_id = project_version.id
+                    WHERE ref_id = api_definition.ref_id
+                    GROUP BY ref_id
+                    HAVING MAX(latest) = 0
+                    ORDER BY MAX(project_version.create_time) DESC
+                    LIMIT 1)
+                )
+            </if>
         </where>
     </sql>
 
@@ -741,4 +775,10 @@
         and api_definition.status != 'Trash';
     </select>
 
+    <select id="countByExample" parameterType="io.metersphere.base.domain.ApiDefinitionExample" resultType="java.lang.Long">
+        select count(DISTINCT ref_id) from api_definition
+        <if test="_parameter != null">
+            <include refid="io.metersphere.base.mapper.ApiDefinitionMapper.Example_Where_Clause" />
+        </if>
+    </select>
 </mapper>

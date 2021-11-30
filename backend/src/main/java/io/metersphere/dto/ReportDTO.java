@@ -26,4 +26,5 @@ public class ReportDTO {
     private long testStartTime;
     private long testEndTime;
     private long testDuration;
+    private String versionName;
 }
