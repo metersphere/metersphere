@@ -46,6 +46,8 @@ public class SaveApiDefinitionRequest {
 
     private String remark;
 
+    private String versionId;
+
     private Schedule schedule;
 
     private String triggerMode;

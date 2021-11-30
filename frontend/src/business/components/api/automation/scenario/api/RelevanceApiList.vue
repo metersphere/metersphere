@@ -4,8 +4,14 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
 
+      <template>
+        <slot name="version"></slot>
+      </template>
+
       <api-table-list
         :table-data="tableData"
+        :version-filters="versionFilters"
+        :project-id="projectId"
         :condition="condition"
         :select-node-ids="selectNodeIds"
         :result="result"
@@ -32,104 +38,111 @@
 
 <script>
 
-  import ApiListContainer from "../../../definition/components/list/ApiListContainer";
-  import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
-  import TableSelectCountBar from "./TableSelectCountBar";
-  import {buildBatchParam} from "@/common/js/tableUtils";
-  import {
-    TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS,
-  } from "@/business/components/common/components/search/search-components";
-  import ApiTableList from "@/business/components/api/definition/components/complete/ApiTableList";
+import ApiListContainer from "../../../definition/components/list/ApiListContainer";
+import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
+import TableSelectCountBar from "./TableSelectCountBar";
+import {buildBatchParam} from "@/common/js/tableUtils";
+import {
+  TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS,
+} from "@/business/components/common/components/search/search-components";
+import ApiTableList from "@/business/components/api/definition/components/complete/ApiTableList";
 
-  export default {
-    name: "RelevanceApiList",
-    components: {
-      ApiTableList,
-      TableSelectCountBar,
-      MsEnvironmentSelect,
-      ApiListContainer,
+export default {
+  name: "RelevanceApiList",
+  components: {
+    ApiTableList,
+    TableSelectCountBar,
+    MsEnvironmentSelect,
+    ApiListContainer,
+  },
+  data() {
+    return {
+      condition: {
+        components: TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS
+      },
+      result: {},
+      screenHeight: 'calc(100vh - 400px)',//屏幕高度,
+      tableData: [],
+      environmentId: "",
+      total: 0,
+      selectRows: new Set()
+    };
+  },
+  props: {
+    currentProtocol: String,
+    selectNodeIds: Array,
+    versionFilters: Array,
+    currentVersion: String,
+    visible: {
+      type: Boolean,
+      default: false,
     },
-    data() {
-      return {
-        condition: {
-          components: TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS
-        },
-        result: {},
-        screenHeight: 'calc(100vh - 300px)',//屏幕高度,
-        tableData: [],
-        environmentId: "",
-        total: 0,
-        selectRows: new Set()
-      }
+    isApiListEnable: {
+      type: Boolean,
+      default: false,
     },
-    props: {
-      currentProtocol: String,
-      selectNodeIds: Array,
-      visible: {
-        type: Boolean,
-        default: false,
-      },
-      isApiListEnable: {
-        type: Boolean,
-        default: false,
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      },
-      isCaseRelevance: {
-        type: Boolean,
-        default: false,
-      },
-      projectId: String,
-      planId: String,
-      isTestPlan: Boolean,
+    isReadOnly: {
+      type: Boolean,
+      default: false
     },
-    created: function () {
+    isCaseRelevance: {
+      type: Boolean,
+      default: false,
+    },
+    projectId: String,
+    planId: String,
+    isTestPlan: Boolean,
+  },
+  created() {
+    this.condition.versionId = this.currentVersion;
+    this.initTable();
+  },
+  watch: {
+    selectNodeIds() {
       this.initTable();
     },
-    watch: {
-      selectNodeIds() {
-        this.initTable();
-      },
-      currentProtocol() {
-        this.initTable();
-      },
-      projectId() {
-        this.initTable();
-      }
+    currentProtocol() {
+      this.initTable();
     },
-    methods: {
-      setSelectRow(setSelectRow) {
-        this.selectRows = setSelectRow;
-      },
-      isApiListEnableChange(data) {
-        this.$emit('isApiListEnableChange', data);
-      },
-      initTable(projectId) {
-        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
-        this.condition.moduleIds = this.selectNodeIds;
-        if (this.trashEnable) {
-          this.condition.filters = {status: ["Trash"]};
-          this.condition.moduleIds = [];
-        }
-        if (projectId != null && typeof projectId === 'string') {
-          this.condition.projectId = projectId;
-        } else if (this.projectId != null) {
-          this.condition.projectId = this.projectId;
-        }
+    projectId() {
+      this.initTable();
+    },
+    currentVersion() {
+      this.condition.versionId = this.currentVersion;
+      this.initTable();
+    }
+  },
+  methods: {
+    setSelectRow(setSelectRow) {
+      this.selectRows = setSelectRow;
+    },
+    isApiListEnableChange(data) {
+      this.$emit('isApiListEnableChange', data);
+    },
+    initTable(projectId) {
+      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      this.condition.moduleIds = this.selectNodeIds;
+      if (this.trashEnable) {
+        this.condition.filters = {status: ["Trash"]};
+        this.condition.moduleIds = [];
+      }
+      if (projectId != null && typeof projectId === 'string') {
+        this.condition.projectId = projectId;
+      } else if (this.projectId != null) {
+        this.condition.projectId = this.projectId;
+      }
 
-        if (this.currentProtocol != null) {
-          this.condition.protocol = this.currentProtocol;
-        } else {
-          this.condition.protocol = "HTTP";
-        }
+      if (this.currentProtocol != null) {
+        this.condition.protocol = this.currentProtocol;
+      } else {
+        this.condition.protocol = "HTTP";
+      }
 
-        let url = '/api/definition/list/';
-        if (this.isTestPlan) {
-          url = '/api/definition/list/relevance/';
-          this.condition.planId = this.planId;
-        }
+      let url = '/api/definition/list/';
+      if (this.isTestPlan) {
+        url = '/api/definition/list/relevance/';
+        this.condition.planId = this.planId;
+      }
 
         this.$nextTick(() => {
           this.result = this.$post(url + this.$refs.apitable.currentPage + "/" + this.$refs.apitable.pageSize, this.condition, response => {

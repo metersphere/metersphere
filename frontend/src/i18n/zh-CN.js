@@ -757,6 +757,20 @@ export default {
     test_case_custom_id_info: '用例ID默认为系统自增ID',
     scenario_custom_id: '场景自定义ID',
     scenario_custom_id_info: '场景用例ID默认为系统自增ID',
+    version: {
+      name: '版本',
+      create_version: '创建版本',
+      edit_version: '编辑版本',
+      version_closed: '已关闭',
+      version_open: '未关闭',
+      publish_time: '发布时间',
+      start_time: '开始时间',
+      end_time: '结束时间',
+      delete_version: '删除版本',
+      please_input_version: '请输入版本',
+      tips: '注意: 已关闭的版本不会出现在系统字段<strong>版本</strong>下拉框选项中',
+      enable: '启用版本管理',
+    }
   },
   member: {
     create: '添加成员',
@@ -2537,7 +2551,7 @@ export default {
     before_change: "变更前",
     after_change: "变更后",
     share: "分享",
-    change_history: "变更历史",
+    change_history: "变更记录",
     change_content: "变更内容"
   },
   plugin: {

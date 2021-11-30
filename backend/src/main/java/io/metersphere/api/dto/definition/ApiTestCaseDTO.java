@@ -17,4 +17,5 @@ public class ApiTestCaseDTO extends ApiTestCase {
     private String passRate;
     private String projectName;
     private String execResult;
+    private String versionName;
 }

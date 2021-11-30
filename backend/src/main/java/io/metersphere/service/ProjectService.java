@@ -10,6 +10,7 @@ import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
+import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
@@ -94,6 +95,8 @@ public class ProjectService {
     private String tcpMockPorts;
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
+    @Resource
+    private ExtProjectVersionMapper extProjectVersionMapper;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -131,6 +134,20 @@ public class ProjectService {
         // 创建新项目检查当前用户 last_project_id
         extUserMapper.updateLastProjectIdIfNull(project.getId(), SessionUtils.getUserId());
 
+        ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+        if (projectVersionService != null) {
+            ProjectVersion projectVersion = new ProjectVersion();
+            projectVersion.setId(UUID.randomUUID().toString());
+            projectVersion.setName("v1.0.0");
+            projectVersion.setProjectId(project.getId());
+            projectVersion.setCreateTime(System.currentTimeMillis());
+            projectVersion.setCreateTime(System.currentTimeMillis());
+            projectVersion.setStartTime(System.currentTimeMillis());
+            projectVersion.setPublishTime(System.currentTimeMillis());
+            projectVersion.setLatest(true);
+            projectVersion.setStatus("open");
+            projectVersionService.addProjectVersion(projectVersion);
+        }
         return project;
     }
 
@@ -752,5 +769,9 @@ public class ProjectService {
 
     public int getProjectBugSize(String projectId) {
         return extProjectMapper.getProjectPlanBugSize(projectId);
+    }
+
+    public boolean isVersionEnable(String projectId) {
+        return extProjectVersionMapper.isVersionEnable(projectId);
     }
 }

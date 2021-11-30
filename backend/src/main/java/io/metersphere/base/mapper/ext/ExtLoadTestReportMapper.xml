@@ -70,11 +70,12 @@
         ltr.description, user.name as userName, project.name as
         projectName, ltr.trigger_mode,
         ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, ltr.test_name as testName,
-        project.id as projectId
+        project.id as projectId, project_version.name as version_name
         from load_test_report ltr
         left join load_test lt on ltr.test_id = lt.id
         join user on ltr.user_id = user.id
         join project on project.id = ltr.project_id
+        JOIN project_version on project.id = project_version.project_id AND ltr.version_id = project_version.id
         <where>
             <if test="reportRequest.combine != null">
                 <include refid="combine">

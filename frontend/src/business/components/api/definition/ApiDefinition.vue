@@ -42,6 +42,9 @@
               left-content="API"
               right-content="CASE"
             >
+              <template v-slot:version>
+                <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
+              </template>
               <!-- 列表集合 -->
               <ms-api-list
                 v-if="trashActiveDom==='left'"
@@ -100,6 +103,9 @@
               :right-content="$t('api_test.definition.doc_title')"
               :right-button-enable="currentProtocol === 'HTTP' "
             >
+              <template v-slot:version>
+                <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
+              </template>
               <!-- 列表集合 -->
               <ms-api-list
                 v-if="activeDom==='left'"
@@ -107,6 +113,7 @@
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
                 :current-protocol="currentProtocol"
+                :current-version="currentVersion"
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
@@ -129,6 +136,7 @@
               <api-case-simple-list
                 v-if="activeDom==='middle'"
                 :current-protocol="currentProtocol"
+                :current-version="currentVersion"
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
@@ -145,7 +153,8 @@
                 v-if="activeDom==='right' && currentProtocol==='HTTP'"
                 :project-id="projectId"
                 :trash-enable="trashEnable"
-                :module-ids="selectNodeIds"/>
+                :module-ids="selectNodeIds"
+                ref="documentsPage"/>
             </ms-tab-button>
             <!-- 添加/编辑测试窗口-->
             <div v-if="item.type=== 'ADD' ||item.type === 'TEST'" class="ms-api-div">
@@ -232,7 +241,6 @@ import MsApiList from './components/list/ApiList';
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
-import MsApiConfig from "./components/ApiConfig";
 import MsDebugHttpPage from "./components/debug/DebugHttpPage";
 import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
 import MsDebugTcpPage from "./components/debug/DebugTcpPage";
@@ -242,7 +250,14 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getUUID, hasPermission} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+  getUUID,
+  hasLicense,
+  hasPermission
+} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
@@ -255,6 +270,10 @@ import ApiSchedule from "@/business/components/api/definition/components/import/
 import MsEditCompleteContainer from "./components/EditCompleteContainer";
 import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
 import {PROJECT_ID} from "@/common/js/constants";
+
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 
 export default {
@@ -274,6 +293,7 @@ export default {
     },
   },
   components: {
+    'VersionSelect': VersionSelect.default,
     ApiSchedule,
     MsTabButton,
     MsTableButton,
@@ -283,7 +303,6 @@ export default {
     MsMainContainer,
     MsContainer,
     MsAsideContainer,
-    MsApiConfig,
     MsDebugHttpPage,
     MsRunTestHttpPage,
     MsDebugJdbcPage,
@@ -341,7 +360,8 @@ export default {
       initApiTableOpretion: 'init',
       param: {},
       useEnvironment: String,
-      activeTab: "api"
+      activeTab: "api",
+      currentVersion: null,
     };
   },
   activated() {
@@ -399,10 +419,10 @@ export default {
   },
   created() {
     let projectId = this.$route.params.projectId;
-    if(projectId){
+    if (projectId) {
       sessionStorage.setItem(PROJECT_ID, projectId);
     }
-    if (this.$route.query.projectId){
+    if (this.$route.query.projectId) {
       sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
     }
     this.getEnv();
@@ -550,7 +570,7 @@ export default {
           this.$store.state.apiMap.get(t.api.id).get("fromChange") === true)) {
           message += t.api.name + "，";
         }
-      })
+      });
       if (message !== "") {
         this.$alert(this.$t('commons.api') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
@@ -592,7 +612,7 @@ export default {
             this.handleTabRemove(targetName);
           }
         }
-      })
+      });
     },
     handleTabRemove(targetName) {
       let tabs = this.apiTabs;
@@ -660,15 +680,15 @@ export default {
     init() {
       let routeTestCase = this.$route.params.apiDefinition;
       if (routeTestCase) {
-        this.editApi(routeTestCase)
+        this.editApi(routeTestCase);
       }
       let dataRange = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
-      if(dataRange){
+      if (dataRange) {
         let selectParamArr = dataRange.split("edit:");
         if (selectParamArr.length === 2) {
           let scenarioId = selectParamArr[1];
-          if(dataType==='api'){
+          if (dataType === 'api') {
             this.$get('/api/definition/get/' + scenarioId, (response) => {
               this.editApi(response.data);
             });
@@ -732,7 +752,9 @@ export default {
       if (this.$refs.apiDefList && this.$refs.apiDefList[0]) {
         this.$refs.apiDefList[0].initTable();
       }
-
+      if (this.$refs.documentsPage && this.$refs.documentsPage[0]) {
+        this.$refs.documentsPage[0].initApiDocSimpleList();
+      }
       //this.$refs.nodeTree.list();
     },
     refreshTree() {
@@ -803,11 +825,14 @@ export default {
       if (data) {
         this.apiDefaultTab = "trash";
       } else {
-        this.apiDefaultTab = "default"
+        this.apiDefaultTab = "default";
       }
     },
     updateInitApiTableOpretion(param) {
       this.initApiTableOpretion = param;
+    },
+    changeVersion(currentVersion) {
+      this.currentVersion = currentVersion || null;
     }
   }
 };
@@ -817,7 +842,7 @@ export default {
 
 .ms-api-div {
   overflow-y: auto;
-  height: calc(100vh - 155px)
+  height: calc(100vh - 125px)
 }
 
 /deep/ .el-main {
@@ -857,5 +882,9 @@ export default {
   min-width: 100%;
   max-width: 100%;
   padding-right: 100%;
+}
+
+.version-select {
+  padding-left: 10px;
 }
 </style>

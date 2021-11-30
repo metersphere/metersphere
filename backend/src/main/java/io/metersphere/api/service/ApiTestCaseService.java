@@ -210,7 +210,7 @@ public class ApiTestCaseService {
         }
     }
 
-    public ApiTestCaseWithBLOBs get(String id) {
+    public ApiTestCaseInfo get(String id) {
 //        ApiTestCaseWithBLOBs returnBlobs = apiTestCaseMapper.selectByPrimaryKey(id);
         ApiTestCaseInfo model = extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
         if (model != null) {
@@ -359,6 +359,7 @@ public class ApiTestCaseService {
             test.setUpdateTime(System.currentTimeMillis());
             test.setDescription(request.getDescription());
             test.setVersion(request.getVersion() == null ? 0 : request.getVersion() + 1);
+            test.setVersionId(request.getVersionId());
             if (StringUtils.equals("[]", request.getTags())) {
                 test.setTags("");
             } else {
@@ -413,6 +414,7 @@ public class ApiTestCaseService {
         test.setDescription(request.getDescription());
         test.setNum(getNextNum(request.getApiDefinitionId()));
         test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiTestCaseMapper::getLastOrder));
+        test.setVersionId(request.getVersionId());
         if (StringUtils.equals("[]", request.getTags())) {
             test.setTags("");
         } else {

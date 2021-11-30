@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
