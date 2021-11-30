@@ -1005,9 +1005,17 @@ export default {
           }
           this.environmentType = this.currentScenario.environmentType;
           this.envGroupId = this.currentScenario.environmentGroupId;
-          this.reportId = getUUID().substring(0, 8);
-          this.runVisible = true;
-          this.$set(row, "isStop", true);
+
+          this.$get("/api/automation/checkScenarioEnv/" + this.currentScenario.id, res => {
+            let data = res.data;
+            if (!data) {
+              this.$warning("请为场景选择环境！");
+              return false;
+            }
+            this.reportId = getUUID().substring(0, 8);
+            this.runVisible = true;
+            this.$set(row, "isStop", true);
+          })
         }
       });
     },

@@ -177,7 +177,7 @@ export default {
       this.reload();
     },
     checkEnv(val) {
-      this.$post("/api/automation/checkScenarioEnv", {scenarioDefinition: JSON.stringify(this.scenario), projectId: this.projectId}, res => {
+      this.$get("/api/automation/checkScenarioEnv/" + this.scenario.id, res => {
         if (this.scenario.environmentEnable && !res.data) {
           this.scenario.environmentEnable = false;
           this.$warning("当前场景没有环境，需要先设置自身环境");
