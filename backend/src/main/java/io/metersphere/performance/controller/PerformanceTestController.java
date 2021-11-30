@@ -258,4 +258,19 @@ public class PerformanceTestController {
     public List<LoadModuleDTO> getNodeByPlanId(@PathVariable String planId) {
         return performanceTestService.getNodeByPlanId(planId);
     }
+
+    @GetMapping("versions/{loadTestId}")
+    public List<LoadTestDTO> getLoadTestVersions(@PathVariable String loadTestId) {
+        return performanceTestService.getLoadTestVersions(loadTestId);
+    }
+
+    @GetMapping("get/{version}/{refId}")
+    public LoadTestDTO getLoadTestByVersion(@PathVariable String version, @PathVariable String refId) {
+        return performanceTestService.getLoadTestByVersion(version,refId);
+    }
+
+    @GetMapping("delete/{version}/{refId}")
+    public void deleteLoadTestByVersion(@PathVariable String version, @PathVariable String refId) {
+        performanceTestService.deleteLoadTestByVersion(version, refId);
+    }
 }

@@ -347,9 +347,24 @@ public class ApiDefinitionController {
         apiDefinitionService.saveFollows(definitionId, follows);
     }
 
-
     @GetMapping("/getWorkerQueue")
     public String getWorkerQueue() {
         return execThreadPoolExecutor.getWorkerQueue();
     }
+
+    @GetMapping("versions/{definitionId}")
+    public List<ApiDefinitionResult> getApiDefinitionVersions(@PathVariable String definitionId) {
+        return apiDefinitionService.getApiDefinitionVersions(definitionId);
+    }
+
+    @GetMapping("get/{version}/{refId}")
+    public ApiDefinitionResult getApiDefinition(@PathVariable String version, @PathVariable String refId) {
+        return apiDefinitionService.getApiDefinitionByVersion(refId, version);
+    }
+
+    @GetMapping("delete/{version}/{refId}")
+    public void deleteApiDefinition(@PathVariable String version, @PathVariable String refId) {
+        apiDefinitionService.deleteApiDefinitionByVersion(refId, version);
+    }
+
 }

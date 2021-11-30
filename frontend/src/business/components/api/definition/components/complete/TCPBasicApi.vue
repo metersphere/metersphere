@@ -3,7 +3,7 @@
     <el-form :model="basicForm" label-position="right" label-width="80px" size="small" :rules="rule" ref="basicForm" style="margin-right: 20px">
       <!-- 基础信息 -->
       <el-row>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item :label="$t('commons.name')" prop="name">
             <!--            <el-input class="ms-http-input" size="small" v-model="basicForm.name"/>-->
             <el-input v-model="basicForm.name" class="ms-http-input" size="small">
@@ -14,22 +14,22 @@
 
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
             <ms-select-tree size="small" :data="moduleOptions" :defaultKey="basicForm.moduleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
 
           </el-form-item>
         </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item :label="$t('commons.status')" prop="status">
             <el-select class="ms-http-input" size="small" v-model="basicForm.status" style="width: 100%">
               <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+      </el-row>
+      <el-row>
+        <el-col :span="8">
           <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
             <el-select v-model="basicForm.userId"
                        :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
@@ -44,9 +44,6 @@
 
           </el-form-item>
         </el-col>
-      </el-row>
-
-      <el-row>
         <el-col :span="8">
           <el-form-item :label="$t('commons.tag')" prop="tag">
             <ms-input-tag :currentScenario="basicForm" ref="tag"/>
@@ -167,8 +164,8 @@
     methods: {
       apiMapStatus() {
         this.$store.state.apiStatus.set("fromChange", true);
-        if (this.httpForm.id) {
-          this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
+        if (this.basicForm.id) {
+          this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
         }
       },
       getMaintainerOptions() {

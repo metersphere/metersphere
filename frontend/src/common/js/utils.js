@@ -2,16 +2,10 @@ import {
   COUNT_NUMBER,
   COUNT_NUMBER_SHALLOW,
   LicenseKey,
-  ORGANIZATION_ID,
   ORIGIN_COLOR,
   ORIGIN_COLOR_SHALLOW,
   PRIMARY_COLOR,
   PROJECT_ID,
-  ROLE_ADMIN,
-  ROLE_ORG_ADMIN,
-  ROLE_TEST_MANAGER,
-  ROLE_TEST_USER,
-  ROLE_TEST_VIEWER,
   TokenKey,
   WORKSPACE_ID
 } from "./constants";
@@ -503,7 +497,7 @@ export function setCurTabId(vueObj, tab, ref) {
       let curTabId = cutEditTab ? cutEditTab.tabId : null;
       vueObj.$store.commit('setCurTabId', curTabId);
     }
-  })
+  });
 }
 
 export function getTranslateOptions(data) {

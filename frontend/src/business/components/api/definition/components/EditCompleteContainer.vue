@@ -1,6 +1,6 @@
 <template>
   <el-card class="card-content" v-if="isShow && !loading">
-    <el-button-group v-if="currentApi.id">
+    <el-button-group v-if="currentApi.id" style="z-index: 10; position: fixed;">
       <el-tooltip class="item" effect="dark" :content="$t('api_test.definition.api_title')" placement="left">
         <el-button plain :class="{active: showApiList}" @click="changeTab('api')" size="small">API</el-button>
       </el-tooltip>
@@ -8,15 +8,17 @@
         <el-button plain :class="{active: showTest}" @click="changeTab('test')" size="small">TEST</el-button>
       </el-tooltip>
       <el-tooltip class="item" effect="dark" :content="$t('api_test.definition.case_title')" placement="top">
-        <el-button plain :class="{active: showTestCaseList}" @click="changeTab('testCase')" size="small">CASE</el-button>
+        <el-button plain :class="{active: showTestCaseList}" @click="changeTab('testCase')" size="small">CASE
+        </el-button>
       </el-tooltip>
 
-      <el-tooltip class="item" effect="dark" content="Mock设置" placement="right" v-if="currentProtocol === 'HTTP' || currentProtocol === 'TCP'">
+      <el-tooltip class="item" effect="dark" content="Mock设置" placement="right"
+                  v-if="currentProtocol === 'HTTP' || currentProtocol === 'TCP'">
         <el-button plain :class="{active: showMock}" @click="changeTab('mock')" size="small"> Mock</el-button>
       </el-tooltip>
 
     </el-button-group>
-
+    <div style="height: 40px"></div>
     <template v-slot:header>
       <slot name="header"></slot>
     </template>
@@ -30,11 +32,12 @@
         :moduleOptions="moduleOptions"
         @runTest="runTest"
         @saveApi="saveApi"
+        @checkout="checkout"
         @changeTab="changeTab"
         @createRootModel="createRootModel"
       />
     </div>
-    <div v-else-if="showTest" class="ms-api-div">
+    <div v-else-if="showTest">
       <ms-run-test-http-page
         :syncTabs="syncTabs"
         :currentProtocol="currentProtocol"
@@ -77,15 +80,16 @@
       />
     </div>
 
-    <div v-if="showMock && (currentProtocol === 'HTTP')" class="ms-api-div">
+    <div v-if="showMock && (currentProtocol === 'HTTP')">
       <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="false"/>
     </div>
-    <div v-if="showMock && (currentProtocol === 'TCP')" class="ms-api-div">
+    <div v-if="showMock && (currentProtocol === 'TCP')">
       <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="true"/>
     </div>
     <div v-if="showTestCaseList">
       <!--测试用例列表-->
       <api-case-simple-list
+        class="api-case-simple-list"
         :apiDefinitionId="currentApi.id"
         :trash-enable="false"
         @changeSelectDataRangeAll="changeSelectDataRangeAll"
@@ -140,7 +144,7 @@ export default {
       loading: false,
       createCase: "",
       api: {},
-    }
+    };
   },
   props: {
     activeDom: String,
@@ -194,7 +198,10 @@ export default {
             stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
-            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+            stepArray[i].document = {
+              type: "JSON",
+              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+            };
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sort(stepArray[i].hashTree);
@@ -260,6 +267,10 @@ export default {
     refresh() {
       this.$emit("refresh");
     },
+    checkout(data) {
+      Object.assign(this.currentApi, data);
+      this.reload();
+    },
     changeTab(tabType) {
       this.refreshButtonActiveClass(tabType);
     },
@@ -283,9 +294,9 @@ export default {
       }
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
+        this.loading = false;
       });
     },
     saveAsCase(api) {
@@ -325,7 +336,7 @@ export default {
       }
     }
   },
-}
+};
 </script>
 
 <style scoped>
@@ -342,4 +353,10 @@ export default {
 .item {
   border: solid 1px var(--primary_color);
 }
+
+
+.api-case-simple-list >>> .el-table {
+  height: calc(100vh - 262px) !important;
+}
+
 </style>

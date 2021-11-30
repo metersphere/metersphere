@@ -39,7 +39,11 @@
             :custom-num="customNum"
             :init-api-table-opretion="initApiTableOpretion"
             @updateInitApiTableOpretion="updateInitApiTableOpretion"
-            ref="apiTrashScenarioList"/>
+            ref="apiTrashScenarioList">
+            <template v-slot:version>
+              <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
+            </template>
+          </ms-api-scenario-list>
         </el-tab-pane>
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
@@ -58,7 +62,11 @@
             :custom-num="customNum"
             :init-api-table-opretion="initApiTableOpretion"
             @updateInitApiTableOpretion="updateInitApiTableOpretion"
-            ref="apiScenarioList"/>
+            ref="apiScenarioList">
+            <template v-slot:version>
+              <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
+            </template>
+          </ms-api-scenario-list>
         </el-tab-pane>
 
 
@@ -100,9 +108,13 @@
 import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
 import {PROJECT_ID} from "@/common/js/constants";
 
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
+
 export default {
   name: "ApiAutomation",
   components: {
+    'VersionSelect': VersionSelect.default,
     MsApiScenarioModule: () => import("@/business/components/api/automation/scenario/ApiScenarioModule"),
     MsApiScenarioList: () => import("@/business/components/api/automation/scenario/ApiScenarioList"),
     MsMainContainer: () => import("@/business/components/common/components/MsMainContainer"),
@@ -152,14 +164,14 @@ export default {
   },
   created() {
     let projectId = this.$route.params.projectId;
-    if(projectId){
+    if (projectId) {
       sessionStorage.setItem(PROJECT_ID, projectId);
     }
   },
   mounted() {
     this.getProject();
     this.getTrashCase();
-    this.init()
+    this.init();
   },
   watch: {
     redirectID() {
@@ -313,7 +325,7 @@ export default {
         if (t && this.$store.state.scenarioMap.has(t.currentScenario.id) && this.$store.state.scenarioMap.get(t.currentScenario.id) > 1) {
           message += t.currentScenario.name + "，";
         }
-      })
+      });
       if (message !== "") {
         this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
@@ -430,7 +442,7 @@ export default {
     init() {
       let scenarioData = this.$route.params.scenarioData;
       if (scenarioData) {
-        this.editScenario(scenarioData)
+        this.editScenario(scenarioData);
       }
     },
     editScenario(row) {
@@ -484,6 +496,15 @@ export default {
     },
     updateInitApiTableOpretion(param) {
       this.initApiTableOpretion = param;
+    },
+    changeVersion(currentVersion) {
+      if (this.$refs.apiScenarioList) {
+        this.$refs.apiScenarioList.condition.versionId = currentVersion || null;
+      }
+      if (this.$refs.apiTrashScenarioList) {
+        this.$refs.apiTrashScenarioList.condition.versionId = currentVersion || null;
+      }
+      this.refresh();
     }
   }
 };

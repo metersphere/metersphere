@@ -36,4 +36,7 @@ public class ApiDocumentInfoDTO {
     private String responseCode;
     private boolean sharePopoverVisible = false;
 
+    private String refId;
+    private String versionId;
+
 }

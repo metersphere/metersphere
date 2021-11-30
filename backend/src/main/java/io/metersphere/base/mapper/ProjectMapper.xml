@@ -2,30 +2,31 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.ProjectMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.Project">
-    <id column="id" jdbcType="VARCHAR" property="id"/>
-    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId"/>
-    <result column="name" jdbcType="VARCHAR" property="name"/>
-    <result column="description" jdbcType="VARCHAR" property="description"/>
-    <result column="create_time" jdbcType="BIGINT" property="createTime"/>
-    <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
-    <result column="tapd_id" jdbcType="VARCHAR" property="tapdId"/>
-    <result column="jira_key" jdbcType="VARCHAR" property="jiraKey"/>
-    <result column="zentao_id" jdbcType="VARCHAR" property="zentaoId"/>
-    <result column="azure_devops_id" jdbcType="VARCHAR" property="azureDevopsId"/>
-    <result column="repeatable" jdbcType="BIT" property="repeatable"/>
-    <result column="case_template_id" jdbcType="VARCHAR" property="caseTemplateId"/>
-    <result column="issue_template_id" jdbcType="VARCHAR" property="issueTemplateId"/>
-    <result column="custom_num" jdbcType="BIT" property="customNum"/>
-    <result column="scenario_custom_num" jdbcType="BIT" property="scenarioCustomNum"/>
-    <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
-    <result column="system_id" jdbcType="VARCHAR" property="systemId"/>
-    <result column="mock_tcp_port" jdbcType="INTEGER" property="mockTcpPort"/>
-    <result column="is_mock_tcp_open" jdbcType="BIT" property="isMockTcpOpen"/>
-    <result column="azure_filter_id" jdbcType="VARCHAR" property="azureFilterId"/>
-    <result column="api_quick" jdbcType="VARCHAR" property="apiQuick"/>
-    <result column="case_public" jdbcType="BIT" property="casePublic"/>
-    <result column="platform" jdbcType="VARCHAR" property="platform"/>
-    <result column="third_part_template" jdbcType="BIT" property="thirdPartTemplate"/>
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="tapd_id" jdbcType="VARCHAR" property="tapdId" />
+    <result column="jira_key" jdbcType="VARCHAR" property="jiraKey" />
+    <result column="zentao_id" jdbcType="VARCHAR" property="zentaoId" />
+    <result column="azure_devops_id" jdbcType="VARCHAR" property="azureDevopsId" />
+    <result column="repeatable" jdbcType="BIT" property="repeatable" />
+    <result column="case_template_id" jdbcType="VARCHAR" property="caseTemplateId" />
+    <result column="issue_template_id" jdbcType="VARCHAR" property="issueTemplateId" />
+    <result column="custom_num" jdbcType="BIT" property="customNum" />
+    <result column="scenario_custom_num" jdbcType="BIT" property="scenarioCustomNum" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="system_id" jdbcType="VARCHAR" property="systemId" />
+    <result column="mock_tcp_port" jdbcType="INTEGER" property="mockTcpPort" />
+    <result column="is_mock_tcp_open" jdbcType="BIT" property="isMockTcpOpen" />
+    <result column="azure_filter_id" jdbcType="VARCHAR" property="azureFilterId" />
+    <result column="version_enable" jdbcType="BIT" property="versionEnable" />
+    <result column="platform" jdbcType="VARCHAR" property="platform" />
+    <result column="third_part_template" jdbcType="BIT" property="thirdPartTemplate" />
+    <result column="case_public" jdbcType="BIT" property="casePublic" />
+    <result column="api_quick" jdbcType="VARCHAR" property="apiQuick" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -86,11 +87,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id
-    , workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key,
+    id, workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key, 
     zentao_id, azure_devops_id, `repeatable`, case_template_id, issue_template_id, custom_num, 
     scenario_custom_num, create_user, system_id, mock_tcp_port, is_mock_tcp_open, azure_filter_id, 
-    api_quick, case_public, platform, third_part_template
+    version_enable, platform, third_part_template, case_public, api_quick
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -107,7 +107,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
+    select 
     <include refid="Base_Column_List" />
     from project
     where id = #{id,jdbcType=VARCHAR}
@@ -123,22 +123,24 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.Project">
-    insert into project (id, workspace_id, `name`,
-                         description, create_time, update_time,
-                         tapd_id, jira_key, zentao_id,
-                         azure_devops_id, `repeatable`, case_template_id,
-                         issue_template_id, custom_num, scenario_custom_num,
-                         create_user, system_id, mock_tcp_port,
-                         is_mock_tcp_open, azure_filter_id, api_quick,
-                         case_public, platform, third_part_template)
-    values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
-            #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
-            #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR},
-            #{azureDevopsId,jdbcType=VARCHAR}, #{repeatable,jdbcType=BIT}, #{caseTemplateId,jdbcType=VARCHAR},
-            #{issueTemplateId,jdbcType=VARCHAR}, #{customNum,jdbcType=BIT}, #{scenarioCustomNum,jdbcType=BIT},
-            #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR}, #{mockTcpPort,jdbcType=INTEGER},
-            #{isMockTcpOpen,jdbcType=BIT}, #{azureFilterId,jdbcType=VARCHAR}, #{apiQuick,jdbcType=VARCHAR},
-            #{casePublic,jdbcType=BIT}, #{platform,jdbcType=VARCHAR}, #{thirdPartTemplate,jdbcType=BIT})
+    insert into project (id, workspace_id, `name`, 
+      description, create_time, update_time, 
+      tapd_id, jira_key, zentao_id, 
+      azure_devops_id, `repeatable`, case_template_id, 
+      issue_template_id, custom_num, scenario_custom_num, 
+      create_user, system_id, mock_tcp_port, 
+      is_mock_tcp_open, azure_filter_id, version_enable, 
+      platform, third_part_template, case_public, 
+      api_quick)
+    values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
+      #{azureDevopsId,jdbcType=VARCHAR}, #{repeatable,jdbcType=BIT}, #{caseTemplateId,jdbcType=VARCHAR}, 
+      #{issueTemplateId,jdbcType=VARCHAR}, #{customNum,jdbcType=BIT}, #{scenarioCustomNum,jdbcType=BIT}, 
+      #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR}, #{mockTcpPort,jdbcType=INTEGER}, 
+      #{isMockTcpOpen,jdbcType=BIT}, #{azureFilterId,jdbcType=VARCHAR}, #{versionEnable,jdbcType=BIT}, 
+      #{platform,jdbcType=VARCHAR}, #{thirdPartTemplate,jdbcType=BIT}, #{casePublic,jdbcType=BIT}, 
+      #{apiQuick,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -203,17 +205,20 @@
       <if test="azureFilterId != null">
         azure_filter_id,
       </if>
-      <if test="apiQuick != null">
-        api_quick,
-      </if>
-      <if test="casePublic != null">
-        case_public,
+      <if test="versionEnable != null">
+        version_enable,
       </if>
       <if test="platform != null">
         platform,
       </if>
       <if test="thirdPartTemplate != null">
         third_part_template,
+      </if>
+      <if test="casePublic != null">
+        case_public,
+      </if>
+      <if test="apiQuick != null">
+        api_quick,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -277,17 +282,20 @@
       <if test="azureFilterId != null">
         #{azureFilterId,jdbcType=VARCHAR},
       </if>
-      <if test="apiQuick != null">
-        #{apiQuick,jdbcType=VARCHAR},
-      </if>
-      <if test="casePublic != null">
-        #{casePublic,jdbcType=BIT},
+      <if test="versionEnable != null">
+        #{versionEnable,jdbcType=BIT},
       </if>
       <if test="platform != null">
         #{platform,jdbcType=VARCHAR},
       </if>
       <if test="thirdPartTemplate != null">
         #{thirdPartTemplate,jdbcType=BIT},
+      </if>
+      <if test="casePublic != null">
+        #{casePublic,jdbcType=BIT},
+      </if>
+      <if test="apiQuick != null">
+        #{apiQuick,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -360,17 +368,20 @@
       <if test="record.azureFilterId != null">
         azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
       </if>
-      <if test="record.apiQuick != null">
-        api_quick = #{record.apiQuick,jdbcType=VARCHAR},
-      </if>
-      <if test="record.casePublic != null">
-        case_public = #{record.casePublic,jdbcType=BIT},
+      <if test="record.versionEnable != null">
+        version_enable = #{record.versionEnable,jdbcType=BIT},
       </if>
       <if test="record.platform != null">
         platform = #{record.platform,jdbcType=VARCHAR},
       </if>
       <if test="record.thirdPartTemplate != null">
         third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
+      </if>
+      <if test="record.casePublic != null">
+        case_public = #{record.casePublic,jdbcType=BIT},
+      </if>
+      <if test="record.apiQuick != null">
+        api_quick = #{record.apiQuick,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -380,31 +391,32 @@
   <update id="updateByExample" parameterType="map">
     update project
     set id = #{record.id,jdbcType=VARCHAR},
-    workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
-    `name` = #{record.name,jdbcType=VARCHAR},
-    description = #{record.description,jdbcType=VARCHAR},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    update_time = #{record.updateTime,jdbcType=BIGINT},
-    tapd_id = #{record.tapdId,jdbcType=VARCHAR},
-    jira_key = #{record.jiraKey,jdbcType=VARCHAR},
-    zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
-    azure_devops_id = #{record.azureDevopsId,jdbcType=VARCHAR},
-    `repeatable` = #{record.repeatable,jdbcType=BIT},
-    case_template_id = #{record.caseTemplateId,jdbcType=VARCHAR},
-    issue_template_id = #{record.issueTemplateId,jdbcType=VARCHAR},
-    custom_num = #{record.customNum,jdbcType=BIT},
-    scenario_custom_num = #{record.scenarioCustomNum,jdbcType=BIT},
-    create_user = #{record.createUser,jdbcType=VARCHAR},
-    system_id = #{record.systemId,jdbcType=VARCHAR},
-    mock_tcp_port = #{record.mockTcpPort,jdbcType=INTEGER},
-    is_mock_tcp_open = #{record.isMockTcpOpen,jdbcType=BIT},
-    azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
-    api_quick = #{record.apiQuick,jdbcType=VARCHAR},
-    case_public = #{record.casePublic,jdbcType=BIT},
-    platform = #{record.platform,jdbcType=VARCHAR},
-    third_part_template = #{record.thirdPartTemplate,jdbcType=BIT}
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      tapd_id = #{record.tapdId,jdbcType=VARCHAR},
+      jira_key = #{record.jiraKey,jdbcType=VARCHAR},
+      zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
+      azure_devops_id = #{record.azureDevopsId,jdbcType=VARCHAR},
+      `repeatable` = #{record.repeatable,jdbcType=BIT},
+      case_template_id = #{record.caseTemplateId,jdbcType=VARCHAR},
+      issue_template_id = #{record.issueTemplateId,jdbcType=VARCHAR},
+      custom_num = #{record.customNum,jdbcType=BIT},
+      scenario_custom_num = #{record.scenarioCustomNum,jdbcType=BIT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      system_id = #{record.systemId,jdbcType=VARCHAR},
+      mock_tcp_port = #{record.mockTcpPort,jdbcType=INTEGER},
+      is_mock_tcp_open = #{record.isMockTcpOpen,jdbcType=BIT},
+      azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
+      version_enable = #{record.versionEnable,jdbcType=BIT},
+      platform = #{record.platform,jdbcType=VARCHAR},
+      third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
+      case_public = #{record.casePublic,jdbcType=BIT},
+      api_quick = #{record.apiQuick,jdbcType=VARCHAR}
     <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause"/>
+      <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.Project">
@@ -467,11 +479,8 @@
       <if test="azureFilterId != null">
         azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
       </if>
-      <if test="apiQuick != null">
-        api_quick = #{apiQuick,jdbcType=VARCHAR},
-      </if>
-      <if test="casePublic != null">
-        case_public = #{casePublic,jdbcType=BIT},
+      <if test="versionEnable != null">
+        version_enable = #{versionEnable,jdbcType=BIT},
       </if>
       <if test="platform != null">
         platform = #{platform,jdbcType=VARCHAR},
@@ -479,34 +488,41 @@
       <if test="thirdPartTemplate != null">
         third_part_template = #{thirdPartTemplate,jdbcType=BIT},
       </if>
+      <if test="casePublic != null">
+        case_public = #{casePublic,jdbcType=BIT},
+      </if>
+      <if test="apiQuick != null">
+        api_quick = #{apiQuick,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.Project">
     update project
-    set workspace_id        = #{workspaceId,jdbcType=VARCHAR},
-        `name`              = #{name,jdbcType=VARCHAR},
-        description         = #{description,jdbcType=VARCHAR},
-        create_time         = #{createTime,jdbcType=BIGINT},
-        update_time         = #{updateTime,jdbcType=BIGINT},
-        tapd_id             = #{tapdId,jdbcType=VARCHAR},
-        jira_key            = #{jiraKey,jdbcType=VARCHAR},
-        zentao_id           = #{zentaoId,jdbcType=VARCHAR},
-        azure_devops_id     = #{azureDevopsId,jdbcType=VARCHAR},
-        `repeatable`        = #{repeatable,jdbcType=BIT},
-        case_template_id    = #{caseTemplateId,jdbcType=VARCHAR},
-        issue_template_id   = #{issueTemplateId,jdbcType=VARCHAR},
-        custom_num          = #{customNum,jdbcType=BIT},
-        scenario_custom_num = #{scenarioCustomNum,jdbcType=BIT},
-        create_user         = #{createUser,jdbcType=VARCHAR},
-        system_id           = #{systemId,jdbcType=VARCHAR},
-        mock_tcp_port       = #{mockTcpPort,jdbcType=INTEGER},
-        is_mock_tcp_open    = #{isMockTcpOpen,jdbcType=BIT},
-        azure_filter_id     = #{azureFilterId,jdbcType=VARCHAR},
-        api_quick           = #{apiQuick,jdbcType=VARCHAR},
-        case_public         = #{casePublic,jdbcType=BIT},
-        platform            = #{platform,jdbcType=VARCHAR},
-        third_part_template = #{thirdPartTemplate,jdbcType=BIT}
+    set workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      tapd_id = #{tapdId,jdbcType=VARCHAR},
+      jira_key = #{jiraKey,jdbcType=VARCHAR},
+      zentao_id = #{zentaoId,jdbcType=VARCHAR},
+      azure_devops_id = #{azureDevopsId,jdbcType=VARCHAR},
+      `repeatable` = #{repeatable,jdbcType=BIT},
+      case_template_id = #{caseTemplateId,jdbcType=VARCHAR},
+      issue_template_id = #{issueTemplateId,jdbcType=VARCHAR},
+      custom_num = #{customNum,jdbcType=BIT},
+      scenario_custom_num = #{scenarioCustomNum,jdbcType=BIT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      system_id = #{systemId,jdbcType=VARCHAR},
+      mock_tcp_port = #{mockTcpPort,jdbcType=INTEGER},
+      is_mock_tcp_open = #{isMockTcpOpen,jdbcType=BIT},
+      azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
+      version_enable = #{versionEnable,jdbcType=BIT},
+      platform = #{platform,jdbcType=VARCHAR},
+      third_part_template = #{thirdPartTemplate,jdbcType=BIT},
+      case_public = #{casePublic,jdbcType=BIT},
+      api_quick = #{apiQuick,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
