@@ -165,6 +165,11 @@ export default {
   watch: {
     'schedule.value'() {
       this.form.cronValue = this.schedule.value;
+    },
+    'runConfig.runWithinResourcePool'() {
+      if (!this.runConfig.runWithinResourcePool) {
+        this.runConfig.resourcePoolId = null;
+      }
     }
   },
   data() {
