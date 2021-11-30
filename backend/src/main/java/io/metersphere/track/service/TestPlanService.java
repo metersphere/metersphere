@@ -189,7 +189,7 @@ public class TestPlanService {
     @Resource
     private TestPlanFollowMapper testPlanFollowMapper;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(20,new NamedThreadFactory("TestPlanService"));
+    private final ExecutorService executorService = Executors.newFixedThreadPool(20, new NamedThreadFactory("TestPlanService"));
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -992,7 +992,7 @@ public class TestPlanService {
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
             String runMode = ApiRunMode.SCHEDULE_SCENARIO_PLAN.name();
             // 调用执行方法
-            jMeterService.runLocal(request.getId(),request.getConfig(), jmeterHashTree, request.getReportId(), runMode);
+            jMeterService.runLocal(request.getId(), request.getConfig(), jmeterHashTree, request.getReportId(), runMode);
         }
 
         return returnId;
@@ -1076,8 +1076,17 @@ public class TestPlanService {
             runModeConfig.setReportType("iddReport");
             runModeConfig.setEnvMap(new HashMap<>());
             runModeConfig.setOnSampleError(false);
-        }else {
-            if(runModeConfig.getEnvMap() == null){
+        } else {
+            try {
+                JSONObject runModeObj = JSONObject.parseObject(apiRunConfig);
+                if (runModeObj.containsKey("runWithinResourcePool") && !runModeObj.getBoolean("runWithinResourcePool")) {
+                    runModeConfig.setResourcePoolId(null);
+                }
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage());
+            }
+
+            if (runModeConfig.getEnvMap() == null) {
                 runModeConfig.setEnvMap(new HashMap<>());
             }
         }
@@ -1097,11 +1106,11 @@ public class TestPlanService {
             }
             if (planApiCaseMap.size() > count) {
                 testPlanReportService.finishReport(reportInfoDTO.getTestPlanReport());
-                MSException.throwException("并发超过"+count+"，数量过大，请重新选择！");
+                MSException.throwException("并发超过" + count + "，数量过大，请重新选择！");
             }
             if (planScenarioIdsMap.size() > count) {
                 testPlanReportService.finishReport(reportInfoDTO.getTestPlanReport());
-                MSException.throwException("并发超过"+count+"，数量过大，请重新选择！");
+                MSException.throwException("并发超过" + count + "，数量过大，请重新选择！");
             }
         }
         extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
@@ -1148,14 +1157,14 @@ public class TestPlanService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(),reportId);
+            performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(), reportId);
             if (StringUtils.isNotEmpty(reportId)) {
                 executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.RUNNING.name());
             } else {
                 executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.PREPARE.name());
             }
         }
-        TestPlanReportExecuteCatch.updateTestPlanThreadInfo(planReportId,null,null,performaneThreadIDMap);
+        TestPlanReportExecuteCatch.updateTestPlanThreadInfo(planReportId, null, null, performaneThreadIDMap);
         if (!performaneReportIDMap.isEmpty()) {
             //性能测试时保存性能测试报告ID，在结果返回时用于捕捉并进行
             testPlanReportService.updatePerformanceInfo(testPlanReport, performaneReportIDMap, triggerMode);
@@ -1172,7 +1181,7 @@ public class TestPlanService {
         testPlanLog.info("ReportId[" + planReportId + "] start run. TestPlanID:[" + testPlanID + "].  Execute api :" + JSONObject.toJSONString(executeApiCaseIdMap) + "; Execute scenario:" + JSONObject.toJSONString(executeScenarioCaseIdMap) + "; Execute performance:" + JSONObject.toJSONString(executePerformanceIdMap));
         TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(planReportId, executeApiCaseIdMap, executeScenarioCaseIdMap, executePerformanceIdMap);
         //执行接口案例任务
-        this.executeApiTestCase(triggerMode, planReportId,new ArrayList<>(planApiCaseMap.keySet()), runModeConfig);
+        this.executeApiTestCase(triggerMode, planReportId, new ArrayList<>(planApiCaseMap.keySet()), runModeConfig);
         //执行场景执行任务
         this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, planScenarioIdsMap);
         this.listenTaskExecuteStatus(planReportId);
@@ -1702,7 +1711,7 @@ public class TestPlanService {
         }
     }
 
-    public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo,boolean isFinish) {
+    public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteInfo executeInfo, boolean isFinish) {
         if (MapUtils.isEmpty(executeInfo.getApiCaseExecInfo()) && MapUtils.isEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
             return;
         }
@@ -1712,12 +1721,12 @@ public class TestPlanService {
             if (checkReportConfig(config, "api", "all")) {
                 if (MapUtils.isNotEmpty(executeInfo.getApiCaseExecInfo())) {
                     // 接口
-                    apiAllCases = testPlanApiCaseService.getByApiExecReportIds(executeInfo.getApiCaseExecuteThreadMap(),isFinish);
+                    apiAllCases = testPlanApiCaseService.getByApiExecReportIds(executeInfo.getApiCaseExecuteThreadMap(), isFinish);
                     report.setApiAllCases(apiAllCases);
                 }
                 if (MapUtils.isNotEmpty(executeInfo.getApiScenarioCaseExecInfo())) {
                     //场景
-                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioThreadMap(),isFinish);
+                    scenarioAllCases = testPlanScenarioCaseService.getAllCases(executeInfo.getApiScenarioThreadMap(), isFinish);
                     report.setScenarioAllCases(scenarioAllCases);
                 }
             }
