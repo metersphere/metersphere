@@ -1,12 +1,15 @@
 <template>
   <div>
     <el-card class="table-card-nopadding" v-loading="result.loading">
-      <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
-                       :show-create="false" :tip="$t('commons.search_by_id_name_tag')"/>
+      <slot name="version"></slot>
+
+      <ms-table-search-bar :condition.sync="condition" @change="search" class="search-input"
+                           :tip="$t('commons.search_by_id_name_tag')"/>
+      <ms-table-adv-search-bar :condition.sync="condition" @search="search" class="adv-search-bar"/>
 
       <ms-table
         :data="tableData"
-        :screen-height="isRelate ? 'calc(100vh - 300px)' :  screenHeight"
+        :screen-height="isRelate ? 'calc(100vh - 400px)' :  screenHeight"
         :condition="condition"
         :page-size="pageSize"
         :operators="isRelate ? [] : operators"
@@ -117,6 +120,18 @@
             </template>
           </ms-table-column>
 
+          <ms-table-column
+            :label="$t('project.version.name')"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :filters="versionFilters"
+            min-width="100px"
+            prop="versionId">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.versionName }}</span>
+          </template>
+        </ms-table-column>
+
           <ms-table-column prop="principalName"
                            min-width="120px"
                            :label="$t('api_test.definition.api_principal')"
@@ -141,9 +156,9 @@
               <div v-if="row.environmentMap">
                 <span v-for="(k, v, index) in row.environmentMap" :key="index">
                   <span v-if="index===0">
-                    <span class="project-name" :title="v">{{v}}</span>:
+                    <span class="project-name" :title="v">{{ v }}</span>:
                     <el-tag type="success" size="mini" effect="plain">
-                      <span class="project-env">{{k}}</span>
+                      <span class="project-env">{{ k }}</span>
                     </el-tag>
                     <br/>
                   </span>
@@ -152,8 +167,8 @@
                     width="350"
                     trigger="click">
                     <div v-for="(k, v, index) in row.environmentMap" :key="index">
-                      <span class="plan-case-env">{{v}}:
-                        <el-tag type="success" size="mini" effect="plain">{{k}}</el-tag><br/>
+                      <span class="plan-case-env">{{ v }}:
+                        <el-tag type="success" size="mini" effect="plain">{{ k }}</el-tag><br/>
                       </span>
                     </div>
                     <el-link v-if="index === 1" slot="reference" type="info" :underline="false" icon="el-icon-more"/>
@@ -251,7 +266,8 @@
         <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true"
                    :modal="false"
                    size="90%">
-          <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb" :show-cancel-button="false"
+          <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb"
+                                :show-cancel-button="false"
                                 :report-id="showReportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
@@ -277,7 +293,7 @@
 </template>
 
 <script>
-import {downloadFile, getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID, hasLicense, objToStrMap, strMapToObj} from "@/common/js/utils";
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
@@ -295,15 +311,18 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import {editApiScenarioCaseOrder} from "@/business/components/api/automation/api-automation";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import axios from "axios";
+import {getGraphByCondition} from "@/network/graph";
+import MsTableSearchBar from "@/business/components/common/components/MsTableSearchBar";
+import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
 
-import {getGraphByCondition} from "@/network/graph";
-
 export default {
   name: "MsApiScenarioList",
   components: {
+    MsTableAdvSearchBar,
+    MsTableSearchBar,
     MsTable,
     MsTableColumn,
     HeaderLabelOperate,
@@ -379,7 +398,7 @@ export default {
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO'),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
-      screenHeight: 'calc(100vh - 228px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 220px)',//屏幕高度,
       condition: {
         components: API_SCENARIO_CONFIGS
       },
@@ -405,6 +424,7 @@ export default {
       selectDataSize: 0,
       selectAll: false,
       userFilters: [],
+      versionFilters: [],
       operators: [],
       selectRows: new Set(),
       isStop: false,
@@ -570,6 +590,13 @@ export default {
 
     this.search();
     this.getPrincipalOptions([]);
+    this.getVersionOptions();
+
+    if (this.isRelate) {
+      this.checkVersionEnable(this.selectProjectId);
+    } else {
+      this.checkVersionEnable(this.projectId);
+    }
 
     // 通知过来的数据跳转到编辑
     if (this.$route.query.resourceId) {
@@ -604,7 +631,7 @@ export default {
     batchReportId() {
       this.result.loading = true;
       this.getReport();
-    }
+    },
   },
   computed: {
     isNotRunning() {
@@ -777,6 +804,27 @@ export default {
         });
       });
     },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
+    },
+    checkVersionEnable(projectId) {
+      if (!projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + projectId, response => {
+          if (!response.data) {
+            this.fields = this.fields.filter(f => f.id !== 'versionId');
+          }
+        });
+      }
+    },
     getEnvsOptions(option) {
       this.$get('/api/environment/list/' + this.projectId, response => {
         option.push(...response.data);
@@ -940,8 +988,8 @@ export default {
               resolve();
             }
           }
-        })
-      })
+        });
+      });
     },
     sort(stepArray) {
       for (let i in stepArray) {
@@ -1017,7 +1065,7 @@ export default {
             this.reportId = getUUID().substring(0, 8);
             this.runVisible = true;
             this.$set(row, "isStop", true);
-          })
+          });
         }
       });
     },
@@ -1262,7 +1310,7 @@ export default {
   vertical-align: middle;
 }
 
-.project-env{
+.project-env {
   display: inline-block;
   white-space: nowrap;
   overflow: hidden;
@@ -1271,4 +1319,15 @@ export default {
   vertical-align: middle;
 }
 
+
+.search-input {
+  float: right;
+  width: 250px;
+}
+
+.adv-search-bar {
+  float: right;
+  margin-top: 5px;
+  margin-right: 10px;
+}
 </style>

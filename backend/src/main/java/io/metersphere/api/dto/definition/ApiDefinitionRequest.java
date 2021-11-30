@@ -21,6 +21,8 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
     private String status;
     private String apiCaseCoverage;
     private String reviewId;
+    private String refId;
+    private String versionId;
 
     // 测试计划是否允许重复
     private boolean repeatCase;

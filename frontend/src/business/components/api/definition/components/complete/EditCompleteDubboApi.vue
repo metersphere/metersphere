@@ -7,16 +7,24 @@
         <!--操作按钮-->
         <div style="float: right;margin-right: 20px;margin-top: 20px" class="ms-opt-btn">
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+            <i class="el-icon-star-off"
+               style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
                @click="saveFollow"/>
           </el-tooltip>
           <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+            <i class="el-icon-star-on"
+               style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
                @click="saveFollow"/>
           </el-tooltip>
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="basisData.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
+          <!--  版本历史 -->
+          <ms-version-history v-xpack
+                              ref="versionHistory"
+                              :version-data="versionData"
+                              :current-id="basisData.id"
+                              @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
         </div>
       </el-col>
@@ -26,7 +34,8 @@
     <br/>
     <el-row>
       <el-col>
-        <ms-basis-api @createRootModelInTree="createRootModelInTree" :moduleOptions="moduleOptions" :basisData="basisData" ref="basicForm"
+        <ms-basis-api @createRootModelInTree="createRootModelInTree" :moduleOptions="moduleOptions"
+                      :basisData="basisData" ref="basicForm"
                       @callback="callback"/>
       </el-col>
     </el-row>
@@ -45,13 +54,17 @@ import MsBasisApi from "./BasisApi";
 import MsBasisParameters from "../request/dubbo/BasisParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
-import {getCurrentUser} from "@/common/js/utils";
+import {getCurrentUser, hasLicense} from "@/common/js/utils";
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
 
 export default {
   name: "MsApiDubboRequestForm",
   components: {
     ApiOtherInfo,
-    MsBasisApi, MsBasisParameters, MsChangeHistory
+    MsBasisApi, MsBasisParameters, MsChangeHistory,
+    'MsVersionHistory': versionHistory.default,
   },
   props: {
     request: {},
@@ -75,7 +88,7 @@ export default {
               if (item === this.basisData.id) {
                 return true;
               }
-            })
+            });
             this.syncTabs.splice(index, 1);
             Object.assign(this.request, request);
           }
@@ -93,12 +106,16 @@ export default {
         }
       }
     });
+    if (hasLicense()) {
+      this.getVersionHistory();
+    }
   },
   data() {
     return {
       validated: false,
-      showFollow: false
-    }
+      showFollow: false,
+      versionData: [],
+    };
   },
   methods: {
     openHis() {
@@ -140,7 +157,7 @@ export default {
         this.showFollow = false;
         for (let i = 0; i < this.basisData.follows.length; i++) {
           if (this.basisData.follows[i] === getCurrentUser().id) {
-            this.basisData.follows.splice(i, 1)
+            this.basisData.follows.splice(i, 1);
             break;
           }
         }
@@ -154,18 +171,51 @@ export default {
         if (!this.basisData.follows) {
           this.basisData.follows = [];
         }
-        this.basisData.follows.push(getCurrentUser().id)
+        this.basisData.follows.push(getCurrentUser().id);
         if (this.basisData.id) {
           this.$post("/api/definition/update/follows/" + this.basisData.id, this.basisData.follows, () => {
             this.$success(this.$t('commons.follow_success'));
           });
         }
       }
+    },
+    getVersionHistory() {
+      this.$get('/api/definition/versions/' + this.basisData.id, response => {
+        this.versionData = response.data;
+      });
+    },
+    compare(row) {
+      // console.log(row);
+    },
+    checkout(row) {
+      let api = this.versionData.filter(v => v.versionId === row.id)[0];
+      if (api.tags && api.tags.length > 0) {
+        api.tags = JSON.parse(api.tags);
+      }
+      this.$emit("checkout", api);
+    },
+    create(row) {
+      // 创建新版本
+      this.basisData.versionId = row.id;
+      this.saveApi();
+    },
+    del(row) {
+      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.$get('/api/definition/delete/' + row.id + '/' + this.basisData.refId, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.getVersionHistory();
+            });
+          }
+        }
+      });
     }
   },
 
   computed: {}
-}
+};
 </script>
 
 <style scoped>
@@ -173,6 +223,7 @@ export default {
 .ms-opt-btn {
   position: fixed;
   right: 50px;
-  z-index: 1;
+  z-index: 120;
+  top: 107px;
 }
 </style>

@@ -45,13 +45,15 @@ public class Project implements Serializable {
 
     private String azureFilterId;
 
-    private String apiQuick;
-
-    private Boolean casePublic;
+    private Boolean versionEnable;
 
     private String platform;
 
     private Boolean thirdPartTemplate;
+
+    private Boolean casePublic;
+
+    private String apiQuick;
 
     private static final long serialVersionUID = 1L;
 }

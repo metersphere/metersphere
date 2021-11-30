@@ -101,10 +101,11 @@
 
     <select id="list" resultMap="BaseResultMap"
             parameterType="io.metersphere.performance.request.QueryTestPlanRequest">
-        SELECT load_test.*, project.name AS project_name, user.name AS user_name
+        SELECT load_test.*, project.name AS project_name, user.name AS user_name, project_version.name as version_name
         FROM load_test
                      LEFT JOIN project ON load_test.project_id = project.id
                      LEFT JOIN user ON load_test.user_id = user.id
+        LEFT JOIN project_version on project.id = project_version.project_id AND project_version.id = load_test.version_id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -149,9 +150,41 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='version_id'">
+                                and load_test.version_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
+            </if>
+            <if test="request.refId != null">
+                AND ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId != null">
+                AND version_id = #{request.versionId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND (
+                version_id = (SELECT project_version.id
+                FROM load_test tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                WHERE ref_id = load_test.ref_id
+                LIMIT 1)
+                OR
+                version_id = (SELECT project_version.id
+                FROM load_test tmp
+                JOIN project_version ON tmp.project_id = project_version.project_id AND
+                tmp.version_id = project_version.id
+                WHERE ref_id = load_test.ref_id
+                GROUP BY ref_id
+                HAVING MAX(latest) = 0
+                ORDER BY MAX(project_version.create_time) DESC
+                LIMIT 1)
+                )
             </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">

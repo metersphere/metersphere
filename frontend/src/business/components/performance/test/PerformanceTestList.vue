@@ -1,13 +1,16 @@
 <template>
   <ms-container>
-    <ms-main-container>
+    <ms-main-container v-if="loading">
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search"
                            :create-permission="['PROJECT_PERFORMANCE_TEST:READ+CREATE']"
+                           :version-options="versionOptions"
+                           :current-version.sync="currentVersion"
+                           :is-show-version=true
+                           @changeVersion="changeVersion"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
-
         <ms-table
           :data="tableData"
           :condition="condition"
@@ -27,12 +30,22 @@
           @refresh="search"
           :disable-header-config="true"
           ref="table">
-
           <el-table-column
             prop="num"
             label="ID"
             width="100"
             show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+            v-if="versionEnable"
+            :label="$t('project.version.name')"
+            :filters="versionFilters"
+            column-key="versionId"
+            min-width="100px"
+            prop="versionId">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.versionName }}</span>
+            </template>
           </el-table-column>
           <el-table-column
             prop="name"
@@ -103,7 +116,7 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceTestStatus from "./PerformanceTestStatus";
 import MsTableOperators from "../../common/components/MsTableOperators";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
 import {getLastTableSortField} from "@/common/js/tableUtils";
@@ -123,7 +136,7 @@ export default {
   },
   data() {
     return {
-      tableHeaderKey:"PERFORMANCE_TEST_TABLE",
+      tableHeaderKey: "PERFORMANCE_TEST_TABLE",
       result: {},
       deletePath: "/performance/delete",
       condition: {
@@ -132,10 +145,11 @@ export default {
       projectId: null,
       tableData: [],
       multipleSelection: [],
+      versionFilters: [],
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      loading: false,
+      loading: true,
       testId: null,
       enableOrderDrag: true,
       operators: [
@@ -163,6 +177,9 @@ export default {
       ],
       userFilters: [],
       screenHeight: 'calc(100vh - 200px)',
+      versionOptions: [],
+      currentVersion: '',
+      versionEnable: false,
     };
   },
   watch: {
@@ -179,10 +196,12 @@ export default {
       return editLoadTestCaseOrder;
     }
   },
-  created: function () {
+  created() {
     this.projectId = getCurrentProjectID();
     this.initTableData();
     this.getMaintainerOptions();
+    this.getVersionOptions();
+    this.checkVersionEnable();
   },
   methods: {
     getMaintainerOptions() {
@@ -268,7 +287,40 @@ export default {
         return;
       }
       this.$router.push('/performance/test/create');
-    }
+    },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionOptions = response.data;
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
+    },
+    changeVersion(value) {
+      this.currentVersion = value || null;
+      this.condition.versionId = value || null;
+      this.refresh();
+    },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + this.projectId, response => {
+          this.versionEnable = response.data;
+          this.loading = false;
+          this.$nextTick(() => {
+            this.loading = true;
+          });
+        });
+      }
+    },
+    refresh(data) {
+      this.initTableData();
+      //this.$refs.nodeTree.list();
+    },
   }
 };
 </script>
