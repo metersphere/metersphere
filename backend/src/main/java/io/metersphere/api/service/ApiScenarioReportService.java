@@ -156,6 +156,7 @@ public class ApiScenarioReportService {
     public ApiScenarioReport editReport(ScenarioResult test, long startTime) {
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(test.getName());
         if (report == null) {
+            LogUtil.info("从缓存中获取场景报告：【" + test.getName() + "】");
             report = MessageCache.scenarioExecResourceLock.get(test.getName());
         }
         if (report != null) {
@@ -169,6 +170,8 @@ public class ApiScenarioReportService {
             }
             MessageCache.scenarioExecResourceLock.remove(report.getId());
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+        } else {
+            LogUtil.error("未获取到场景报告！【" + test.getName() + "】");
         }
         return report;
     }
@@ -297,7 +300,7 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updateSchedulePlanCase(TestResult result, String runMode) {
-
+        LogUtil.info("收到测试计划场景[" + result.getTestId() + "]的执行信息，开始保存");
         ApiScenarioReport lastReport = null;
         List<ScenarioResult> scenarioResultList = result.getScenarios();
 
@@ -307,7 +310,7 @@ public class ApiScenarioReportService {
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
         Map<String, String> scenarioAndErrorMap = new HashMap<>();
-        Map<String,String> planScenarioReportMap = new HashMap<>();
+        Map<String, String> planScenarioReportMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
 
             // 存储场景报告
@@ -344,7 +347,7 @@ public class ApiScenarioReportService {
             report.setTestPlanScenarioId(planScenarioId);
             report.setEndTime(System.currentTimeMillis());
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-            planScenarioReportMap.put(planScenarioId,report.getId());
+            planScenarioReportMap.put(planScenarioId, report.getId());
 
 
             if (scenarioResult.getError() > 0) {
@@ -406,7 +409,7 @@ public class ApiScenarioReportService {
             TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId, null, scenarioAndErrorMap, null);
             TestPlanReportExecuteCatch.updateTestPlanReport(reportId, null, planScenarioReportMap);
         }
-
+        LogUtil.info("测试计划场景[" + result.getTestId() + "]保存结束");
         return lastReport;
     }
 
@@ -864,13 +867,13 @@ public class ApiScenarioReportService {
     }
 
     public Map<String, String> getReportStatusByReportIds(Collection<String> values) {
-        if(CollectionUtils.isEmpty(values)){
-            return  new HashMap<>();
+        if (CollectionUtils.isEmpty(values)) {
+            return new HashMap<>();
         }
         Map<String, String> map = new HashMap<>();
         List<ApiScenarioReport> reportList = extApiScenarioReportMapper.selectStatusByIds(values);
         for (ApiScenarioReport report : reportList) {
-            map.put(report.getId(),report.getStatus());
+            map.put(report.getId(), report.getStatus());
         }
         return map;
     }
