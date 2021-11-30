@@ -389,6 +389,9 @@
     <update id="updateCustomNumByProjectId">
         update api_scenario set custom_num = num where (custom_num is null or custom_num = '') and project_id = #{projectId}
     </update>
+    <update id="setScenarioEnvGroupIdNull">
+        update api_scenario set environment_group_id = null where environment_group_id = #{environmentGroupId}
+    </update>
 
     <select id="countByProjectID" resultType="java.lang.Long">
         SELECT COUNT(id) AS countNumber FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
