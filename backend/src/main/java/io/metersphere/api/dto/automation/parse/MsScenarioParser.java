@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.plugin.core.MsTestElement;
@@ -108,6 +109,9 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                         if (environmentMap != null) {
                             scenarioDefinition.put("environmentMap", new HashMap<>());
                         }
+                        item.setEnvironmentType(EnvironmentType.JSON.name());
+                        item.setEnvironmentJson(null);
+                        item.setEnvironmentGroupId(null);
                         item.setScenarioDefinition(JSONObject.toJSONString(scenarioDefinition));
                     }
                 }
