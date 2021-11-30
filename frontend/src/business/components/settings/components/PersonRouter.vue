@@ -89,6 +89,30 @@
       },
       handleAuth(type) {
         let param = {...this.currentPlatformInfo};
+        debugger
+        if(type==='Jira'){
+          if(!param.jiraAccount){
+            this.$error(this.$t('organization.integration.input_api_account'));
+            return
+          }else if(!param.jiraPassword){
+            this.$error(this.$t('organization.integration.input_api_password'));
+            return
+          }
+
+        }else if(type==='Zentao'){
+          if(!param.zentaoUserName){
+            this.$error(this.$t('organization.integration.input_api_account'));
+            return
+          }else if(!param.zentaoPassword){
+            this.$error(this.$t('organization.integration.input_api_password'));
+            return
+          }
+        }else if(type==='AzureDevops'){
+          if(!param.azureDevopsPat){
+            this.$error(this.$t('organization.integration.input_azure_pat'));
+            return
+          }
+        }
         param.workspaceId = getCurrentWorkspaceId();
         param.platform = type;
         this.$parent.result = this.$post("issues/user/auth", param, () => {
@@ -134,8 +158,6 @@
           console.log(this.$refs.personFrom)
           //this.form.id = this.$refs.personFrom.form.id
         }
-        console.log("this.form")
-        console.log(this.form)
         Object.assign(param, this.form);
         param.platformInfo = JSON.stringify(this.form.platformInfo);
         this.result = this.$post(this.updatePath, param, response => {
