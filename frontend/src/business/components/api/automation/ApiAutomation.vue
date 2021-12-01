@@ -98,6 +98,7 @@
 <script>
 
 import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
+import {PROJECT_ID} from "@/common/js/constants";
 
 export default {
   name: "ApiAutomation",
@@ -148,6 +149,12 @@ export default {
       //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
       initApiTableOpretion: 'init',
     };
+  },
+  created() {
+    let projectId = this.$route.params.projectId;
+    if(projectId){
+      sessionStorage.setItem(PROJECT_ID, projectId);
+    }
   },
   mounted() {
     this.getProject();
