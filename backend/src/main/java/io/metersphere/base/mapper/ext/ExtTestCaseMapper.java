@@ -125,4 +125,6 @@ public interface ExtTestCaseMapper {
     List<RelationshipGraphData.Node> getTestCaseForGraph(@Param("ids") Set<String> ids);
 
     int countByIds(@Param("ids") List<String> ids);
+
+    String getLastExecStatusById(String id);
 }
