@@ -54,7 +54,7 @@ export default {
   },
   methods:{
     cancel() {
-      return
+      this.$emit("cancel");
     },
     confirm() {
       this.$emit("confirm");
