@@ -2,9 +2,18 @@
   <div>
     <div style="margin-left: 20px;">
       <el-select v-model="envGroupId" placeholder="请选择用户组" style="margin-top: 8px;width: 200px;" size="small">
-        <el-option v-for="(group, index) in groups" :key="index"
-                   :label="group.name"
-                   :value="group.id"/>
+        <el-option-group
+          v-for="group in groups"
+          :key="group.label"
+          :label="group.label">
+          <el-option
+            v-for="item in group.options"
+            :key="item.name"
+            :label="item.name"
+            :disabled="item.disabled"
+            :value="item.id">
+          </el-option>
+        </el-option-group>
       </el-select>
       <span style="margin-left: 8px;">环境组</span>
       <i class="el-icon-view icon-view-btn" @click="viewGroup"></i>
@@ -25,13 +34,16 @@
 import EnvironmentGroup from "@/business/components/settings/workspace/environment/EnvironmentGroupList";
 
 export default {
-  name: "EnvGroup",
+  name: "EnvGroupWithOption",
   components: {EnvironmentGroup},
   data() {
     return {
       groups: [],
       envGroupId: this.groupId,
-      visble: false
+      visble: false,
+      disabledGroups: [],
+      notDisabledGroups: [],
+      result: {}
     }
   },
   props: {
@@ -56,9 +68,18 @@ export default {
       this.envGroupId = this.groupId;
     },
     init() {
-      this.$post('/environment/group/get/all',{}, res => {
-        let data = res.data;
-        this.groups = data ? data : [];
+      this.result = this.$post("/environment/group/get/option", {projectIds: [...this.projectIds]}, res => {
+        let groups = res.data;
+        this.disabledGroups = groups.filter(group => group.disabled === true);
+        this.notDisabledGroups = groups.filter(group => group.disabled === false);
+        this.$set(this.groups, 0, {
+          label: '可用环境组',
+          options: this.notDisabledGroups
+        });
+        this.$set(this.groups, 1, {
+          label: '不可用环境组(缺少项目环境)',
+          options: this.disabledGroups
+        });
       })
     },
     viewGroup() {

@@ -137,7 +137,7 @@
                                  :group-id="envGroupId" :project-list="projectList"
                                  :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                                  @setProjectEnvMap="setProjectEnvMap" @setEnvGroup="setEnvGroup"
-                                 @showPopover="showPopover"
+                                 @showPopover="showPopover" :has-option-group="true"
                                  ref="envPopover" class="ms-message-right"/>
                     <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
                       <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
