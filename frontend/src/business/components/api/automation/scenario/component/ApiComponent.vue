@@ -637,7 +637,7 @@ export default {
       if(resource.refType&&resource.refType==='API'){
         let definitionData = this.$router.resolve({
           name: 'ApiDefinition',
-          params: {redirectID: getUUID(), dataType: "api", dataSelectRange: 'edit:' + resource.id}
+          params: {redirectID: getUUID(), dataType: "api", dataSelectRange: 'edit:' + resource.id,projectId:resource.projectId,type:resource.protocol}
         });
         window.open(definitionData.href, '_blank');
       }else if(resource.refType&&resource.refType==='CASE'){

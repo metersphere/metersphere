@@ -273,7 +273,7 @@ export default {
     clickResource(resource) {
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id}
+        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id,projectId:resource.projectId}
       });
       window.open(automationData.href, '_blank');
     },

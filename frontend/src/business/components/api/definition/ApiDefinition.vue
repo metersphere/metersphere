@@ -254,6 +254,7 @@ import MockConfig from "@/business/components/api/definition/components/mock/Moc
 import ApiSchedule from "@/business/components/api/definition/components/import/ApiSchedule";
 import MsEditCompleteContainer from "./components/EditCompleteContainer";
 import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
+import {PROJECT_ID} from "@/common/js/constants";
 
 
 export default {
@@ -371,6 +372,7 @@ export default {
   },
   watch: {
     currentProtocol() {
+      debugger
       if (this.activeDom === 'right') {
         this.activeDom = 'left';
       }
@@ -397,6 +399,13 @@ export default {
     },
   },
   created() {
+    let projectId = this.$route.params.projectId;
+    if(projectId){
+      sessionStorage.setItem(PROJECT_ID, projectId);
+    }
+    if (this.$route.query.projectId){
+      sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
+    }
     this.getEnv();
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
