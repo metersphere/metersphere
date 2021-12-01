@@ -151,8 +151,16 @@ public class ReflexObjectUtil {
                         column.setNewValue(newColumns.get(i).getOriginalValue());
                         if (StringUtils.isNotEmpty(originalColumns.get(i).getColumnName()) && originalColumns.get(i).getColumnName().equals("tags")) {
                             GsonDiff diff = new GsonDiff();
-                            String oldTags = ApiDefinitionDiffUtil.JSON_START + ((originalColumns.get(i) != null && originalColumns.get(i).getOriginalValue() != null) ? originalColumns.get(i).getOriginalValue().toString() : "\"\"") + ApiDefinitionDiffUtil.JSON_END;
-                            String newTags = ApiDefinitionDiffUtil.JSON_START + ((newColumns.get(i) != null && newColumns.get(i).getOriginalValue() != null) ? newColumns.get(i).getOriginalValue().toString() : "\"\"") + ApiDefinitionDiffUtil.JSON_END;
+                            Object originalValue = originalColumns.get(i).getOriginalValue();
+                            Object newValue = newColumns.get(i).getOriginalValue();
+                            List<String> originalValueArray = JSON.parseArray(originalValue.toString(), String.class);
+                            List<String> newValueArray = JSON.parseArray(newValue.toString(), String.class);
+                            Collections.sort(originalValueArray);
+                            Collections.sort(newValueArray);
+                            Object originalObject = JSON.toJSON(originalValueArray);
+                            Object newObject = JSON.toJSON(newValueArray);
+                            String oldTags = ApiDefinitionDiffUtil.JSON_START + ((originalColumns.get(i) != null && originalObject != null) ? originalObject.toString() : "\"\"") + ApiDefinitionDiffUtil.JSON_END;
+                            String newTags = ApiDefinitionDiffUtil.JSON_START + ((newColumns.get(i) != null && newObject != null) ? newObject.toString() : "\"\"") + ApiDefinitionDiffUtil.JSON_END;
                             String diffStr = diff.diff(oldTags, newTags);
                             String diffValue = diff.apply(newTags, diffStr);
                             column.setDiffValue(diffValue);
