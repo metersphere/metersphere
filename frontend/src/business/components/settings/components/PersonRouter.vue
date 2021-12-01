@@ -8,7 +8,7 @@
     <ms-main-container>
       <ms-person-from-setting v-if="activeIndex==='commons.personal_setting'" :form = form @getPlatformInfo = "getPlatformInfo" @cancel = "cancel" />
       <ms-api-keys v-if="activeIndex==='commons.api_keys'"/>
-      <password-info v-if="activeIndex==='change_password'" :rule-form = "ruleForm"></password-info>
+      <password-info v-if="activeIndex==='change_password'" :rule-form = "ruleForm" @cancel="cancel"></password-info>
       <el-form v-if="activeIndex==='third_account'">
         <jira-user-info @auth="handleAuth" v-if="hasJira" :data="currentPlatformInfo"/>
         <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
