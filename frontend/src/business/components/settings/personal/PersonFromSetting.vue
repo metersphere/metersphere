@@ -108,7 +108,7 @@ export default {
       return getCurrentUser();
     },
     cancel() {
-
+      this.$emit("cancel");
     },
     updateUser(updateUserForm) {
       this.$refs[updateUserForm].validate(valid => {
