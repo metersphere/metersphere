@@ -28,7 +28,7 @@
           <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1"
                        :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
                        :environment-type.sync="envType" :group-id="envGroupId"
-                       @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right"
+                       @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right" :has-option-group="true"
                        :result="envResult"/>
 
           <el-dropdown split-button type="primary" @click="runDebug" style="margin-right: 10px" size="mini" @command="handleCommand" v-if="!debug">
