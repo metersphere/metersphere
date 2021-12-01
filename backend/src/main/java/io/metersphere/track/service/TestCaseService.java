@@ -397,6 +397,12 @@ public class TestCaseService {
     private List<TestCaseDTO> parseStatus(List<TestCaseDTO> returnList) {
         TestCaseExcelData excelData = new TestCaseExcelDataFactory().getTestCaseExcelDataLocal();
         for (TestCaseDTO data : returnList) {
+            String lastStatus = extTestCaseMapper.getLastExecStatusById(data.getId());
+            if(StringUtils.isNotEmpty(lastStatus)){
+                data.setLastExecuteResult(lastStatus);
+            }else {
+                data.setLastExecuteResult(null);
+            }
             String dataStatus = excelData.parseStatus(data.getStatus());
 
             if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Trash")) {

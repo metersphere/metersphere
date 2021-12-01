@@ -621,4 +621,8 @@
         </foreach>
     </update>
 
+    <select id="getLastExecStatusById" resultType="java.lang.String">
+        SELECT `status` FROM test_plan_test_case WHERE case_id = #{0} ORDER BY update_time DESC limit 1 ;
+    </select>
+
 </mapper>

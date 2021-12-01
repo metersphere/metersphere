@@ -46,15 +46,28 @@
         :label="$t('commons.delete_user')"
         min-width="120"/>
 
+      <ms-table-column
+        prop="lastExecuteResult"
+        min-width="100px"
+        :label="$t('test_track.plan_view.execute_result')">
+        <template v-slot:default="scope">
+          <span @click.stop="clickt = 'stop'">
+              <span class="el-dropdown-link">
+                  <status-table-item :value="scope.row.lastExecuteResult"/>
+              </span>
+            </span>
+        </template>
+      </ms-table-column>
+
       <span v-for="item in fields" :key="item.key">
         <ms-table-column
-            v-if="!customNum"
-            :field="item"
-            :fields-width="fieldsWidth"
-            prop="num"
-            sortable
-            :label="$t('commons.id')"
-            min-width="80"/>
+          v-if="!customNum"
+          :field="item"
+          :fields-width="fieldsWidth"
+          prop="num"
+          sortable
+          :label="$t('commons.id')"
+          min-width="80"/>
 
         <ms-table-column
           v-if="item.id === 'num' && customNum"
@@ -75,7 +88,7 @@
 
         <ms-table-column :label="$t('test_track.case.case_desc')" prop="desc" :field="item">
           <template v-slot:default="scope">
-            <el-link @click.stop="getCase(scope.row.id)" style="color:#783887;">{{$t('commons.preview')}}</el-link>
+            <el-link @click.stop="getCase(scope.row.id)" style="color:#783887;">{{ $t('commons.preview') }}</el-link>
           </template>
         </ms-table-column>
 
@@ -86,7 +99,7 @@
           :label="$t('commons.create_user')"
           min-width="120">
           <template v-slot:default="scope">
-            {{memberMap.get(scope.row.createUser)}}
+            {{ memberMap.get(scope.row.createUser) }}
           </template>
         </ms-table-column>
 
@@ -117,20 +130,22 @@
         </ms-table-column>
 
         <ms-table-column
-            prop="nodePath"
-            :field="item"
-            :fields-width="fieldsWidth"
-            :label="$t('test_track.case.module')"
-            min-width="150px">
+          prop="nodePath"
+          :field="item"
+          :fields-width="fieldsWidth"
+          :label="$t('test_track.case.module')"
+          min-width="150px">
         </ms-table-column>
 
+
+
         <ms-table-column
-            prop="updateTime"
-            sortable
-            :field="item"
-            :fields-width="fieldsWidth"
-            :label="$t('commons.update_time')"
-            min-width="150px">
+          prop="updateTime"
+          sortable
+          :field="item"
+          :fields-width="fieldsWidth"
+          :label="$t('commons.update_time')"
+          min-width="150px">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -144,7 +159,7 @@
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
-        </ms-table-column >
+        </ms-table-column>
 
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
                          :filters="getCustomFieldFilter(field)"
@@ -155,13 +170,14 @@
                          :prop="field.name">
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
-                <priority-table-item :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
+                <priority-table-item
+                  :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
             </span>
             <span v-else-if="field.name === '用例状态'">
-                {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.status}}
+                {{ getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.status }}
             </span>
             <span v-else>
-              {{getCustomFieldValue(scope.row, field)}}
+              {{ getCustomFieldValue(scope.row, field) }}
             </span>
           </template>
         </ms-table-column>
@@ -230,6 +246,7 @@ import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
 import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
 
@@ -259,7 +276,7 @@ export default {
     StatusTableItem,
     TestCaseDetail,
     ReviewStatus,
-    MsTag,ApiStatus,
+    MsTag, ApiStatus,
     "relationshipGraphDrawer": relationshipGraphDrawer.default,
   },
   data() {
@@ -301,7 +318,7 @@ export default {
         {text: '进行中', value: 'Underway'},
         {text: '已完成', value: 'Completed'},
       ],
-      batchButtons:[],
+      batchButtons: [],
       simpleButtons: [
         {
           name: this.$t('test_track.case.batch_edit_case'),
@@ -413,14 +430,14 @@ export default {
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
-    if(this.trashEnable){
+    if (this.trashEnable) {
       this.operators = this.trashOperators;
       this.batchButtons = this.trashButtons;
-    }else {
+    } else {
       this.operators = this.simpleOperators;
       this.batchButtons = this.simpleButtons;
     }
-    if(!this.projectName || this.projectName === ""){
+    if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
 
@@ -445,7 +462,7 @@ export default {
   watch: {
     selectNodeIds() {
       this.page.currentPage = 1;
-      if(!this.trashEnable){
+      if (!this.trashEnable) {
         this.condition.filters.status = [];
       }
       initCondition(this.condition, false);
@@ -516,7 +533,7 @@ export default {
       } else if (field.name === '用例状态') {
         return this.statusFilters;
       }
-       return null;
+      return null;
     },
     checkRedirectEditPage(redirectParam) {
       if (redirectParam != null) {
@@ -527,10 +544,10 @@ export default {
         });
       }
     },
-    getProjectName (){
+    getProjectName() {
       this.$get('project/get/' + this.projectId, response => {
         let project = response.data;
-        if(project){
+        if (project) {
           this.projectName = project.name;
         }
       });
@@ -557,7 +574,7 @@ export default {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
       }
-      if(!this.trashEnable){
+      if (!this.trashEnable) {
         if (this.selectNodeIds && this.selectNodeIds.length > 0) {
           // param.nodeIds = this.selectNodeIds;
           this.condition.nodeIds = this.selectNodeIds;
@@ -596,7 +613,7 @@ export default {
       }
       this.condition.filters.priority = this.condition.filters['用例等级'];
       this.condition.filters.status = this.condition.filters['用例状态'];
-      if(this.trashEnable){
+      if (this.trashEnable) {
         this.condition.filters = {status: ["Trash"]};
       }
       if (this.projectId) {
@@ -686,7 +703,7 @@ export default {
         }
       });
     },
-    reduction(testCase){
+    reduction(testCase) {
       let param = {};
       param.ids = [testCase.id];
       param.projectId = getCurrentProjectID();
@@ -706,7 +723,7 @@ export default {
         }
       });
     },
-    batchReduction(){
+    batchReduction() {
       let param = buildBatchParam(this, this.$refs.table.selectIds);
       this.$post('/test/case/reduction', param, () => {
         this.$emit('refreshTable');
@@ -730,7 +747,7 @@ export default {
       });
     },
     generateGraph() {
-      getGraphByCondition('TEST_CASE', buildBatchParam(this, this.$refs.table.selectIds),(data) => {
+      getGraphByCondition('TEST_CASE', buildBatchParam(this, this.$refs.table.selectIds), (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
       });
@@ -792,7 +809,7 @@ export default {
 
       let config = {};
       let fileNameSuffix = "";
-      if(exportType === 'xmind'){
+      if (exportType === 'xmind') {
         config = {
           url: '/test/case/export/testcase/xmind',
           method: 'post',
@@ -800,7 +817,7 @@ export default {
           data: buildBatchParam(this, this.$refs.table.selectIds)
         };
         fileNameSuffix = ".xmind";
-      }else {
+      } else {
         config = {
           url: '/test/case/export/testcase',
           method: 'post',
@@ -816,7 +833,7 @@ export default {
       }
 
       this.page.result = this.$request(config).then(response => {
-        const filename = "Metersphere_case_" + this.projectName+ fileNameSuffix;
+        const filename = "Metersphere_case_" + this.projectName + fileNameSuffix;
         const blob = new Blob([response.data]);
         if ("download" in document.createElement("a")) {
           let aTag = document.createElement('a');
