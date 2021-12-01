@@ -372,7 +372,6 @@ export default {
   },
   watch: {
     currentProtocol() {
-      debugger
       if (this.activeDom === 'right') {
         this.activeDom = 'left';
       }
