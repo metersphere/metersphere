@@ -145,11 +145,17 @@
     },
     methods: {
       initProtocol() {
-        this.$get('/api/module/getUserDefaultApiType/', response => {
-          this.condition.protocol = response.data;
+        if(this.$route.params.type){
+          this.condition.protocol = this.$route.params.type;
           this.$emit('protocolChange', this.condition.protocol);
           this.list();
-        });
+        }else {
+          this.$get('/api/module/getUserDefaultApiType/', response => {
+            this.condition.protocol = response.data;
+            this.$emit('protocolChange', this.condition.protocol);
+            this.list();
+          });
+        }
       },
       filter() {
         this.$refs.nodeTree.filter(this.condition.filterText);

@@ -40,12 +40,12 @@ export default {
 
     },
     {
-      path: "definition/:redirectID?/:dataType?/:dataSelectRange?",
+      path: "definition/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?",
       name: "ApiDefinition",
       component: () => import('@/business/components/api/definition/ApiDefinition'),
     },
     {
-      path: "automation/:redirectID?/:dataType?/:dataSelectRange?",
+      path: "automation/:redirectID?/:dataType?/:dataSelectRange?/:projectId?",
       name: "ApiAutomation",
       component: () => import('@/business/components/api/automation/ApiAutomation'),
     },
