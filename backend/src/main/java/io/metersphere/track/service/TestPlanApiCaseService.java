@@ -442,7 +442,7 @@ public class TestPlanApiCaseService {
         }
         // 开始选择执行模式
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-            Map<TestPlanApiCase, ApiDefinitionExecResult> executeQueue = new HashMap<>();
+            Map<TestPlanApiCase, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
 
             //记录案例线程结果以及执行失败的案例ID
             Map<String, String> executeThreadIdMap = new HashMap<>();
