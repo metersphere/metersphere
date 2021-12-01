@@ -1086,15 +1086,6 @@ public class TestPlanService {
             runModeConfig.setEnvMap(new HashMap<>());
             runModeConfig.setOnSampleError(false);
         } else {
-            try {
-                JSONObject runModeObj = JSONObject.parseObject(apiRunConfig);
-                if (runModeObj.containsKey("runWithinResourcePool") && !runModeObj.getBoolean("runWithinResourcePool")) {
-                    runModeConfig.setResourcePoolId(null);
-                }
-            } catch (Exception e) {
-                LogUtil.error(e.getMessage());
-            }
-
             if (runModeConfig.getEnvMap() == null) {
                 runModeConfig.setEnvMap(new HashMap<>());
             }
