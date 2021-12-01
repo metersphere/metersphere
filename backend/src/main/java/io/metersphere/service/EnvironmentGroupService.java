@@ -10,15 +10,19 @@ import io.metersphere.base.mapper.ext.ExtEnvironmentGroupMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.EnvironmentGroupRequest;
+import io.metersphere.dto.EnvironmentGroupDTO;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -46,6 +50,8 @@ public class EnvironmentGroupService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private ApiAutomationService apiAutomationService;
+    @Resource
+    private EnvironmentGroupProjectService environmentGroupProjectService;
 
     public EnvironmentGroup add(EnvironmentGroupRequest request) {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -245,5 +251,25 @@ public class EnvironmentGroupService {
             }
         }
         sqlSession.flushStatements();
+    }
+
+    public List<EnvironmentGroupDTO> getEnvOptionGroup(List<String> projectIds) {
+        EnvironmentGroupExample example = new EnvironmentGroupExample();
+        example.createCriteria().andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId());
+        List<EnvironmentGroupDTO> result = new ArrayList<>();
+        List<EnvironmentGroup> groups = environmentGroupMapper.selectByExample(example);
+        for (EnvironmentGroup group : groups) {
+            Map<String, String> envMap = environmentGroupProjectService.getEnvMap(group.getId());
+            EnvironmentGroupDTO dto = new EnvironmentGroupDTO();
+            BeanUtils.copyProperties(group, dto);
+            if (CollectionUtils.isNotEmpty(projectIds)) {
+                boolean b = envMap.keySet().containsAll(projectIds);
+                if (BooleanUtils.isFalse(b)) {
+                    dto.setDisabled(true);
+                }
+            }
+            result.add(dto);
+        }
+        return result;
     }
 }
