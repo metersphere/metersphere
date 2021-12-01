@@ -19,4 +19,5 @@ public class EnvironmentGroupRequest extends EnvironmentGroup {
      */
     private Map<String, String> map;
     private List<String> groupIds;
+    private List<String> projectIds;
 }

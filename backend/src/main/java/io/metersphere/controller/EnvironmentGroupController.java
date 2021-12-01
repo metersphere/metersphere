@@ -7,6 +7,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.EnvironmentGroupRequest;
+import io.metersphere.dto.EnvironmentGroupDTO;
 import io.metersphere.service.EnvironmentGroupService;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,5 +71,10 @@ public class EnvironmentGroupController {
     @GetMapping("/copy/{id}")
     public void copy(@PathVariable String id) {
         environmentGroupService.copy(id);
+    }
+
+    @PostMapping("/get/option")
+    public List<EnvironmentGroupDTO> getEnvOptionGroup(@RequestBody EnvironmentGroupRequest request) {
+        return environmentGroupService.getEnvOptionGroup(request.getProjectIds());
     }
 }
