@@ -55,20 +55,25 @@ class Leaf implements Comparable<Leaf> {
 	}
 
 	boolean cancelDelete(Leaf deleted, Leaf with) {
+
 		if (deleted.parent.hashCode == with.parent.hashCode) {
-			if (JsonDiff.LOG.isLoggable(Level.FINE))
-				JsonDiff.LOG.info("SET " + deleted + " @" + with);
-			with.newStructure.clear();
-			deleted.oper = Oper.SET;
-			//deleted.val = with.val;
-			Leaf newParent = deleted.parent.parent.leaf;
-			// recover deleted children (orphans)
-			for (Leaf orphan : deleted.children) {
-				orphan.parent.parent = deleted.parent;
-				deleted.newStructure.add(orphan);
+			if((deleted.val!=null&&with.val!=null&&deleted.val.equals(with.val))||(deleted.val==null&&with.val==null)){
+				if (JsonDiff.LOG.isLoggable(Level.FINE))
+					JsonDiff.LOG.info("SET " + deleted + " @" + with);
+				with.newStructure.clear();
+				deleted.oper = Oper.SET;
+				//deleted.val = with.val;
+				Leaf newParent = deleted.parent.parent.leaf;
+				// recover deleted children (orphans)
+				for (Leaf orphan : deleted.children) {
+					orphan.parent.parent = deleted.parent;
+					deleted.newStructure.add(orphan);
+				}
+				deleted.rehash(newParent);
+				return true;
+			}else {
+				return false;
 			}
-			deleted.rehash(newParent);
-			return true;
 		}
 		return false;
 	}

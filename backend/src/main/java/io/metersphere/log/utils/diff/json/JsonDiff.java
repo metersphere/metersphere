@@ -285,7 +285,19 @@ public class JsonDiff {
                     String valueJson = DIFF_ADD + (value != null && StringUtils.isNotEmpty(value.toString()) ? value.toString().substring(1, value.toString().length() - 1) : "");
                     JsonPrimitive gsonJsonPrimitive = new JsonPrimitive(valueJson);
                     GsonJsonPrimitive primitive = new GsonJsonPrimitive(gsonJsonPrimitive);
-                    ((JzonArray) applyTo).set(instruction.index, primitive);
+                    JzonArray applyToArray = (JzonArray) applyTo;
+                    JzonElement jzonElementByIndex = applyToArray.get(instruction.index);
+                    if(StringUtils.equals(jzonElementByIndex.toString(),value.toString())){
+                        applyToArray.set(instruction.index, primitive);
+                    }else{
+                        for (int i = 0; i < applyToArray.size()-1; i++) {
+                            JzonElement jzonElement = applyToArray.get(i);
+                            if(StringUtils.equals(jzonElement.toString(),value.toString())){
+                                applyToArray.set(i, primitive);
+                                break;
+                            }
+                        }
+                    }
                 } else {
                     try {
                         JacksonJsonObject object = (JacksonJsonObject) value;
