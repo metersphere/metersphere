@@ -1440,16 +1440,23 @@ public class ApiAutomationService {
      * @param request
      */
     private void parallel(Map<String, RunModeDataDTO> executeQueue, RunScenarioRequest request) {
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
-        // 开始并发执行
-        for (String reportId : executeQueue.keySet()) {
-            //存储报告
-            APIScenarioReportResult report = executeQueue.get(reportId).getReport();
-            batchMapper.insert(report);
-            MessageCache.scenarioExecResourceLock.put(reportId, report);
-        }
-        sqlSession.flushStatements();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
+                // 开始并发执行
+                for (String reportId : executeQueue.keySet()) {
+                    //存储报告
+                    APIScenarioReportResult report = executeQueue.get(reportId).getReport();
+                    batchMapper.insert(report);
+                    MessageCache.scenarioExecResourceLock.put(reportId, report);
+                }
+                sqlSession.commit();
+                sqlSession.clearCache();
+            }
+        });
+        thread.start();
 
         for (String reportId : executeQueue.keySet()) {
             // 增加一个本地锁，防止并发找不到资源
