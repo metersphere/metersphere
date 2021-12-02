@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -289,6 +290,9 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         ApiScenarioMapper apiScenarioMapper = sqlSession.getMapper(ApiScenarioMapper.class);
         apiScenarios.forEach(apiScenarioMapper::updateByPrimaryKeySelective);
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     @Override
@@ -395,6 +399,9 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         ApiScenarioModuleMapper apiScenarioModuleMapper = sqlSession.getMapper(ApiScenarioModuleMapper.class);
         updateNodes.forEach(apiScenarioModuleMapper::updateByPrimaryKeySelective);
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public String getLogDetails(List<String> ids) {

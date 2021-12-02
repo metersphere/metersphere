@@ -46,6 +46,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.aspectj.util.FileUtil;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -593,6 +594,9 @@ public class ApiTestCaseService {
             testCaseReviewMapper.updateByPrimaryKey(testCaseReview);
         }
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public List<String> selectIdsNotExistsInPlan(String projectId, String planId) {
@@ -676,6 +680,9 @@ public class ApiTestCaseService {
                 batchMapper.updateByPrimaryKeySelective(apiTestCase);
             });
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
     }
 
@@ -714,6 +721,9 @@ public class ApiTestCaseService {
                 batchMapper.updateByPrimaryKeySelective(apiTestCase);
             });
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
     }
 
@@ -788,8 +798,10 @@ public class ApiTestCaseService {
             batchMapper.insert(report);
             executeQueue.add(runCaseRequest);
         }
-        sqlSession.commit();
-
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
         for (RunCaseRequest runCaseRequest : executeQueue) {
             MessageCache.caseExecResourceLock.put(runCaseRequest.getReportId(), runCaseRequest.getReport());
             run(runCaseRequest);
