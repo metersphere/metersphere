@@ -65,6 +65,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
+import org.mybatis.spring.SqlSessionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -646,6 +647,10 @@ public class TestPlanService {
             testPlan.setActualEndTime(null);
             testPlanMapper.updateByPrimaryKey(testPlan);
         }
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public List<TestPlan> recentTestPlans(String projectId) {
@@ -1061,7 +1066,11 @@ public class TestPlanService {
         return returnId;
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    TestPlanScheduleReportInfoDTO genTestPlanReport(String projectID, String planId, String userId, String triggerMode) {
+        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, planId, userId, triggerMode);
+        return reportInfoDTO;
+    }
+
     public String run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
         RunModeConfig runModeConfig = null;
         try {
@@ -1091,7 +1100,7 @@ public class TestPlanService {
             }
         }
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
-        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, testPlanID, userId, triggerMode);
+        TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(projectID, testPlanID, userId, triggerMode);
         TestPlanReport testPlanReport = reportInfoDTO.getTestPlanReport();
         Map<String, String> planScenarioIdsMap = reportInfoDTO.getPlanScenarioIdMap();
         Map<String, String> planApiCaseMap = reportInfoDTO.getApiTestCaseDataMap();
@@ -1417,6 +1426,10 @@ public class TestPlanService {
                 }
             }
             sqlSession.flushStatements();
+
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
     }
 

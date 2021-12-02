@@ -46,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -158,6 +159,7 @@ public class ApiScenarioReportService {
         if (report == null) {
             LogUtil.info("从缓存中获取场景报告：【" + test.getName() + "】");
             report = MessageCache.scenarioExecResourceLock.get(test.getName());
+            LogUtil.info("从缓存中获取场景报告：【" + test.getName() + "】是否为空：" + (report == null));
         }
         if (report != null) {
             report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
@@ -323,7 +325,18 @@ public class ApiScenarioReportService {
 
             TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
             newResult.setConsole(result.getConsole());
-            scenarioResult.setName(report.getScenarioName());
+            try {
+                scenarioResult.setName(report.getScenarioName());
+            } catch (Exception e) {
+                if (result != null) {
+                    LogUtil.info(result.getTestId() + ":有对象为空:" + scenarioResult + ":" + report);
+                } else {
+                    LogUtil.info("result本身都为空！对象为空:" + scenarioResult + ":" + report);
+                }
+
+                e.printStackTrace();
+            }
+
             newResult.addScenario(scenarioResult);
             /**
              * 测试计划的定时任务场景执行时，主键是提前生成的【测试报告ID】。也就是TestResult.id是【测试报告ID】。
@@ -504,6 +517,9 @@ public class ApiScenarioReportService {
                         scenarioReportMapper.updateByPrimaryKeySelective(scenario);
                     });
                     sqlSession.flushStatements();
+                    if (sqlSession != null && sqlSessionFactory != null) {
+                        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                    }
                 }
                 passRateMap.clear();
             }
