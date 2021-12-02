@@ -13,7 +13,7 @@
       :show-btn="showBtn"
       :title="displayTitle">
 
-      <template v-slot:afterTitle v-if="request.refType==='API'|| request.refType==='CASE'">
+      <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')&&isSameSpace">
         <span v-if="isShowNum" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
         <span v-else >
           <el-tooltip class="ms-num" effect="dark" :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')" placement="top">
@@ -142,7 +142,7 @@ import MsDubboBasisParameters from "../../../definition/components/request/dubbo
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
 import MsRun from "../../../definition/components/Run";
-import {getUUID, getCurrentProjectID} from "@/common/js/utils";
+import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
@@ -202,6 +202,7 @@ export default {
       envType: this.environmentType,
       environmentMap: this.envMap,
       isShowNum:false,
+      isSameSpace:true,
     }
   },
   created() {
@@ -437,7 +438,7 @@ export default {
             }
             if(response.data.num){
               this.request.num = response.data.num;
-              this.isShowNum = true;
+              this.getWorkspaceId(response.data.projectId);
             }
             this.request.id = response.data.id;
             this.request.disabled = true;
@@ -457,10 +458,9 @@ export default {
         if(this.request.refType==='CASE'){
           this.$get("/api/testcase/get/" + this.request.id, response => {
             if (response.data) {
-
               if(response.data.num){
                 this.request.num = response.data.num;
-                this.isShowNum = true;
+                this.getWorkspaceId(response.data.projectId);
               }
               this.request.id = response.data.id;
             }
@@ -471,7 +471,7 @@ export default {
             if (response.data) {
               if(response.data.num){
                 this.request.num = response.data.num;
-                this.isShowNum = true;
+                this.getWorkspaceId(response.data.projectId);
               }
               this.request.id = response.data.id;
             }
@@ -679,6 +679,17 @@ export default {
       let element = document.getElementById(id);
       element.parentNode.removeChild(element);
     },
+    getWorkspaceId(projectId){
+      this.$get("/project/get/" + projectId, response => {
+        if(response.data){
+          if(response.data.workspaceId===getCurrentWorkspaceId()){
+            this.isShowNum = true;
+          }else {
+            this.isSameSpace = false;
+          }
+        }
+      });
+    }
   }
 }
 </script>
