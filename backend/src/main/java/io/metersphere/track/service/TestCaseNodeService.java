@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -570,6 +571,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             testCaseNodeMapper.updateByPrimaryKeySelective(value);
         });
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     private void batchUpdateTestCase(List<TestCaseDTO> testCases) {
@@ -579,6 +583,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             testCaseMapper.updateByPrimaryKeySelective(value);
         });
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     private List<TestCaseDTO> QueryTestCaseByNodeIds(List<String> nodeIds) {
@@ -680,6 +687,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                 testCaseNodeMapper.updateByPrimaryKey(node);
             });
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
     }
 

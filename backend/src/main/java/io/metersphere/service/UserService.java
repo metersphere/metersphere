@@ -47,6 +47,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.subject.Subject;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -151,6 +152,9 @@ public class UserService {
                     mapper.insertSelective(userGroup);
                 }
                 sqlSession.flushStatements();
+                if (sqlSession != null && sqlSessionFactory != null) {
+                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                }
             }
 
         }
@@ -804,6 +808,9 @@ public class UserService {
                             mapper.insertSelective(userGroup);
                         }
                         sqlSession.flushStatements();
+                        if (sqlSession != null && sqlSessionFactory != null) {
+                            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                        }
                     }
                 }
             }
@@ -836,6 +843,9 @@ public class UserService {
                 mapper.insertSelective(userGroup);
             }
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
     }
 
@@ -1159,6 +1169,9 @@ public class UserService {
                         mapper.insertSelective(userGroup);
                     }
                     sqlSession.flushStatements();
+                    if (sqlSession != null && sqlSessionFactory != null) {
+                        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                    }
                 }
             }
         }
