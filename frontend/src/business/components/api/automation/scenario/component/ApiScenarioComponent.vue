@@ -15,7 +15,7 @@
     background-color="#F4F4F5"
     title='场景'>
 
-    <template v-slot:afterTitle>
+    <template v-slot:afterTitle v-if="isSameSpace">
       <span v-if="isShowNum" @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
       <span v-else >
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
@@ -66,7 +66,7 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, strMapToObj} from "@/common/js/utils";
 
 export default {
   name: "ApiScenarioComponent",
@@ -126,7 +126,7 @@ export default {
           }
           if(response.data.num){
             this.scenario.num = response.data.num;
-            this.isShowNum = true;
+            this.getWorkspaceId(response.data.projectId);
           }
           this.scenario.name = response.data.name;
           this.scenario.headers = obj.headers;
@@ -136,13 +136,17 @@ export default {
         }
       })
     }
-    else if(this.scenario.id && this.scenario.referenced === 'Copy' && !this.scenario.loaded){
+    else if(this.scenario.id && (this.scenario.referenced === 'Copy'||this.scenario.referenced === 'Created') && !this.scenario.loaded){
       this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
         if (response.data) {
           if(response.data.num){
             this.scenario.num = response.data.num;
-            this.isShowNum = true;
+            this.getWorkspaceId(response.data.projectId);
+          }else {
+            this.isSameSpace = false
           }
+        } else {
+          this.isSameSpace = false
         }
       })
     }
@@ -153,6 +157,7 @@ export default {
       loading: false,
       isShowInput: false,
       isShowNum:false,
+      isSameSpace:true
     }
   },
   computed: {
@@ -269,7 +274,6 @@ export default {
       }
 
     },
-
     clickResource(resource) {
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
@@ -277,6 +281,17 @@ export default {
       });
       window.open(automationData.href, '_blank');
     },
+    getWorkspaceId(projectId){
+      this.$get("/project/get/" + projectId, response => {
+        if(response.data){
+          if(response.data.workspaceId===getCurrentWorkspaceId()){
+            this.isShowNum = true;
+          }else {
+            this.isSameSpace = false;
+          }
+        }
+      });
+    }
   }
 }
 </script>
