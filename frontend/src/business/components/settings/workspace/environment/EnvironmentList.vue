@@ -80,23 +80,35 @@
       <el-table :data="conditions">
         <el-table-column prop="socket" :label="$t('load_test.domain')" show-overflow-tooltip width="180">
           <template v-slot:default="{row}">
-            {{ getUrl(row) }}
+            {{ row.conditionType ? row.server : getUrl(row) }}
+          </template>
+        </el-table-column>
+        <el-table-column :label="'类型'" show-overflow-tooltip
+                         min-width="100px">
+          <template v-slot:default="{row}">
+            <el-tag type="info" size="mini">{{ row.conditionType ? row.conditionType : "HTTP" }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="type" :label="$t('api_test.environment.condition_enable')" show-overflow-tooltip
                          min-width="100px">
           <template v-slot:default="{row}">
-            {{ getName(row) }}
+            {{ row.conditionType ? "-" : getName(row) }}
           </template>
         </el-table-column>
         <el-table-column prop="details" show-overflow-tooltip min-width="120px" :label="$t('api_test.value')">
           <template v-slot:default="{row}">
-            {{ getDetails(row) }}
+            {{ row.conditionType ? "-" : getDetails(row) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="'描述'">
+          <template v-slot:default="{row}">
+            <span>{{ row.description ? row.description : "-" }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="createTime" show-overflow-tooltip min-width="120px" :label="$t('commons.create_time')">
           <template v-slot:default="{row}">
-            <span>{{ row.time | timestampFormatDate }}</span>
+            <span v-if="!row.conditionType">{{ row.time | timestampFormatDate }}</span>
+            <span v-else>-</span>
           </template>
         </el-table-column>
       </el-table>
@@ -205,6 +217,14 @@ export default {
     showInfo(row) {
       const config = JSON.parse(row.config);
       this.conditions = config.httpConfig.conditions;
+      if (config.tcpConfig && config.tcpConfig.server) {
+        let condition = {
+          conditionType: 'TCP',
+          server: config.tcpConfig.server,
+          description: config.tcpConfig.description
+        }
+        this.conditions.push(condition);
+      }
       this.domainVisible = true;
     },
     getName(row) {
@@ -381,12 +401,17 @@ export default {
           return "";
         } else {
           if (config.httpConfig.conditions.length === 1) {
+            if (config.tcpConfig && config.tcpConfig.server) {
+              return "SHOW_INFO";
+            }
             let obj = config.httpConfig.conditions[0];
             if (obj.protocol && obj.domain) {
               return obj.protocol + "://" + obj.domain;
             }
           } else if (config.httpConfig.conditions.length > 1) {
             return "SHOW_INFO";
+          } else if (config.tcpConfig && config.tcpConfig.server) {
+            return "SHOW_INFO"; // 页面上该字段只要显示域名数据就表示该域名是HTTP类型.如果只有TCP类型则弹窗显示以区分域名类型.
           } else {
             return "";
           }
