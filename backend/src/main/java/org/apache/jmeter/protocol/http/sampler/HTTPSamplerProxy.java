@@ -112,6 +112,9 @@ public final class HTTPSamplerProxy extends HTTPSamplerBase implements Interrupt
         }
         try {
             String url = toExternalForm(u);
+            if (StringUtils.isNotEmpty(url) && url.startsWith("http:/http")) {
+                url = url.substring(6);
+            }
             u = new URL(url);
         } catch (Exception ex) {
             LogUtil.error(ex);
