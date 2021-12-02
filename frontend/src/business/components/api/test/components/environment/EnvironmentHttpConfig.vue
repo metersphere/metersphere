@@ -3,15 +3,23 @@
   <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content" :disabled="isReadOnly">
     <div class="ms-border">
       <el-form-item prop="socket">
-        <span class="ms-env-span">{{ $t('api_test.environment.socket') }}</span>
-        <el-input v-model="condition.socket" style="width: 80%" :placeholder="$t('api_test.request.url_description')" clearable size="small">
-          <template slot="prepend">
-            <el-select v-model="condition.protocol" class="request-protocol-select" size="small">
-              <el-option label="http://" value="http"/>
-              <el-option label="https://" value="https"/>
-            </el-select>
-          </template>
-        </el-input>
+        <el-row type="flex" justify="space-between">
+          <el-col :span="16">
+            <span class="ms-env-span" style="line-height: 30px;">{{ $t('api_test.environment.socket') }}</span>
+            <el-input v-model="condition.socket" style="width: 85%" :placeholder="$t('api_test.request.url_description')" clearable size="small">
+              <template slot="prepend">
+                <el-select v-model="condition.protocol" class="request-protocol-select" size="small">
+                  <el-option label="http://" value="http"/>
+                  <el-option label="https://" value="https"/>
+                </el-select>
+              </template>
+            </el-input>
+          </el-col>
+          <el-col :span="8">
+            <span style="margin-right: 12px;">描述</span>
+            <el-input v-model="condition.description" maxlength="200" :show-word-limit="true" size="small" style="width: 85%;"/>
+          </el-col>
+        </el-row>
       </el-form-item>
       <el-form-item prop="enable">
         <span class="ms-env-span">{{ $t('api_test.environment.condition_enable') }}</span>
@@ -65,6 +73,11 @@
         <el-table-column prop="createTime" show-overflow-tooltip min-width="120px" :label="$t('commons.create_time')">
           <template v-slot:default="{row}">
             <span>{{ row.time | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="'描述'">
+          <template v-slot:default="{row}">
+            {{ row.description }}
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="100px">
@@ -146,6 +159,7 @@ export default {
         this.condition.domain = this.httpConfig.domain;
         this.condition.time = new Date().getTime();
         this.condition.headers = this.httpConfig.headers;
+        this.condition.description = this.httpConfig.description;
         this.add();
       }
       this.condition = {id: undefined, type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
@@ -195,6 +209,7 @@ export default {
         this.httpConfig.socket = row.socket;
         this.httpConfig.protocol = row.protocol;
         this.httpConfig.port = row.port;
+        this.httpConfig.description = row.description;
         this.condition = row;
         if (!this.condition.headers) {
           this.condition.headers = [new KeyValue()];
@@ -298,7 +313,7 @@ export default {
       this.validateSocket();
       let obj = {
         id: getUUID(), type: this.condition.type, socket: this.condition.socket, protocol: this.condition.protocol, headers: this.condition.headers,
-        domain: this.condition.domain, port: this.condition.port, time: new Date().getTime()
+        domain: this.condition.domain, port: this.condition.port, time: new Date().getTime(), description: this.condition.description
       };
       if (this.condition.type === "PATH") {
         obj.details = [JSON.parse(JSON.stringify(this.pathDetails))];

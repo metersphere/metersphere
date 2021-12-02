@@ -16,4 +16,5 @@ public class TCPConfig {
     private String eolByte = "";
     private String username = "";
     private String password = "";
+    private String description = "";
 }

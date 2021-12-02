@@ -569,6 +569,7 @@ export class TCPConfig extends BaseConfig {
 
     this.username = options.username;
     this.password = options.password;
+    this.description = options.description;
   }
 }
 

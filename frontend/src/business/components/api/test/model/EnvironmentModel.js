@@ -85,6 +85,7 @@ export class HttpConfig extends BaseConfig {
     this.port = undefined;
     this.conditions = [];
     this.isMock = false;
+    this.description = "";
     this.set(options);
     this.sets({headers: KeyValue}, options);
     this.sets({conditions: KeyValue}, options);
@@ -131,6 +132,7 @@ export function compatibleWithEnvironment(environment) {
     config.httpConfig.protocol = environment.protocol;
     config.httpConfig.domain = environment.domain;
     config.httpConfig.socket = environment.socket;
+    config.httpConfig.description = environment.description;
     environment.config = JSON.stringify(config);
   }
 }
