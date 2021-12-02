@@ -16,6 +16,7 @@ import io.metersphere.track.request.testreview.TestReviewRequest;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -88,6 +89,9 @@ public class TestCaseReviewLoadService {
             testCaseReviewMapper.updateByPrimaryKey(testCaseReview);
         }
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public void delete(String id) {
@@ -104,7 +108,7 @@ public class TestCaseReviewLoadService {
         testCaseReviewLoadMapper.updateByPrimaryKeySelective(testCaseReviewLoad);
         return reportId;
     }
-//???
+
     public Boolean isExistReport(LoadCaseReportRequest request) {
         String reportId = request.getReportId();
         String testPlanLoadCaseId = request.getTestPlanLoadCaseId();

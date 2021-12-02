@@ -56,6 +56,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -459,8 +460,11 @@ public class TestPlanApiCaseService {
                     TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap, null, null);
                 }
             }
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
 
-            sqlSession.commit();
             List<String> reportIds = new LinkedList<>();
             // 开始串行执行
             Thread thread = new Thread(new Runnable() {
@@ -562,7 +566,10 @@ public class TestPlanApiCaseService {
                 executeThreadIdMap.put(testPlanApiCase.getId(), report.getId());
                 MessageCache.caseExecResourceLock.put(report.getId(), report);
             });
-            sqlSession.commit();
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
             //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
             if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
                 if (!executeThreadIdMap.isEmpty()) {
@@ -677,6 +684,9 @@ public class TestPlanApiCaseService {
         });
 
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public Boolean hasFailCase(String planId, List<String> apiCaseIds) {
