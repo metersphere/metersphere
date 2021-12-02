@@ -99,7 +99,7 @@
               </el-button>
               <br/>
               <span>
-                  执行器：{{ item.actuator }} 由 {{ item.executor }} {{
+                  {{ $t('commons.actuator') }}：{{ item.actuator }} {{ $t('commons.from') }} {{ item.executor }} {{
                   item.executionTime | timestampFormatDate
                 }} {{ getMode(item.triggerMode) }}
               </span>

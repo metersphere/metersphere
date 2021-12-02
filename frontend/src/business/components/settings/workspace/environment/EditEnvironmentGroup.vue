@@ -37,7 +37,7 @@ export default {
   },
   data() {
     return {
-      title: '创建环境组',
+      title: this.$t('api_test.environment.create_group'),
       form: {},
       createVisible: false,
       rules: {
