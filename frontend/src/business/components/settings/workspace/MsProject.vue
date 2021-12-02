@@ -142,17 +142,17 @@
         <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_id')" v-if="azuredevops">
           <el-input v-model="form.azureDevopsId" autocomplete="off" ></el-input>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="'AzureDevops过滤ID'" v-if="azuredevops">
+        <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_filter_id')" v-if="azuredevops">
           <el-input v-model="form.azureFilterId" autocomplete="off"/>
           <ms-instructions-icon content="非必填项，用例关联需求时，可以只筛选出，所填的 workItem 下的选项" effect="light"/>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" label="测试用例自定义ID" prop="customNum">
+        <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id')" prop="customNum">
           <el-switch v-model="form.customNum"></el-switch>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" label="场景自定义ID" prop="scenarioCustomNum">
+        <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id')" prop="scenarioCustomNum">
           <el-switch v-model="form.scenarioCustomNum"></el-switch>
         </el-form-item>
       </el-form>
