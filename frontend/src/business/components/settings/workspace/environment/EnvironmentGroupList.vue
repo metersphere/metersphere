@@ -98,7 +98,7 @@ export default {
   },
   data() {
     return {
-      btnTips: '创建环境组',
+      btnTips: this.$t('api_test.environment.create_group'),
       envGroupId: '',
       condition: {},
       environmentGroupList: [],
