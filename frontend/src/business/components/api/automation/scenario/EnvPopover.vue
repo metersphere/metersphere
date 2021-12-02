@@ -135,15 +135,23 @@ export default {
     },
     checkEnv(data) {
       return new Promise((resolve => {
-        if (this.environmentType === ENV_TYPE.JSON) {
-          let res = this.$refs.envSelect.checkEnv(data);
-          resolve(res);
-        } else if (this.environmentType === ENV_TYPE.GROUP) {
-          let res = !this.hasOptionGroup ? this.$refs.envGroup.checkEnv() :
-            this.$refs.envOptionGroup.checkEnv();
-          res.then(r => {
-            resolve(r);
-          })
+        if (data) {
+          // 所有请求全路径不检查环境
+          resolve(true);
+        } else {
+          if (!this.environmentType) {
+            this.$warning("请选择环境！");
+            resolve(false);
+          } else if (this.environmentType === ENV_TYPE.JSON) {
+            let res = this.$refs.envSelect.checkEnv(data);
+            resolve(res);
+          } else if (this.environmentType === ENV_TYPE.GROUP) {
+            let res = !this.hasOptionGroup ? this.$refs.envGroup.checkEnv() :
+              this.$refs.envOptionGroup.checkEnv();
+            res.then(r => {
+              resolve(r);
+            })
+          }
         }
       }))
     },

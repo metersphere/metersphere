@@ -933,7 +933,7 @@ public class ApiAutomationService {
                         // 校验是否是全路径
                         MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) tr;
                         if (httpSamplerProxy.isEnable()) {
-                            if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || !ElementUtil.isURL(httpSamplerProxy.getUrl())) {
+                            if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || (httpSamplerProxy.getIsRefEnvironment() != null && httpSamplerProxy.getIsRefEnvironment())) {
                                 env.setFullUrl(false);
                                 env.getProjectIds().add(httpSamplerProxy.getProjectId());
                             }
