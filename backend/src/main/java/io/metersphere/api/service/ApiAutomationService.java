@@ -65,6 +65,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1348,8 +1349,12 @@ public class ApiAutomationService {
                 report.setStatus(APITestStatus.Waiting.name());
                 batchMapper.insert(report);
             }
-            sqlSession.commit();
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
+
         // 开始串行执行
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -1452,8 +1457,10 @@ public class ApiAutomationService {
                     batchMapper.insert(report);
                     MessageCache.scenarioExecResourceLock.put(reportId, report);
                 }
-                sqlSession.commit();
-                sqlSession.clearCache();
+                sqlSession.flushStatements();
+                if (sqlSession != null && sqlSessionFactory != null) {
+                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                }
             }
         });
         thread.start();
@@ -1475,7 +1482,6 @@ public class ApiAutomationService {
                         TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
             }
         }
-        executeQueue.clear();
     }
 
     /**
@@ -1580,6 +1586,9 @@ public class ApiAutomationService {
             }
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         } catch (Exception ex) {
             MSException.throwException(ex.getMessage());
         }
@@ -1825,6 +1834,9 @@ public class ApiAutomationService {
             }
         }
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
         return "success";
     }
 
@@ -2156,6 +2168,9 @@ public class ApiAutomationService {
             }
         }
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     private Long getImportNextOrder(String projectId) {
