@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -158,6 +159,9 @@ public class ServiceUtils {
                     updateByPrimaryKeySelectiveFunc.invoke(mapper, item);
                 }
                 sqlSession.flushStatements();
+            }
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         } catch (Throwable e) {
             LogUtil.error(e.getMessage(), e);
