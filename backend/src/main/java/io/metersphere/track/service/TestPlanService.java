@@ -1317,14 +1317,10 @@ public class TestPlanService {
         String targetPlanId = UUID.randomUUID().toString();
 
         TestPlanWithBLOBs targetPlan = new TestPlanWithBLOBs();
+        BeanUtils.copyBean(targetPlan, testPlan);
+        // 覆盖原内容
         targetPlan.setId(targetPlanId);
         targetPlan.setName(testPlan.getName() + "_" + UUID.randomUUID().toString().substring(0, 5) + "_COPY");
-        targetPlan.setWorkspaceId(testPlan.getWorkspaceId());
-        targetPlan.setDescription(testPlan.getDescription());
-        targetPlan.setStage(testPlan.getStage());
-        targetPlan.setTags(testPlan.getTags());
-        targetPlan.setProjectId(testPlan.getProjectId());
-        testPlan.setAutomaticStatusUpdate(testPlan.getAutomaticStatusUpdate());
         targetPlan.setStatus(TestPlanStatus.Prepare.name());
         targetPlan.setCreator(SessionUtils.getUserId());
         targetPlan.setCreateTime(System.currentTimeMillis());
