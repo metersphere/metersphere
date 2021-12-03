@@ -105,6 +105,26 @@ public class TestPlanReportService {
         if (StringUtils.isBlank(request.getProjectId())) {
             return list;
         }
+        if (request.getCombine() != null && !request.getCombine().isEmpty()) {
+            if (request.getCombine().get("status") != null) {
+                HashMap<String, Object> map = (HashMap<String, Object>) request.getCombine().get("status");
+                List<String> valueList = (List<String>) map.get("value");
+                List<String> newVal = new ArrayList<>();
+                valueList.forEach(item -> {
+                    if ("Completed".equals(item)) {
+                        newVal.add("success");
+                        newVal.add("failed");
+                        newVal.add("completed");
+                    } else if ("Underway".equals(item)) {
+                        newVal.add("Running");
+                    } else {
+                        newVal.add("Starting");
+                    }
+                });
+                valueList.clear();
+                valueList.addAll(newVal);
+            }
+        }
         list = extTestPlanReportMapper.list(request);
         return list;
     }
