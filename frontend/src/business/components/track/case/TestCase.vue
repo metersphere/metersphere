@@ -12,8 +12,10 @@
         @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
         @enableTrash="enableTrash"
+        @enablePublic="enablePublic"
         :type="'edit'"
         :total='total'
+        :public-total="publicTotal"
         ref="nodeTree"
       />
     </ms-aside-container>
@@ -31,10 +33,30 @@
             @testCaseCopy="copyTestCase"
             @testCaseDetail="showTestCaseDetail"
             @getTrashList="getTrashList"
+            @getPublicList="getPublicList"
             @refresh="refresh"
             @refreshAll="refreshAll"
             @setCondition="setCondition"
             ref="testCaseTrashList">
+          </test-case-list>
+        </el-tab-pane>
+        <el-tab-pane name="public" v-if="publicEnable" :label="$t('project.case_public')">
+          <test-case-list
+            :checkRedirectID="checkRedirectID"
+            :isRedirectEdit="isRedirectEdit"
+            :tree-nodes="treeNodes"
+            :trash-enable="false"
+            :public-enable="true"
+            @refreshTable="refresh"
+            @testCaseEdit="editTestCase"
+            @testCaseCopy="copyTestCase"
+            @testCaseDetail="showTestCaseDetail"
+            @getTrashList="getTrashList"
+            @getPublicList="getPublicList"
+            @refresh="refresh"
+            @refreshAll="refreshAll"
+            @setCondition="setCondition"
+            ref="testCasePublicList">
           </test-case-list>
         </el-tab-pane>
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
@@ -57,6 +79,7 @@
               @testCaseCopy="copyTestCase"
               @testCaseDetail="showTestCaseDetail"
               @getTrashList="getTrashList"
+              @getPublicList="getPublicList"
               @refresh="refresh"
               @refreshAll="refreshAll"
               @setCondition="setCondition"
@@ -132,7 +155,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getCurrentProjectID, getUUID, hasPermission, setCurTabId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasPermission, setCurTabId} from "@/common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -158,6 +181,7 @@ export default {
       treeNodes: [],
       testCaseReadOnly: true,
       trashEnable: false,
+      publicEnable: false,
       condition: {},
       activeName: 'default',
       tabs: [],
@@ -167,6 +191,7 @@ export default {
       activeDom: 'left',
       tmpActiveDom: null,
       total: 0,
+      publicTotal: 0,
       tmpPath: null
     };
   },
@@ -210,10 +235,17 @@ export default {
         }
       });
     },
-    trashEnable(){
-      if(this.trashEnable){
+    trashEnable() {
+      if (this.trashEnable) {
         this.activeName = 'trash';
-      }else {
+      } else {
+        this.activeName = 'default';
+      }
+    },
+    publicEnable() {
+      if (this.publicEnable) {
+        this.activeName = 'public';
+      } else {
         this.activeName = 'default';
       }
     }
@@ -257,9 +289,14 @@ export default {
           break;
       }
     },
-    getTrashList(){
-      this.$get("/case/node/trashCount/"+this.projectId , response => {
+    getTrashList() {
+      this.$get("/case/node/trashCount/" + this.projectId, response => {
         this.total = response.data;
+      });
+    },
+    getPublicList() {
+      this.$get("/case/node/publicCount/" + getCurrentWorkspaceId(), response => {
+        this.publicTotal = response.data;
       });
     },
     updateActiveDom(activeDom) {
@@ -386,6 +423,8 @@ export default {
     nodeChange(node) {
       this.condition.trashEnable = false;
       this.trashEnable = false;
+      this.condition.publicEnable = false;
+      this.publicEnable = false;
       this.activeName = "default";
     },
     refreshTable(data) {
@@ -494,13 +533,17 @@ export default {
       this.$get("/project/get/" + this.projectId, result => {
         let data = result.data;
         if (data) {
-          this.$store.commit('setCurrentProjectIsCustomNum',  data.customNum);
+          this.$store.commit('setCurrentProjectIsCustomNum', data.customNum);
         }
       });
     },
     enableTrash(data) {
       this.initApiTableOpretion = "trashEnable";
       this.trashEnable = data;
+    },
+    enablePublic(data) {
+      this.initApiTableOpretion = "publicEnable";
+      this.publicEnable = data;
     },
   }
 };

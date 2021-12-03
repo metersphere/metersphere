@@ -20,6 +20,8 @@ public interface ExtTestCaseMapper {
 
     List<TestCaseDTO> list(@Param("request") QueryTestCaseRequest request);
 
+    List<TestCaseDTO> publicList(@Param("request") QueryTestCaseRequest request);
+
     int moduleCount(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseDTO> listIds(@Param("request") QueryTestCaseRequest request);
@@ -99,16 +101,19 @@ public interface ExtTestCaseMapper {
 
     List<String> selectRelateIdsByQuery(@Param("request") BaseQueryRequest query);
 
-    List<Map<String, Object>> moduleCountByCollection(@Param("request")QueryTestCaseRequest request);
+    List<Map<String, Object>> moduleCountByCollection(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseWithBLOBs> getCustomFieldsByIds(@Param("ids") List<String> ids);
 
     int deleteToGc(@Param("request") TestCase testCase);
+
+    int deletePublic(@Param("request") TestCase testCase);
+
     int reduction(@Param("ids") List<String> ids);
 
     void checkOriginalStatusByIds(@Param("ids") List<String> ids);
 
-    List<String> selectIdsByNodeIds(@Param("ids")List<String> nodeIds);
+    List<String> selectIdsByNodeIds(@Param("ids") List<String> nodeIds);
 
     TestCaseWithBLOBs getTestCaseStep(@Param("id") String id);
 
@@ -118,7 +123,7 @@ public interface ExtTestCaseMapper {
 
     Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
-    Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+    Long getPreOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
     List<TestCase> getTestCase(@Param("request") QueryTestCaseRequest request);
 
@@ -127,4 +132,6 @@ public interface ExtTestCaseMapper {
     int countByIds(@Param("ids") List<String> ids);
 
     String getLastExecStatusById(String id);
+
+    int countByWorkSpaceId(String workSpaceId);
 }

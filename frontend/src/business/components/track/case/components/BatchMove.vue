@@ -58,6 +58,12 @@
         result: {},
       }
     },
+    props: {
+      publicEnable: {
+        type: Boolean,
+        default: false,
+      },
+    },
     watch: {
       filterText(val) {
         this.$refs.tree.filter(val);
@@ -85,7 +91,11 @@
           });
         }
         param.ids = this.selectIds;
-        this.$emit('moveSave', param);
+        if (this.publicEnable) {
+          this.$emit('copyPublic', param);
+        } else {
+          this.$emit('moveSave', param);
+        }
       },
       refresh() {
         this.$emit("refresh");

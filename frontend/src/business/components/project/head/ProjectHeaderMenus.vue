@@ -33,7 +33,7 @@
           <el-menu-item popper-class="submenu" @click="clickPlanMenu">
             {{ $t('project.version_manage') }}
           </el-menu-item>
-          <el-menu-item popper-class="submenu" @click="clickPlanMenu">
+          <el-menu-item :index="'/project/app'" popper-class="submenu" :disabled="this.isProjectAdmin">
             {{ $t('project.app_manage') }}
           </el-menu-item>
         </el-menu>
@@ -48,6 +48,7 @@ import MsShowAll from "@/business/components/common/head/ShowAll";
 import MsRecentList from "@/business/components/common/head/RecentList";
 import MsCreateButton from "@/business/components/common/head/CreateButton";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "ProjectHeaderMenus",
@@ -56,6 +57,7 @@ export default {
     return {
       currentProject: '',
       pathName: '',
+      isProjectAdmin: true
     };
   },
   watch: {
@@ -66,11 +68,25 @@ export default {
       }
     }
   },
+  created() {
+    this.$get("/user/group/list/project/" + getCurrentProjectID() + "/" + getCurrentUserId(), res => {
+      let data = res.data;
+      if (data) {
+        data.forEach(row => {
+          if (row.id === 'project_admin') {
+            this.isProjectAdmin = false;
+          }
+        })
+      } else {
+        this.isProjectAdmin = true;
+      }
+    })
+  },
   methods: {
     clickPlanMenu() {
       this.$info(this.$t('commons.function_planning'));
       return false;
-    }
+    },
   }
 };
 

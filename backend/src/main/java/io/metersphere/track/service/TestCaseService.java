@@ -375,6 +375,12 @@ public class TestCaseService {
         return extTestCaseMapper.deleteToGc(testCase);
     }
 
+    public int deleteTestCasePublic(String testCaseId) {
+        TestCase testCase = new TestCase();
+        testCase.setId(testCaseId);
+        return extTestCaseMapper.deletePublic(testCase);
+    }
+
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request) {
         this.initRequest(request, true);
         setDefaultOrder(request);
@@ -385,6 +391,18 @@ public class TestCaseService {
         returnList = this.parseStatus(returnList);
         return returnList;
     }
+
+    public List<TestCaseDTO> publicListTestCase(QueryTestCaseRequest request) {
+        this.initRequest(request, true);
+        setDefaultOrder(request);
+        if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
+            request.getFilters().put("status", new ArrayList<>(0));
+        }
+        List<TestCaseDTO> returnList = extTestCaseMapper.publicList(request);
+        returnList = this.parseStatus(returnList);
+        return returnList;
+    }
+
     public void setDefaultOrder(QueryTestCaseRequest request) {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
         OrderRequest order = new OrderRequest();
@@ -1301,6 +1319,40 @@ public class TestCaseService {
             TestCaseExample example = new TestCaseExample();
             example.createCriteria().andIdIn(request.getIds());
             testCaseMapper.updateByExampleSelective(batchEdit, example);
+        }
+    }
+
+    public void copyTestCaseBathPublic(TestCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        TestCaseExample exampleList = new TestCaseExample();
+        exampleList.createCriteria().andIdIn(request.getIds());
+        List<TestCaseWithBLOBs> list = testCaseMapper.selectByExampleWithBLOBs(exampleList);
+        for (TestCaseWithBLOBs item : list) {
+            TestCaseWithBLOBs batchCopy = new TestCaseWithBLOBs();
+            BeanUtils.copyBean(batchCopy, item);
+            checkTestCaseExist(batchCopy);
+            batchCopy.setId(UUID.randomUUID().toString());
+            batchCopy.setCreateTime(System.currentTimeMillis());
+            batchCopy.setUpdateTime(System.currentTimeMillis());
+            checkTestCustomNum(batchCopy);
+            batchCopy.setNum(getNextNum(SessionUtils.getCurrentProjectId()));
+            if (StringUtils.isBlank(batchCopy.getCustomNum())) {
+                batchCopy.setCustomNum(batchCopy.getNum().toString());
+            }
+            batchCopy.setCreateUser(SessionUtils.getUserId());
+            batchCopy.setMaintainer(SessionUtils.getUserId());
+            batchCopy.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+            batchCopy.setStatus(TestCaseReviewStatus.Prepare.name());
+            batchCopy.setNodePath(request.getNodePath());
+            batchCopy.setNodeId(request.getNodeId());
+            batchCopy.setProjectId(SessionUtils.getCurrentProjectId());
+            batchCopy.setCasePublic(false);
+            testCaseMapper.insert(batchCopy);
         }
     }
 

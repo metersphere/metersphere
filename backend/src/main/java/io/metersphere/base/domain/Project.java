@@ -45,6 +45,10 @@ public class Project implements Serializable {
 
     private String azureFilterId;
 
+    private String apiQuick;
+
+    private Boolean casePublic;
+
     private String platform;
 
     private Boolean thirdPartTemplate;

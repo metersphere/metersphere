@@ -65,6 +65,13 @@ public class TestCaseController {
         return PageUtils.setPageInfo(page, testCaseService.listTestCase(request));
     }
 
+    @PostMapping("/publicList/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
+    public Pager<List<TestCaseDTO>> publicList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.publicListTestCase(request));
+    }
+
     @GetMapping("/list/{projectId}")
     @RequiresPermissions("PROJECT_TRACK_CASE:READ")
     public List<TestCaseDTO> list(@PathVariable String projectId) {
@@ -238,6 +245,15 @@ public class TestCaseController {
         return testCaseService.deleteTestCaseToGc(testCaseId);
     }
 
+    @PostMapping("/deletePublic/{testCaseId}")
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getTestCase(#testCaseId)", targetClass = TestCaseService.class,
+            mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
+    public int deletePublic(@PathVariable String testCaseId) {
+        checkPermissionService.checkTestCaseOwner(testCaseId);
+        return testCaseService.deleteTestCasePublic(testCaseId);
+    }
+
 
     @PostMapping("/import/{projectId}/{userId}/{importType}")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
@@ -285,17 +301,31 @@ public class TestCaseController {
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.UPDATE, mailTemplate = "track/TestCaseUpdate", subject = "测试用例通知")
     public void editTestCaseBath(@RequestBody TestCaseBatchRequest request) {
+        List<String> ids = request.getIds();
+        for (String id : ids) {
+            checkPermissionService.checkTestCaseOwner(id);
+        }
         testCaseService.editTestCaseBath(request);
     }
 
     @PostMapping("/batch/copy")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
-    @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestCaseUpdate", subject = "测试用例通知")
     public void copyTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.copyTestCaseBath(request);
     }
+
+    @PostMapping("/batch/copy/public")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
+            event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestCaseUpdate", subject = "测试用例通知")
+    public void copyTestCaseBathPublic(@RequestBody TestCaseBatchRequest request) {
+        testCaseService.copyTestCaseBathPublic(request);
+    }
+
 
     @PostMapping("/batch/delete")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)

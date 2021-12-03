@@ -464,7 +464,15 @@ export default {
     },
     addTab(tab) {
       if (tab.name === 'add') {
-        this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+        this.result = this.$get('/project/get/' + this.projectId, res => {
+          let projectData = res.data;
+          if (projectData && projectData.apiQuick === 'api') {
+            this.handleTabAdd("ADD");
+          } else {
+            this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+          }
+        })
+
       } else if (tab.name === 'trash') {
         if (this.$refs.trashApiList) {
           this.$refs.trashApiList.initTable();
