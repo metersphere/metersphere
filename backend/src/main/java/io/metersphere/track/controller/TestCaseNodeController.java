@@ -35,6 +35,11 @@ public class TestCaseNodeController {
         return testCaseNodeService.trashCount(projectId);
     }
 
+    @GetMapping("/publicCount/{workSpaceId}")
+    public long publicCount(@PathVariable String workSpaceId) {
+        return testCaseNodeService.publicCount(workSpaceId);
+    }
+
     /*模块列表列表*/
     @PostMapping("/list/all/plan")
     public List<TestCaseNodeDTO> getAllNodeByPlanId(@RequestBody QueryNodeRequest request) {

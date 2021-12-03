@@ -803,4 +803,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             }
         }
     }
+
+    public long publicCount(String workSpaceId) {
+
+        return extTestCaseMapper.countByWorkSpaceId(workSpaceId);
+    }
 }

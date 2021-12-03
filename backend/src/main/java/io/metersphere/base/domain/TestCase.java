@@ -59,5 +59,7 @@ public class TestCase implements Serializable {
 
     private Long order;
 
+    private Boolean casePublic;
+
     private static final long serialVersionUID = 1L;
 }

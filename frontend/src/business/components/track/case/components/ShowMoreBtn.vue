@@ -52,6 +52,14 @@ import {hasLicense, hasPermissions} from "@/common/js/utils";
         }
       },
       isDisable(item) {
+        if (item.isDisable) {
+          if (item.isDisable instanceof Function) {
+            console.log(item.isDisable());
+            return item.isDisable();
+          } else {
+            return item.isDisable;
+          }
+        }
         if (item.permissions && item.permissions.length > 0) {
           return !hasPermissions(...item.permissions);
         }

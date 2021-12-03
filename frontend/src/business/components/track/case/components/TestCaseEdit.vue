@@ -34,6 +34,10 @@
                   $t('test_track.case.save_create_continue')
                 }}
               </el-dropdown-item>
+              <el-dropdown-item command="ADD_AND_PUBLIC" v-if="this.publicEnable && this.isXpack">{{
+                  $t('test_track.case.save_add_public')
+                }}
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -142,7 +146,7 @@ import {
   getCurrentProjectID,
   getCurrentUser,
   getNodePath, getUUID,
-  handleCtrlSEvent, hasPermission,
+  handleCtrlSEvent, hasLicense, hasPermission,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -194,6 +198,8 @@ export default {
     return {
       // sysList: [],//一级选择框的数据
       path: "/test/case/add",
+      publicEnable: false,
+      isXpack: false,
       testCaseTemplate: {},
       options: REVIEW_STATUS,
       statuOptions: API_STATUS,
@@ -391,7 +397,18 @@ export default {
           break;
         }
       }
-    })
+    }),
+      this.result = this.$get('/project/get/' + this.projectId, res => {
+        let data = res.data;
+        if (data.casePublic) {
+          this.publicEnable = true;
+        }
+      })
+    if (hasLicense()) {
+      this.isXpack = true;
+    } else {
+      this.isXpack = false;
+    }
   },
   methods: {
     currentUser: () => {
@@ -462,6 +479,9 @@ export default {
             });
           }
         })
+      } else if (e === 'ADD_AND_PUBLIC') {
+        this.form.casePublic = true;
+        this.saveCase();
       } else {
         this.saveCase();
       }
@@ -562,6 +582,7 @@ export default {
       this.getTestCase(this.index);
     },
     initTestCases(testCase) {
+      this.selectCondition.workspaceId = null;
       this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
         this.testCases = response.data;
         for (let i = 0; i < this.testCases.length; i++) {
@@ -846,7 +867,7 @@ export default {
 
       } else {
         this.showFollow = true;
-        if(!this.form.follows){
+        if (!this.form.follows) {
           this.form.follows = [];
         }
         this.form.follows.push(this.currentUser().id)
