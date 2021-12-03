@@ -4,9 +4,12 @@
     <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
     <el-submenu index="2" popper-class="submenu">
       <template v-slot:title>
-        <span class="project-name" :title="currentProject">
-          {{ $t('commons.project') }}: {{ currentProject }}
-        </span>
+        <el-tooltip effect="light" placement="right" :enterable="false">
+          <div slot="content">{{ currentProject }}</div>
+          <span class="project-name">
+            {{ $t('commons.project') }}: {{ currentProject }}
+          </span>
+        </el-tooltip>
       </template>
       <search-list :current-project.sync="currentProject"/>
       <div v-permission="['WORKSPACE_PROJECT_MANAGER:READ']">
