@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static org.python.modules.time.Time.sleep;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class JmeterFileService {
@@ -30,7 +32,16 @@ public class JmeterFileService {
 
     public byte[] downloadZip(String reportId, double[] ratios, int resourceIndex) {
         try {
-            LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+            LoadTestReportWithBLOBs loadTestReport = null;
+            double waitingSeconds = 0;
+            while (loadTestReport == null) {
+                if (waitingSeconds > 12000) {
+                    break;
+                }
+                sleep(0.3);
+                waitingSeconds += 0.3;
+                loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
+            }
             if (loadTestReport == null) {
                 MSException.throwException("测试报告不存在或还没产生");
             }
