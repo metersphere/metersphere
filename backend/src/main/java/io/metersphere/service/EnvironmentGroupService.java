@@ -84,7 +84,6 @@ public class EnvironmentGroupService {
             EnvironmentGroupProject e = new EnvironmentGroupProject();
             // todo 检查 项目｜环境 是否存在
             e.setId(UUID.randomUUID().toString());
-            e.setDescription(egp.getDescription());
             e.setEnvironmentGroupId(request.getId());
             e.setProjectId(projectId);
             e.setEnvironmentId(environmentId);
