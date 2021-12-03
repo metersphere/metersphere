@@ -1,16 +1,16 @@
 <template>
   <div>
     <div style="margin-left: 20px;">
-      <el-select v-model="envGroupId" placeholder="请选择用户组" style="margin-top: 8px;width: 200px;" size="small">
+      <el-select v-model="envGroupId" :placeholder="$t('workspace.env_group.select')" style="margin-top: 8px;width: 200px;" size="small">
         <el-option v-for="(group, index) in groups" :key="index"
                    :label="group.name"
                    :value="group.id"/>
       </el-select>
-      <span style="margin-left: 8px;">环境组</span>
+      <span style="margin-left: 8px;">{{$t('workspace.env_group.name')}}</span>
       <i class="el-icon-view icon-view-btn" @click="viewGroup"></i>
     </div>
-    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">确 定</el-button>
-    <el-dialog :visible="visble" append-to-body :title="'环境组'" @close="visble = false" style="height: 800px;">
+    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">{{$t('workspace.env_group.confirm')}}</el-button>
+    <el-dialog :visible="visble" append-to-body :title="$t('workspace.env_group.name')" @close="visble = false" style="height: 800px;">
       <template>
         <environment-group style="overflow-y: auto;"
                            :screen-height="'350px'"
@@ -74,21 +74,21 @@ export default {
     checkEnv() {
       return new Promise((resolve) => {
         if (!this.envGroupId) {
-          this.$warning("请选择环境组！");
+          this.$warning(this.$t('workspace.env_group.select'));
           resolve(false);
           return false;
         }
         this.$get("/environment/group/project/map/" + this.envGroupId, res => {
           let data = res.data;
           if (!data) {
-            this.$warning("环境组缺少环境！");
+            this.$warning(this.$t('workspace.env_group.lack_env'));
             resolve(false);
             return;
           }
           let map = new Map(Object.entries(data));
           for (let id of this.projectIds) {
             if (!map.get(id)) {
-              this.$warning("此环境组缺少必要的项目环境！");
+              this.$warning(this.$t('workspace.env_group.lack_necessary_environment'));
               resolve(false);
               return;
             }

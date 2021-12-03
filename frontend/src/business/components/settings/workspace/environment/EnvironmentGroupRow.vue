@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="btn-div">
-      <el-button size="mini" type="primary" class="save-btn" v-if="!rowReadOnly && !showSaveBtn" @click="update">保存</el-button>
+      <el-button size="mini" type="primary" class="save-btn" v-if="!rowReadOnly && !showSaveBtn" @click="update">{{$t('commons.save')}}</el-button>
     </div>
     <div v-loading="result.loading" class="group-row">
       <el-form class="row-form">
@@ -10,7 +10,7 @@
             <el-col :span="6">
               <el-select v-model="item.projectId" filterable clearable style="width: 100%" @change="projectChange(item)"
                          :size="itemSize"
-                         placeholder="请选择项目" :disabled="rowReadOnly">
+                         :placeholder="$t('workspace.env_group.please_select_project')" :disabled="rowReadOnly">
                 <el-option v-for="(project, projectIndex) in projectList" :key="projectIndex" :label="project.name"
                            :disabled="project.disabled"
                            :value="project.id"></el-option>
@@ -20,7 +20,7 @@
             <el-col :span="6">
               <el-select v-model="item.environmentId" filterable clearable style="width: 100%"
                          @change="environmentChange(item)" :size="itemSize"
-                         placeholder="请选择环境" :disabled="rowReadOnly">
+                         :placeholder="$t('workspace.env_group.please_select_env')" :disabled="rowReadOnly">
                 <el-option v-for="(environment, envIndex) in item.environments" :key="envIndex"
                            :label="environment.name"
                            :value="environment.id"></el-option>
@@ -29,13 +29,13 @@
 
             <el-col :span="4">
               <el-button :size="itemSize" icon="el-icon-s-data" style="width: 100%;"
-                         @click="showDomainInfo(item)" v-if="item.moreDomain">查看域名详情
+                         @click="showDomainInfo(item)" v-if="item.moreDomain">{{ $t('workspace.env_group.view_details') }}
               </el-button>
               <el-input v-else v-model="item.domainName" :disabled="true" :size="itemSize"/>
             </el-col>
 
             <el-col :span="5">
-              <el-input prop="description" show-overflow-tooltip placeholder="描述" maxlength="100"
+              <el-input prop="description" show-overflow-tooltip :placeholder="$t('commons.description')" maxlength="100"
                         v-model="item.domainDescription"
                         show-word-limit :size="itemSize" :disabled="true"/>
             </el-col>
@@ -49,14 +49,14 @@
           </el-row>
         </el-form-item>
       </el-form>
-      <el-dialog title="域名列表" :visible.sync="domainVisible" append-to-body>
+      <el-dialog :title="$t('workspace.env_group.domain_list')" :visible.sync="domainVisible" append-to-body>
         <el-table :data="conditions">
           <el-table-column prop="socket" :label="$t('load_test.domain')" show-overflow-tooltip width="180">
             <template v-slot:default="{row}">
               {{ row.conditionType ? row.server : getUrl(row) }}
             </template>
           </el-table-column>
-          <el-table-column :label="'类型'" show-overflow-tooltip
+          <el-table-column :label="$t('commons.type')" show-overflow-tooltip
                            min-width="100px">
             <template v-slot:default="{row}">
               <el-tag type="info" size="mini">{{ row.conditionType ? row.conditionType : "HTTP" }}</el-tag>
@@ -73,7 +73,7 @@
               {{ row.conditionType ? "-" : getDetails(row) }}
             </template>
           </el-table-column>
-          <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="'描述'">
+          <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="$t('commons.description')">
             <template v-slot:default="{row}">
               <span>{{ row.description ? row.description : "-" }}</span>
             </template>
@@ -372,7 +372,7 @@ export default {
     update() {
       let sign = this.valid();
       if (!sign) {
-        this.$warning("项目与环境对应关系不完整！");
+        this.$warning(this.$t('workspace.env_group.not_intact'));
         return false;
       }
       let param = {

@@ -37,7 +37,7 @@ export default {
   },
   data() {
     return {
-      title: '创建环境组',
+      title: this.$t('workspace.env_group.create'),
       form: {},
       createVisible: false,
       rules: {
@@ -61,7 +61,7 @@ export default {
         if (valid) {
           let sign = this.$refs.environmentGroupRow.valid();
           if (!sign) {
-            this.$warning("项目与环境对应关系不完整！");
+            this.$warning(this.$t('workspace.env_group.not_intact'));
             return false;
           }
           let envGroupProject = this.$refs.environmentGroupRow.envGroupProject;

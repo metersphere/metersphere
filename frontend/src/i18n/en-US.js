@@ -193,6 +193,7 @@ export default {
     follow_success:"Follow Success",
     cancel_follow_success: "Cancel Follow Success",
     generate_test_data: "Generate test data",
+    type: "Type",
     relationship: {
       name: 'Dependencies',
       pre_case: 'Prepositional Case',
@@ -482,6 +483,31 @@ export default {
       int: 'Int',
       float: 'Float',
       multipleInput: 'MultipleInput'
+    },
+    env_group: {
+      name: "Environment Group",
+      create: "Create Group",
+      not_intact: "the project and the environment is incomplete!",
+      cascader_tip: "The existing environment will be overwritten",
+      search_tip: "Please enter a name to search",
+      fast_create_tip: "Please enter the name to quickly create",
+      quickly_add: "Quickly add",
+      select: "Please select an environment group",
+      name_not_null: "Environment group name cannot be empty",
+      delete: "Delete environment group",
+      please_select_project: "Please select an item",
+      please_select_env: "Please select environment",
+      view_details: "View details",
+      domain_list: "Domain list",
+      batch_add_to_ws: "Add to environment group in bulk",
+      choice_conflict: "one project chooses a corresponding environment!",
+      env_list: "Environment List",
+      confirm: "Confirm",
+      please_select_env_for_current_scenario: "please select env for current scenario",
+      lack_env: "Environment group is missing environment！",
+      lack_necessary_environment: "This environment group lacks the necessary project environment！",
+      available_group: 'available',
+      not_available_group: "unavailable"
     }
   },
   organization: {

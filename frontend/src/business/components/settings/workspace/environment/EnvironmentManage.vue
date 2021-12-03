@@ -5,7 +5,7 @@
       <el-tab-pane :label="$t('api_test.environment.environment_list')" name="list">
         <environment-list v-if="activeName === 'list'"/>
       </el-tab-pane>
-      <el-tab-pane :label="'环境组'" name="group">
+      <el-tab-pane :label="$t('workspace.env_group.name')" name="group">
         <environment-group-list v-if="activeName === 'group'"/>
       </el-tab-pane>
     </el-tabs>

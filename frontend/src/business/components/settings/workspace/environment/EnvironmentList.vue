@@ -38,7 +38,7 @@
         <el-table-column :label="$t('api_test.environment.socket')" show-overflow-tooltip>
           <template v-slot="scope">
             <span v-if="parseDomainName(scope.row)!='SHOW_INFO'">{{ parseDomainName(scope.row) }}</span>
-            <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>查看域名详情</el-button>
+            <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>{{ $t('workspace.env_group.view_details') }}</el-button>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -76,14 +76,14 @@
     </el-dialog>
     <environment-import :project-list="projectList" @refresh="refresh" ref="envImport"></environment-import>
 
-    <el-dialog title="域名列表" :visible.sync="domainVisible">
+    <el-dialog :title="$t('workspace.env_group.domain_list')" :visible.sync="domainVisible">
       <el-table :data="conditions">
         <el-table-column prop="socket" :label="$t('load_test.domain')" show-overflow-tooltip width="180">
           <template v-slot:default="{row}">
             {{ row.conditionType ? row.server : getUrl(row) }}
           </template>
         </el-table-column>
-        <el-table-column :label="'类型'" show-overflow-tooltip
+        <el-table-column :label="$t('commons.type')" show-overflow-tooltip
                          min-width="100px">
           <template v-slot:default="{row}">
             <el-tag type="info" size="mini">{{ row.conditionType ? row.conditionType : "HTTP" }}</el-tag>
@@ -100,7 +100,7 @@
             {{ row.conditionType ? "-" : getDetails(row) }}
           </template>
         </el-table-column>
-        <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="'描述'">
+        <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="$t('commons.description')">
           <template v-slot:default="{row}">
             <span>{{ row.description ? row.description : "-" }}</span>
           </template>
@@ -117,7 +117,7 @@
     <el-button type="primary" @click="domainVisible = false" size="mini">{{ $t('commons.confirm') }}</el-button>
   </span>
     </el-dialog>
-    <env-group-cascader :title="'批量添加到环境组'" ref="cascader" @confirm="_batchAddToGroup"/>
+    <env-group-cascader :title="$t('workspace.env_group.batch_add_to_ws')" ref="cascader" @confirm="_batchAddToGroup"/>
   </div>
 </template>
 
@@ -187,7 +187,7 @@ export default {
       selectDataCounts: 0,
       buttons: [
         {
-          name: '批量添加到环境组', handleClick: this.batchAddToGroup
+          name: this.$t('workspace.env_group.batch_add_to_ws'), handleClick: this.batchAddToGroup
         },
       ]
     };
@@ -463,7 +463,7 @@ export default {
         }
       })
       if (str) {
-        this.$warning(str + "环境选择冲突，一个项目选择一个对应环境！");
+        this.$warning(str + this.$t('workspace.env_group.choice_conflict'));
         return false;
       }
       return true;

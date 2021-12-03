@@ -57,7 +57,7 @@
     </el-card>
 
     <edit-environment-group ref="editEnvironmentGroup" @refresh="init"/>
-    <ms-delete-confirm :title="'删除环境组'" @delete="_handleDelete" ref="deleteConfirm"/>
+    <ms-delete-confirm :title="$t('workspace.env_group.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
   </div>
 </template>
@@ -98,7 +98,7 @@ export default {
   },
   data() {
     return {
-      btnTips: '创建环境组',
+      btnTips: this.$t('workspace.env_group.create'),
       envGroupId: '',
       condition: {},
       environmentGroupList: [],
