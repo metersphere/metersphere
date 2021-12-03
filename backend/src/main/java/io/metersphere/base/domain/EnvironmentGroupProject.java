@@ -13,7 +13,5 @@ public class EnvironmentGroupProject implements Serializable {
 
     private String projectId;
 
-    private String description;
-
     private static final long serialVersionUID = 1L;
 }
