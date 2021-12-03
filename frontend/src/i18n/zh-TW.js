@@ -193,6 +193,7 @@ export default {
     run_fail: "執行失敗",
     follow_success:"關注成功",
     cancel_follow_success: "取消關注成功",
+    type: "類型",
     relationship: {
       name: '依賴關系',
       pre_case: '前置用例',
@@ -483,6 +484,31 @@ export default {
       int: '整型',
       float: '浮點型',
       multipleInput: '多值輸入框'
+    },
+    env_group: {
+      name: "環境組",
+      create: "創建環境組",
+      not_intact: "項目與環境對應關係不完整！",
+      cascader_tip: "若環境組中已經包含此次將要加入的項目，則該項目環境將被覆蓋",
+      search_tip: "請輸入名稱搜索環境組",
+      fast_create_tip: "請輸入名稱搜索環境組",
+      quickly_add: "快速添加",
+      select: "請選擇環境組",
+      name_not_null: "環境組名不能為空",
+      delete: "刪除環境組",
+      please_select_project: "請選擇項目",
+      please_select_env: "請選擇環境",
+      view_details: "請選擇環境",
+      domain_list: "域名列表",
+      batch_add_to_ws: "批量添加到環境組",
+      choice_conflict: "環境選擇衝突，一個項目選擇一個對應環境！",
+      env_list: "環境列表",
+      confirm: "確 定",
+      please_select_env_for_current_scenario: "請為當前場景選擇一個運行環境！",
+      lack_env: "環境組缺少環境！",
+      lack_necessary_environment: "此環境組缺少必要的項目環境！",
+      available_group: '可用環境組',
+      not_available_group: "不可用環境組(缺少項目環境)"
     }
   },
   organization: {

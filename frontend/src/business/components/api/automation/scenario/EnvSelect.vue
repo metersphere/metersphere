@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
     <div v-for="pe in data" :key="pe.id" style="margin-left: 20px;">
-      <el-select v-model="pe['selectEnv']" placeholder="请选择环境" style="margin-top: 8px;width: 200px;" size="small">
+      <el-select v-model="pe['selectEnv']" :placeholder="$t('workspace.env_group.please_select_env')" style="margin-top: 8px;width: 200px;" size="small">
         <el-option v-for="(environment, index) in pe.envs" :key="index"
                    :label="environment.name"
                    :value="environment.id"/>
@@ -23,7 +23,7 @@
       </span>
     </div>
 
-    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">确 定</el-button>
+    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">{{$t('workspace.env_group.confirm')}}</el-button>
 
     <!-- 环境配置 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -153,7 +153,7 @@ export default {
         map.set(dt.id, dt.selectEnv);
       })
       if (!sign) {
-        this.$warning("请为当前场景选择一个运行环境！");
+        this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
         return;
       }
       this.$emit('setProjectEnvMap', map);
@@ -301,7 +301,7 @@ export default {
       }
 
       if (!sign) {
-        this.$warning("请为当前场景选择一个运行环境！");
+        this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
         return false;
       }
       return true;

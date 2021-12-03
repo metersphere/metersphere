@@ -193,6 +193,7 @@ export default {
     run_fail: "执行失败",
     follow_success:"关注成功",
     cancel_follow_success:"取消关注成功",
+    type: "类型",
     relationship: {
       name: '依赖关系',
       pre_case: '前置用例',
@@ -483,6 +484,31 @@ export default {
       int: '整型',
       float: '浮点型',
       multipleInput: '多值输入框'
+    },
+    env_group: {
+      name: "环境组",
+      create: "创建环境组",
+      not_intact: "项目与环境对应关系不完整！",
+      cascader_tip: "若环境组中已经包含此次将要加入的项目，则该项目环境将被覆盖",
+      search_tip: "请输入名称搜索环境组",
+      fast_create_tip: "请输入环境组名称快速创建",
+      quickly_add: "快速添加",
+      select: "请选择环境组",
+      name_not_null: "环境组名不能为空",
+      delete: "删除环境组",
+      please_select_project: "请选择项目",
+      please_select_env: "请选择环境",
+      view_details: "查看域名详情",
+      domain_list: "域名列表",
+      batch_add_to_ws: "批量添加到环境组",
+      choice_conflict: "环境选择冲突，一个项目选择一个对应环境！",
+      env_list: "环境列表",
+      confirm: "确 定",
+      please_select_env_for_current_scenario: "请为当前场景选择一个运行环境！",
+      lack_env: "环境组缺少环境！",
+      lack_necessary_environment: "此环境组缺少必要的项目环境！",
+      available_group: '可用环境组',
+      not_available_group: "不可用环境组(缺少项目环境)"
     }
   },
   organization: {
