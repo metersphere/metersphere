@@ -544,7 +544,7 @@ export default {
         }
       })
       if (message !== "") {
-        this.$alert("接口[ " + message.substr(0, message.length - 1) + " ]未保存，是否确认关闭全部？", '', {
+        this.$alert(this.$t('commons.api') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           callback: (action) => {
@@ -569,7 +569,7 @@ export default {
           if (t.api && this.$store.state.apiMap.size > 0 && this.$store.state.apiMap.has(t.api.id)) {
             if (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
               this.$store.state.apiMap.get(t.api.id).get("fromChange") === true) {
-              this.$alert("接口[ " + t.api.name + " ]未保存，是否确认关闭？", '', {
+              this.$alert(this.$t('commons.api') + " [ " + t.api.name + " ] " + this.$t('commons.confirm_info'), '', {
                 confirmButtonText: this.$t('commons.confirm'),
                 cancelButtonText: this.$t('commons.cancel'),
                 callback: (action) => {
