@@ -2,15 +2,106 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanReportMapper">
 
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and tpr.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and tpr.creator
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+
+        </if>
+        <if test="${condition}.testPlanName != null">
+            and tp.name
+            <include refid="condition">
+                <property name="object" value="${condition}.testPlanName"/>
+            </include>
+
+        </if>
+        <if test="${condition}.createTime != null">
+            and tpr.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and tpr.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.triggerMode != null">
+            and tpr.trigger_mode
+            <include refid="condition">
+                <property name="object" value="${condition}.triggerMode"/>
+            </include>
+        </if>
+    </sql>
+
     <select id="list" resultType="io.metersphere.track.dto.TestPlanReportDTO"
             parameterType="io.metersphere.track.request.report.QueryTestPlanReportRequest">
         SELECT tpr.id AS id, tpr.`name` AS `name`, tp.`name` AS testPlanName,
         IF(u.name is null,tpr.creator,u.name)AS creator, tpr.is_new, tpr.test_plan_id,
-        tpr.create_time AS createTime,tpr.trigger_Mode AS triggerMode,tpr.status AS status
+        tpr.create_time AS createTime,tpr.trigger_mode AS triggerMode,tpr.status AS status
         FROM test_plan tp
         INNER JOIN test_plan_report tpr on tp.id = tpr.test_plan_id
         LEFT JOIN user u on tpr.creator = u.id
         <where>
+            <if test="combine != null">
+                <include refid="combine">
+                    <property name="condition" value="combine"/>
+                    <property name="name" value="name"/>
+                </include>
+            </if>
             <if test="name != null">
                 and tpr.name like CONCAT('%', #{name},'%')
             </if>

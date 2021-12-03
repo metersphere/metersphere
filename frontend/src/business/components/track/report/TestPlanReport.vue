@@ -13,6 +13,7 @@
 import TestPlanReportList from './components/TestPlanReportList';
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
+import {TEST_PLAN_REPORT_CONFIGS} from "@/business/components/common/components/search/search-components";
 
 export default {
   name: "TestPlanReport",
@@ -32,7 +33,7 @@ export default {
   },
   methods: {
     refreshTestPlanList() {
-      this.$refs.testPlanReportList.condition = {};
+      this.$refs.testPlanReportList.condition = {components: TEST_PLAN_REPORT_CONFIGS};
       this.$refs.testPlanReportList.initTableData();
     }
   }

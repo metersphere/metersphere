@@ -456,7 +456,26 @@ export const TEST_PLAN_TRIGGER_MODE = {
   },
   options: [
     {label: 'test_track.report.trigger_mode.manual', value: 'manual'},
-    {label: 'test_track.report.trigger_mode.automation', value: 'automation'},
+    {label: 'commons.trigger_mode.schedule', value: 'SCHEDULE'},
+    {label: 'commons.trigger_mode.api', value: 'API'},
+    {label: 'api_test.automation.batch_execute', value: 'BATCH'}
+  ],
+  props: {
+    multiple: true
+  }
+};
+
+export const TEST_PLAN_REPORT_STATUS = {
+  key: "status",
+  name: 'MsTableSearchSelect',
+  label: "test_track.plan.plan_status",
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: 'Starting', value: 'Starting'},
+    {label: 'Running', value: 'Underway'},
+    {label: 'Completed', value: 'Completed'}
   ],
   props: {
     multiple: true
@@ -496,7 +515,7 @@ export const API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_CASE_RES
 
 export const API_SCENARIO_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR];
 
-export const TEST_PLAN_REPORT_CONFIGS = [NAME, TEST_PLAN_NAME,CREATOR, CREATE_TIME, TEST_PLAN_TRIGGER_MODE, TEST_PLAN_STATUS];
+export const TEST_PLAN_REPORT_CONFIGS = [NAME, TEST_PLAN_NAME, CREATOR, CREATE_TIME, TEST_PLAN_TRIGGER_MODE, TEST_PLAN_REPORT_STATUS];
 
 // 测试计划 功能用例
 export const TEST_PLAN_TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME, UPDATE_TIME, EXECUTOR, CASE_REVIEW_STATUS];
