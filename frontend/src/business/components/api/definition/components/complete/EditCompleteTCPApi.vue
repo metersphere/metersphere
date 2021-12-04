@@ -5,6 +5,14 @@
       <el-col>
         <!--操作按钮-->
         <div style="float: right;margin-right: 20px;margin-top: 20px" class="ms-opt-btn">
+          <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+               @click="saveFollow"/>
+          </el-tooltip>
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+               @click="saveFollow"/>
+          </el-tooltip>
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="basisData.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
@@ -17,8 +25,9 @@
     <br/>
     <el-row>
       <el-col>
-        <ms-tcp-basic-api :method-types="methodTypes" @createRootModelInTree="createRootModelInTree" :moduleOptions="moduleOptions" :basisData="basisData" ref="basicForm"
-          @changeApiProtocol="changeApiProtocol" @callback="callback"/>
+        <ms-tcp-basic-api :method-types="methodTypes" @createRootModelInTree="createRootModelInTree" :moduleOptions="moduleOptions"
+                          :basisData="basisData" ref="basicForm"
+                          @changeApiProtocol="changeApiProtocol" @callback="callback"/>
       </el-col>
     </el-row>
     <!-- MOCK信息 -->
@@ -30,7 +39,7 @@
           <el-link v-if="this.mockInfo !== '' " target="_blank" style="color: black"
                    type="primary">{{ this.mockInfo }}
           </el-link>
-          <el-link v-else  target="_blank" style="color: darkred"
+          <el-link v-else target="_blank" style="color: darkred"
                    type="primary">当前项目未开启Mock服务
           </el-link>
         </el-col>
@@ -42,15 +51,15 @@
     <!-- 请求参数 -->
     <div v-if="apiProtocol=='TCP'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-<!--      <ms-basis-parameters :show-script="false" :request="request"/>-->
+      <!--      <ms-basis-parameters :show-script="false" :request="request"/>-->
       <ms-tcp-format-parameters :show-script="false" :request="request" ref="tcpFormatParameter"/>
     </div>
     <div v-else-if="apiProtocol=='ESB'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :request="request" ref="esbDefinition"/>
-      <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
-      <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :show-options-button="true" :request="request" />
-<!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
+      <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
+      <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :show-options-button="true" :request="request"/>
+      <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
     </div>
     <api-other-info :api="basisData"/>
 
@@ -62,20 +71,21 @@
 
 <script>
 import MsTcpBasicApi from "./TCPBasicApi";
-import MsTcpFormatParameters from  "../request/tcp/TcpFormatParameters";
+import MsTcpFormatParameters from "../request/tcp/TcpFormatParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
-import {hasLicense, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {hasLicense, getCurrentProjectID, getUUID, getCurrentUser} from "@/common/js/utils";
 import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
-const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
+const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
+const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 export default {
   name: "MsAddCompleteTcpApi",
   components: {
-    ApiOtherInfo, MsTcpBasicApi, MsTcpFormatParameters,MsChangeHistory,
+    ApiOtherInfo, MsTcpBasicApi, MsTcpFormatParameters, MsChangeHistory,
     "esbDefinition": esbDefinition.default,
-    "esbDefinitionResponse": esbDefinitionResponse.default},
+    "esbDefinitionResponse": esbDefinitionResponse.default
+  },
   props: {
     request: {},
     basisData: {},
@@ -84,41 +94,51 @@ export default {
       type: Boolean,
       default: false
     },
-    syncTabs:Array,
+    syncTabs: Array,
   },
   data() {
     return {
       validated: false,
       apiProtocol: "TCP",
       mockInfo: "",
-      methodTypes:[
+      showFollow: false,
+      methodTypes: [
         {
-          'key':"TCP",
-          'value':this.$t('api_test.request.tcp.general_format'),
+          'key': "TCP",
+          'value': this.$t('api_test.request.tcp.general_format'),
         }
       ],
-      showXpackCompnent:false,
+      showXpackCompnent: false,
     }
   },
   created: function () {
-    if(this.basisData.method != 'TCP'&& this.basisData.method != 'ESB'){
+    if (this.basisData.method != 'TCP' && this.basisData.method != 'ESB') {
       this.basisData.method = this.basisData.protocol;
     }
     this.apiProtocol = this.basisData.method;
-    if(this.apiProtocol == null || this.apiProtocol == "" ){
+    if (this.apiProtocol == null || this.apiProtocol == "") {
       this.apiProtocol = "TCP";
     }
-    if (requireComponent != null && JSON.stringify(esbDefinition) != '{}'&& JSON.stringify(esbDefinitionResponse) != '{}') {
+    if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
-      if(hasLicense()){
-        if(this.methodTypes.length == 1){
+      if (hasLicense()) {
+        if (this.methodTypes.length == 1) {
           let esbMethodType = {};
           esbMethodType.key = "ESB";
-          esbMethodType.value="ESB";
+          esbMethodType.value = "ESB";
           this.methodTypes.push(esbMethodType);
         }
       }
     }
+    this.$get('/api/definition/follow/' + this.basisData.id, response => {
+      this.basisData.follows = response.data;
+      for (let i = 0; i < response.data.length; i++) {
+        if (response.data[i] === getCurrentUser().id) {
+          this.showFollow = true;
+          break;
+        }
+      }
+    });
     this.getMockInfo();
   },
   watch: {
@@ -142,8 +162,8 @@ export default {
     },
   },
   methods: {
-    openHis(){
-      this.$refs.changeHistory.open(this.basisData.id,["接口定义" , "接口定義" , "Api definition"]);
+    openHis() {
+      this.$refs.changeHistory.open(this.basisData.id, ["接口定义", "接口定義", "Api definition"]);
     },
     callback() {
       this.validated = true;
@@ -159,23 +179,23 @@ export default {
         if (this.basisData.tags instanceof Array) {
           this.basisData.tags = JSON.stringify(this.basisData.tags);
         }
-        if(this.basisData.method == 'ESB'){
+        if (this.basisData.method == 'ESB') {
           let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
-          if(!validataResult){
+          if (!validataResult) {
             return;
           }
-          if(this.request.esbDataStruct != null){
+          if (this.request.esbDataStruct != null) {
             this.esbDataStruct = JSON.stringify(this.request.esbDataStruct);
             this.basisData.esbDataStruct = this.esbDataStruct;
           }
-          if(this.request.backEsbDataStruct != null){
+          if (this.request.backEsbDataStruct != null) {
             this.basisData.backEsbDataStruct = JSON.stringify(this.request.backEsbDataStruct);
           }
-          if(this.request.backScript != null){
+          if (this.request.backScript != null) {
             this.basisData.backScript = JSON.stringify(this.request.backScript);
           }
-        }else{
-          if(this.$refs.tcpFormatParameter){
+        } else {
+          if (this.$refs.tcpFormatParameter) {
             this.$refs.tcpFormatParameter.validateXmlDataStruct();
           }
         }
@@ -204,8 +224,8 @@ export default {
           if (this.request.backScript != null) {
             this.basisData.backScript = JSON.stringify(this.request.backScript);
           }
-        }else{
-          if(this.$refs.tcpFormatParameter){
+        } else {
+          if (this.$refs.tcpFormatParameter) {
             this.$refs.tcpFormatParameter.validateXmlDataStruct();
           }
         }
@@ -215,22 +235,49 @@ export default {
     createRootModelInTree() {
       this.$emit("createRootModelInTree");
     },
-    changeApiProtocol(protocol){
+    changeApiProtocol(protocol) {
       this.apiProtocol = protocol;
     },
-    getMockInfo(){
+    getMockInfo() {
       let projectId = getCurrentProjectID();
       this.$get("/api/environment/getTcpMockInfo/" + projectId, response => {
         this.mockInfo = response.data;
       });
     },
     mockSetting() {
-      if(this.basisData.id){
-        this.$emit('changeTab','mock');
-      }else {
+      if (this.basisData.id) {
+        this.$emit('changeTab', 'mock');
+      } else {
         this.$alert(this.$t('api_test.mock.create_error'));
       }
     },
+    saveFollow() {
+      if (this.showFollow) {
+        this.showFollow = false;
+        for (let i = 0; i < this.basisData.follows.length; i++) {
+          if (this.basisData.follows[i] === getCurrentUser().id) {
+            this.basisData.follows.splice(i, 1)
+            break;
+          }
+        }
+        if (this.basisData.id) {
+          this.$post("/api/definition/update/follows/" + this.basisData.id, this.basisData.follows, () => {
+            this.$success(this.$t('commons.cancel_follow_success'));
+          });
+        }
+      } else {
+        this.showFollow = true;
+        if (!this.basisData.follows) {
+          this.basisData.follows = [];
+        }
+        this.basisData.follows.push(getCurrentUser().id)
+        if (this.basisData.id) {
+          this.$post("/api/definition/update/follows/" + this.basisData.id, this.basisData.follows, () => {
+            this.$success(this.$t('commons.follow_success'));
+          });
+        }
+      }
+    }
   },
 }
 </script>
@@ -239,6 +286,7 @@ export default {
 .mock-info {
   margin: 20px 45px;
 }
+
 .ms-opt-btn {
   position: fixed;
   right: 50px;
