@@ -1500,21 +1500,10 @@ public class TestPlanService {
 
         for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
             String env = testPlanApiScenario.getEnvironment();
-            String envType = testPlanApiScenario.getEnvironmentType();
-            String envGroupId = testPlanApiScenario.getEnvironmentGroupId();
-            if (StringUtils.isBlank(envType)) {
+            if (StringUtils.isBlank(env)) {
                 continue;
             }
-            if ((StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isBlank(env))
-                    || StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isBlank(envGroupId)) {
-                continue;
-            }
-            Map<String, String> map = new HashMap<>();
-            if (StringUtils.equals(envType, EnvironmentType.JSON.name())) {
-                map = JSON.parseObject(env, Map.class);
-            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name())) {
-                map = environmentGroupProjectService.getEnvMap(envGroupId);
-            }
+            Map<String, String> map = JSON.parseObject(env, Map.class);
             if (!map.isEmpty()) {
                 Set<String> set = map.keySet();
                 for (String s : set) {
