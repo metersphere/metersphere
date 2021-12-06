@@ -69,9 +69,11 @@ export default {
     input_password: 'Please enter password',
     test: 'Test',
     create_time: 'Created Time',
+    update_user_id:'Updater ID',
     update_time: 'Updated Time',
     delete_time: 'Delete Time',
     delete_user: 'Deleted by',
+    delete_user_id:'Deleted by id',
     add: 'Add',
     preview: 'Preview',
     member: 'Member',
@@ -186,6 +188,7 @@ export default {
     mentioned_me_notice: '@Mentioned Me',
     all_module_title: "All module",
     create_user: 'Creator',
+    create_user_id: 'Creator ID',
     run_message: "The task is being executed, please go to the task center to view the details",
     executor: "Executor",
     execute_history: "Execute history",
@@ -360,7 +363,13 @@ export default {
     to_be_completed:'To be completed',
     pending_upgrade:'Pending upgrade',
     information:'Information',
-    nick_name:'Nick name'
+    nick_name:'Nick name',
+    resourceId:'Resource ID',
+    num:'Number',
+    original_state:'Original State',
+    custom_num:'CustomNum',
+    version:'Version',
+    is_new:"Is new"
   },
   license: {
     title: 'Authorization management',
@@ -458,6 +467,7 @@ export default {
     option_value_check: 'Please fill in the full option values',
   },
   workspace: {
+    id:'Workspace ID',
     create: 'Create Workspace',
     update: 'Update Workspace',
     delete: 'Delete Workspace',
@@ -608,6 +618,7 @@ export default {
     }
   },
   project: {
+    id:'Project ID',
     name: 'Project name',
     recent: 'Recent Projects',
     create: 'Create Project',
@@ -704,6 +715,7 @@ export default {
     no_such_user: 'Without this user information, please enter the correct user ID or user Email!',
   },
   user: {
+    id:'User ID',
     create: 'Create',
     modify: 'Modify',
     input_name: 'Please enter a user name',
@@ -773,6 +785,7 @@ export default {
     add: 'Add Role',
   },
   report: {
+    id:'Report ID',
     api_test_report: 'Api Test Report',
     load_test_report: 'Load Test Report',
     test_plan_report: 'Test Plan Report',
@@ -818,9 +831,13 @@ export default {
     batch_delete: "Delete reports in bulk",
     delete_batch_confirm: 'Confirm batch delete report',
     response_time: 'Response Time(s)',
-    max_users: 'VUs'
+    max_users: 'VUs',
+    file_id:'Report File ID',
+    avg_response_time:'Average Response Time',
+    tps:'Transactions Per Second'
   },
   load_test: {
+    id:'Load Test ID',
     concurrency_thread_group: 'Concurrent read group',
     thread_group: 'ThreadGroup',
     completed_test_report: 'Completed test report',
@@ -1000,6 +1017,7 @@ export default {
       }
     },
     definition: {
+      id:'Api Definition ID',
       api_title: "Api test",
       case_title: "Test Case",
       doc_title: "DOC",
@@ -1176,6 +1194,7 @@ export default {
       update_time: "Update time",
       step: "Step",
       last_result: "Last result",
+      last_result_id:'Last result id',
       passing_rate: "Passing rate",
       success: "Success",
       fail: "Fail",
@@ -1218,6 +1237,7 @@ export default {
       generate_report: "Generate report",
     },
     environment: {
+      id:'Environment ID',
       create: 'Create environment',
       name: "Environment Name",
       socket: "Socket",
@@ -1241,6 +1261,7 @@ export default {
       response_timeout: "Response Timeout",
     },
     scenario: {
+      id:"Scenario ID",
       scenario: "Scenario",
       dubbo: "Dubbo Config",
       config: "Scenario Config",
@@ -1264,7 +1285,10 @@ export default {
       reference: "Reference",
       clone: "Copy",
       cant_reference: 'Historical test files, can be referenced after re-saving',
-      share_cookie: 'share cookie'
+      share_cookie: 'share cookie',
+      module_id:'Scenario Module ID',
+      level: 'Level',
+      version:"Scenario Version"
     },
     request: {
       debug: "Debug",
@@ -1651,6 +1675,14 @@ export default {
     performance_test_case: "Performance Case",
     scenario_test_case: "Scenario Case",
     report_statistics: "Report Statistics",
+    sort:'Sort',
+    other_test_name:'Other Test Name',
+    demand:{
+      id:'Demand ID',
+      name:'Demand Name'
+    },
+    step_model:'Step Model',
+    automatic_status_update:"Automatic Status Update",
     case: {
       list: "List",
       minder: "Minder",
@@ -1731,6 +1763,10 @@ export default {
       upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx, txt files can be uploaded",
       attachment: "Attachment",
       upload_time: "Upload Time",
+      total: "Total Case",
+      node_id:"Node ID",
+      node_path:"Node Path",
+      match_rule:"Test Case Match Rule",
       import: {
         import: "Import test case",
         case_import: "Import test case",
@@ -1761,10 +1797,12 @@ export default {
         export: "Export cases",
         export_tip: "Switch to Interface List and check Use Case Export"
       },
-      case_desc: "Case Desc"
+      case_desc: "Case Desc",
+      passing_rate:'Case Pass Rate'
     },
     plan: {
       test_plan: "Plan",
+      test_plan_id:'Plan ID',
       create_plan: "Create test plan",
       edit_plan: "Edit test plan",
       plan_name: "Test plan name",
@@ -1801,6 +1839,10 @@ export default {
       api_case: "Api case",
       scenario_case: "Scenario case",
       execute_result: "Execute Result",
+      execute_time:'Execute Time',
+      is_api_case_executing:"Api Case Executing",
+      is_scenario_executing:'Scenario Executing',
+      is_performance_executing:'Performance Executing',
       test_plan_test_case_count: "Track case count",
       test_plan_api_case_count: "Api case count",
       test_plan_api_scenario_count: "Scenario case count",
@@ -1864,6 +1906,7 @@ export default {
       cannot_delete: "Cannot delete this comment！",
     },
     module: {
+      id:'Module ID',
       search: "Search module",
       rename: "Rename",
       add_submodule: "Add submodule",
@@ -1906,6 +1949,7 @@ export default {
       relevance_test_case: "Relevance case",
       cancel_all_relevance: "Unlink all",
       executor: "Executor",
+      executor_match_rule:"Executor Match Rule",
       execute_result: "Result",
       pass: "Pass",
       not_pass: "UnPass",
@@ -1930,6 +1974,7 @@ export default {
       submit_issues: "Commit issues",
       operate_step: "Operate step",
       edit_component: "Edit component",
+      component:"component",
       base_info: "Base info",
       mock_info: "Mock service",
       test_result: "Test result",
@@ -1999,9 +2044,12 @@ export default {
         manual: "Manual",
         automation: "Automation",
       },
-    }
+    },
+    reporter:'Reporter',
+    lastmodify:'Last Modify'
   },
   test_resource_pool: {
+    id:'Resource Pool ID',
     type: 'type',
     enable_disable: 'Enable / disable',
     search_by_name: 'Search by name',
@@ -2094,6 +2142,7 @@ export default {
     task_config: "Task Config",
     test_name: 'Test Name',
     running_rule: 'Rule',
+    job:'Job',
     job_status: 'Status',
     running_task: 'Running Task',
     please_input_cron_expression: "Please Input Cron Expression",
@@ -2223,7 +2272,8 @@ export default {
     auth_name_valid: 'Name does not support special characters',
   },
   module: {
-    title: 'Module Management'
+    title: 'Module Management',
+    path:'Module Path'
   },
   table: {
     header_display_field: 'Header display field',
