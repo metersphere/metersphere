@@ -30,7 +30,7 @@
             :placeholder="$t('api_test.value')"
             value-key="name"
             highlight-first-item style="width: 100%">
-            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced"></i>
+            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
           </el-autocomplete>
         </el-col>
         <el-col>
@@ -48,7 +48,7 @@
         </el-col>
       </el-row>
     </div>
-    <ms-api-variable-advance ref="variableAdvance"/>
+    <ms-api-variable-advance ref="variableAdvance" :current-item="currentItem" @advancedRefresh="reload"/>
   </div>
 </template>
 
@@ -78,7 +78,9 @@ export default {
     },
   },
   data() {
-    return {}
+    return {
+      currentItem: null
+    }
   },
   methods: {
     remove: function (index) {
@@ -115,8 +117,10 @@ export default {
     isDisable: function (index) {
       return this.items.length - 1 === index;
     },
-    advanced() {
+    advanced(item) {
+      this.currentItem = item;
       this.$refs.variableAdvance.open();
+
     },
     createFilter(queryString) {
       return (variable) => {
@@ -133,6 +137,12 @@ export default {
       let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
       // 调用 callback 返回建议列表的数据
       cb(results);
+    },
+    reload() {
+      this.isActive = false;
+      this.$nextTick(() => {
+        this.isActive = true;
+      });
     },
   },
 
