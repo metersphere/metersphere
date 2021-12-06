@@ -190,7 +190,7 @@ public class TestPlanService {
     @Resource
     private TestPlanFollowMapper testPlanFollowMapper;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(20, new NamedThreadFactory("TestPlanService"));
+    private final ExecutorService executorService = Executors.newFixedThreadPool(40, new NamedThreadFactory("TestPlanService"));
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1125,11 +1125,13 @@ public class TestPlanService {
         extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
         String planReportId = testPlanReport.getId();
         testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. " + "API Run Config:【" + apiRunConfig + "】");
+        //开启测试计划执行状态的监听
+        this.listenTaskExecuteStatus(planReportId);
+
         //不同任务的执行ID
         Map<String, String> executePerformanceIdMap = new HashMap<>();
         Map<String, String> executeApiCaseIdMap = new HashMap<>();
         Map<String, String> executeScenarioCaseIdMap = new HashMap<>();
-
         //执行性能测试任务
         Map<String, String> performaneReportIDMap = new LinkedHashMap<>();
         Map<String, String> performaneThreadIDMap = new LinkedHashMap<>();
@@ -1193,7 +1195,6 @@ public class TestPlanService {
         this.executeApiTestCase(triggerMode, planReportId, new ArrayList<>(planApiCaseMap.keySet()), runModeConfig);
         //执行场景执行任务
         this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, planScenarioIdsMap);
-        this.listenTaskExecuteStatus(planReportId);
         return testPlanReport.getId();
     }
 
@@ -1207,6 +1208,7 @@ public class TestPlanService {
                     Thread.sleep(10000);
                 }
             } catch (InterruptedException e) {
+                TestPlanReportExecuteCatch.remove(planReportId);
                 e.printStackTrace();
             }
         });
@@ -1215,8 +1217,6 @@ public class TestPlanService {
     private void executeApiTestCase(String triggerMode, String planReportId, List<String> planCaseIds, RunModeConfig runModeConfig) {
         executorService.submit(() -> {
             BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
-//            List<String> planIdList = new ArrayList<>(1);
-//            planIdList.add(testPlanId);
             if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
                 request.setTriggerMode(ApiRunMode.JENKINS_API_PLAN.name());
             } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
