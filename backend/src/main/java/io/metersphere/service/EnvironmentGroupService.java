@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,6 +91,9 @@ public class EnvironmentGroupService {
             mapper.insert(e);
         }
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public List<EnvironmentGroup> getList(EnvironmentGroupRequest request) {
@@ -195,6 +199,9 @@ public class EnvironmentGroupService {
             mapper.insertSelective(environmentGroupProject);
         }
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public void modify(EnvironmentGroupRequest request) {
@@ -250,6 +257,9 @@ public class EnvironmentGroupService {
             }
         }
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public List<EnvironmentGroupDTO> getEnvOptionGroup(List<String> projectIds) {
