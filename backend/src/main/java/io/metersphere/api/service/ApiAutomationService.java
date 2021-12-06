@@ -2029,12 +2029,8 @@ public class ApiAutomationService {
         Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanScenarioCaseMapper::getLastOrder);
         for (String id : set) {
             Map<String, String> newEnvMap = new HashMap<>(16);
-            if (envMap != null && !envMap.isEmpty()) {
-                List<String> list = mapping.get(id);
-                list.forEach(l -> {
-                    newEnvMap.put(l, envMap.get(l));
-                });
-            }
+            List<String> list = mapping.get(id);
+            list.forEach(l -> newEnvMap.put(l, envMap == null ? "" : envMap.getOrDefault(l, "")));
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(UUID.randomUUID().toString());
             testPlanApiScenario.setCreateUser(SessionUtils.getUserId());
@@ -2042,12 +2038,15 @@ public class ApiAutomationService {
             testPlanApiScenario.setTestPlanId(request.getPlanId());
             testPlanApiScenario.setCreateTime(System.currentTimeMillis());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
+            String environmentJson = JSON.toJSONString(newEnvMap);
             if (StringUtils.equals(envType, EnvironmentType.JSON.name())) {
-                testPlanApiScenario.setEnvironment(JSON.toJSONString(newEnvMap));
+                testPlanApiScenario.setEnvironment(environmentJson);
                 testPlanApiScenario.setEnvironmentType(EnvironmentType.JSON.name());
             } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name())) {
                 testPlanApiScenario.setEnvironmentType(EnvironmentType.GROUP.name());
                 testPlanApiScenario.setEnvironmentGroupId(envGroupId);
+                // JSON类型环境中也保存最新值
+                testPlanApiScenario.setEnvironment(environmentJson);
             }
             testPlanApiScenario.setOrder(nextOrder);
             nextOrder += 5000;
