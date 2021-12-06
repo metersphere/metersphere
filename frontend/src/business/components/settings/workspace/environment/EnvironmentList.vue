@@ -411,7 +411,7 @@ export default {
           } else if (config.httpConfig.conditions.length > 1) {
             return "SHOW_INFO";
           } else if (config.tcpConfig && config.tcpConfig.server) {
-            return "SHOW_INFO"; // 页面上该字段只要显示域名数据就表示该域名是HTTP类型.如果只有TCP类型则弹窗显示以区分域名类型.
+            return config.tcpConfig.server;
           } else {
             return "";
           }

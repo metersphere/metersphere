@@ -32,7 +32,7 @@
             <el-table-column :label="$t('api_test.environment.socket')" show-overflow-tooltip>
               <template v-slot="scope">
                 <span v-if="parseDomainName(scope.row)!='SHOW_INFO'">{{ parseDomainName(scope.row) }}</span>
-                <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>查看域名详情</el-button>
+                <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>{{ $t('workspace.env_group.view_details') }}</el-button>
               </template>
             </el-table-column>
             <el-table-column :label="$t('commons.operating')">
@@ -88,7 +88,7 @@
                 {{ row.conditionType ? "-" : getDetails(row) }}
               </template>
             </el-table-column>
-            <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="'描述'">
+            <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="$t('commons.description')">
               <template v-slot:default="{row}">
                 <span>{{ row.description ? row.description : "-" }}</span>
               </template>
@@ -370,7 +370,7 @@ export default {
           } else if (config.httpConfig.conditions.length > 1) {
             return "SHOW_INFO";
           } else if (config.tcpConfig && config.tcpConfig.server) {
-            return "SHOW_INFO"; // 页面上该字段只要显示域名数据就表示该域名是HTTP类型.如果只有TCP类型则弹窗显示以区分域名类型.
+            return config.tcpConfig.server;
           } else {
             return "";
           }

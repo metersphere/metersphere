@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="btn-div">
-      <el-button size="mini" type="primary" class="save-btn" v-if="!rowReadOnly && !showSaveBtn" @click="update">{{$t('commons.save')}}</el-button>
+      <el-button size="mini" type="primary" class="save-btn" v-if="!rowReadOnly && !showSaveBtn" @click="update">
+        {{ $t('commons.save') }}
+      </el-button>
     </div>
     <div v-loading="result.loading" class="group-row">
       <el-form class="row-form">
@@ -29,13 +31,15 @@
 
             <el-col :span="4">
               <el-button :size="itemSize" icon="el-icon-s-data" style="width: 100%;"
-                         @click="showDomainInfo(item)" v-if="item.moreDomain">{{ $t('workspace.env_group.view_details') }}
+                         @click="showDomainInfo(item)" v-if="item.moreDomain">
+                {{ $t('workspace.env_group.view_details') }}
               </el-button>
               <el-input v-else v-model="item.domainName" :disabled="true" :size="itemSize"/>
             </el-col>
 
             <el-col :span="5">
-              <el-input prop="description" show-overflow-tooltip :placeholder="$t('commons.description')" maxlength="100"
+              <el-input prop="description" show-overflow-tooltip :placeholder="$t('commons.description')"
+                        maxlength="100"
                         v-model="item.domainDescription"
                         show-word-limit :size="itemSize" :disabled="true"/>
             </el-col>
@@ -73,7 +77,8 @@
               {{ row.conditionType ? "-" : getDetails(row) }}
             </template>
           </el-table-column>
-          <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="$t('commons.description')">
+          <el-table-column prop="description" show-overflow-tooltip min-width="120px"
+                           :label="$t('commons.description')">
             <template v-slot:default="{row}">
               <span>{{ row.description ? row.description : "-" }}</span>
             </template>
@@ -86,9 +91,9 @@
           </el-table-column>
         </el-table>
         <span slot="footer" class="dialog-footer">
-    <el-button @click="domainVisible = false" size="mini">{{ $t('commons.cancel') }}</el-button>
-    <el-button type="primary" @click="domainVisible = false" size="mini">{{ $t('commons.confirm') }}</el-button>
-  </span>
+          <el-button @click="domainVisible = false" size="small">{{ $t('commons.cancel') }}</el-button>
+          <el-button type="primary" @click="domainVisible = false" size="small">{{ $t('commons.confirm') }}</el-button>
+        </span>
       </el-dialog>
     </div>
   </div>
@@ -203,7 +208,8 @@ export default {
             this.$set(item, "moreDomain", true);
             return;
           } else if (config.tcpConfig && config.tcpConfig.server) {
-            this.$set(item, "moreDomain", true);
+            this.$set(item, "domainName", config.tcpConfig.server);
+            this.$set(item, "domainDescription", config.tcpConfig.description);
             return;
           }
         }
@@ -296,7 +302,8 @@ export default {
             this.$set(item, "moreDomain", true);
             return;
           } else if (config.tcpConfig && config.tcpConfig.server) {
-            this.$set(item, "moreDomain", true);
+            this.$set(item, "domainName", config.tcpConfig.server);
+            this.$set(item, "domainDescription", config.tcpConfig.description);
             return;
           }
         }
