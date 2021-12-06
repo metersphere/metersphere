@@ -344,7 +344,7 @@ import {
 } from "@/common/js/utils";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
-import {saveScenario} from "@/business/components/api/automation/api-automation";
+import {savePreciseEnvProjectIds, saveScenario} from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "@/common/js/constants";
 
@@ -1315,9 +1315,9 @@ export default {
       }
       return new Promise((resolve) => {
         document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
-        this.$refs['currentScenario'].validate((valid) => {
+        this.$refs['currentScenario'].validate(async (valid) => {
           if (valid) {
-            this.setParameter();
+            await this.setParameter();
             saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
               this.$store.state.scenarioMap.delete(this.currentScenario.id);
@@ -1458,7 +1458,7 @@ export default {
         }
       }
     },
-    setParameter() {
+    async setParameter() {
       this.currentScenario.stepTotal = this.scenarioDefinition.length;
       if (!this.currentScenario.projectId) {
         this.currentScenario.projectId = this.projectId;
@@ -1483,6 +1483,11 @@ export default {
         this.formatData(scenario.hashTree);
       }
       this.currentScenario.environmentType = this.environmentType;
+      let definition = JSON.parse(JSON.stringify(this.currentScenario));
+      definition.hashTree = this.scenarioDefinition;
+      await this.getEnv(JSON.stringify(definition));
+      // 保存时同步所需要的项目环境
+      savePreciseEnvProjectIds(this.projectIds, this.projectEnvMap);
       this.currentScenario.environmentJson = JSON.stringify(strMapToObj(this.projectEnvMap));
       this.currentScenario.environmentGroupId = this.envGroupId;
       this.currentScenario.scenarioDefinition = scenario;
