@@ -12,7 +12,7 @@
 
 <script>
 export default {
-  name: "MsDialogFooter",
+  name: "MsDialogHeader",
   props: {
     isShow: {
       type: Boolean,
@@ -22,7 +22,7 @@ export default {
     btnSize: {
       type: String,
       default() {
-        return '';
+        return 'mini';
       }
     }
   },
@@ -43,8 +43,7 @@ export default {
 <style scoped>
 
 .dialog-header {
-  position: absolute;
-  top: 40px;
+  top: 20px;
   right: 20px;
   padding: 0;
   background: 0 0;

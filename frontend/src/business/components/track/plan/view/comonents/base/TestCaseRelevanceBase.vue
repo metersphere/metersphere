@@ -1,18 +1,18 @@
 <template>
   <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog">
+    <template v-slot:headerBtn>
 
-    <template v-slot:header>
-
-      <div v-if="$slots.header">
-        <slot name="header"></slot>
+      <div v-if="$slots.headerBtn">
+        <slot name="headerBtn"></slot>
       </div>
       <div v-else>
-        <div style="margin-bottom: 15px" v-if="flag">
+        <div style="margin-bottom: 5px" v-if="flag">
           <el-checkbox v-model="checked">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
         </div>
         <ms-dialog-header @cancel="close" v-loading="isSaving" @confirm="save"/>
       </div>
     </template>
+
     <template v-slot:aside>
       <select-menu
         :data="projects"
@@ -26,7 +26,18 @@
 
     <slot></slot>
 
+    <!--    <template v-slot:footer>
 
+          <div v-if="$slots.footer">
+            <slot name="footer"></slot>
+          </div>
+          <div v-else>
+            <div style="margin-bottom: 15px" v-if="flag">
+              <el-checkbox v-model="checked">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
+            </div>
+            <ms-dialog-footer @cancel="close" v-loading="isSaving" @confirm="save"/>
+          </div>
+        </template>-->
 
   </relevance-dialog>
 </template>

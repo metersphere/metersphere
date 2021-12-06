@@ -8,7 +8,7 @@
              top="50px" append-to-body>
 
     <el-header class="header-btn">
-      <slot name="header"></slot>
+      <slot name="headerBtn"></slot>
     </el-header>
 
     <el-container class="main-content">
@@ -24,9 +24,9 @@
 
     </el-container>
 
-    <!--    <template v-slot:footer>
-          <slot name="footer"></slot>
-        </template>-->
+    <template v-slot:footer>
+      <slot name="footer"></slot>
+    </template>
 
   </el-dialog>
 </template>
@@ -83,6 +83,7 @@
     border: none;
     outline: 0;
     cursor: pointer;
+    height: 30px;
   }
 
 </style>
