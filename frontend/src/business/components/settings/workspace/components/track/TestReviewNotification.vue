@@ -178,18 +178,54 @@ export default {
         {value: 'COMPLETE', label: '评审完成'}
       ],
       variables: [
-        'operator',
-        'id',
-        'name',
-        'creator',
-        'status',
-        'createTime',
-        'updateTime',
-        'endTime',
-        'projectId',
-        'tags',
-        'createUser',
-        'description'
+        {
+          label:this.$t('group.operator'),
+          value:'operator',
+        },
+        {
+          label:'id',
+          value:'id',
+        },
+        {
+          label:this.$t('commons.name'),
+          value:'name',
+        },
+        {
+          label:this.$t('commons.create_user'),
+          value:'creator',
+        },
+        {
+          label:this.$t('commons.status'),
+          value:'status',
+        },
+        {
+          label:this.$t('commons.create_time'),
+          value:'createTime',
+        },
+        {
+          label:this.$t('commons.update_time'),
+          value:'updateTime',
+        },
+        {
+          label:this.$t('test_track.review.end_time'),
+          value:'endTime',
+        },
+        {
+          label:this.$t('project.id'),
+          value:'projectId',
+        },
+        {
+          label:this.$t('commons.tag'),
+          value:'tags',
+        },
+        {
+          label:this.$t('commons.create_user'),
+          value:'createUser',
+        },
+        {
+          label:this.$t('commons.description'),
+          value:'description',
+        },
       ]
     };
   },
