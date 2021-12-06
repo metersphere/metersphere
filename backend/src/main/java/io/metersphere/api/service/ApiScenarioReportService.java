@@ -323,7 +323,6 @@ public class ApiScenarioReportService {
             }
 
             ApiScenarioReport report = editReport(scenarioResult, startTime);
-
             if(report != null){
                 TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
                 newResult.setConsole(result.getConsole());
@@ -347,26 +346,37 @@ public class ApiScenarioReportService {
                 } else {
                     planScenarioId = report.getScenarioId();
                 }
+
+                String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
+
                 TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(planScenarioId);
-                report.setScenarioId(testPlanApiScenario.getApiScenarioId());
-                report.setTestPlanScenarioId(planScenarioId);
+                if(testPlanApiScenario != null){
+                    //更新测试计划场景相关状态
+                    report.setScenarioId(testPlanApiScenario.getApiScenarioId());
+                    report.setTestPlanScenarioId(planScenarioId);
+
+                    if (scenarioResult.getError() > 0) {
+                        scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.FAILD.name());
+                        testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
+                        testPlanApiScenario.setPassRate(passRate);
+                    } else {
+                        scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.SUCCESS.name());
+                        testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
+                    }
+                    testPlanApiScenario.setReportId(report.getId());
+                    testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
+                    testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
+                    scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
+                }else {
+                    LogUtil.info("TestPlanReport_Id is null. scenario report id : ["+report.getId()+"]; planScenarioIdArr:["+report.getScenarioId()+"] DATA:"+JSON.toJSONString(scenarioResult));
+                }
+
                 report.setEndTime(System.currentTimeMillis());
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 planScenarioReportMap.put(planScenarioId, report.getId());
 
-                if (scenarioResult.getError() > 0) {
-                    scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.FAILD.name());
-                    testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
-                } else {
-                    scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.SUCCESS.name());
-                    testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
-                }
-
-                String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
-                testPlanApiScenario.setPassRate(passRate);
                 // 报告详情内容
                 ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-
                 detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
                 detail.setReportId(report.getId());
                 detail.setProjectId(report.getProjectId());
@@ -375,15 +385,11 @@ public class ApiScenarioReportService {
                 }
                 apiScenarioReportDetailMapper.insert(detail);
 
-                testPlanApiScenario.setReportId(report.getId());
-                report.setEndTime(System.currentTimeMillis());
-                testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
-                testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-                scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
+
                 scenarioNames.append(report.getName()).append(",");
 
                 // 更新场景状态
-                ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
+                ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
                 if (scenario != null) {
                     if (scenarioResult.getError() > 0) {
                         scenario.setLastResult("Fail");
