@@ -6,7 +6,7 @@
 
       <ms-table
         :data="tableData"
-        :screen-height="isRelate ? 'calc(100vh - 400px)' :  screenHeight"
+        :screen-height="isRelate ? 'calc(100vh - 300px)' :  screenHeight"
         :condition="condition"
         :page-size="pageSize"
         :operators="isRelate ? [] : operators"

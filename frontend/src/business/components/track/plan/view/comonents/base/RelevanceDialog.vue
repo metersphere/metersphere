@@ -7,8 +7,11 @@
              :destroy-on-close="true"
              top="50px" append-to-body>
 
-    <el-container class="main-content">
+    <el-header class="header-btn">
+      <slot name="header"></slot>
+    </el-header>
 
+    <el-container class="main-content">
       <el-aside class="tree-aside" width="250px">
         <slot name="aside"></slot>
       </el-aside>
@@ -21,9 +24,9 @@
 
     </el-container>
 
-    <template v-slot:footer>
-      <slot name="footer"></slot>
-    </template>
+    <!--    <template v-slot:footer>
+          <slot name="footer"></slot>
+        </template>-->
 
   </el-dialog>
 </template>
@@ -69,6 +72,17 @@
 
   .el-dialog >>> .el-dialog__body {
     padding: 10px 20px;
+  }
+
+  .header-btn {
+    position: absolute;
+    top: 40px;
+    right: 30px;
+    padding: 0;
+    background: 0 0;
+    border: none;
+    outline: 0;
+    cursor: pointer;
   }
 
 </style>
