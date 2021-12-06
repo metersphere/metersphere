@@ -167,7 +167,6 @@ export default {
   methods: {
     open() {
       this.itemValueVisible = true;
-      this.itemValue = this.currentItem.value;
     },
     prepareData() {
       if (this.scenario) {
