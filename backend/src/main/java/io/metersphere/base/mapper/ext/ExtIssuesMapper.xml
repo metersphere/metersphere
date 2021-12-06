@@ -54,6 +54,7 @@
         and (test_case_issues.test_case_id is null or test_case_issues.test_case_id != #{request.caseId})
         and (issues.platform_status != 'delete' or issues.platform_status is NULL)
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+        group by issues.id
     </select>
     <select id="getIssueForSync" resultType="io.metersphere.base.domain.IssuesDao">
         select id,platform, platform_id
