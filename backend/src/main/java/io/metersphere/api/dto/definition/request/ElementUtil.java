@@ -111,7 +111,7 @@ public class ElementUtil {
         }
     }
 
-    public static void addCounter(HashTree tree, List<ScenarioVariable> variables) {
+    public static void addCounter(HashTree tree, List<ScenarioVariable> variables, boolean isInternal) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCounterValid).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -121,7 +121,11 @@ public class ElementUtil {
                     counterConfig.setProperty(TestElement.TEST_CLASS, CounterConfig.class.getName());
                     counterConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("CounterConfigGui"));
                     counterConfig.setName(item.getName());
-                    counterConfig.setStart(item.getStartNumber());
+                    if (isInternal) {
+                        counterConfig.setStart((item.getStartNumber() + 1));
+                    } else {
+                        counterConfig.setStart(item.getStartNumber());
+                    }
                     counterConfig.setEnd(item.getEndNumber());
                     counterConfig.setVarName(item.getName());
                     counterConfig.setIncrement(item.getIncrement());
