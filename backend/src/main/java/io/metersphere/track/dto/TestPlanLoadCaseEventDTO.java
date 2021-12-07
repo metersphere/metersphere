@@ -14,4 +14,5 @@ public class TestPlanLoadCaseEventDTO {
     private String reportId;
     private String triggerMode;
     private String status;
+    private String id;
 }

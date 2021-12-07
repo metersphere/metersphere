@@ -1171,7 +1171,7 @@ public class TestPlanService {
             try {
                 reportId = performanceTestService.run(performanceRequest);
                 if (reportId != null) {
-                    performaneReportIDMap.put(reportId, caseID);
+                    performaneReportIDMap.put(reportId, id);
                     TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
                     testPlanLoadCase.setId(performanceRequest.getTestPlanLoadId());
                     testPlanLoadCase.setLoadReportId(reportId);
@@ -1189,9 +1189,9 @@ public class TestPlanService {
             }
             performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(), reportId);
             if (StringUtils.isNotEmpty(reportId)) {
-                executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.RUNNING.name());
+                executePerformanceIdMap.put(performanceRequest.getTestPlanLoadId(), TestPlanApiExecuteStatus.RUNNING.name());
             } else {
-                executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.PREPARE.name());
+                executePerformanceIdMap.put(performanceRequest.getTestPlanLoadId(), TestPlanApiExecuteStatus.PREPARE.name());
             }
         }
         TestPlanReportExecuteCatch.updateTestPlanThreadInfo(planReportId, null, null, performaneThreadIDMap);
