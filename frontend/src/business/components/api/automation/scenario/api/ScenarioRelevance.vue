@@ -25,7 +25,7 @@
       :custom-num="customNum"
       ref="apiScenarioList"/>
 
-    <template v-slot:headerBtn>
+    <template v-slot:footer>
       <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent>
         {{ $t('commons.copy') }}
       </el-button>

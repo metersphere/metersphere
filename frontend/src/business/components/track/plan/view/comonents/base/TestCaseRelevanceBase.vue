@@ -1,17 +1,5 @@
 <template>
   <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog">
-    <template v-slot:headerBtn>
-
-      <div v-if="$slots.headerBtn">
-        <slot name="headerBtn"></slot>
-      </div>
-      <div v-else>
-        <div style="margin-bottom: 5px" v-if="flag">
-          <el-checkbox v-model="checked">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
-        </div>
-        <ms-dialog-header @cancel="close" v-loading="isSaving" @confirm="save"/>
-      </div>
-    </template>
 
     <template v-slot:aside>
       <select-menu
@@ -26,7 +14,7 @@
 
     <slot></slot>
 
-    <!--    <template v-slot:footer>
+        <template v-slot:footer>
 
           <div v-if="$slots.footer">
             <slot name="footer"></slot>
@@ -37,14 +25,14 @@
             </div>
             <ms-dialog-footer @cancel="close" v-loading="isSaving" @confirm="save"/>
           </div>
-        </template>-->
+        </template>
 
   </relevance-dialog>
 </template>
 
 <script>
 
-import MsDialogHeader from '../../../../../common/components/MsDialogHeader'
+import MsDialogFooter from '../../../../../common/components/MsDialogFooter'
 import SelectMenu from "../../../../common/SelectMenu";
   import RelevanceDialog from "./RelevanceDialog";
   import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
@@ -54,7 +42,7 @@ import SelectMenu from "../../../../common/SelectMenu";
     components: {
       RelevanceDialog,
       SelectMenu,
-      MsDialogHeader,
+      MsDialogFooter,
     },
     data() {
       return {
