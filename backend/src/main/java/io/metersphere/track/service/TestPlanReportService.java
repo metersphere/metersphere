@@ -1252,6 +1252,12 @@ public class TestPlanReportService {
 
         testPlanReport.setStatus(TestPlanReportStatus.FAILED.name());
         testPlanReportMapper.updateByPrimaryKeySelective(testPlanReport);
+
+        TestPlanReportContentWithBLOBs bloBs = new TestPlanReportContentWithBLOBs();
+        bloBs.setEndTime(endTime);
+        TestPlanReportContentExample example = new TestPlanReportContentExample();
+        example.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getId());
+        testPlanReportContentMapper.updateByExampleSelective(bloBs,example);
     }
 
     private void checkReportStatus(List<TestPlanReportDTO> list) {
