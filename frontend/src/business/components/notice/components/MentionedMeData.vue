@@ -1,20 +1,22 @@
 <template>
   <div>
-    <div style="padding-left: 270px; padding-bottom: 5px; width: 100%">
-      <span style="color: gray; padding-right: 10px">({{ totalCount }} {{ $t('commons.notice_count') }})</span>
-      <el-dropdown @command="handleCommand" style="padding-right: 10px">
+    <div style="padding-bottom: 5px; width: 100%; height: 50px;">
+      <div style="float:right;">
+        <span style="color: gray; padding-right: 10px">({{ totalCount }} {{ $t('commons.notice_count') }})</span>
+        <el-dropdown @command="handleCommand" style="padding-right: 10px">
         <span class="el-dropdown-link" v-if="totalPage > 0">
           {{ goPage }}/{{ totalPage }}<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
-        <span v-else class="el-dropdown-link">0/0</span>
-        <el-dropdown-menu slot="dropdown">
-          <div class="dropdown-content">
-            <el-dropdown-item v-for="i in totalPage" :key="i" :command="i">{{ i }}</el-dropdown-item>
-          </div>
-        </el-dropdown-menu>
-      </el-dropdown>
-      <el-button icon="el-icon-arrow-left" size="mini" :disabled="goPage === 1" @click="prevPage"/>
-      <el-button icon="el-icon-arrow-right" size="mini" :disabled="goPage === totalPage" @click="nextPage"/>
+          <span v-else class="el-dropdown-link">0/0</span>
+          <el-dropdown-menu slot="dropdown">
+            <div class="dropdown-content">
+              <el-dropdown-item v-for="i in totalPage" :key="i" :command="i">{{ i }}</el-dropdown-item>
+            </div>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-button icon="el-icon-arrow-left" size="mini" :disabled="goPage === 1" @click="prevPage"/>
+        <el-button icon="el-icon-arrow-right" size="mini" :disabled="goPage === totalPage" @click="nextPage"/>
+      </div>
     </div>
     <div class="report-container">
       <el-table :data="systemNoticeData"
