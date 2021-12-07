@@ -60,7 +60,7 @@ public class MsLoopController extends MsTestElement {
         final HashTree groupTree = controller(tree);
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
             ElementUtil.addCsvDataSet(groupTree, config.getVariables(), config, "shareMode.thread");
-            ElementUtil.addCounter(groupTree, config.getVariables());
+            ElementUtil.addCounter(groupTree, config.getVariables(), true);
             ElementUtil.addRandom(groupTree, config.getVariables());
         }
 

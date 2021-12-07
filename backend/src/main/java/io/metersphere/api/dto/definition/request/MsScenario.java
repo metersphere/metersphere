@@ -162,7 +162,7 @@ public class MsScenario extends MsTestElement {
             tree.add(ParameterConfig.valueSupposeMock(arguments));
         }
         ElementUtil.addCsvDataSet(tree, variables, config, "shareMode.group");
-        ElementUtil.addCounter(tree, variables);
+        ElementUtil.addCounter(tree, variables, false);
         ElementUtil.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
             config.setHeaders(this.headers);
