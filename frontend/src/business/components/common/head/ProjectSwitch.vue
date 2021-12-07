@@ -57,7 +57,7 @@ export default {
 <style scoped>
 .project-name {
   display: inline-block;
-  width: 130px;
+  width: 160px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
