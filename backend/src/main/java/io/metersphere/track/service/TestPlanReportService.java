@@ -84,6 +84,8 @@ public class TestPlanReportService {
     ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     LoadTestReportMapper loadTestReportMapper;
+    @Resource
+    TestPlanLoadCaseMapper testPlanLoadCaseMapper;
     @Lazy
     @Resource
     TestPlanService testPlanService;
@@ -943,8 +945,8 @@ public class TestPlanReportService {
                             testPlanLog.info("TestPlanReportId[" + testPlanReport.getId() + "] SELECT performance ID:" + loadTestReportId + ",RESULT :" + loadTestReportFromDatabase.getStatus());
                             if (StringUtils.equalsAny(loadTestReportFromDatabase.getStatus(),
                                     PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
-                                finishLoadTestId.put(loadTestReportFromDatabase.getTestId(), TestPlanApiExecuteStatus.SUCCESS.name());
-                                caseReportMap.put(loadTestReportFromDatabase.getTestId(), loadTestReportId);
+                                finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanApiExecuteStatus.SUCCESS.name());
+                                caseReportMap.put(performaneReportIDMap.get(loadTestReportId), loadTestReportId);
                                 performaneReportIDList.remove(loadTestReportId);
                             }
                         }
@@ -958,13 +960,14 @@ public class TestPlanReportService {
                 testPlanLog.info("TestPlanReportId[" + testPlanReport.getId() + "] SELECT performance BATCH OVER:" + JSONArray.toJSONString(selectList));
                 if (performaneReportIDList.isEmpty()) {
                     testPlanLog.info("TestPlanReportId[" + testPlanReport.getId() + "] performance EXECUTE OVER. TRIGGER_MODE:" + triggerMode + ",REsult:" + JSONObject.toJSONString(finishLoadTestId));
-                    if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
+                    if (StringUtils.equalsAnyIgnoreCase(triggerMode, ReportTriggerMode.API.name() ,ReportTriggerMode.MANUAL.name())) {
                         for (String string : finishLoadTestId.keySet()) {
-                            TestPlanLoadCaseEventDTO eventDTO = new TestPlanLoadCaseEventDTO();
-                            eventDTO.setReportId(string);
-                            eventDTO.setTriggerMode(triggerMode);
-                            eventDTO.setStatus(PerformanceTestStatus.Completed.name());
-                            this.updatePerformanceTestStatus(eventDTO);
+                            String reportId = caseReportMap.get(string);
+                            TestPlanLoadCase updateDTO = new TestPlanLoadCase();
+                            updateDTO.setId(string);
+                            updateDTO.setStatus(finishLoadTestId.get(string));
+                            updateDTO.setLoadReportId(reportId);
+                            testPlanLoadCaseMapper.updateByPrimaryKeySelective(updateDTO);
                         }
                     }
                     TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(testPlanReport.getId(), null, null, finishLoadTestId);
