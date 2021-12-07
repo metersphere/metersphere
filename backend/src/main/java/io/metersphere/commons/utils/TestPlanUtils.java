@@ -44,6 +44,7 @@ public class TestPlanUtils {
         addToReportStatusResultList(resultMap, statusResult, "Fail");
         addToReportStatusResultList(resultMap, statusResult, "success");
         addToReportStatusResultList(resultMap, statusResult, "Success");
+        addToReportStatusResultList(resultMap, statusResult, "SUCCESS");
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Prepare.name());
     }
 
