@@ -178,8 +178,8 @@ export default {
 
 .title {
   display: inline-block;
-  padding-left: 15px;
-  max-width: 200px;
+  padding-left: 10px;
+  max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -187,7 +187,7 @@ export default {
 
 .el-icon-check {
   color: #773888;
-  margin-left: 10px;
+  margin-left: 2px;
   font-weight: bold;
 }
 </style>
