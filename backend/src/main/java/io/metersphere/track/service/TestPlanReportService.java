@@ -1279,10 +1279,10 @@ public class TestPlanReportService {
         TestPlanExecuteInfo executeInfo = TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId);
         int unFinishNum = executeInfo.countUnFinishedNum();
         if (unFinishNum > 0) {
-            //15分钟没有案例执行结果更新，则定位超时
+            //20分钟没有案例执行结果更新，则定位超时
             long lastCountTime = executeInfo.getLastFinishedNumCountTime();
             long nowTime = System.currentTimeMillis();
-            if (nowTime - lastCountTime > 9000) {
+            if (nowTime - lastCountTime > 1200000) {
                 return true;
             }
         }
