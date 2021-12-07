@@ -30,10 +30,10 @@
           <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
             {{ $t('project.log') }}
           </el-menu-item>
-          <el-menu-item popper-class="submenu" @click="clickPlanMenu" class="hidden-sm-and-down">
+          <el-menu-item popper-class="submenu" @click="clickPlanMenu">
             {{ $t('project.version_manage') }}
           </el-menu-item>
-          <el-menu-item popper-class="submenu" @click="clickPlanMenu" class="hidden-sm-and-down">
+          <el-menu-item popper-class="submenu" @click="clickPlanMenu">
             {{ $t('project.app_manage') }}
           </el-menu-item>
         </el-menu>
