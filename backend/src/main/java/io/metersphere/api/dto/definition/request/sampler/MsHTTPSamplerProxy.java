@@ -702,7 +702,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private String getPostQueryParameters(String path) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(path);
-        stringBuffer.append("?");
+        if (path.indexOf("?") != -1) {
+            stringBuffer.append("&");
+        } else {
+            stringBuffer.append("?");
+        }
         this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue -> {
             stringBuffer.append(keyValue.getName());
             if (keyValue.getValue() != null) {
@@ -724,22 +728,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                            try {
-                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                                if (keyValue.getValue() == null) {
-                                    httpArgument.setValue("");
-                                }
-                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                                    httpArgument.setContentType(keyValue.getContentType());
-                                }
-                                arguments.addArgument(httpArgument);
-                            } catch (Exception e) {
-
-                            }
+                    try {
+                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                        if (keyValue.getValue() == null) {
+                            httpArgument.setValue("");
                         }
-                );
+                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                            httpArgument.setContentType(keyValue.getContentType());
+                        }
+                        arguments.addArgument(httpArgument);
+                    } catch (Exception e) {
+
+                    }
+                }
+        );
         return arguments;
     }
 
