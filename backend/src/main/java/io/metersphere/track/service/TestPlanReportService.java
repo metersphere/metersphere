@@ -1188,22 +1188,10 @@ public class TestPlanReportService {
         }
 
         if (StringUtils.isNotBlank(testPlanReportContent.getLoadAllCases())) {
-            reportHasData = true;
             List<TestPlanLoadCaseDTO> allCases = JSONObject.parseArray(testPlanReportContent.getLoadAllCases(), TestPlanLoadCaseDTO.class);
-            for (TestPlanLoadCaseDTO dto : allCases) {
-                if (StringUtils.equalsIgnoreCase(dto.getStatus(), "run")) {
-                    isUpdate = true;
-                    LoadTestReport report = loadTestReportMapper.selectByPrimaryKey(dto.getReportId());
-                    if (report != null) {
-                        dto.setStatus(report.getStatus());
-                    }
-                }
-
-                if (StringUtils.equalsAnyIgnoreCase("Underway", dto.getStatus(), dto.getStatus())) {
-                    isTaskRunning = true;
-                }
+            if(!allCases.isEmpty()){
+                isTaskRunning = true;
             }
-            testPlanReportContent.setLoadAllCases(JSONArray.toJSONString(allCases));
         }
         if (isUpdate) {
             testPlanReportContentMapper.updateByPrimaryKeyWithBLOBs(testPlanReportContent);
