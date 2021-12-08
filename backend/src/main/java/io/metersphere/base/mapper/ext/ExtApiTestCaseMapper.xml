@@ -205,7 +205,7 @@
             </if>
         </if>
         <if test="${condition}.status != null">
-            and t2.status
+            and t1.status
             <include refid="condition">
                 <property name="object" value="${condition}.status"/>
             </include>
@@ -387,6 +387,12 @@
                             and t1.case_status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='execResult' or key=='exec_result'">
+                            and t1.STATUS in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                (#{value})
                             </foreach>
                         </when>
                     </choose>
