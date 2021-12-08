@@ -75,15 +75,32 @@ public class EnvironmentGroupService {
         if (CollectionUtils.isEmpty(envGroupProject)) {
             return;
         }
-        // todo 项目重复校验
+        List<Project> projects = projectMapper.selectByExample(new ProjectExample());
+        List<String> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
+        List<ApiTestEnvironment> environments = apiTestEnvironmentMapper.selectByExample(new ApiTestEnvironmentExample());
+        List<String> environmentIds = environments.stream().map(ApiTestEnvironment::getId).collect(Collectors.toList());
+
         for (EnvironmentGroupProject egp : envGroupProject) {
             String projectId = egp.getProjectId();
             String environmentId = egp.getEnvironmentId();
             if (StringUtils.isBlank(projectId) || StringUtils.isBlank(environmentId)) {
                 continue;
             }
+
+            if (!projectIds.contains(projectId) || !environmentIds.contains(environmentId)) {
+                continue;
+            }
+
+            EnvironmentGroupProjectExample example = new EnvironmentGroupProjectExample();
+            example.createCriteria()
+                    .andEnvironmentGroupIdEqualTo(request.getId())
+                    .andProjectIdEqualTo(projectId);
+            List<EnvironmentGroupProject> environmentGroupProjects = environmentGroupProjectMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(environmentGroupProjects)) {
+                continue;
+            }
+
             EnvironmentGroupProject e = new EnvironmentGroupProject();
-            // todo 检查 项目｜环境 是否存在
             e.setId(UUID.randomUUID().toString());
             e.setEnvironmentGroupId(request.getId());
             e.setProjectId(projectId);
@@ -119,9 +136,7 @@ public class EnvironmentGroupService {
         example.createCriteria().andWorkspaceIdEqualTo(workspaceId);
         List<EnvironmentGroup> environmentGroups = environmentGroupMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(environmentGroups)) {
-            environmentGroups.forEach(environmentGroup -> {
-                delete(environmentGroup.getId());
-            });
+            environmentGroups.forEach(environmentGroup -> delete(environmentGroup.getId()));
         }
     }
 
