@@ -7,7 +7,6 @@
       :placeholder="tip"
       prefix-icon="el-icon-search"
       @change="search"
-      @blur="search"
       maxlength="60"
       v-model="condition.name" clearable/>
 
