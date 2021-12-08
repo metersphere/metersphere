@@ -529,7 +529,10 @@ public class APITestService {
 
         //处理附件
         Map<String, String> attachmentFiles = new HashMap<>();
-
+        //去重处理
+        if(!CollectionUtils.isEmpty(attachmentFilePathList)){
+            attachmentFilePathList = attachmentFilePathList.stream().distinct().collect(Collectors.toList());
+        }
         List<FileMetadata> fileMetadataList = new ArrayList<>();
         for (String filePath: attachmentFilePathList) {
             File file  = new File(filePath);
