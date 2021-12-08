@@ -662,7 +662,7 @@ public class TestCaseService {
                 testcase.setUpdateTime(System.currentTimeMillis());
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
-                int number = num.decrementAndGet();
+                int number = num.incrementAndGet();
                 testcase.setNum(number);
                 if (project.getCustomNum() && StringUtils.isBlank(testcase.getCustomNum())) {
                     testcase.setCustomNum(String.valueOf(number));
