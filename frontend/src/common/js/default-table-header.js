@@ -101,7 +101,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'reviewerName', key: '7', label: 'test_track.review.reviewer'},
     {id: 'reviewStatus', key: '8', label: 'test_track.case.status'},
     {id: 'updateTime', key: '9', label: 'commons.update_time'},
-    {id: 'maintainer', key: 'a', label: 'custom_field.case_maintainer'},
+    {id: 'maintainerName', key: 'a', label: 'custom_field.case_maintainer'},
   ],
   //测试计划
   TEST_PLAN_LIST: [

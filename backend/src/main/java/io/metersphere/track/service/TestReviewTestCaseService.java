@@ -71,6 +71,7 @@ public class TestReviewTestCaseService {
             String reviewId = item.getReviewId();
             List<String> userIds = getReviewUserIds(reviewId);
             item.setReviewerName(getReviewName(userIds, userMap));
+            item.setMaintainerName(userMap.get(item.getMaintainer()));
         });
         return list;
     }
