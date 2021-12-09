@@ -79,7 +79,7 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="maintainer"
+          prop="maintainerName"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('custom_field.case_maintainer')"
