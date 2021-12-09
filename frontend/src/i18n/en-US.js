@@ -1464,6 +1464,8 @@ export default {
       jmeter_tip: "JMX files supporting JMeter 5.2-5.4",
       suffixFormatErr: "The file format does not meet the requirements",
       swagger_url_import: "Import using URL",
+      add_request_params: "Add request Parameters",
+      optional: "（optional）",
       timing_synchronization: "Timing synchronization",
       next_synchronization_time: "Next synchronization time",
       ms_env_import_file_limit: "It only supports JSON format files exported through metersphere",
