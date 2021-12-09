@@ -203,7 +203,6 @@
 
 <script>
 
-import MsCreateBox from '../../../settings/CreateBox';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import TestCaseImport from '../components/TestCaseImport';
 import TestCaseExport from '../components/TestCaseExport';
@@ -266,7 +265,6 @@ export default {
     MethodTableItem,
     TypeTableItem,
     PriorityTableItem,
-    MsCreateBox,
     TestCaseImport,
     TestCaseExport,
     MsTablePagination,

@@ -93,7 +93,6 @@
 </template>
 
 <script>
-import MsCreateBox from "../CreateBox";
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsRolesTag from "../../common/components/MsRolesTag";
@@ -125,7 +124,7 @@ export default {
   name: "MsMember",
   components: {
     BatchToProjectGroupCascader, GroupCascader,
-    AddMember, MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
+    AddMember, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
     MsTableHeaderSelectPopover, UserCascader, ShowMoreBtn
   },
   data() {

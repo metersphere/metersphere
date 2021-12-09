@@ -107,7 +107,6 @@
 </template>
 
 <script>
-import MsCreateBox from "../CreateBox";
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
@@ -141,7 +140,6 @@ export default {
     WorkspaceCascader,
     GroupCascader,
     EditUser,
-    MsCreateBox,
     MsTablePagination,
     MsTableHeader,
     MsTableOperator,
