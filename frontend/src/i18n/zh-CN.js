@@ -1475,6 +1475,8 @@ export default {
       jmeter_tip: "支持 JMeter5.2-5.4版本的JMX文件",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL导入",
+      add_request_params: "添加请求参数",
+      optional: "（可选）",
       timing_synchronization: "定时同步",
       next_synchronization_time: "下次同步时间",
       ms_env_import_file_limit: "仅支持通过MeterSphere导出的json格式文件",

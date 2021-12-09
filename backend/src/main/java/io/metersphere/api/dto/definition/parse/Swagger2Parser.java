@@ -14,13 +14,13 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.SwaggerParameterType;
 import io.swagger.models.*;
+import io.swagger.models.auth.AuthorizationValue;
 import io.swagger.models.parameters.*;
 import io.swagger.models.properties.*;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import java.io.InputStream;
 import java.util.*;
 
@@ -32,23 +32,68 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         Swagger swagger;
         String sourceStr = "";
+        List<AuthorizationValue> auths = setAuths(request);
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {  //  使用 url 导入 swagger
-            swagger = new SwaggerParser().read(request.getSwaggerUrl());
+            swagger = new SwaggerParser().read(request.getSwaggerUrl(), auths, true);
         } else {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
-            swagger = new SwaggerParser().readWithInfo(sourceStr).getSwagger();
+            swagger = new SwaggerParser().readWithInfo(sourceStr, auths, true).getSwagger();
         }
-
         if (swagger == null || swagger.getSwagger() == null) {  //  不是 2.0 版本，则尝试转换 3.0
             Swagger3Parser swagger3Parser = new Swagger3Parser();
+
             return swagger3Parser.parse(sourceStr, request);
         }
-
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
         this.projectId = request.getProjectId();
         definitionImport.setData(parseRequests(swagger, request));
         return definitionImport;
     }
+
+    // 鉴权设置
+    private List<AuthorizationValue> setAuths(ApiTestImportRequest request) {
+        List<AuthorizationValue> auths = new ArrayList<>();
+        // 如果有 BaseAuth 参数，base64 编码后转换成 headers
+        if(request.getAuthManager() != null
+                && StringUtils.isNotBlank(request.getAuthManager().getUsername())
+                && StringUtils.isNotBlank(request.getAuthManager().getPassword())
+                && request.getAuthManager().getVerification().equals("Basic Auth")){
+            AuthorizationValue authorizationValue = new AuthorizationValue();
+            authorizationValue.setType("header");
+            authorizationValue.setKeyName("Authorization");
+            String authValue = "Basic " + Base64.getUrlEncoder().encodeToString((request.getAuthManager().getUsername()
+                    + ":" + request.getAuthManager().getPassword()).getBytes());
+            authorizationValue.setValue(authValue);
+            auths.add(authorizationValue);
+        }
+        // 设置 headers
+        if(!CollectionUtils.isEmpty(request.getHeaders())){
+            for(KeyValue keyValue : request.getHeaders()){
+                // 当有 key 时才进行设置
+                if(StringUtils.isNotBlank(keyValue.getName())){
+                    AuthorizationValue authorizationValue = new AuthorizationValue();
+                    authorizationValue.setType("header");
+                    authorizationValue.setKeyName(keyValue.getName());
+                    authorizationValue.setValue(keyValue.getValue());
+                    auths.add(authorizationValue);
+                }
+            }
+        }
+        // 设置 query 参数
+        if(!CollectionUtils.isEmpty(request.getArguments())){
+            for(KeyValue keyValue : request.getArguments()){
+                if(StringUtils.isNotBlank(keyValue.getName())){
+                    AuthorizationValue authorizationValue = new AuthorizationValue();
+                    authorizationValue.setType("query");
+                    authorizationValue.setKeyName(keyValue.getName());
+                    authorizationValue.setValue(keyValue.getValue());
+                    auths.add(authorizationValue);
+                }
+            }
+        }
+        return CollectionUtils.size(auths) == 0 ? null : auths;
+    }
+
 
     private List<ApiDefinitionWithBLOBs> parseRequests(Swagger swagger, ApiTestImportRequest importRequest) {
         Map<String, Path> paths = swagger.getPaths();

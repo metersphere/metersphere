@@ -27,12 +27,12 @@ import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
-
 import java.io.InputStream;
 import java.util.*;
 
@@ -51,28 +51,73 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     public ApiDefinitionImport parse(String sourceStr, ApiTestImportRequest request) {
+
+        List<AuthorizationValue> auths = setAuths(request);
         SwaggerParseResult result;
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
-            result = new OpenAPIParser().readLocation(request.getSwaggerUrl(), null, null);
+            result = new OpenAPIParser().readLocation(request.getSwaggerUrl(), auths, null);
         } else {
-            result = new OpenAPIParser().readContents(sourceStr, null, null);
+            result = new OpenAPIParser().readContents(sourceStr, auths, null);
         }
-
         if (result == null) {
             MSException.throwException("解析失败，请确认选择的是 swagger 格式！");
         }
-
         OpenAPI openAPI = result.getOpenAPI();
-
         if (result.getMessages() != null) {
             result.getMessages().forEach(msg -> LogUtil.error(msg)); // validation errors and warnings
         }
-
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
         this.projectId = request.getProjectId();
         definitionImport.setData(parseRequests(openAPI, request));
         return definitionImport;
     }
+
+
+    // 鉴权设置
+    private List<AuthorizationValue> setAuths(ApiTestImportRequest request) {
+        List<AuthorizationValue> auths = new ArrayList<>();
+        // 如果有 BaseAuth 参数，base64 编码后转换成 headers
+        if(request.getAuthManager() != null
+                && StringUtils.isNotBlank(request.getAuthManager().getUsername())
+                && StringUtils.isNotBlank(request.getAuthManager().getPassword())
+                && request.getAuthManager().getVerification().equals("Basic Auth")){
+            AuthorizationValue authorizationValue = new AuthorizationValue();
+            authorizationValue.setType("header");
+            authorizationValue.setKeyName("Authorization");
+            String authValue = "Basic " + Base64.getUrlEncoder().encodeToString((request.getAuthManager().getUsername()
+                    + ":" + request.getAuthManager().getPassword()).getBytes());
+            authorizationValue.setValue(authValue);
+            auths.add(authorizationValue);
+        }
+        // 设置 headers
+        if(!CollectionUtils.isEmpty(request.getHeaders())){
+            for(KeyValue keyValue : request.getHeaders()){
+                // 当有 key 时才进行设置
+                if(StringUtils.isNotBlank(keyValue.getName())){
+                    AuthorizationValue authorizationValue = new AuthorizationValue();
+                    authorizationValue.setType("header");
+                    authorizationValue.setKeyName(keyValue.getName());
+                    authorizationValue.setValue(keyValue.getValue());
+                    auths.add(authorizationValue);
+                }
+            }
+        }
+        // 设置 query 参数
+        if(!CollectionUtils.isEmpty(request.getArguments())){
+            for(KeyValue keyValue : request.getArguments()){
+                if(StringUtils.isNotBlank(keyValue.getName())){
+                    AuthorizationValue authorizationValue = new AuthorizationValue();
+                    authorizationValue.setType("query");
+                    authorizationValue.setKeyName(keyValue.getName());
+                    authorizationValue.setValue(keyValue.getValue());
+                    auths.add(authorizationValue);
+                }
+            }
+        }
+        return CollectionUtils.size(auths) == 0 ? null : auths;
+    }
+
+
 
     private List<ApiDefinitionWithBLOBs> parseRequests(OpenAPI openAPI, ApiTestImportRequest importRequest) {
         Paths paths = openAPI.getPaths();

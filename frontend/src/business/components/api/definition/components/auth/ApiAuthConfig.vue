@@ -34,7 +34,7 @@
     </el-tab-pane>
 
     <!--加密-->
-    <el-tab-pane :label="$t('api_test.definition.request.encryption')" name="encryption">
+    <el-tab-pane :label="$t('api_test.definition.request.encryption')" name="encryption" v-if="encryptShow">
       <el-form :model="authConfig" size="small" :rules="rule"
                ref="authConfig">
 
@@ -62,19 +62,18 @@ export default {
   components: {},
   props: {
     request: {},
+    encryptShow: {
+      type: Boolean,
+      default: true,
+    }
+  },
+  watch: {
+    request() {
+      this.initData();
+    }
   },
   created() {
-    if (this.request.hashTree) {
-      for (let index in this.request.hashTree) {
-        if (this.request.hashTree[index].type == 'AuthManager') {
-          this.request.authManager = this.request.hashTree[index];
-          this.request.hashTree.splice(index, 1);
-        }
-      }
-    }
-    if (this.request.authManager) {
-      this.authConfig = this.request.authManager;
-    }
+    this.initData();
   },
   data() {
     return {
@@ -91,8 +90,14 @@ export default {
         let authManager = createComponent("AuthManager");
         authManager.verification = "Basic Auth";
         authManager.environment = this.request.useEnvironment;
+        if(this.request.hashTree == undefined){
+          this.request.hashTree = [];
+        }
         this.request.hashTree.push(authManager);
-        this.authConfig = authManager;
+        // 这里做个判断，如果原来有值则不覆盖
+        if(this.authConfig.username == undefined && this.authConfig.password == undefined){
+          this.authConfig = authManager;
+        }
       } else {
         for (let index in this.request.hashTree) {
           if (this.request.hashTree[index].type === "AuthManager") {
@@ -102,6 +107,19 @@ export default {
         this.request.authManager = {};
       }
       this.request.authManager = this.authConfig;
+    },
+    initData(){
+      if (this.request.hashTree) {
+        for (let index in this.request.hashTree) {
+          if (this.request.hashTree[index].type == 'AuthManager') {
+            this.request.authManager = this.request.hashTree[index];
+            this.request.hashTree.splice(index, 1);
+          }
+        }
+      }
+      if (this.request.authManager) {
+        this.authConfig = this.request.authManager;
+      }
     }
   }
 }

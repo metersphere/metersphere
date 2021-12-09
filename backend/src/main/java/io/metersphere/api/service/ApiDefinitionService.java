@@ -66,7 +66,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import sun.security.util.Cache;
-
 import javax.annotation.Resource;
 import java.net.MalformedURLException;
 import java.util.*;
@@ -1351,10 +1350,13 @@ public class ApiDefinitionService {
 
     /*swagger定时导入*/
     public void createSchedule(ScheduleRequest request) {
+        String config = setAuthParams(request);
         /*保存swaggerUrl*/
         SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         BeanUtils.copyBean(swaggerUrlProject, request);
         swaggerUrlProject.setId(UUID.randomUUID().toString());
+        // 设置鉴权信息
+        swaggerUrlProject.setConfig(config);
         scheduleService.addSwaggerUrlSchedule(swaggerUrlProject);
 
         request.setResourceId(swaggerUrlProject.getId());
@@ -1375,8 +1377,11 @@ public class ApiDefinitionService {
     }
 
     public void updateSchedule(ScheduleRequest request) {
+        String config = setAuthParams(request);
         SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         BeanUtils.copyBean(swaggerUrlProject, request);
+        // 设置鉴权信息
+        swaggerUrlProject.setConfig(config);
         scheduleService.updateSwaggerUrlSchedule(swaggerUrlProject);
         // 只修改表达式和名称
         Schedule schedule = new Schedule();
@@ -1393,6 +1398,24 @@ public class ApiDefinitionService {
         request.setResourceId(swaggerUrlProject.getId());
         this.addOrUpdateSwaggerImportCronJob(request);
     }
+
+
+    // 设置 SwaggerUrl 同步鉴权参数
+    public String setAuthParams(ScheduleRequest request){
+        // list 数组转化成 json 字符串
+        JSONObject configObj = new JSONObject();
+        configObj.put("headers", request.getHeaders());
+        configObj.put("arguments", request.getArguments());
+        // 设置 BaseAuth 参数
+        if(request.getAuthManager() != null
+                && StringUtils.isNotBlank(request.getAuthManager().getUsername())
+                && StringUtils.isNotBlank(request.getAuthManager().getPassword())){
+            configObj.put("authManager", request.getAuthManager());
+        }
+        return JSONObject.toJSONString(configObj);
+    }
+
+
 
     /**
      * 列表开关切换

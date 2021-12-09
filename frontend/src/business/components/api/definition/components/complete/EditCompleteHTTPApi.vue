@@ -144,7 +144,7 @@
     components: {
       ApiOtherInfo,
       MsFormDivider,
-      MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree,MsChangeHistory},
+      MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree, MsChangeHistory},
     data() {
       let validateURL = (rule, value, callback) => {
         if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
