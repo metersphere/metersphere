@@ -110,15 +110,9 @@ public class UserController {
         userService.updateCurrentUserByResourceId(resourceId);
     }
 
-    @PostMapping("/switch/source/org/{sourceId}")
-    public UserDTO switchOrganization(@PathVariable(value = "sourceId") String sourceId) {
-        userService.switchUserRole("organization", sourceId);
-        return SessionUtils.getUser();
-    }
-
     @PostMapping("/switch/source/ws/{sourceId}")
     public UserDTO switchWorkspace(@PathVariable(value = "sourceId") String sourceId) {
-        userService.switchUserRole("workspace", sourceId);
+        userService.switchUserResource("workspace", sourceId);
         return SessionUtils.getUser();
     }
 
