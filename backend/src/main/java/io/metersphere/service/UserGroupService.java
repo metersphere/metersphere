@@ -24,18 +24,18 @@ public class UserGroupService {
         userRoleExample.createCriteria().andUserIdEqualTo(userId);
         List<UserGroup> userGroups = userGroupMapper.selectByExample(userRoleExample);
         List<String> collect = userGroups.stream()
-                .map(userRole -> userRole.getGroupId())
+                .map(UserGroup::getGroupId)
                 .distinct()
                 .collect(Collectors.toList());
-        for (int i = 0; i < collect.size(); i++) {
+        for (String id : collect) {
             Map<String, Object> map = new HashMap<>(2);
-            map.put("id", collect.get(i));
+            map.put("id", id);
             map.put("ids", new ArrayList<>());
-            for (int j = 0; j < userGroups.size(); j++) {
-                String role = userGroups.get(j).getGroupId();
-                if (StringUtils.equals(role, collect.get(i))) {
+            for (UserGroup userGroup : userGroups) {
+                String groupId = userGroup.getGroupId();
+                if (StringUtils.equals(groupId, id)) {
                     List ids = (List) map.get("ids");
-                    ids.add(userGroups.get(j).getSourceId());
+                    ids.add(userGroup.getSourceId());
                 }
             }
             list.add(map);
