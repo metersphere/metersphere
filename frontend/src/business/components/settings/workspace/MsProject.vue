@@ -251,7 +251,6 @@
 </template>
 
 <script>
-import MsCreateBox from "../CreateBox";
 import {Message} from "element-ui";
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
@@ -295,7 +294,7 @@ export default {
     MsTableOperatorButton,
     MsDeleteConfirm,
     MsMainContainer, MsRolesTag,
-    MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter,
+    MsContainer, MsTableOperator, MsTablePagination, MsTableHeader, MsDialogFooter,
     AddMember
   },
   inject: [

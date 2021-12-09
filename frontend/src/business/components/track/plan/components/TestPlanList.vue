@@ -282,7 +282,6 @@
 </template>
 
 <script>
-import MsCreateBox from '../../../settings/CreateBox';
 import MsTablePagination from '../../../../components/common/pagination/TablePagination';
 import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsDialogFooter from "../../../common/components/MsDialogFooter";
@@ -329,7 +328,7 @@ export default {
     PlanStatusTableItem,
     MsTestPlanScheduleMaintain,
     MsTableOperator, MsTableOperatorButton,
-    MsDialogFooter, MsTableHeader, MsCreateBox,
+    MsDialogFooter, MsTableHeader,
     MsTablePagination, PlanRunModeWithEnv, MsTaskCenter
   },
   data() {

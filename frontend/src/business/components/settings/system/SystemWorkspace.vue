@@ -152,7 +152,6 @@
 </template>
 
 <script>
-import MsCreateBox from "../CreateBox";
 import {Message} from "element-ui";
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
@@ -173,7 +172,6 @@ export default {
   name: "MsSystemWorkspace",
   components: {
     MsDeleteConfirm,
-    MsCreateBox,
     MsTablePagination,
     MsTableHeader,
     MsRolesTag,

@@ -99,7 +99,6 @@ import MsDeleteConfirm from "@/business/components/common/components/MsDeleteCon
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
-import MsCreateBox from "@/business/components/settings/CreateBox";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
@@ -117,7 +116,7 @@ export default {
     MsTableOperatorButton,
     MsDeleteConfirm,
     MsMainContainer,
-    MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
+    MsContainer, MsTableOperator, MsTablePagination, MsTableHeader, MsDialogFooter
   },
   data() {
     return {
