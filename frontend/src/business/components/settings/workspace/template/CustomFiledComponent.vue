@@ -14,6 +14,14 @@
       </el-option>
     </el-select>
 
+    <el-cascader
+      v-else-if="data.type === 'cascadingSelect'"
+      expand-trigger="hover"
+      @change="handleChange"
+      :options="data.options"
+      v-model="data[prop]">
+    </el-cascader>
+
     <el-input
       v-else-if="data.type === 'textarea'"
       type="textarea"
@@ -52,21 +60,21 @@
       v-else-if="data.type === 'int'"
       v-model="data[prop]"
       :disabled="disabled"
-      @change="handleChange"></el-input-number>
+      @change="handleChange"/>
 
     <el-input-number
       v-else-if="data.type === 'float'"
       :disabled="disabled"
       @change="handleChange"
-      v-model="data[prop]" :precision="2" :step="0.1"></el-input-number>
+      v-model="data[prop]" :precision="2" :step="0.1"/>
 
      <el-date-picker
        class="custom-with"
        @change="handleChange"
-       v-else-if="data.type === 'data'"
+       v-else-if="data.type === 'date' || data.type === 'datetime'"
        :disabled="disabled"
        v-model="data[prop]"
-       type="date"
+       :type="data.type === 'date' ? 'date' : 'datetime'"
        :placeholder="$t('commons.select_date')">
     </el-date-picker>
 
@@ -84,10 +92,16 @@
     </el-select>
 
     <ms-input-tag v-else-if="data.type === 'multipleInput'"
+                  @input="handleChange"
                   :read-only="disabled" :currentScenario="data" :prop="prop"/>
 
+    <ms-mark-down-text v-else-if="data.type === 'richText'"
+                       :prop="prop"
+                       @change="handleChange"
+                       :data="data" :disabled="disabled"/>
+
     <el-input class="custom-with"
-              @change="handleChange"
+              @input="handleChange"
               :disabled="disabled"
               v-else v-model="data[prop]"/>
 
@@ -97,11 +111,12 @@
 
 <script>
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 export default {
   name: "CustomFiledComponent",
-  components: {MsInputTag, MsTableColumn},
+  components: {MsMarkDownText, MsInputTag, MsTableColumn},
   props: [
     'data',
     'prop',
@@ -112,6 +127,9 @@ export default {
     return {
       memberOptions: [],
     };
+  },
+  created() {
+    this.initOption(this.data.options);
   },
   mounted() {
     if (this.data.type === 'member' || this.data.type === 'multipleMember') {
@@ -127,7 +145,15 @@ export default {
     handleChange() {
       if (this.form) {
         this.$set(this.form, this.data.name, this.data[this.prop]);
-        this.$emit('reload');
+      }
+    },
+    initOption(options) {
+      if (options) {
+        options.forEach(i => {
+          i.label = i.text;
+          this.$set(i, 'label', i.text);
+          this.initOption(i.children);
+        });
       }
     }
   }

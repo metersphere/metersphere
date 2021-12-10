@@ -20,6 +20,7 @@ import io.metersphere.track.issue.domain.jira.JiraConfig;
 import io.metersphere.track.issue.domain.jira.JiraIssue;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -148,9 +149,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         List<File> imageFiles = getImageFiles(issuesRequest.getDescription());
 
-        imageFiles.forEach(img -> {
-            jiraClientV2.uploadAttachment(result.getKey(), img);
-        });
+        imageFiles.forEach(img -> jiraClientV2.uploadAttachment(result.getKey(), img));
 
         String status = getStatus(issues.getFields());
         issuesRequest.setPlatformStatus(status);
@@ -184,50 +183,78 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         JSONObject issuetype = new JSONObject();
         issuetype.put("name", issuetypeStr);
-
-        fields.put("summary", issuesRequest.getTitle());
-//        fields.put("description", new JiraIssueDescription(desc));
-        fields.put("description", desc);
         fields.put("issuetype", issuetype);
 
         JSONObject addJiraIssueParam = new JSONObject();
         addJiraIssueParam.put("fields", fields);
 
+        if (issuesRequest.isThirdPartPlatform()) {
+            parseCustomFiled(issuesRequest, fields);
+            issuesRequest.setTitle(fields.getString("summary"));
+        } else {
+            fields.put("summary", issuesRequest.getTitle());
+            fields.put("description", desc);
+            parseCustomFiled(issuesRequest, fields);
+        }
+
+        return addJiraIssueParam;
+    }
+
+    private void parseCustomFiled(IssuesUpdateRequest issuesRequest, JSONObject fields) {
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
 
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
             if (StringUtils.isNotBlank(fieldName)) {
                 if (item.getValue() != null) {
-                    if (StringUtils.isNotBlank(item.getType()) &&
-                            StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
-                        JSONObject param = new JSONObject();
-                        if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
-                            param.put("name", item.getValue());
+                    if (StringUtils.isNotBlank(item.getType())) {
+                        if (StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
+                            JSONObject param = new JSONObject();
+                            if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
+                                if (issuesRequest.isThirdPartPlatform()) {
+                                    param.put("id", item.getValue());
+                                } else {
+                                    param.put("name", item.getValue());
+                                }
+                            } else {
+                                param.put("id", item.getValue());
+                            }
+                            fields.put(fieldName, param);
+                        } else if (StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
+                            JSONArray attrs = new JSONArray();
+                            if (item.getValue() != null) {
+                                JSONArray values = (JSONArray)item.getValue();
+                                values.forEach(v -> {
+                                    JSONObject param = new JSONObject();
+                                    param.put("id", v);
+                                    attrs.add(param);
+                                });
+                            }
+                            fields.put(fieldName, attrs);
+                        } else if (StringUtils.equalsAny(item.getType(),  "cascadingSelect")) {
+                            if (item.getValue() != null) {
+                                JSONArray values = (JSONArray)item.getValue();
+                                JSONObject attr = new JSONObject();
+                                if (CollectionUtils.isNotEmpty(values)) {
+                                    if (values.size() > 0) {
+                                        attr.put("id", values.get(0));
+                                    }
+                                    if (values.size() > 1) {
+                                        JSONObject param = new JSONObject();
+                                        param.put("id", values.get(1));
+                                        attr.put("child", param);
+                                    }
+                                }
+                                fields.put(fieldName, attr);
+                            }
                         } else {
-                            param.put("id", item.getValue());
+                            fields.put(fieldName, item.getValue());
                         }
-                        fields.put(fieldName, param);
-                    } else if (StringUtils.isNotBlank(item.getType()) &&
-                            StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
-                        JSONArray attrs = new JSONArray();
-                        if (item.getValue() != null) {
-                            JSONArray values = (JSONArray)item.getValue();
-                            values.forEach(v -> {
-                                JSONObject param = new JSONObject();
-                                param.put("id", v);
-                                attrs.add(param);
-                            });
-                        }
-                        fields.put(fieldName, attrs);
-                    } else {
-                        fields.put(fieldName, item.getValue());
                     }
+
                 }
             }
         });
-
-        return addJiraIssueParam;
     }
 
     @Override

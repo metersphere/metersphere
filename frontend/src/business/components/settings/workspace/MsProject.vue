@@ -93,77 +93,7 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close
-               @close="handleClose">
-      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="80px" size="small">
-        <el-form-item :label-width="labelWidth" :label="$t('commons.name')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
-        </el-form-item>
-
-
-        <el-form-item :label-width="labelWidth" :label="$t('用例模板')" prop="caseTemplateId">
-          <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('缺陷模板')" prop="issueTemplateId">
-          <template-select :data="form" scene="ISSUE" prop="issueTemplateId" ref="issueTemplate"/>
-        </el-form-item>
-
-        <el-form-item :label-width="labelWidth" label="TCP Mock Port">
-          <el-input-number v-model="form.mockTcpPort" :controls="false"
-                           style="width: 37%;margin-right: 30px"></el-input-number>
-          <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
-        </el-form-item>
-
-        <el-form-item :label-width="labelWidth" :label="$t('commons.description')" prop="description">
-          <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description" ></el-input>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.tapd_id')" v-if="tapd">
-          <el-input v-model="form.tapdId" autocomplete="off" ></el-input>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.jira_key')" v-if="jira">
-          <el-input v-model="form.jiraKey" autocomplete="off" />
-          <ms-instructions-icon effect="light">
-            <template>
-              <img class="jira-image" src="../../../../assets/jira-key.png"/>
-            </template>
-          </ms-instructions-icon>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
-          <el-input v-model="form.zentaoId" autocomplete="off" ></el-input>
-          <ms-instructions-icon effect="light">
-            <template>
-              禅道流程：产品-项目 | 产品-迭代 | 产品-冲刺 | 项目-迭代 | 项目-冲刺 <br/><br/>
-              根据 "后台 -> 自定义 -> 流程" 查看对应流程，根据流程填写ID <br/><br/>
-              产品-项目 | 产品-迭代 | 产品-冲刺 需要填写产品ID <br/><br/>
-              项目-迭代 | 项目-冲刺 需要填写项目ID
-            </template>
-          </ms-instructions-icon>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_id')" v-if="azuredevops">
-          <el-input v-model="form.azureDevopsId" autocomplete="off" ></el-input>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_filter_id')" v-if="azuredevops">
-          <el-input v-model="form.azureFilterId" autocomplete="off"/>
-          <ms-instructions-icon content="非必填项，用例关联需求时，可以只筛选出，所填的 workItem 下的选项" effect="light"/>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
-          <el-switch v-model="form.repeatable"></el-switch>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id')" prop="customNum">
-          <el-switch v-model="form.customNum"></el-switch>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id')" prop="scenarioCustomNum">
-          <el-switch v-model="form.scenarioCustomNum"></el-switch>
-        </el-form-item>
-      </el-form>
-      <template v-slot:footer>
-        <div class="dialog-footer">
-          <ms-dialog-footer
-            @cancel="createVisible = false"
-            @confirm="submit('form')"/>
-        </div>
-      </template>
-    </el-dialog>
+    <edit-project ref="editProject"/>
 
     <el-dialog :close-on-click-modal="false" :visible.sync="memberVisible" width="70%" :destroy-on-close="true"
                @close="close"
@@ -280,10 +210,12 @@ import {PROJECT_CONFIGS} from "@/business/components/common/components/search/se
 import MsRolesTag from "@/business/components/common/components/MsRolesTag";
 import AddMember from "@/business/components/settings/common/AddMember";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
+import EditProject from "@/business/components/project/menu/EditProject";
 
 export default {
   name: "MsProject",
   components: {
+    EditProject,
     MsInstructionsIcon,
     TemplateSelect,
     MsResourceFiles,
@@ -302,7 +234,6 @@ export default {
   ],
   data() {
     return {
-      createVisible: false,
       updateVisible: false,
       dialogMemberVisible: false,
       result: {},
@@ -310,10 +241,6 @@ export default {
       title: this.$t('project.create'),
       condition: {components: PROJECT_CONFIGS},
       items: [],
-      tapd: false,
-      jira: false,
-      zentao: false,
-      azuredevops: false,
       form: {},
       currentPage: 1,
       pageSize: 10,
@@ -371,9 +298,6 @@ export default {
       return getCurrentWorkspaceId();
     }
   },
-  destroyed() {
-    this.createVisible = false;
-  },
   methods: {
     jumpPage(row) {
       this.currentWorkspaceRow = row;
@@ -383,7 +307,6 @@ export default {
         projectId: row.id
       };
       this.wsId = row.id;
-      let path = "/user/project/member/list";
       this.result = this.$post("/user/project/member/list", param, res => {
         let data = res.data;
         this.memberLineData = data;
@@ -398,7 +321,6 @@ export default {
 
     },
     getMaintainerOptions() {
-      let workspaceId = getCurrentWorkspaceId();
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.userFilters = response.data.map(u => {
           return {text: u.name, value: u.id};
@@ -407,73 +329,17 @@ export default {
     },
     create() {
       let workspaceId = getCurrentWorkspaceId();
-      this.getOptions();
       if (!workspaceId) {
         this.$warning(this.$t('project.please_choose_workspace'));
         return false;
       }
       this.title = this.$t('project.create');
       // listenGoBack(this.handleClose);
-      this.createVisible = true;
       this.form = {};
-    },
-    getOptions() {
-
-      if (this.$refs.issueTemplate) {
-        this.$refs.issueTemplate.getTemplateOptions();
-      }
-      if (this.$refs.caseTemplate) {
-        this.$refs.caseTemplate.getTemplateOptions();
-      }
+      this.$refs.editProject.edit();
     },
     edit(row) {
-      this.title = this.$t('project.edit');
-      this.getOptions();
-      this.createVisible = true;
-      listenGoBack(this.handleClose);
-      this.form = Object.assign({}, row);
-      this.$get("/service/integration/all/" + getCurrentWorkspaceId(), response => {
-        let data = response.data;
-        let platforms = data.map(d => d.platform);
-        if (platforms.indexOf("Tapd") !== -1) {
-          this.tapd = true;
-        }
-        if (platforms.indexOf("Jira") !== -1) {
-          this.jira = true;
-        }
-        if (platforms.indexOf("Zentao") !== -1) {
-          this.zentao = true;
-        }
-        if (platforms.indexOf("AzureDevops") !== -1) {
-          this.azuredevops = true;
-        }
-      });
-    },
-    submit(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          let saveType = "add";
-          if (this.form.id) {
-            saveType = "update";
-          }
-          var protocol = document.location.protocol;
-          protocol = protocol.substring(0, protocol.indexOf(":"));
-          this.form.protocal = protocol;
-          this.form.workspaceId = getCurrentWorkspaceId();
-          this.form.createUser = getCurrentUserId();
-          this.result = this.$post("/project/" + saveType, this.form, () => {
-            this.createVisible = false;
-            Message.success(this.$t('commons.save_success'));
-            if (saveType === 'add') {
-              this.reloadTopMenus();
-            } else {
-              this.list();
-            }
-          });
-        } else {
-          return false;
-        }
-      });
+      this.$refs.editProject.edit(row);
     },
     openJarConfig() {
       this.$refs.jarConfig.open();
@@ -507,11 +373,6 @@ export default {
     },
     handleClose() {
       removeGoBackListener(this.handleClose);
-      this.createVisible = false;
-      this.tapd = false;
-      this.jira = false;
-      this.zentao = false;
-      this.azuredevops = false;
     },
     search() {
       this.list();

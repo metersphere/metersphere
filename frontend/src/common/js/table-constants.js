@@ -1,5 +1,6 @@
 // 模板
 import i18n from "@/i18n/i18n";
+import {AZURE_DEVOPS, JIRA, LOCAL, TAPD, ZEN_TAO} from "@/common/js/constants";
 
 export const CUSTOM_FIELD_TYPE_OPTION = [
   {value: 'input',text: i18n.t('workspace.custom_filed.input')},
@@ -10,7 +11,9 @@ export const CUSTOM_FIELD_TYPE_OPTION = [
   {value: 'checkbox',text: i18n.t('workspace.custom_filed.checkbox')},
   {value: 'member',text: i18n.t('workspace.custom_filed.member')},
   {value: 'multipleMember',text: i18n.t('workspace.custom_filed.multipleMember')},
-  {value: 'data',text: i18n.t('workspace.custom_filed.data')},
+  {value: 'date',text: i18n.t('workspace.custom_filed.date')},
+  {value: 'datetime',text: i18n.t('workspace.custom_filed.datetime')},
+  {value: 'richText',text: i18n.t('workspace.custom_filed.richText')},
   {value: 'int',text: i18n.t('workspace.custom_filed.int')},
   {value: 'float',text: i18n.t('workspace.custom_filed.float')},
   {value: 'multipleInput',text: i18n.t('workspace.custom_filed.multipleInput')}
@@ -26,11 +29,11 @@ export const CASE_TYPE_OPTION = [
 ];
 
 export const ISSUE_PLATFORM_OPTION = [
-  {value: 'Local',text: 'Metersphere'},
-  {value: 'Jira',text: 'JIRA'},
-  {value: 'Tapd',text: 'Tapd'},
-  {value: 'Zentao',text: '禅道'},
-  {value: 'AzureDevops',text: 'Azure Devops'},
+  {value: LOCAL, text: 'Metersphere'},
+  {value: TAPD, text: 'Tapd'},
+  {value: JIRA, text: 'JIRA'},
+  {value: ZEN_TAO, text: '禅道'},
+  {value: AZURE_DEVOPS, text: 'Azure Devops'},
 ];
 
 export const FIELD_TYPE_MAP = {
@@ -42,7 +45,9 @@ export const FIELD_TYPE_MAP = {
   checkbox: 'workspace.custom_filed.checkbox',
   member: 'workspace.custom_filed.member',
   multipleMember: 'workspace.custom_filed.multipleMember',
-  data: 'workspace.custom_filed.data',
+  date: 'workspace.custom_filed.date',
+  datetime: 'workspace.custom_filed.datetime',
+  richText: 'workspace.custom_filed.richText',
   int: 'workspace.custom_filed.int',
   float: 'workspace.custom_filed.float',
   multipleInput: 'workspace.custom_filed.multipleInput'
