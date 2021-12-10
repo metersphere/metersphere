@@ -770,7 +770,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 for (int i = 0; i < headerManager.getHeaders().size(); i++) {
                     Header header = headerManager.getHeader(i);
                     String headName = header.getName();
-                    if (StringUtils.equals(headName, keyValue.getName())) {
+                    if (StringUtils.equals(headName, keyValue.getName()) && !StringUtils.equals(headName, "Cookie")) {
                         hasHead = true;
                         break;
                     }
