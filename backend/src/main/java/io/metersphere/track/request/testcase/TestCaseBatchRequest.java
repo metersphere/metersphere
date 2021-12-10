@@ -15,6 +15,7 @@ public class TestCaseBatchRequest extends TestCaseWithBLOBs {
     private String projectId;
     private CustomFiledRequest customField;
     private QueryTestCaseRequest condition;
+    private String customTemplateFieldId;
 
     @Getter
     @Setter
