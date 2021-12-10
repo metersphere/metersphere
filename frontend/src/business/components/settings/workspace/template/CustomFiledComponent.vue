@@ -114,11 +114,9 @@ export default {
     };
   },
   mounted() {
-    if (this.data.type === 'member' || this.data.type === 'multipleMember') {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
-        this.memberOptions = response.data;
-      });
-    }
+    this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+      this.memberOptions = response.data;
+    });
   },
   methods: {
     getTranslateOption(item) {
