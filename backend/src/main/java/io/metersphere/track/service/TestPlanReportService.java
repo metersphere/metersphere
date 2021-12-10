@@ -1239,6 +1239,7 @@ public class TestPlanReportService {
             //20分钟没有案例执行结果更新，则定位超时
             long lastCountTime = executeInfo.getLastFinishedNumCountTime();
             long nowTime = System.currentTimeMillis();
+            testPlanLog.info("ReportId: ["+planReportId+"];  timeCount:"+ (nowTime - lastCountTime));
             if (nowTime - lastCountTime > 1200000) {
                 return true;
             }
