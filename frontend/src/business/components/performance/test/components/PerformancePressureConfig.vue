@@ -453,8 +453,8 @@ export default {
           tg.threadType === 'ITERATION') {
           continue;
         }
-        if (tg.duration < tg.rampUpTime) {
-          tg.rampUpTime = tg.duration;
+        if (this.getDuration(tg) < tg.rampUpTime) {
+          tg.rampUpTime = this.getDuration(tg);
         }
         if (tg.rampUpTime < tg.step) {
           tg.step = tg.rampUpTime;
