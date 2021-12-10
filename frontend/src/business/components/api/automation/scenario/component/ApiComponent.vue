@@ -14,8 +14,8 @@
       :title="displayTitle">
 
       <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')&&isSameSpace">
-        <span v-if="isShowNum" @click = "clickResource(request)">{{"（ ID: "+request.num+"）"}}</span>
-        <span v-else >
+        <span v-if="isShowNum" @click="clickResource(request)">{{ "（ ID: " + request.num + "）" }}</span>
+        <span v-else>
           <el-tooltip class="ms-num" effect="dark" :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')" placement="top">
             <i class="el-icon-warning"/>
           </el-tooltip>
@@ -201,8 +201,8 @@ export default {
       reqSuccess: true,
       envType: this.environmentType,
       environmentMap: this.envMap,
-      isShowNum:false,
-      isSameSpace:true,
+      isShowNum: false,
+      isSameSpace: true,
     }
   },
   created() {
@@ -218,7 +218,7 @@ export default {
       this.request.projectId = getCurrentProjectID();
     }
     this.request.customizeReq = this.isCustomizeReq;
-    if(this.request.num){
+    if (this.request.num) {
       this.isShowNum = true;
     }
     // 加载引用对象数据
@@ -255,7 +255,12 @@ export default {
     },
     environmentType(val) {
       this.envType = val;
-    }
+    },
+    '$store.state.currentApiCase.resetDataSource'() {
+      if (this.request.id && this.request.referenced !== 'REF') {
+        this.initDataSource();
+      }
+    },
   },
   computed: {
     displayColor() {
@@ -290,7 +295,7 @@ export default {
     },
     displayTitle() {
       if (this.isApiImport) {
-        return this.request.refType==='API'?'API':'CASE';
+        return this.request.refType === 'API' ? 'API' : 'CASE';
       } else if (this.isExternalImport) {
         return this.$t('api_test.automation.external_import');
       } else if (this.isCustomizeReq) {
@@ -359,7 +364,7 @@ export default {
           }
         }
       }
-      if (databaseConfigsOptions.length > 0 && this.request.environmentId !== this.environment.id) {
+      if (databaseConfigsOptions.length > 0) {
         this.request.dataSourceId = databaseConfigsOptions[0].id;
         this.request.environmentId = this.environment.id;
       }
@@ -436,7 +441,7 @@ export default {
             } else {
               this.request.requestResult = requestResult;
             }
-            if(response.data.num){
+            if (response.data.num) {
               this.request.num = response.data.num;
               this.getWorkspaceId(response.data.projectId);
             }
@@ -449,27 +454,26 @@ export default {
               this.request.hashTree = hashTree;
               this.mergeHashTree(req.hashTree);
             }
-            this.reload();
+            this.initDataSource();
             this.sort();
+            this.reload();
           }
         })
-      }
-      else if(this.request.id && this.request.referenced === 'Copy'){
-        if(this.request.refType==='CASE'){
+      } else if (this.request.id && this.request.referenced === 'Copy') {
+        if (this.request.refType === 'CASE') {
           this.$get("/api/testcase/get/" + this.request.id, response => {
             if (response.data) {
-              if(response.data.num){
+              if (response.data.num) {
                 this.request.num = response.data.num;
                 this.getWorkspaceId(response.data.projectId);
               }
               this.request.id = response.data.id;
             }
           })
-        }
-        else if(this.request.refType==='API'){
+        } else if (this.request.refType === 'API') {
           this.$get("/api/definition/get/" + this.request.id, response => {
             if (response.data) {
-              if(response.data.num){
+              if (response.data.num) {
                 this.request.num = response.data.num;
                 this.getWorkspaceId(response.data.projectId);
               }
@@ -634,13 +638,13 @@ export default {
     },
 
     clickResource(resource) {
-      if(resource.refType&&resource.refType==='API'){
+      if (resource.refType && resource.refType === 'API') {
         let definitionData = this.$router.resolve({
           name: 'ApiDefinition',
-          params: {redirectID: getUUID(), dataType: "api", dataSelectRange: 'edit:' + resource.id,projectId:resource.projectId,type:resource.protocol}
+          params: {redirectID: getUUID(), dataType: "api", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, type: resource.protocol}
         });
         window.open(definitionData.href, '_blank');
-      }else if(resource.refType&&resource.refType==='CASE'){
+      } else if (resource.refType && resource.refType === 'CASE') {
         this.$get("/api/testcase/findById/" + resource.id, response => {
           if (response.data) {
             response.data.sourceId = resource.resourceId;
@@ -679,12 +683,12 @@ export default {
       let element = document.getElementById(id);
       element.parentNode.removeChild(element);
     },
-    getWorkspaceId(projectId){
+    getWorkspaceId(projectId) {
       this.$get("/project/get/" + projectId, response => {
-        if(response.data){
-          if(response.data.workspaceId===getCurrentWorkspaceId()){
+        if (response.data) {
+          if (response.data.workspaceId === getCurrentWorkspaceId()) {
             this.isShowNum = true;
-          }else {
+          } else {
             this.isSameSpace = false;
           }
         }
@@ -760,7 +764,8 @@ export default {
   border-color: #EE6161;
   color: white;
 }
-.ms-num{
+
+.ms-num {
   margin-left: 1rem;
   font-size: 15px;
   color: #de9d1c;
