@@ -821,6 +821,7 @@ public class ApiDefinitionService {
         apiTestCase.setUpdateUserId(SessionUtils.getUserId());
         if (sameCase == null) {
             apiTestCase.setId(UUID.randomUUID().toString());
+            apiTestCase.setStatus("");
             apiTestCase.setNum(apiTestCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum()));
             apiTestCase.setCreateTime(System.currentTimeMillis());
             apiTestCase.setUpdateTime(System.currentTimeMillis());
