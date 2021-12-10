@@ -1,5 +1,8 @@
 package io.metersphere.api.cache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +11,7 @@ import java.util.Map;
  * @Date 2021/8/20 3:29 下午
  */
 public class TestPlanReportExecuteCatch {
+    private static Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
     private static Map<String, TestPlanExecuteInfo> testPlanReportMap = new HashMap<>();
 
     private TestPlanReportExecuteCatch() {
@@ -88,6 +92,7 @@ public class TestPlanReportExecuteCatch {
     }
 
     public static void finishAllTask(String planReportId) {
+        testPlanLog.info("ReportId["+planReportId+"] finish task!");
         if(testPlanReportMap.containsKey(planReportId)){
             testPlanReportMap.get(planReportId).finishAllTask();
         }
