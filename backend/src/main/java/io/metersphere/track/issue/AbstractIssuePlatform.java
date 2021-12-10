@@ -12,6 +12,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.dto.CustomFieldItemDTO;
+import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -363,7 +364,6 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         });
     }
 
-
     protected String syncIssueCustomField(String customFieldsStr, JSONObject issue) {
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
         customFields.forEach(item -> {
@@ -394,6 +394,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     @Override
     public void syncAllIssues(Project project) {}
+
+    @Override
+    public IssueTemplateDao getThirdPartTemplate() {return null;}
 
     protected List<IssuesWithBLOBs> getIssuesByPlatformIds(List<String> platformIds) {
         IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);

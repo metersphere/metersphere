@@ -100,6 +100,7 @@ import IssueRelateList from "@/business/components/track/case/components/IssueRe
 import {deleteIssueRelate, getIssuesByCaseId} from "@/network/Issue";
 import {getIssueTemplate} from "@/network/custom-field-template";
 import {getCustomFieldValue, getTableHeaderWithCustomFields} from "@/common/js/tableUtils";
+import {LOCAL} from "@/common/js/constants";
 export default {
   name: "TestCaseIssueRelate",
   components: {IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
@@ -134,7 +135,7 @@ export default {
     getIssueTemplate()
       .then((template) => {
         this.issueTemplate = template;
-        if (this.issueTemplate.platform === 'metersphere') {
+        if (this.issueTemplate.platform === LOCAL) {
           this.isThirdPart = false;
         } else {
           this.isThirdPart = true;

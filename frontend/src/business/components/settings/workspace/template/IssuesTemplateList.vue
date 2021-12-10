@@ -105,7 +105,7 @@ export default {
       currentPage: 1,
       result: {},
       issuePlatformMap:{
-        metersphere: 'Metersphere',
+        Local: 'Metersphere',
         Jira: 'JIRA',
         Tapd: 'Tapd',
         Zentao: '禅道',

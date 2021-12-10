@@ -496,7 +496,9 @@ export default {
       checkbox: '多选框',
       member: '单选成员',
       multipleMember: '多选成员',
-      data: '日期',
+      date: '日期选择器',
+      datetime: '日期时间选择器',
+      richText: '富文本框',
       int: '整型',
       float: '浮点型',
       multipleInput: '多值输入框'

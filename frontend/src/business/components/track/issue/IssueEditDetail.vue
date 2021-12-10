@@ -3,7 +3,7 @@
     <el-scrollbar>
       <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
-        <el-form-item :label="$t('commons.title')" prop="title">
+        <el-form-item v-if="!enableThirdPartTemplate" :label="$t('commons.title')" prop="title">
           <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
           <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
             <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
@@ -14,21 +14,31 @@
         </el-form-item>
 
         <!-- 自定义字段 -->
-        <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
+        <el-form :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
                  class="case-form">
           <el-row class="custom-field-row">
-            <el-col :span="8" v-for="(item, index) in issueTemplate.customFields" :key="index">
-              <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
-                            :label-width="formLabelWidth">
-                <custom-filed-component @reload="reloadForm" :data="item" :form="customFieldForm" prop="defaultValue"/>
-              </el-form-item>
-            </el-col>
+            <span class="custom-item" v-for="(item, index) in issueTemplate.customFields" :key="index">
+               <el-col :span="8" v-if="item.type !== 'richText'">
+                <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+                              :label-width="formLabelWidth">
+                  <custom-filed-component :data="item" :form="customFieldForm" prop="defaultValue"/>
+                </el-form-item>
+              </el-col>
+              <div v-else>
+                <el-col :span="24">
+                   <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+                                 :label-width="formLabelWidth">
+                     <custom-filed-component :data="item" :form="customFieldForm" prop="defaultValue"/>
+                  </el-form-item>
+                </el-col>
+              </div>
+            </span>
           </el-row>
         </el-form>
 
-        <form-rich-text-item :title="$t('custom_field.issue_content')" :data="form" prop="description"/>
+        <form-rich-text-item v-if="!enableThirdPartTemplate" :title="$t('custom_field.issue_content')" :data="form" prop="description"/>
 
-        <el-row class="custom-field-row">
+        <el-row v-if="!enableThirdPartTemplate" class="custom-field-row">
           <el-col :span="8" v-if="hasTapdId">
             <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.tapd_current_owner')"
                           prop="tapdUsers">
@@ -85,8 +95,17 @@ import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+  getCurrentWorkspaceId,
+  hasLicense
+} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
+import {getIssueThirdPartTemplate} from "@/network/Issue";
+import {getCurrentProject} from "@/network/project";
+import {JIRA} from "@/common/js/constants";
 
 export default {
   name: "IssueEditDetail",
@@ -105,11 +124,10 @@ export default {
       issueId:'',
       result: {},
       relateFields: [],
-      isFormAlive: true,
       showFollow:false,
       formLabelWidth: "150px",
       issueTemplate: {},
-      customFieldForm: {},
+      customFieldForm: null,
       customFieldRules: {},
       rules: {
         title: [
@@ -131,7 +149,8 @@ export default {
       zentaoUsers: [],
       Builds: [],
       hasTapdId: false,
-      hasZentaoId: false
+      hasZentaoId: false,
+      currentProject: null
     };
   },
   props: {
@@ -153,17 +172,35 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
-    }
+    },
+    enableThirdPartTemplate() {
+      return hasLicense() && this.currentProject && this.currentProject.thirdPartTemplate && this.currentProject.platform === JIRA;
+    },
   },
   methods: {
     open(data) {
       let initAddFuc = this.initEdit;
-      getIssueTemplate()
-        .then((template) => {
-          this.issueTemplate = template;
-          this.getThirdPartyInfo();
-          initAddFuc(data);
+      getCurrentProject((responseData) => {
+        this.currentProject = responseData;
+        this.$nextTick(() => {
+          if (this.enableThirdPartTemplate) {
+            getIssueThirdPartTemplate()
+              .then((template) => {
+                this.issueTemplate = template;
+                this.getThirdPartyInfo();
+                initAddFuc(data);
+              });
+          } else {
+            getIssueTemplate()
+              .then((template) => {
+                this.issueTemplate = template;
+                this.getThirdPartyInfo();
+                initAddFuc(data);
+              });
+          }
         });
+      });
+
       if(data&&data.id){
         this.$get('/issues/follow/' + data.id, response => {
           this.form.follows = response.data;
@@ -218,7 +255,7 @@ export default {
           this.form.options = data.options ? JSON.parse(data.options) : [];
         }
         if (data.id) {
-          this.issueId  = data.id
+          this.issueId = data.id
           this.url = 'issues/update';
         } else {
           //copy
@@ -238,16 +275,12 @@ export default {
           this.form.creator = getCurrentUserId();
         }
       }
-      parseCustomField(this.form, this.issueTemplate, this.customFieldForm, this.customFieldRules);
+      this.customFieldForm = parseCustomField(this.form, this.issueTemplate, this.customFieldRules);
       this.$nextTick(() => {
         if (this.$refs.testCaseIssueList) {
           this.$refs.testCaseIssueList.initTableData();
         }
       });
-    },
-    reloadForm() {
-      this.isFormAlive = false;
-      this.$nextTick(() => (this.isFormAlive = true));
     },
     save() {
       let isValidate = true;
@@ -281,6 +314,8 @@ export default {
       if (this.planId) {
         param.resourceId = this.planId;
       }
+
+      param.thirdPartPlatform = this.enableThirdPartTemplate;
       return param;
     },
     _save() {

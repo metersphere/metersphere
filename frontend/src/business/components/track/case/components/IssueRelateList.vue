@@ -73,6 +73,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {getPageInfo} from "@/common/js/tableUtils";
 import {getCurrentProjectID} from "@/common/js/utils";
 import {getIssueTemplate} from "../../../../../network/custom-field-template";
+import {LOCAL} from "@/common/js/constants";
 export default {
   name: "IssueRelateList",
   components: {MsTablePagination, IssueDescriptionTableItem, MsTableColumn, MsTable, MsEditDialog},
@@ -95,7 +96,7 @@ export default {
   created() {
     getIssueTemplate()
       .then((template) => {
-        if (template.platform === 'metersphere') {
+        if (template.platform === LOCAL) {
           this.isThirdPart = false;
         } else {
           this.isThirdPart = true;

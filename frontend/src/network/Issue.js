@@ -92,3 +92,19 @@ export function syncIssues(success) {
 export function deleteIssueRelate(param, callback) {
   return basePost('/issues/delete/relate', param, callback);
 }
+
+export function getIssueThirdPartTemplate() {
+  return new Promise(resolve => {
+    baseGet('/xpack/issue/template/' + getCurrentProjectID(), (data) => {
+      let template = data;
+      if (template.customFields) {
+        template.customFields.forEach(item => {
+          if (item.options) {
+            item.options = JSON.parse(item.options);
+          }
+        });
+      }
+      resolve(template);
+    })
+  });
+}

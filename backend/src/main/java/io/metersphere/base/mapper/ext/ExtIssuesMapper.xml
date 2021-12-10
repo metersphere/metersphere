@@ -59,10 +59,6 @@
         from issues
         left join
         test_case_issues on issues.id = test_case_issues.issues_id
-        <if test="request.projectId != null||request.workspaceId != null">
-            left join
-            project on issues.project_id = project.id
-        </if>
         <include refid="queryWhereCondition"/>
         and (test_case_issues.test_case_id is null or test_case_issues.test_case_id != #{request.caseId})
         and (issues.platform_status != 'delete' or issues.platform_status is NULL)

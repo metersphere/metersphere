@@ -1,7 +1,7 @@
 <template>
   <el-select filterable v-model="data[prop]">
     <el-option
-      v-for="(item, index) in templateOptions"
+      v-for="(item, index) in templateFilterOptions"
       :key="index"
       :label="item.name"
       :value="item.id">
@@ -17,6 +17,7 @@ export default {
   props: {
     scene: String,
     prop: String,
+    platform: String,
     data: {
       type: Object,
       default() {
@@ -29,11 +30,17 @@ export default {
   },
   data() {
     return {
-      templateOptions: []
+      templateOptions: [],
+      templateFilterOptions: [],
     };
   },
   mounted() {
     this.getTemplateOptions();
+  },
+  watch: {
+    platform() {
+      this.filter();
+    }
   },
   methods: {
     getTemplateOptions() {
@@ -43,6 +50,7 @@ export default {
       }
       this.$get(url + getCurrentWorkspaceId(), (response) => {
         this.templateOptions = response.data;
+        this.templateFilterOptions = this.templateOptions;
         if (!this.data[this.prop]) {
           for (let item of this.templateOptions) {
             if (this.scene !== 'ISSUE') {
@@ -59,7 +67,25 @@ export default {
 
           }
         }
+        this.filter();
       });
+    },
+    filter() {
+      if (this.platform) {
+        let hasTemplate = false;
+        this.templateFilterOptions = [];
+        this.templateOptions.forEach(i => {
+          if (i.platform === this.platform) {
+            this.templateFilterOptions.push(i);
+            if (i.id === this.data[this.prop])
+              hasTemplate = true;
+          }
+        });
+        if (!hasTemplate)
+          this.data[this.prop] = null;
+      } else {
+        this.templateFilterOptions = this.templateOptions;
+      }
     }
   }
 };

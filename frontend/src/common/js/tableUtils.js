@@ -459,10 +459,12 @@ export function getCustomFieldValue(row, field, members) {
             return values;
           }
         } else if (['radio', 'select'].indexOf(field.type) > -1) {
-          for (let j = 0; j < field.options.length; j++) {
-            let option = field.options[j];
-            if (option.value === item.value) {
-              return field.system ? i18n.t(option.text) : option.text;
+          if (field.options) {
+            for (let j = 0; j < field.options.length; j++) {
+              let option = field.options[j];
+              if (option.value === item.value) {
+                return field.system ? i18n.t(option.text) : option.text;
+              }
             }
           }
         }

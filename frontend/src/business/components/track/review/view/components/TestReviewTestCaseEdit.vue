@@ -327,7 +327,7 @@ export default {
         if (!item.stepModel) {
           item.stepModel = 'STEP';
         }
-        parseCustomField(item, this.testCaseTemplate, null, null, buildTestCaseOldFields(item));
+        parseCustomField(item, this.testCaseTemplate, null, buildTestCaseOldFields(item));
         this.isCustomFiledActive = true;
         this.testCase = item;
         if (!this.testCase.actualResult) {

@@ -1433,6 +1433,136 @@ public class ProjectExample {
             addCriterion("azure_filter_id not between", value1, value2, "azureFilterId");
             return (Criteria) this;
         }
+
+        public Criteria andPlatformIsNull() {
+            addCriterion("platform is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIsNotNull() {
+            addCriterion("platform is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformEqualTo(String value) {
+            addCriterion("platform =", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformNotEqualTo(String value) {
+            addCriterion("platform <>", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformGreaterThan(String value) {
+            addCriterion("platform >", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformGreaterThanOrEqualTo(String value) {
+            addCriterion("platform >=", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformLessThan(String value) {
+            addCriterion("platform <", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformLessThanOrEqualTo(String value) {
+            addCriterion("platform <=", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformLike(String value) {
+            addCriterion("platform like", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformNotLike(String value) {
+            addCriterion("platform not like", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIn(List<String> values) {
+            addCriterion("platform in", values, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformNotIn(List<String> values) {
+            addCriterion("platform not in", values, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformBetween(String value1, String value2) {
+            addCriterion("platform between", value1, value2, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformNotBetween(String value1, String value2) {
+            addCriterion("platform not between", value1, value2, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateIsNull() {
+            addCriterion("third_part_template is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateIsNotNull() {
+            addCriterion("third_part_template is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateEqualTo(Boolean value) {
+            addCriterion("third_part_template =", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateNotEqualTo(Boolean value) {
+            addCriterion("third_part_template <>", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateGreaterThan(Boolean value) {
+            addCriterion("third_part_template >", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("third_part_template >=", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateLessThan(Boolean value) {
+            addCriterion("third_part_template <", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateLessThanOrEqualTo(Boolean value) {
+            addCriterion("third_part_template <=", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateIn(List<Boolean> values) {
+            addCriterion("third_part_template in", values, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateNotIn(List<Boolean> values) {
+            addCriterion("third_part_template not in", values, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateBetween(Boolean value1, Boolean value2) {
+            addCriterion("third_part_template between", value1, value2, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("third_part_template not between", value1, value2, "thirdPartTemplate");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -494,7 +494,9 @@ export default {
       checkbox: 'Checkbox',
       member: 'Member',
       multipleMember: 'MultipleMember',
-      data: 'Data',
+      date: 'DatePicker',
+      datetime: 'DateTimePicker',
+      richText: 'RichText',
       int: 'Int',
       float: 'Float',
       multipleInput: 'MultipleInput'
