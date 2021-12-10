@@ -866,10 +866,14 @@ export default {
     batchEdit(form) {
       let ids = this.$refs.table.selectIds;
       let param = {};
-      param.customField = form;
-      param.customField.name = form.type;
       param.ids = ids;
+      param.customTemplateFieldId = form.type.slice(6);
       param.condition = this.condition;
+      param.customField = {
+        id: form.customField.id,
+        name: form.customField.name,
+        value: form.customField.defaultValue
+      };
       this.$post('/test/case/batch/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.refresh();

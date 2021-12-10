@@ -511,7 +511,8 @@ export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, m
       typeArr.push({
         id: item.name,
         name: item.name,
-        uuid: item.id
+        uuid: item.id,
+        custom: "custom" + item.id
       });
 
       let options = [];

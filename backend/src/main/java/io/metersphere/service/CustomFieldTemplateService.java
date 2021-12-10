@@ -4,6 +4,7 @@ package io.metersphere.service;
 import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.CustomFieldTemplate;
 import io.metersphere.base.domain.CustomFieldTemplateExample;
+import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.CustomFieldTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldTemplateMapper;
 import io.metersphere.dto.CustomFieldTemplateDao;
@@ -33,6 +34,8 @@ public class CustomFieldTemplateService {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     CustomFieldService customFieldService;
+    @Resource
+    private CustomFieldMapper customFieldMapper;
 
     public List<String> getCustomFieldIds(String templateId) {
         return extCustomFieldTemplateMapper.getCustomFieldIds(templateId);
@@ -120,5 +123,11 @@ public class CustomFieldTemplateService {
 
     public void update(CustomFieldTemplate request) {
         customFieldTemplateMapper.updateByPrimaryKeySelective(request);
+    }
+
+    public CustomField getCustomField(String id) {
+        CustomFieldTemplate customFieldTemplate = customFieldTemplateMapper.selectByPrimaryKey(id);
+        String fieldId = customFieldTemplate.getFieldId();
+        return customFieldMapper.selectByPrimaryKey(fieldId);
     }
 }

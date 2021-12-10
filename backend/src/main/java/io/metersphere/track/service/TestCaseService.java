@@ -1268,15 +1268,18 @@ public class TestCaseService {
                 }
 
                 boolean hasField = false;
-                for (int i = 0; i < fields.size(); i++) {
-                    TestCaseBatchRequest.CustomFiledRequest field = fields.get(i);
-                    if (StringUtils.equals(request.getCustomField().getName(), field.getName())) {
+                for (TestCaseBatchRequest.CustomFiledRequest field : fields) {
+                    if (StringUtils.equals(request.getCustomTemplateFieldId(), field.getId())) {
                         field.setValue(request.getCustomField().getValue());
                         hasField = true;
                         break;
                     }
                 }
                 if (!hasField) {
+                    TestCaseBatchRequest.CustomFiledRequest customField = request.getCustomField();
+                    customField.setId(request.getCustomTemplateFieldId());
+                    customField.setName(request.getCustomField().getName());
+                    customField.setValue(request.getCustomField().getValue());
                     fields.add(request.getCustomField());
                 }
                 if (StringUtils.equals(request.getCustomField().getName(), "用例等级")) {
