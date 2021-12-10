@@ -559,6 +559,11 @@ export default {
             if (data.hashTree) {
               this.sort(data.hashTree);
               this.scenarioDefinition = data.hashTree;
+              if (this.$store.state.currentApiCase) {
+                this.$store.state.currentApiCase.resetDataSource = getUUID();
+              } else {
+                this.$store.state.currentApiCase = {resetDataSource: getUUID()};
+              }
             }
           }
         })
