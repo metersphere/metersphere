@@ -32,11 +32,11 @@
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiCaseList"/>
 
-    <template v-slot:footer>
-      <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent>
+    <template v-slot:headerBtn>
+      <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent size="mini">
         {{ $t('commons.copy') }}
       </el-button>
-      <el-button v-if="!isApiListEnable" type="primary" :loading="buttonIsWorking" @click="reference"
+      <el-button v-if="!isApiListEnable" type="primary" :loading="buttonIsWorking" @click="reference" size="mini"
                  @keydown.enter.native.prevent>
         {{ $t('api_test.scenario.reference') }}
       </el-button>

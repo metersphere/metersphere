@@ -5,7 +5,10 @@
     <el-button type="primary" @click="confirm" @keydown.enter.native.prevent :size="btnSize">
       {{ $t('commons.confirm') }}
     </el-button>
-    <el-button type="primary" v-if="isShow" @click="saveAsEdit" @keydown.enter.native.prevent>{{ title }}</el-button>
+    <el-button type="primary" v-if="isShow" @click="saveAsEdit" @keydown.enter.native.prevent :size="btnSize">{{
+        title
+      }}
+    </el-button>
   </div>
 
 </template>
