@@ -24,6 +24,12 @@
       </template>
       <ms-report-error-log :report="report" ref="errorLog"/>
     </el-card>
+    <el-card id="monitorCard" title="'monitorCard'">
+      <template v-slot:header>
+        <span class="title">{{ $t('report.test_monitor_details') }}</span>
+      </template>
+      <monitor-card :report="report"/>
+    </el-card>
   </ms-report-export-template>
 </template>
 
@@ -36,11 +42,13 @@ import MsReportTestOverview from './components/TestOverview';
 import MsReportTitle from "../../common/components/report/MsReportTitle";
 import MsReportExportTemplate from "../../common/components/report/MsReportExportTemplate";
 import MsReportTestDetails from "@/business/components/performance/report/components/TestDetails";
+import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
 
 
 export default {
   name: "MsPerformanceReportExport",
   components: {
+    MonitorCard,
     MsReportExportTemplate,
     MsReportTitle,
     MsReportErrorLog,
