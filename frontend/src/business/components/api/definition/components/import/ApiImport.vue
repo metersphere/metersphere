@@ -387,8 +387,10 @@
           // 设置 query 参数
           param.arguments = this.queryArguments;
           // 设置 BaseAuth 参数
-          this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
-          param.authManager = this.authConfig.authManager;
+          if(this.authConfig.authManager != undefined){
+            this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
+            param.authManager = this.authConfig.authManager;
+          }
         }
         return param;
       },

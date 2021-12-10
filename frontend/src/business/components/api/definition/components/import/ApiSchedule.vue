@@ -283,8 +283,10 @@ export default {
       this.formData.headers = this.headers;
       this.formData.arguments = this.queryArguments;
       // 设置 BaseAuth 参数
-      this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
-      this.formData.authManager = this.authConfig.authManager;
+      if(this.authConfig.authManager != undefined){
+        this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
+        this.formData.authManager = this.authConfig.authManager;
+      }
       let url = '';
       if (this.formData.id) {
         url = '/api/definition/schedule/update';
