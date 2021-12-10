@@ -333,7 +333,7 @@ export default {
 
       this.$nextTick(function () {
         setTimeout(() => {
-          let ids = ['testOverview', 'testDetails', 'requestStatistics', 'errorLog'];
+          let ids = ['testOverview', 'testDetails', 'requestStatistics', 'errorLog', 'monitorCard'];
           let promises = [];
           ids.forEach(id => {
             let promise = html2canvas(document.getElementById(id), {scale: 2});
