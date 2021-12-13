@@ -1,6 +1,6 @@
 <template>
   <div class="jar-config-list">
-    <el-card style="height: 100%;">
+    <el-card style="height: 100%;" class="table-card">
       <template v-slot:header>
         <ms-table-header :show-create="false" :condition.sync="condition"
                          @search="getJarConfigs"

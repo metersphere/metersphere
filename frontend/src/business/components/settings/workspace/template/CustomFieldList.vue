@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card class="table-card">
 
     <template v-slot:header>
       <ms-table-header :condition.sync="condition" @search="getCustomFields" @create="handleCreate"
