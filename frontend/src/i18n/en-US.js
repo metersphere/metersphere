@@ -961,6 +961,7 @@ export default {
       LatencyChart: 'Latency',
       BytesThroughputChart: 'Bytes',
       Network: 'Network',
+      url:'URL'
     },
   },
   api_test: {
