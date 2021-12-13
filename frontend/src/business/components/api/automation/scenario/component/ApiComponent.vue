@@ -639,6 +639,9 @@ export default {
 
     clickResource(resource) {
       if (resource.refType && resource.refType === 'API') {
+        if(resource.protocol==='dubbo://'){
+          resource.protocol = 'DUBBO'
+        }
         let definitionData = this.$router.resolve({
           name: 'ApiDefinition',
           params: {redirectID: getUUID(), dataType: "api", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, type: resource.protocol}
