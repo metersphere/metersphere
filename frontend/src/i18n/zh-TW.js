@@ -965,6 +965,7 @@ export default {
       LatencyChart: '延遲',
       BytesThroughputChart: '字節數',
       Network: '網絡',
+      url:'路徑',
     },
     project_file_update_type_error: '更新的文件類型必須一致',
   },

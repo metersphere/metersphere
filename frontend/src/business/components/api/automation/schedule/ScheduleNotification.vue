@@ -190,7 +190,10 @@ export default {
           label:'id',
           value:'id',
         },
-        'reportUrl',
+        {
+          label:this.$t('load_test.report.url'),
+          value:'reportUrl',
+        },
         {
           label:this.$t('project.id'),
           value:'projectId',
