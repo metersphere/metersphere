@@ -120,7 +120,7 @@
       },
       getPlatformInfo(row) {
         let orgId = getCurrentWorkspaceId();
-        if (row.platformInfo) {
+        if (row.platformInfo && row.platformInfo !== 'null') {
           this.form = row;
           if (!row.platformInfo[orgId]) {
             this.form.platformInfo = JSON.parse(row.platformInfo);

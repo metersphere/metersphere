@@ -182,23 +182,21 @@ export default {
       let initAddFuc = this.initEdit;
       getCurrentProject((responseData) => {
         this.currentProject = responseData;
-        this.$nextTick(() => {
-          if (this.enableThirdPartTemplate) {
-            getIssueThirdPartTemplate()
-              .then((template) => {
-                this.issueTemplate = template;
-                this.getThirdPartyInfo();
-                initAddFuc(data);
-              });
-          } else {
-            getIssueTemplate()
-              .then((template) => {
-                this.issueTemplate = template;
-                this.getThirdPartyInfo();
-                initAddFuc(data);
-              });
-          }
-        });
+        if (hasLicense() && this.currentProject && this.currentProject.thirdPartTemplate && this.currentProject.platform === JIRA) {
+          getIssueThirdPartTemplate()
+            .then((template) => {
+              this.issueTemplate = template;
+              this.getThirdPartyInfo();
+              initAddFuc(data);
+            });
+        } else {
+          getIssueTemplate()
+            .then((template) => {
+              this.issueTemplate = template;
+              this.getThirdPartyInfo();
+              initAddFuc(data);
+            });
+        }
       });
 
       if(data&&data.id){

@@ -233,17 +233,21 @@ public class JiraPlatform extends AbstractIssuePlatform {
                             fields.put(fieldName, attrs);
                         } else if (StringUtils.equalsAny(item.getType(),  "cascadingSelect")) {
                             if (item.getValue() != null) {
-                                JSONArray values = (JSONArray)item.getValue();
                                 JSONObject attr = new JSONObject();
-                                if (CollectionUtils.isNotEmpty(values)) {
-                                    if (values.size() > 0) {
-                                        attr.put("id", values.get(0));
+                                if (item.getValue() instanceof JSONArray) {
+                                    JSONArray values = (JSONArray) item.getValue();
+                                    if (CollectionUtils.isNotEmpty(values)) {
+                                        if (values.size() > 0) {
+                                            attr.put("id", values.get(0));
+                                        }
+                                        if (values.size() > 1) {
+                                            JSONObject param = new JSONObject();
+                                            param.put("id", values.get(1));
+                                            attr.put("child", param);
+                                        }
                                     }
-                                    if (values.size() > 1) {
-                                        JSONObject param = new JSONObject();
-                                        param.put("id", values.get(1));
-                                        attr.put("child", param);
-                                    }
+                                } else {
+                                    attr.put("id", item.getValue());
                                 }
                                 fields.put(fieldName, attr);
                             }

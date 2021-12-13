@@ -225,6 +225,34 @@ public class IssueTemplateService extends TemplateBaseService {
         } else {
             issueTemplate = getDefaultTemplate(project.getWorkspaceId());
         }
+        if (!project.getPlatform().equals(issueTemplate.getPlatform())) {
+            MSException.throwException("请在项目中配置缺陷模板");
+        }
+        BeanUtils.copyBean(issueTemplateDao, issueTemplate);
+        List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(issueTemplate.getId());
+        issueTemplateDao.setCustomFields(result);
+        return issueTemplateDao;
+    }
+
+    public IssueTemplateDao getTemplate(String projectId, boolean thirdPartTemplate) {
+        Project project = projectService.getProjectById(projectId);
+        if (thirdPartTemplate) {
+
+        }
+        String issueTemplateId = project.getIssueTemplateId();
+        IssueTemplate issueTemplate;
+        IssueTemplateDao issueTemplateDao = new IssueTemplateDao();
+        if (StringUtils.isNotBlank(issueTemplateId)) {
+            issueTemplate = issueTemplateMapper.selectByPrimaryKey(issueTemplateId);
+            if (issueTemplate == null) {
+                issueTemplate = getDefaultTemplate(project.getWorkspaceId());
+            }
+        } else {
+            issueTemplate = getDefaultTemplate(project.getWorkspaceId());
+        }
+        if (!project.getPlatform().equals(issueTemplate.getPlatform())) {
+            MSException.throwException("请在项目中配置缺陷模板");
+        }
         BeanUtils.copyBean(issueTemplateDao, issueTemplate);
         List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(issueTemplate.getId());
         issueTemplateDao.setCustomFields(result);
