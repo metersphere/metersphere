@@ -1518,7 +1518,7 @@ export default {
           completion: "Completion rate",
           coverage: "Coverage",
           pass: "Pass rate",
-          success: "Success rate",
+          success: "Success",
           interface_coverage: "Interface coverage",
         },
       },
