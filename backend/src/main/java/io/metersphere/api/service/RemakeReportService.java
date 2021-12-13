@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,12 @@ public class RemakeReportService {
     private TestCaseReviewApiCaseMapper testCaseReviewApiCaseMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    @Lazy
+    private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    @Lazy
+    private ApiDefinitionExecResultService apiDefinitionExecResultService;
 
     public void remake(RunRequest runRequest, RunModeConfig config, String reportId) {
         if (config != null && config.getAmassReport() != null && MessageCache.cache.get(config.getAmassReport()) != null
@@ -50,6 +57,7 @@ public class RemakeReportService {
                         testPlanApiCase.setStatus("error");
                         testPlanApiCase.setUpdateTime(System.currentTimeMillis());
                         testPlanApiCaseMapper.updateByPrimaryKeySelective(testPlanApiCase);
+                        apiDefinitionExecResultService.updateTestCaseStates(testPlanApiCase.getId());
                     }
                     TestCaseReviewApiCase testCaseReviewApiCase = testCaseReviewApiCaseMapper.selectByPrimaryKey(runRequest.getTestId());
                     if (testCaseReviewApiCase != null) {
@@ -71,10 +79,10 @@ public class RemakeReportService {
                         testPlanApiScenario.setReportId(report.getId());
                         testPlanApiScenario.setUpdateTime(report.getCreateTime());
                         testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-
-                        report.setTestPlanScenarioId(testPlanApiScenario.getId());
                     }
                     apiScenarioReportMapper.updateByPrimaryKey(report);
+
+                    apiScenarioReportService.updatePlanTestCaseStates(testPlanApiScenario);
                 }
             } else if (StringUtils.equalsAny(runRequest.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
@@ -85,7 +93,6 @@ public class RemakeReportService {
                     TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(planScenarioId);
                     if (testPlanApiScenario != null) {
                         report.setScenarioId(testPlanApiScenario.getApiScenarioId());
-                        report.setTestPlanScenarioId(planScenarioId);
                         report.setEndTime(System.currentTimeMillis());
 
                         testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
@@ -95,6 +102,8 @@ public class RemakeReportService {
                         testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
                     }
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+
+                    apiScenarioReportService.updatePlanTestCaseStates(testPlanApiScenario);
                 }
             } else {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
@@ -129,7 +138,6 @@ public class RemakeReportService {
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testId);
             if (testPlanApiScenario != null) {
                 report.setScenarioId(scenarioWithBLOBs.getId());
-                report.setTestPlanScenarioId(testId);
                 report.setEndTime(System.currentTimeMillis());
 
                 testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
@@ -137,6 +145,8 @@ public class RemakeReportService {
                 testPlanApiScenario.setReportId(report.getId());
                 testPlanApiScenario.setUpdateTime(report.getCreateTime());
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
+
+                apiScenarioReportService.updatePlanTestCaseStates(testPlanApiScenario);
             }
         } else {
             scenarioWithBLOBs.setLastResult("Fail");

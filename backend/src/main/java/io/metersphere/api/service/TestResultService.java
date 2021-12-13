@@ -3,7 +3,10 @@ package io.metersphere.api.service;
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -12,19 +15,13 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
-import io.metersphere.track.request.testcase.TrackCount;
-import io.metersphere.track.service.TestPlanApiCaseService;
-import io.metersphere.track.service.TestPlanScenarioCaseService;
-import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.beanutils.BeanMap;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -40,16 +37,10 @@ public class TestResultService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private ApiAutomationService apiAutomationService;
-    @Resource
-    private TestPlanApiCaseService testPlanApiCaseService;
-    @Resource
-    private TestPlanTestCaseService testPlanTestCaseService;
 
     public void saveResult(TestResult testResult, String runMode, String debugReportId, String testId) {
         try {
-            ApiTestReport report = null;
             ApiTestReportVariable reportTask = null;
-            String planScenarioId = null;
             if (StringUtils.equals(runMode, ApiRunMode.DEFINITION.name())) {
                 // 调试操作，不需要存储结果
                 apiDefinitionService.addResult(testResult);
@@ -118,16 +109,6 @@ public class TestResultService {
                     SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
                     assert systemParameterService != null;
                     testResult.setTestId(scenarioReport.getScenarioId());
-                    planScenarioId = scenarioReport.getTestPlanScenarioId();
-                }
-            }
-            updateTestCaseStates(testResult, planScenarioId, runMode);
-            List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
-            if (CollectionUtils.isNotEmpty(ids)) {
-                if (StringUtils.equals(APITestStatus.Success.name(), report.getStatus())) {
-                    testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Pass.name());
-                } else {
-                    testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
                 }
             }
             if (reportTask != null) {
@@ -138,39 +119,6 @@ public class TestResultService {
             }
         } catch (Exception e) {
             LogUtil.error(e);
-        }
-    }
-
-
-    /**
-     * 更新测试计划关联接口测试的功能用例的状态
-     *
-     * @param testResult
-     */
-    private void updateTestCaseStates(TestResult testResult, String testPlanScenarioId, String runMode) {
-        try {
-            if (StringUtils.equalsAny(runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
-                    ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                testResult.getScenarios().forEach(scenarioResult -> {
-                    if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
-                        scenarioResult.getRequestResults().forEach(item -> {
-                            if (StringUtils.equalsAny(runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
-                                    ApiRunMode.JENKINS_API_PLAN.name())) {
-                                TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(item.getName());
-                                ApiTestCaseWithBLOBs apiTestCase = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
-                                testPlanTestCaseService.updateTestCaseStates(apiTestCase.getId(), apiTestCase.getName(), testPlanApiCase.getTestPlanId(), TrackCount.TESTCASE);
-                            } else {
-                                TestPlanScenarioCaseService testPlanScenarioCaseService = CommonBeanFactory.getBean(TestPlanScenarioCaseService.class);
-                                TestPlanApiScenario testPlanApiScenario = testPlanScenarioCaseService.get(testPlanScenarioId);
-                                ApiScenarioWithBLOBs apiScenario = apiAutomationService.getApiScenario(testPlanApiScenario.getApiScenarioId());
-                                testPlanTestCaseService.updateTestCaseStates(apiScenario.getId(), apiScenario.getName(), testPlanApiScenario.getTestPlanId(), TrackCount.AUTOMATION);
-                            }
-                        });
-                    }
-                });
-            }
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
         }
     }
 

@@ -15,14 +15,17 @@ import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.service.TestCaseReviewApiCaseService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanService;
+import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +63,12 @@ public class ApiDefinitionExecResultService {
 
     @Resource
     private NoticeSendService noticeSendService;
+
+    @Resource
+    private TestPlanTestCaseService testPlanTestCaseService;
+
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
 
     public ApiDefinitionExecResult getInfo(String id) {
         return apiDefinitionExecResultMapper.selectByPrimaryKey(id);
@@ -131,6 +140,9 @@ public class ApiDefinitionExecResultService {
                             } else {
                                 apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
                             }
+
+                            updateTestCaseStates(saveResult.getResourceId());
+
                             apiDefinitionService.removeCache(result.getTestId());
                             if (StringUtils.isNotEmpty(result.getTestId())) {
                                 MessageCache.caseExecResourceLock.remove(result.getTestId());
@@ -143,6 +155,7 @@ public class ApiDefinitionExecResultService {
             });
         }
     }
+
 
     private void sendNotice(ApiDefinitionExecResult result) {
         String resourceId = result.getResourceId();
@@ -348,6 +361,8 @@ public class ApiDefinitionExecResultService {
                                 testCaseReviewApiCaseService.setExecResult(caseId, status, item.getStartTime());
                             }
 
+                            updateTestCaseStates(caseId);
+
                             if (StringUtils.isNotEmpty(caseId)) {
                                 apiIdResultMap.put(caseId, item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
                             }
@@ -362,6 +377,21 @@ public class ApiDefinitionExecResultService {
         testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
         TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(testPlanReportId, apiIdResultMap, null, null);
         TestPlanReportExecuteCatch.updateTestPlanReport(testPlanReportId, caseReportMap, null);
+    }
+
+    /**
+     * 更新测试计划中, 关联接口测试的功能用例的状态
+     *
+     */
+    public void updateTestCaseStates(String testPlanApiCaseId) {
+        try {
+            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(testPlanApiCaseId);
+            if (testPlanApiCase == null) return;
+            ApiTestCaseWithBLOBs apiTestCase = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
+            testPlanTestCaseService.updateTestCaseStates(apiTestCase.getId(), apiTestCase.getName(), testPlanApiCase.getTestPlanId(), TrackCount.TESTCASE);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
     }
 
     public void deleteByResourceId(String resourceId) {
