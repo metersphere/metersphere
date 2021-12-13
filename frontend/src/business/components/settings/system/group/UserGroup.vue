@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-card>
+    <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE']"
                          :condition.sync="condition" @search="initData" @create="create"
