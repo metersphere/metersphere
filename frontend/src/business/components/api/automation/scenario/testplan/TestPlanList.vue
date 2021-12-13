@@ -129,7 +129,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <test-plans-edit ref="testPlanEditDialog" @refresh="initTableData"></test-plans-edit>
+    <test-plan-edit ref="testPlanEditDialog" @refresh="initTableData"></test-plan-edit>
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
 
@@ -163,14 +163,12 @@ import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {_filter, _sort} from "@/common/js/tableUtils";
 import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
 import TestPlanEdit from "@/business/components/track/plan/components/TestPlanEdit";
-import TestPlansEdit from "@/business/components/api/automation/scenario/testplan/TestPlansEdit";
 import {ENV_TYPE} from "@/common/js/constants";
 import {getPlanStageOption} from "@/network/test-plan";
 
 export default {
   name: "TestPlanList",
   components: {
-    TestPlansEdit,
     TestPlanEdit,
     MsDeleteConfirm,
     TestCaseReportView,

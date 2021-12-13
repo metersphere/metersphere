@@ -5,6 +5,7 @@
     <el-dialog v-loading="result.loading"
                :close-on-click-modal="false"
                :destroy-on-close="true"
+               append-to-body
                :title="operationType === 'edit' ? $t('test_track.plan.edit_plan') : $t('test_track.plan.create_plan')"
                :visible.sync="dialogFormVisible"
                @close="close"
