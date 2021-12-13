@@ -128,12 +128,10 @@ public class IssuesService {
         List<String> platforms = new ArrayList<>();
         if (StringUtils.isNotBlank(updateRequest.getTestCaseId())) {
             // 测试计划关联
-            String p = getPlatformsByCaseId(updateRequest.getTestCaseId());
-            platforms.add(p);
+            platforms.add(getPlatformsByCaseId(updateRequest.getTestCaseId()));
         } else {
             // 缺陷管理关联
-            String t = getIssueTemplate(updateRequest.getProjectId());
-            platforms.add(t);
+            platforms.add(getPlatform(updateRequest.getProjectId()));
         }
 
         if (CollectionUtils.isEmpty(platforms)) {
@@ -193,26 +191,12 @@ public class IssuesService {
     public String getPlatformsByCaseId(String caseId) {
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(caseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
-        return getIssueTemplate(project.getId());
+        return getPlatform(project.getId());
     }
 
-    public String getIssueTemplate(String projectId) {
+    public String getPlatform(String projectId) {
         Project project = projectService.getProjectById(projectId);
-        IssueTemplate issueTemplate;
-        String id = project.getIssueTemplateId();
-        if (StringUtils.isBlank(id)) {
-            issueTemplate = issueTemplateService.getDefaultTemplate(project.getWorkspaceId());
-        } else {
-            issueTemplate = issueTemplateMapper.selectByPrimaryKey(id);
-        }
-        if (issueTemplate == null) {
-            MSException.throwException("project issue template id is null.");
-        }
-        String platform = issueTemplate.getPlatform();
-        if (StringUtils.equals(platform, "metersphere")) {
-            return IssuesManagePlatform.Local.name();
-        }
-        return platform;
+        return project.getPlatform();
     }
 
     public List<String> getPlatforms(Project project) {
