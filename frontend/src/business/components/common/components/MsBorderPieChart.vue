@@ -28,7 +28,6 @@ export default {
         },
         series: [
           {
-            name: 'Access From',
             type: 'pie',
             radius: this.radius,
             itemStyle: {
