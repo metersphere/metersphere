@@ -15,8 +15,8 @@
         <ms-table-button v-if="showRun" icon="el-icon-video-play"
                          type="primary"
                          :content="runTip" @click="runTest"/>
-          <ms-table-button v-if="showRun" icon="el-icon-circle-plus-outline"
-                           content="转场景测试" @click="historicalDataUpgrade"/>
+        <ms-table-button v-if="showRun" icon="el-icon-circle-plus-outline"
+                         content="转场景测试" @click="historicalDataUpgrade"/>
 
         <slot name="button"></slot>
         <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" v-if="isShowVersion"/>
@@ -156,6 +156,7 @@
       projectId() {
         return getCurrentProjectID();
       },
+
     }
   }
 </script>
