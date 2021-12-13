@@ -50,7 +50,7 @@
       </el-row>
       </el-header>
       <el-main style="padding: 5px 5px 0px 5px;margin-top: 10px">
-        <el-container style="height: 100px;margin-top: 10px">
+        <el-container>
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
             <el-container style="height: 50px;margin-top: 10px">
               <el-aside width="50%" style="line-height: 40px;">

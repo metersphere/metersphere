@@ -94,7 +94,7 @@
         </el-row>
       </el-header>
       <el-main style="padding: 5px;margin-top: 10px">
-        <el-container style="height: 96px;margin-top: 10px">
+        <el-container>
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
             <el-container>
               <el-aside width="30%">
