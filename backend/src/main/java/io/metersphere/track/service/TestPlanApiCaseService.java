@@ -206,6 +206,12 @@ public class TestPlanApiCaseService {
         return testPlanApiCaseMapper.selectByExample(example);
     }
 
+    public List<TestPlanApiCase> getCases(String planId) {
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        return testPlanApiCaseMapper.selectByExample(example);
+    }
+
     public TestPlanApiCase getById(String id) {
         return testPlanApiCaseMapper.selectByPrimaryKey(id);
     }

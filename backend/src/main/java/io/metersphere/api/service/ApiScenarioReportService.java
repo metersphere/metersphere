@@ -22,10 +22,7 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.UserDTO;
@@ -37,6 +34,8 @@ import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.UserService;
+import io.metersphere.track.request.testcase.TrackCount;
+import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +45,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,6 +86,12 @@ public class ApiScenarioReportService {
     private EnvironmentGroupMapper environmentGroupMapper;
     @Resource
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
+    @Resource
+    @Lazy
+    private TestPlanTestCaseService testPlanTestCaseService;
+    @Resource
+    @Lazy
+    private ApiAutomationService apiAutomationService;
 
     public ApiScenarioReport complete(TestResult result, String runMode) {
         // 更新场景
@@ -269,7 +275,6 @@ public class ApiScenarioReportService {
                 String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
                 testPlanApiScenario.setPassRate(passRate);
                 testPlanApiScenario.setReportId(report.getId());
-                report.setTestPlanScenarioId(testPlanApiScenario.getId());
                 report.setEndTime(System.currentTimeMillis());
                 testPlanApiScenario.setUpdateTime(report.getCreateTime());
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
@@ -294,6 +299,8 @@ public class ApiScenarioReportService {
                     // 发送通知
 //                    sendNotice(scenario);
                 }
+
+                updatePlanTestCaseStates(testPlanApiScenario);
             }
             returnReport = report;
             reportIds.add(report.getId());
@@ -353,8 +360,6 @@ public class ApiScenarioReportService {
                 if(testPlanApiScenario != null){
                     //更新测试计划场景相关状态
                     report.setScenarioId(testPlanApiScenario.getApiScenarioId());
-                    report.setTestPlanScenarioId(planScenarioId);
-
                     if (scenarioResult.getError() > 0) {
                         scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.FAILD.name());
                         testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
@@ -367,6 +372,8 @@ public class ApiScenarioReportService {
                     testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
                     testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
                     scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
+
+                    updatePlanTestCaseStates(testPlanApiScenario);
                 }else {
                     LogUtil.info("TestPlanReport_Id is null. scenario report id : ["+report.getId()+"]; planScenarioIdArr:["+report.getScenarioId()+"] DATA:"+JSON.toJSONString(scenarioResult));
                 }
@@ -418,6 +425,19 @@ public class ApiScenarioReportService {
         }
         LogUtil.info("测试计划场景[" + result.getTestId() + "]保存结束");
         return lastReport;
+    }
+
+    /**
+     * 更新测试计划，关联产经测试的功能用例的状态
+     *
+     */
+    public void updatePlanTestCaseStates(TestPlanApiScenario testPlanApiScenario) {
+        try {
+            ApiScenarioWithBLOBs apiScenario = apiAutomationService.getApiScenario(testPlanApiScenario.getApiScenarioId());
+            testPlanTestCaseService.updateTestCaseStates(apiScenario.getId(), apiScenario.getName(), testPlanApiScenario.getTestPlanId(), TrackCount.AUTOMATION);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
     }
 
     /**

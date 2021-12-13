@@ -34,8 +34,6 @@ public interface ExtTestPlanTestCaseMapper {
 
     int updateTestCaseStates(@Param("ids") List<String> ids, @Param("reportStatus") String reportStatus);
 
-    List<String> getTestPlanTestCaseIds(String testId);
-
     /**
      * 根据项目 ids 查询 TestPlanCaseDTO 列表
      * @param ids project id list
