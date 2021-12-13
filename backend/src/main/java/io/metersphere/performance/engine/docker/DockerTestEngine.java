@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LocalAddressUtils;
 import io.metersphere.commons.utils.UrlTestUtils;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.ResultHolder;
@@ -85,10 +86,14 @@ public class DockerTestEngine extends AbstractEngine {
         if (baseInfo != null) {
             metersphereUrl = baseInfo.getUrl();
         }
+        // docker 不能从 localhost 中下载文件, 本地开发
+        if (StringUtils.contains(metersphereUrl, "http://localhost") ||
+                StringUtils.contains(metersphereUrl, "http://127.0.0.1")) {
+            metersphereUrl = "http://" + LocalAddressUtils.getIpAddress("en0") + ":8081";
+        }
+
         String jmeterPingUrl = metersphereUrl + "/jmeter/ping"; // 检查下载地址是否正确
-        // docker 不能从 localhost 中下载文件
-        if (StringUtils.contains(metersphereUrl, "http://localhost")
-                || !UrlTestUtils.testUrlWithTimeOut(jmeterPingUrl, 1000)) {
+        if (!UrlTestUtils.testUrlWithTimeOut(jmeterPingUrl, 1000)) {
             MSException.throwException(Translator.get("run_load_test_file_init_error"));
         }
 
