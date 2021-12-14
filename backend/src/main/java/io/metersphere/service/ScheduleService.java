@@ -179,14 +179,14 @@ public class ScheduleService {
             scheduleManager.removeJob(jobKey, triggerKey);
         } catch (Exception e) {
             LogUtil.error(e);
-            MSException.throwException("重置定时任务-删除时异常");
+            MSException.throwException("重置定时任务-删除旧定时任务时出现异常");
         }
         try {
             scheduleManager.addCronJob(jobKey, triggerKey, clazz, request.getValue(),
                     scheduleManager.getDefaultJobDataMap(request, request.getValue(), SessionUtils.getUser().getId()));
         } catch (Exception e) {
             LogUtil.error(e);
-            MSException.throwException("重置定时任务-删除时异常");
+            MSException.throwException("重置定时任务-启动新定时任务出现异常");
         }
     }
 

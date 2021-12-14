@@ -130,7 +130,6 @@ public class TestPlanReportService {
             }
         }
         list = extTestPlanReportMapper.list(request);
-        this.checkReportStatus(list);
         return list;
     }
 
@@ -1249,21 +1248,6 @@ public class TestPlanReportService {
         TestPlanReportContentExample example = new TestPlanReportContentExample();
         example.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getId());
         testPlanReportContentMapper.updateByExampleSelective(bloBs,example);
-    }
-
-    private void checkReportStatus(List<TestPlanReportDTO> list) {
-        String errorStatus = "FAILED";
-        for (TestPlanReportDTO dto : list) {
-            if (StringUtils.equalsIgnoreCase(dto.getStatus(), "Running")) {
-                if (!TestPlanReportExecuteCatch.containsReport(dto.getId())) {
-                    //测试计划报告处于Running状态，且监听中不存在此ID，更改Running的运行状态。一般在测试计划执行结束之前服务关闭时会出现这种情况
-                    TestPlanReport report = new TestPlanReport();
-                    report.setId(dto.getId());
-                    this.finishReport(report);
-                    dto.setStatus(errorStatus);
-                }
-            }
-        }
     }
 
     private boolean checkTestPlanReportIsTimeOut(String planReportId) {
