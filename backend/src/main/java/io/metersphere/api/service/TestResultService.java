@@ -46,6 +46,7 @@ public class TestResultService {
     private TestPlanTestCaseService testPlanTestCaseService;
 
     public void saveResult(TestResult testResult, String runMode, String debugReportId, String testId) {
+        LogUtil.info("Save result:["+testId+"]; RUN MODE:"+runMode);
         try {
             ApiTestReport report = null;
             ApiTestReportVariable reportTask = null;
