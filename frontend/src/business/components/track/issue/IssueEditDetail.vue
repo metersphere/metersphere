@@ -14,26 +14,8 @@
         </el-form-item>
 
         <!-- 自定义字段 -->
-        <el-form :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
-                 class="case-form">
-          <el-row class="custom-field-row">
-            <span class="custom-item" v-for="(item, index) in issueTemplate.customFields" :key="index">
-               <el-col :span="8" v-if="item.type !== 'richText'">
-                <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
-                              :label-width="formLabelWidth">
-                  <custom-filed-component :data="item" :form="customFieldForm" prop="defaultValue"/>
-                </el-form-item>
-              </el-col>
-              <div v-else>
-                <el-col :span="24">
-                   <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
-                                 :label-width="formLabelWidth">
-                     <custom-filed-component :data="item" :form="customFieldForm" prop="defaultValue"/>
-                  </el-form-item>
-                </el-col>
-              </div>
-            </span>
-          </el-row>
+        <el-form :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm" class="case-form">
+          <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth" :issue-template="issueTemplate"/>
         </el-form>
 
         <form-rich-text-item v-if="!enableThirdPartTemplate" :title="$t('custom_field.issue_content')" :data="form" prop="description"/>
@@ -90,7 +72,6 @@ import MsFormDivider from "@/business/components/common/components/MsFormDivider
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
-import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
@@ -106,10 +87,12 @@ import {getIssueTemplate} from "@/network/custom-field-template";
 import {getIssueThirdPartTemplate} from "@/network/Issue";
 import {getCurrentProject} from "@/network/project";
 import {JIRA} from "@/common/js/constants";
+import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 
 export default {
   name: "IssueEditDetail",
   components: {
+    CustomFiledFormItem,
     IssueEditDetail,
     TestCaseIssueList,
     CustomFiledComponent,
@@ -166,9 +149,6 @@ export default {
   computed: {
     isSystem() {
       return this.form.system;
-    },
-    systemNameMap() {
-      return SYSTEM_FIELD_NAME_MAP;
     },
     projectId() {
       return getCurrentProjectID();

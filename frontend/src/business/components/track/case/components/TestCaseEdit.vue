@@ -40,7 +40,7 @@
         <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading" class="case-form">
           <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
           <el-row>
-            <el-col :span="6">
+            <el-col :span="8">
               <el-form-item
                 :placeholder="$t('test_track.case.input_name')"
                 :label="$t('test_track.case.name')"
@@ -50,14 +50,14 @@
               </el-form-item>
             </el-col>
 
-            <el-col :span="6">
+            <el-col :span="8">
               <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
                 <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"
                                 @getValue="setModule" clearable checkStrictly size="small"/>
               </el-form-item>
             </el-col>
 
-            <el-col :span="6">
+            <el-col :span="8">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag"
                               class="ms-case-input"/>
@@ -68,15 +68,7 @@
           <!-- 自定义字段 -->
           <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
                    class="case-form">
-            <el-row>
-              <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
-                <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
-                              :label-width="formLabelWidth">
-                  <custom-filed-component :disabled="readOnly" @reload="reloadForm" :data="item" :form="customFieldForm"
-                                          prop="defaultValue"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
+            <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth" :issue-template="testCaseTemplate"/>
           </el-form>
 
           <el-row v-if="isCustomNum">
@@ -172,7 +164,6 @@ import {
   getTemplate,
   parseCustomField
 } from "@/common/js/custom_field";
-import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
@@ -180,10 +171,12 @@ import TestCaseStepItem from "@/business/components/track/case/components/TestCa
 import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
 import MsChangeHistory from "../../../history/ChangeHistory";
 import {getTestTemplate} from "@/network/custom-field-template";
+import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 
 export default {
   name: "TestCaseEdit",
   components: {
+    CustomFiledFormItem,
     StepChangeItem,
     TestCaseStepItem,
     FormRichTextItem,
@@ -302,9 +295,6 @@ export default {
     },
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
-    },
-    systemNameMap() {
-      return SYSTEM_FIELD_NAME_MAP;
     },
     isCustomNum() {
       return this.$store.state.currentProjectIsCustomNum;
