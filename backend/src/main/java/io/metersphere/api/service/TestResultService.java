@@ -39,6 +39,7 @@ public class TestResultService {
     private ApiAutomationService apiAutomationService;
 
     public void saveResult(TestResult testResult, String runMode, String debugReportId, String testId) {
+        LogUtil.info("Save result:["+testId+"]; RUN MODE:"+runMode);
         try {
             ApiTestReportVariable reportTask = null;
             if (StringUtils.equals(runMode, ApiRunMode.DEFINITION.name())) {

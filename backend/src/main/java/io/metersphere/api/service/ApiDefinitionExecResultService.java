@@ -255,7 +255,6 @@ public class ApiDefinitionExecResultService {
         if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             saveResultType = ApiRunMode.API_PLAN.name();
         }
-        String finalSaveResultType = saveResultType;
 
         Map<String, String> apiIdResultMap = new HashMap<>();
         Map<String, String> caseReportMap = new HashMap<>();
@@ -270,7 +269,7 @@ public class ApiDefinitionExecResultService {
             }
             testPlanReportId = testIdArr[1];
         }
-        String creator = TestPlanReportExecuteCatch.getCreator(testPlanReportId);
+        LogUtil.info("收到测试计划案例[" + result.getTestId() + "]的执行信息，开始保存. testID:[" + testId + "] 测试计划ID:[" + testPlanReportId + "]");
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
             result.getScenarios().forEach(scenarioResult -> {
                 final boolean[] isFirst = {true};
@@ -294,6 +293,7 @@ public class ApiDefinitionExecResultService {
                             item.getResponseResult().setConsole(result.getConsole());
                             boolean saved = true;
                             if (saveResult == null || expectProcessResultCount > 1) {
+                                LogUtil.info("测试计划案例[" + result.getTestId() + "]的执行结果信息未保存，新增。");
                                 saveResult = new ApiDefinitionExecResult();
                                 if (isFirst[0]) {
                                     isFirst[0] = false;
@@ -341,8 +341,10 @@ public class ApiDefinitionExecResultService {
                                 saveResult.setTriggerMode(TriggerMode.MANUAL.name());
                             }
                             if (!saved) {
+                                LogUtil.info("插入案例[" + saveResult.getId() + "]的执行结果。");
                                 apiDefinitionExecResultMapper.insert(saveResult);
                             } else {
+                                LogUtil.info("更新案例[" + saveResult.getId() + "]的执行结果。");
                                 apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
                             }
                             apiDefinitionService.removeCache(result.getTestId());
@@ -353,9 +355,13 @@ public class ApiDefinitionExecResultService {
                             String caseId = item.getName();
                             if (StringUtils.equalsAny(type, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                                 TestPlanApiCase apiCase = testPlanApiCaseService.getById(caseId);
-                                apiCase.setStatus(status);
-                                apiCase.setUpdateTime(System.currentTimeMillis());
-                                testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
+                                if(apiCase != null){
+                                    apiCase.setStatus(status);
+                                    apiCase.setUpdateTime(System.currentTimeMillis());
+                                    testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
+                                }else {
+                                    LogUtil.error("存储测试计划案例[" + result.getTestId() + "]的执行信息出错，TestPlanApiCase id:["+caseId+"] 未找到！ ");
+                                }
                             } else {
                                 testPlanApiCaseService.setExecResult(caseId, status, item.getStartTime());
                                 testCaseReviewApiCaseService.setExecResult(caseId, status, item.getStartTime());

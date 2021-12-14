@@ -1575,7 +1575,6 @@ public class ApiAutomationService {
                     //存储报告
                     APIScenarioReportResult report = executeQueue.get(reportId).getReport();
                     batchMapper.insert(report);
-                    MessageCache.scenarioExecResourceLock.put(reportId, report);
                 }
                 sqlSession.flushStatements();
                 if (sqlSession != null && sqlSessionFactory != null) {
@@ -1583,9 +1582,19 @@ public class ApiAutomationService {
                 }
             }
         });
-        thread.start();
+
+        try {
+            thread.start();
+            while (!StringUtils.equals(thread.getState().name(), Thread.State.TERMINATED.name())){
+                Thread.sleep(500);
+            }
+        }catch (Exception e){
+            LogUtil.error("场景报告入库异常 报错：["+e.getMessage()+"]. 场景报告ID list："+JSONArray.toJSONString(executeQueue.keySet()));
+            LogUtil.error(e);
+        }
 
         for (String reportId : executeQueue.keySet()) {
+            MessageCache.scenarioExecResourceLock.put(reportId, executeQueue.get(reportId).getReport());
             // 增加一个本地锁，防止并发找不到资源
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
                 String testPlanScenarioId = "";
