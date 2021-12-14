@@ -7,8 +7,11 @@ import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ReportStatisticsWithBLOBs;
 import io.metersphere.base.domain.ShareInfo;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.reportstatistics.dto.ReportStatisticsSaveRequest;
+import io.metersphere.reportstatistics.service.ReportStatisticsService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -29,6 +32,8 @@ public class ShareInfoController {
     ShareInfoService shareInfoService;
     @Resource
     ApiDefinitionService apiDefinitionService;
+    @Resource
+    ReportStatisticsService reportStatisticsService;
 
     @PostMapping("/selectApiSimpleInfo")
     public List<ApiDocumentInfoDTO> list(@RequestBody ApiDocumentRequest request) {
@@ -44,13 +49,13 @@ public class ShareInfoController {
     @PostMapping("/selectApiInfoByParam")
     public List<ApiDocumentInfoDTO> selectApiInfoByParam(@RequestBody ApiDocumentRequest request) {
         List<ApiDocumentInfoDTO> returnList = new ArrayList<>();
-        if(request.getApiIdList() != null){
+        if (request.getApiIdList() != null) {
             //要根据ids的顺序进行返回排序
             List<ApiDefinitionWithBLOBs> apiModels = apiDefinitionService.getBLOBs(request.getApiIdList());
-            Map<String,ApiDefinitionWithBLOBs> apiModelMaps = apiModels.stream().collect(Collectors.toMap(ApiDefinitionWithBLOBs :: getId,a->a,(k1,k2)->k1));
-            for(String id : request.getApiIdList()){
+            Map<String, ApiDefinitionWithBLOBs> apiModelMaps = apiModels.stream().collect(Collectors.toMap(ApiDefinitionWithBLOBs::getId, a -> a, (k1, k2) -> k1));
+            for (String id : request.getApiIdList()) {
                 ApiDefinitionWithBLOBs model = apiModelMaps.get(id);
-                if(model == null){
+                if (model == null) {
                     model = new ApiDefinitionWithBLOBs();
                     model.setId(id);
                     model.setName(id);
@@ -66,9 +71,9 @@ public class ShareInfoController {
     public ApiDocumentInfoDTO selectApiInfoById(@PathVariable String id) {
         ApiDefinitionWithBLOBs apiModel = apiDefinitionService.getBLOBs(id);
         ApiDocumentInfoDTO returnDTO = new ApiDocumentInfoDTO();
-        try{
+        try {
             returnDTO = shareInfoService.conversionModelToDTO(apiModel);
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtil.error(e);
         }
         returnDTO.setSelectedFlag(true);
@@ -87,5 +92,10 @@ public class ShareInfoController {
         ShareInfo apiShare = shareInfoService.createShareInfo(request);
         ShareInfoDTO returnDTO = shareInfoService.conversionShareInfoToDTO(apiShare);
         return returnDTO;
+    }
+
+    @PostMapping("/selectHistoryReportById")
+    public ReportStatisticsWithBLOBs selectById(@RequestBody ReportStatisticsSaveRequest request) {
+        return reportStatisticsService.selectById(request.getId());
     }
 }
