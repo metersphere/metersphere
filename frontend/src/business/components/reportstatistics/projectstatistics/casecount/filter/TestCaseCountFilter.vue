@@ -269,9 +269,6 @@ export default {
       this.loading = true;
       this.option = opt;
       this.$nextTick(() => {
-        if(this.option.timeType === "dynamicTime"){
-          this.init();
-        }
         this.loading = false;
       });
     },

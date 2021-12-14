@@ -440,6 +440,11 @@
             <artifactId>xmindjbehaveplugin</artifactId>
             <version>0.8</version>
         </dependency>
+        <!-- selenium包  -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+        </dependency>
         <!-- 基础包 -->
         <dependency>
             <groupId>io.metersphere</groupId>
