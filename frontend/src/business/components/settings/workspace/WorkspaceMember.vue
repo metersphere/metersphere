@@ -367,20 +367,6 @@ export default {
   width: 80%;
 }
 
-.workspace-member-name {
-  float: left;
-}
-
-.workspace-member-email {
-  float: right;
-  color: #8492a6;
-  font-size: 13px;
-}
-
-.input-with-autocomplete {
-  width: 100%;
-}
-
 /deep/ .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {
   top: -5px;
 }

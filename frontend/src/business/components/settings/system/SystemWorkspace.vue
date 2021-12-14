@@ -74,7 +74,7 @@
 
     <!-- dialog of workspace member -->
     <el-dialog :close-on-click-modal="false" :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true"
-               @close="closeWsMemberDialog" class="dialog-css">
+               @close="closeWsMemberDialog" class="dialog-css" top="15vh">
       <template v-slot:title>
         <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
@@ -464,7 +464,6 @@ export default {
 }
 
 .member-size {
-  text-decoration: underline;
   cursor: pointer;
 }
 
@@ -484,9 +483,8 @@ export default {
 .form-input{
   width: 80%;
 }
-/*.dialog-css >>> .el-dialog__header {*/
-/*  padding: 0;*/
-/*}*/
-
+.dialog-css >>> .el-dialog__body {
+  padding-top: 0;
+}
 </style>
 

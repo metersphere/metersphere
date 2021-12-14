@@ -2,8 +2,7 @@
   <div>
     <el-dialog :close-on-click-modal="false" :visible.sync="visible" width="65%" top="15vh"
                :destroy-on-close="true" @close="close" v-loading="result.loading"
-               class="group-member"
-    >
+               class="group-member">
       <template v-slot:title>
         <ms-table-header :condition.sync="condition" @create="addMemberBtn" @search="search"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
@@ -22,16 +21,14 @@
             <el-popover
               placement="top"
               width="250"
-              trigger="click"
-            >
+              trigger="click">
               <div v-loading="sourceResult.loading" style="height: 150px;overflow: auto;">
                 <el-tag
                   v-for="item in groupSource"
                   :key="item.id"
                   :type="item.name"
                   size="small"
-                  style="margin-left: 5px;margin-top: 5px;"
-                >
+                  style="margin-left: 5px;margin-top: 5px;">
                   {{ item.name }}
                 </el-tag>
               </div>
@@ -64,7 +61,7 @@
             multiple
             filterable
             :popper-append-to-body="false"
-            style="width: 90%"
+            class="member_select"
             :disabled="userSelectDisable"
             :placeholder="$t('member.please_choose_member')">
             <el-option
@@ -73,15 +70,14 @@
               :label="item.id"
               :value="item.id">
               <template>
-                <span class="user-select-left">{{ item.name }} ({{ item.id }})</span>
-                <span class="user-select-right">{{ item.email }}</span>
+                <user-option-item :user="item"/>
               </template>
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item :label="typeLabel" v-if="showTypeLabel" prop="sourceIds">
-          <el-select v-model="form.sourceIds" :placeholder="typeLabel" style="width: 90%;" clearable multiple
-                     filterable>
+          <el-select v-model="form.sourceIds" :placeholder="typeLabel" class="other_source_select"
+                     clearable multiple filterable>
             <el-option v-for="item in sourceData" :key="item.id" :label="item.name" :value="item.id"/>
           </el-select>
         </el-form-item>
@@ -103,10 +99,12 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {GROUP_PROJECT, GROUP_SYSTEM, GROUP_WORKSPACE} from "@/common/js/constants";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
+import UserOptionItem from "@/business/components/settings/common/UserOptionItem";
 
 export default {
   name: "GroupMember",
   components: {
+    UserOptionItem,
     MsTableHeader,
     MsTablePagination,
     MsTableOperator
@@ -287,18 +285,10 @@ export default {
 </script>
 
 <style scoped>
-/*.group-member >>> .el-dialog__header {*/
-/*  padding: 0;*/
-/*}*/
-
-.user-select-left {
-  float: left;
+.member_select, .other_source_select {
+  display: block;
 }
-
-.user-select-right {
-  float: right;
-  margin-right: 18px;
-  color: #8492a6;
-  font-size: 13px;
+.group-member >>> .el-dialog__body {
+  padding-top: 0;
 }
 </style>
