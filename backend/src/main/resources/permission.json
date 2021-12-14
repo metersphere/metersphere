@@ -874,6 +874,12 @@
       "license": true
     },
     {
+      "id": "PROJECT_ENTERPRISE_REPORT:READ+SCHEDULE",
+      "name": "定时发送",
+      "resourceId": "PROJECT_ENTERPRISE_REPORT",
+      "license": true
+    },
+    {
       "id": "PROJECT_ENTERPRISE_REPORT:READ+EDIT",
       "name": "修改报告",
       "resourceId": "PROJECT_ENTERPRISE_REPORT",

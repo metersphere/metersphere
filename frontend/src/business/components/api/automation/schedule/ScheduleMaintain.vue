@@ -165,6 +165,9 @@ export default {
         if (this.paramRow.redirectFrom == 'testPlan') {
           paramTestId = this.paramRow.id;
           this.scheduleTaskType = "TEST_PLAN_TEST";
+        } else if (this.paramRow.redirectFrom == 'enterpriseReport') {
+          paramTestId = this.paramRow.id;
+          this.scheduleTaskType = "ENTERPRISE_REPORT";
         } else {
           paramTestId = this.paramRow.id;
           this.scheduleTaskType = "API_SCENARIO_TEST";
@@ -192,6 +195,9 @@ export default {
       if (row.redirectFrom == 'testPlan') {
         paramTestId = row.id;
         this.scheduleTaskType = "TEST_PLAN_TEST";
+      } else if (row.redirectFrom == 'enterpriseReport') {
+        paramTestId = row.id;
+        this.scheduleTaskType = "ENTERPRISE_REPORT";
       } else {
         paramTestId = row.id;
         this.scheduleTaskType = "API_SCENARIO_TEST";
@@ -258,6 +264,13 @@ export default {
       let url = '/api/automation/schedule/create';
       if (this.scheduleTaskType === "TEST_PLAN_TEST") {
         param.scheduleFrom = "testPlan";
+        //测试计划页面跳转的创建
+        url = '/schedule/create';
+        if (param.id) {
+          url = '/schedule/update';
+        }
+      } else if (this.scheduleTaskType == 'ENTERPRISE_REPORT') {
+        param.scheduleFrom = "enterpriseReport";
         //测试计划页面跳转的创建
         url = '/schedule/create';
         if (param.id) {
