@@ -300,8 +300,9 @@ export default {
     },
     formatResult(res) {
       let resMap = new Map;
-      this.startTime = 99991611737506593;
+      this.startTime = 0;
       this.endTime = 0;
+      let requestTime = 0;
       this.clearDebug();
       if (res && res.scenarios) {
         res.scenarios.forEach(item => {
@@ -330,20 +331,20 @@ export default {
                 } else {
                   this.reqError++;
                 }
-                if (req.startTime && Number(req.startTime) < this.startTime) {
+                if (req.startTime && Number(req.startTime)) {
                   this.startTime = req.startTime;
                 }
-                if (req.endTime && Number(req.endTime) > this.endTime) {
+                if (req.endTime && Number(req.endTime)) {
                   this.endTime = req.endTime;
                 }
+                requestTime = requestTime + (this.endTime - this.startTime)
               }
             }
           }
         })
       }
-      if (this.startTime < this.endTime) {
-        this.totalTime = this.endTime - this.startTime + 100;
-      }
+      this.totalTime = requestTime;
+
       this.debugResult = resMap;
       this.setTreeValue(this.fullTreeNodes);
       this.reload();
