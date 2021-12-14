@@ -1172,11 +1172,6 @@ public class TestPlanService {
                 reportId = performanceTestService.run(performanceRequest);
                 if (reportId != null) {
                     performaneReportIDMap.put(reportId, id);
-                    TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
-                    testPlanLoadCase.setId(performanceRequest.getTestPlanLoadId());
-                    testPlanLoadCase.setLoadReportId(reportId);
-                    testPlanLoadCaseService.update(testPlanLoadCase);
-
                     //更新关联处的报告
                     TestPlanLoadCaseWithBLOBs loadCase = new TestPlanLoadCaseDTO();
                     loadCase.setId(id);
@@ -1185,6 +1180,11 @@ public class TestPlanService {
                     testPlanLoadCaseService.update(loadCase);
                 }
             } catch (Exception e) {
+                TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
+                testPlanLoadCase.setId(id);
+                testPlanLoadCase.setLoadReportId(reportId);
+                testPlanLoadCase.setStatus("error");
+                testPlanLoadCaseService.update(testPlanLoadCase);
                 LogUtil.error(e);
             }
             performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(), reportId);
