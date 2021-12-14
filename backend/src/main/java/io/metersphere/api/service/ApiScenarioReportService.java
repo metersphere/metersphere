@@ -310,10 +310,9 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updateSchedulePlanCase(TestResult result, String runMode) {
-        LogUtil.info("收到测试计划场景[" + result.getTestId() + "]的执行信息，开始保存");
         ApiScenarioReport lastReport = null;
-        List<ScenarioResult> scenarioResultList = result.getScenarios();
-
+        List<ScenarioResult> scenarioResultList = result.getScenarios() == null ? new ArrayList<>(0) : result.getScenarios();
+        LogUtil.info("收到测试计划场景[" + result.getTestId() + "]的执行信息，开始保存.步骤总数：" + scenarioResultList.size());
         List<String> testPlanReportIdList = new ArrayList<>();
         StringBuilder scenarioNames = new StringBuilder();
 
@@ -322,15 +321,14 @@ public class ApiScenarioReportService {
         Map<String, String> scenarioAndErrorMap = new HashMap<>();
         Map<String, String> planScenarioReportMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
-
+            LogUtil.info("收到测试计划场景[" + result.getTestId() + "]的执行信息并存储报告。报告ID:" + scenarioResult.getName());
             // 存储场景报告
             long startTime = System.currentTimeMillis();
             if (CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                 startTime = scenarioResult.getRequestResults().get(0).getStartTime();
             }
-
             ApiScenarioReport report = editReport(scenarioResult, startTime);
-            if(report != null){
+            if (report != null) {
                 TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
                 newResult.setConsole(result.getConsole());
                 scenarioResult.setName(report.getScenarioName());
@@ -357,7 +355,7 @@ public class ApiScenarioReportService {
                 String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
 
                 TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(planScenarioId);
-                if(testPlanApiScenario != null){
+                if (testPlanApiScenario != null) {
                     //更新测试计划场景相关状态
                     report.setScenarioId(testPlanApiScenario.getApiScenarioId());
                     if (scenarioResult.getError() > 0) {
@@ -374,8 +372,8 @@ public class ApiScenarioReportService {
                     scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
 
                     updatePlanTestCaseStates(testPlanApiScenario);
-                }else {
-                    LogUtil.info("TestPlanReport_Id is null. scenario report id : ["+report.getId()+"]; planScenarioIdArr:["+report.getScenarioId()+"] DATA:"+JSON.toJSONString(scenarioResult));
+                } else {
+                    LogUtil.info("TestPlanReport_Id is null. scenario report id : [" + report.getId() + "]; planScenarioIdArr:[" + report.getScenarioId() + "] DATA:" + JSON.toJSONString(scenarioResult));
                 }
 
                 report.setEndTime(System.currentTimeMillis());
@@ -390,11 +388,13 @@ public class ApiScenarioReportService {
                 if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
                     report.setTriggerMode(TriggerMode.MANUAL.name());
                 }
-                apiScenarioReportDetailMapper.insert(detail);
-
-
+                try {
+                    apiScenarioReportDetailMapper.insert(detail);
+                } catch (Exception e) {
+                    LogUtil.error("存储场景报告出错：" + e.getMessage() + "; 步骤信息:" + JSON.toJSONString(scenarioResult));
+                    LogUtil.error(e);
+                }
                 scenarioNames.append(report.getName()).append(",");
-
                 // 更新场景状态
                 ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
                 if (scenario != null) {
@@ -416,6 +416,8 @@ public class ApiScenarioReportService {
                 lastReport = report;
                 MessageCache.executionQueue.remove(report.getId());
                 reportIds.add(report.getId());
+            } else {
+                LogUtil.error("测试计划场景[" + result.getTestId() + "]的场景报告未找到。报告ID:" + scenarioResult.getName() + "。 步骤信息:" + JSON.toJSONString(scenarioResult));
             }
         }
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
