@@ -117,6 +117,7 @@ export function buildCustomFields(data, param, template) {
           hasField = true;
           customFields[index].name = item.name;
           customFields[index].value = item.defaultValue;
+          customFields[index].type = item.type;
           break;
         }
       }

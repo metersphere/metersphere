@@ -179,24 +179,22 @@ export default {
   },
   methods: {
     open(data) {
-      let initAddFuc = this.initEdit;
-      getCurrentProject((responseData) => {
-        this.currentProject = responseData;
-        if (hasLicense() && this.currentProject && this.currentProject.thirdPartTemplate && this.currentProject.platform === JIRA) {
-          getIssueThirdPartTemplate()
-            .then((template) => {
-              this.issueTemplate = template;
-              this.getThirdPartyInfo();
-              initAddFuc(data);
-            });
-        } else {
-          getIssueTemplate()
-            .then((template) => {
-              this.issueTemplate = template;
-              this.getThirdPartyInfo();
-              initAddFuc(data);
-            });
-        }
+      this.result.loading = true;
+      this.$nextTick(() => {
+        getCurrentProject((responseData) => {
+          this.currentProject = responseData;
+          if (hasLicense() && this.currentProject && this.currentProject.thirdPartTemplate && this.currentProject.platform === JIRA) {
+            getIssueThirdPartTemplate()
+              .then((template) => {
+                this.init(template, data);
+              });
+          } else {
+            getIssueTemplate()
+              .then((template) => {
+                this.init(template, data);
+              });
+          }
+        });
       });
 
       if(data&&data.id){
@@ -215,6 +213,12 @@ export default {
     },
     currentUser: () => {
       return getCurrentUser();
+    },
+    init(template, data) {
+      this.issueTemplate = template;
+      this.getThirdPartyInfo();
+      this.initEdit(data);
+      this.result.loading = false;
     },
     getThirdPartyInfo() {
       let platform = this.issueTemplate.platform;
