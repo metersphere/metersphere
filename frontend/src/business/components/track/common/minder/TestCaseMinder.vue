@@ -252,11 +252,13 @@ name: "TestCaseMinder",
       if (data.isExtraNode) {
         // 如果是临时节点，打上了模块标签，则删除临时节点并新建模块
         this.pushDeleteNode(data);
+        module.id = null;
       }
 
       if (data.type === 'case') {
         // 如果是用例节点，打上了模块标签，则用例节点并新建模块
         this.pushDeleteNode(data);
+        module.id = null;
       }
 
       if (module.id && module.id.length > 20) {
@@ -299,11 +301,6 @@ name: "TestCaseMinder",
         let tip = data.text + '是模块，不能修改为用例';
         this.$error(tip)
         throw new Error(tip);
-      }
-
-      if (data.isExtraNode) {
-        // 如果是临时节点，打上了用例标签，则删除临时节点并新建用例节点
-        this.pushDeleteNode(data);
       }
 
       let isChange = false;
@@ -359,6 +356,12 @@ name: "TestCaseMinder",
         })
       }
       testCase.steps = JSON.stringify(steps);
+
+      if (data.isExtraNode) {
+        // 如果是临时节点，打上了用例标签，则删除临时节点并新建用例节点
+        this.pushDeleteNode(data);
+        testCase.id = null;
+      }
 
       if (isChange) {
 
@@ -425,6 +428,7 @@ name: "TestCaseMinder",
           nodeData.children.push(this._buildExtraNode(item));
         });
       }
+      data.isExtraNode = true;
       return nodeData;
     },
     tagEditCheck() {
