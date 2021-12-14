@@ -360,20 +360,22 @@ export default {
     },
     computeTotalTime() {
       if (this.content.scenarios) {
-        let startTime = 99991611737506593;
+        let startTime = 0;
         let endTime = 0;
+        let requestTime = 0;
         this.content.scenarios.forEach((scenario) => {
           scenario.requestResults.forEach((request) => {
-            if (request.startTime && Number(request.startTime) < startTime) {
+            if (request.startTime && Number(request.startTime)) {
               startTime = request.startTime;
             }
-            if (request.endTime && Number(request.endTime) > endTime) {
+            if (request.endTime && Number(request.endTime)) {
               endTime = request.endTime;
             }
+            requestTime = requestTime + (endTime - startTime);
           })
         })
         if (startTime < endTime) {
-          this.totalTime = endTime - startTime + 100;
+          this.totalTime = requestTime
         }
       }
     },
