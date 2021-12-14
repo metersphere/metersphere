@@ -120,10 +120,51 @@ export default{
   },
   methods:{
     getDiff(){
-      let $vnode = this.$refs.old.$vnode;
-      let $vnode1 = this.$refs.new.$vnode;
-      console.log($vnode)
-      console.log($vnode1)
+      let oldVnode = this.$refs.old.$vnode;
+      let vnode = this.$refs.new.$vnode;
+      console.log(oldVnode)
+      console.log(vnode)
+      //patch node
+     /* if (oldVnode === vnode) {
+        return
+      }
+      // .....
+
+      let i
+      const data = vnode.data
+      if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
+        i(oldVnode, vnode)
+      }
+
+      const oldCh = oldVnode.children
+      const ch = vnode.children
+      if (isDef(data) && isPatchable(vnode)) {
+        for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
+        if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
+      }
+      if (isUndef(vnode.text)) {
+        if (isDef(oldCh) && isDef(ch)) {
+          if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
+        } else if (isDef(ch)) {
+          if (process.env.NODE_ENV !== 'production') {
+            checkDuplicateKeys(ch)
+          }
+          if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
+          addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
+        } else if (isDef(oldCh)) {
+          removeVnodes(elm, oldCh, 0, oldCh.length - 1)
+        } else if (isDef(oldVnode.text)) {
+          nodeOps.setTextContent(elm, '')
+        }
+      } else if (oldVnode.text !== vnode.text) {
+        nodeOps.setTextContent(elm, vnode.text)
+      }
+      if (isDef(data)) {
+        if (isDef(i = data.hook) && isDef(i = i.postpatch)) i(oldVnode, vnode)
+      }*/
+
+
+
     },
     clickTab(tab) {
       if (tab.index === '1') {
