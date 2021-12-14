@@ -7,6 +7,7 @@ import io.metersphere.base.domain.CustomFieldTemplateExample;
 import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.CustomFieldTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldTemplateMapper;
+import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldTemplateDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +50,10 @@ public class CustomFieldTemplateService {
 
     public List<CustomFieldTemplateDao> list(CustomFieldTemplate request) {
         return extCustomFieldTemplateMapper.list(request);
+    }
+
+    public List<CustomFieldDao> lisSimple(CustomFieldTemplate request) {
+        return extCustomFieldTemplateMapper.lisSimple(request);
     }
 
     public void deleteByTemplateId(String templateId) {

@@ -13,7 +13,7 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
-import io.metersphere.dto.CustomFieldTemplateDao;
+import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -476,8 +476,11 @@ public class IssuesService {
         IssueTemplateDao template = issueTemplateService.getTemplate(projectId);
         CustomFieldTemplate request = new CustomFieldTemplate();
         request.setTemplateId(template.getId());
-        List<CustomFieldTemplateDao> customFields = customFieldTemplateService.list(request);
+        List<CustomFieldDao> customFields = customFieldTemplateService.lisSimple(request);
+        return getCustomFieldsValuesString(customFields);
+    }
 
+    public String getCustomFieldsValuesString(List<CustomFieldDao> customFields) {
         JSONArray fields = new JSONArray();
         customFields.forEach(item -> {
             JSONObject field = new JSONObject(true);

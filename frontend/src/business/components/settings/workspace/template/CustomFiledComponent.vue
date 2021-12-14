@@ -18,6 +18,7 @@
       v-else-if="data.type === 'cascadingSelect'"
       expand-trigger="hover"
       @change="handleChange"
+      :props="{label: 'text'}"
       :options="data.options"
       v-model="data[prop]">
     </el-cascader>
@@ -128,9 +129,6 @@ export default {
       memberOptions: [],
     };
   },
-  created() {
-    this.initOption(this.data.options);
-  },
   mounted() {
     this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
       this.memberOptions = response.data;
@@ -145,15 +143,6 @@ export default {
         this.$set(this.form, this.data.name, this.data[this.prop]);
       }
     },
-    initOption(options) {
-      if (options) {
-        options.forEach(i => {
-          i.label = i.text;
-          this.$set(i, 'label', i.text);
-          this.initOption(i.children);
-        });
-      }
-    }
   }
 };
 </script>
