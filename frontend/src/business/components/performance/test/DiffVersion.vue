@@ -1,9 +1,6 @@
 <template>
   <div class="compare-class">
     <el-card style="width: 50%;" ref="old">
-      <p>1</p>
-      <span>v1</span>
-      <h4>1</h4>
       <el-row>
         <el-col :span="12">
           <el-form :inline="true">
@@ -39,9 +36,6 @@
       </el-tabs>
     </el-card>
     <el-card style="width: 50%;" ref="new">
-      <p>v1</p>
-      <span>1</span>
-      <h4>2</h4>
       <el-row>
         <el-col :span="12">
           <el-form :inline="true">
@@ -88,11 +82,8 @@ import EditPerformanceTest from "@/business/components/performance/test/EditPerf
 import PerformancePressureConfig from "@/business/components/performance/test/components/PerformancePressureConfig";
 import PerformanceBasicConfig from "@/business/components/performance/test/components/PerformanceBasicConfig";
 import PerformanceAdvancedConfig from "@/business/components/performance/test/components/PerformanceAdvancedConfig";
-import {patch} from "@/business/components/performance/v_node_diff";
-import Vue from "vue";
 
 const {diff} = require("@/business/components/performance/v_node_diff");
-
 
 export default{
   name:"DiffVersion",
