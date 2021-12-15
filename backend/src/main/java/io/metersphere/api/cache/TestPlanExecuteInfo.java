@@ -34,6 +34,7 @@ public class TestPlanExecuteInfo {
     private Map<String, String> apiScenarioCaseExecInfo = new ConcurrentHashMap<>();
     private Map<String, String> loadCaseExecInfo = new ConcurrentHashMap<>();
 
+    //案例线程是以reportID为id的。 key:关联表ID value:reportID
     private Map<String, String> apiCaseExecuteThreadMap = new ConcurrentHashMap<>();
     private Map<String, String> apiScenarioThreadMap = new ConcurrentHashMap<>();
     private Map<String, String> loadCaseReportIdMap = new ConcurrentHashMap<>();
@@ -201,13 +202,13 @@ public class TestPlanExecuteInfo {
                 MessageCache.executionQueue.remove(apiScenarioThreadMap.get(resourceId));
             }
         }
-        if(CollectionUtils.isNotEmpty(updateScenarioReportList)){
+        if (CollectionUtils.isNotEmpty(updateScenarioReportList)) {
             ApiScenarioReportMapper apiScenarioReportMapper = CommonBeanFactory.getBean(ApiScenarioReportMapper.class);
             ApiScenarioReportExample example = new ApiScenarioReportExample();
             example.createCriteria().andIdIn(updateScenarioReportList).andStatusEqualTo("Running");
             ApiScenarioReport report = new ApiScenarioReport();
             report.setStatus("Error");
-            apiScenarioReportMapper.updateByExampleSelective(report,example);
+            apiScenarioReportMapper.updateByExampleSelective(report, example);
         }
 
         for (Map.Entry<String, String> entry : loadCaseExecInfo.entrySet()) {
@@ -237,5 +238,31 @@ public class TestPlanExecuteInfo {
             this.apiScenarioReportMap.putAll(apiScenarioCaseExecResultInfo);
         }
 
+    }
+
+    public Map<String, String> getRunningApiCaseReportMap() {
+        //key: reportId, value: testPlanApiCaseId
+        Map<String, String> returnMap = new HashMap<>();
+        for (String result : apiCaseExecInfo.keySet()) {
+            if (StringUtils.equalsIgnoreCase(result, TestPlanApiExecuteStatus.RUNNING.name())) {
+                if (apiCaseExecuteThreadMap.containsKey(result)) {
+                    returnMap.put(apiCaseExecuteThreadMap.get(result), result);
+                }
+            }
+        }
+        return returnMap;
+    }
+
+    public Map<String, String> getRunningScenarioReportMap() {
+        //key: reportId, value: testPlanApiScenarioId
+        Map<String, String> returnMap = new HashMap<>();
+        for (String result : apiScenarioCaseExecInfo.keySet()) {
+            if (StringUtils.equalsIgnoreCase(result, TestPlanApiExecuteStatus.RUNNING.name())) {
+                if (apiScenarioThreadMap.containsKey(result)) {
+                    returnMap.put(apiScenarioThreadMap.get(result), result);
+                }
+            }
+        }
+        return returnMap;
     }
 }
