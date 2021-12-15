@@ -223,7 +223,7 @@
     },
     created() {
       if (this.items.length === 0 || this.items[this.items.length - 1].name) {
-        this.items.push(new KeyValue({enable: true}));
+        this.items.push(new KeyValue({enable: true, name: '', value: ''}));
       }
     }
   }
