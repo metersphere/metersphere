@@ -17,9 +17,7 @@
     <div>
       <div class="editors_div_style">
         <div id="editorsDiv" >
-          <mavon-editor v-if="showEditor" @imgAdd="imgAdd" :default-open="'edit'" class="review-mavon-editor" :imageFilter="imageFilter"
-                        :xss-options="xssOptions"
-                        :toolbars="richDataToolbars"  @imgDel="imgDel" v-model="textarea"  ref="md"/>
+          <ms-mark-down-text prop="description" :data="from" :toolbars="toolbars"/>
         </div>
       </div>
 
@@ -35,11 +33,12 @@
 <script>
 import ReviewCommentItem from "./ReviewCommentItem";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
-import {getUUID} from "@/common/js/utils";
+import {uploadMarkDownImg} from "@/network/image";
+import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 
 export default {
   name: "ReviewComment",
-  components: {ReviewCommentItem,FormRichTextItem},
+  components: {MsMarkDownText, ReviewCommentItem,FormRichTextItem},
   props: {
     caseId: String,
     comments: Array,
@@ -49,18 +48,14 @@ export default {
   data() {
     return {
       result: {},
-      textarea: '',
+      from: {
+        description: ''
+      },
       loadCommenItem:true,
       labelWidth: '120px',
       showEditor:true,
       isReadOnly: false,
-      xssOptions: {
-        whiteList: {
-          img: ["src", "alt", "width", "height"],
-        },
-        stripIgnoreTagBody: true
-      },
-      richDataToolbars: {
+      toolbars: {
         bold: false, // 粗体
         italic: false, // 斜体
         header: false, // 标题
@@ -108,10 +103,10 @@ export default {
     sendComment() {
       let comment = {};
       comment.caseId = this.caseId;
-      comment.description = this.textarea;
+      comment.description = this.from.description;
       comment.reviewId = this.reviewId;
       comment.status = this.reviewStatus;
-      if (!this.textarea) {
+      if (!comment.description) {
         this.$warning(this.$t('test_track.comment.description_is_null'));
         return;
       }
@@ -140,45 +135,7 @@ export default {
     refresh() {
       this.resetInputLight();
       this.$emit('getComments');
-    },
-    //富文本框
-    imgAdd(pos, file) {
-      let param = {
-        id: getUUID().substring(0, 8)
-      };
-
-      file.prefix = param.id;
-      this.result = this.$fileUpload('/resource/md/upload', file, null, param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.$refs.md.$img2Url(pos, '/resource/md/get/'  + param.id+"_"+file.name);
-        this.sendComment();
-      });
-      this.$emit('imgAdd', file);
-    },
-    imageFilter(file){
-      let isImg = false;
-      if(file){
-        if(file.name){
-          if (file.name.indexOf("[")> 0 || file.name.indexOf("]") > 0||file.name.indexOf("([)")> 0 || file.name.indexOf(")") > 0){
-            this.$error("图片名称不能含有特殊字符");
-            isImg = false;
-          }else {
-            isImg = true;
-          }
-        }
-      }
-      return isImg;
-    },
-    imgDel(file) {
-      let fileUrl = file[1].prefix + "_" + file[1].name;
-      let comments = this.$refs.reviewComments;
-      comments.forEach(item => {
-        let imgCheckResult = item.checkByUrls(fileUrl);
-        if(imgCheckResult){
-          item.deleteComment();
-        }
-      });
-    },
+    }
   }
 };
 </script>
