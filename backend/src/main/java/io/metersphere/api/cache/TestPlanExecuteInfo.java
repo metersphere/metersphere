@@ -243,10 +243,12 @@ public class TestPlanExecuteInfo {
     public Map<String, String> getRunningApiCaseReportMap() {
         //key: reportId, value: testPlanApiCaseId
         Map<String, String> returnMap = new HashMap<>();
-        for (String result : apiCaseExecInfo.keySet()) {
-            if (StringUtils.equalsIgnoreCase(result, TestPlanApiExecuteStatus.RUNNING.name())) {
-                if (apiCaseExecuteThreadMap.containsKey(result)) {
-                    returnMap.put(apiCaseExecuteThreadMap.get(result), result);
+        for (Map.Entry<String,String> entry : apiCaseExecInfo.entrySet()) {
+            String planCaseId = entry.getKey();
+            String status = entry.getValue();
+            if (StringUtils.equalsIgnoreCase(status, TestPlanApiExecuteStatus.RUNNING.name())) {
+                if (apiCaseExecuteThreadMap.containsKey(planCaseId)) {
+                    returnMap.put(apiCaseExecuteThreadMap.get(planCaseId), planCaseId);
                 }
             }
         }
@@ -256,10 +258,12 @@ public class TestPlanExecuteInfo {
     public Map<String, String> getRunningScenarioReportMap() {
         //key: reportId, value: testPlanApiScenarioId
         Map<String, String> returnMap = new HashMap<>();
-        for (String result : apiScenarioCaseExecInfo.keySet()) {
-            if (StringUtils.equalsIgnoreCase(result, TestPlanApiExecuteStatus.RUNNING.name())) {
-                if (apiScenarioThreadMap.containsKey(result)) {
-                    returnMap.put(apiScenarioThreadMap.get(result), result);
+        for (Map.Entry<String,String> entry : apiScenarioCaseExecInfo.entrySet()) {
+            String planScenarioId = entry.getKey();
+            String status = entry.getValue();
+            if (StringUtils.equalsIgnoreCase(status, TestPlanApiExecuteStatus.RUNNING.name())) {
+                if (apiScenarioThreadMap.containsKey(planScenarioId)) {
+                    returnMap.put(apiScenarioThreadMap.get(planScenarioId), planScenarioId);
                 }
             }
         }

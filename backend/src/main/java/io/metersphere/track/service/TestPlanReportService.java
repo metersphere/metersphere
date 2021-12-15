@@ -1312,7 +1312,10 @@ public class TestPlanReportService {
                         }
                     }
                 }
+                testPlanLog.info("ReportID:"+planReportId+" 本次数据库同步,案例ID："+JSON.toJSONString(apiCaseReportMap.keySet())+";场景ID："+JSON.toJSONString(scenarioReportMap.keySet())+"; 同步结果,案例:"+JSON.toJSONString(updateCaseStatusMap)+";场景："+JSON.toJSONString(updateScenarioStatusMap));
                 TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(planReportId, updateCaseStatusMap, updateScenarioStatusMap, null);
+            }else {
+                testPlanLog.info("同步数据库查询执行信息失败! 报告ID在缓存中未找到！"+planReportId);
             }
 
         }
