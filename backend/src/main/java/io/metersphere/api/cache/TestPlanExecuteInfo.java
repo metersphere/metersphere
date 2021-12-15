@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author song.tianyang
@@ -29,13 +30,13 @@ import java.util.Map;
 public class TestPlanExecuteInfo {
     private String reportId;
     private String creator;
-    private Map<String, String> apiCaseExecInfo = new HashMap<>();
-    private Map<String, String> apiScenarioCaseExecInfo = new HashMap<>();
-    private Map<String, String> loadCaseExecInfo = new HashMap<>();
+    private Map<String, String> apiCaseExecInfo = new ConcurrentHashMap<>();
+    private Map<String, String> apiScenarioCaseExecInfo = new ConcurrentHashMap<>();
+    private Map<String, String> loadCaseExecInfo = new ConcurrentHashMap<>();
 
-    private Map<String, String> apiCaseExecuteThreadMap = new HashMap<>();
-    private Map<String, String> apiScenarioThreadMap = new HashMap<>();
-    private Map<String, String> loadCaseReportIdMap = new HashMap<>();
+    private Map<String, String> apiCaseExecuteThreadMap = new ConcurrentHashMap<>();
+    private Map<String, String> apiScenarioThreadMap = new ConcurrentHashMap<>();
+    private Map<String, String> loadCaseReportIdMap = new ConcurrentHashMap<>();
 
     private Map<String, String> apiCaseReportMap = new HashMap<>();
     private Map<String, String> apiScenarioReportMap = new HashMap<>();
@@ -227,7 +228,7 @@ public class TestPlanExecuteInfo {
         this.countUnFinishedNum();
     }
 
-    public void updateReport(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo) {
+    public synchronized void updateReport(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo) {
         if (MapUtils.isNotEmpty(apiCaseExecResultInfo)) {
             this.apiCaseReportMap.putAll(apiCaseExecResultInfo);
         }
