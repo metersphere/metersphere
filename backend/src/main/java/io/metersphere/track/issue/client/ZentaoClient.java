@@ -16,11 +16,11 @@ import org.springframework.web.client.RestTemplate;
 
 public abstract class ZentaoClient extends BaseClient {
 
-    protected  String ENDPOINT;
+    protected String ENDPOINT;
 
-    protected  String USER_NAME;
+    protected String USER_NAME;
 
-    protected  String PASSWD;
+    protected String PASSWD;
 
     public RequestUrl requestUrl;
     protected String url;
@@ -30,7 +30,7 @@ public abstract class ZentaoClient extends BaseClient {
     }
 
     // 注意 recTotal={1}&recPerPage={2}&pageID={3} 顺序不能调换，实在恶心
-    private static final String BUG_LIST_URL="?m=bug&f=browse&productID={0}&branch=&browseType=&param=0&orderBy=&recTotal={1}&recPerPage={2}&pageID={3}&t=json&zentaosid={4}";
+    private static final String BUG_LIST_URL = "?m=bug&f=browse&productID={0}&branch=&browseType=&param=0&orderBy=&recTotal={1}&recPerPage={2}&pageID={3}&t=json&zentaosid={4}";
 
     public String login() {
         GetUserResponse getUserResponse = new GetUserResponse();
@@ -76,7 +76,7 @@ public abstract class ZentaoClient extends BaseClient {
         ResponseEntity<String> response = null;
         try {
             String bugCreate = requestUrl.getBugCreate();
-           response = restTemplate.exchange(bugCreate + sessionId,
+            response = restTemplate.exchange(bugCreate + sessionId,
                     HttpMethod.POST, requestEntity, String.class);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -140,5 +140,18 @@ public abstract class ZentaoClient extends BaseClient {
         USER_NAME = config.getAccount();
         PASSWD = config.getPassword();
         ENDPOINT = config.getUrl();
+    }
+
+
+    public String getReplaceImgUrl(String replaceImgUrl) {
+        String baseUrl = getBaseUrl();
+        String[] split = baseUrl.split("/");
+        String suffix = split[split.length - 1];
+        if (!StringUtils.equalsAny(suffix, "zentao", "zentaopms", "zentaopro", "zentaobiz")) {
+            suffix = "";
+        } else {
+            suffix = "/" + suffix;
+        }
+        return String.format(replaceImgUrl, suffix);
     }
 }

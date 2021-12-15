@@ -16,7 +16,7 @@ public class ZentaoGetClient extends ZentaoClient {
     private static final String USER_GET="&module=user&methodName=getList&t=json&zentaosid=";
     private static final String BUILDS_GET="&module=build&methodName=getProductBuildPairs&productID={0}&zentaosid=";
     private static final String FILE_UPLOAD="&module=file&methodName=saveUpload&t=json&zentaosid=";
-    private static final String REPLACE_IMG_URL="<img src=\"/zentao/index.php?m=file&f=read&fileID=$1\"/>";
+    private static final String REPLACE_IMG_URL="<img src=\"%s/index.php?m=file&f=read&fileID=$1\"/>";
     private static final Pattern IMG_PATTERN = Pattern.compile("m=file&f=read&fileID=(.*?)\"/>");
 
     RequestUrl request = new RequestUrl();
@@ -34,7 +34,7 @@ public class ZentaoGetClient extends ZentaoClient {
         request.setUserGet(getUrl(USER_GET));
         request.setBuildsGet(getUrl(BUILDS_GET));
         request.setFileUpload(getUrl(FILE_UPLOAD));
-        request.setReplaceImgUrl(REPLACE_IMG_URL);
+        request.setReplaceImgUrl(getReplaceImgUrl(REPLACE_IMG_URL));
         request.setImgPattern(IMG_PATTERN);
         request.setBugUpdate(getUrl(BUG_UPDATE));
         request.setBugDelete(getNotSuperModelUrl(BUG_DELETE));
