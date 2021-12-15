@@ -4,6 +4,7 @@ import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -24,10 +25,10 @@ public class LoadReportStatusEvent implements LoadTestFinishEvent {
         if (StringUtils.isNotBlank(reportId)) {
             String result = "";
             if (StringUtils.equals(PerformanceTestStatus.Error.name(), status)) {
-                result = "error";
+                result = TestPlanLoadCaseStatus.error.name();
             }
             if (StringUtils.equals(PerformanceTestStatus.Completed.name(), status)) {
-                result = "success";
+                result = TestPlanLoadCaseStatus.success.name();
             }
             extTestPlanLoadCaseMapper.updateCaseStatus(reportId, result);
         }

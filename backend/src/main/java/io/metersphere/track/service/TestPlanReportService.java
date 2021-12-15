@@ -898,7 +898,7 @@ public class TestPlanReportService {
                                 if (errorDataCheckMap.get(loadTestReportId) > 10) {
                                     performaneReportIDList.remove(loadTestReportId);
                                     if (performaneReportIDMap.containsKey(loadTestReportId)) {
-                                        finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanApiExecuteStatus.FAILD.name());
+                                        finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanLoadCaseStatus.error.name());
                                         caseReportMap.put(performaneReportIDMap.get(loadTestReportId), loadTestReportId);
                                     }
                                 } else {
@@ -911,14 +911,14 @@ public class TestPlanReportService {
                             testPlanLog.info("TestPlanReportId[" + testPlanReport.getId() + "] SELECT performance ID:" + loadTestReportId + ",RESULT :" + loadTestReportFromDatabase.getStatus());
                             if (StringUtils.equalsAny(loadTestReportFromDatabase.getStatus(),
                                     PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
-                                finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanApiExecuteStatus.SUCCESS.name());
+                                finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanLoadCaseStatus.success.name());
                                 caseReportMap.put(performaneReportIDMap.get(loadTestReportId), loadTestReportId);
                                 performaneReportIDList.remove(loadTestReportId);
                             }
                         }
                     } catch (Exception e) {
                         performaneReportIDList.remove(loadTestReportId);
-                        finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanApiExecuteStatus.FAILD.name());
+                        finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanLoadCaseStatus.error.name());
                         caseReportMap.put(performaneReportIDMap.get(loadTestReportId), loadTestReportId);
                         testPlanLog.error(e.getMessage());
                     }
