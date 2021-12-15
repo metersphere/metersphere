@@ -1,6 +1,7 @@
 <template>
   <div class="compare-class">
     <el-card style="width: 50%;" ref="old">
+      <p>1</p>
       <el-row>
         <el-col :span="12">
           <el-form :inline="true">
@@ -36,6 +37,7 @@
       </el-tabs>
     </el-card>
     <el-card style="width: 50%;" ref="new">
+      <p>2</p>
       <el-row>
         <el-col :span="12">
           <el-form :inline="true">
@@ -82,6 +84,9 @@ import EditPerformanceTest from "@/business/components/performance/test/EditPerf
 import PerformancePressureConfig from "@/business/components/performance/test/components/PerformancePressureConfig";
 import PerformanceBasicConfig from "@/business/components/performance/test/components/PerformanceBasicConfig";
 import PerformanceAdvancedConfig from "@/business/components/performance/test/components/PerformanceAdvancedConfig";
+import {patch} from "@/business/components/performance/v_node_diff";
+import Vue from "vue";
+
 
 export default{
   name:"DiffVersion",
@@ -120,50 +125,12 @@ export default{
   },
   methods:{
     getDiff(){
-      let oldVnode = this.$refs.old.$vnode;
-      let vnode = this.$refs.new.$vnode;
-      console.log(oldVnode)
-      console.log(vnode)
-      //patch node
-     /* if (oldVnode === vnode) {
-        return
-      }
-      // .....
-
-      let i
-      const data = vnode.data
-      if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
-        i(oldVnode, vnode)
-      }
-
-      const oldCh = oldVnode.children
-      const ch = vnode.children
-      if (isDef(data) && isPatchable(vnode)) {
-        for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
-        if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
-      }
-      if (isUndef(vnode.text)) {
-        if (isDef(oldCh) && isDef(ch)) {
-          if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
-        } else if (isDef(ch)) {
-          if (process.env.NODE_ENV !== 'production') {
-            checkDuplicateKeys(ch)
-          }
-          if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
-          addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
-        } else if (isDef(oldCh)) {
-          removeVnodes(elm, oldCh, 0, oldCh.length - 1)
-        } else if (isDef(oldVnode.text)) {
-          nodeOps.setTextContent(elm, '')
-        }
-      } else if (oldVnode.text !== vnode.text) {
-        nodeOps.setTextContent(elm, vnode.text)
-      }
-      if (isDef(data)) {
-        if (isDef(i = data.hook) && isDef(i = i.postpatch)) i(oldVnode, vnode)
-      }*/
-
-
+      let oldVnode = this.$refs.old.$el
+      let vnode = this.$refs.new.$el
+      //oldVnode.style.backgroundColor = "rgb(241,200,196)";
+      console.log(this.$refs.old)
+      console.log(this.$refs.new)
+      patch(oldVnode,vnode,null,null);
 
     },
     clickTab(tab) {
@@ -172,7 +139,6 @@ export default{
       }
     },
     fileChange(threadGroups) {
-      console.log("kak")
       let handler = this.$refs.pressureConfig;
       let csvSet = new Set;
       threadGroups.forEach(tg => {
@@ -207,7 +173,6 @@ export default{
       handler.calculateTotalChart();
     },
     fileNewChange(threadGroups) {
-      console.log("kak")
       let handler = this.$refs.newPressureConfig;
       let csvSet = new Set;
       threadGroups.forEach(tg => {
