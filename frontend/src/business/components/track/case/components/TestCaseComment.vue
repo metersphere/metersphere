@@ -4,10 +4,7 @@
     <div v-loading="result.loading">
       <div class="editors_div_style">
         <div id="editorsDiv">
-          <mavon-editor :disabled="isReadOnly"
-                        :xss-options="xssOptions"
-                        @imgAdd="imgAdd" :default-open="'edit'" class="review-mavon-editor" :imageFilter="imageFilter"
-                        :toolbars="richDataToolbars" @imgDel="imgDel" v-model="textarea" ref="md"/>
+          <ms-mark-down-text prop="description" :data="from" :toolbars="toolbars"/>
         </div>
       </div>
       <div>
@@ -22,11 +19,12 @@
 
 <script>
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
-import {getUUID} from "@/common/js/utils";
+import {uploadMarkDownImg} from "@/network/image";
+import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 
 export default {
   name: "TestCaseComment",
-  components: {ReviewCommentItem},
+  components: {MsMarkDownText, ReviewCommentItem},
   props: {
     caseId: String,
     reviewId: String,
@@ -34,16 +32,12 @@ export default {
   data() {
     return {
       result: {},
-      textarea: '',
+      from: {
+        description: ''
+      },
       isReadOnly: false,
       dialogTableVisible: false,
-      xssOptions: {
-        whiteList: {
-          img: ["src", "alt", "width", "height"],
-        },
-        stripIgnoreTagBody: true
-      },
-      richDataToolbars: {
+      toolbars: {
         bold: false, // 粗体
         italic: false, // 斜体
         header: false, // 标题
@@ -87,59 +81,21 @@ export default {
     sendComment() {
       let comment = {};
       comment.caseId = this.caseId;
-      comment.description = this.textarea;
-      if (!this.textarea) {
+      comment.description = this.from.description;
+      if (!comment.description) {
         this.$warning(this.$t('test_track.comment.description_is_null'));
         return;
       }
       this.result = this.$post('/test/case/comment/save', comment, () => {
         this.$success(this.$t('test_track.comment.send_success'));
         this.refresh(comment.caseId);
-        this.textarea = '';
+        this.from.description = '';
         this.dialogTableVisible = false;
       });
     },
     refresh(id) {
       this.$emit('getComments');
-    },
-    //富文本框
-    imgAdd(pos, file) {
-      let param = {
-        id: getUUID().substring(0, 8)
-      };
-
-      file.prefix = param.id;
-      this.result = this.$fileUpload('/resource/md/upload', file, null, param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.$refs.md.$img2Url(pos, '/resource/md/get/'  + param.id+"_"+file.name);
-        this.sendComment();
-      });
-      this.$emit('imgAdd', file);
-    },
-    imageFilter(file){
-      let isImg = false;
-      if(file){
-        if(file.name){
-          if (file.name.indexOf("[")> 0 || file.name.indexOf("]") > 0||file.name.indexOf("([)")> 0 || file.name.indexOf(")") > 0){
-            this.$error("图片名称不能含有特殊字符");
-            isImg = false;
-          }else {
-            isImg = true;
-          }
-        }
-      }
-      return isImg;
-    },
-    imgDel(file) {
-      let fileUrl = file[1].prefix + "_" + file[1].name;
-      let comments = this.$refs.reviewComments;
-      comments.forEach(item => {
-        let imgCheckResult = item.checkByUrls(fileUrl);
-        if(imgCheckResult){
-          item.deleteComment();
-        }
-      });
-    },
+    }
   }
 };
 </script>
@@ -156,12 +112,6 @@ export default {
 }
 
 .editors_div_style {
-  height: 300px;
-  overflow: auto
-}
-
-.review-mavon-editor {
-  min-height: 20px;
   height: 300px;
   overflow: auto
 }
