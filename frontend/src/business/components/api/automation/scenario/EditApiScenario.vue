@@ -1371,6 +1371,8 @@ export default {
             this.resetResourceId(this.scenarioDefinition);
           }
           this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
+          // 让接口自动化参数设置的地方，可以拿到场景变量
+          this.$store.state.scenarioMap.set("currentScenarioId", this.currentScenario.variables);
         })
       }
     },
