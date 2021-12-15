@@ -2,7 +2,7 @@
   <div>
     <el-row v-for="(i) in (customFieldRowNums)" :key="i">
     <span class="custom-item" v-for="(item, j) in issueTemplate.customFields" :key="j">
-      <span v-if="j >= i*3 && j < i*3+3">
+      <span v-if="j >= (i - 1)*3 && j < (i - 1)*3+3">
         <el-col :span="8" v-if="item.type !== 'richText'">
           <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
                         :label-width="formLabelWidth">
