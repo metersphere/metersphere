@@ -555,7 +555,7 @@ public class ApiTestCaseService {
             testPlanApiCase.setCreateTime(System.currentTimeMillis());
             testPlanApiCase.setUpdateTime(System.currentTimeMillis());
             testPlanApiCase.setOrder(nextOrder);
-            nextOrder += 5000;
+            nextOrder += ServiceUtils.ORDER_STEP;
             if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
                 batchBaseMapper.insert(testPlanApiCase);
             } else {

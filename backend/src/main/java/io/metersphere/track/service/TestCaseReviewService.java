@@ -385,7 +385,7 @@ public class TestCaseReviewService {
                 caseReview.setStatus(TestCaseReviewStatus.Prepare.name());
                 caseReview.setOrder(nextOrder);
                 batchMapper.insert(caseReview);
-                nextOrder += 5000;
+                nextOrder += ServiceUtils.ORDER_STEP;
             }
         }
 

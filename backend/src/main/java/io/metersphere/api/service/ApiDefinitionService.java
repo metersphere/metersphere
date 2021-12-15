@@ -654,7 +654,7 @@ public class ApiDefinitionService {
         if (order == null) {
             order = ServiceUtils.getNextOrder(projectId, extApiDefinitionMapper::getLastOrder);
         }
-        order = (order == null ? 0 : order) + 5000;
+        order = (order == null ? 0 : order) + ServiceUtils.ORDER_STEP;
         currentApiOrder.set(order);
         return order;
     }
@@ -664,7 +664,7 @@ public class ApiDefinitionService {
         if (order == null) {
             order = ServiceUtils.getNextOrder(projectId, extApiTestCaseMapper::getLastOrder);
         }
-        order = (order == null ? 0 : order) + 5000;
+        order = (order == null ? 0 : order) + ServiceUtils.ORDER_STEP;
         currentApiCaseOrder.set(order);
         return order;
     }

@@ -286,6 +286,7 @@ export default {
       tableLabel: [],
       deletePath: "/test/case/delete",
       enableOrderDrag: true,
+      isMoveBatch: true,
       condition: {
         components: TEST_CASE_CONFIGS,
         filters: {}
@@ -322,11 +323,18 @@ export default {
           name: this.$t('test_track.case.batch_edit_case'),
           handleClick: this.handleBatchEdit,
           permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
-        }, {
+        },
+        {
           name: this.$t('test_track.case.batch_move_case'),
           handleClick: this.handleBatchMove,
           permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
-        }, {
+        },
+        {
+          name: this.$t('api_test.batch_copy'),
+          handleClick: this.handleBatchCopy,
+          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+        },
+        {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatchToGc,
           permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
@@ -884,6 +892,11 @@ export default {
       this.$refs.batchEdit.open(this.$refs.table.selectRows.size);
     },
     handleBatchMove() {
+      this.isMoveBatch = true;
+      this.$refs.testBatchMove.open(this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
+    },
+    handleBatchCopy() {
+      this.isMoveBatch = false;
       this.$refs.testBatchMove.open(this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
     },
     getMaintainerOptions() {
@@ -893,7 +906,10 @@ export default {
     },
     moveSave(param) {
       param.condition = this.condition;
-      this.page.result = this.$post('/test/case/batch/edit', param, () => {
+      let url = '/test/case/batch/edit';
+      if (!this.isMoveBatch)
+        url = '/test/case/batch/copy';
+      this.page.result = this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.testBatchMove.close();
         this.refresh();
