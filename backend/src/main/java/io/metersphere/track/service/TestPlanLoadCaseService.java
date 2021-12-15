@@ -116,7 +116,7 @@ public class TestPlanLoadCaseService {
                 t.setLoadConfiguration(loadTest.getLoadConfiguration());
                 t.setAdvancedConfiguration(loadTest.getAdvancedConfiguration());
             }
-            nextOrder += 5000;
+            nextOrder += ServiceUtils.ORDER_STEP;
             testPlanLoadCaseMapper.insert(t);
         }
 

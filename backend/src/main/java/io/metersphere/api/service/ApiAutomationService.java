@@ -2049,7 +2049,7 @@ public class ApiAutomationService {
                 testPlanApiScenario.setEnvironment(environmentJson);
             }
             testPlanApiScenario.setOrder(nextOrder);
-            nextOrder += 5000;
+            nextOrder += ServiceUtils.ORDER_STEP;
             testPlanApiScenarioMapper.insert(testPlanApiScenario);
         }
     }
@@ -2339,7 +2339,7 @@ public class ApiAutomationService {
         if (order == null) {
             order = ServiceUtils.getNextOrder(projectId, extApiScenarioMapper::getLastOrder);
         }
-        order = (order == null ? 0 : order) + 5000;
+        order = (order == null ? 0 : order) + ServiceUtils.ORDER_STEP;
         currentScenarioOrder.set(order);
         return order;
     }

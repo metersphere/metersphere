@@ -650,32 +650,33 @@ public class TestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         Project project = projectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
-        Long nextOrder = ServiceUtils.getNextOrder(projectId, extTestCaseMapper::getLastOrder);
-        if (!testCases.isEmpty()) {
-            AtomicInteger sort = new AtomicInteger();
-            AtomicInteger num = new AtomicInteger();
-            num.set(getNextNum(projectId) + testCases.size());
-            for (TestCaseWithBLOBs testcase: testCases) {
-                testcase.setId(UUID.randomUUID().toString());
-                testcase.setCreateUser(SessionUtils.getUserId());
-                testcase.setCreateTime(System.currentTimeMillis());
-                testcase.setUpdateTime(System.currentTimeMillis());
-                testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
-                testcase.setSort(sort.getAndIncrement());
-                int number = num.incrementAndGet();
-                testcase.setNum(number);
-                if (project.getCustomNum() && StringUtils.isBlank(testcase.getCustomNum())) {
-                    testcase.setCustomNum(String.valueOf(number));
+        try {
+            Long nextOrder = ServiceUtils.getNextOrder(projectId, extTestCaseMapper::getLastOrder);
+            if (!testCases.isEmpty()) {
+                AtomicInteger sort = new AtomicInteger();
+                AtomicInteger num = new AtomicInteger();
+                num.set(getNextNum(projectId) + testCases.size());
+                for (TestCaseWithBLOBs testcase: testCases) {
+                    testcase.setId(UUID.randomUUID().toString());
+                    testcase.setCreateUser(SessionUtils.getUserId());
+                    testcase.setCreateTime(System.currentTimeMillis());
+                    testcase.setUpdateTime(System.currentTimeMillis());
+                    testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
+                    testcase.setSort(sort.getAndIncrement());
+                    int number = num.incrementAndGet();
+                    testcase.setNum(number);
+                    if (project.getCustomNum() && StringUtils.isBlank(testcase.getCustomNum())) {
+                        testcase.setCustomNum(String.valueOf(number));
+                    }
+                    testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                    testcase.setStatus(TestCaseReviewStatus.Prepare.name());
+                    testcase.setOrder(nextOrder);
+                    mapper.insert(testcase);
+                    nextOrder += ServiceUtils.ORDER_STEP;
                 }
-                testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                testcase.setStatus(TestCaseReviewStatus.Prepare.name());
-                testcase.setOrder(nextOrder);
-                mapper.insert(testcase);
-                nextOrder += 5000;
             }
-        }
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
+            sqlSession.flushStatements();
+        } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
@@ -684,26 +685,27 @@ public class TestCaseService {
         Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
-        if (!testCases.isEmpty()) {
-            AtomicInteger sort = new AtomicInteger();
-            AtomicInteger num = new AtomicInteger();
-            num.set(getNextNum(projectId) + testCases.size());
-            testCases.forEach(testcase -> {
-                TestCaseWithBLOBs oldCase = testCaseMapper.selectByPrimaryKey(testcase.getId());
-                String customFieldStr = this.updateCustomField(oldCase.getCustomFields(),testcase.getPriority());
-                testcase.setUpdateTime(System.currentTimeMillis());
-                testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
-                testcase.setSort(sort.getAndIncrement());
-                if (testcase.getNum() == null) {
-                    testcase.setNum(num.decrementAndGet());
-                }
-                testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                testcase.setCustomFields(customFieldStr);
-                mapper.updateByPrimaryKeySelective(testcase);
-            });
-        }
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
+        try {
+            if (!testCases.isEmpty()) {
+                AtomicInteger sort = new AtomicInteger();
+                AtomicInteger num = new AtomicInteger();
+                num.set(getNextNum(projectId) + testCases.size());
+                testCases.forEach(testcase -> {
+                    TestCaseWithBLOBs oldCase = testCaseMapper.selectByPrimaryKey(testcase.getId());
+                    String customFieldStr = this.updateCustomField(oldCase.getCustomFields(),testcase.getPriority());
+                    testcase.setUpdateTime(System.currentTimeMillis());
+                    testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
+                    testcase.setSort(sort.getAndIncrement());
+                    if (testcase.getNum() == null) {
+                        testcase.setNum(num.decrementAndGet());
+                    }
+                    testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                    testcase.setCustomFields(customFieldStr);
+                    mapper.updateByPrimaryKeySelective(testcase);
+                });
+                sqlSession.flushStatements();
+            }
+        } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
@@ -735,8 +737,6 @@ public class TestCaseService {
      */
     public void updateImportDataCarryId(List<TestCaseWithBLOBs> testCases, String projectId) {
         Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
 
         /*
         获取用例的“网页上所显示id”与“数据库ID”映射。
@@ -751,19 +751,21 @@ public class TestCaseService {
         Map<Integer, String> numIdMap = testCasesList.stream()
                 .collect(Collectors.toMap(TestCase::getNum, TestCase::getId));
 
-
-        if (!testCases.isEmpty()) {
-            AtomicInteger sort = new AtomicInteger();
-            testCases.forEach(testcase -> {
-                testcase.setUpdateTime(System.currentTimeMillis());
-                testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
-                testcase.setSort(sort.getAndIncrement());
-                testcase.setId(numIdMap.get(testcase.getNum()));
-                mapper.updateByPrimaryKeySelective(testcase);
-            });
-        }
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        try {
+            if (!testCases.isEmpty()) {
+                AtomicInteger sort = new AtomicInteger();
+                testCases.forEach(testcase -> {
+                    testcase.setUpdateTime(System.currentTimeMillis());
+                    testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
+                    testcase.setSort(sort.getAndIncrement());
+                    testcase.setId(numIdMap.get(testcase.getNum()));
+                    mapper.updateByPrimaryKeySelective(testcase);
+                });
+            }
+            sqlSession.flushStatements();
+        } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
@@ -777,8 +779,6 @@ public class TestCaseService {
      */
     public void updateImportDataCustomId(List<TestCaseWithBLOBs> testCases, String projectId) {
         Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
 
         /*
         获取用例的“网页上所显示id”与“数据库ID”映射。
@@ -793,19 +793,21 @@ public class TestCaseService {
         Map<String, String> customIdMap = testCasesList.stream()
                 .collect(Collectors.toMap(TestCase::getCustomNum, TestCase::getId, (k1,k2) -> k1));
 
-
-        if (!testCases.isEmpty()) {
-            AtomicInteger sort = new AtomicInteger();
-            testCases.forEach(testcase -> {
-                testcase.setUpdateTime(System.currentTimeMillis());
-                testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
-                testcase.setSort(sort.getAndIncrement());
-                testcase.setId(customIdMap.get(testcase.getCustomNum()));
-                mapper.updateByPrimaryKeySelective(testcase);
-            });
-        }
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        try {
+            if (!testCases.isEmpty()) {
+                AtomicInteger sort = new AtomicInteger();
+                testCases.forEach(testcase -> {
+                    testcase.setUpdateTime(System.currentTimeMillis());
+                    testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
+                    testcase.setSort(sort.getAndIncrement());
+                    testcase.setId(customIdMap.get(testcase.getCustomNum()));
+                    mapper.updateByPrimaryKeySelective(testcase);
+                });
+            }
+            sqlSession.flushStatements();
+        } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
@@ -2124,5 +2126,39 @@ public class TestCaseService {
         example.createCriteria().andCaseIdEqualTo(caseId);
         List<TestCaseFollow> follows = testCaseFollowMapper.selectByExample(example);
         return follows.stream().map(TestCaseFollow::getFollowId).distinct().collect(Collectors.toList());
+    }
+
+    public List<TestCaseWithBLOBs> getTestCasesWithBLOBs(List<String> ids) {
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andIdIn(ids);
+        return testCaseMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public void copyTestCaseBath(TestCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isEmpty(ids)) return;
+        List<TestCaseWithBLOBs> testCases = getTestCasesWithBLOBs(ids);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        Long nextOrder = ServiceUtils.getNextOrder(request.getProjectId(), extTestCaseMapper::getLastOrder);
+
+        try {
+            for (int i = 0; i < testCases.size(); i++) {
+                TestCaseWithBLOBs testCase = testCases.get(i);
+                testCase.setId(UUID.randomUUID().toString());
+                testCase.setName(testCase.getName() + "_" + testCase.getId().substring(0, 5));
+                testCase.setNodeId(request.getNodeId());
+                testCase.setNodePath(request.getNodePath());
+                testCase.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
+                mapper.insert(testCase);
+                if (i % 50 == 0)
+                    sqlSession.flushStatements();
+            }
+            sqlSession.flushStatements();
+        } finally {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 }
