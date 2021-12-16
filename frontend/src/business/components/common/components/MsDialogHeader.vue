@@ -53,6 +53,7 @@ export default {
   border: none;
   outline: 0;
   cursor: pointer;
+  display: inline-block
 }
 
 </style>

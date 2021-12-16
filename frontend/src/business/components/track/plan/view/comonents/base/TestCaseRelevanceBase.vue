@@ -7,8 +7,11 @@
         <slot name="headerBtn"></slot>
       </div>
       <div v-else>
-        <div style="margin-bottom: 5px" v-if="flag">
-          <el-checkbox v-model="checked">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
+        <div style="margin-bottom: 5px; display:inline-block" v-if="flag">
+          <el-checkbox v-model="checked" class="el-checkbox__label">{{
+              $t('test_track.sync_add_api_load')
+            }}
+          </el-checkbox>
         </div>
         <ms-dialog-header @cancel="close" v-loading="isSaving" @confirm="save"/>
       </div>
@@ -145,4 +148,12 @@ import SelectMenu from "../../../../common/SelectMenu";
 </script>
 
 <style scoped>
+
+.el-checkbox__label {
+  display: inline-block;
+  padding-left: 10px;
+  line-height: 19px;
+  font-size: 14px;
+  padding-right: 10px;
+}
 </style>
