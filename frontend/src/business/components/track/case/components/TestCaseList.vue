@@ -758,7 +758,10 @@ export default {
 
     },
     isPublic(testCase) {
-      if (testCase.maintainer !== getCurrentUserId() || testCase.createUser !== getCurrentUserId()) {
+      if (testCase.maintainer && testCase.maintainer !== getCurrentUserId()) {
+        return true;
+      }
+      if (testCase.createUser && testCase.createUser !== getCurrentUserId()) {
         return true;
       } else {
         return false;
