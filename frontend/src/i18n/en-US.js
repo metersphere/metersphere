@@ -2348,5 +2348,43 @@ export default {
     mail_subject: "Subject ",
     mail_addressee: "To ",
     mail_duplicate: "Cc ",
+  },
+  notice: {
+    operation: {
+      'CREATE': ' Created',
+      'UPDATE': ' Updated',
+      'DELETE': ' Delete',
+      'COMMENT': ' Commented',
+      'COMPLETE': ' Completed',
+      'CLOSE_SCHEDULE': ' Close Scheduled task',
+      'CASE_CREATE': ' Created API Case',
+      'CASE_UPDATE': ' Updated API Case',
+      'CASE_DELETE': ' Delete API Case',
+      'EXECUTE_SUCCESSFUL': ' Execute',
+      'EXECUTE_FAILED': ' Execute',
+      'EXECUTE_COMPLETED': ' Execute',
+    },
+    resource: {
+      'JENKINS_TASK': ' Jenkins',
+      'TEST_PLAN_TASK': ' TestPlan',
+      'REVIEW_TASK': ' Review',
+      'DEFECT_TASK': ' Defect',
+      'SWAGGER_TASK': ' Swagger',
+      'API_AUTOMATION_TASK': ' API Automation',
+      'API_DEFINITION_TASK': ' API',
+      'API_HOME_TASK': ' API HomePage',
+      'API_REPORT_TASK': ' API Report',
+      'PERFORMANCE_TEST_TASK': ' Performance Test',
+      'PERFORMANCE_REPORT_TASK': ' Performance Report',
+      'TRACK_TEST_CASE_TASK': ' TestCase',
+      'TRACK_HOME_TASK': ' Tracking HomePage',
+      'TRACK_REPORT_TASK': ' Tracking Report',
+    },
+    result: {
+      'EXECUTE_SUCCESSFUL': ' Success',
+      'EXECUTE_FAILED': ' Failed',
+      'EXECUTE_COMPLETED': ' Completed',
+    },
+    api_case: 'API Case'
   }
 };
