@@ -1339,11 +1339,8 @@ public class TestCaseService {
             batchCopy.setId(UUID.randomUUID().toString());
             batchCopy.setCreateTime(System.currentTimeMillis());
             batchCopy.setUpdateTime(System.currentTimeMillis());
-            checkTestCustomNum(batchCopy);
             batchCopy.setNum(getNextNum(SessionUtils.getCurrentProjectId()));
-            if (StringUtils.isBlank(batchCopy.getCustomNum())) {
-                batchCopy.setCustomNum(batchCopy.getNum().toString());
-            }
+            batchCopy.setCustomNum(batchCopy.getNum().toString());
             batchCopy.setCreateUser(SessionUtils.getUserId());
             batchCopy.setMaintainer(SessionUtils.getUserId());
             batchCopy.setReviewStatus(TestCaseReviewStatus.Prepare.name());
