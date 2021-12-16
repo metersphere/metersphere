@@ -191,7 +191,6 @@ import {
   getCurrentUser,
   getCurrentUserId,
   getCurrentWorkspaceId,
-  listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
 import MsContainer from "../../common/components/MsContainer";
@@ -254,8 +253,6 @@ export default {
         description: [
           {max: 250, message: this.$t('commons.input_limit', [0, 250]), trigger: 'blur'}
         ],
-        // caseTemplateId: [{required: true}],
-        // issueTemplateId: [{required: true}],
       },
       screenHeight: 'calc(100vh - 195px)',
       dialogCondition: {},
@@ -288,9 +285,6 @@ export default {
     this.list();
   },
   computed: {
-    currentUser: () => {
-      return getCurrentUser();
-    },
     projectId() {
       return getCurrentProjectID();
     },
@@ -306,19 +300,20 @@ export default {
         name: '',
         projectId: row.id
       };
-      this.wsId = row.id;
       this.result = this.$post("/user/project/member/list", param, res => {
-        let data = res.data;
-        this.memberLineData = data;
-        let arr = this.memberLineData.filter(item => item.id == getCurrentUserId());
+        this.memberLineData = res.data;
+        let arr = this.memberLineData.filter(item => item.id === getCurrentUserId());
         if (arr.length > 0) {
           window.sessionStorage.setItem(PROJECT_ID, row.id);
-          this.$router.push('/track/home');
+          this.$router.push('/track/home').then(() => {
+            if (!getCurrentUser().lastProjectId) {
+              window.location.reload();
+            }
+          });
         } else {
-          this.$message(this.$t("commons.project_permission"));
+          this.$warning(this.$t("commons.project_permission"));
         }
       });
-
     },
     getMaintainerOptions() {
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
@@ -420,7 +415,6 @@ export default {
         name: '',
         projectId: row.id
       };
-      this.wsId = row.id;
       let path = "/user/project/member/list";
       this.result = this.$post(this.buildPagePath(path), param, res => {
         let data = res.data;
