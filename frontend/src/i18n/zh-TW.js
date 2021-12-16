@@ -1174,7 +1174,8 @@ export default {
           all: "全部",
           none: "無"
         },
-      }
+      },
+      case_reduction_error_text:"請先恢復"
     },
     automation: {
       open_expansion: "一鍵展開",
@@ -1306,7 +1307,10 @@ export default {
       share_cookie: '共享cookie',
       module_id:'場景模塊ID',
       level: '級別',
-      version:"場景版本"
+      version:"場景版本",
+      warning_context:"暫不支持批量添加所有場景到測試計劃!",
+      jmx_file_set:"場景JMX文件集",
+      error_report_jmx:"導出JMX文件失敗",
     },
     request: {
       debug: "調試",
@@ -2055,6 +2059,8 @@ export default {
       status_new: '新建',
       status_resolved: '已解決',
       status_closed: '已關閉',
+      status_active:'激活',
+      status_delete:'删除',
       please_choose_current_owner: "請選擇處理人",
       tapd_current_owner: "Tapd 處理人",
       zentao_bug_build: "禪道 影響版本",
