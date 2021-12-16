@@ -1002,6 +1002,8 @@ export default {
     export_config: "导出",
     enable_validate_tip: "没有可用请求",
     copy: "复制测试",
+    please_select_case: "请选择用例",
+    fail_to_stop: "失败停止",
     batch_add_parameter: "格式：参数名:参数值 <br/> 如：Accept-Encoding:utf-8",
     jar_config: {
       title: "上传jar包",

@@ -994,6 +994,8 @@ export default {
     export_config: "Export",
     enable_validate_tip: "No request available",
     copy: "Copy Test",
+    please_select_case: "Please select case",
+    fail_to_stop: "Fail to stop",
     jar_config: {
       title: "Upload jar package",
       jar_file: "Jar package",

@@ -999,6 +999,8 @@ export default {
     export_config: "導出",
     enable_validate_tip: "沒有可用請求",
     copy: "復製測試",
+    please_select_case: "請選擇用例",
+    fail_to_stop: "失敗停止",
     batch_add_parameter: "格式：參數名:參數值 <br/> 如：Accept-Encoding:utf-8",
     jar_config: {
       title: "上傳jar包",

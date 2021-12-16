@@ -111,14 +111,14 @@
         let envType = this.$refs.apiScenarioList.environmentType;
         let envGroupId = this.$refs.apiScenarioList.envGroupId;
         if (!map || map.size < 1) {
-          this.$warning("请选择用例！");
+          this.$warning(this.$t("api_test.please_select_case"));
           return false;
         }
         if (envType === ENV_TYPE.JSON && (!envMap || envMap.size < 1)) {
-          this.$warning("请选择环境！");
+          this.$warning(this.$t("api_test.environment.select_environment"));
           return false;
         } else if (envType === ENV_TYPE.GROUP && !envGroupId) {
-          this.$warning("请选择环境！");
+          this.$warning(this.$t("api_test.environment.select_environment"));
           return false;
         }
         param.planId = this.planId;
