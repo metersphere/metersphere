@@ -105,7 +105,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         result.setResponseCode(TEST_END);
         ResultDTO dto = new ResultDTO();
         dto.setReportId(this.getName());
-        SerialBlockingQueueUtil.offer(dto, "testEnd");
+        SerialBlockingQueueUtil.offer(dto, SerialBlockingQueueUtil.END_SIGN);
         try {
             if (client != null) {
                 client.close();

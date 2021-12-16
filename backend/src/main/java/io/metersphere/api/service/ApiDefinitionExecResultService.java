@@ -76,10 +76,14 @@ public class ApiDefinitionExecResultService {
         LoggerUtil.info("接收到API/CASE执行结果【 " + requestResults.size() + " 】");
 
         for (RequestResult item : requestResults) {
+            item.setEndTime(System.currentTimeMillis());
+            if (item.getResponseResult() != null) {
+                item.getResponseResult().setResponseTime((item.getEndTime() - item.getStartTime()));
+            }
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                 ApiDefinitionExecResult result = this.save(item, dto.getReportId(), dto.getConsole(), count, dto.getRunMode(), dto.getTestId(), isFirst);
                 // 串行队列
-                SerialBlockingQueueUtil.offer(dto, "testEnd");
+                SerialBlockingQueueUtil.offer(dto, result != null ? result : SerialBlockingQueueUtil.END_SIGN);
                 if (result != null) {
                     // 发送通知
                     sendNotice(result);
@@ -220,7 +224,7 @@ public class ApiDefinitionExecResultService {
                 caseReportMap.put(dto.getTestId(), saveResult.getId());
                 isFirst = false;
                 // 串行队列
-                SerialBlockingQueueUtil.offer(dto, "testEnd");
+                SerialBlockingQueueUtil.offer(dto, SerialBlockingQueueUtil.END_SIGN);
             }
         }
         updateTestCaseStates(dto.getTestId());
