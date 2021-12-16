@@ -32,7 +32,7 @@
         </el-col>
         <el-col :span="18">
           <div>
-            <el-checkbox v-model="runConfig.onSampleError">失败停止</el-checkbox>
+            <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
           </div>
           <div v-if="testType === 'API'" style="padding-top: 10px">
             <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
