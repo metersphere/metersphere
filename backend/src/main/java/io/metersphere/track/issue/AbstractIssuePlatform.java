@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
+import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -64,6 +65,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected String workspaceId;
     protected String userId;
     protected String defaultCustomFields;
+    protected boolean isThirdPartTemplate;
 
 
     public String getKey() {
@@ -366,13 +368,31 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected String syncIssueCustomField(String customFieldsStr, JSONObject issue) {
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
+        Set<String> names = issue.keySet();
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
             Object value = issue.get(fieldName);
             if (value != null) {
-                if (value instanceof JSONObject) {
-                    if (!fieldName.equals("assignee") && !fieldName.equals("reporter")) { // 获取不到账号名
-                        item.setValue(((JSONObject)value).getString("id"));
+               if (value instanceof JSONObject) {
+                   JSONObject valObj = ((JSONObject) value);
+                   String accountId = valObj.getString("accountId");
+                   JSONObject child = valObj.getJSONObject("child");
+                   if (child != null) {// 级联框
+                       List<Object> values = new ArrayList<>();
+                       if (StringUtils.isNotBlank(valObj.getString("id")))  {
+                           values.add(valObj.getString("id"));
+                       }
+                       if (StringUtils.isNotBlank(child.getString("id")))  {
+                           values.add(child.getString("id"));
+                       }
+                       item.setValue(values);
+                   } else if (StringUtils.isNotBlank(accountId)) {
+                       // 用户选择框
+                       if (isThirdPartTemplate) {
+                           item.setValue(accountId);
+                       }
+                    } else {
+                       item.setValue(valObj.getString("id"));
                     }
                 } else if (value instanceof JSONArray) {
                     List<Object> values = new ArrayList<>();
@@ -386,6 +406,12 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
                     item.setValue(values);
                 } else {
                     item.setValue(value);
+                }
+            } else if (names.contains(fieldName)) {
+                if (item.getType().equals(CustomFieldType.CHECKBOX.getValue())) {
+                    item.setValue(new ArrayList<>());
+                } else {
+                    item.setValue(null);
                 }
             }
         });
@@ -462,5 +488,13 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issue.setPlatformId(platformId);
         issue.setCreator(SessionUtils.getUserId());
         issue.setNum(nextNum);
+    }
+
+    public boolean isThirdPartTemplate() {
+        Project project = projectService.getProjectById(projectId);
+        if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate() && LicenseUtils.valid()) {
+            return true;
+        }
+        return false;
     }
 }

@@ -3,6 +3,7 @@ import {CUSTOM_TABLE_HEADER} from "@/common/js/default-table-header";
 import {updateCustomFieldTemplate} from "@/network/custom-field-template";
 import i18n from "@/i18n/i18n";
 import Sortable from 'sortablejs'
+import {timestampFormatDate} from "@/common/js/filter";
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -492,6 +493,8 @@ export function getCustomFieldValue(row, field, members) {
             }
             return values;
           }
+        } else if (field.type === 'datetime') {
+          return timestampFormatDate(item.value);
         }
         return item.value;
       }
