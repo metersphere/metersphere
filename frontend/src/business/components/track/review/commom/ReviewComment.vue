@@ -17,7 +17,7 @@
     <div>
       <div class="editors_div_style">
         <div id="editorsDiv" >
-          <ms-mark-down-text prop="description" :data="from" :toolbars="toolbars"/>
+          <ms-mark-down-text prop="description" :data="form" :toolbars="toolbars"/>
         </div>
       </div>
 
@@ -33,7 +33,6 @@
 <script>
 import ReviewCommentItem from "./ReviewCommentItem";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
-import {uploadMarkDownImg} from "@/network/image";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 
 export default {
@@ -48,7 +47,7 @@ export default {
   data() {
     return {
       result: {},
-      from: {
+      form: {
         description: ''
       },
       loadCommenItem:true,
@@ -103,7 +102,7 @@ export default {
     sendComment() {
       let comment = {};
       comment.caseId = this.caseId;
-      comment.description = this.from.description;
+      comment.description = this.form.description;
       comment.reviewId = this.reviewId;
       comment.status = this.reviewStatus;
       if (!comment.description) {
@@ -112,6 +111,7 @@ export default {
       }
       this.result = this.$post('/test/case/comment/save', comment, () => {
         this.$success(this.$t('test_track.comment.send_success'));
+        this.form.description = "";
         this.refresh();
         if(this.$refs.md){
           this.$refs.md.toolbar_left_click('trash');
