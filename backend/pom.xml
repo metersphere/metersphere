@@ -423,7 +423,7 @@
                         <artifactItem>
                             <groupId>org.apache.jmeter</groupId>
                             <artifactId>ApacheJMeter_functions</artifactId>
-                            <version>${jmeter.version}</version>
+                            <version>5.4.1</version>
                             <type>jar</type>
                             <overWrite>true</overWrite>
                             <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
@@ -432,7 +432,7 @@
                         <artifactItem>
                             <groupId>io.metersphere</groupId>
                             <artifactId>metersphere-jmeter-functions</artifactId>
-                            <version>${metersphere-jmeter-functions.version}</version>
+                            <version>1.4</version>
                             <type>jar</type>
                             <overWrite>true</overWrite>
                             <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
