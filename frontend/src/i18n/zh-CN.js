@@ -70,11 +70,11 @@ export default {
     input_password: '请输入密码',
     test: '测试',
     create_time: '创建时间',
-    update_user_id:'更新人ID',
+    update_user_id: '更新人ID',
     update_time: '更新时间',
     delete_time: '删除时间',
     delete_user: '删除人',
-    delete_user_id:'删除人ID',
+    delete_user_id: '删除人ID',
     add: '添加',
     preview: '预览',
     member: '成员',
@@ -201,8 +201,8 @@ export default {
     run_success: "执行成功",
     run_completed: "执行完成",
     run_fail: "执行失败",
-    follow_success:"关注成功",
-    cancel_follow_success:"取消关注成功",
+    follow_success: "关注成功",
+    cancel_follow_success: "取消关注成功",
     type: "类型",
     relationship: {
       name: '依赖关系',
@@ -361,19 +361,19 @@ export default {
     system_project: "项目",
     user_unit: "人",
     workspace_unit: "个",
-    dash_board:'仪表盘',
-    all_project:'全部项目',
-    to_be_completed:'待完成',
-    pending_upgrade:'待更新',
-    information:'信息',
-    nick_name:'昵称',
-    resourceId:'资源ID',
-    level:'级别',
-    num:'数量',
-    original_state:'原始状态',
-    custom_num:'自定义编号',
-    version:'版本',
-    is_new:"是否新建"
+    dash_board: '仪表盘',
+    all_project: '全部项目',
+    to_be_completed: '待完成',
+    pending_upgrade: '待更新',
+    information: '信息',
+    nick_name: '昵称',
+    resourceId: '资源ID',
+    level: '级别',
+    num: '数量',
+    original_state: '原始状态',
+    custom_num: '自定义编号',
+    version: '版本',
+    is_new: "是否新建"
   },
   license: {
     title: '授权管理',
@@ -391,25 +391,25 @@ export default {
     invalid: '无效',
     expired: '已过期',
   },
-  workstation:{
+  workstation: {
     dash_board: '我的仪表盘',
     upcoming: '我的待办',
     focus: '我的关注',
     creation: '我创建的',
-    creation_case:'我创建的用例',
-    creation_issue:'我创建的缺陷',
-    creation_case_tip:'暂时还没有创建用例，马上创建',
-    creation_issue_tip:'暂时还没有创建缺陷，马上创建',
-    table_name:{
-      track_case:'功能用例',
-      track_plan:'测试计划',
-      track_review:'用例评审',
-      track_issue:'缺陷管理',
-      api_definition:'接口定义',
-      api_automation:'接口自动化',
-      api_case:'接口用例',
-      performance:'性能测试',
-      scenario_case:'场景用例'
+    creation_case: '我创建的用例',
+    creation_issue: '我创建的缺陷',
+    creation_case_tip: '暂时还没有创建用例，马上创建',
+    creation_issue_tip: '暂时还没有创建缺陷，马上创建',
+    table_name: {
+      track_case: '功能用例',
+      track_plan: '测试计划',
+      track_review: '用例评审',
+      track_issue: '缺陷管理',
+      api_definition: '接口定义',
+      api_automation: '接口自动化',
+      api_case: '接口用例',
+      performance: '性能测试',
+      scenario_case: '场景用例'
     }
   },
   display: {
@@ -471,7 +471,7 @@ export default {
     option_value_check: '请填写完整选项值',
   },
   workspace: {
-    id:'工作空间ID',
+    id: '工作空间ID',
     create: '创建工作空间',
     update: '修改工作空间',
     delete: '删除工作空间',
@@ -593,10 +593,10 @@ export default {
       zentao_request: '请求方式',
       input_zentao_request: '请输入Zentao请求方式',
       input_zentao_url: '请输入Zentao地址，例：http://xx.xx.xx.xx/zentao/',
-      zentao_info:'禅道信息',
-      zentao_account:'禅道账户',
-      zentao_password:'禅道密码',
-      zentao_prompt_information:'该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用工作空间中配置的默认信息',
+      zentao_info: '禅道信息',
+      zentao_account: '禅道账户',
+      zentao_password: '禅道密码',
+      zentao_prompt_information: '该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用工作空间中配置的默认信息',
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 账号信息在"公司管理-安全与集成-开放平台"中查询',
       use_tip_jira: 'Jira software server 认证信息为 账号密码，Jira software cloud 认证信息为 账号+令牌(账户设置-安全-创建API令牌)',
@@ -623,11 +623,11 @@ export default {
       input_azure_url: '请输入 Azure Devops 地址',
       input_azure_organization_id: '请输入 Azure 组织ID',
       use_tip_azure: 'Azure Devops 地址+令牌(账户设置-个人访问令牌-创建令牌)',
-      jira_prompt_information:'该信息为通过Jira提交缺陷的用户认证信息，若未填写，则使用工作空间中配置的默认信息'
+      jira_prompt_information: '该信息为通过Jira提交缺陷的用户认证信息，若未填写，则使用工作空间中配置的默认信息'
     }
   },
   project: {
-    id:'项目ID',
+    id: '项目ID',
     recent: '最近的项目',
     create: '创建项目',
     edit: '编辑项目',
@@ -730,7 +730,7 @@ export default {
     no_such_user: '无此用户信息, 请输入正确的用户 ID 或者 用户邮箱！',
   },
   user: {
-    id:'用户ID',
+    id: '用户ID',
     create: '创建用户',
     modify: '修改用户',
     input_name: '请输入用户姓名',
@@ -800,7 +800,7 @@ export default {
     add: '添加角色',
   },
   report: {
-    id:'报告ID',
+    id: '报告ID',
     api_test_report: '接口测试报告',
     load_test_report: '性能测试报告',
     test_plan_report: '测试计划报告',
@@ -847,12 +847,12 @@ export default {
     delete_batch_confirm: '确认批量删除报告',
     response_time: '响应时间(s)',
     max_users: '并发数',
-    file_id:'文件ID',
-    avg_response_time:'平均响应时间',
-    tps:'每秒传输的事物处理个数'
+    file_id: '文件ID',
+    avg_response_time: '平均响应时间',
+    tps: '每秒传输的事物处理个数'
   },
   load_test: {
-    id:'测试ID',
+    id: '测试ID',
     concurrency_thread_group: '并发读取组',
     thread_group: '线程组',
     completed_test_report: '已完成测试报告',
@@ -975,7 +975,7 @@ export default {
       LatencyChart: '延迟',
       BytesThroughputChart: '字节数',
       Network: '网络',
-      url:'路径'
+      url: '路径'
     },
     project_file_update_type_error: '更新的文件类型必须一致',
   },
@@ -1028,7 +1028,7 @@ export default {
         update_time: "更新时间"
       },
       expect_detail: "期望详情",
-      request_condition:"请求触发条件",
+      request_condition: "请求触发条件",
       base_info: "基本信息",
       req_param: "请求参数",
       rsp_param: "响应内容",
@@ -1058,7 +1058,7 @@ export default {
       create_tip: "注: 详细的接口信息可以在编辑页面填写",
       api_import: "接口导入",
       check_select: "请勾选接口",
-      api_project:"所属项目",
+      api_project: "所属项目",
       select_comp: {
         no_data: "无数据",
         add_data: "去添加"
@@ -1178,7 +1178,7 @@ export default {
           none: "无"
         },
       },
-      case_reduction_error_text:"请先恢复"
+      case_reduction_error_text: "请先恢复"
     },
     automation: {
       open_expansion: "一键展开",
@@ -1216,7 +1216,7 @@ export default {
       update_time: "最后更新时间",
       step: "步骤数",
       last_result: "最后结果",
-      last_result_id:'最后结果ID',
+      last_result_id: '最后结果ID',
       passing_rate: "通过率",
       success: "通过",
       fail: "失败",
@@ -1240,9 +1240,9 @@ export default {
         select_table: "选择可见数据",
         select_all: "选择全部数据",
         check_case: "请勾选场景用例",
-        api_none:"原始API不存在",
-        case_none:"原始CASE不存在",
-        num_none:"原始场景不存在"
+        api_none: "原始API不存在",
+        case_none: "原始CASE不存在",
+        num_none: "原始场景不存在"
       },
       report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',
@@ -1259,7 +1259,7 @@ export default {
       generate_report: "生成报告",
     },
     environment: {
-      id:'环境ID',
+      id: '环境ID',
       create: '创建环境',
       name: "环境名称",
       socket: "环境域名",
@@ -1283,7 +1283,7 @@ export default {
       response_timeout: "响应超时",
     },
     scenario: {
-      id:"场景ID",
+      id: "场景ID",
       scenario: "场景",
       dubbo: "Dubbo配置",
       config: "场景配置",
@@ -1307,12 +1307,12 @@ export default {
       clone: "复制",
       cant_reference: '历史测试文件，重新保存后才可被引用',
       share_cookie: '共享cookie',
-      module_id:'场景模块ID',
+      module_id: '场景模块ID',
       level: '级别',
-      version:"场景版本",
-      warning_context:"暂不支持批量添加所有场景到测试计划!",
-      jmx_file_set:"场景JMX文件集",
-      error_report_jmx:"导出JMX文件失败",
+      version: "场景版本",
+      warning_context: "暂不支持批量添加所有场景到测试计划!",
+      jmx_file_set: "场景JMX文件集",
+      error_report_jmx: "导出JMX文件失败",
     },
     request: {
       debug: "调试",
@@ -1705,9 +1705,9 @@ export default {
     performance_test_case: "性能测试用例",
     scenario_test_case: "场景测试用例",
     report_statistics: "报告统计",
-    sort:'种类',
-    other_test_name:'其他测试名称',
-    automatic_status_update:"自动状态更新",
+    sort: '种类',
+    other_test_name: '其他测试名称',
+    automatic_status_update: "自动状态更新",
     case: {
       list: "列表",
       minder: "脑图",
@@ -1794,10 +1794,10 @@ export default {
       upload_tip: "只能上传jpg、jpeg、png、docx、doc、pdf、xlsx、txt文件",
       attachment: "附件",
       upload_time: "上传时间",
-      total:"用例总数",
-      node_id:"节点ID",
-      node_path:"节点路径",
-      match_rule:"测试用例匹配规则",
+      total: "用例总数",
+      node_id: "节点ID",
+      node_path: "节点路径",
+      match_rule: "测试用例匹配规则",
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
@@ -1829,12 +1829,12 @@ export default {
         export_tip: "请切换成接口列表勾选用例导出！"
       },
       case_desc: "用例描述",
-      passing_rate:'用例通过率'
+      passing_rate: '用例通过率'
 
     },
     plan: {
       test_plan: "测试计划",
-      test_plan_id:'测试计划Id',
+      test_plan_id: '测试计划Id',
       create_plan: "创建测试计划",
       edit_plan: "编辑测试计划",
       plan_name: "计划名称",
@@ -1871,10 +1871,10 @@ export default {
       api_case: "接口测试用例",
       scenario_case: "场景测试用例",
       execute_result: "执行结果",
-      execute_time:'执行时间',
-      is_api_case_executing:"是否执行接口用例",
-      is_scenario_executing:'是否执行场景',
-      is_performance_executing:'是否执行性能',
+      execute_time: '执行时间',
+      is_api_case_executing: "是否执行接口用例",
+      is_scenario_executing: '是否执行场景',
+      is_performance_executing: '是否执行性能',
       test_plan_test_case_count: "功能用例数",
       test_plan_api_case_count: "接口用例数",
       test_plan_api_scenario_count: "场景用例数",
@@ -1891,11 +1891,11 @@ export default {
         report_not_found: "报告不存在",
       }
     },
-    demand:{
-      id:'需求ID',
-      name:'需求名称'
+    demand: {
+      id: '需求ID',
+      name: '需求名称'
     },
-    step_model:'步骤模型',
+    step_model: '步骤模型',
     review: {
       test_review: "用例评审",
       create_review: "创建用例评审",
@@ -1943,7 +1943,7 @@ export default {
       execute_result: "评审结果",
     },
     module: {
-      id:'模块ID',
+      id: '模块ID',
       search: "搜索模块",
       rename: "重命名",
       add_submodule: "添加子模块",
@@ -1986,7 +1986,7 @@ export default {
       relevance_test_case: "关联测试用例",
       cancel_all_relevance: "取消全部关联",
       executor: "执行人",
-      executor_match_rule:"执行者匹配规则",
+      executor_match_rule: "执行者匹配规则",
       execute_result: "执行结果",
       pass: "通过",
       not_pass: "不通过",
@@ -2011,7 +2011,7 @@ export default {
       submit_issues: "提缺陷",
       operate_step: "操作步骤",
       edit_component: "编辑组件",
-      component:"组件",
+      component: "组件",
       base_info: "基础信息",
       mock_info: "Mock服务",
       test_result: "测试结果",
@@ -2051,7 +2051,7 @@ export default {
       title: "缺陷标题",
       description: "缺陷描述",
       status: "缺陷状态",
-      issue_project:"所属项目",
+      issue_project: "所属项目",
       platform: "平台",
       operate: "操作",
       close: "关闭缺陷",
@@ -2062,8 +2062,8 @@ export default {
       status_new: '新建',
       status_resolved: '已解决',
       status_closed: '已关闭',
-      status_active:'激活',
-      status_delete:'删除',
+      status_active: '激活',
+      status_delete: '删除',
       please_choose_current_owner: "请选择处理人",
       tapd_current_owner: "Tapd 处理人",
       zentao_bug_build: "禅道 影响版本",
@@ -2087,11 +2087,11 @@ export default {
         automation: "自动触发",
       },
     },
-    reporter:'报告人',
-    lastmodify:'最后更改'
+    reporter: '报告人',
+    lastmodify: '最后更改'
   },
   test_resource_pool: {
-    id:"测试资源池ID",
+    id: "测试资源池ID",
     type: '类型',
     enable_disable: '启用/禁用',
     search_by_name: '根据名称搜索',
@@ -2180,7 +2180,7 @@ export default {
     not_set: "未设置",
     test_name: '测试名称',
     running_rule: '运行规则',
-    job:'任务',
+    job: '任务',
     job_status: '任务状态',
     running_task: '运行中的任务',
     next_execution_time: "下次执行时间",
@@ -2314,7 +2314,7 @@ export default {
   },
   module: {
     title: '模块管理',
-    path:'模块路径'
+    path: '模块路径'
   },
   table: {
     header_display_field: '表头显示字段',
@@ -2357,5 +2357,43 @@ export default {
     mail_subject: "邮件主题",
     mail_addressee: "收件人",
     mail_duplicate: "抄送人",
+  },
+  notice: {
+    operation: {
+      'CREATE': '创建了',
+      'UPDATE': '更新了',
+      'DELETE': '删除了',
+      'COMMENT': '评论了',
+      'COMPLETE': '完成了',
+      'CLOSE_SCHEDULE': '关闭了定时任务',
+      'CASE_CREATE': '创建了接口用例',
+      'CASE_UPDATE': '更新了接口用例',
+      'CASE_DELETE': '删除了接口用例',
+      'EXECUTE_SUCCESSFUL': '执行',
+      'EXECUTE_FAILED': '执行',
+      'EXECUTE_COMPLETED': '执行',
+    },
+    resource: {
+      'JENKINS_TASK': 'Jenkins',
+      'TEST_PLAN_TASK': '测试计划',
+      'REVIEW_TASK': '测试评审',
+      'DEFECT_TASK': '缺陷',
+      'SWAGGER_TASK': 'Swagger',
+      'API_AUTOMATION_TASK': '接口自动化',
+      'API_DEFINITION_TASK': '接口定义',
+      'API_HOME_TASK': '接口测试首页',
+      'API_REPORT_TASK': '接口测试报告',
+      'PERFORMANCE_TEST_TASK': '性能测试',
+      'PERFORMANCE_REPORT_TASK': '性能测试报告',
+      'TRACK_TEST_CASE_TASK': '测试用例',
+      'TRACK_HOME_TASK': '测试跟踪首页',
+      'TRACK_REPORT_TASK': '测试跟踪报告',
+    },
+    result: {
+      'EXECUTE_SUCCESSFUL': '成功',
+      'EXECUTE_FAILED': '失败',
+      'EXECUTE_COMPLETED': '完成',
+    },
+    api_case: '接口用例'
   }
 };
