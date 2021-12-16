@@ -22,7 +22,7 @@ WHERE `type` = 'data';
 ALTER TABLE project
     ADD case_public tinyint(1) DEFAULT NULL COMMENT '是否开启用例公共库';
 ALTER TABLE project
-    ADD api_quick varchar(50) DEFAULT NULL COMMENT 'api定义快捷调试按钮',
+    ADD api_quick varchar(50) DEFAULT NULL COMMENT 'api定义快捷调试按钮';
 
 ALTER TABLE test_case
     ADD case_public tinyint(1) DEFAULT NULL COMMENT '是否是公共用例';
@@ -32,26 +32,26 @@ alter table api_scenario_report add report_version int null;
 
 CREATE TABLE IF NOT EXISTS `api_scenario_report_result`
 (
-   `id` varchar(50) NOT NULL COMMENT 'ID',
-   `resource_id` VARCHAR(200) DEFAULT NULL COMMENT '请求资源 id',
+    `id` varchar(50) NOT NULL COMMENT 'ID',
+    `resource_id` VARCHAR(200) DEFAULT NULL COMMENT '请求资源 id',
     `report_id` VARCHAR(50) DEFAULT NULL COMMENT '报告 id',
-     create_time bigint(13)  NULL COMMENT '创建时间',
+    `create_time` bigint(13)  NULL COMMENT '创建时间',
     `status` varchar(100) null COMMENT '结果状态',
     `request_time` bigint(13) null COMMENT '请求时间',
-		`total_assertions` bigint(13) null COMMENT '总断言数',
+	`total_assertions` bigint(13) null COMMENT '总断言数',
     `pass_assertions` bigint(13) null COMMENT '失败断言数',
-     content longblob  COMMENT '执行结果',
-	PRIMARY KEY (`id`),
-	KEY `index_resource_id` (`resource_id`) USING BTREE
+    `content` longblob  COMMENT '执行结果',
+    PRIMARY KEY (`id`),
+    KEY `index_resource_id` (`resource_id`) USING BTREE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `api_scenario_report_structure`
 (
-  `id` varchar(50) NOT NULL COMMENT 'ID',
-  `report_id` VARCHAR(50) DEFAULT NULL COMMENT '请求资源 id',
-	 create_time bigint(13)  NULL COMMENT '创建时间',
-	 resource_tree longblob  DEFAULT NULL COMMENT '资源步骤结构树',
-	 console LONGTEXT DEFAULT NULL COMMENT '执行日志',
-	PRIMARY KEY (`id`),
-	KEY `index_report_id` (`report_id`) USING BTREE
+    `id` varchar(50) NOT NULL COMMENT 'ID',
+    `report_id` VARCHAR(50) DEFAULT NULL COMMENT '请求资源 id',
+    `create_time` bigint(13)  NULL COMMENT '创建时间',
+    `resource_tree` longblob  DEFAULT NULL COMMENT '资源步骤结构树',
+    `console` LONGTEXT DEFAULT NULL COMMENT '执行日志',
+    PRIMARY KEY (`id`),
+    KEY `index_report_id` (`report_id`) USING BTREE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
