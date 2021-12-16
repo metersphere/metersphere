@@ -13,21 +13,16 @@ public class PoolExecBlockingQueueUtil {
     // 系统级队列控制整体并发数量
     public static Map<String, BlockingQueue<Object>> queue = new ConcurrentHashMap<>();
 
-    public static void init(String key, int queueSize) {
-        BlockingQueue<Object> blockingQueue = new ArrayBlockingQueue<>(queueSize);
-        queue.put(key, blockingQueue);
-    }
+    private static final String END_SIGN = "RUN-END";
+    private static final int QUEUE_SIZE = 1;
 
     public static void offer(String key) {
         if (StringUtils.isNotEmpty(key) && queue.containsKey(key)) {
             try {
-                if (!queue.get(key).offer("end")) {
-                    queue.get(key).add("end");
-                }
+                queue.get(key).offer(END_SIGN);
             } catch (Exception e) {
                 LogUtil.error(e);
             } finally {
-                queue.get(key).offer("end");
                 queue.remove(key);
             }
         }
@@ -35,23 +30,20 @@ public class PoolExecBlockingQueueUtil {
 
     public static Object take(String key) {
         try {
-            if (StringUtils.isNotEmpty(key) && queue.containsKey(key)) {
-                return queue.get(key).poll(5, TimeUnit.MINUTES);
+            if (StringUtils.isNotEmpty(key) && !queue.containsKey(key)) {
+                BlockingQueue<Object> blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
+                queue.put(key, blockingQueue);
+                return blockingQueue.poll(5, TimeUnit.MINUTES);
             }
         } catch (Exception e) {
-            LogUtil.error("获取队列失败：" + e.getMessage());
-            return null;
-        } finally {
-            if (StringUtils.isNotEmpty(key)) {
-                queue.remove(key);
-            }
+            LogUtil.error("初始化队列失败：" + e.getMessage());
         }
         return null;
     }
 
     public static void remove(String key) {
         if (StringUtils.isNotEmpty(key) && queue.containsKey(key)) {
-            queue.get(key).add("end");
+            queue.get(key).offer(END_SIGN);
             queue.remove(key);
         }
     }

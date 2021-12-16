@@ -21,10 +21,7 @@ import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.service.RemakeReportService;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.base.domain.TestPlanApiCase;
-import io.metersphere.base.domain.TestPlanApiCaseExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
@@ -159,17 +156,23 @@ public class TestPlanApiExecuteService {
                                 remakeReportService.remake(runRequest);
                                 continue;
                             }
-                            // 初始化等待队列
-                            SerialBlockingQueueUtil.init(runRequest.getReportId(), 1);
                             LoggerUtil.info("TestPlan Serial run 【 " + runRequest.getReportId() + "】start");
                             // 开始执行
                             jMeterService.run(runRequest);
 
                             Object reportObj = SerialBlockingQueueUtil.take(runRequest.getReportId());
+                            if (reportObj == null) {
+                                LoggerUtil.info("TestPlan Serial run-进入超时补偿处理：【 " + runRequest.getReportId() + " 】");
+                                ApiDefinitionExecResult apiDefinitionExecResult = apiDefinitionExecResultMapper.selectByPrimaryKey(runRequest.getReportId());
+                                if (apiDefinitionExecResult != null) {
+                                    apiDefinitionExecResult.setStatus("timeout");
+                                    apiDefinitionExecResultMapper.updateByPrimaryKey(apiDefinitionExecResult);
+                                }
+                            }
                             LoggerUtil.info("TestPlan Serial run 【 " + runRequest.getReportId() + "】end");
                             // 如果开启失败结束执行，则判断返回结果状态
                             if (request.getConfig().isOnSampleError()) {
-                                if (reportObj != null) {
+                                if (reportObj != null && reportObj instanceof ApiDefinitionExecResult) {
                                     ApiDefinitionExecResult result = (ApiDefinitionExecResult) reportObj;
                                     if (result == null || !result.getStatus().equals("Success")) {
                                         break;

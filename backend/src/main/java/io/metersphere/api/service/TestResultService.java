@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
+import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
 import io.metersphere.api.jmeter.ExecutedHandleSingleton;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -105,6 +106,11 @@ public class TestResultService {
                         sendTask(reportTask, dto.getTestId());
                     }
                 }
+            }
+        } else {
+            // 串行队列
+            if (dto != null && org.apache.commons.collections.CollectionUtils.isEmpty(dto.getRequestResults())) {
+                SerialBlockingQueueUtil.offer(dto, SerialBlockingQueueUtil.END_SIGN);
             }
         }
     }

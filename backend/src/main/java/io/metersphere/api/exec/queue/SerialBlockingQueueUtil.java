@@ -14,46 +14,39 @@ import java.util.concurrent.TimeUnit;
 public class SerialBlockingQueueUtil {
     // 只作用与串行任务
     public static Map<String, BlockingQueue<Object>> queue = new ConcurrentHashMap<>();
+    public static final String END_SIGN = "RUN-END";
+    private static final int QUEUE_SIZE = 1;
 
-    public static void init(String key, int queueSize) {
-        BlockingQueue<Object> blockingQueue = new ArrayBlockingQueue<>(queueSize);
-        queue.put(key, blockingQueue);
-    }
 
     public static void offer(ResultDTO dto, Object report) {
         String key = dto != null && StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString()) ? dto.getReportId() + "_" + dto.getTestId() : dto.getReportId();
         if (StringUtils.isNotEmpty(key) && queue.containsKey(key)) {
             try {
-                if (!queue.get(key).offer(report)) {
-                    queue.get(key).add(report);
-                }
+                queue.get(key).offer(report);
             } catch (Exception e) {
                 LogUtil.error(e);
             } finally {
-                queue.get(key).offer(report);
+                queue.remove(key);
             }
         }
     }
 
     public static Object take(String key) {
         try {
-            if (StringUtils.isNotEmpty(key) && queue.containsKey(key)) {
-                return queue.get(key).poll(3, TimeUnit.MINUTES);
+            if (StringUtils.isNotEmpty(key) && !queue.containsKey(key)) {
+                BlockingQueue<Object> blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
+                queue.put(key, blockingQueue);
+                return blockingQueue.poll(3, TimeUnit.MINUTES);
             }
         } catch (Exception e) {
             LogUtil.error("获取队列失败：" + e.getMessage());
-            return null;
-        } finally {
-            if (StringUtils.isNotEmpty(key)) {
-                queue.remove(key);
-            }
         }
         return null;
     }
 
     public static void remove(String key) {
         if (StringUtils.isNotEmpty(key) && queue.containsKey(key)) {
-            queue.get(key).add(null);
+            queue.get(key).offer(END_SIGN);
             queue.remove(key);
         }
     }

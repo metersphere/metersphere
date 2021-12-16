@@ -10,6 +10,7 @@ import io.metersphere.api.service.TestResultService;
 import io.metersphere.config.KafkaConfig;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -29,7 +30,9 @@ public class MsKafkaListener {
             LoggerUtil.info("报告 【 " + testResult.getReportId() + " 】资源 " + testResult.getTestId() + " 整体执行完成");
             testResultService.testEnded(testResult);
             // 串行队列
-            SerialBlockingQueueUtil.offer(testResult, "testEnd");
+            if (CollectionUtils.isEmpty(testResult.getRequestResults())) {
+                SerialBlockingQueueUtil.offer(testResult, SerialBlockingQueueUtil.END_SIGN);
+            }
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(testResult.getReportId());
         } else {

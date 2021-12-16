@@ -18,11 +18,13 @@ public class ExecTask implements Runnable {
 
     @Override
     public void run() {
-        PoolExecBlockingQueueUtil.init(request.getReportId(), 1);
         LoggerUtil.info("开始执行报告ID：【 " + request.getReportId() + " 】,资源ID【 " + request.getTestId() + " 】");
         JMeterService jMeterService = CommonBeanFactory.getBean(JMeterService.class);
         jMeterService.addQueue(request);
-        PoolExecBlockingQueueUtil.take(request.getReportId());
+        Object res = PoolExecBlockingQueueUtil.take(request.getReportId());
+        if (res == null) {
+            LoggerUtil.info("执行报告：【 " + request.getReportId() + " 】,资源ID【 " + request.getTestId() + " 】执行超时");
+        }
         LoggerUtil.info("任务：【 " + request.getReportId() + " 】执行完成");
     }
 }
