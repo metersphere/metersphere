@@ -2354,5 +2354,43 @@ export default {
     mail_subject: "郵件主題",
     mail_addressee: "收件人",
     mail_duplicate: "抄送人",
+  },
+  notice: {
+    operation: {
+      'CREATE': '創建了',
+      'UPDATE': '更新了',
+      'DELETE': '刪除了',
+      'COMMENT': '評論了',
+      'COMPLETE': '完成了',
+      'CLOSE_SCHEDULE': '關閉了定時任務',
+      'CASE_CREATE': '創建了接口用例',
+      'CASE_UPDATE': '更新了接口用例',
+      'CASE_DELETE': '刪除了接口用例',
+      'EXECUTE_SUCCESSFUL': '執行',
+      'EXECUTE_FAILED': '執行',
+      'EXECUTE_COMPLETED': '執行',
+    },
+    resource: {
+      'JENKINS_TASK': 'Jenkins',
+      'TEST_PLAN_TASK': '測試計劃',
+      'REVIEW_TASK': '測試評審',
+      'DEFECT_TASK': '缺陷',
+      'SWAGGER_TASK': 'Swagger',
+      'API_AUTOMATION_TASK': '接口自動化',
+      'API_DEFINITION_TASK': '接口定義',
+      'API_HOME_TASK': '接口測試首頁',
+      'API_REPORT_TASK': '接口測試報告',
+      'PERFORMANCE_TEST_TASK': '性能測試',
+      'PERFORMANCE_REPORT_TASK': '性能測試報告',
+      'TRACK_TEST_CASE_TASK': '測試用例',
+      'TRACK_HOME_TASK': '測試跟踪首頁',
+      'TRACK_REPORT_TASK': '測試跟踪報告',
+    },
+    result: {
+      'EXECUTE_SUCCESSFUL': '成功',
+      'EXECUTE_FAILED': '失敗',
+      'EXECUTE_COMPLETED': '完成',
+    },
+    api_case: '接口用例'
   }
 };
