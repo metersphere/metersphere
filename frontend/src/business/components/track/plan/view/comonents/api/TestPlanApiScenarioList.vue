@@ -45,7 +45,7 @@
                            prop="level" :label="$t('api_test.automation.case_level')" min-width="120px"
                            column-key="level"
                            sortable
-                           :filters="LEVEL_FILTERS">
+                           :filters="apiscenariofilters.LEVEL_FILTERS">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.level" ref="level"/>
             </template>
@@ -133,7 +133,7 @@
           <ms-table-column :field="item"
                            :fields-width="fieldsWidth"
                            prop="lastResult" min-width="100px"
-                           :filters="RESULT_FILTERS"
+                           :filters="apiscenariofilters.RESULT_FILTERS"
                            :label="$t('api_test.automation.last_result')">
             <template v-slot:default="{row}">
               <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
@@ -251,7 +251,6 @@ export default {
       infoDb: false,
       runVisible: false,
       runData: [],
-      ...API_SCENARIO_FILTERS,
       enableOrderDrag: true,
       operators: [
         {
@@ -284,7 +283,8 @@ export default {
       valueArr: {
         projectEnv: []
       },
-      planCaseIds: []
+      planCaseIds: [],
+      apiscenariofilters:{},
     }
   },
   computed: {
@@ -296,6 +296,7 @@ export default {
     }
   },
   created() {
+    this.apiscenariofilters = API_SCENARIO_FILTERS();
     this.search();
 
   },

@@ -83,7 +83,7 @@
             sortable
             :field="item"
             :fields-width="fieldsWidth"
-            :filters="LEVEL_FILTERS"
+            :filters="apiscenariofilters.LEVEL_FILTERS"
             min-width="130px"
             :label="$t('api_test.automation.case_level')">
             <template v-slot:default="scope">
@@ -96,7 +96,7 @@
                            sortable
                            :field="item"
                            :fields-width="fieldsWidth"
-                           :filters="STATUS_FILTERS"
+                           :filters="apiscenariofilters.STATUS_FILTERS"
                            min-width="120px">
             <template v-slot:default="scope">
               <plan-status-table-item :value="scope.row.status"/>
@@ -191,7 +191,7 @@
                            min-width="80px"/>
           <ms-table-column prop="lastResult"
                            :label="$t('api_test.automation.last_result')"
-                           :filters="RESULT_FILTERS"
+                           :filters="apiscenariofilters.RESULT_FILTERS"
                            :field="item"
                            :fields-width="fieldsWidth"
                            sortable
@@ -500,7 +500,6 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH']
         },
       ],
-      ...API_SCENARIO_FILTERS,
       typeArr: [
         {id: 'level', name: this.$t('test_track.case.priority')},
         {id: 'status', name: this.$t('test_track.plan.plan_status')},
@@ -531,10 +530,12 @@ export default {
       },
       graphData: {},
       environmentType: "",
-      envGroupId: ""
+      envGroupId: "",
+      apiscenariofilters:{},
     };
   },
   created() {
+    this.apiscenariofilters = API_SCENARIO_FILTERS();
     scenario.$on('hide', id => {
       this.hideStopBtn(id);
     });

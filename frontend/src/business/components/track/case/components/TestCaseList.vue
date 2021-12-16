@@ -325,9 +325,9 @@ export default {
         {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
       ],
       statusFilters: [
-        {text: '未开始', value: 'Prepare'},
-        {text: '进行中', value: 'Underway'},
-        {text: '已完成', value: 'Completed'},
+        {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.case.status_running'), value: 'Underway'},
+        {text: this.$t('test_track.case.status_finished'), value: 'Completed'},
       ],
       batchButtons: [],
       simpleButtons: [

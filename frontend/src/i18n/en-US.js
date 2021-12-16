@@ -360,7 +360,7 @@ export default {
     system_project: "Project",
     user_unit: "",
     workspace_unit: "",
-    dash_board:'Dash board',
+    dash_board:'DashBoard',
     all_project:'All Project',
     to_be_completed:'To be completed',
     pending_upgrade:'Pending upgrade',
@@ -1169,7 +1169,8 @@ export default {
           all: "All",
           none: "None"
         },
-      }
+      },
+      case_reduction_error_text:"Please restore first"
     },
     automation: {
       open_expansion: "One-click expansion",
@@ -1301,7 +1302,10 @@ export default {
       share_cookie: 'share cookie',
       module_id:'Scenario Module ID',
       level: 'Level',
-      version:"Scenario Version"
+      version:"Scenario Version",
+      warning_context:"It is not currently supported to add all scenarios to the test plan in batches!",
+      jmx_file_set:"Scenario JMX file set",
+      error_report_jmx:"Failed to export JMX file",
     },
     request: {
       debug: "Debug",
@@ -1775,7 +1779,9 @@ export default {
       unlink: 'Unlink',
       project_name: "Project",
       status: 'Review Status',
-      status_prepare: 'Not reviewed',
+      status_prepare: 'Not started',
+      status_running: 'In progress',
+      status_finished: 'Completed',
       status_pass: 'Pass',
       status_un_pass: 'UnPass',
       cancel_relevance_project: "Disassociating the project will also cancel the associated test cases under the project",
@@ -2043,6 +2049,11 @@ export default {
       title_description_required: "Title and description are required",
       close_success: "Closed successfully",
       preview: "Preview",
+      status_new: 'new',
+      status_resolved: 'resolved',
+      status_closed: 'closed',
+      status_active:'active',
+      status_delete:'delete',
       please_choose_current_owner: "Please choose current owner",
       tapd_current_owner: "Tapd Current Owner",
       zentao_bug_build: "Zentao Impact version",
