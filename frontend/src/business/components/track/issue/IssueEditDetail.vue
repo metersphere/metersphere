@@ -109,7 +109,9 @@ export default {
   data() {
     return {
       issueId:'',
-      result: {},
+      result: {
+        loading: false
+      },
       relateFields: [],
       showFollow:false,
       formLabelWidth: "150px",
