@@ -70,8 +70,6 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     @Value("${jmeter.home}")
     private String jmeterHome;
 
-    @Value("${quartz.properties.org.quartz.jobStore.acquireTriggersWithinLock}")
-    private String acquireTriggersWithinLock;
     @Value("${quartz.enabled}")
     private boolean quartzEnable;
     @Value("${quartz.scheduler-name}")
@@ -103,7 +101,6 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
             e.printStackTrace();
         }
         LogUtil.info("开始启动定时任务。 相关设置：" +
-                "quartz.acquireTriggersWithinLock :" + acquireTriggersWithinLock + "\r\n" +
                 "quartz.enabled :" + quartzEnable + "\r\n" +
                 "quartz.scheduler-name :" + quartzScheduleName + "\r\n" +
                 "quartz.thread-count :" + quartzThreadCount + "\r\n");
