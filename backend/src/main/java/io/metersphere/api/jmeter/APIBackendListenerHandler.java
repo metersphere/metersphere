@@ -20,7 +20,7 @@ public class APIBackendListenerHandler {
 
         // 无结果返回直接结束队列
         if (dto == null || CollectionUtils.isEmpty(dto.getRequestResults())) {
-            SerialBlockingQueueUtil.offer(dto, "testEnd");
+            SerialBlockingQueueUtil.offer(dto, SerialBlockingQueueUtil.END_SIGN);
         }
         dto.setConsole(resultService.getJmeterLogger(dto.getReportId()));
         // 存储结果
