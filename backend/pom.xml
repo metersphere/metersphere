@@ -265,6 +265,12 @@
             <groupId>io.metersphere</groupId>
             <artifactId>metersphere-plugin-core</artifactId>
             <version>1.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--随机数据生成API-->
         <dependency>
