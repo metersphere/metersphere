@@ -3,7 +3,7 @@
     <el-scrollbar>
       <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
-        <el-form-item v-if="!enableThirdPartTemplate" :label="$t('commons.title')" prop="title">
+        <el-form-item :label="$t('commons.title')" prop="title">
           <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
           <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
             <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
@@ -81,12 +81,8 @@ import {
   getCurrentUser,
   getCurrentUserId,
   getCurrentWorkspaceId,
-  hasLicense
 } from "@/common/js/utils";
-import {getIssueTemplate} from "@/network/custom-field-template";
-import {getIssueThirdPartTemplate} from "@/network/Issue";
-import {getCurrentProject} from "@/network/project";
-import {JIRA} from "@/common/js/constants";
+import {enableThirdPartTemplate, getIssuePartTemplateWithProject} from "@/network/Issue";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 
 export default {
@@ -154,26 +150,16 @@ export default {
       return getCurrentProjectID();
     },
     enableThirdPartTemplate() {
-      return hasLicense() && this.currentProject && this.currentProject.thirdPartTemplate && this.currentProject.platform === JIRA;
+      return enableThirdPartTemplate(this.currentProject);
     },
   },
   methods: {
     open(data) {
       this.result.loading = true;
       this.$nextTick(() => {
-        getCurrentProject((responseData) => {
-          this.currentProject = responseData;
-          if (hasLicense() && this.currentProject && this.currentProject.thirdPartTemplate && this.currentProject.platform === JIRA) {
-            getIssueThirdPartTemplate()
-              .then((template) => {
-                this.init(template, data);
-              });
-          } else {
-            getIssueTemplate()
-              .then((template) => {
-                this.init(template, data);
-              });
-          }
+        getIssuePartTemplateWithProject((template, project) => {
+          this.currentProject = project;
+          this.init(template, data);
         });
       });
 

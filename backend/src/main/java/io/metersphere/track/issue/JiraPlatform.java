@@ -294,6 +294,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void syncIssues(Project project, List<IssuesDao> issues) {
+        isThirdPartTemplate = isThirdPartTemplate();
         issues.forEach(item -> {
             try {
                 IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
