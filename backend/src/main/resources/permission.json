@@ -331,6 +331,11 @@
       "resourceId": "PROJECT_MANAGER"
     },
     {
+      "id": "PROJECT_APP_MANAGER:READ+EDIT",
+      "name": "编辑应用设置",
+      "resourceId": "PROJECT_APP_MANAGER"
+    },
+    {
       "id": "PROJECT_ENVIRONMENT:READ",
       "name": "permission.project_environment.read",
       "resourceId": "PROJECT_ENVIRONMENT"
@@ -974,6 +979,10 @@
     {
       "id": "PROJECT_FILE",
       "name": "permission.project_file.name"
+    },
+    {
+      "id": "PROJECT_APP_MANAGER",
+      "name": "应用设置"
     },
     {
       "id": "PROJECT_TRACK_CASE",
