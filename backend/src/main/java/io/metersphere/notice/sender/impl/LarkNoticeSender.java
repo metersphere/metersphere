@@ -30,7 +30,7 @@ public class LarkNoticeSender extends AbstractNoticeSender {
 
         LogUtil.info("飞书收件人: {}", userIds);
         context += StringUtils.join(collect, " ");
-        LarkClient.send(messageDetail.getWebhook(), context);
+        LarkClient.send(messageDetail.getWebhook(), "消息通知: \n" + context);
     }
 
     @Override
