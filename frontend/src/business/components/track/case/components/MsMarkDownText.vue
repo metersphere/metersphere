@@ -131,6 +131,12 @@ export default {
     },
     getContent() {
       return this.$refs.md.d_render;
+    },
+    getTextareaDom() {
+      return this.$refs.md.getTextareaDom();
+    },
+    toolbar_left_click(param) {
+      this.$refs.md.toolbar_left_click(param);
     }
   }
 }
