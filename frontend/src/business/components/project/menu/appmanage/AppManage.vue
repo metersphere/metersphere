@@ -23,8 +23,8 @@
                           </el-form-item>
                           <el-divider v-if="this.isXpack"></el-divider>
                           <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id_info')"
-                                        prop="repeatable">
-                            <el-switch v-model="form.repeatable" style="margin-top:20px"></el-switch>
+                                        prop="customNum">
+                            <el-switch v-model="form.customNum" style="margin-top:20px"></el-switch>
                           </el-form-item>
                         </el-form>
                       </fieldset>
@@ -42,8 +42,8 @@
                       <fieldset>
                         <el-form :model="form" ref="form" label-position="left" label-width="200px" size="small">
                           <el-form-item :label-width="labelWidth" :label="$t('project.repeatable_info')"
-                                        prop="customNum">
-                            <el-switch v-model="form.customNum" style="margin-top:20px"></el-switch>
+                                        prop="repeatable">
+                            <el-switch v-model="form.repeatable" style="margin-top:20px"></el-switch>
                           </el-form-item>
                           <el-divider></el-divider>
                           <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id_info')"
