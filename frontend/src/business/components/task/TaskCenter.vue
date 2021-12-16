@@ -468,7 +468,8 @@ export default {
   border-bottom: 1px solid #E6E6E6;
   background-color: #FFF;
   margin-bottom: 10px;
-  padding: 10px;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 .ms-card-task >>> .el-card__body {
@@ -520,10 +521,18 @@ export default {
 }
 
 /deep/ .el-badge__content {
-  border-radius: 10px;
+ /* border-radius: 10px;*/
   height: 10px;
   line-height: 10px;
 }
+/deep/ .el-card{
+  /* border-radius: 10px;*/
+  background: #FFF;
+  border: 0px;
+  box-shadow: 0 0 0 rgb(0,0,0,0) !important;
+}
+
+
 
 .item {
   margin-right: 10px;
