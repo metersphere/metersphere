@@ -35,7 +35,7 @@ const loadedLanguages = ['en_US', 'zh_CN', 'zh_TW'];
 
 function setI18nLanguage(lang) {
   i18n.locale = lang;
-  axios.defaults.headers.common['Accept-Language'] = lang;
+  axios.defaults.headers.common['Accept-Language'] = lang.replace("_", "-");
   document.querySelector('html').setAttribute('lang', lang);
   return lang;
 }
