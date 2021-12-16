@@ -321,6 +321,7 @@ public class ApiScenarioReportService {
             if (CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                 startTime = scenarioResult.getRequestResults().get(0).getStartTime();
             }
+            String resultReportId = scenarioResult.getName();
             ApiScenarioReport report = editReport(scenarioResult, startTime);
             if (report != null) {
                 TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
@@ -383,12 +384,13 @@ public class ApiScenarioReportService {
                 if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
                     report.setTriggerMode(TriggerMode.MANUAL.name());
                 }
-                if (StringUtils.equalsIgnoreCase(report.getId(), scenarioResult.getName())) {
+                if (StringUtils.equalsIgnoreCase(report.getId(), resultReportId)) {
                     detail.setReportId(report.getId());
                 } else {
-                    detail.setReportId(scenarioResult.getName());
-                    LogUtil.info("ReportId" + scenarioResult.getName() + "  has changed!");
-                    LogUtil.error("ReportId was changed. ScenarioResultData:" + JSON.toJSONString(scenarioResult) + "; ApiScenarioReport:" + JSON.toJSONString(report));
+                    detail.setReportId(resultReportId);
+                    LogUtil.info("ReportId" + resultReportId + "  has changed!");
+                    LogUtil.error("ReportId was changed. ScenarioResultData:" + JSON.toJSONString(scenarioResult) + ";\r\n " +
+                            "ApiScenarioReport:" + JSON.toJSONString(report));
                 }
 
                 try {
