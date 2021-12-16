@@ -3,7 +3,7 @@
     <el-scrollbar>
       <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
-        <el-form-item :label="$t('commons.title')" prop="title">
+        <el-form-item v-if="!enableThirdPartTemplate" :label="$t('commons.title')" prop="title">
           <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
           <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
             <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
@@ -12,6 +12,14 @@
             <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-left: 15px; cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
           </el-tooltip>
         </el-form-item>
+        <div v-else style="text-align: right; margin-bottom: 5px">
+          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+          </el-tooltip>
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow" >
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-left: 15px; cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+          </el-tooltip>
+        </div>
 
         <!-- 自定义字段 -->
         <el-form :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm" class="case-form">
