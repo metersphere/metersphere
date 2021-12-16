@@ -26,7 +26,7 @@ public class DingNoticeSender extends AbstractNoticeSender {
         OapiRobotSendRequest request = new OapiRobotSendRequest();
         request.setMsgtype("text");
         OapiRobotSendRequest.Text text = new OapiRobotSendRequest.Text();
-        text.setContent(context);
+        text.setContent("消息通知: \n" + context);
         request.setText(text);
         if (CollectionUtils.isNotEmpty(receivers)) {
             OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
