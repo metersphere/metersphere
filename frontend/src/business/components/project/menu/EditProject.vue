@@ -18,7 +18,7 @@
           <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
 
-        <el-form-item v-if="xpackEable" :label-width="labelWidth" :label="$t('使用第三方平台模板')" prop="scenarioCustomNum">
+        <el-form-item v-if="xpackEable && form.platform === 'Jira'" :label-width="labelWidth" :label="$t('使用第三方平台模板')" prop="scenarioCustomNum">
           <el-switch v-model="form.thirdPartTemplate"></el-switch>
         </el-form-item>
 
@@ -231,7 +231,7 @@ export default {
       if (platforms.indexOf(platform) === -1) {
         for (let i = 0; i < this.platformOptions.length; i++) {
           if (this.platformOptions[i].value === platform) {
-            this.platformOptions.splice(1, i);
+            this.platformOptions.splice(i, 1);
             break;
           }
         }

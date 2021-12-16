@@ -168,7 +168,7 @@ import {
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import IssueEdit from "@/business/components/track/issue/IssueEdit";
-import {getIssues, getIssueThirdPartTemplate, syncIssues} from "@/network/Issue";
+import {getIssuePartTemplateWithProject, getIssues, syncIssues} from "@/network/Issue";
 import {
   getCustomFieldValue,
   getCustomTableWidth,
@@ -176,11 +176,9 @@ import {
 } from "@/common/js/tableUtils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
-import {getIssueTemplate} from "@/network/custom-field-template";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getProjectMember} from "@/network/user";
-import {JIRA, LOCAL} from "@/common/js/constants";
-import {getCurrentProject} from "@/network/project";
+import {LOCAL} from "@/common/js/constants";
 
 export default {
   name: "IssueList",
@@ -218,7 +216,6 @@ export default {
       members: [],
       isThirdPart: false,
       creatorFilters: [],
-      currentProject: null
     };
   },
   watch: {
@@ -232,20 +229,8 @@ export default {
     getProjectMember((data) => {
       this.members = data;
     });
-
-    getCurrentProject((responseData) => {
-      this.currentProject = responseData;
-      if (hasLicense() && this.currentProject.thirdPartTemplate && this.currentProject.platform === JIRA) {
-        getIssueThirdPartTemplate()
-          .then((template) => {
-            this.initFields(template);
-          });
-      } else {
-        getIssueTemplate()
-          .then((template) => {
-            this.initFields(template);
-          });
-      }
+    getIssuePartTemplateWithProject((template) => {
+      this.initFields(template);
     });
     this.getIssues();
   },
