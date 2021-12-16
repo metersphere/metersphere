@@ -289,7 +289,7 @@ export default {
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
         },
         {
-          name: this.$t('生成依赖关系'),
+          name: this.$t('test_track.case.generate_dependencies'),
           isXPack: true,
           handleClick: this.generateGraph,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']

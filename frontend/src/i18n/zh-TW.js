@@ -183,6 +183,9 @@ export default {
     node_name_tip: "名稱不能包含'\\'",
     more_operator: "更多操作",
     mock: "Mock 設置",
+    encrypted: "不加密",
+    no_corresponding: "無對應的",
+    code_template: "代码模版",
     api_case: "接口用例",
     scenario_case: "場景用例",
     task_center: "任務中心",
@@ -1042,6 +1045,8 @@ export default {
     },
     definition: {
       api_quick_button: '接口定義快捷添加按鈕',
+      api_all: '全部接口',
+      unplanned_api: '未規劃接口',
       id: '接口定義ID',
       api_title: "接口列表",
       case_title: "用例列表",

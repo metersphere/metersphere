@@ -158,7 +158,7 @@ export default {
         if (this.language !== 'beanshell' && this.language !== 'groovy') {
           if (obj.title === this.$t('api_test.request.processor.code_add_report_length') ||
             obj.title === this.$t('api_test.request.processor.code_hide_report_length')) {
-            this.$warning("无对应的 "+ this.language +" 代码模版！");
+            this.$warning(this.$t('commons.no_corresponding') + " " + this.language + " " + this.$t('commons.code_template') + "！");
             return;
           }
         }
