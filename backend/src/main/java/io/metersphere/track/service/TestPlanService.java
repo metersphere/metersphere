@@ -22,6 +22,7 @@ import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioReportService;
@@ -59,6 +60,7 @@ import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -71,7 +73,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -1071,8 +1072,7 @@ public class TestPlanService {
         String planReportId = testPlanReport.getId();
         testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. " + "API Run Config:【" + apiRunConfig + "】");
         //开启测试计划执行状态的监听
-        this.listenTaskExecuteStatus(planReportId);
-
+        MessageCache.jobReportCache.add(planReportId);
         //不同任务的执行ID
         Map<String, String> executePerformanceIdMap = new HashMap<>();
         Map<String, String> executeApiCaseIdMap = new HashMap<>();
@@ -1144,28 +1144,6 @@ public class TestPlanService {
         //执行场景执行任务
         this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, planScenarioIdsMap);
         return testPlanReport.getId();
-    }
-
-    private void listenTaskExecuteStatus(String planReportId) {
-        // 开始串行执行
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName("TestPlanListener");
-                try {
-                    //10s 查询一次状态
-                    Thread.sleep(10000);
-                    while (TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId) != null) {
-                        testPlanReportService.countReport(planReportId);
-                        Thread.sleep(10000);
-                    }
-                } catch (InterruptedException e) {
-                    TestPlanReportExecuteCatch.remove(planReportId);
-                    LogUtil.error(e);
-                }
-            }
-        });
-        thread.start();
     }
 
     private void executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfigDTO runModeConfig) {
