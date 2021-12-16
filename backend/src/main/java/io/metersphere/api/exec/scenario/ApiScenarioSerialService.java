@@ -88,9 +88,6 @@ public class ApiScenarioSerialService {
                                 hashTreeUtil.setEnvParamsMapToHashTree(hashTree, executeEnvParams);
                                 executeQueue.get(key).setHashTree(hashTree);
                             }
-
-                            SerialBlockingQueueUtil.init(queueReportId, 1);
-
                             String reportId = StringUtils.isNotEmpty(serialReportId) ? serialReportId : key;
                             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(executeQueue.get(key).getTestId(), reportId, request.getRunMode(), executeQueue.get(key).getHashTree());
                             if (request.getConfig() != null) {
@@ -104,10 +101,18 @@ public class ApiScenarioSerialService {
                             jMeterService.run(runRequest);
 
                             Object reportObj = SerialBlockingQueueUtil.take(queueReportId);
+                            if (reportObj == null) {
+                                LoggerUtil.info("Scenario run-进入超时补偿处理：【 " + queueReportId + " 】");
+                                ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+                                if (scenarioReport != null) {
+                                    scenarioReport.setStatus("Timeout");
+                                    apiScenarioReportMapper.updateByPrimaryKey(scenarioReport);
+                                }
+                            }
                             LoggerUtil.info("Scenario run-执行完成：【 " + queueReportId + " 】");
                             // 如果开启失败结束执行，则判断返回结果状态
                             if (request.getConfig().isOnSampleError()) {
-                                if (reportObj != null) {
+                                if (reportObj != null && reportObj instanceof ApiScenarioReport) {
                                     ApiScenarioReport scenarioReport = (ApiScenarioReport) reportObj;
                                     if (!scenarioReport.getStatus().equals("Success")) {
                                         break;

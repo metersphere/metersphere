@@ -117,6 +117,8 @@ public class ApiScenarioReportService {
                 scenarioReport = updateScenario(requestResults, dto);
             }
         }
+        // 串行队列
+        SerialBlockingQueueUtil.offer(dto, scenarioReport != null ? scenarioReport : SerialBlockingQueueUtil.END_SIGN);
         return scenarioReport;
     }
 
@@ -269,8 +271,6 @@ public class ApiScenarioReportService {
             }
         }
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 ? "Error" : "Success", dto.getRunMode());
-        // 串行队列
-        SerialBlockingQueueUtil.offer(dto, report);
         return report;
     }
 
@@ -329,8 +329,6 @@ public class ApiScenarioReportService {
                     apiScenarioMapper.updateByPrimaryKey(scenario);
                 }
             }
-            // 串行队列
-            SerialBlockingQueueUtil.offer(dto, report);
             testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
             for (String item : testPlanReportIdList) {
                 TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(item, null, scenarioAndErrorMap, null);
@@ -385,8 +383,6 @@ public class ApiScenarioReportService {
         if (scenario != null && report != null) {
             sendNotice(scenario, report);
         }
-        // 串行队列
-        SerialBlockingQueueUtil.offer(dto, report);
         return report;
     }
 
