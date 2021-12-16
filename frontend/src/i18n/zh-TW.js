@@ -698,6 +698,7 @@ export default {
     log: '操作日誌',
     version_manage: '版本管理',
     app_manage: '應用管理',
+    app_manage_desc: '編輯應用管理',
     desc: '項目描述',
     manage_people: '管理員',
     creator: '創建人',

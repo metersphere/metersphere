@@ -42,11 +42,30 @@ CREATE TABLE IF NOT EXISTS `api_scenario_report_result`
 
 CREATE TABLE IF NOT EXISTS `api_scenario_report_structure`
 (
-    `id` varchar(50) NOT NULL COMMENT 'ID',
-    `report_id` VARCHAR(50) DEFAULT NULL COMMENT '请求资源 id',
-    `create_time` bigint(13)  NULL COMMENT '创建时间',
-    `resource_tree` longblob  DEFAULT NULL COMMENT '资源步骤结构树',
+    `id` varchar
+(
+    50
+) NOT NULL COMMENT 'ID',
+    `report_id` VARCHAR
+(
+    50
+) DEFAULT NULL COMMENT '请求资源 id',
+    `create_time` bigint
+(
+    13
+) NULL COMMENT '创建时间',
+    `resource_tree` longblob DEFAULT NULL COMMENT '资源步骤结构树',
     `console` LONGTEXT DEFAULT NULL COMMENT '执行日志',
-    PRIMARY KEY (`id`),
-    KEY `index_report_id` (`report_id`) USING BTREE
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+    PRIMARY KEY
+(
+    `id`
+),
+    KEY `index_report_id`
+(
+    `report_id`
+) USING BTREE
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_app_manager', 'PROJECT_APP_MANAGER:READ+EDIT', 'PROJECT_APP_MANAGER');

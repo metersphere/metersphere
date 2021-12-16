@@ -33,7 +33,8 @@
           <el-menu-item popper-class="submenu" @click="clickPlanMenu">
             {{ $t('project.version_manage') }}
           </el-menu-item>
-          <el-menu-item :index="'/project/app'" popper-class="submenu" :disabled="this.isProjectAdmin">
+          <el-menu-item :index="'/project/app'" popper-class="submenu"
+                        v-permission="['PROJECT_APP_MANAGER:READ+EDIT']">
             {{ $t('project.app_manage') }}
           </el-menu-item>
         </el-menu>
@@ -67,20 +68,6 @@ export default {
         this.pathName = to.path;
       }
     }
-  },
-  created() {
-    this.$get("/user/group/list/project/" + getCurrentProjectID() + "/" + getCurrentUserId(), res => {
-      let data = res.data;
-      if (data) {
-        data.forEach(row => {
-          if (row.id === 'project_admin') {
-            this.isProjectAdmin = false;
-          }
-        })
-      } else {
-        this.isProjectAdmin = true;
-      }
-    })
   },
   methods: {
     clickPlanMenu() {

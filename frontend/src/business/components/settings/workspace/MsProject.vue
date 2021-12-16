@@ -209,7 +209,7 @@ import {PROJECT_CONFIGS} from "@/business/components/common/components/search/se
 import MsRolesTag from "@/business/components/common/components/MsRolesTag";
 import AddMember from "@/business/components/settings/common/AddMember";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
-import EditProject from "@/business/components/project/menu/EditProject";
+import EditProject from "@/business/components/settings/workspace/EditProject";
 
 export default {
   name: "MsProject",

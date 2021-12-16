@@ -7,7 +7,8 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth" :label="$t('集成第三方平台')" prop="platform">
+        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth" :label="$t('集成第三方平台')"
+                      prop="platform">
           <el-select filterable v-model="form.platform">
             <el-option v-for="item in platformOptions" :key="item.value" :label="item.text" :value="item.value">
             </el-option>
@@ -18,16 +19,19 @@
           <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
 
-        <el-form-item v-if="xpackEable && form.platform === 'Jira'" :label-width="labelWidth" :label="$t('使用第三方平台模板')" prop="scenarioCustomNum">
+        <el-form-item v-if="xpackEable" :label-width="labelWidth" :label="$t('使用第三方平台模板')" prop="scenarioCustomNum">
           <el-switch v-model="form.thirdPartTemplate"></el-switch>
         </el-form-item>
 
-        <el-form-item v-if="!xpackEable || !form.thirdPartTemplate" :label-width="labelWidth" :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
-          <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId" ref="issueTemplate"/>
+        <el-form-item v-if="!xpackEable || !form.thirdPartTemplate" :label-width="labelWidth"
+                      :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
+          <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId"
+                           ref="issueTemplate"/>
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" label="TCP Mock Port">
-          <el-input-number v-model="form.mockTcpPort" :controls="false" style="width: 37%;margin-right: 30px"></el-input-number>
+          <el-input-number v-model="form.mockTcpPort" :controls="false"
+                           style="width: 37%;margin-right: 30px"></el-input-number>
           <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
         </el-form-item>
 
@@ -62,6 +66,15 @@
         <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_filter_id')" v-if="azuredevops">
           <el-input v-model="form.azureFilterId" autocomplete="off"/>
           <ms-instructions-icon content="非必填项，用例关联需求时，可以只筛选出，所填的 workItem 下的选项" effect="light"/>
+        </el-form-item>
+        <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
+          <el-switch v-model="form.repeatable"></el-switch>
+        </el-form-item>
+        <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id')" prop="customNum">
+          <el-switch v-model="form.customNum"></el-switch>
+        </el-form-item>
+        <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id')" prop="scenarioCustomNum">
+          <el-switch v-model="form.scenarioCustomNum"></el-switch>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
@@ -222,7 +235,7 @@ export default {
       if (platforms.indexOf(platform) === -1) {
         for (let i = 0; i < this.platformOptions.length; i++) {
           if (this.platformOptions[i].value === platform) {
-            this.platformOptions.splice(i, 1);
+            this.platformOptions.splice(1, i);
             break;
           }
         }
@@ -278,8 +291,8 @@ export default {
       removeGoBackListener(this.handleClose);
       this.createVisible = false;
     },
-    chengeMockTcpSwitch(value){
-      if(value && this.form.mockTcpPort === 0){
+    chengeMockTcpSwitch(value) {
+      if (value && this.form.mockTcpPort === 0) {
         this.result = this.$get('/project/genTcpMockPort/' + this.form.id, res => {
           let port = res.data;
           this.form.mockTcpPort = port;
@@ -302,7 +315,7 @@ pre {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
 }
 
-.el-input,.el-textarea {
+.el-input, .el-textarea {
   width: 80%;
 }
 </style>

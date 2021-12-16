@@ -12,22 +12,25 @@
                 <div>
                   <el-col :span="8">
                     <el-row style="margin-top: 10px">
-                      <span>{{ this.$t('commons.enable_settings') }}</span>
+                      <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
                     </el-row>
-                    <el-row style="margin-top: 10px">
-                      <fieldset>
-                        <el-form :model="form" ref="form" label-position="left" label-width="200px" size="small">
-                          <el-form-item :label-width="labelWidth" :label="$t('project.public_info')" prop="casePublic"
-                                        v-if="this.isXpack">
-                            <el-switch v-model="form.casePublic" style="margin-top:20px"></el-switch>
-                          </el-form-item>
-                          <el-divider v-if="this.isXpack"></el-divider>
-                          <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id_info')"
-                                        prop="customNum">
-                            <el-switch v-model="form.customNum" style="margin-top:20px"></el-switch>
-                          </el-form-item>
-                        </el-form>
-                      </fieldset>
+                    <el-row style="margin-top: 15px">
+                      <div style="width: 550px" class="divBorder" :model="form">
+                        <div v-if="isXpack">
+                          <span style="margin-left: 10px; margin-top: 5px; display: block">{{
+                              this.$t('project.public')
+                            }}</span>
+                          <span class="spanCss">{{ this.$t('project.public_info') }}</span>
+                          <el-switch v-model="form.casePublic"
+                                     style="margin-left: 500px ; margin-top: -60px"></el-switch>
+                          <el-divider></el-divider>
+                        </div>
+                        <span style="margin-left: 10px; margin-top: 5px; display: block">{{
+                            this.$t('project.test_case_custom_id')
+                          }}</span>
+                        <span class="spanCss">{{ this.$t('project.test_case_custom_id_info') }}</span>
+                        <el-switch v-model="form.customNum" style="margin-left: 500px ; margin-top: -60px"></el-switch>
+                      </div>
                     </el-row>
                   </el-col>
                 </div>
@@ -36,44 +39,47 @@
                 <el-row :gutter="20">
                   <el-col :span="8">
                     <el-row style="margin-top: 10px">
-                      <span>{{ this.$t('commons.enable_settings') }}</span>
+                      <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
                     </el-row>
-                    <el-row style="margin-top: 10px">
-                      <fieldset>
-                        <el-form :model="form" ref="form" label-position="left" label-width="200px" size="small">
-                          <el-form-item :label-width="labelWidth" :label="$t('project.repeatable_info')"
-                                        prop="repeatable">
-                            <el-switch v-model="form.repeatable" style="margin-top:20px"></el-switch>
-                          </el-form-item>
-                          <el-divider></el-divider>
-                          <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id_info')"
-                                        prop="scenarioCustomNum">
-                            <el-switch v-model="form.scenarioCustomNum" style="margin-top:20px"></el-switch>
-                          </el-form-item>
-                        </el-form>
-                      </fieldset>
+                    <el-row style="margin-top: 15px">
+                      <div style="width: 550px" class="divBorder" :model="form">
+                        <span style="margin-left: 10px ; margin-top: 10px; display: block;">{{
+                            this.$t('project.repeatable')
+                          }}</span>
+                        <span class="spanCss">{{ this.$t('project.repeatable_info') }}</span>
+                        <el-switch v-model="form.repeatable" style="margin-left: 500px ; margin-top: -60px"></el-switch>
+                        <el-divider></el-divider>
+                        <span style="margin-left: 10px">{{ this.$t('project.scenario_custom_id') }}</span>
+                        <span class="spanCss">{{ this.$t('project.scenario_custom_id_info') }}</span>
+                        <el-switch v-model="form.scenarioCustomNum"
+                                   style="margin-left: 500px ; margin-top: -60px"></el-switch>
+                        <el-divider></el-divider>
+                        <span style="margin-left: 10px">{{ 'TCP Mock Port' }}</span>
+                        <el-input-number v-model="form.mockTcpPort" :controls="false"
+                                         style="width: 37%;margin-left: 100px; margin-top: 5px"></el-input-number>
+                        <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"
+                                   style="margin-left: 500px;margin-top: -60px "></el-switch>
+                      </div>
                     </el-row>
                   </el-col>
                   <el-col :span="8" :offset="4">
                     <el-row style="margin-top: 10px">
-                      <span>{{ this.$t('commons.view_settings') }}</span>
+                      <span style="font-weight:bold">{{ this.$t('commons.view_settings') }}</span>
                     </el-row>
-                    <el-row style="margin-top: 10px">
-                      <fieldset>
-                        <el-form :model="form" ref="form" label-position="left" label-width="200px" size="small">
-                          <el-form-item label-width="200px" :label="$t('api_test.definition.api_quick_button')"
-                                        prop="apiQuick">
-                            <el-radio-group v-model="form.apiQuick">
-                              <el-radio label="debug" value="debug">
-                                {{ this.$t('api_test.definition.request.fast_debug') }}
-                              </el-radio>
-                              <el-radio label="api" value="api">
-                                {{ this.$t('api_test.definition.request.title') }}
-                              </el-radio>
-                            </el-radio-group>
-                          </el-form-item>
-                        </el-form>
-                      </fieldset>
+                    <el-row style="margin-top: 15px">
+                      <div style="width: 550px" class="divBorder" :model="form">
+                        <span style="margin-left: 10px;margin-top: 10px; display: block;">{{
+                            this.$t('api_test.definition.api_quick_button')
+                          }}</span>
+                        <el-radio-group v-model="form.apiQuick" style="margin-left: 300px; margin-top: -40px">
+                          <el-radio label="debug" value="debug">
+                            {{ this.$t('api_test.definition.request.fast_debug') }}
+                          </el-radio>
+                          <el-radio label="api" value="api">
+                            {{ this.$t('api_test.definition.request.title') }}
+                          </el-radio>
+                        </el-radio-group>
+                      </div>
                     </el-row>
                   </el-col>
                 </el-row>
@@ -96,6 +102,7 @@
 
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+
 import {
   getCurrentProjectID,
   getCurrentUser,
@@ -161,6 +168,14 @@ export default {
         this.$success(this.$t('commons.save_success'));
       });
     },
+    chengeMockTcpSwitch(value) {
+      if (value && this.form.mockTcpPort === 0) {
+        this.result = this.$get('/project/genTcpMockPort/' + this.form.id, res => {
+          let port = res.data;
+          this.form.mockTcpPort = port;
+        })
+      }
+    }
 
   }
 };
@@ -172,5 +187,18 @@ export default {
   white-space: pre-line;
 }
 
+.divBorder {
+  border: 1px solid #DCDFE6;
+}
 
+.spanCss {
+  display: block;
+  color: #929295;
+  margin-left: 10px;
+  font-size: 13px
+}
+
+.el-divider--horizontal {
+  margin: 0 0 5px 0;
+}
 </style>
