@@ -928,6 +928,7 @@ export default {
     invert_select: "Invert select",
     select_or_invert: "Select all/Invert select",
     input_name: "Please enter the test name",
+    input_name_length: "The length of the test name cannot exceed 100",
     select_project: "Please select project",
     variable_name: "Variable name",
     variable: "Variable",
