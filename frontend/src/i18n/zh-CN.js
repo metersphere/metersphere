@@ -2018,8 +2018,8 @@ export default {
         export_tip: "请切换成接口列表勾选用例导出！"
       },
       case_desc: "用例描述",
-      passing_rate: '用例通过率'
-
+      passing_rate:'用例通过率',
+      version: "版本"
     },
     plan: {
       test_plan: "测试计划",

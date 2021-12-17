@@ -18,6 +18,9 @@
         :right-tip="$t('test_track.case.minder')"
         :right-content="$t('test_track.case.minder')"
         :middle-button-enable="false">
+        <template v-slot:version>
+          <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
+        </template>
         <test-review-test-case-list
           class="table-list"
           v-if="activeDom === 'left'"
@@ -26,6 +29,7 @@
           @setCondition="setCondition"
           :review-id="reviewId"
           :clickType="clickType"
+          :current-version="currentVersion"
           ref="testPlanTestCaseList"/>
         <test-review-minder
           :tree-nodes="treeNodes"
@@ -61,6 +65,8 @@ import TestReviewMinder from "@/business/components/track/common/minder/TestRevi
 import {getCurrentProjectID} from "@/common/js/utils";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "TestReviewFunction",
@@ -69,7 +75,8 @@ export default {
     TestReviewMinder,
     MsTabButton,
     TestReviewTestCaseList,
-    TestReviewRelevance, MsNodeTree, MsTestPlanCommonComponent
+    TestReviewRelevance, MsNodeTree, MsTestPlanCommonComponent,
+    'VersionSelect': VersionSelect.default,
   },
   data() {
     return {
@@ -83,7 +90,8 @@ export default {
       activeDom: 'left',
       condition: {},
       tmpActiveDom: null,
-      tmpPath: null
+      tmpPath: null,
+      currentVersion : null
     }
   },
   props: [
@@ -141,6 +149,9 @@ export default {
         return true;
       }
     },
+    changeVersion(currentVersion) {
+      this.currentVersion = currentVersion || null;
+    }
   }
 }
 </script>
@@ -148,5 +159,9 @@ export default {
 <style scoped>
 /deep/ .el-button-group>.el-button:first-child {
   padding: 4px 1px !important;
+}
+
+.version-select {
+  padding-left: 10px;
 }
 </style>

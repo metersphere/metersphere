@@ -172,3 +172,21 @@ alter table project
 
 alter table project
     add clean_load_report_expr varchar(50) null;
+
+-- test_case
+ALTER TABLE test_case
+    ADD version_id VARCHAR(50) NULL COMMENT '版本ID';
+
+ALTER TABLE test_case
+    ADD ref_id VARCHAR(50) NULL COMMENT '指向初始版本ID';
+
+CREATE INDEX test_case_version_id_index ON test_case (version_id);
+
+CREATE INDEX test_case_ref_id_index ON test_case (ref_id);
+
+UPDATE test_case
+SET ref_id = id;
+
+UPDATE test_case
+    INNER JOIN project_version ON project_version.project_id = test_case.project_id
+    SET version_id = project_version.id;

@@ -171,6 +171,32 @@
             <if test="request.method != null">
                 and test_case.method = #{request.method}
             </if>
+            <if test="request.versionId != null">
+                and test_case.version_id = #{request.versionId}
+            </if>
+            <if test="request.refId != null">
+                and test_case.ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND (
+                version_id = (SELECT project_version.id
+                FROM test_case tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                WHERE ref_id = test_case.ref_id
+                LIMIT 1)
+                OR
+                version_id = (SELECT project_version.id
+                FROM test_case tmp
+                JOIN project_version ON tmp.project_id = project_version.project_id AND
+                tmp.version_id = project_version.id
+                WHERE ref_id = test_case.ref_id
+                GROUP BY ref_id
+                HAVING MAX(latest) = 0
+                ORDER BY MAX(project_version.create_time) DESC
+                LIMIT 1)
+                )
+            </if>
             and test_case.status != 'Trash'
             <include refid="filter"/>
         </where>
@@ -211,6 +237,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key=='version_id'">
+                            and test_case.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
                         <otherwise>
                             and test_plan_test_case.status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
@@ -232,11 +264,13 @@
         test_plan_test_case.actual_result,
         test_plan_test_case.update_time, test_plan_test_case.create_time,test_case_node.name as model, project.name as
         projectName,test_plan_test_case.issues as issues,test_plan_test_case.issues_count as issuesCount,
-        test_plan_test_case.plan_id as planId
+        test_plan_test_case.plan_id as planId,test_case.version_id as versionId,
+        project_version.name as versionName
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id = test_case.node_id
         inner join project on project.id = test_case.project_id
+        left join project_version on project_version.id = test_case.version_id and project.id = project_version.project_id
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by

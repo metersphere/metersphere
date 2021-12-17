@@ -98,6 +98,7 @@ export let CUSTOM_TABLE_HEADER = {
   TEST_CASE_REVIEW_FUNCTION_TEST_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
     {id: 'name', key: '2', label: 'commons.name'},
+    {id: 'versionId', key: 'b', label: 'commons.version'},
     {id: 'priority', key: '3', label: 'test_track.case.priority'},
     {id: 'type', key: '4', label: 'test_track.case.type'},
     {id: 'nodePath', key: '5', label: 'test_track.case.module'},
@@ -132,6 +133,7 @@ export let CUSTOM_TABLE_HEADER = {
   TEST_PLAN_FUNCTION_TEST_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
     {id: 'name', key: '2', label: 'commons.name'},
+    {id: 'versionId', key: 'b', label: 'project.version.name', xpack: true},
     {id: 'tags', key: '3', label: 'commons.tag'},
     {id: 'nodePath', key: '4', label: 'test_track.case.module'},
     {id: 'projectName', key: '5', label: 'test_track.review.review_project'},
@@ -187,6 +189,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'name', key: '2', label: 'commons.name'},
     {id: 'reviewStatus', key: '3', label: 'test_track.case.status'},
     {id: 'tags', key: '4', label: 'commons.tag'},
+    {id: 'versionId', key: 'a', label: 'project.version.name', xpack: true},
     {id: 'nodePath', key: '5', label: 'test_track.case.module'},
     {id: 'projectName', key: 'a', label: 'test_track.review.review_project'},
     {id: 'updateTime', key: '6', label: 'commons.update_time'},
