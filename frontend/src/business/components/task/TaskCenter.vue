@@ -521,16 +521,11 @@ export default {
 }
 
 /deep/ .el-badge__content {
- /* border-radius: 10px;*/
+  border-radius: 10px;
   height: 10px;
   line-height: 10px;
 }
-/deep/ .el-card{
-  /* border-radius: 10px;*/
-  background: #FFF;
-  border: 0px;
-  box-shadow: 0 0 0 rgb(0,0,0,0) !important;
-}
+
 
 
 
