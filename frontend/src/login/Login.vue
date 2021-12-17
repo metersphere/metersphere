@@ -8,7 +8,7 @@
               <img :src="'/display/file/loginLogo'" alt="">
             </div>
             <div class="welcome">
-              <span>{{ loginTitle }}</span>
+              <span>{{ $t("commons.welcome") }}</span>
             </div>
           </div>
           <div class="form">
@@ -16,7 +16,7 @@
               <el-form-item v-slot:default>
                 <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
                   <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
-                  <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
+                  <el-radio label="LOCAL" size="mini" v-if="openLdap">{{ $t('login.normal_Login') }}</el-radio>
                   <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }}
                     {{ auth.name }}
                   </el-radio>
@@ -59,7 +59,7 @@
 
 <script>
 import {publicKeyEncrypt, saveLocalStorage} from '@/common/js/utils';
-import {DEFAULT_LANGUAGE, PRIMARY_COLOR} from "@/common/js/constants";
+import {CURRENT_LANGUAGE, DEFAULT_LANGUAGE, PRIMARY_COLOR} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
@@ -76,19 +76,10 @@ export default {
         password: '',
         authenticate: 'LOCAL'
       },
-      rules: {
-        username: [
-          {required: true, message: this.$t('commons.input_login_username'), trigger: 'blur'},
-        ],
-        password: [
-          {required: true, message: this.$t('commons.input_password'), trigger: 'blur'},
-          {min: 6, max: 30, message: this.$t('commons.input_limit', [6, 30]), trigger: 'blur'}
-        ]
-      },
+      rules: this.getDefaultRules(),
       msg: '',
       ready: false,
       openLdap: false,
-      loginTitle: this.$t("commons.welcome"),
       authSources: [],
       loginUrl: 'signin',
     };
@@ -119,6 +110,11 @@ export default {
         this.ready = true;
         // 保存公钥
         localStorage.setItem("publicKey", response.data.message);
+        let lang = localStorage.getItem(CURRENT_LANGUAGE);
+        if (lang) {
+          this.$setLang(lang);
+          this.rules = this.getDefaultRules();
+        }
       } else {
         let user = response.data.data;
         saveLocalStorage(response.data);
@@ -207,6 +203,17 @@ export default {
       if (auth.default) {
         auth.default.redirectAuth(this, authId);
       }
+    },
+    getDefaultRules() { // 设置完语言要重新赋值
+      return {
+        username: [
+            {required: true, message: this.$t('commons.input_login_username'), trigger: 'blur'},
+          ],
+            password: [
+          {required: true, message: this.$t('commons.input_password'), trigger: 'blur'},
+          {min: 6, max: 30, message: this.$t('commons.input_limit', [6, 30]), trigger: 'blur'}
+        ]
+      };
     }
   }
 };

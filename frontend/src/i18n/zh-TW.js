@@ -72,11 +72,11 @@ export default {
     input_password: '請輸入密碼',
     test: '測試',
     create_time: '創建時間',
-    update_user_id:'更新人ID',
+    update_user_id: '更新人ID',
     update_time: '更新時間',
     delete_time: '刪除時間',
     delete_user: '刪除人',
-    delete_user_id:'刪除人ID',
+    delete_user_id: '刪除人ID',
     add: '添加',
     preview: '預覽',
     member: '成員',
@@ -185,7 +185,7 @@ export default {
     mock: "Mock 設置",
     encrypted: "不加密",
     no_corresponding: "無對應的",
-    code_template: "代码模版",
+    code_template: "代碼模版",
     api_case: "接口用例",
     scenario_case: "場景用例",
     task_center: "任務中心",
@@ -207,7 +207,7 @@ export default {
     run_success: "執行成功",
     run_completed: "執行完成",
     run_warning: "正在運行中，請稍後查看",
-    run_stop: "當前任務已停止，無法查看報告",
+    run_stop: "The current task has been stopped and the report cannot be viewed",
     run_fail: "執行失敗",
     follow_success: "關註成功",
     cancel_follow_success: "取消關註成功",
@@ -369,19 +369,22 @@ export default {
     system_project: "項目",
     user_unit: "人",
     workspace_unit: "個",
-    dash_board:'儀表盤',
-    all_project:'全部項目',
-    to_be_completed:'待完成',
-    pending_upgrade:'待更新',
-    information:'信息',
-    nick_name:'昵稱',
-    resourceId:'資源ID',
-    level:'級別',
-    num:'數量',
-    original_state:'原始狀態',
-    custom_num:'自定義編號',
-    version:'版本',
-    is_new:"是否新建"
+    dash_board: '儀表盤',
+    all_project: '全部項目',
+    to_be_completed: '待完成',
+    pending_upgrade: '待更新',
+    information: '信息',
+    nick_name: '昵稱',
+    resourceId: '資源ID',
+    level: '級別',
+    num: '數量',
+    original_state: '原始狀態',
+    custom_num: '自定義編號',
+    version: '版本',
+    is_new: "是否新建"
+  },
+  login: {
+    normal_Login: "普通登錄",
   },
   license: {
     title: '授權管理',
@@ -399,25 +402,25 @@ export default {
     invalid: '無效',
     expired: '已過期',
   },
-  workstation:{
+  workstation: {
     dash_board: '我的儀表盤',
     upcoming: '我的待辦',
     focus: '我的關註',
     creation: '我創建的',
-    creation_case:'我創建的用例',
-    creation_issue:'我創建的缺陷',
-    creation_case_tip:'暫時還沒有創建用例，馬上創建',
-    creation_issue_tip:'暫時還沒有創建缺陷，馬上創建',
-    table_name:{
-      track_case:'功能用例',
-      track_plan:'測試計劃',
-      track_review:'用例評審',
-      track_issue:'缺陷管理',
-      api_definition:'接口定義',
-      api_automation:'接口自動化',
-      api_case:'接口用例',
-      performance:'性能測試',
-      scenario_case:'場景用例'
+    creation_case: '我創建的用例',
+    creation_issue: '我創建的缺陷',
+    creation_case_tip: '暫時還沒有創建用例，馬上創建',
+    creation_issue_tip: '暫時還沒有創建缺陷，馬上創建',
+    table_name: {
+      track_case: '功能用例',
+      track_plan: '測試計劃',
+      track_review: '用例評審',
+      track_issue: '缺陷管理',
+      api_definition: '接口定義',
+      api_automation: '接口自動化',
+      api_case: '接口用例',
+      performance: '性能測試',
+      scenario_case: '場景用例'
     }
   },
   display: {
@@ -479,7 +482,7 @@ export default {
     option_value_check: '請填寫完整選項值',
   },
   workspace: {
-    id:'工作空間ID',
+    id: '工作空間ID',
     create: '創建工作空間',
     update: '修改工作空間',
     delete: '刪除工作空間',
@@ -601,10 +604,10 @@ export default {
       zentao_request: '請求方式',
       input_zentao_request: '請輸入Zentao請求方式',
       input_zentao_url: '請輸入Zentao地址，例：http://xx.xx.xx.xx/zentao/',
-      zentao_info:'禪道信息',
-      zentao_account:'禪道賬戶',
-      zentao_password:'禪道密碼',
-      zentao_prompt_information:'該信息為通過禪道提交缺陷的的用戶名、密碼，若未填寫，則使用工作空間中配置的默認信息',
+      zentao_info: '禪道信息',
+      zentao_account: '禪道賬戶',
+      zentao_password: '禪道密碼',
+      zentao_prompt_information: '該信息為通過禪道提交缺陷的的用戶名、密碼，若未填寫，則使用工作空間中配置的默認信息',
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 賬號信息在"公司管理-安全與集成-開放平臺"中查詢',
       use_tip_jira: 'Jira software server 認證信息為 賬號密碼，Jira software cloud 認證信息為 賬號+令牌(賬戶設置-安全-創建API令牌)',
@@ -631,11 +634,11 @@ export default {
       input_azure_url: '請輸入 Azure Devops 地址',
       input_azure_organization_id: '請輸入 Azure 組織ID',
       use_tip_azure: 'Azure Devops 地址+令牌(賬戶設置-個人訪問令牌-創建令牌)',
-      jira_prompt_information:'該信息為通過Jira提交缺陷的用戶認證信息，若未填寫，則使用工作空間中配置的默認信息'
+      jira_prompt_information: '該信息為通過Jira提交缺陷的用戶認證信息，若未填寫，則使用工作空間中配置的默認信息'
     }
   },
   project: {
-    id:'項目ID',
+    id: '項目ID',
     recent: '最近的項目',
     create: '創建項目',
     edit: '編輯項目',
@@ -738,7 +741,7 @@ export default {
     no_such_user: '無此用戶信息, 請輸入正確的用戶 ID 或者 用戶郵箱！',
   },
   user: {
-    id:'用戶ID',
+    id: '用戶ID',
     create: '創建用戶',
     modify: '修改用戶',
     input_name: '請輸入用戶姓名',
@@ -808,7 +811,7 @@ export default {
     add: '添加角色',
   },
   report: {
-    id:'報告ID',
+    id: '報告ID',
     api_test_report: '接口測試報告',
     load_test_report: '性能測試報告',
     test_plan_report: '測試計劃報告',
@@ -855,12 +858,12 @@ export default {
     delete_batch_confirm: '確認批量刪除報告',
     response_time: '響應時間(s)',
     max_users: '並發數',
-    file_id:'文件ID',
-    avg_response_time:'平均響應時間',
-    tps:'每秒傳輸的事物處理個數'
+    file_id: '文件ID',
+    avg_response_time: '平均響應時間',
+    tps: '每秒傳輸的事物處理個數'
   },
   load_test: {
-    id:'測試ID',
+    id: '測試ID',
     concurrency_thread_group: '並發讀取組',
     thread_group: '線程組',
     completed_test_report: '已完成測試報告',
@@ -983,7 +986,7 @@ export default {
       LatencyChart: '延遲',
       BytesThroughputChart: '字節數',
       Network: '網絡',
-      url:'路徑'
+      url: '路徑'
     },
     project_file_update_type_error: '更新的文件類型必須一致',
     add_monitor: '添加監控',
@@ -1040,7 +1043,7 @@ export default {
         update_time: "更新時間"
       },
       expect_detail: "期望詳情",
-      request_condition:"請求觸發條件",
+      request_condition: "請求觸發條件",
       base_info: "基本信息",
       req_param: "請求參數",
       rsp_param: "響應內容",
@@ -1051,9 +1054,9 @@ export default {
     },
     definition: {
       api_quick_button: '接口定義快捷添加按鈕',
+      id: '接口定義ID',
       api_all: '全部接口',
       unplanned_api: '未規劃接口',
-      id: '接口定義ID',
       api_title: "接口列表",
       case_title: "用例列表",
       doc_title: "文檔",
@@ -1072,7 +1075,7 @@ export default {
       create_tip: "註: 詳細的接口信息可以在編輯頁面填寫",
       api_import: "接口導入",
       check_select: "請勾選接口",
-      api_project:"所屬項目",
+      api_project: "所屬項目",
       select_comp: {
         no_data: "無數據",
         add_data: "去添加"
@@ -1192,7 +1195,7 @@ export default {
           none: "無"
         },
       },
-      case_reduction_error_text:"請先恢復"
+      case_reduction_error_text: "請先恢復"
     },
     automation: {
       open_expansion: "一鍵展開",
@@ -1230,7 +1233,7 @@ export default {
       update_time: "最後更新時間",
       step: "步驟數",
       last_result: "最後結果",
-      last_result_id:'最後結果ID',
+      last_result_id: '最後結果ID',
       passing_rate: "通過率",
       success: "通過",
       fail: "失敗",
@@ -1254,9 +1257,9 @@ export default {
         select_table: "選擇可見數據",
         select_all: "選擇全部數據",
         check_case: "請勾選場景用例",
-        api_none:"原始API不存在",
-        case_none:"原始CASE不存在",
-        num_none:"原始場景不存在"
+        api_none: "原始API不存在",
+        case_none: "原始CASE不存在",
+        num_none: "原始場景不存在"
       },
       report_name_info: '請輸入報告名稱',
       save_case_info: '請先保存用例',
@@ -1273,7 +1276,7 @@ export default {
       generate_report: "生成報告",
     },
     environment: {
-      id:'環境ID',
+      id: '環境ID',
       create: '創建環境',
       name: "環境名稱",
       socket: "環境域名",
@@ -1297,7 +1300,7 @@ export default {
       response_timeout: "響應超時",
     },
     scenario: {
-      id:"場景ID",
+      id: "場景ID",
       scenario: "場景",
       dubbo: "Dubbo配置",
       config: "場景配置",
@@ -1321,12 +1324,12 @@ export default {
       clone: "復製",
       cant_reference: '歷史測試文件，重新保存後才可被引用',
       share_cookie: '共享cookie',
-      module_id:'場景模塊ID',
+      module_id: '場景模塊ID',
       level: '級別',
-      version:"場景版本",
-      warning_context:"暫不支持批量添加所有場景到測試計劃!",
-      jmx_file_set:"場景JMX文件集",
-      error_report_jmx:"導出JMX文件失敗",
+      version: "場景版本",
+      warning_context: "暫不支持批量添加所有場景到測試計劃!",
+      jmx_file_set: "場景JMX文件集",
+      error_report_jmx: "導出JMX文件失敗",
     },
     request: {
       debug: "調試",
@@ -1490,10 +1493,10 @@ export default {
       title: "接口測試導入",
       data_format: "數據格式",
       file_size_limit: "文件大小不超過 50 M",
+      support_format: "支持p12,jks,pfx格式",
       tip: "說明",
       export_tip: "導出方法",
       ms_tip: "支持 MeterSphere json 格式",
-      support_format: "支持p12,jks,pfx格式",
       ms_export_tip: "通過 MeterSphere 接口測試頁面或者瀏覽器插件導出 json 格式文件",
       har_export_tip: "通過 瀏覽器的開發者工具 導出 HAR 格式文件",
       esb_export_tip: "暫時不支持ESB文件的導出",
@@ -1736,9 +1739,9 @@ export default {
     performance_test_case: "性能測試用例",
     scenario_test_case: "場景測試用例",
     report_statistics: "報告統計",
-    sort:'種類',
-    other_test_name:'其他測試名稱',
-    automatic_status_update:"自動狀態更新",
+    sort: '種類',
+    other_test_name: '其他測試名稱',
+    automatic_status_update: "自動狀態更新",
     case: {
       list: "列表",
       minder: "腦圖",
@@ -1826,10 +1829,10 @@ export default {
       upload_tip: "只能上傳jpg、jpeg、png、docx、doc、pdf、xlsx、txt文件",
       attachment: "附件",
       upload_time: "上傳時間",
-      total:"用例總數",
-      node_id:"節點ID",
-      node_path:"節點路徑",
-      match_rule:"測試用例匹配規則",
+      total: "用例總數",
+      node_id: "節點ID",
+      node_path: "節點路徑",
+      match_rule: "測試用例匹配規則",
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
@@ -1861,12 +1864,12 @@ export default {
         export_tip: "請切換成接口列表勾選用例導出！"
       },
       case_desc: "用例描述",
-      passing_rate:'用例通過率'
+      passing_rate: '用例通過率'
 
     },
     plan: {
       test_plan: "測試計劃",
-      test_plan_id:'測試計劃Id',
+      test_plan_id: '測試計劃Id',
       create_plan: "創建測試計劃",
       edit_plan: "編輯測試計劃",
       plan_name: "計劃名稱",
@@ -1903,10 +1906,10 @@ export default {
       api_case: "接口測試用例",
       scenario_case: "場景測試用例",
       execute_result: "執行結果",
-      execute_time:'執行時間',
-      is_api_case_executing:"是否執行接口用例",
-      is_scenario_executing:'是否執行場景',
-      is_performance_executing:'是否執行性能',
+      execute_time: '執行時間',
+      is_api_case_executing: "是否執行接口用例",
+      is_scenario_executing: '是否執行場景',
+      is_performance_executing: '是否執行性能',
       test_plan_test_case_count: "功能用例數",
       test_plan_api_case_count: "接口用例數",
       test_plan_api_scenario_count: "場景用例數",
@@ -1923,11 +1926,11 @@ export default {
         report_not_found: "報告不存在",
       }
     },
-    demand:{
-      id:'需求ID',
-      name:'需求名稱'
+    demand: {
+      id: '需求ID',
+      name: '需求名稱'
     },
-    step_model:'步驟模型',
+    step_model: '步驟模型',
     review: {
       test_review: "用例評審",
       create_review: "創建用例評審",
@@ -1975,7 +1978,7 @@ export default {
       execute_result: "評審結果",
     },
     module: {
-      id:'模塊ID',
+      id: '模塊ID',
       search: "搜索模塊",
       rename: "重命名",
       add_submodule: "添加子模塊",
@@ -2018,7 +2021,7 @@ export default {
       relevance_test_case: "關聯測試用例",
       cancel_all_relevance: "取消全部關聯",
       executor: "執行人",
-      executor_match_rule:"執行者匹配規則",
+      executor_match_rule: "執行者匹配規則",
       execute_result: "執行結果",
       pass: "通過",
       not_pass: "不通過",
@@ -2043,7 +2046,7 @@ export default {
       submit_issues: "提缺陷",
       operate_step: "操作步驟",
       edit_component: "編輯組件",
-      component:"組件",
+      component: "組件",
       base_info: "基礎信息",
       mock_info: "Mock服務",
       test_result: "測試結果",
@@ -2083,7 +2086,7 @@ export default {
       title: "缺陷標題",
       description: "缺陷描述",
       status: "缺陷狀態",
-      issue_project:"所屬項目",
+      issue_project: "所屬項目",
       platform: "平臺",
       operate: "操作",
       close: "關閉缺陷",
@@ -2094,8 +2097,8 @@ export default {
       status_new: '新建',
       status_resolved: '已解決',
       status_closed: '已關閉',
-      status_active:'激活',
-      status_delete:'删除',
+      status_active: '激活',
+      status_delete: '刪除',
       please_choose_current_owner: "請選擇處理人",
       tapd_current_owner: "Tapd 處理人",
       zentao_bug_build: "禪道 影響版本",
@@ -2119,11 +2122,11 @@ export default {
         automation: "自動觸發",
       },
     },
-    reporter:'報告人',
-    lastmodify:'最後更改'
+    reporter: '報告人',
+    lastmodify: '最後更改'
   },
   test_resource_pool: {
-    id:"測試資源池ID",
+    id: "測試資源池ID",
     type: '類型',
     enable_disable: '啟用/禁用',
     search_by_name: '根據名稱搜索',
@@ -2212,7 +2215,7 @@ export default {
     not_set: "未設置",
     test_name: '測試名稱',
     running_rule: '運行規則',
-    job:'任務',
+    job: '任務',
     job_status: '任務狀態',
     running_task: '運行中的任務',
     next_execution_time: "下次執行時間",
@@ -2346,7 +2349,7 @@ export default {
   },
   module: {
     title: '模塊管理',
-    path:'模塊路徑'
+    path: '模塊路徑'
   },
   table: {
     header_display_field: '表頭顯示字段',
@@ -2418,8 +2421,8 @@ export default {
       'PERFORMANCE_TEST_TASK': '性能測試',
       'PERFORMANCE_REPORT_TASK': '性能測試報告',
       'TRACK_TEST_CASE_TASK': '測試用例',
-      'TRACK_HOME_TASK': '測試跟踪首頁',
-      'TRACK_REPORT_TASK': '測試跟踪報告',
+      'TRACK_HOME_TASK': '測試跟蹤首頁',
+      'TRACK_REPORT_TASK': '測試跟蹤報告',
     },
     result: {
       'EXECUTE_SUCCESSFUL': '成功',
