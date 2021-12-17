@@ -182,7 +182,7 @@ export default {
 }
 
 /deep/ .ms-aside-container {
-  height: calc(100vh - 80px - 53px);
+  height: calc(100vh - 80px - 53px) !important;
   margin-top: 1px;
 }
 
