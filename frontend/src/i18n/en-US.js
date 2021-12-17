@@ -558,11 +558,11 @@ export default {
       robot_template: 'Robot template',
       select_events: 'Select event',
       select_receiving_method: 'Select receiving method',
-      mail: 'mail',
+      mail: 'Email',
       in_site: 'InSite',
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
-      lark: "Flying Book Robot",
+      lark: "Lark Robot",
       notes: '1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;<br/>' +
         '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";<br/>' +
         '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise',
