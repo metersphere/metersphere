@@ -66,6 +66,10 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private TestReviewTestCaseService testReviewTestCaseService;
     @Resource
     private MockConfigService mockConfigService;
+    @Resource
+    private TestPlanService testPlanService;
+    @Resource
+    private TestPlanReportService testPlanReportService;
 
     @Value("${jmeter.home}")
     private String jmeterHome;
@@ -77,6 +81,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private String quartzScheduleName;
     @Value("${quartz.thread-count}")
     private int quartzThreadCount;
+    @Value("${testplan.thread-count}")
+    private int testplanExecuteThreadPool;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -84,6 +90,10 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         System.out.println("================= 应用启动 =================");
 
         System.setProperty("jmeter.home", jmeterHome);
+
+        //修改需要自定义的线程池
+        testPlanService.resetThreadPool(testplanExecuteThreadPool);
+        testPlanReportService.resetThreadPool(testplanExecuteThreadPool);
 
         loadJars();
 
@@ -105,7 +115,10 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
                 "quartz.acquireTriggersWithinLock :" + acquireTriggersWithinLock + "\r\n" +
                 "quartz.enabled :" + quartzEnable + "\r\n" +
                 "quartz.scheduler-name :" + quartzScheduleName + "\r\n" +
-                "quartz.thread-count :" + quartzThreadCount + "\r\n");
+                "quartz.thread-count :" + quartzThreadCount + "\r\n" +
+                "testplan.execute.thread.pool :" + testplanExecuteThreadPool + "\r\n"
+        );
+
         scheduleService.startEnableSchedules();
 
     }
