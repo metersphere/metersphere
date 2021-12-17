@@ -158,6 +158,7 @@ export default {
         }
         this.api.method = apiCase.request.method
         this.api.name = apiCase.request.name;
+        this.api.path = apiCase.request.path;
       }
       if (apiCase.tags) {
         apiCase.tags = JSON.parse(apiCase.tags);
