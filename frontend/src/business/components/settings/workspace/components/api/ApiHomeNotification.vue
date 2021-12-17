@@ -171,7 +171,7 @@ export default {
         isReadOnly: false,
       }],
       eventOptions: [
-        {value: 'CLOSE_SCHEDULE', label: '关闭定时任务'},
+        {value: 'CLOSE_SCHEDULE', label: this.$t('commons.close_schedule')},
       ],
       variables: [
         {

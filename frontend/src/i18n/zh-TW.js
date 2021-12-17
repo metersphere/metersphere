@@ -28,6 +28,8 @@ export default {
     cut_back_old_version: '切回舊版',
     cut_back_new_version: '切回新版',
     comment: '評論',
+    close_schedule: '關閉定時任務',
+    review_complete: '評審完成',
     examples: '示例',
     help_documentation: '幫助文檔',
     api_help_documentation: 'API文檔',

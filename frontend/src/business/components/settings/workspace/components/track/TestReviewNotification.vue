@@ -175,7 +175,7 @@ export default {
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
         {value: 'COMMENT', label: this.$t('commons.comment')},
-        {value: 'COMPLETE', label: '评审完成'}
+        {value: 'COMPLETE', label:this.$t('commons.review_complete')}
       ],
       variables: [
         {
