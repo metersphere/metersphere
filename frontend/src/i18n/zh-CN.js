@@ -980,6 +980,9 @@ export default {
       url: '路径'
     },
     project_file_update_type_error: '更新的文件类型必须一致',
+    add_monitor: '添加监控',
+    monitor_item: '监控项',
+    monitor_host: '监控配置',
   },
   api_test: {
     is_continue: "是否继续",
