@@ -176,7 +176,7 @@
                          :field="item"
                          :fields-width="fieldsWidth"
                          :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
-                         :min-width="90"
+                         :min-width="120"
                          :prop="field.name">
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">

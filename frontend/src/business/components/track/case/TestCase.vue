@@ -555,10 +555,6 @@ export default {
   padding: 5px 10px;
 }
 
-/deep/ .el-button-group > .el-button:first-child {
-  padding: 4px 1px !important;
-}
-
 /deep/ .el-tabs__header {
   margin: 0 0 0px;
   /*width: calc(100% - 90px);*/

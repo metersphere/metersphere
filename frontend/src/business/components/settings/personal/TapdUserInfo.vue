@@ -10,11 +10,6 @@
     <el-form-item :label="'Tapd '+ $t('commons.nick_name')" prop="account">
       <el-input v-model="data.tapdUserName" :placeholder="$t('organization.integration.input_api_account')"/>
     </el-form-item>
-<!--    <el-form-item >-->
-<!--      <el-button type="primary" style="float: right" @click="$emit('auth', 'Tapd')" size="mini">-->
-<!--        {{$t('commons.validate')}}-->
-<!--      </el-button>-->
-<!--    </el-form-item>-->
   </el-form>
 </template>
 
@@ -30,5 +25,9 @@ export default {
 <style scoped>
 .instructions-icon {
   margin-left: -5px;
+}
+
+.el-form {
+  margin-bottom: 45px;
 }
 </style>
