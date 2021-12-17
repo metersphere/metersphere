@@ -977,6 +977,9 @@ export default {
       url:'路徑',
     },
     project_file_update_type_error: '更新的文件類型必須一致',
+    add_monitor: '添加監控',
+    monitor_item: '監控項',
+    monitor_host: '監控配置',
   },
   api_test: {
     is_continue: "是否繼續",
