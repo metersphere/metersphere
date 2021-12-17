@@ -23,7 +23,7 @@ export function getResource(d) {
       resourceType += i18n.t('notice.result.' + d.operation);
       break;
     case "API_DEFINITION_TASK" :
-      resourceType = i18n.t('notice.result.api_case') + i18n.t('notice.result.' + d.operation);
+      resourceType = i18n.t('notice.api_case') + i18n.t('notice.result.' + d.operation);
       break;
     default:
       break;
