@@ -3,25 +3,25 @@ import i18n from "@/i18n/i18n";
 import {AZURE_DEVOPS, JIRA, LOCAL, TAPD, ZEN_TAO} from "@/common/js/constants";
 
 export const CUSTOM_FIELD_TYPE_OPTION = [
-  {value: 'input',text: i18n.t('workspace.custom_filed.input')},
-  {value: 'textarea',text: i18n.t('workspace.custom_filed.textarea')},
-  {value: 'select',text: i18n.t('workspace.custom_filed.select')},
-  {value: 'multipleSelect',text: i18n.t('workspace.custom_filed.multipleSelect')},
-  {value: 'radio',text: i18n.t('workspace.custom_filed.radio')},
-  {value: 'checkbox',text: i18n.t('workspace.custom_filed.checkbox')},
-  {value: 'member',text: i18n.t('workspace.custom_filed.member')},
-  {value: 'multipleMember',text: i18n.t('workspace.custom_filed.multipleMember')},
-  {value: 'date',text: i18n.t('workspace.custom_filed.date')},
-  {value: 'datetime',text: i18n.t('workspace.custom_filed.datetime')},
-  {value: 'richText',text: i18n.t('workspace.custom_filed.richText')},
-  {value: 'int',text: i18n.t('workspace.custom_filed.int')},
-  {value: 'float',text: i18n.t('workspace.custom_filed.float')},
-  {value: 'multipleInput',text: i18n.t('workspace.custom_filed.multipleInput')}
+  {value: 'input',text: 'workspace.custom_filed.input'},
+  {value: 'textarea',text: 'workspace.custom_filed.textarea'},
+  {value: 'select',text: 'workspace.custom_filed.select'},
+  {value: 'multipleSelect',text: 'workspace.custom_filed.multipleSelect'},
+  {value: 'radio',text: 'workspace.custom_filed.radio'},
+  {value: 'checkbox',text: 'workspace.custom_filed.checkbox'},
+  {value: 'member',text: 'workspace.custom_filed.member'},
+  {value: 'multipleMember',text: 'workspace.custom_filed.multipleMember'},
+  {value: 'date',text: 'workspace.custom_filed.date'},
+  {value: 'datetime',text: 'workspace.custom_filed.datetime'},
+  {value: 'richText',text: 'workspace.custom_filed.richText'},
+  {value: 'int',text: 'workspace.custom_filed.int'},
+  {value: 'float',text: 'workspace.custom_filed.float'},
+  {value: 'multipleInput',text: 'workspace.custom_filed.multipleInput'}
 ];
 
 export const CUSTOM_FIELD_SCENE_OPTION = [
-  {value: 'TEST_CASE',text: i18n.t('workspace.case_template_manage')},
-  {value: 'ISSUE',text: i18n.t('workspace.issue_template_manage')},
+  {value: 'TEST_CASE',text: 'workspace.case_template_manage'},
+  {value: 'ISSUE',text: 'workspace.issue_template_manage'},
 ];
 
 export const CASE_TYPE_OPTION = [
