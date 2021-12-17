@@ -52,7 +52,7 @@
                            :fields-width="fieldsWidth"
                            min-width="120px">
             <template slot-scope="scope">
-              <el-tooltip content="编辑">
+              <el-tooltip :content="$t('commons.edit')">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
@@ -65,7 +65,7 @@
             :fields-width="fieldsWidth"
             min-width="120px">
             <template slot-scope="scope">
-              <el-tooltip content="编辑">
+              <el-tooltip :content="$t('commons.edit')">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.customNum }} </a>
               </el-tooltip>
             </template>
