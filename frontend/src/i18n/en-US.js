@@ -388,6 +388,9 @@ export default {
     version:'Version',
     is_new:"Is new"
   },
+  login: {
+    normal_Login: "Normal Login",
+  },
   license: {
     title: 'Authorization management',
     corporation: 'corporation',

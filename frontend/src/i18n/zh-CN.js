@@ -390,6 +390,9 @@ export default {
     version: '版本',
     is_new: "是否新建"
   },
+  login: {
+    normal_Login: "普通登录",
+  },
   license: {
     title: '授权管理',
     corporation: '客户名称',
