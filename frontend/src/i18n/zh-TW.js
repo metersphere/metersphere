@@ -1483,6 +1483,7 @@ export default {
       tip: "說明",
       export_tip: "導出方法",
       ms_tip: "支持 MeterSphere json 格式",
+      support_format: "支持p12,jks,pfx格式",
       ms_export_tip: "通過 MeterSphere 接口測試頁面或者瀏覽器插件導出 json 格式文件",
       har_export_tip: "通過 瀏覽器的開發者工具 導出 HAR 格式文件",
       esb_export_tip: "暫時不支持ESB文件的導出",
@@ -1632,6 +1633,22 @@ export default {
           close_title: "要關閉這條定時任務嗎？",
         }
       }
+    },
+    script: {
+      tip_1: "每一個API步驟後執行一次 如加解密",
+      tip_2: "全部API流程結束後執行一次 如token獲取，場景初始化",
+      tip_3: "腳本步驟會統計到場景執行結果中，執行報錯時會影響場景的最終執行結果",
+      filter_request_type: "過濾請求類型",
+      execution_order: "腳本執行順序",
+      associated_scene_results: "關聯場景結果",
+      execute_before_step: "單個請求步驟前執行",
+      execute_post_step: "單個請求步驟後執行",
+      execute_before_all_steps: "所有請求步驟前執行",
+      execute_post_all_steps: "所有請求步驟後執行",
+      after_the_pre_script_step: "步驟內前置腳本後",
+      before_the_pre_script_step: "步驟內前置腳本前",
+      after_the_post_script_step: "步驟內後置腳本後",
+      before_the_post_script_step: "步驟內後置腳本前",
     }
   },
   api_report: {

@@ -4,7 +4,7 @@
     :visible.sync="dialogVisible"
     append-to-body
     destroy-on-close
-    width="500px"
+    width="550px"
     :before-close="handleClose">
     <el-form :model="currentConfig" label-width="100px" v-loading="result.loading" ref="form">
       <el-row>
@@ -25,7 +25,7 @@
             ref="fileUpload">
             <i class="el-icon-upload"></i>
             <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-            <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}，支持p12,jks,pfx格式</div>
+            <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}，{{ $t('api_test.api_import.support_format') }}</div>
           </el-upload>
         </el-form-item>
         <el-col>

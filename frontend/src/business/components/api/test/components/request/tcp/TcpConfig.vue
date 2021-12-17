@@ -49,7 +49,7 @@
 
     <el-row :gutter="10">
       <el-col :span="24">
-        <el-form-item :label="'描述'" prop="description">
+        <el-form-item :label="$t('commons.description')" prop="description">
           <el-input v-model="config.description" maxlength="200" :show-word-limit="true" size="small"/>
         </el-form-item>
       </el-col>

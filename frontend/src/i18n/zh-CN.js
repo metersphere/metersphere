@@ -1482,6 +1482,7 @@ export default {
       title: "接口测试导入",
       data_format: "数据格式",
       file_size_limit: "文件大小不超过 50 M",
+      support_format: "支持p12,jks,pfx格式",
       tip: "说明",
       export_tip: "导出方法",
       ms_tip: "支持 MeterSphere json 格式",
@@ -1634,6 +1635,22 @@ export default {
           close_title: "要关闭这条定时任务吗？",
         }
       }
+    },
+    script: {
+      tip_1: "每一个API步骤后执行一次 如加解密",
+      tip_2: "全部API流程结束后执行一次 如token获取，场景初始化",
+      tip_3: "脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果",
+      filter_request_type: "过滤请求类型",
+      execution_order: "脚本执行顺序",
+      associated_scene_results: "关联场景结果",
+      execute_before_step: "单个请求步骤前执行",
+      execute_post_step: "单个请求步骤后执行",
+      execute_before_all_steps: "所有请求步骤前执行",
+      execute_post_all_steps: "所有请求步骤后执行",
+      after_the_pre_script_step: "步骤内前置脚本后",
+      before_the_pre_script_step: "步骤内前置脚本前",
+      after_the_post_script_step: "步骤内后置脚本后",
+      before_the_post_script_step: "步骤内后置脚本前",
     }
   },
   api_report: {
