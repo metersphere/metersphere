@@ -109,7 +109,7 @@ export default {
         this.$warning(this.$t('test_track.comment.description_is_null'));
         return;
       }
-      this.result = this.$post('/test/case/comment/save', comment, () => {
+      this.result = this.$post('/test/case/review/comment/save', comment, () => {
         this.$success(this.$t('test_track.comment.send_success'));
         this.form.description = "";
         this.refresh();
