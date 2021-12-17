@@ -18,6 +18,8 @@ import {
 import axios from "axios";
 import {jsPDF} from "jspdf";
 import JSEncrypt from 'jsencrypt';
+import {CUSTOM_FIELD_TYPE_OPTION} from "@/common/js/table-constants";
+import i18n from "@/i18n/i18n";
 
 export function hasRole(role) {
   let user = getCurrentUser();
@@ -502,4 +504,15 @@ export function setCurTabId(vueObj, tab, ref) {
       vueObj.$store.commit('setCurTabId', curTabId);
     }
   })
+}
+
+export function getTranslateOptions(data) {
+  let options = [];
+  data.forEach(i => {
+    let option = {};
+    Object.assign(option, i)
+    option.text = i18n.t(option.text);
+    options.push(option);
+  });
+  return options;
 }

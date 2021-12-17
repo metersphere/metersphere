@@ -7,7 +7,7 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth" :label="$t('集成第三方平台')" prop="platform">
+        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth" :label="$t('test_track.issue.third_party_integrated')" prop="platform">
           <el-select filterable v-model="form.platform">
             <el-option v-for="item in platformOptions" :key="item.value" :label="item.text" :value="item.value">
             </el-option>
@@ -18,7 +18,7 @@
           <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
 
-        <el-form-item v-if="xpackEable && form.platform === 'Jira'" :label-width="labelWidth" :label="$t('使用第三方平台模板')" prop="scenarioCustomNum">
+        <el-form-item v-if="xpackEable && form.platform === 'Jira'" :label-width="labelWidth" :label="$t('test_track.issue.use_third_party')" prop="scenarioCustomNum">
           <el-switch v-model="form.thirdPartTemplate"></el-switch>
         </el-form-item>
 
@@ -147,7 +147,7 @@ export default {
         // issueTemplateId: [{required: true}],
       },
       screenHeight: 'calc(100vh - 195px)',
-      labelWidth: '150px',
+      labelWidth: '210px',
       platformOptions: [],
       xpackEable: false
     };

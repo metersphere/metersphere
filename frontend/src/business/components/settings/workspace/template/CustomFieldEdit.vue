@@ -7,7 +7,7 @@
     append-to-body
     ref="msEditDialog">
 
-    <el-form :model="form" :rules="rules" label-position="right" label-width="auto" size="small" ref="form">
+    <el-form :model="form" :rules="rules" label-position="right" size="small" ref="form">
       <el-form-item :label="$t('custom_field.field_name')" prop="name" :label-width="labelWidth">
         <el-input v-if="isSystem" :disabled="isSystem" :value="$t(systemNameMap[form.name])" autocomplete="off"></el-input>
         <el-input v-else v-model="form.name" autocomplete="off"></el-input>
@@ -22,7 +22,7 @@
           <el-option
             v-for="item in (form.scene === 'PLAN' ? planSceneOptions : sceneOptions)"
             :key="item.value"
-            :label="item.text"
+            :label="$t(item.text)"
             :value="item.value">
           </el-option>
         </el-select>
@@ -33,7 +33,7 @@
           <el-option
             v-for="item in fieldTypeOptions"
             :key="item.value"
-            :label="item.text"
+            :label="$t(item.text)"
             :value="item.value">
           </el-option>
         </el-select>
@@ -63,7 +63,15 @@ import i18n from "@/i18n/i18n";
 export default {
   name: "CustomFieldEdit",
   components: {MsSingleHandleDrag, MsEditDialog},
-  props: ['scene','labelWidth'],
+  props: {
+    scene: String,
+    labelWidth: {
+      Object: String,
+      default() {
+        return '100px';
+      }
+    }
+  },
   data() {
     return {
       form: {
