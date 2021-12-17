@@ -9,14 +9,9 @@ ALTER TABLE project
     ADD third_part_template tinyint(1) DEFAULT 0 NULL COMMENT '是否使用第三方平台缺陷模板';
 
 -- 处理历史数据
-UPDATE issue_template
-SET platform = 'Local'
-WHERE platform = 'metersphere';
-UPDATE project p JOIN issue_template it
-on p.issue_template_id = it.id SET p.platform = it.platform;
-UPDATE custom_field
-SET `type` = 'date'
-WHERE `type` = 'data';
+UPDATE issue_template SET platform = 'Local' WHERE platform = 'metersphere';
+UPDATE project p JOIN issue_template it on p.issue_template_id = it.id SET p.platform = it.platform;
+UPDATE custom_field SET `type` = 'date' WHERE `type` = 'data';
 
 -- 公共用例库
 ALTER TABLE project

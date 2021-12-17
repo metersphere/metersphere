@@ -545,7 +545,7 @@ export function handleMinderIssueDelete(commandName, isPlan) {
         }
       });
       Promise.all(promises).then(() => {
-        success('取消缺陷关联成功');
+        success(i18n.t('test_track.case.minder_create_tip'));
       });
       return isAllIssue;
     }

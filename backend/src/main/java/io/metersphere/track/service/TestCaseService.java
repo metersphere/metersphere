@@ -1280,7 +1280,7 @@ public class TestCaseService {
             List<TestCaseWithBLOBs> testCases = extTestCaseMapper.getCustomFieldsByIds(ids);
             testCases.forEach((testCase) -> {
                 String customFields = testCase.getCustomFields();
-                List<TestCaseBatchRequest.CustomFiledRequest> fields = null;
+                List<TestCaseBatchRequest.CustomFiledRequest> fields;
                 if (StringUtils.isBlank(customFields)) {
                     fields = new ArrayList<>();
                 } else {
@@ -1289,7 +1289,7 @@ public class TestCaseService {
 
                 boolean hasField = false;
                 for (TestCaseBatchRequest.CustomFiledRequest field : fields) {
-                    if (StringUtils.equals(request.getCustomTemplateFieldId(), field.getId())) {
+                    if (StringUtils.equals(request.getCustomField().getName(), field.getName())) {
                         field.setValue(request.getCustomField().getValue());
                         hasField = true;
                         break;
