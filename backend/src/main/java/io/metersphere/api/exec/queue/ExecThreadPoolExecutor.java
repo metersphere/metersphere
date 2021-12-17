@@ -150,6 +150,17 @@ public class ExecThreadPoolExecutor {
         return workerQueue.stream().filter(task -> StringUtils.equals(((ExecTask) task).getRequest().getReportId(), reportId)).count() > 0;
     }
 
+    public boolean checkPlanReport(String planReportId) {
+        // 检查缓冲区
+        Queue<JmeterRunRequestDTO> bufferQueue = msRejectedExecutionHandler.getBufferQueue();
+        if (CollectionUtils.isNotEmpty(bufferQueue)) {
+            return bufferQueue.stream().filter(task -> StringUtils.equals(task.getTestPlanReportId(), planReportId)).count() > 0;
+        }
+        // 检查等待队列
+        BlockingQueue workerQueue = threadPool.getQueue();
+        return workerQueue.stream().filter(task -> StringUtils.equals(((ExecTask) task).getRequest().getTestPlanReportId(), planReportId)).count() > 0;
+    }
+
     public String getWorkerQueue() {
         StringBuffer buffer = new StringBuffer();
         BlockingQueue workerQueue = threadPool.getQueue();

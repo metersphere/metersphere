@@ -98,7 +98,7 @@ public class ApiJmeterFileService {
             }
             hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap);
         }
-        return zipFilesToByteArray(remoteTestId, hashTree);
+        return zipFilesToByteArray((reportId + "_" + remoteTestId), hashTree);
     }
 
     public byte[] downloadJmeterJar() {
