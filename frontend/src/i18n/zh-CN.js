@@ -28,6 +28,7 @@ export default {
     cut_back_old_version: '切回旧版',
     cut_back_new_version: '切回新版',
     comment: '评论',
+    close_schedule: '关闭定时任务',
     examples: '示例',
     help_documentation: '帮助文档',
     api_help_documentation: 'API文档',
