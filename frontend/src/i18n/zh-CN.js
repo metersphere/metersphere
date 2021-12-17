@@ -992,6 +992,7 @@ export default {
     invert_select: "反选",
     select_or_invert: "全选/反选",
     input_name: "请输入测试名称",
+    input_name_length: "测试名称长度不能超过100",
     select_project: "请选择项目",
     variable_name: "变量名",
     variable: "变量",
