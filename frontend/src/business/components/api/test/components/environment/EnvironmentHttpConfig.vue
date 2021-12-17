@@ -4,7 +4,7 @@
     <div class="ms-border">
       <el-form-item prop="socket">
         <el-row type="flex" justify="space-between">
-          <el-col :span="16">
+          <el-col :span="14">
             <span class="ms-env-span" style="line-height: 30px;">{{ $t('api_test.environment.socket') }}</span>
             <el-input v-model="condition.socket" style="width: 85%" :placeholder="$t('api_test.request.url_description')" clearable size="small">
               <template slot="prepend">
@@ -15,9 +15,9 @@
               </template>
             </el-input>
           </el-col>
-          <el-col :span="8">
-            <span style="margin-right: 12px;">描述</span>
-            <el-input v-model="condition.description" maxlength="200" :show-word-limit="true" size="small" style="width: 85%;"/>
+          <el-col :span="10">
+            <span style="margin-right: 12px; line-height: 30px;">{{ $t('commons.description') }}</span>
+            <el-input v-model="condition.description" maxlength="200" :show-word-limit="true" size="small" style="width: 70%;"/>
           </el-col>
         </el-row>
       </el-form-item>
@@ -75,7 +75,7 @@
             <span>{{ row.time | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="'描述'">
+        <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="$t('commons.description')">
           <template v-slot:default="{row}">
             {{ row.description }}
           </template>

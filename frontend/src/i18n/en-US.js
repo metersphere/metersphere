@@ -171,7 +171,7 @@ export default {
     millisecond: 'ms',
     please_upload: 'Please upload file',
     please_fill_path: 'Please fill in the path',
-    reference_documentation: "Reference documentation",
+    reference_documentation: "Documentation",
     already_exists: 'The name already exists',
     modifier: 'Modifier',
     validate: "Validate",
@@ -1482,6 +1482,7 @@ export default {
       tip: "Instructions",
       export_tip: "Export Tip",
       ms_tip: "Support for MeterSphere JSON format",
+      support_format: "Support p12, jks, pfx format",
       ms_export_tip: "Export jSON-formatted files via MeterSphere website or browser plug-ins",
       har_export_tip: "Export HAR files by browser dev-tool",
       esb_export_tip: "Can not export esb files now",
@@ -1631,6 +1632,22 @@ export default {
           close_title: "Do you want to close this scheduled task？",
         }
       }
+    },
+    script: {
+      tip_1: "Execute once after each API step, such as encryption and decryption",
+      tip_2: "Execute once after all API process ends, such as token acquisition and scene initialization",
+      tip_3: "Script steps will be counted in the execution result of the scene, and the final execution result of the scene will be affected when an execution error is reported",
+      filter_request_type: "Filter request type",
+      execution_order: "Script execution order",
+      associated_scene_results: "Associated scene results",
+      execute_before_step: "Execute before a single request step",
+      execute_post_step: "Execute after a single request step",
+      execute_before_all_steps: "Execute before all requested steps",
+      execute_post_all_steps: "Execute after all requested steps",
+      after_the_pre_script_step: "After the pre-script in the step",
+      before_the_pre_script_step: "Before pre-script in step",
+      after_the_post_script_step: "After the script is placed in the step",
+      before_the_post_script_step: "Post-in-step before script",
     }
   },
   api_report: {
