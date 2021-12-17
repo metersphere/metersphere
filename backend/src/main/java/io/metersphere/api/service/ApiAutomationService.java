@@ -1481,7 +1481,7 @@ public class ApiAutomationService {
                 String testId = executeQueue.get(reportId).getTestId();
                 if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(executeQueue.get(reportId).getTestId())) {
                     testPlanScenarioId = executeQueue.get(reportId).getTestId();
-                    testId = request.getScenarioTestPlanIdMap().get(executeQueue.get(reportId).getTestId());
+                    testId = reportId;
                 } else {
                     testPlanScenarioId = request.getPlanScenarioId();
                 }
