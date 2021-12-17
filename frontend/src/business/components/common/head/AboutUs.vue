@@ -29,7 +29,7 @@
 
     <el-row>
       <el-col class="version">
-        <span>版本:</span> &nbsp;
+        <span>{{ $t('commons.version') }}:</span> &nbsp;
         <span>{{version}}</span>
       </el-col>
     </el-row>
