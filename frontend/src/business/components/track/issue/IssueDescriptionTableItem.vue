@@ -3,6 +3,7 @@
     :label="$t('test_track.issue.description')"
     prop="description"
     :field="field"
+    min-width="120"
     :fields-width="fieldsWidth">
     <template v-slot:default="scope">
       <el-popover
