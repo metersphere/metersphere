@@ -128,21 +128,6 @@ function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly
 }
 
 
-
-function sameVnode (a, b) {
-  return (
-    a.nodeName===b.nodeName&&(sameInputType(a, b))
-  )
-}
-
-function sameInputType (a, b) {
-  if(a.localName === 'input'){
-    return a.value===b.value
-  }else {
-    return  true
-  }
-}
-
 function patchVnode ( oldVnode, vnode, insertedVnodeQueue, ownerArray, index, removeOnly) {
 
   if(sameVnode(vnode,oldVnode)){
@@ -175,53 +160,167 @@ function patchVnode ( oldVnode, vnode, insertedVnodeQueue, ownerArray, index, re
   return diffNode;
 }
 
-export function patch (oldVnode, vnode) {
-  if (isUndef(vnode)) { //如果新节点不存在
-                        //如果旧节点存在， 旧节点加背景颜色
+/**
+ * 该比较方法认为 1，2 -> 2，1 版本是有改变的
+ * @param  oldDom 被比较的节点
+ * @param  newDom 比较的节点
+ */
+export function diff (oldDom, newDom) {
+  let diffNode = {
+    oldNodeArray:[],
+    nodeArray:[],
+  }
+  // 被比较的节点的 $options 包含 _parentVnode(VNode)   _renderChildren(Array<VNode>)
+  // 比较的节点的 $options 包含 _parentVnode(VNode)   _renderChildren(Array<VNode>)
+  //两个独立的节点传过来 首先单独比较一下他们最外层的 dom 如果 dom.nodeName 相同 则认为最外层节点相同，否则更改样式 return
+  let oldVnode = oldDom._vnode;
+  let newVnode = newDom._vnode;
+
+  if (isUndef(newVnode)) { //如果新节点不存在
+    //如果旧节点存在， 旧节点加背景颜色
     if (isDef(oldVnode)) {
-      oldVnode.style.backgroundColor = "rgb(241,200,196)";
+      diffNode.oldNodeArray.push(oldVnode.elm)
+      //oldVnode.elm.style.backgroundColor = "rgb(241,200,196)";
     }
     return
   }
   if (isUndef(oldVnode)) {//如果旧节点不存在
     //如果新节点存在， 新节点加背景颜色
-    if (isDef(vnode)) {
-      oldVnode.style.backgroundColor = "rgb(215, 243, 215)";
+    if (isDef(newVnode)) {
+      diffNode.nodeArray.push(newVnode.elm)
+      //newVnode.elm.style.backgroundColor = "rgb(215, 243, 215)";
     }
     return
   }
-  //如果存在 开始比较,首先我默认传过来的node就是初始的父节点，所以只比较nodeName,如果父节点就不相同，那么就是不一样的
-  if(oldVnode.nodeName!==vnode.nodeName){
-    oldVnode.style.backgroundColor = "rgb(241,200,196)";
-    vnode.style.backgroundColor = "rgb(215, 243, 215)";
-    return;
-  }
-  //如果相同，查看是否有子节点，没有直接返回
-  if(oldVnode.childNodes.length>0&&vnode.childNodes.length>0){
-    updateChildren(null, oldVnode.childNodes, vnode.childNodes, null, null)
-    for (let i = 0; i <diffNode.oldNodeArray.length; i++) {
-      diffNode.oldNodeArray[i].parentNode.style.backgroundColor = "rgb(241,200,196)";
-    }
-    for (let i = 0; i <diffNode.nodeArray.length; i++) {
-      diffNode.nodeArray[i].parentNode.style.backgroundColor  = "rgb(215, 243, 215)";
-    }
 
-  }else if(oldVnode.childNodes.length>0){
-    for (let i = 0; i < oldVnode.childNodes.length; i++) {
-       const oldCh = oldVnode.childNodes[i];
-       if(oldCh.style){
-         oldCh.style.backgroundColor = "rgb(241,200,196)";
-       }
+  if (sameVnode(oldVnode, newVnode)) {
+    //逐层比较节点 这里涉及到 children 的length 可能不同的情况
+    diffDetail(oldVnode, newVnode,diffNode)
+
+  } else {
+    diffNode.oldNodeArray.push(oldVnode.elm)
+    diffNode.nodeArray.push(newVnode.elm)
+    //oldVnode.elm.style.backgroundColor = "rgb(241,200,196)";
+    //newVnode.elm.style.backgroundColor = "rgb(215, 243, 215)";
+  }
+  changeStyle(diffNode);
+}
+
+function changeStyle(diffNode){
+  for (let i = 0; i < diffNode.oldNodeArray.length; i++) {
+    if(diffNode.oldNodeArray[i]==='comment'||isUndef(diffNode.oldNodeArray[i].style)){
+      continue
     }
-  }else if(vnode.childNodes.length>0){
-    for (let i = 0; i < vnode.childNodes.length; i++) {
-      const ch = vnode.childNodes[i];
-      if(ch.style){
-        ch.style.backgroundColor = "rgb(215, 243, 215)";
+    diffNode.oldNodeArray[i].style.setProperty("background-color","rgb(241,200,196)",'important')
+  }
+
+  for (let i = 0; i < diffNode.nodeArray.length; i++) {
+    if(diffNode.nodeArray[i]==='comment'||isUndef(diffNode.nodeArray[i].style)){
+      continue
+    }
+    diffNode.nodeArray[i].style.setProperty("background-color","rgb(215, 243, 215)",'important')
+  }
+}
+
+/**
+ *
+ * @param oldChildren Array<VNode>
+ * @param newChildren Array<VNode>
+ * @param diffNode
+ */
+function diffChildren(oldChildren,newChildren,diffNode){
+  let oldLength = oldChildren.length;
+  let newLength = newChildren.length;
+  //取二者公共长度
+  let childrenLength = Math.min(oldLength, newLength);
+  for (let i = 0; i < childrenLength; i++) {
+      let oldVnode = oldChildren[i]
+      let newVnode = newChildren[i]
+      diffDetail(oldVnode,newVnode,diffNode)
+  }
+  for (let i = childrenLength; i < (oldLength - childrenLength); i++) {
+    if(oldChildren[i]){
+      diffNode.oldNodeArray.push(oldChildren[i].elm);
+      //oldChildren[i].elm.style.backgroundColor = "rgb(241,200,196)";
+    }
+  }
+  for (let i = childrenLength; i < (newLength - childrenLength); i++) {
+    if(newChildren[i]){
+      diffNode.nodeArray.push(newChildren[i].elm);
+      //newChildren[i].elm.style.backgroundColor = "rgb(215, 243, 215)";
+    }
+  }
+
+}
+
+function diffDetail(oldVnode,newVnode,diffNode){
+  if(isDef(oldVnode.child)&&isUndef(newVnode.child)){
+    //oldVnode.child._vnode.elm.style.backgroundColor = "rgb(241,200,196)";
+    diffNode.oldNodeArray.push(oldVnode.child._vnode.elm);
+  }
+  if(isDef(oldVnode.children)&&isUndef(newVnode.children)){
+    //oldVnode.elm.style.backgroundColor = "rgb(241,200,196)";
+    diffNode.oldNodeArray.push(oldVnode.elm);
+  }
+  if(isUndef(oldVnode.child)&&isDef(newVnode.child)){
+    //newVnode.child._vnode.elm.style.backgroundColor = "rgb(215, 243, 215)";
+    diffNode.nodeArray.push(newVnode.child._vnode.elm);
+  }
+  if(isUndef(oldVnode.children)&&isDef(newVnode.children)){
+    //newVnode.elm.style.backgroundColor = "rgb(215, 243, 215)";
+    diffNode.nodeArray.push(newVnode.elm);
+  }
+  if(isDef(oldVnode.child)&&isDef(newVnode.child)){
+    let ovnode = oldVnode.child._vnode;
+    let nvnode = newVnode.child._vnode;
+    diffDetail(ovnode,nvnode,diffNode)
+  }
+  if(isDef(oldVnode.children)&&isDef(newVnode.children)){
+    diffChildren(oldVnode.children,newVnode.children,diffNode)
+  }
+  //剩最后的子节点的时候，分类型做判断
+  if(isUndef(oldVnode.child)&&isUndef(newVnode.child)&&isUndef(oldVnode.children)&&isUndef(newVnode.children)){
+
+    if(isDef(oldVnode.text)&&isDef(newVnode.text)){
+        if(oldVnode.text!==newVnode.text){
+          if(isDef(oldVnode.elm.style)){
+            //oldVnode.elm.style.backgroundColor = "rgb(241,200,196)";
+            diffNode.oldNodeArray.push(oldVnode.elm);
+          }else {
+           // oldVnode.elm.parentNode.style.backgroundColor = "rgb(241,200,196)";
+            diffNode.oldNodeArray.push(oldVnode.elm.parentNode);
+          }
+          if(isDef(newVnode.elm.style)){
+           // newVnode.elm.style.backgroundColor = "rgb(215, 243, 215)";
+            diffNode.nodeArray.push(newVnode.elm);
+          }else {
+            diffNode.nodeArray.push(newVnode.elm.parentNode);
+            //newVnode.elm.parentNode.style.backgroundColor = "rgb(215, 243, 215)";
+          }
+
+        }
+    }else if(isDef(oldVnode.tag)&&isDef(newVnode.tag)){
+      if(oldVnode.tag==='input'&&newVnode.tag==='input'){
+        if(oldVnode.elm.value!==newVnode.elm.value){
+          diffNode.oldNodeArray.push(oldVnode.elm);
+          diffNode.nodeArray.push(newVnode.elm);
+        }
+      }
+    }
+    else {
+      if(!sameVnode(oldVnode,newVnode)){
+        //oldVnode.elm.style.backgroundColor = "rgb(241,200,196)";
+        diffNode.oldNodeArray.push(oldVnode.elm);
+        //newVnode.elm.style.backgroundColor = "rgb(215, 243, 215)";
+        diffNode.nodeArray.push(newVnode.elm);
       }
     }
   }
+
 }
+
+
+
 
 function findIdxInOld (node, oldCh, start, end) {
   for (let i = start; i < end; i++) {
@@ -231,4 +330,29 @@ function findIdxInOld (node, oldCh, start, end) {
 }
 
 
+
+function sameVnode (a, b) {
+  return (
+    a.key === b.key &&
+    a.asyncFactory === b.asyncFactory && (
+      (
+        a.tag === b.tag &&
+        a.isComment === b.isComment &&
+        isDef(a.data) === isDef(b.data) &&
+        sameInputType(a, b)
+      ) || (
+        isTrue(a.isAsyncPlaceholder) &&
+        isUndef(b.asyncFactory.error)
+      )
+    )
+  )
+}
+
+function sameInputType (a, b) {
+  if (a.tag !== 'input') return true
+  let i
+  const typeA = isDef(i = a.data) && isDef(i = i.attrs) && i.type
+  const typeB = isDef(i = b.data) && isDef(i = i.attrs) && i.type
+  return typeA === typeB || isTextInputType(typeA) && isTextInputType(typeB)
+}
 

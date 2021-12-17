@@ -2,6 +2,8 @@
   <div class="compare-class">
     <el-card style="width: 50%;" ref="old">
       <p>1</p>
+      <span>v1</span>
+      <h4>1</h4>
       <el-row>
         <el-col :span="12">
           <el-form :inline="true">
@@ -38,6 +40,8 @@
     </el-card>
     <el-card style="width: 50%;" ref="new">
       <p>2</p>
+      <span>v2</span>
+      <h4>2</h4>
       <el-row>
         <el-col :span="12">
           <el-form :inline="true">
@@ -87,6 +91,8 @@ import PerformanceAdvancedConfig from "@/business/components/performance/test/co
 import {patch} from "@/business/components/performance/v_node_diff";
 import Vue from "vue";
 
+const {diff} = require("@/business/components/performance/v_node_diff");
+
 
 export default{
   name:"DiffVersion",
@@ -125,12 +131,12 @@ export default{
   },
   methods:{
     getDiff(){
-      let oldVnode = this.$refs.old.$el
-      let vnode = this.$refs.new.$el
+      let oldVnode = this.$refs.old
+      let vnode = this.$refs.new
       //oldVnode.style.backgroundColor = "rgb(241,200,196)";
       console.log(this.$refs.old)
       console.log(this.$refs.new)
-      patch(oldVnode,vnode,null,null);
+      diff(oldVnode,vnode);
 
     },
     clickTab(tab) {
