@@ -47,6 +47,7 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 /**
@@ -104,8 +105,15 @@ public class TestPlanReportService {
     private UserService userService;
     @Resource
     private ProjectService projectService;
-
     private final ExecutorService executorService = Executors.newFixedThreadPool(20, new NamedThreadFactory("TestPlanReportService"));
+
+    private final ThreadPoolExecutor planListenerExecutorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(20, new NamedThreadFactory("TestPlanExecuteListen"));
+
+    public void resetThreadPool(int threadCount){
+        if(threadCount > 0){
+            planListenerExecutorService.setMaximumPoolSize(threadCount);
+        }
+    }
 
     public List<TestPlanReportDTO> list(QueryTestPlanReportRequest request) {
         List<TestPlanReportDTO> list = new ArrayList<>();
@@ -583,8 +591,6 @@ public class TestPlanReportService {
         boolean apiCaseIsOk = executeInfo.isApiCaseAllExecuted();
         boolean scenarioIsOk = executeInfo.isScenarioAllExecuted();
         boolean performanceIsOk = executeInfo.isLoadCaseAllExecuted();
-
-        testPlanLog.info("ReportId[" + testPlanReport.getId() + "] count over. Testplan Execute Result:  Api is over ->" + apiCaseIsOk + "; scenario is over ->" + scenarioIsOk + "; performance is over ->" + performanceIsOk);
 
         if (apiCaseIsOk) {
             testPlanReport.setIsApiCaseExecuting(false);
@@ -1113,12 +1119,16 @@ public class TestPlanReportService {
     }
 
     public void countReport(String planReportId) {
-        boolean isTimeOut = this.checkTestPlanReportIsTimeOut(planReportId);
-        if (isTimeOut) {
+        TestPlanReportExecuteCheckResultDTO checkResult = this.checkTestPlanReportIsTimeOut(planReportId);
+        testPlanLog.info("Check PlanReport:" + planReportId + "; result: "+ JSON.toJSONString(checkResult));
+        if (checkResult.isTimeOut()) {
             //判断是否超时。超时时强行停止任务
             TestPlanReportExecuteCatch.finishAllTask(planReportId);
+            checkResult.setFinishedCaseChanged(true);
         }
-        this.updateExecuteApis(planReportId);
+        if(checkResult.isFinishedCaseChanged()){
+            this.updateExecuteApis(planReportId);
+        }
     }
 
     public TestPlanSimpleReportDTO getReport(String reportId) {
@@ -1254,7 +1264,7 @@ public class TestPlanReportService {
         testPlanReportContentMapper.updateByExampleSelective(bloBs, example);
     }
 
-    private boolean checkTestPlanReportIsTimeOut(String planReportId) {
+    private TestPlanReportExecuteCheckResultDTO checkTestPlanReportIsTimeOut(String planReportId) {
         //同步数据库更新状态信息
         try {
             this.syncReportStatus(planReportId);
@@ -1264,16 +1274,9 @@ public class TestPlanReportService {
         }
 
         TestPlanExecuteInfo executeInfo = TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId);
-        int unFinishNum = executeInfo.countUnFinishedNum();
-        if (unFinishNum > 0) {
-            //20分钟没有案例执行结果更新，则定位超时
-            long lastCountTime = executeInfo.getLastFinishedNumCountTime();
-            long nowTime = System.currentTimeMillis();
-            if (nowTime - lastCountTime > 1200000) {
-                return true;
-            }
-        }
-        return false;
+        TestPlanReportExecuteCheckResultDTO checkResult = executeInfo.countUnFinishedNum();
+
+        return checkResult;
     }
 
     private void syncReportStatus(String planReportId) {
@@ -1329,6 +1332,28 @@ public class TestPlanReportService {
             testPlanLog.info("结束测试计划报告：[" + planReportId + "]");
         }
         TestPlanReportExecuteCatch.remove(planReportId);
+    }
+
+    public void startTestPlanExecuteListen(String reportId){
+        planListenerExecutorService.submit(() -> {
+            while (TestPlanReportExecuteCatch.containsReport(reportId)){
+                //检查是否存在数据库里
+                TestPlanReportExample example = new TestPlanReportExample();
+                example.createCriteria().andIdEqualTo(reportId);
+                long count = testPlanReportMapper.countByExample(example);
+                if(count > 0){
+                    testPlanLog.info("Start check testPlanReport:" + reportId);
+                    countReport(reportId);
+                    try {
+                        Thread.sleep(10000);
+                    }catch (Exception e){
+                        LogUtil.info(e);
+                    }
+                }else {
+                    TestPlanReportExecuteCatch.remove(reportId);
+                }
+            }
+        });
     }
 
 }

@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TestPlanResourceType;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.track.dto.TestPlanReportExecuteCheckResultDTO;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
@@ -84,7 +85,8 @@ public class TestPlanExecuteInfo {
         }
     }
 
-    public synchronized int countUnFinishedNum() {
+    public synchronized TestPlanReportExecuteCheckResultDTO countUnFinishedNum() {
+        TestPlanReportExecuteCheckResultDTO executeCheck = new TestPlanReportExecuteCheckResultDTO();
         int unFinishedCount = 0;
 
         this.isApiCaseAllExecuted = true;
@@ -118,8 +120,21 @@ public class TestPlanExecuteInfo {
         if (lastUnFinishedNumCount != unFinishedCount) {
             lastUnFinishedNumCount = unFinishedCount;
             lastFinishedNumCountTime = System.currentTimeMillis();
+            executeCheck.setFinishedCaseChanged(true);
+        }else if(unFinishedCount == 0){
+            executeCheck.setFinishedCaseChanged(true);
+        }else {
+            executeCheck.setFinishedCaseChanged(false);
         }
-        return unFinishedCount;
+        executeCheck.setTimeOut(false);
+        if (unFinishedCount > 0) {
+            //20分钟没有案例执行结果更新，则定位超时
+            long nowTime = System.currentTimeMillis();
+            if (nowTime - lastFinishedNumCountTime > 1200000) {
+                executeCheck.setTimeOut(true);
+            }
+        }
+        return executeCheck;
     }
 
     public Map<String, Map<String, String>> getExecutedResult() {

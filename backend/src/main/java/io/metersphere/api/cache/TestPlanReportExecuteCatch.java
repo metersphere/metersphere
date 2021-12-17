@@ -1,14 +1,16 @@
 package io.metersphere.api.cache;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author song.tianyang
  * @Date 2021/8/20 3:29 下午
  */
 public class TestPlanReportExecuteCatch {
-    private static Map<String, TestPlanExecuteInfo> testPlanReportMap = new HashMap<>();
+    private static Map<String, TestPlanExecuteInfo> testPlanReportMap = new ConcurrentHashMap<>();
 
     private TestPlanReportExecuteCatch() {
     }
@@ -44,7 +46,11 @@ public class TestPlanReportExecuteCatch {
     }
 
     public synchronized static boolean containsReport(String reportId){
-        return testPlanReportMap != null && testPlanReportMap.containsKey(reportId);
+        if(StringUtils.isEmpty(reportId)){
+            return false;
+        }else {
+            return testPlanReportMap != null && testPlanReportMap.containsKey(reportId);
+        }
     }
 
     public synchronized static void updateApiTestPlanExecuteInfo(String reportId,
@@ -90,6 +96,14 @@ public class TestPlanReportExecuteCatch {
     public static void finishAllTask(String planReportId) {
         if(testPlanReportMap.containsKey(planReportId)){
             testPlanReportMap.get(planReportId).finishAllTask();
+        }
+    }
+
+    public static Set<String> getAllReportId(){
+        if (testPlanReportMap != null) {
+            return testPlanReportMap.keySet();
+        }else {
+            return new HashSet<>();
         }
     }
 }

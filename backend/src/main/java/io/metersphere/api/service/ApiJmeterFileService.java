@@ -82,7 +82,7 @@ public class ApiJmeterFileService {
             }
             hashTree = apiAutomationService.generateHashTree(item, reportId, planEnvMap);
         }
-        return zipFilesToByteArray(remoteTestId, hashTree);
+        return zipFilesToByteArray(reportId, hashTree);
     }
 
     public byte[] downloadJmx(String runMode, String testId, String reportId, String testPlanScenarioId) {

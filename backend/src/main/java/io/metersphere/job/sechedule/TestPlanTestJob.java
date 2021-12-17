@@ -3,6 +3,7 @@ package io.metersphere.job.sechedule;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.track.service.TestPlanService;
 import org.quartz.*;
 
@@ -53,13 +54,14 @@ public class TestPlanTestJob extends MsScheduleJob {
         String runResourceId = this.resourceId;
         String runProjectId = this.projectID;
         String runUserId = this.userId;
+        LogUtil.info("Start test_plan_scehdule. test_plan_id:" + runProjectId);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 testPlanService.run(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(),config);
             }
         });
-        thread.run();
+        thread.start();
     }
 
     public static JobKey getJobKey(String testId) {
