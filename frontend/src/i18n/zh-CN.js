@@ -1715,6 +1715,7 @@ export default {
       text_describe_tip: "使用于简单的测试场景，没有明确的测试步骤",
       change_type: "更改类型",
       minder_create_tip: "失败, 无法在脑图创建其父模块",
+      minder_issue_delete_tip: "取消缺陷关联成功",
       check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',

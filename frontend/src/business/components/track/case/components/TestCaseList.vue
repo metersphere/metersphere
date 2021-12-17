@@ -228,7 +228,7 @@ import MsTableOperatorButton from "../../../common/components/MsTableOperatorBut
 import MsTableButton from "../../../common/components/MsTableButton";
 import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
 import BatchEdit from "./BatchEdit";
-import {PROJECT_NAME, TEST_CASE_LIST} from "@/common/js/constants";
+import {TEST_CASE_LIST} from "@/common/js/constants";
 import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
 import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";

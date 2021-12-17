@@ -1709,6 +1709,7 @@ export default {
       text_describe_tip: "For simple test scenarios, there are no clear test steps",
       change_type: "Change Type",
       minder_create_tip: "failed, unable to create its parent module in minder",
+      minder_issue_delete_tip: "Successfully cancel the defect association",
       check_select: "Please check the case",
       export_all_cases: 'Are you sure you want to export all use cases?',
       input_test_case: 'Please enter the associated case name',
