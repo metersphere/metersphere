@@ -8,6 +8,7 @@
         <ms-table-button v-permission="['PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL']" icon="el-icon-connection"
                          :content="$t('test_track.review_view.relevance_case')"
                          @click="$emit('openTestReviewRelevanceDialog')"/>
+
       </template>
     </ms-table-header>
 
@@ -52,6 +53,18 @@
           :fields-width="fieldsWidth"
           :label="$t('commons.name')"
           min-width="120px"/>
+
+        <ms-table-column
+          prop="versionId"
+          :field="item"
+          :filters="versionFilters"
+          :fields-width="fieldsWidth"
+          :label="$t('commons.version')"
+          min-width="120px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.versionName }}</span>
+          </template>
+        </ms-table-column>
 
         <ms-table-column
           prop="priority"
@@ -185,6 +198,7 @@ import MsTableHeaderSelectPopover from "@/business/components/common/components/
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {editTestReviewTestCaseOrder} from "@/network/testCase";
+import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -270,12 +284,16 @@ export default {
           {name: this.$t('test_track.review.un_pass'), id: 'UnPass'},
         ]
       },
+      versionFilters: []
     };
   },
   props: {
     reviewId: {
       type: String
     },
+    currentVersion: {
+      type: String
+    }
   },
   watch: {
     reviewId() {
@@ -287,6 +305,10 @@ export default {
     condition() {
       this.$emit('setCondition', this.condition);
     },
+    currentVersion() {
+      this.condition.versionId = this.currentVersion;
+      this.initTableData();
+    }
   },
   computed: {
     selectNodeIds() {
@@ -304,6 +326,7 @@ export default {
     this.refreshTableAndReview();
     this.isTestManagerOrTestUser = true;
     this.initTableHeader();
+    this.getVersionOptions();
   },
   methods: {
     initTableHeader() {
@@ -456,7 +479,16 @@ export default {
       if (this.$refs.table) {
         this.$refs.table.clear();
       }
-    }
+    },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
+    },
   }
 };
 </script>

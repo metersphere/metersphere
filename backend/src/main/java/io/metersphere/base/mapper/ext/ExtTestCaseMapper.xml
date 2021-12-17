@@ -83,10 +83,18 @@
         update test_case set custom_num = num where (custom_num is null or custom_num = '') and project_id = #{projectId}
     </update>
 
-    <select id="getTestCaseByNotInReview" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
-        as test_case
+    <select id="getTestCaseByNotInReview" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select
+        test_case.id,
+        test_case.name,
+        test_case.priority,
+        test_case.type,
+        test_case.review_status,
+        project_version.name as versionName,
+        project_version.id as versionId
+        from test_case
         left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
+        left join project_version on test_case.version_id = project_version.id
         <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
@@ -119,14 +127,44 @@
                     #{nodeId}
                 </foreach>
             </if>
+            <if test="request.versionId != null">
+                and test_case.version_id = #{request.versionId}
+            </if>
+            <if test="request.refId != null">
+                and test_case.ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND (
+                version_id = (SELECT project_version.id
+                FROM test_case tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                WHERE ref_id = test_case.ref_id
+                LIMIT 1)
+                OR
+                version_id = (SELECT project_version.id
+                FROM test_case tmp
+                JOIN project_version ON tmp.project_id = project_version.project_id AND
+                tmp.version_id = project_version.id
+                WHERE ref_id = test_case.ref_id
+                GROUP BY ref_id
+                HAVING MAX(latest) = 0
+                ORDER BY MAX(project_version.create_time) DESC
+                LIMIT 1)
+                )
+            </if>
             <include refid="filters"/>
         </where>
     </sql>
 
-    <select id="getTestCaseByNotInPlan" resultType="io.metersphere.base.domain.TestCase">
+    <select id="getTestCaseByNotInPlan" resultType="io.metersphere.track.dto.TestCaseDTO">
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,
-        test_case.num, test_case.custom_num, test_case.priority, test_case.tags, test_case.create_time, test_case.update_time
-        from test_case as test_case
+        test_case.num, test_case.custom_num, test_case.priority, test_case.tags, test_case.create_time,
+        test_case.update_time,
+        project_version.name versionName, test_case.version_id versionId
+        from test_case
+        left join project_version on project_version.project_id = test_case.project_id and project_version.id =
+        test_case.version_id
         <if test="!request.repeatCase">
             left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
         </if>
@@ -168,6 +206,8 @@
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
         deleteUser.name AS delete_user_id,test_case.delete_time,
+        project_version.name as versionName,
+        project_version.id as versionId,
         <if test="request.selectFields != null and request.selectFields.size() > 0">
             <foreach collection="request.selectFields" item="field" separator=",">
                 ${field}
@@ -185,6 +225,8 @@
         from test_case left join user u on test_case.create_user=u.id
         left join user deleteUser on test_case.delete_user_id=deleteUser.id
         left join project on test_case.project_id = project.id
+        left join project_version on project.id = project_version.project_id and project_version.id =
+        test_case.version_id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -407,6 +449,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key=='version_id'">
+                            and test_case.version_id in
+                            <foreach collection="values" open="(" close=")" separator="," item="value">
+                                #{value}
+                            </foreach>
+                        </when>
                     </choose>
                 </if>
                 <if test="key=='status' and (values == null || values.size() == 0)">
@@ -473,6 +521,32 @@
             </if>
             <if test="request.caseCoverage == 'coverage' ">
                 and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
+            </if>
+            <if test="request.versionId != null">
+                and test_case.version_id = #{request.versionId}
+            </if>
+            <if test="request.refId != null">
+                and test_case.ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND (
+                version_id = (SELECT project_version.id
+                FROM test_case tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                WHERE ref_id = test_case.ref_id
+                LIMIT 1)
+                OR
+                version_id = (SELECT project_version.id
+                FROM test_case tmp
+                JOIN project_version ON tmp.project_id = project_version.project_id AND
+                tmp.version_id = project_version.id
+                WHERE ref_id = test_case.ref_id
+                GROUP BY ref_id
+                HAVING MAX(latest) = 0
+                ORDER BY MAX(project_version.create_time) DESC
+                LIMIT 1)
+                )
             </if>
         </where>
     </sql>

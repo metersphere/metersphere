@@ -38,7 +38,7 @@ public interface ExtTestCaseMapper {
      * @param request
      * @return
      */
-    List<TestCase> getTestCaseByNotInPlan(@Param("request") QueryTestCaseRequest request);
+    List<TestCaseDTO> getTestCaseByNotInPlan(@Param("request") QueryTestCaseRequest request);
 
     /**
      * 获取不在测试缺陷中的用例
@@ -54,7 +54,7 @@ public interface ExtTestCaseMapper {
      * @param request
      * @return
      */
-    List<TestCase> getTestCaseByNotInReview(@Param("request") QueryTestCaseRequest request);
+    List<TestCaseDTO> getTestCaseByNotInReview(@Param("request") QueryTestCaseRequest request);
 
     /**
      * 检查某工作空间下是否有某用例

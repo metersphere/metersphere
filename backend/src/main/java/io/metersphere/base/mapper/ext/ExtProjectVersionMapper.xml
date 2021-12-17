@@ -12,6 +12,9 @@
             <if test="request.name != null and request.name != ''">
                 AND project_version.name LIKE #{request.name, jdbcType=VARCHAR}
             </if>
+            <if test="request.latest != null and request.latest != ''">
+                AND project_version.latest = #{request.latest, jdbcType=INTEGER}
+            </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">

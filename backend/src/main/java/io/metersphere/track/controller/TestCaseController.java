@@ -133,7 +133,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/relate/{goPage}/{pageSize}")
-    public Pager<List<TestCase>> getTestCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+    public Pager<List<TestCaseDTO>> getTestCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
 //        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return testCaseService.getTestCaseRelateList(request, goPage, pageSize);
     }
@@ -183,7 +183,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/reviews/case/{goPage}/{pageSize}")
-    public Pager<List<TestCase>> getReviewCase(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+    public Pager<List<TestCaseDTO>> getReviewCase(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.getReviewCase(request));
     }
@@ -399,5 +399,20 @@ public class TestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
     public void editTestFollows(@PathVariable String caseId,@RequestBody List<String> follows) {
         testCaseService.saveFollows(caseId,follows);
+    }
+
+    @GetMapping("versions/{caseId}")
+    public List<TestCaseDTO> getTestCaseVersions(@PathVariable String caseId) {
+        return testCaseService.getTestCaseVersions(caseId);
+    }
+
+    @GetMapping("get/{version}/{refId}")
+    public TestCaseDTO getTestCase(@PathVariable String version, @PathVariable String refId) {
+        return testCaseService.getTestCaseByVersion(refId, version);
+    }
+
+    @GetMapping("delete/{version}/{refId}")
+    public void deleteApiDefinition(@PathVariable String version, @PathVariable String refId) {
+        testCaseService.deleteTestCaseByVersion(refId, version);
     }
 }

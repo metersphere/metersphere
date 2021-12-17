@@ -42,4 +42,8 @@ public class QueryCaseReviewRequest extends TestCaseReviewTestCase {
     private String projectName;
 
     private String reviewerId;
+
+    private String versionId;
+
+    private String refId;
 }

@@ -19,6 +19,7 @@
         </el-menu>
       </template>
     </ms-test-plan-header-bar>
+
     <test-plan-functional v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
                           :clickType="clickType" :plan-id="planId" ref="testPlanFunctional"/>
     <test-plan-api v-if="activeIndex === 'api'" :redirectCharType="redirectCharType" :clickType="clickType"

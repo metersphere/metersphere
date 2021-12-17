@@ -12,6 +12,7 @@ public class ProjectVersionRequest {
     private String name;
     private String projectId;
     private String createUser;
+    private Boolean latest;
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;
     private Map<String, Object> combine;

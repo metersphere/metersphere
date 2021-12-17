@@ -26,6 +26,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
+import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
@@ -360,7 +361,7 @@ public class TestCaseReviewService {
 
         // 如果是关联全部指令则根据条件查询未关联的案例
         if (testCaseIds.get(0).equals("all")) {
-            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
+            List<TestCaseDTO> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
             if (!testCases.isEmpty()) {
                 testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());
             }
@@ -634,7 +635,7 @@ public class TestCaseReviewService {
         List<String> testCaseIds = request.getTestCaseIds();
         List<String> names = new ArrayList<>();
         if (testCaseIds.get(0).equals("all")) {
-            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
+            List<TestCaseDTO> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
             if (!testCases.isEmpty()) {
                 names = testCases.stream().map(TestCase::getName).collect(Collectors.toList());
                 testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());

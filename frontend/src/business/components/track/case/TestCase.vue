@@ -70,6 +70,9 @@
             :right-tip="$t('test_track.case.minder')"
             :right-content="$t('test_track.case.minder')"
             :middle-button-enable="false">
+            <template v-slot:version>
+              <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
+            </template>
             <test-case-list
               v-if="activeDom === 'left'"
               :checkRedirectID="checkRedirectID"
@@ -77,6 +80,7 @@
               :tree-nodes="treeNodes"
               :trash-enable="false"
               :public-enable="false"
+              :current-version="currentVersion"
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
@@ -110,6 +114,7 @@
               @refresh="refreshTable"
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
+              @checkout="checkout($event, item)"
               :read-only="testCaseReadOnly"
               :tree-nodes="treeNodes"
               :select-node="selectNode"
@@ -136,6 +141,9 @@
               ref="testCaseEditShow">
             </test-case-edit-show>
           </div>
+          <template v-slot:version>
+            <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
+          </template>
         </el-tab-pane>
         <el-tab-pane name="add" v-if="hasPermission('PROJECT_TRACK_CASE:READ+CREATE')">
           <template v-slot:label>
@@ -184,6 +192,9 @@ import IsChangeConfirm from "@/business/components/common/components/IsChangeCon
 import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
 import TestCaseEditShow from "@/business/components/track/case/components/TestCaseEditShow";
 
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
+
 export default {
   name: "TestCase",
   components: {
@@ -192,7 +203,8 @@ export default {
     MsTabButton,
     TestCaseNodeTree,
     MsMainContainer,
-    MsAsideContainer, MsContainer, TestCaseList, NodeTree, TestCaseEdit, SelectMenu, TestCaseEditShow
+    MsAsideContainer, MsContainer, TestCaseList, NodeTree, TestCaseEdit, SelectMenu, TestCaseEditShow,
+    'VersionSelect': VersionSelect.default,
   },
   comments: {},
   data() {
@@ -215,7 +227,8 @@ export default {
       tmpActiveDom: null,
       total: 0,
       publicTotal: 0,
-      tmpPath: null
+      tmpPath: null,
+      currentVersion: null,
     };
   },
   mounted() {
@@ -617,6 +630,22 @@ export default {
         this.activeName = "trash"
       }
 
+    },
+    changeVersion(currentVersion) {
+      this.currentVersion = currentVersion || null;
+    },
+    checkout(testCase, item) {
+      Object.assign(item.testCaseInfo, testCase)
+      //子组件先变更 copy 状态，再执行初始化操作
+      this.$refs.testCaseEdit[0].changeType("copy");
+      this.$refs.testCaseEdit[0].initEdit(item.testCaseInfo, () => {
+        this.$nextTick(() => {
+          let vh = this.$refs.testCaseEdit[0].$refs.versionHistory;
+          vh.getVersionOptionList(vh.handleVersionOptions);
+          vh.show = false;
+          vh.loading = false;
+        });
+      });
     }
   }
 };
@@ -638,6 +667,10 @@ export default {
   min-width: 100%;
   max-width: 100%;
   padding-right: 100%;
+}
+
+.version-select {
+  padding-left: 10px;
 }
 
 </style>
