@@ -580,14 +580,7 @@ public class ApiScenarioReportService {
 
     private void counterPlanScenarioReport(TestResult result) {
         if (CollectionUtils.isEmpty(result.getScenarios()) && StringUtils.isNotEmpty(result.getTestId())) {
-            List<String> list = new LinkedList<>();
-            try {
-                list = JSON.parseObject(result.getTestId(), List.class);
-            } catch (Exception e) {
-                list.add(result.getTestId());
-            }
             ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(result.getTestId());
-
             if (report != null) {
                 report.setStatus("Error");
                 apiScenarioReportMapper.updateByPrimaryKey(report);
