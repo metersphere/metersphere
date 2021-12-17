@@ -3,11 +3,11 @@
              :visible.sync="createVisible" width="40%"
              @closed="handleClose" class="edit-user-dialog"
              :destroy-on-close="true">
-    <div v-loading="result.loading" >
+    <div v-loading="result.loading">
       <el-form :model="form" label-width="120px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')"
-                    :disabled="type === 'Edit'" class="form-input" />
+                    :disabled="type === 'Edit'" class="form-input"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
           <el-input v-model="form.name" autocomplete="off" :placeholder="$t('user.input_name')" class="form-input"/>
@@ -25,9 +25,9 @@
         <div v-for="(group, index) in form.groups" :key="index">
           <el-form-item :label="getLabel(index)"
                         :prop="'groups.' + index + '.type'"
-                        :rules="{required: true, message: '请选择用户组', trigger: 'change'}"
+                        :rules="{required: true, message: $t('user.select_group'), trigger: 'change'}"
           >
-            <el-select filterable v-model="group.type" placeholder="请选择用户组" :disabled="!!group.type"
+            <el-select filterable v-model="group.type" :placeholder="$t('user.select_group')" :disabled="!!group.type"
                        class="edit-user-select" @change="getResource(group.type, index)">
               <el-option
                 v-for="item in activeGroup(group)"
@@ -42,12 +42,12 @@
             </el-button>
           </el-form-item>
           <div v-if="groupType(group.type) === ws">
-            <el-form-item :label="$t('workspace.select')"
+            <el-form-item :label="$t('commons.workspace')"
                           :prop="'groups.' + index + '.ids'"
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
               <el-select filterable v-model="group.ids" :placeholder="$t('workspace.select')" multiple
-                         class="edit-user-select" >
+                         class="edit-user-select">
                 <el-option
                   v-for="item in group.workspaces"
                   :key="item.id"
@@ -58,12 +58,12 @@
             </el-form-item>
           </div>
           <div v-if="groupType(group.type) === project">
-            <el-form-item label="选择项目"
+            <el-form-item :label="$t('commons.project')"
                           :prop="'groups.' + index + '.ids'"
-                          :rules="{required: true, message: '请选择项目', trigger: 'change'}"
+                          :rules="{required: true, message: $t('user.select_project'), trigger: 'change'}"
             >
-              <el-select filterable v-model="group.ids" placeholder="请选择项目" multiple
-                         class="edit-user-select" >
+              <el-select filterable v-model="group.ids" :placeholder="$t('user.select_project')" multiple
+                         class="edit-user-select">
                 <el-option
                   v-for="item in group.projects"
                   :key="item.id"
@@ -77,7 +77,7 @@
 
         <el-form-item>
           <template>
-            <el-button type="success"  class="form-input" @click="addGroup('createUserForm')" :disabled="btnAddRole">
+            <el-button type="success" class="form-input" @click="addGroup('createUserForm')" :disabled="btnAddRole">
               {{ $t('group.add') }}
             </el-button>
           </template>
@@ -292,9 +292,9 @@ export default {
         default:
       }
     },
-    getLabel(index){
-      let a  = index+1;
-      return "用户组"+a;
+    getLabel(index) {
+      let a = index + 1;
+      return this.$t('commons.group') + a;
     }
   }
 }
@@ -309,9 +309,10 @@ export default {
 /*.edit-user-dialog >>> .el-dialog__footer {
   padding-top: 0;
 }*/
-.form-input{
+.form-input {
   width: 80%;
 }
+
 .edit-user-select {
   width: 80%;
 }
