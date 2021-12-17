@@ -916,9 +916,9 @@ export default {
     param_is_duplicate: 'Parameter name is duplicate',
     domain_ip_is_empty: 'Domain and IP cannot be empty',
     param_name_value_is_empty: 'Parameters cannot be empty',
-    connect_timeout: 'Timeout to establish a connection',
-    response_timeout: 'Timeout to response',
-    custom_http_code: 'Custom HTTP response success status code',
+    connect_timeout: 'Connect timeout',
+    response_timeout: 'Response timeout',
+    custom_http_code: 'Custom response code',
     separated_by_commas: 'Separated by commas',
     serialize_threadgroups: 'ThreadGroup Sequentially',
     autostop_threadgroups: 'Auto stop',
@@ -973,6 +973,9 @@ export default {
       Network: 'Network',
       url:'URL'
     },
+    add_monitor: 'Add Monitor',
+    monitor_item: 'Monitor',
+    monitor_host: 'Target host',
   },
   api_test: {
     is_continue: "Is continue",

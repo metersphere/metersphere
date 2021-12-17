@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :close-on-click-modal="false"
-    title="添加监控"
+    :title="$t('load_test.add_monitor')"
     :visible.sync="dialogVisible"
     width="70%"
     @closed="closeFunc"
