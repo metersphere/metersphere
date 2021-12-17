@@ -3,11 +3,11 @@
     <span v-for="(permission, index) in permissions" :key="index">
       <el-checkbox v-if="permission.license" v-xpack class="permission-checkbox"
                    v-model="permission['checked']" @change="change($event, permission)">
-        {{ permission.name }}
+        {{ $t(permission.name) }}
       </el-checkbox>
       <el-checkbox v-else class="permission-checkbox"
                    v-model="permission['checked']" @change="change($event, permission)">
-        {{ permission.name }}
+        {{ $t(permission.name) }}
       </el-checkbox>
     </span>
   </div>

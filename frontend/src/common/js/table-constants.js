@@ -130,8 +130,8 @@ export const USER_GROUP_SCOPE = {
 }
 
 export const PROJECT_GROUP_SCOPE = {
-  'TRACK': '测试跟踪',
-  'API': '接口测试',
-  'PERFORMANCE': '性能测试',
-  'REPORT': '报表统计'
+  'TRACK': 'permission.other.track',
+  'API': 'permission.other.api',
+  'PERFORMANCE': 'permission.other.performance',
+  'REPORT': 'permission.other.report'
 }
