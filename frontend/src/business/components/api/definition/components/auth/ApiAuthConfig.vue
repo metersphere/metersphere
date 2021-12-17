@@ -3,7 +3,7 @@
     <!-- 认证-->
     <el-tab-pane :label="$t('api_test.definition.request.verified')" name="verified">
 
-      <el-form :model="authConfig" :rules="rule" ref="authConfig" label-position="right" label-width="80px">
+      <el-form :model="authConfig" :rules="rule" ref="authConfig" label-position="right">
         <el-form-item :label="$t('api_test.definition.request.verification_method')" prop="verification">
           <el-select v-model="authConfig.verification" @change="change"
                      :placeholder="$t('api_test.definition.request.verification_method')" filterable size="small">
