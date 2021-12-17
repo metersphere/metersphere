@@ -3,7 +3,7 @@ package io.metersphere.api.jmeter;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -29,10 +29,10 @@ public class FixedTask {
         if (MessageCache.concurrencyCounter != null && MessageCache.concurrencyCounter.size() > 0) {
             for (String key : MessageCache.concurrencyCounter.keySet()) {
                 ReportCounter counter = MessageCache.concurrencyCounter.get(key);
-                LogUtil.info("集成报告：【" + key + "】总执行场景：【" + counter.getTestIds().size() + "】已经执行完成场景：【" + counter.getCompletedIds().size() + "】");
+                LoggerUtil.info("集成报告：【" + key + "】总执行场景：【" + counter.getTestIds().size() + "】已经执行完成场景：【" + counter.getCompletedIds().size() + "】");
                 List<String> filterList = counter.getTestIds().stream().filter(t -> !counter.getCompletedIds().contains(t)).collect(Collectors.toList());
 
-                LogUtil.debug("剩余要执行的报告" + JSON.toJSONString(filterList));
+                LoggerUtil.debug("剩余要执行的报告" + JSON.toJSONString(filterList));
                 // 合并
                 if (counter.getCompletedIds().size() >= counter.getTestIds().size()) {
                     scenarioReportService.margeReport(key);
@@ -51,14 +51,14 @@ public class FixedTask {
                             // 资源池中已经没有执行的请求了
                             int runningCount = scenarioReportService.get(key, counter);
                             if (runningCount == 0) {
-                                LogUtil.error("发生未知异常，进行资源合并，请检查资源池是否正常运行");
+                                LoggerUtil.error("发生未知异常，进行资源合并，请检查资源池是否正常运行");
                                 scenarioReportService.margeReport(key);
                                 guardTask.remove(key);
                                 MessageCache.concurrencyCounter.remove(key);
                             }
                         }
                     } catch (Exception ex) {
-                        LogUtil.error(ex.getMessage());
+                        LoggerUtil.error(ex.getMessage());
                     }
                 }
             }

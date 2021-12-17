@@ -1,6 +1,7 @@
 package io.metersphere.api.exec.schedule;
 
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
+import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.track.service.TestPlanReportService;
@@ -27,7 +28,9 @@ public class TestPlanReportListenerScheduled {
     private void listener(String planReportId) {
         LoggerUtil.info("检查测试计划执行报告：【" + planReportId + "】");
         if (TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId) != null) {
-            CommonBeanFactory.getBean(TestPlanReportService.class).countReport(planReportId);
+            if (!CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).checkPlanReport(planReportId)) {
+                CommonBeanFactory.getBean(TestPlanReportService.class).countReport(planReportId);
+            }
         } else {
             MessageCache.jobReportCache.remove(planReportId);
             LoggerUtil.info("测试计划执行报告：【" + planReportId + "】执行完成，剩余队列：" + MessageCache.jobReportCache.size());

@@ -51,7 +51,7 @@ public class ApiJmeterFileController {
         byte[] bytes = apiJmeterFileService.downloadJmeterFiles(runMode, testId, reportId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + testId + ".zip\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + reportId + "_" + testId + ".zip\"")
                 .body(bytes);
     }
 

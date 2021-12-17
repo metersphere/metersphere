@@ -195,36 +195,38 @@ public class ApiDefinitionExecResultService {
         Map<String, String> caseReportMap = new HashMap<>();
         boolean isFirst = true;
         int countExpectProcessResultCount = 0;
-        for (RequestResult resultItem : requestResults) {
-            if (!StringUtils.startsWithAny(resultItem.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                countExpectProcessResultCount++;
+        if (CollectionUtils.isNotEmpty(requestResults)) {
+            for (RequestResult resultItem : requestResults) {
+                if (!StringUtils.startsWithAny(resultItem.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
+                    countExpectProcessResultCount++;
+                }
             }
-        }
-        LoggerUtil.info("接收到定时任务执行结果【 " + requestResults.size() + " 】");
+            LoggerUtil.info("接收到定时任务执行结果【 " + requestResults.size() + " 】");
 
-        for (RequestResult item : requestResults) {
-            if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                ApiDefinitionExecResult saveResult = this.save(item, dto.getReportId(), dto.getConsole(), countExpectProcessResultCount, dto.getRunMode(), dto.getTestId(), isFirst);
-                String status = item.isSuccess() ? "success" : "error";
-                if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
-                    TestPlanApiCase apiCase = testPlanApiCaseService.getById(dto.getTestId());
-                    if (apiCase != null) {
-                        apiCase.setStatus(status);
-                        apiCase.setUpdateTime(System.currentTimeMillis());
-                        testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
+            for (RequestResult item : requestResults) {
+                if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
+                    ApiDefinitionExecResult saveResult = this.save(item, dto.getReportId(), dto.getConsole(), countExpectProcessResultCount, dto.getRunMode(), dto.getTestId(), isFirst);
+                    String status = item.isSuccess() ? "success" : "error";
+                    if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
+                        TestPlanApiCase apiCase = testPlanApiCaseService.getById(dto.getTestId());
+                        if (apiCase != null) {
+                            apiCase.setStatus(status);
+                            apiCase.setUpdateTime(System.currentTimeMillis());
+                            testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
+                        }
+                    } else {
+                        testPlanApiCaseService.setExecResult(dto.getTestId(), status, item.getStartTime());
+                        testCaseReviewApiCaseService.setExecResult(dto.getTestId(), status, item.getStartTime());
                     }
-                } else {
-                    testPlanApiCaseService.setExecResult(dto.getTestId(), status, item.getStartTime());
-                    testCaseReviewApiCaseService.setExecResult(dto.getTestId(), status, item.getStartTime());
+                    if (StringUtils.isNotEmpty(dto.getTestId())) {
+                        apiIdResultMap.put(dto.getTestId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                    }
+                    //更新报告ID
+                    caseReportMap.put(dto.getTestId(), saveResult.getId());
+                    isFirst = false;
+                    // 串行队列
+                    SerialBlockingQueueUtil.offer(dto, SerialBlockingQueueUtil.END_SIGN);
                 }
-                if (StringUtils.isNotEmpty(dto.getTestId())) {
-                    apiIdResultMap.put(dto.getTestId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
-                }
-                //更新报告ID
-                caseReportMap.put(dto.getTestId(), saveResult.getId());
-                isFirst = false;
-                // 串行队列
-                SerialBlockingQueueUtil.offer(dto, SerialBlockingQueueUtil.END_SIGN);
             }
         }
         updateTestCaseStates(dto.getTestId());

@@ -39,6 +39,12 @@
                     v-on:requestResult="requestResult"
                   />
                 </el-tab-pane>
+                <el-tab-pane name="console">
+                  <template slot="label">
+                    <span class="console">{{ $t('api_test.definition.request.console') }}</span>
+                  </template>
+                  <pre>{{ content.console }}</pre>
+                </el-tab-pane>
               </el-tabs>
             </div>
             <ms-api-report-export
