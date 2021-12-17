@@ -1458,7 +1458,7 @@ export default {
         select_type: "Choose type",
         description: "Extract data from the response and store it in variables. Use the variables in subsequent requests.",
         regex: "Regex",
-        multiple_matching: "Multiple matching",
+        multiple_matching: "Match multiple",
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
