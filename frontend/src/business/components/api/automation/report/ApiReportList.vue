@@ -166,7 +166,7 @@ export default {
     handleView(report) {
       this.reportId = report.id;
       if (report.status === 'Running') {
-        this.$warning("正在运行中，请稍后查看")
+        this.$warning(this.$t('commons.run_warning'))
         return;
       }
       this.currentProjectId = report.projectId;

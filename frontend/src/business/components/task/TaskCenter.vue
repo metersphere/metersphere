@@ -33,7 +33,7 @@
       :size="size.toString()"
       custom-class="ms-drawer-task">
       <el-card style="float: left;width: 850px" v-if="size > 550 ">
-        <div class="ms-task-opt-btn" @click="packUp">收起</div>
+        <div class="ms-task-opt-btn" @click="packUp">{{ this.$t('') }}</div>
         <!-- 接口用例结果 -->
         <ms-request-result-tail :response="response" ref="debugResult" v-if="reportType === 'API'"/>
 
@@ -349,9 +349,9 @@ export default {
             this.getExecResult(row.id);
           }
         } else if (status === 'stop') {
-          this.$warning("当前任务已停止，无法查看报告");
+          this.$warning(this.$t('commons.run_stop'));
         } else {
-          this.$warning("正在运行中，请稍后查看");
+          this.$warning(this.$t('commons.run_warning'))
         }
       }
     },
