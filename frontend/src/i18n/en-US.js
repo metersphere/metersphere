@@ -282,7 +282,7 @@ export default {
         current_user: "Current user"
       }
     },
-    monitor: "monitor",
+    monitor: "Monitor",
     all_label: {
       case: "all",
       review: "all"
@@ -867,7 +867,7 @@ export default {
     select_project: 'Please select project',
     save_and_run: 'Save and execute',
     basic_config: 'Scene Configuration',
-    pressure_config: 'Pressure configuration',
+    pressure_config: 'Pressure Configuration',
     advanced_config: 'Advanced Configuration',
     runtime_config: 'Runtime Configuration',
     is_running: 'Test is running! ',
