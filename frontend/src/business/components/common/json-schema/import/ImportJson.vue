@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="导入"
+    :title="$t('commons.import')"
     :visible.sync="importVisible"
     width="50%"
     append-to-body
@@ -90,7 +90,7 @@
       saveConfirm() {
         if (this.activeName === 'JSON') {
           if (!this.checkIsJson(this.json)) {
-            this.$error("导入的数据非JSON格式");
+            this.$error(this.$t('schema.json_warning'));
             return;
           }
           let jsonData = MsConvert.format(json5.parse(this.json));
@@ -98,7 +98,7 @@
           this.$emit('jsonData', jsonData);
         } else {
           if (!this.checkIsJsonSchema(this.jsonSchema)) {
-            this.$error("导入的数据非JSON-SCHEMA 格式");
+            this.$error(this.$t('schema.json_schema_warning'));
             return;
           }
           let obj = json5.parse(this.jsonSchema);

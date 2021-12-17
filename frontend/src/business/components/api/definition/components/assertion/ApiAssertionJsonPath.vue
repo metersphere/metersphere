@@ -13,12 +13,12 @@
           <el-option :label="$t('commons.adv_search.operators.not_equals')" value="NOT_EQUALS"/>
           <el-option :label="$t('commons.adv_search.operators.gt')" value="GT"/>
           <el-option :label="$t('commons.adv_search.operators.lt')" value="LT"/>
-          <el-option label="正则匹配" value="REGEX"/>
+          <el-option :label="$t('api_test.request.assertions.regular_match')" value="REGEX"/>
         </el-select>
         <el-input :disabled="isReadOnly" v-model="jsonPath.expect" size="small" show-word-limit
                   :placeholder="$t('api_test.request.assertions.expect')" style="width: 50%"/>
         <el-tooltip placement="top" v-if="jsonPath.option === 'REGEX'">
-          <div slot="content">特殊字符"$ ( ) * + . [ ] \ ^ { } |"需转义为"\ "+"特殊字符",如"\$"</div>
+          <div slot="content">{{ $t('api_test.request.assertions.regex_info') }}</div>
           <i class="el-icon-question" style="cursor: pointer"/>
         </el-tooltip>
       </el-col>

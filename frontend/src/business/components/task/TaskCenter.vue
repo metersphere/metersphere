@@ -33,7 +33,7 @@
       :size="size.toString()"
       custom-class="ms-drawer-task">
       <el-card style="float: left;width: 850px" v-if="size > 550 ">
-        <div class="ms-task-opt-btn" @click="packUp">{{ this.$t('') }}</div>
+        <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
         <!-- 接口用例结果 -->
         <ms-request-result-tail :response="response" ref="debugResult" v-if="reportType === 'API'"/>
 

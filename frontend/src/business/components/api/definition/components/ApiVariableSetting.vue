@@ -19,7 +19,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="编码">
+          <el-form-item :label="$t('commons.encode')">
             <el-select v-model="data.urlEncode" size="small" clearable style="width: 50%;">
               <el-option
                 v-for="item in options"
@@ -48,10 +48,10 @@ export default {
       data: {},
       options: [{
         value: true,
-        label: '是'
+        label: this.$t('commons.yes')
       }, {
         value: false,
-        label: '否'
+        label: this.$t('commons.no')
       }],
     }
   },
