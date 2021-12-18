@@ -147,7 +147,7 @@
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>ms-jmeter-core</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
 
         <!--   排除jmeter中的 xstream 解决bug     -->
@@ -429,7 +429,7 @@
                         <artifactItem>
                             <groupId>org.apache.jmeter</groupId>
                             <artifactId>ApacheJMeter_functions</artifactId>
-                            <version>5.4.1</version>
+                            <version>5.4.2</version>
                             <type>jar</type>
                             <overWrite>true</overWrite>
                             <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
