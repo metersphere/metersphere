@@ -292,13 +292,14 @@ public class ApiScenarioReportService {
                     scenario.setExecuteTimes(executeTimes + 1);
 
                     apiScenarioMapper.updateByPrimaryKey(scenario);
+                    // 发送通知
+//                    sendNotice(scenario);
                 }
             }
             returnReport = report;
             reportIds.add(report.getId());
             MessageCache.executionQueue.remove(report.getId());
         }
-        counterPlanScenarioReport(result);
         return returnReport;
     }
 
@@ -425,8 +426,6 @@ public class ApiScenarioReportService {
                 LogUtil.error("未获取到场景报告。 报告ID：" + scenarioResult.getName() + "。 步骤信息:" + JSON.toJSONString(scenarioResult));
             }
         }
-        // 针对未正常返回结果的报告计数
-        counterPlanScenarioReport(result);
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
         for (String reportId : testPlanReportIdList) {
             TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId, null, scenarioAndErrorMap, null);
@@ -562,26 +561,6 @@ public class ApiScenarioReportService {
                 }
             }
             for (ApiScenarioReport report : reportList) {
-                report.setStatus("Error");
-                apiScenarioReportMapper.updateByPrimaryKey(report);
-                MessageCache.scenarioExecResourceLock.remove(report.getId());
-                MessageCache.executionQueue.remove(report.getId());
-                if (StringUtils.equals(report.getExecuteType(), ExecuteType.Marge.name()) || StringUtils.equals(report.getScenarioId(), result.getSetReportId())) {
-                    Object obj = MessageCache.cache.get(result.getSetReportId());
-                    if (obj != null) {
-                        ReportCounter counter = (ReportCounter) obj;
-                        counter.getCompletedIds().add(report.getId());
-                        MessageCache.cache.put(result.getSetReportId(), counter);
-                    }
-                }
-            }
-        }
-    }
-
-    private void counterPlanScenarioReport(TestResult result) {
-        if (CollectionUtils.isEmpty(result.getScenarios()) && StringUtils.isNotEmpty(result.getTestId())) {
-            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(result.getTestId());
-            if (report != null) {
                 report.setStatus("Error");
                 apiScenarioReportMapper.updateByPrimaryKey(report);
                 MessageCache.scenarioExecResourceLock.remove(report.getId());
