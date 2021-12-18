@@ -451,6 +451,10 @@ export default {
       host: 'Prometheus地址',
       host_tip: '例如:http://ms-prometheus:9090',
       host_is_null: 'Prometheus地址不能为空'
+    },
+    selenium_docker_url: 'selenium-docker 地址',
+    selenium_docker: {
+      url_tip: '例如:http://localhost:4444',
     }
   },
   custom_field: {

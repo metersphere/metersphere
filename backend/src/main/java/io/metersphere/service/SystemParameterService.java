@@ -253,6 +253,9 @@ public class SystemParameterService {
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.PROMETHEUS_HOST.getValue())) {
                     baseSystemConfigDTO.setPrometheusHost(param.getParamValue());
                 }
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.SELENIUM_DOCKER_URL.getValue())) {
+                    baseSystemConfigDTO.setSeleniumDockerUrl(param.getParamValue());
+                }
             }
         }
         return baseSystemConfigDTO;
