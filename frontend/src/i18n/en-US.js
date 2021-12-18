@@ -449,6 +449,10 @@ export default {
       host: 'Prometheus Host',
       host_tip: 'example: http://ms-prometheus:9090',
       host_is_null: 'Prometheus Host cannot be empty'
+    },
+    selenium_docker_url: 'selenium-docker URL',
+    selenium_docker: {
+      url_tip: 'example: http://localhost:4444',
     }
   },
   custom_field: {
