@@ -214,7 +214,7 @@ export default {
     run_success: "执行成功",
     run_completed: "执行完成",
     run_warning: "正在运行中，请稍后查看",
-    run_stop: "The current task has been stopped and the report cannot be viewed",
+    run_stop: "当前任务已停止，无法查看报告",
     run_fail: "执行失败",
     follow_success: "关注成功",
     cancel_follow_success: "取消关注成功",
