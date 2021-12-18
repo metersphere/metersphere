@@ -13,11 +13,11 @@
     :show-btn="showBtn"
     color="#606266"
     background-color="#F4F4F5"
-    title='场景'>
+    :title="$t('commons.scenario')">
 
     <template v-slot:afterTitle v-if="isSameSpace">
-      <span v-if="isShowNum" @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
-      <span v-else >
+      <span v-if="isShowNum" @click="clickResource(scenario)">{{ "（ ID: " + scenario.num + "）" }}</span>
+      <span v-else>
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
           <i class="el-icon-warning"/>
         </el-tooltip>
@@ -40,8 +40,10 @@
       </span>
     </template>
     <template v-slot:scenarioEnable>
-      <el-tooltip content="启用场景环境：当前步骤使用场景原始环境配置运行" placement="top">
-        <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">启用场景环境</el-checkbox>
+      <el-tooltip :content="$t('commons.enable_scene_info')" placement="top">
+        <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">
+          {{ $t('commons.enable_scene') }}
+        </el-checkbox>
       </el-tooltip>
     </template>
     <template v-slot:button>
@@ -185,7 +187,7 @@ export default {
       this.$get("/api/automation/checkScenarioEnv/" + this.scenario.id, res => {
         if (this.scenario.environmentEnable && !res.data) {
           this.scenario.environmentEnable = false;
-          this.$warning("当前场景没有环境，需要先设置自身环境");
+          this.$warning(this.$t('commons.scenario_warning'));
           return;
         }
         this.setDomain(val);

@@ -20,7 +20,7 @@
               <el-col :span="2"/>
             </el-row>
           </el-tab-pane>
-          <el-tab-pane label="响应延迟时间" name="delayed" class="pane">
+          <el-tab-pane :label="$t('commons.response_time_delay')" name="delayed" class="pane">
             <el-row>
               <el-input-number v-model="response.delayed" :min="0">
                 <template slot="append">ms</template>

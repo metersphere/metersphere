@@ -551,6 +551,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
                 if (StringUtils.isEmpty(this.alias)) {
                     this.alias = sslConfig.getDefaultAlias();
+                } else {
+                    this.alias = sslConfig.getAlias(this.alias);
                 }
 
                 if (StringUtils.isNotEmpty(this.alias)) {

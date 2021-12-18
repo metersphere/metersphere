@@ -33,7 +33,7 @@
       :size="size.toString()"
       custom-class="ms-drawer-task">
       <el-card style="float: left;width: 850px" v-if="size > 550 ">
-        <div class="ms-task-opt-btn" @click="packUp">{{ this.$t('') }}</div>
+        <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
         <!-- 接口用例结果 -->
         <ms-request-result-tail :response="response" ref="debugResult" v-if="reportType === 'API'"/>
 
@@ -521,16 +521,11 @@ export default {
 }
 
 /deep/ .el-badge__content {
- /* border-radius: 10px;*/
+  border-radius: 10px;
   height: 10px;
   line-height: 10px;
 }
-/deep/ .el-card{
-  /* border-radius: 10px;*/
-  background: #FFF;
-  border: 0px;
-  box-shadow: 0 0 0 rgb(0,0,0,0) !important;
-}
+
 
 
 

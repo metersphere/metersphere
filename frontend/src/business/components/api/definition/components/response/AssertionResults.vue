@@ -1,7 +1,7 @@
 <template>
   <el-table :data="assertions" :row-style="getRowStyle" :header-cell-style="getRowStyle">
     <el-table-column prop="name" :label="$t('api_report.assertions_name')" width="200" show-overflow-tooltip/>
-    <el-table-column prop="content" label="内容" width="300" show-overflow-tooltip/>
+    <el-table-column prop="content" :label="$t('api_report.assertions_content')" width="300" show-overflow-tooltip/>
     <el-table-column prop="message" :label="$t('api_report.assertions_error_message')"/>
     <el-table-column prop="pass" :label="$t('api_report.assertions_is_success')" width="100">
       <template v-slot:default="{row}">

@@ -5,8 +5,7 @@
         {{ $t('api_test.definition.request.body_json') }}
       </el-radio>
       <el-radio :disabled="isReadOnly" label="fromApi" @change="modeChange">
-<!--        {{ 跟随API定义 }}-->
-        跟随API定义
+        {{ $t('commons.follow_api') }}
       </el-radio>
       <el-radio :disabled="isReadOnly" :label="type.XML" @change="modeChange">
         {{ $t('api_test.definition.request.body_xml') }}
