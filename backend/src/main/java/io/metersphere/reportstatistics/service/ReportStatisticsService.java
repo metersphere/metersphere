@@ -251,18 +251,23 @@ public class ReportStatisticsService {
     }
 
     public String getImageContentById(ReportStatisticsWithBLOBs reportRecordId) {
-        ChromeUtils chromeUtils = new ChromeUtils();
+        ChromeUtils chromeUtils = ChromeUtils.getInstance();
+
         HeadlessRequest headlessRequest = new HeadlessRequest();
 
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         // 占位符
         String platformUrl = "http://localhost:8081";
+        String remoteDriverUrl = "http://localhost:4444";
         if (baseInfo != null) {
             platformUrl = baseInfo.getUrl();
+            remoteDriverUrl = baseInfo.getSeleniumDockerUrl();
         }
         platformUrl += "/echartPic?shareId=" + reportRecordId.getId();
 
         headlessRequest.setUrl(platformUrl);
+        headlessRequest.setRemoteDriverUrl(remoteDriverUrl);
+
         String imageData = chromeUtils.getImageInfo(headlessRequest);
         return imageData;
     }

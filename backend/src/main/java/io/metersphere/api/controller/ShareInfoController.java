@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.dto.mock.MockApiUtils;
 import io.metersphere.api.dto.share.ApiDocumentInfoDTO;
 import io.metersphere.api.dto.share.ApiDocumentRequest;
 import io.metersphere.api.dto.share.ApiDocumentShareRequest;
@@ -15,6 +16,7 @@ import io.metersphere.reportstatistics.service.ReportStatisticsService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +97,9 @@ public class ShareInfoController {
     }
 
     @PostMapping("/selectHistoryReportById")
-    public ReportStatisticsWithBLOBs selectById(@RequestBody ReportStatisticsSaveRequest request) {
+    public ReportStatisticsWithBLOBs selectById(@RequestBody ReportStatisticsSaveRequest request, HttpServletRequest httpServletRequest) {
+//        Map<String,String> requestHeaderMap = MockApiUtils.getHttpRequestHeader(httpServletRequest);
+//        System.out.println(httpServletRequest);
         return reportStatisticsService.selectById(request.getId());
     }
 }
