@@ -544,9 +544,10 @@ export function handleMinderIssueDelete(commandName, isPlan) {
           isAllIssue = false;
         }
       });
-      Promise.all(promises).then(() => {
-        success(i18n.t('test_track.case.minder_create_tip'));
-      });
+      if (promises.length > 0)
+        Promise.all(promises).then(() => {
+          success(i18n.t('test_track.case.minder_issue_delete_tip'));
+        });
       return isAllIssue;
     }
   }
