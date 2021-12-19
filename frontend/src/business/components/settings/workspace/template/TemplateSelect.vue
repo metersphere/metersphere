@@ -11,6 +11,7 @@
 
 <script>
 import {getCurrentWorkspaceId} from "@/common/js/utils";
+import {LOCAL} from "@/common/js/constants";
 
 export default {
   name: "TemplateSelect",
@@ -59,7 +60,7 @@ export default {
                 break;
               }
             } else {
-              if (item.system && item.platform === 'metersphere' && item.name === 'default') {
+              if (item.system && item.platform === LOCAL && item.name === 'default') {
                 this.$set(this.data, this.prop, item.id);
                 break;
               }
