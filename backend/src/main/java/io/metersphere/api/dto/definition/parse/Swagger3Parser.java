@@ -252,14 +252,15 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 responses.forEach((responseCode, response) -> {
                     parseResponseHeader(response, msResponse.getHeaders());
                     parseResponseBody(response, msResponse.getBody());
-                    parseResponseCode(responseCode, msResponse);
                 });
             } else {
                 parseResponseHeader(apiResponse, msResponse.getHeaders());
                 parseResponseBody(apiResponse, msResponse.getBody());
-                parseResponseCode("200", msResponse);
             }
         }
+        responses.forEach((responseCode, response) -> {
+            parseResponseCode(msResponse.getStatusCode(), responseCode, response);
+        });
         return msResponse;
     }
 
@@ -272,14 +273,13 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
     }
 
-    private void parseResponseCode(String response, HttpResponse msResponse) {
-        if (StringUtils.isNotEmpty(response)) {
-            try {
-                msResponse.setStatusCode(JSON.parseObject(response, List.class));
-            } catch (Exception e) {
-                LogUtil.error(e);
-            }
+    private void parseResponseCode(List<KeyValue> statusCode, String responseCode, ApiResponse response) {
+        try {
+            statusCode.add(new KeyValue(responseCode, response.getDescription(), response.getDescription()));
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
+
     }
 
     private void parseResponseBody(ApiResponse response, Body body) {
@@ -317,6 +317,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 return;
             }
             mediaType = content.get(contentType);
+            if (contentType.equals("*/*")) {
+                contentType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+            }
         }
 
         Set<String> refSet = new HashSet<>();
