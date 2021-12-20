@@ -2690,6 +2690,10 @@ export default {
       relevance_or_cancel: "关联/取消关联用例",
 
     },
+    project_app_manager: {
+      name: "应用设置",
+      edit: "编辑应用设置"
+    },
     project_track_plan: {
       name: "测试计划",
       read: "查询测试计划",

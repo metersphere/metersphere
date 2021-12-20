@@ -2666,6 +2666,10 @@ export default {
       upload_file: "上傳文件",
       delete_file: "刪除文件",
     },
+    project_app_manager: {
+      name: "應用設置",
+      edit: "編輯應用設置"
+    },
     project_track_case: {
       name: "測試用例",
       read: "查詢用例",
