@@ -219,6 +219,7 @@ export default {
     follow_success: "关注成功",
     cancel_follow_success: "取消关注成功",
     type: "类型",
+    please_select_a_deadline: "请选择截止时间",
     relationship: {
       name: '依赖关系',
       pre_case: '前置用例',
@@ -2151,6 +2152,10 @@ export default {
       failure_case: "失败用例",
       export_report: "导出报告",
       no_case_relevance: "没有关联用例",
+      automatically_update_status: "自动更新状态",
+      automatically_update_status_tip: "当功能用例关联的接口或性能用例在测试计划执行后，自动更新功能用例的状态",
+      allow_associated_repetitive_cases: "允许关联重复用例",
+      allow_associated_repetitive_cases_tip: "是否允许同一个测试计划中多次关联相同用例"
     },
     issue: {
       issue: "缺陷",

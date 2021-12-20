@@ -146,7 +146,7 @@ export default {
         userIds: [{required: true, message: this.$t('test_track.review.input_reviewer'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}],
-        endTime: [{required: true, message: '请选择截止时间', trigger: 'blur'}]
+        endTime: [{required: true, message: this.$t('commons.please_select_a_deadline'), trigger: 'blur'}]
       },
       formLabelWidth: "100px",
       operationType: '',

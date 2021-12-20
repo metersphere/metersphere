@@ -219,6 +219,7 @@ export default {
     follow_success: "關註成功",
     cancel_follow_success: "取消關註成功",
     type: "類型",
+    please_select_a_deadline: "請選擇截止時間",
     relationship: {
       name: '依賴關系',
       pre_case: '前置用例',
@@ -2151,6 +2152,10 @@ export default {
       failure_case: "失敗用例",
       export_report: "導出報告",
       no_case_relevance: "沒有關聯用例",
+      automatically_update_status: "自動更新狀態",
+      allow_associated_repetitive_cases: "允許關聯重複用例",
+      automatically_update_status_tip: "當功能用例關聯的接口或性能用例在測試計劃執行後，自動更新功能用例的狀態",
+      allow_associated_repetitive_cases_tip: "是否允許同一個測試計劃中多次關聯相同用例"
     },
     issue: {
       issue: "缺陷",

@@ -5,6 +5,7 @@
                    :draggable="true"
                    :to_data='fieldSelected'
                    :defaultProps="{label:'label'}"
+                   :placeholder="$t('api_test.request.parameters_mock_filter_tips')"
                    :allow-drop="allowDrop"
                    :default-checked-keys="defaultCheckedKeys"
                    :default-transfer="defaultTransfer"
