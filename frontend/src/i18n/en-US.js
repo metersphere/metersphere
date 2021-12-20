@@ -2199,6 +2199,7 @@ export default {
       status_in_progress: 'in_progress',
       status_rejected: 'rejected',
       status_upcoming:'upcoming',
+      status_reopened:'reopened',
       please_choose_current_owner: "Please choose current owner",
       tapd_current_owner: "Tapd Current Owner",
       zentao_bug_build: "Zentao Impact version",
