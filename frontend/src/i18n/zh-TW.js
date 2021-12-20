@@ -313,6 +313,12 @@ export default {
         project_statistics: "項目報表",
         project_report: "項目報告",
       },
+      option: {
+        add_report: "添加報告內容",
+        select_user_group: "選擇用戶組",
+        send: "發送",
+        save_as_draft: "保存草稿",
+      },
       project_report: {
         create_report: "創建報告",
         report_name: "報告名稱",
@@ -322,6 +328,8 @@ export default {
         show: "查看",
       },
       title: "報表統計",
+      text: "文本",
+      report: "報表",
       test_case_analysis: "測試用例趨勢",
       test_case_activity: "測試用例活動情況",
       test_case_count: "測試用例統計",
@@ -364,6 +372,7 @@ export default {
         }
       },
       alert: {
+        mail_is_exist: "郵箱已存在",
         cannot_add_more_options: "無法添加更多條件",
         end_time_cannot_over_than_start_time: "結束時間不能超過當前時間",
       },

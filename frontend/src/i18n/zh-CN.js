@@ -313,6 +313,12 @@ export default {
         project_statistics: "项目报表",
         project_report: "项目报告",
       },
+      option: {
+        add_report: "添加报告内容",
+        select_user_group: "选择用户组",
+        send: "发送",
+        save_as_draft: "保存草稿",
+      },
       project_report: {
         create_report: "创建报告",
         report_name: "报告名称",
@@ -322,6 +328,8 @@ export default {
         show: "查看",
       },
       title: "报表统计",
+      text: "文本",
+      report: "报表",
       test_case_analysis: "测试用例趋势",
       test_case_activity: "测试用例活动情况",
       test_case_count: "测试用例统计",
@@ -364,6 +372,7 @@ export default {
         }
       },
       alert: {
+        mail_is_exist: "邮箱已存在",
         cannot_add_more_options: "无法添加更多条件",
         end_time_cannot_over_than_start_time: "结束时间不能超过当前时间",
       },
