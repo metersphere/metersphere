@@ -332,7 +332,7 @@
     },
     {
       "id": "PROJECT_APP_MANAGER:READ+EDIT",
-      "name": "编辑应用设置",
+      "name": "permission.project_app_manager.edit",
       "resourceId": "PROJECT_APP_MANAGER"
     },
     {
@@ -982,7 +982,7 @@
     },
     {
       "id": "PROJECT_APP_MANAGER",
-      "name": "应用设置"
+      "name": "permission.project_app_manager.name"
     },
     {
       "id": "PROJECT_TRACK_CASE",

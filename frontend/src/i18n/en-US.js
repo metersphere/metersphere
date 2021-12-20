@@ -672,7 +672,7 @@ export default {
     repeatable_info: 'After enabling, the interface definition repeatability check will not check the URL',
     case_public: 'Public Library',
     public: 'Start Public Library',
-    public_info: 'You can use public use case library data, or you can add use cases to the public use case library by yourself',
+    public_info: 'You can use public test case library data, or you can add test cases to the public test case library by yourself',
     upload_file_again: 'Upload again',
     code_segment: {
       code_segment: "Custom Code",
@@ -2643,6 +2643,10 @@ export default {
     project_operation_log: {
       name: "Operation Log",
       read: "READ"
+    },
+    project_app_manager: {
+      name: "App Manager",
+      edit: "EDIT"
     },
     project_custom_code: {
       name: "Custom Code",
