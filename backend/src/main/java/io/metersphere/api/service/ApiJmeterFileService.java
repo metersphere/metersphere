@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
-import io.metersphere.api.exec.api.TestPlanApiExecuteService;
+import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.JarConfig;
@@ -38,7 +38,7 @@ import java.util.zip.ZipOutputStream;
 public class ApiJmeterFileService {
 
     @Resource
-    private TestPlanApiExecuteService testPlanApiExecuteService;
+    private ApiScenarioSerialService apiScenarioSerialService;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
@@ -78,7 +78,7 @@ public class ApiJmeterFileService {
         }
         HashTree hashTree;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            hashTree = testPlanApiExecuteService.generateHashTree(remoteTestId);
+            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId);
         } else {
             if (scenario == null) {
                 scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
