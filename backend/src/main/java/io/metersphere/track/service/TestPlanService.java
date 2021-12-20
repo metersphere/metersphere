@@ -85,8 +85,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -197,7 +197,13 @@ public class TestPlanService {
     @Resource
     private LoadTestMapper loadTestMapper;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(40, new NamedThreadFactory("TestPlanService"));
+    private final ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(20, new NamedThreadFactory("TestPlanService"));
+
+    public void resetThreadPool(int threadCount){
+        if(threadCount > 0){
+            executorService.setMaximumPoolSize(threadCount);
+        }
+    }
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1120,7 +1126,6 @@ public class TestPlanService {
         TestPlanReport testPlanReport = reportInfoDTO.getTestPlanReport();
         Map<String, String> planScenarioIdsMap = reportInfoDTO.getPlanScenarioIdMap();
         Map<String, String> planApiCaseMap = reportInfoDTO.getApiTestCaseDataMap();
-        Map<String, String> performanceIdMap = reportInfoDTO.getPerformanceIdMap();
 
         if (runModeConfig.getMode().equals(RunModeConstants.PARALLEL.toString())) {
             // 校验并发数量
@@ -1141,8 +1146,22 @@ public class TestPlanService {
         extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
         String planReportId = testPlanReport.getId();
         testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. " + "API Run Config:【" + apiRunConfig + "】");
-        //开启测试计划执行状态的监听
-        this.listenTaskExecuteStatus(planReportId);
+
+        RunModeConfig finalRunModeConfig = runModeConfig;
+        executorService.submit(() -> {
+            testPlanLog.info("ReportId[" + planReportId + "] start execute.");
+            this.executeTestPlan(reportInfoDTO, triggerMode, projectID, userId, finalRunModeConfig);
+            testPlanLog.info("ReportId[" + planReportId + "] is executing.");
+        });
+        return testPlanReport.getId();
+    }
+
+    private void executeTestPlan(TestPlanScheduleReportInfoDTO reportInfoDTO, String triggerMode, String projectID, String userId, RunModeConfig runModeConfig) {
+        TestPlanReport testPlanReport = reportInfoDTO.getTestPlanReport();
+        String planReportId = testPlanReport.getId();
+        Map<String, String> planScenarioIdsMap = reportInfoDTO.getPlanScenarioIdMap();
+        Map<String, String> planApiCaseMap = reportInfoDTO.getApiTestCaseDataMap();
+        Map<String, String> performanceIdMap = reportInfoDTO.getPerformanceIdMap();
 
         //不同任务的执行ID
         Map<String, String> executePerformanceIdMap = new HashMap<>();
@@ -1208,80 +1227,66 @@ public class TestPlanService {
         for (String id : planScenarioIdsMap.keySet()) {
             executeScenarioCaseIdMap.put(id, TestPlanApiExecuteStatus.RUNNING.name());
         }
-        testPlanLog.info("ReportId[" + planReportId + "] start run. TestPlanID:[" + testPlanID + "].  Execute api :" + JSONObject.toJSONString(executeApiCaseIdMap) + "; Execute scenario:" + JSONObject.toJSONString(executeScenarioCaseIdMap) + "; Execute performance:" + JSONObject.toJSONString(executePerformanceIdMap));
+        testPlanLog.info("ReportId[" + planReportId + "] start run. TestPlanID:[" + testPlanReport.getTestPlanId() + "].  Execute api :" + JSONObject.toJSONString(executeApiCaseIdMap) + "; Execute scenario:" + JSONObject.toJSONString(executeScenarioCaseIdMap) + "; Execute performance:" + JSONObject.toJSONString(executePerformanceIdMap));
         TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(planReportId, executeApiCaseIdMap, executeScenarioCaseIdMap, executePerformanceIdMap);
         //执行接口案例任务
-        this.executeApiTestCase(triggerMode, planReportId, userId, new ArrayList<>(planApiCaseMap.keySet()), runModeConfig);
+        if(!planApiCaseMap.isEmpty()){
+            this.executeApiTestCase(triggerMode, planReportId, userId, new ArrayList<>(planApiCaseMap.keySet()), runModeConfig);
+        }
         //执行场景执行任务
-        this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, planScenarioIdsMap);
-        return testPlanReport.getId();
-    }
-
-    private void listenTaskExecuteStatus(String planReportId) {
-        executorService.submit(() -> {
-            try {
-                //10s 查询一次状态
-                Thread.sleep(10000);
-                while (TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId) != null) {
-                    testPlanReportService.countReport(planReportId);
-                    Thread.sleep(10000);
-                }
-            } catch (InterruptedException e) {
-                TestPlanReportExecuteCatch.remove(planReportId);
-                LogUtil.error(e);
-            }
-        });
+        if(!planScenarioIdsMap.isEmpty()){
+            this.executeScenarioCase(planReportId, testPlanReport.getTestPlanId(), projectID, runModeConfig, triggerMode, userId, planScenarioIdsMap);
+        }
+        testPlanReportService.startTestPlanExecuteListen(planReportId);
     }
 
     private void executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfig runModeConfig) {
-        executorService.submit(() -> {
-            BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
-            if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
-                request.setTriggerMode(ApiRunMode.JENKINS_API_PLAN.name());
-            } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
-                request.setTriggerMode(ApiRunMode.MANUAL_PLAN.name());
-            } else {
-                request.setTriggerMode(ApiRunMode.SCHEDULE_API_PLAN.name());
-            }
-            request.setPlanIds(planCaseIds);
-            request.setPlanReportId(planReportId);
-            request.setConfig(runModeConfig);
-            request.setUserId(userId);
-            testPlanApiCaseService.run(request);
-        });
+
+        BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
+        if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
+            request.setTriggerMode(ApiRunMode.JENKINS_API_PLAN.name());
+        } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
+            request.setTriggerMode(ApiRunMode.MANUAL_PLAN.name());
+        } else {
+            request.setTriggerMode(ApiRunMode.SCHEDULE_API_PLAN.name());
+        }
+
+        request.setPlanIds(planCaseIds);
+        request.setPlanReportId(planReportId);
+        request.setConfig(runModeConfig);
+        request.setUserId(userId);
+        testPlanApiCaseService.run(request);
     }
 
     private void executeScenarioCase(String planReportId, String testPlanID, String projectID, RunModeConfig runModeConfig, String triggerMode, String userId, Map<String, String> planScenarioIdMap) {
-        executorService.submit(() -> {
-            if (!planScenarioIdMap.isEmpty()) {
-                SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
-                String senarionReportID = UUID.randomUUID().toString();
-                scenarioRequest.setId(senarionReportID);
-                scenarioRequest.setReportId(senarionReportID);
-                scenarioRequest.setProjectId(projectID);
-                if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
-                    scenarioRequest.setTriggerMode(ReportTriggerMode.API.name());
-                    scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
-                } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
-                    scenarioRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
-                    scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
-                } else {
-                    scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
-                    scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
-                }
-                scenarioRequest.setExecuteType(ExecuteType.Saved.name());
-                Map<String, Map<String, String>> testPlanScenarioIdMap = new HashMap<>();
-                testPlanScenarioIdMap.put(testPlanID, planScenarioIdMap);
-                scenarioRequest.setTestPlanScenarioIDMap(testPlanScenarioIdMap);
-                scenarioRequest.setReportUserID(userId);
-                scenarioRequest.setTestPlanID(testPlanID);
-
-                scenarioRequest.setTestPlanReportId(planReportId);
-
-                scenarioRequest.setConfig(runModeConfig);
-                this.scenarioRunModeConfig(scenarioRequest);
+        if (!planScenarioIdMap.isEmpty()) {
+            SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
+            String senarionReportID = UUID.randomUUID().toString();
+            scenarioRequest.setId(senarionReportID);
+            scenarioRequest.setReportId(senarionReportID);
+            scenarioRequest.setProjectId(projectID);
+            if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
+                scenarioRequest.setTriggerMode(ReportTriggerMode.API.name());
+                scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
+            } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
+                scenarioRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
+                scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
+            } else {
+                scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+                scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
             }
-        });
+            scenarioRequest.setExecuteType(ExecuteType.Saved.name());
+            Map<String, Map<String, String>> testPlanScenarioIdMap = new HashMap<>();
+            testPlanScenarioIdMap.put(testPlanID, planScenarioIdMap);
+            scenarioRequest.setTestPlanScenarioIDMap(testPlanScenarioIdMap);
+            scenarioRequest.setReportUserID(userId);
+            scenarioRequest.setTestPlanID(testPlanID);
+
+            scenarioRequest.setTestPlanReportId(planReportId);
+
+            scenarioRequest.setConfig(runModeConfig);
+            this.scenarioRunModeConfig(scenarioRequest);
+        }
     }
 
     public String getLogDetails(String id) {
@@ -1822,7 +1827,6 @@ public class TestPlanService {
                 config = JSONObject.parseObject(reportConfig);
             }
             TestPlanSimpleReportDTO report = getReport(planId);
-            buildFunctionalReport(report, config, planId);
             buildApiReport(report, config, executeInfo, isFinish);
             buildLoadReport(report, config, executeInfo, planId, false);
             return report;

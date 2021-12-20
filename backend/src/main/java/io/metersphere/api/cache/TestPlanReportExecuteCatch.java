@@ -1,10 +1,13 @@
 package io.metersphere.api.cache;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author song.tianyang
@@ -48,7 +51,11 @@ public class TestPlanReportExecuteCatch {
     }
 
     public synchronized static boolean containsReport(String reportId){
-        return testPlanReportMap != null && testPlanReportMap.containsKey(reportId);
+        if(StringUtils.isEmpty(reportId)){
+            return false;
+        }else {
+            return testPlanReportMap != null && testPlanReportMap.containsKey(reportId);
+        }
     }
 
     public synchronized static void updateApiTestPlanExecuteInfo(String reportId,
@@ -95,6 +102,14 @@ public class TestPlanReportExecuteCatch {
         testPlanLog.info("ReportId["+planReportId+"] finish task!");
         if(testPlanReportMap.containsKey(planReportId)){
             testPlanReportMap.get(planReportId).finishAllTask();
+        }
+    }
+
+    public static Set<String> getAllReportId(){
+        if (testPlanReportMap != null) {
+            return testPlanReportMap.keySet();
+        }else {
+            return new HashSet<>();
         }
     }
 }
