@@ -50,13 +50,13 @@
                     {{ $t('load_test.thread_num') }}{{ threadGroup.threadNumber }},
                     {{ $t('load_test.duration') }}:
                     <span v-if="threadGroup.durationHours">
-                      {{ threadGroup.durationHours }}{{ $t('schedule.cron.hours') }}
+                      {{ threadGroup.durationHours }}{{ $t('load_test.hours') }}
                     </span>
                     <span v-if="threadGroup.durationMinutes">
-                      {{ threadGroup.durationMinutes }}{{ $t('schedule.cron.minutes') }}
+                      {{ threadGroup.durationMinutes }}{{ $t('load_test.minutes') }}
                     </span>
                     <span v-if="threadGroup.durationSeconds">
-                      {{ threadGroup.durationSeconds }}{{ $t('schedule.cron.seconds') }}
+                      {{ threadGroup.durationSeconds }}{{ $t('load_test.seconds') }}
                     </span>
                   </el-tag>
                   <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'ITERATION'">
@@ -106,7 +106,7 @@
                                    @change="calculateTotalChart()"
                                    size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('schedule.cron.hours')" label-width="40px"/>
+                <el-form-item :label="$t('load_test.hours')" label-width="20px"/>
                 <el-form-item>
                   <el-input-number controls-position="right"
 
@@ -116,7 +116,7 @@
                                    @change="calculateTotalChart()"
                                    size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('schedule.cron.minutes')" label-width="40px"/>
+                <el-form-item :label="$t('load_test.minutes')" label-width="20px"/>
                 <el-form-item>
                   <el-input-number controls-position="right"
 
@@ -126,7 +126,7 @@
                                    @change="calculateTotalChart()"
                                    size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('schedule.cron.seconds')" label-width="20px"/>
+                <el-form-item :label="$t('load_test.seconds')" label-width="20px"/>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit_enable')">
                   <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>

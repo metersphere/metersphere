@@ -1001,6 +1001,9 @@ export default {
     add_monitor: '添加監控',
     monitor_item: '監控項',
     monitor_host: '監控配置',
+    seconds: "秒",
+    minutes: "分",
+    hours: "時",
   },
   api_test: {
     is_continue: "是否繼續",
