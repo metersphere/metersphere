@@ -590,9 +590,9 @@ export default {
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'WeCom robot',
       lark: "Lark Robot",
-      notes: '1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;<br/>' +
-        '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";<br/>' +
-        '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise',
+      notes: '1. In order to use WeChat Enterprise, Dingding and Feishu notifications, you need to create a custom robot and copy the webhook address;<br/>' +
+        '2. For robots that need security verification, you can choose "custom keyword" verification, and the keyword is "Message Notification";<br/>' +
+        '3. To use the @ feature, the selected recipient must be a user included in the group, the recipient’s phone number is required and should be the phone number used by Dingding.',
       message: 'Event, receiver and receiving method are required\n',
       message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot or lark',
       template: "Template",
