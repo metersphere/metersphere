@@ -46,10 +46,12 @@
         :label="$t('commons.delete_user')"
         min-width="120"/>
 
-      <ms-table-column
-        prop="lastExecuteResult"
-        min-width="100px"
-        :label="$t('test_track.plan_view.execute_result')">
+      <span v-for="item in fields" :key="item.key">
+        <ms-table-column
+          v-if="item.id === 'lastExecResult'"
+          prop="lastExecuteResult"
+          min-width="100px"
+          :label="$t('test_track.plan_view.execute_result')">
         <template v-slot:default="scope">
           <span @click.stop="clickt = 'stop'">
               <span class="el-dropdown-link">
@@ -59,7 +61,6 @@
         </template>
       </ms-table-column>
 
-      <span v-for="item in fields" :key="item.key">
         <ms-table-column
           v-if="!customNum"
           :field="item"
