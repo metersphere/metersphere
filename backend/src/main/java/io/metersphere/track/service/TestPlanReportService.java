@@ -47,6 +47,7 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 /**
@@ -81,11 +82,15 @@ public class TestPlanReportService {
     @Resource
     ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
+    ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
+    @Resource
     ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     LoadTestReportMapper loadTestReportMapper;
     @Resource
     TestPlanLoadCaseMapper testPlanLoadCaseMapper;
+    @Resource
+    ExtApiScenarioReportMapper extApiScenarioReportMapper;
     @Lazy
     @Resource
     TestPlanService testPlanService;
@@ -100,8 +105,15 @@ public class TestPlanReportService {
     private UserService userService;
     @Resource
     private ProjectService projectService;
-
     private final ExecutorService executorService = Executors.newFixedThreadPool(20, new NamedThreadFactory("TestPlanReportService"));
+
+    private final ThreadPoolExecutor planListenerExecutorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(20, new NamedThreadFactory("TestPlanExecuteListen"));
+
+    public void resetThreadPool(int threadCount){
+        if(threadCount > 0){
+            planListenerExecutorService.setMaximumPoolSize(threadCount);
+        }
+    }
 
     public List<TestPlanReportDTO> list(QueryTestPlanReportRequest request) {
         List<TestPlanReportDTO> list = new ArrayList<>();
@@ -551,8 +563,6 @@ public class TestPlanReportService {
         boolean scenarioIsOk = executeInfo.isScenarioAllExecuted();
         boolean performanceIsOk = executeInfo.isLoadCaseAllExecuted();
 
-        testPlanLog.info("ReportId[" + testPlanReport.getId() + "] count over. Testplan Execute Result:  Api is over ->" + apiCaseIsOk + "; scenario is over ->" + scenarioIsOk + "; performance is over ->" + performanceIsOk);
-
         if (apiCaseIsOk) {
             testPlanReport.setIsApiCaseExecuting(false);
         }
@@ -926,7 +936,7 @@ public class TestPlanReportService {
                 testPlanLog.info("TestPlanReportId[" + testPlanReport.getId() + "] SELECT performance BATCH OVER:" + JSONArray.toJSONString(selectList));
                 if (performaneReportIDList.isEmpty()) {
                     testPlanLog.info("TestPlanReportId[" + testPlanReport.getId() + "] performance EXECUTE OVER. TRIGGER_MODE:" + triggerMode + ",REsult:" + JSONObject.toJSONString(finishLoadTestId));
-                    if (StringUtils.equalsAnyIgnoreCase(triggerMode, ReportTriggerMode.API.name() ,ReportTriggerMode.MANUAL.name())) {
+                    if (StringUtils.equalsAnyIgnoreCase(triggerMode, ReportTriggerMode.API.name(), ReportTriggerMode.MANUAL.name())) {
                         for (String string : finishLoadTestId.keySet()) {
                             String reportId = caseReportMap.get(string);
                             TestPlanLoadCaseWithBLOBs updateDTO = new TestPlanLoadCaseWithBLOBs();
@@ -1075,12 +1085,16 @@ public class TestPlanReportService {
     }
 
     public void countReport(String planReportId) {
-        boolean isTimeOut = this.checkTestPlanReportIsTimeOut(planReportId);
-        if (isTimeOut) {
+        TestPlanReportExecuteCheckResultDTO checkResult = this.checkTestPlanReportIsTimeOut(planReportId);
+        testPlanLog.info("Check PlanReport:" + planReportId + "; result: "+ JSON.toJSONString(checkResult));
+        if (checkResult.isTimeOut()) {
             //判断是否超时。超时时强行停止任务
             TestPlanReportExecuteCatch.finishAllTask(planReportId);
+            checkResult.setFinishedCaseChanged(true);
         }
-        this.updateExecuteApis(planReportId);
+        if(checkResult.isFinishedCaseChanged()){
+            this.updateExecuteApis(planReportId);
+        }
     }
 
     public TestPlanSimpleReportDTO getReport(String reportId) {
@@ -1188,7 +1202,7 @@ public class TestPlanReportService {
 
         if (StringUtils.isNotBlank(testPlanReportContent.getLoadAllCases())) {
             List<TestPlanLoadCaseDTO> allCases = JSONObject.parseArray(testPlanReportContent.getLoadAllCases(), TestPlanLoadCaseDTO.class);
-            if(!allCases.isEmpty()){
+            if (!allCases.isEmpty()) {
                 isTaskRunning = true;
             }
         }
@@ -1213,22 +1227,68 @@ public class TestPlanReportService {
         bloBs.setEndTime(endTime);
         TestPlanReportContentExample example = new TestPlanReportContentExample();
         example.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getId());
-        testPlanReportContentMapper.updateByExampleSelective(bloBs,example);
+        testPlanReportContentMapper.updateByExampleSelective(bloBs, example);
     }
 
-    private boolean checkTestPlanReportIsTimeOut(String planReportId) {
-        TestPlanExecuteInfo executeInfo = TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId);
-        int unFinishNum = executeInfo.countUnFinishedNum();
-        if (unFinishNum > 0) {
-            //20分钟没有案例执行结果更新，则定位超时
-            long lastCountTime = executeInfo.getLastFinishedNumCountTime();
-            long nowTime = System.currentTimeMillis();
-            testPlanLog.info("ReportId: ["+planReportId+"];  timeCount:"+ (nowTime - lastCountTime));
-            if (nowTime - lastCountTime > 1200000) {
-                return true;
-            }
+    private TestPlanReportExecuteCheckResultDTO checkTestPlanReportIsTimeOut(String planReportId) {
+        //同步数据库更新状态信息
+        try {
+            this.syncReportStatus(planReportId);
+        } catch (Exception e) {
+            LogUtil.info("联动数据库同步执行状态失败! " + e.getMessage());
+            LogUtil.error(e);
         }
-        return false;
+
+        TestPlanExecuteInfo executeInfo = TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId);
+        TestPlanReportExecuteCheckResultDTO checkResult = executeInfo.countUnFinishedNum();
+
+        return checkResult;
+    }
+
+    private void syncReportStatus(String planReportId) {
+        if (TestPlanReportExecuteCatch.containsReport(planReportId)) {
+            TestPlanExecuteInfo executeInfo = TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId);
+            if (executeInfo != null) {
+                //同步接口案例结果
+                Map<String, String> updateCaseStatusMap = new HashMap<>();
+                Map<String, String> apiCaseReportMap = executeInfo.getRunningApiCaseReportMap();
+                if (MapUtils.isNotEmpty(apiCaseReportMap)) {
+                    List<ApiDefinitionExecResult> execList = extApiDefinitionExecResultMapper.selectStatusByIdList(apiCaseReportMap.keySet());
+                    for (ApiDefinitionExecResult report : execList) {
+                        String reportId = report.getId();
+                        String status = report.getStatus();
+                        if (!StringUtils.equalsAnyIgnoreCase(status, "Running", "Waiting")) {
+                            String planCaseId = apiCaseReportMap.get(reportId);
+                            if (StringUtils.isNotEmpty(planCaseId)) {
+                                updateCaseStatusMap.put(planCaseId, status);
+                            }
+                        }
+                    }
+                }
+                //同步场景结果
+                Map<String, String> updateScenarioStatusMap = new HashMap<>();
+                Map<String, String> scenarioReportMap = executeInfo.getRunningScenarioReportMap();
+                if (MapUtils.isNotEmpty(scenarioReportMap)) {
+                    List<ApiScenarioReport> reportList = extApiScenarioReportMapper.selectStatusByIds(scenarioReportMap.keySet());
+                    for (ApiScenarioReport report : reportList) {
+                        String reportId = report.getId();
+                        String status = report.getStatus();
+                        if (!StringUtils.equalsAnyIgnoreCase(status, "Running", "Waiting")) {
+                            String planScenarioId = scenarioReportMap.get(reportId);
+                            if (StringUtils.isNotEmpty(planScenarioId)) {
+                                updateScenarioStatusMap.put(planScenarioId, status);
+                            }
+                        }
+                    }
+                }
+                testPlanLog.info("ReportID:"+planReportId+" 本次数据库同步,案例ID："+JSON.toJSONString(apiCaseReportMap.keySet())+";场景ID："+JSON.toJSONString(scenarioReportMap.keySet())+"; 同步结果,案例:"+JSON.toJSONString(updateCaseStatusMap)+";场景："+JSON.toJSONString(updateScenarioStatusMap));
+                TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(planReportId, updateCaseStatusMap, updateScenarioStatusMap, null);
+            }else {
+                testPlanLog.info("同步数据库查询执行信息失败! 报告ID在缓存中未找到！"+planReportId);
+            }
+
+        }
+
     }
 
     private void finishTestPlanReport(String planReportId) {
@@ -1238,6 +1298,28 @@ public class TestPlanReportService {
             testPlanLog.info("结束测试计划报告：[" + planReportId + "]");
         }
         TestPlanReportExecuteCatch.remove(planReportId);
+    }
+
+    public void startTestPlanExecuteListen(String reportId){
+        planListenerExecutorService.submit(() -> {
+            while (TestPlanReportExecuteCatch.containsReport(reportId)){
+                //检查是否存在数据库里
+                TestPlanReportExample example = new TestPlanReportExample();
+                example.createCriteria().andIdEqualTo(reportId);
+                long count = testPlanReportMapper.countByExample(example);
+                if(count > 0){
+                    testPlanLog.info("Start check testPlanReport:" + reportId);
+                    countReport(reportId);
+                    try {
+                        Thread.sleep(10000);
+                    }catch (Exception e){
+                        LogUtil.info(e);
+                    }
+                }else {
+                    TestPlanReportExecuteCatch.remove(reportId);
+                }
+            }
+        });
     }
 
 }

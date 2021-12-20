@@ -2,7 +2,6 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.controller.request.ScheduleRequest;
@@ -18,8 +17,6 @@ import java.util.List;
 public class ScheduleController {
     @Resource
     private ScheduleService scheduleService;
-    @Resource
-    private ApiAutomationService apiAutomationService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public List<ScheduleDao> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryScheduleRequest request) {

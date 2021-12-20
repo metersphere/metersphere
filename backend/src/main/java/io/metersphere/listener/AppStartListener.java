@@ -66,9 +66,23 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private TestReviewTestCaseService testReviewTestCaseService;
     @Resource
     private MockConfigService mockConfigService;
+    @Resource
+    private TestPlanService testPlanService;
+    @Resource
+    private TestPlanReportService testPlanReportService;
 
     @Value("${jmeter.home}")
     private String jmeterHome;
+    @Value("${quartz.properties.org.quartz.jobStore.acquireTriggersWithinLock}")
+    private String acquireTriggersWithinLock;
+    @Value("${quartz.enabled}")
+    private boolean quartzEnable;
+    @Value("${quartz.scheduler-name}")
+    private String quartzScheduleName;
+    @Value("${quartz.thread-count}")
+    private int quartzThreadCount;
+    @Value("${testplan.thread-count}")
+    private int testplanExecuteThreadPool;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -76,6 +90,10 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         System.out.println("================= 应用启动 =================");
 
         System.setProperty("jmeter.home", jmeterHome);
+
+        //修改需要自定义的线程池
+        testPlanService.resetThreadPool(testplanExecuteThreadPool);
+        testPlanReportService.resetThreadPool(testplanExecuteThreadPool);
 
         loadJars();
 
@@ -93,6 +111,13 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        LogUtil.info("开始启动定时任务。 相关设置：" +
+                "quartz.acquireTriggersWithinLock :" + acquireTriggersWithinLock + "\r\n" +
+                "quartz.enabled :" + quartzEnable + "\r\n" +
+                "quartz.scheduler-name :" + quartzScheduleName + "\r\n" +
+                "quartz.thread-count :" + quartzThreadCount + "\r\n" +
+                "testplan.execute.thread.pool :" + testplanExecuteThreadPool + "\r\n"
+        );
 
         scheduleService.startEnableSchedules();
 
@@ -102,6 +127,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     /**
      * 处理初始化数据、兼容数据
      * 只在第一次升级的时候执行一次
+     *
      * @param initFuc
      * @param key
      */
@@ -135,7 +161,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(testPlanLoadCaseService::initOrderField, "init.sort.plan.api.load");
         initOnceOperate(testReviewTestCaseService::initOrderField, "init.sort.review.test.case");
         initOnceOperate(apiDefinitionService::initDefaultModuleId, "init.default.module.id");
-        initOnceOperate(mockConfigService::initExpectNum,"init.mock.expectNum");
+        initOnceOperate(mockConfigService::initExpectNum, "init.mock.expectNum");
     }
 
     /**
