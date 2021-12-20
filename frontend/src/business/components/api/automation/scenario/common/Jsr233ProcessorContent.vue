@@ -235,6 +235,7 @@
 
   .script-index {
     padding: 0 20px;
+    width: 230px;
   }
 
   .template-title {

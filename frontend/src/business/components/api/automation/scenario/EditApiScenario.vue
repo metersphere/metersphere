@@ -486,6 +486,7 @@ export default {
         this.$store.state.scenarioMap.set(this.currentScenario.id, change);
       }
     },
+
   },
   created() {
     if (!this.currentScenario.apiScenarioModuleId) {
@@ -905,9 +906,9 @@ export default {
     fabClick() {
       if (this.operatingElements && this.operatingElements.length < 1) {
         if (this.selectedTreeNode && this.selectedTreeNode.referenced === 'REF' || this.selectedTreeNode.disabled) {
-          this.$warning("引用的场景步骤及子步骤都无法添加其他步骤");
+          this.$warning(this.$t('api_test.scenario.scenario_warning'));
         } else {
-          this.$warning("当前步骤下不能添加其他步骤");
+          this.$warning(this.$t('api_test.scenario.scenario_step_warning'));
         }
       }
     },
@@ -1005,7 +1006,7 @@ export default {
       if (arr && arr.length > 0) {
         arr.forEach(item => {
           if (item.id === this.currentScenario.id) {
-            this.$error("不能引用或复制自身！");
+            this.$error(this.$t("api_test.scenario.scenario_error"));
             this.$refs.scenarioRelevance.changeButtonLoadingType();
             return;
           }
