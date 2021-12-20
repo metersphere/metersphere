@@ -155,11 +155,11 @@ export default {
         "</head>\n" +
         "<body>\n" +
         "<div>\n" +
-        "    <p>${operator}创建了缺陷:${name}</p>\n" +
+        "    <p>${operator}创建了缺陷:${title}</p>\n" +
         "</div>\n" +
         "</body>\n" +
         "</html>",
-      robotTitle: "${operator}创建了缺陷:${name}",
+      robotTitle: "${operator}创建了缺陷:${title}",
       defectTask: [{
         taskType: "defectTask",
         event: "",
@@ -225,7 +225,7 @@ export default {
           value:'resourceId',
         },
         {
-          label:this.$t('commons.num'),
+          label:this.$t('test_track.case.number'),
           value:'num',
         },
         {

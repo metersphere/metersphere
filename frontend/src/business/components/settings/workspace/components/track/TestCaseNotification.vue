@@ -234,7 +234,7 @@ export default {
           value:'sort',
         },
         {
-          label:this.$t('commons.num'),
+          label:this.$t('test_track.case.number'),
           value:'num',
         },
         {

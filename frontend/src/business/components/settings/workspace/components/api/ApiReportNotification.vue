@@ -235,7 +235,7 @@ export default {
           value:'updateTime',
         },
         {
-          label:this.$t('commons.num'),
+          label:this.$t('test_track.case.number'),
           value:'num',
         },
         {
