@@ -1361,7 +1361,7 @@ export default {
       error_report_jmx: "導出JMX文件失敗",
       scenario_warning: "引用的場景步驟及子步驟都無法添加其他步驟",
       scenario_step_warning: "當前步驟下不能添加其他步驟",
-      scenario_error: "不能引用或複製自身！",
+      scenario_error: "不能引用或復製自身！",
     },
     request: {
       debug: "調試",
@@ -2171,8 +2171,8 @@ export default {
       export_report: "導出報告",
       no_case_relevance: "沒有關聯用例",
       automatically_update_status: "自動更新狀態",
-      allow_associated_repetitive_cases: "允許關聯重複用例",
       automatically_update_status_tip: "當功能用例關聯的接口或性能用例在測試計劃執行後，自動更新功能用例的狀態",
+      allow_associated_repetitive_cases: "允許關聯重復用例",
       allow_associated_repetitive_cases_tip: "是否允許同一個測試計劃中多次關聯相同用例"
     },
     issue: {
@@ -2211,6 +2211,8 @@ export default {
       tapd_current_owner: "Tapd 處理人",
       zentao_bug_build: "禪道 影響版本",
       zentao_bug_assigned: "禪道 處理人",
+      third_party_integrated: "集成第三方平臺",
+      use_third_party: "使用 Jira 缺陷模板",
       update_third_party_bugs: "更新第三方平臺的缺陷",
       sync_bugs: "同步缺陷"
     },
@@ -2713,10 +2715,6 @@ export default {
       upload_file: "上傳文件",
       delete_file: "刪除文件",
     },
-    project_app_manager: {
-      name: "應用設置",
-      edit: "編輯應用設置"
-    },
     project_track_case: {
       name: "測試用例",
       read: "查詢用例",
@@ -2738,6 +2736,10 @@ export default {
       comment: "發表評論",
       relevance_or_cancel: "關聯/取消關聯用例",
 
+    },
+    project_app_manager: {
+      name: "應用設置",
+      edit: "編輯應用設置"
     },
     project_track_plan: {
       name: "測試計劃",
