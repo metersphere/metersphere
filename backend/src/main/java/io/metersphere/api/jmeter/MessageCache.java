@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageCache {
-    public final static Map<String, ReportCounter> concurrencyCounter = new HashMap<>();
-
     public final static ConcurrentHashMap<String, Session> reportCache = new ConcurrentHashMap<>();
     // 用例并发锁
     public final static ConcurrentHashMap<String, ApiDefinitionExecResult> caseExecResourceLock = new ConcurrentHashMap<>();

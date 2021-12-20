@@ -213,7 +213,6 @@ public class ApiExecuteService {
                 CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
                 request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode, hashTree);
-        runRequest.setConfig(request.getConfig());
         runRequest.setDebug(request.isDebug());
         // 开始执行
         jMeterService.run(runRequest);

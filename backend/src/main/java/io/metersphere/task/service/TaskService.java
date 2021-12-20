@@ -192,6 +192,5 @@ public class TaskService {
         } else {
             new LocalRunner().stop(request.getReportId());
         }
-        MessageCache.concurrencyCounter.remove(request.getReportId());
     }
 }

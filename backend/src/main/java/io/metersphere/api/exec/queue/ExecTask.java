@@ -4,6 +4,7 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.jorphan.collections.HashTree;
 
 public class ExecTask implements Runnable {
     private JmeterRunRequestDTO request;

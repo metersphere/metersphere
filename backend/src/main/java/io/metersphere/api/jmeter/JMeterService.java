@@ -3,6 +3,7 @@ package io.metersphere.api.jmeter;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
+import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -31,6 +32,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;
+import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -83,14 +85,14 @@ public class JMeterService {
         LoggerUtil.debug("监听MessageCache.tasks当前容量：" + MessageCache.jmeterLogTask.size());
         if (request.isDebug() && !StringUtils.equalsAny(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
-            JMeterBase.addSyncListener(request, APISingleResultListener.class.getCanonicalName());
+            JMeterBase.addSyncListener(request, request.getHashTree(), APISingleResultListener.class.getCanonicalName());
         }
         if (request.isDebug()) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
             addDebugListener(request.getReportId(), request.getHashTree());
         } else {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
-            JMeterBase.addSyncListener(request, APISingleResultListener.class.getCanonicalName());
+            JMeterBase.addSyncListener(request, request.getHashTree(), APISingleResultListener.class.getCanonicalName());
         }
 
         LocalRunner runner = new LocalRunner(request.getHashTree());
@@ -99,42 +101,38 @@ public class JMeterService {
 
     private void runNode(JmeterRunRequestDTO request) {
         // 获取可以执行的资源池
-        if (request.getConfig() != null) {
-            BaseSystemConfigDTO baseInfo = request.getConfig().getBaseInfo();
-            if (baseInfo == null) {
-                baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
-            }
-            // 占位符
-            String platformUrl = "http://localhost:8081";
-            if (baseInfo != null) {
-                platformUrl = baseInfo.getUrl();
-            }
-            platformUrl += "/api/jmeter/download?testId=" + request.getTestId() + "&reportId=" + request.getReportId() + "&runMode=" + request.getRunMode();
+        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
+        // 占位符
+        String platformUrl = "http://localhost:8081";
+        if (baseInfo != null) {
+            platformUrl = baseInfo.getUrl();
+        }
+        platformUrl += "/api/jmeter/download?testId=" + request.getTestId() + "&reportId=" + request.getReportId() + "&runMode=" + request.getRunMode();
 
-            request.setPlatformUrl(platformUrl);
-            request.setKafkaConfig(KafkaConfig.getKafka());
-            // 如果是K8S调用
-            if (request.getPool().isK8s()) {
-                try {
-                    LoggerUtil.error("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行");
-                    final Engine engine = EngineFactory.createApiEngine(request);
-                    engine.start();
-                } catch (Exception e) {
-                    LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ] 失败：" + e.getMessage());
-                    ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
-                    apiScenarioReportService.delete(request.getReportId());
-                    MSException.throwException(e.getMessage());
-                }
-            } else {
-                this.send(request);
+        request.setPlatformUrl(platformUrl);
+        request.setKafkaConfig(KafkaConfig.getKafka());
+        // 如果是K8S调用
+        if (request.getPool().isK8s()) {
+            try {
+                LoggerUtil.error("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行");
+                final Engine engine = EngineFactory.createApiEngine(request);
+                engine.start();
+            } catch (Exception e) {
+                LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ] 失败：" + e.getMessage());
+                ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
+                apiScenarioReportService.delete(request.getReportId());
+                MSException.throwException(e.getMessage());
             }
+        } else {
+            this.send(request);
         }
     }
 
     private synchronized void send(JmeterRunRequestDTO request) {
         try {
-            int index = (int) (Math.random() * request.getConfig().getTestResources().size());
-            JvmInfoDTO jvmInfoDTO = request.getConfig().getTestResources().get(index);
+            List<JvmInfoDTO> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
+            int index = (int) (Math.random() * resources.size());
+            JvmInfoDTO jvmInfoDTO = resources.get(index);
             TestResourceDTO testResource = jvmInfoDTO.getTestResource();
             String configuration = testResource.getConfiguration();
 
