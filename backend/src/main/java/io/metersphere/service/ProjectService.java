@@ -12,6 +12,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
+import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -104,6 +105,9 @@ public class ProjectService {
                 .andNameEqualTo(project.getName());
         if (projectMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("project_name_already_exists"));
+        }
+        if (StringUtils.isBlank(project.getPlatform())) {
+            project.setPlatform(IssuesManagePlatform.Local.name());
         }
         project.setId(UUID.randomUUID().toString());
 

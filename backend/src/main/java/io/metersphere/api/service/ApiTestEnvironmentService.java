@@ -160,7 +160,7 @@ public class ApiTestEnvironmentService {
         }
 
         String apiName = MockConfigStaticData.MOCK_EVN_NAME;
-        ApiTestEnvironmentWithBLOBs returnModel = null;
+        ApiTestEnvironmentWithBLOBs returnModel;
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(apiName);
         List<ApiTestEnvironmentWithBLOBs> list = this.selectByExampleWithBLOBs(example);
