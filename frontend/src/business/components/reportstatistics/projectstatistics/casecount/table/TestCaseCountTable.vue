@@ -18,7 +18,7 @@
           </el-table-column>
           <el-table-column
             prop="allCount"
-            label="总计">
+            :label="$t('commons.report_statistics.count')">
           </el-table-column>
           <el-table-column
               prop="testCaseCount"

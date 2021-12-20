@@ -346,6 +346,7 @@ export default {
       bar: "柱状图",
       desc: "总数从高到低",
       asc: "总数从低到高",
+      count: "总计",
       report_data: {
         all_report: "全部报表",
         my_report: "我的报表",

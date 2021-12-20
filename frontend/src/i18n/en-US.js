@@ -345,6 +345,7 @@ export default {
       bar: "Bar",
       desc: "Desc",
       asc: "Asc",
+      count: "Count",
       report_data: {
         all_report: "All report",
         my_report: "My report",
