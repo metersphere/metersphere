@@ -312,6 +312,12 @@ export default {
         project_statistics: "Project statistics",
         project_report: "Project report",
       },
+      option: {
+        add_report: "Add content ",
+        select_user_group: "Select user group",
+        send: "Send",
+        save_as_draft: "Draft",
+      },
       project_report: {
         create_report: "Create report",
         report_name: "Report name",
@@ -321,6 +327,8 @@ export default {
         show: "Show",
       },
       title: "Report Statistics",
+      text: "Text",
+      report: "Report",
       test_case_analysis: "Test case analysis",
       test_case_activity: "Test case activity",
       test_case_count: "Count test case",
@@ -363,6 +371,7 @@ export default {
         }
       },
       alert: {
+        mail_is_exist: "E-mail is exist",
         cannot_add_more_options: "Cannot add more options",
         end_time_cannot_over_than_start_time: "End time cannot before than start time",
       },
