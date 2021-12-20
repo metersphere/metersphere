@@ -92,7 +92,9 @@
                              :append-to-body="appendDialogToBody"
                              :parameters="parameters"
                              :current-item="currentItem"
+                             :scenario-definition="scenarioDefinition"
                              @advancedRefresh="reload"/>
+
     <ms-api-variable-json :append-to-body="appendDialogToBody" ref="variableJson" @callback="callback"/>
 
     <api-variable-setting :append-to-body="appendDialogToBody"
@@ -141,7 +143,8 @@ export default {
       default: true
     },
     suggestions: Array,
-    withMorSetting: Boolean
+    withMorSetting: Boolean,
+    scenarioDefinition: Array,
   },
   data() {
     return {
@@ -252,10 +255,14 @@ export default {
         this.$refs.variableJson.open(item);
         this.currentItem = item;
       } else {
-        this.$refs.variableAdvance.open();
         this.currentItem = item;
+        // 场景编辑参数设置冒泡，调用父组件的参数设置打开方法
+        if(this.scenarioDefinition != undefined){
+          this.$emit('editScenarioAdvance', this.currentItem);
+        }else{
+          this.$refs.variableAdvance.open();
+        }
       }
-
     },
     typeChange(item) {
       if (item.type === 'file') {
@@ -289,7 +296,7 @@ export default {
     callback(item) {
       this.currentItem.value = item;
       this.currentItem = null;
-    }
+    },
   },
   created() {
     if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {

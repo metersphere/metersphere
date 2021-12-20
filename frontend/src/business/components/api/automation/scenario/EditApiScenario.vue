@@ -196,9 +196,10 @@
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree" v-if="showHideTree">
-                    <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
+                    <span class="custom-tree-node father" slot-scope="{node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
+                         :scenario-definition="scenarioDefinition"
                          :message="message"
                          :type="data.type"
                          :scenario="data"
@@ -218,7 +219,8 @@
                          @runScenario="runDebug"
                          @stopScenario="stop"
                          @setDomain="setDomain"
-                         @openScenario="openScenario"/>
+                         @openScenario="openScenario"
+                         @editScenarioAdvance="editScenarioAdvance"/>
                     </span>
               </el-tree>
             </div>
@@ -243,6 +245,12 @@
           </el-col>
         </el-row>
       </div>
+
+      <!--参数设置-->
+      <ms-api-variable-advance ref="scenarioVariableAdvance"
+                               :append-to-body="true"
+                               :current-item="currentItem"
+                               :scenario-definition="scenarioDefinition"/>
 
       <!--接口列表-->
       <scenario-api-relevance @save="pushApiOrCase" @close="setHideBtn" ref="scenarioApiRelevance" v-if="type!=='detail'"/>
@@ -323,6 +331,7 @@
           @openScenario="openScenario"
           @runScenario="runDebug"
           @stopScenario="stop"
+          @editScenarioAdvance="editScenarioAdvance"
           ref="maximizeScenario"/>
       </ms-drawer>
       <ms-change-history ref="changeHistory"/>
@@ -388,7 +397,8 @@ export default {
     MsDrawer: () => import("../../../common/components/MsDrawer"),
     MsSelectTree: () => import("../../../common/select-tree/SelectTree"),
     MsChangeHistory: () => import("../../../history/ChangeHistory"),
-    MsTaskCenter: () => import("../../../task/TaskCenter")
+    MsTaskCenter: () => import("../../../task/TaskCenter"),
+    MsApiVariableAdvance: () => import("./../../definition/components/ApiVariableAdvance"),
   },
   data() {
     return {
@@ -477,6 +487,7 @@ export default {
       showFollow: false,
       envGroupId: "",
       environmentType: ENV_TYPE.JSON,
+      currentItem: {},
       versionData: []
     }
   },
@@ -1400,7 +1411,7 @@ export default {
           }
           this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
           // 让接口自动化参数设置的地方，可以拿到场景变量
-          this.$store.state.scenarioMap.set("currentScenarioId", this.currentScenario.variables);
+          this.$store.state.scenarioMap.set("currentScenarioVariables", this.currentScenario.variables);
         })
       }
     },
@@ -1649,6 +1660,11 @@ export default {
           });
         }
       }
+    },
+    editScenarioAdvance(data) {
+      // 打开编辑参数设置对话框，并且传递修改的蓝笔引用值参数
+      this.currentItem = data;
+      this.$refs.scenarioVariableAdvance.open();
     },
     getVersionHistory() {
       this.$get('/api/automation/versions/' + this.currentScenario.id, response => {

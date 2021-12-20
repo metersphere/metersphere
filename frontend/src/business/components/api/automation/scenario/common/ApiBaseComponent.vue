@@ -30,7 +30,7 @@
 
       </span>
 
-      <div class="header-right" @click.stop>
+      <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop>
         <slot name="message"></slot>
         <slot name="debugStepCode"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
@@ -118,7 +118,11 @@ export default {
         return true
       }
     },
-    title: String
+    title: String,
+    ifFromVariableAdvance: {
+      type: Boolean,
+      default: false,
+    }
   },
   watch: {
     '$store.state.selectStep': function () {

@@ -9,6 +9,7 @@
     :show-btn="showBtn"
     color="#6D317C"
     background-color="#FCF6EE"
+    :if-from-variable-advance="ifFromVariableAdvance"
     :title="$t('api_test.automation.transcation_controller')">
     <template v-slot:debugStepCode>
       <span v-if="node.data.testing" class="ms-test-running">
@@ -49,6 +50,10 @@ export default {
     },
     index: Object,
     draggable: {
+      type: Boolean,
+      default: false,
+    },
+    ifFromVariableAdvance: {
       type: Boolean,
       default: false,
     },

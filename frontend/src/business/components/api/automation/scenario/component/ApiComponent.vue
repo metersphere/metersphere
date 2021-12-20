@@ -11,7 +11,8 @@
       :background-color="displayColor.backgroundColor"
       :is-max="isMax"
       :show-btn="showBtn"
-      :title="displayTitle">
+      :title="displayTitle"
+      :if-from-variable-advance="ifFromVariableAdvance">
 
       <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')&&isSameSpace">
         <span v-if="isShowNum" @click="clickResource(request)">{{ "（ ID: " + request.num + "）" }}</span>
@@ -38,7 +39,7 @@
           {{ request.requestResult[0].success && reqSuccess ? 'success' : 'error' }}
         </span>
       </template>
-      <template v-slot:button>
+      <template v-slot:button v-if="!ifFromVariableAdvance">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
           <el-button @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
         </el-tooltip>
@@ -53,10 +54,14 @@
       <!--请求内容-->
       <template v-slot:request>
         <legend style="width: 100%">
+          <div v-if="!ifFromVariableAdvance">
+
           <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
           <ms-api-request-form
             v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
+            :scenario-definition="scenarioDefinition"
+            @editScenarioAdvance="editScenarioAdvance"
             :isShowEnable="true"
             :referenced="true"
             :headers="request.headers "
@@ -84,6 +89,8 @@
             :request="request"
             :is-read-only="isCompReadOnly"
             :showScript="false"/>
+
+          </div>
         </legend>
       </template>
       <!-- 执行结果内容 -->
@@ -139,6 +146,7 @@ import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
 import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+import {ENV_TYPE} from "@/common/js/constants";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -169,7 +177,13 @@ export default {
     envMap: Map,
     message: String,
     environmentGroupId: String,
-    environmentType: String
+    environmentType: String,
+
+    scenarioDefinition: Array,
+    ifFromVariableAdvance: {
+      type: Boolean,
+      default: false,
+    },
   },
   components: {
     TemplateComponent,
@@ -697,7 +711,10 @@ export default {
           }
         }
       });
-    }
+    },
+    editScenarioAdvance(data) {
+      this.$emit('editScenarioAdvance', data);
+    },
   }
 }
 </script>

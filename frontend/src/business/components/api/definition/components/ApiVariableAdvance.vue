@@ -2,9 +2,9 @@
   <el-dialog :title="$t('api_test.request.parameters_advance')"
              :visible.sync="itemValueVisible"
              :append-to-body="appendToBody"
+             :fullscreen="dialogVisible"
              class="advanced-item-value"
-             width="100%"
-             :fullscreen="dialogVisible">
+             width="100%">
 
     <el-tabs tab-position="top" style="height: 50vh;" @tab-click="selectTab">
       <el-tab-pane :label="$t('api_test.request.parameters_advance_mock')">
@@ -38,7 +38,7 @@
       </el-tab-pane>
 
       <!--场景自定义变量-->
-      <el-tab-pane :label="$t('api_test.automation.scenario_total')" name="variable">
+      <el-tab-pane :label="$t('api_test.automation.scenario_total')" name="variable" v-if="scenarioDefinition != undefined">
         <div>
           <el-row style="margin-bottom: 10px">
             <div style="float: left">
@@ -93,10 +93,6 @@
               <p>{{ $t('api_test.scenario.scenario') }}</p>
               <el-tree :data="scenarioParams" :props="treeProps" @node-click="selectVariable"></el-tree>
             </div>
-            <div v-if="preRequestParams">
-              <p>{{ $t('api_test.request.parameters_pre_request') }}</p>
-              <el-tree :data="preRequestParams" :props="treeProps" @node-click="selectVariable"></el-tree>
-            </div>
           </el-col>
           <el-col :span="18" class="col-height">
             <div>
@@ -112,34 +108,105 @@
       </el-tab-pane>
 
 
+      <!--前置返回-->
+      <el-tab-pane :label="$t('api_test.definition.request.pre_return')" v-if="scenarioDefinition != undefined">
+        <ms-container :class="{'maximize-container': !asideHidden}" v-outside-click="outsideClick">
+          <ms-aside-container @setAsideHidden="setAsideHidden" style="padding-top: 0px">
+            <div v-loading="loading" v-show="!asideHidden">
+                <el-tree node-key="resourceId"
+                         highlight-current
+                         ref="preTree"
+                         v-show="!asideHidden"
+                         :props="props"
+                         :data="scenarioDefinition"
+                         :default-expanded-keys="expandedNode"
+                         :expand-on-click-node="false"
+                         @node-click="nodeClick"
+                         @node-expand="nodeExpand"
+                         @node-collapse="nodeCollapse" >
+                  <span class="custom-tree-node father" slot-scope="{node, data}">
+                     <!-- 步骤组件-->
+                     <ms-component-config
+                       :isMax="true"
+                       :project-list="projectList"
+                       :if-from-variable-advance="ifFromVariableAdvance"
+                       :type="data.type"
+                       :scenario="data"
+                       :env-map="projectEnvMap"
+                       :node="node"/>
+                  </span>
+                </el-tree>
+            </div>
+          </ms-aside-container>
 
 
+          <!--右边元素-->
+          <ms-main-container>
+            <div>
+              <!-- 第一层当前节点内容-->
+              <ms-component-config
+                :if-from-variable-advance="ifFromVariableAdvance"
+                :type="selectedTreeNode.type"
+                :scenario="selectedTreeNode"
+                :node="selectedNode"
+                :env-map="projectEnvMap"
+                :draggable="false"
+                @savePreParams="savePreParams"
+                v-if="selectedTreeNode && selectedNode"/>
+              <!-- 请求下还有的子步骤-->
+              <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
+                <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
+                  <ms-component-config
+                    :if-from-variable-advance="ifFromVariableAdvance"
+                    :type="item.type"
+                    :scenario="item"
+                    :env-map="projectEnvMap"
+                    :draggable="false"
+                    @savePreParams="savePreParams"
+                    v-if="selectedTreeNode && selectedNode && filterSonNode(item)"/>
+                </div>
+              </div>
+            </div>
 
-
+            <div v-if="scenarioPreRequestParams.length > 0" style="margin-bottom: 10px">
+              <p>{{ $t('api_test.definition.request.extract_params') }}</p>
+              <div v-for="(item, index) in scenarioPreRequestParams" :key="index" class="kv-row item">
+                <el-row type="flex" :gutter="20" justify="space-between" align="middle">
+                  <el-col class="item">
+                    <el-input v-model="item.name" size="small" :readonly="true" @click.native="savePreParams(item.name)"/>
+                  </el-col>
+                  <el-col class="item">
+                    <el-input v-model="item.value" size="small" :readonly="true" @click.native="savePreParams(item.name)"/>
+                  </el-col>
+                </el-row>
+              </div>
+            </div>
+          </ms-main-container>
+        </ms-container>
+      </el-tab-pane>
     </el-tabs>
-    <el-form>
-      <el-form-item>
-        <el-input :placeholder="valueText" size="small"
-                  v-model="itemValue"/>
-      </el-form-item>
-    </el-form>
     <div style="padding-top: 10px;">
-      <el-row type="flex" align="middle">
-        <el-col :span="12">
-          <el-button size="small" type="primary" plain @click="saveAdvanced()">
-            {{ $t('commons.save') }}
-          </el-button>
-          <el-button size="small" type="info" plain @click="addFunc()" v-if="currentTab === 0">
-            {{ $t('api_test.request.parameters_advance_add_func') }}
-          </el-button>
-          <el-button size="small" type="success" plain @click="showPreview()" v-if="currentTab === 0">
-            {{ $t('api_test.request.parameters_preview') }}
-          </el-button>
-        </el-col>
-        <el-col>
-          <div> {{ itemValuePreview }}</div>
+      <el-row type="flex" align="bottom">
+        <el-col :span="16">
+          <div style="position: fixed; bottom: 10px;">
+            <el-form>
+              <el-form-item>
+                <el-input :placeholder="valueText" size="small" v-model="itemValue"/>
+              </el-form-item>
+            </el-form>
+            <el-button size="small" type="primary" plain @click="saveAdvanced()">
+              {{ $t('commons.save') }}
+            </el-button>
+            <el-button size="small" type="info" plain @click="addFunc()" v-if="currentTab === 0">
+              {{ $t('api_test.request.parameters_advance_add_func') }}
+            </el-button>
+            <el-button size="small" type="success" plain @click="showPreview()" v-if="currentTab === 0">
+              {{ $t('api_test.request.parameters_preview') }}
+            </el-button>
+          </div>
         </el-col>
       </el-row>
+      <div> {{ itemValuePreview }}</div>
     </div>
   </el-dialog>
 </template>
@@ -147,8 +214,11 @@
 <script>
   import {calculate, Scenario} from "../model/ApiTestModel";
   import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-  import {buttons} from "../../automation/scenario/menu/Menu";
-  import {ENV_TYPE} from "@/common/js/constants";
+  import {STEP} from "../../automation/scenario/Setting";
+  import MsMainContainer from "../../../common/components/MsMainContainer";
+  import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
+  import MsContainer from "../../../common/components/MsContainer";
+  import OutsideClick from "@/common/js/outside-click";
 
   export default {
     name: "MsApiVariableAdvance",
@@ -163,6 +233,13 @@
           return false;
         }
       },
+      scenarioDefinition: Array,
+    },
+    components: {
+      MsMainContainer,
+      MsAsideContainer,
+      MsContainer,
+      MsComponentConfig: () => import("../../automation/scenario/component/ComponentConfig"),
     },
     data() {
       return {
@@ -172,6 +249,7 @@
         scenarioParams: [],
         preRequests: [],
         preRequestParams: [],
+        scenarioPreRequestParams: [],
         treeProps: {children: 'children', label: 'name'},
         currentTab: 0,
         itemValue: null,
@@ -219,14 +297,32 @@
           ['CSV', 'CSV'],
           ['COUNTER', this.$t('api_test.automation.counter')],
           ['RANDOM', this.$t('api_test.automation.random')]
-        ])
+        ]),
+
+        // 前置返回相关
+        props: {
+          label: "label",
+          children: "hashTree"
+        },
+        expandedNode: [],
+        stepFilter: new STEP,
+        operatingElements: [],
+        selectedTreeNode: undefined,
+        selectedNode: undefined,
+        projectList: [],
+        projectEnvMap: new Map,
+        ifFromVariableAdvance: false,
+        asideHidden: false,
+        scenarioRootTree: undefined,
+        insideClick: false,
       }
     },
     computed: {
       valueText() {
         return this.valuePlaceholder || this.$t("api_test.value");
-      }
+      },
     },
+    directives: {OutsideClick},
     mounted() {
       this.prepareData();
     },
@@ -236,14 +332,27 @@
       }
     },
     methods: {
+      created() {
+        this.operatingElements = this.stepFilter.get("ALL");
+      },
       open() {
+        if(this.$store.state.scenarioMap.get != undefined && this.$store.state.scenarioMap.get("currentScenarioVariables") != undefined){
+          this.variables = this.$store.state.scenarioMap.get("currentScenarioVariables");
+        }
+        if(this.scenarioDefinition != undefined){
+          // 标识为场景编辑入口进入
+          this.ifFromVariableAdvance = true;
+        }
         this.itemValueVisible = true;
-        if(this.$store.state.scenarioMap.get != undefined
-          && this.$store.state.scenarioMap.get("currentScenarioId") != undefined){
-          this.variables = this.$store.state.scenarioMap.get("currentScenarioId");
+        // 关闭页面重新进入需要再做过滤
+        if(this.ifFromVariableAdvance && this.$refs.preTree != undefined && this.currentTab == 3){
+          this.componentActive(this.$refs.preTree.root);
         }
       },
-      prepareData() {
+      prepareData(data) {
+        if(data != undefined || data != null){
+          this.scenario = data;
+        }
         if (this.scenario) {
           let variables = this.scenario.variables;
           this.scenarioParams = [
@@ -284,6 +393,75 @@
           });
         }
       },
+
+      // 获取该节点及所有子节点下的前置提取参数 key/value
+      getExtractDataByNode(data, node) {
+        if(!node.isLeaf){
+          if(node.childNodes.length > 0){
+            for(let i=0; i<node.childNodes.length; i++){
+              if(node.childNodes[i].isLeaf){ //是叶子节点
+                if(node.childNodes[i].data.type === 'Extract'){ //叶子节点的数据的类型是 提取
+                  let extractJsonParams = (node.childNodes[i].data.json).map(v => {
+                    return {name: v.variable, value: v.value}
+                  });
+                  let extractRegexParams = (node.childNodes[i].data.regex).map(v => {
+                    return {name: v.variable, value: v.value}
+                  });
+                  let extractXpathParams = (node.childNodes[i].data.xpath).map(v => {
+                    return {name: v.variable, value: v.value}
+                  });
+                  let vs = [...extractJsonParams, ...extractRegexParams, ...extractXpathParams];
+                  if (vs.length > 0) {
+                    //数组合并
+                    this.scenarioPreRequestParams = this.scenarioPreRequestParams.concat(extractJsonParams, extractRegexParams, extractXpathParams);
+                  }
+                }
+                continue;
+              }else{
+                this.getExtractDataByNode(node.childNodes[i].data, node.childNodes[i]);
+              }
+            }
+          }
+        }
+      },
+      componentActive(node) {
+        if(this.ifFromVariableAdvance){
+          this.setLeafNodeUnVisible(node);
+        }
+      },
+      // 递归设置不需要显示的叶子节点
+      setLeafNodeUnVisible(node) {
+        if(!node.isLeaf){
+          if(node.childNodes.length > 0){
+            for(let i=0; i<node.childNodes.length; i++){
+              // 提取参数不需要隐藏
+              if(node.childNodes[i].isLeaf && node.childNodes[i].level > 1){
+                node.childNodes[i].visible = false;
+                if(node.childNodes[i].data.type === 'Extract' && node.data.type !== 'HTTPSamplerProxy'){
+                  node.childNodes[i].visible = true;
+                }
+              }else{
+                // 等待控制器不显示
+                if(node.childNodes[i].level == 1 && node.childNodes[i].data.type === 'ConstantTimer'){
+                  node.childNodes[i].visible = false;
+                }
+                this.setLeafNodeUnVisible(node.childNodes[i]);
+              }
+            }
+          }
+        }
+      },
+
+      getAllExtractDataByNode(){
+        if(this.ifFromVariableAdvance){
+          this.selectedNode = undefined;
+          this.selectedTreeNode = undefined;
+          this.scenarioPreRequestParams = [];
+          if(this.$refs.preTree != undefined){
+            this.getExtractDataByNode(null, this.$refs.preTree.root);
+          }
+        }
+      },
       filterNode(value, data) {
         if (!value) return true;
         return data.name.indexOf(value) !== -1;
@@ -295,6 +473,11 @@
         this.currentTab = +tab.index;
         this.itemValue = null;
         this.itemValuePreview = null;
+
+        if(this.ifFromVariableAdvance && this.currentTab === 3){
+          // 前置提取屏蔽部分叶子节点
+          this.componentActive(this.$refs.preTree.root);
+        }
       },
       showPreview() {
         // 找到变量本身
@@ -305,7 +488,6 @@
         if (index > -1) {
           this.itemValue = this.itemValue.substring(0, index).trim();
         }
-
         this.mockVariableFuncs.forEach(f => {
           if (!f.name) {
             return;
@@ -315,7 +497,6 @@
             this.itemValue += ":" + f.params.map(p => p.value).join(",");
           }
         });
-
         this.itemValuePreview = calculate(this.itemValue);
       },
       methodChange(itemFunc, func) {
@@ -364,7 +545,6 @@
         this.mockVariableFuncs = [];
         this.$emit('advancedRefresh', this.itemValue);
       },
-
       // 自定义变量
       filter() {
         let datas = [];
@@ -406,14 +586,129 @@
       edit(row) {
         this.selection = [row.id];
         this.itemValue = '${' + row.name + '}';
-      }
+      },
+      savePreParams(data) {
+        this.itemValue = '${' + data + '}';
+      },
+
+
+
+      // 前置返回
+      nodeExpand(data) {
+        if (data.resourceId) {
+          this.expandedNode.push(data.resourceId);
+        }
+      },
+      nodeCollapse(data) {
+        if (data.resourceId) {
+          this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
+        }
+      },
+      nodeClick(data, node) {
+        if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
+          this.operatingElements = this.stepFilter.get(data.type);
+        } else {
+          this.operatingElements = [];
+        }
+        if (!this.operatingElements) {
+          this.operatingElements = this.stepFilter.get("ALL");
+        }
+        this.selectedTreeNode = data;
+        this.selectedNode = node;
+        this.$store.state.selectStep = data;
+        this.reload();
+
+        // 计算前置提取变量
+        this.scenarioPreRequestParams = [];
+        this.getExtractDataByNode(data, node);
+      },
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        })
+      },
+      setAsideHidden(data) {
+        this.asideHidden = data;
+      },
+
+      showNode(node) {
+        for(let i=0; i<node.hashTree.length; i++){
+          // 右边展示如果包含了前置提取表单,且是 HTTPSamplerProxy 类型，则不需要显示提取参数列表
+          if(node.hashTree[i].type == 'Extract' && node.type == 'HTTPSamplerProxy'
+            && this.scenarioPreRequestParams.length > 0){
+            this.scenarioPreRequestParams = [];
+            break;
+          }
+        }
+        node.active = true;
+        if (node && this.stepFilter.get("AllSamplerProxy").indexOf(node.type) != -1) {
+          return true;
+        }
+        return false;
+      },
+      filterSonNode(item) {
+        if(item.type == 'Assertions' || item.type == 'ConstantTimer'
+          || item.type == 'JDBCPreProcessor' || item.type == 'JDBCPostProcessor'){
+          return false;
+        }
+        return true;
+      },
+      outsideClick(e) {
+        // 获取全部前置提取
+        this.getAllExtractDataByNode();
+      },
     }
   }
 </script>
 
 <style scoped>
+
   .col-height {
     height: 40vh;
     overflow: auto;
+  }
+
+  .maximize-container .ms-aside-container {
+    min-width: 680px;
+  }
+
+  .ms-aside-container {
+    height: calc(100vh - 50px) !important;
+  }
+
+  .ms-open-btn-left {
+    margin-left: 35px;
+  }
+
+  .father .child {
+    display: none;
+  }
+
+  .father:hover .child {
+    display: block;
+  }
+
+  .ms-col-one {
+    margin-top: 10px;
+  }
+
+  .custom-tree-node {
+    width: 1000px;
+  }
+
+  .kv-row {
+    margin-top: 10px;
+  }
+
+  .extract-add {
+    padding: 10px;
+    border: #DCDFE6 solid 1px;
+    margin: 5px 0;
+    border-radius: 5px;
+  }
+
+  .extract-item {
+    width: 100%;
   }
 </style>

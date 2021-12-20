@@ -17,7 +17,7 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <ms-api-key-value :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers" :need-mock="true"/>
+              <ms-api-key-value @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers" :need-mock="true"/>
             </el-tab-pane>
 
             <!--query 参数-->
@@ -31,7 +31,7 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
+              <ms-api-variable @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
             </el-tab-pane>
 
             <!--REST 参数-->
@@ -47,7 +47,7 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
+              <ms-api-variable @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
             </el-tab-pane>
 
             <!--请求体-->
@@ -146,6 +146,11 @@ export default {
       default: false
     },
     type: String,
+    scenarioDefinition: Array,
+    ifFromVariableAdvance: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     let validateURL = (rule, value, callback) => {
@@ -393,7 +398,10 @@ export default {
         this.assign(target, arguments[s]);
       }
       return target;
-    }
+    },
+    editScenarioAdvance(data) {
+      this.$emit('editScenarioAdvance', data);
+    },
   }
 }
 </script>

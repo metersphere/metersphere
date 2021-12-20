@@ -13,6 +13,7 @@
     :show-btn="showBtn"
     color="#606266"
     background-color="#F4F4F5"
+    :if-from-variable-advance="ifFromVariableAdvance"
     :title="$t('commons.scenario')">
 
     <template v-slot:afterTitle v-if="isSameSpace">
@@ -40,14 +41,14 @@
         {{ getCode() }}
       </span>
     </template>
-    <template v-slot:scenarioEnable>
+    <template v-slot:scenarioEnable v-if="!ifFromVariableAdvance">
       <el-tooltip :content="$t('commons.enable_scene_info')" placement="top">
         <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">
           {{ $t('commons.enable_scene') }}
         </el-checkbox>
       </el-tooltip>
     </template>
-    <template v-slot:button>
+    <template v-slot:button v-if="!ifFromVariableAdvance">
       <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!scenario.run">
         <el-button :disabled="!scenario.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
       </el-tooltip>
@@ -93,7 +94,11 @@ export default {
     projectList: Array,
     environmentType: String,
     environmentGroupId: String,
-    envMap: Map
+    envMap: Map,
+    ifFromVariableAdvance: {
+      type: Boolean,
+      default: false,
+    }
   },
   watch: {
     message() {

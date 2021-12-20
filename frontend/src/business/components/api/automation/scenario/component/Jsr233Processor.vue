@@ -9,6 +9,7 @@
     :is-max="isMax"
     :show-btn="showBtn"
     :background-color="backgroundColor"
+    :if-from-variable-advance="ifFromVariableAdvance"
     :title="title" v-loading="loading">
 
     <legend style="width: 100%">
@@ -73,6 +74,10 @@ export default {
     color: String,
     backgroundColor: String,
     node: {},
+    ifFromVariableAdvance: {
+      type: Boolean,
+      default: false,
+    },
   },
   watch: {
     message() {

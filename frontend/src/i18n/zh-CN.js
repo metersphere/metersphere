@@ -1208,6 +1208,7 @@ export default {
         all_post_script: "全局后置脚本",
         pre_sql: "前置SQL",
         pre_return: "前置返回",
+        extract_params: "提取参数（变量名 / 值）",
         post_sql: "后置SQL",
         extract_param: "提取参数",
         add_module: "创建模块",

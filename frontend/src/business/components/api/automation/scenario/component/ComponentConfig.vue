@@ -27,6 +27,8 @@
         :env-map="envMap"
         :message="message"
         :api-id="apiId"
+        :scenario-definition="scenarioDefinition"
+        :if-from-variable-advance="ifFromVariableAdvance"
         @suggestClick="suggestClick(node)"
         @remove="remove"
         @runScenario="runScenario"
@@ -35,6 +37,8 @@
         @refReload="refReload"
         @openScenario="openScenario"
         @setDomain="setDomain"
+        @savePreParams="savePreParams"
+        @editScenarioAdvance="editScenarioAdvance"
       />
     </keep-alive>
   </div>
@@ -90,7 +94,13 @@ export default {
     projectList: Array,
     envMap: Map,
     environmentType: String,
-    envGroupId: String
+    envGroupId: String,
+    scenarioDefinition: Array,
+    // 是否来自于接口自动化的参数设置
+    ifFromVariableAdvance: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -211,7 +221,6 @@ export default {
     },
     remove(row, node) {
       this.$emit('remove', row, node);
-
     },
     copyRow(row, node) {
       this.$emit('copyRow', row, node);
@@ -234,7 +243,13 @@ export default {
     },
     setDomain() {
       this.$emit("setDomain");
-    }
+    },
+    savePreParams(data) {
+      this.$emit("savePreParams", data);
+    },
+    editScenarioAdvance(data) {
+      this.$emit('editScenarioAdvance', data);
+    },
   }
 }
 </script>
