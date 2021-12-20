@@ -2188,6 +2188,7 @@ export default {
       status_in_progress: '接受/處理',
       status_rejected: '拒絕',
       status_upcoming:'待辦',
+      status_reopened:'重新打開',
       please_choose_current_owner: "請選擇處理人",
       tapd_current_owner: "Tapd 處理人",
       zentao_bug_build: "禪道 影響版本",
