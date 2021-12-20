@@ -883,7 +883,8 @@ export default {
     max_users: '并发数',
     file_id: '文件ID',
     avg_response_time: '平均响应时间',
-    tps: '每秒传输的事物处理个数'
+    tps: '每秒传输的事物处理个数',
+    plan_share_url:'链接跳转是否登陆'
   },
   load_test: {
     id: '测试ID',
@@ -2204,6 +2205,7 @@ export default {
       status_in_progress: '接受/处理',
       status_rejected: '拒绝',
       status_upcoming:'待办',
+      status_reopened:'重新打开',
       please_choose_current_owner: "请选择处理人",
       tapd_current_owner: "Tapd 处理人",
       zentao_bug_build: "禅道 影响版本",

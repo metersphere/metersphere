@@ -290,6 +290,10 @@ export default {
           label:this.$t('api_test.environment.environment'),
           value:'environment',
         },
+        {
+          label:this.$t('report.plan_share_url'),
+          value:'planShareUrl',
+        },
       ]
     };
   },
