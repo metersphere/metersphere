@@ -188,6 +188,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/copy/{id}")
+    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestPlanStart", subject = "测试计划通知")
     public TestPlan copy(@PathVariable String id) {
         return testPlanService.copy(id);
     }
