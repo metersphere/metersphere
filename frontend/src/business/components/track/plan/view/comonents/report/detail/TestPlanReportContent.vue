@@ -157,67 +157,67 @@ export default {
       return {
         overview: {
           enable: true,
-          name: '概览'
+          name: this.$t('test_track.report.overview')
         },
         summary: {
           enable: true,
-          name: '报告总结'
+          name: this.$t('test_track.report.report_summary')
         },
         functional: {
           enable: true,
-          name: '功能用例统计分析',
+          name: this.$t('test_track.report.analysis_functional'),
           children: {
             result: {
               enable: true,
-              name: '测试结果',
+              name: this.$t('test_track.report.test_result'),
             },
             failure: {
               enable: true,
-              name: '失败用例',
+              name: this.$t('test_track.report.fail_case'),
             },
             issue: {
               enable: true,
-              name: '缺陷列表',
+              name: this.$t('test_track.report.issue_list'),
             },
             all: {
               enable: true,
-              name: '所有用例',
+              name: this.$t('test_track.report.all_case'),
             }
           }
         },
         api: {
           enable: true,
-          name: '接口用例统计分析',
+          name: this.$t('test_track.report.analysis_api'),
           children: {
             result: {
               enable: true,
-              name: '测试结果',
+              name: this.$t('test_track.report.test_result'),
             },
             failure: {
               enable: true,
-              name: '失败用例',
+              name: this.$t('test_track.report.fail_case'),
             },
             all: {
               enable: true,
-              name: '所有用例',
+              name: this.$t('test_track.report.all_case'),
             }
           }
         },
         load: {
           enable: true,
-          name: '性能用例统计分析',
+          name: this.$t('test_track.report.analysis_load'),
           children: {
             result: {
               enable: true,
-              name: '测试结果',
+              name: this.$t('test_track.report.test_result'),
             },
             failure: {
               enable: true,
-              name: '失败用例',
+              name: this.$t('test_track.report.fail_case'),
             },
             all: {
               enable: true,
-              name: '所有用例',
+              name: this.$t('test_track.report.all_case'),
             }
           }
         }
