@@ -95,7 +95,7 @@ export function deleteIssueRelate(param, callback) {
 
 export function getIssueThirdPartTemplate() {
   return new Promise(resolve => {
-    baseGet('/xpack/issue/template/' + getCurrentProjectID(), (data) => {
+    baseGet('/issues/thirdpart/template/' + getCurrentProjectID(), (data) => {
       let template = data;
       if (template.customFields) {
         template.customFields.forEach(item => {
@@ -129,7 +129,7 @@ export function getIssuePartTemplateWithProject(callback) {
 }
 
 export function enableThirdPartTemplate(currentProject) {
-  return hasLicense() && currentProject && currentProject.thirdPartTemplate && currentProject.platform === JIRA;
+  return currentProject && currentProject.thirdPartTemplate && currentProject.platform === JIRA;
 }
 
 export function isThirdPartEnable(callback) {

@@ -492,7 +492,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     public boolean isThirdPartTemplate() {
         Project project = projectService.getProjectById(projectId);
-        if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate() && LicenseUtils.valid()) {
+        if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate()) {
             return true;
         }
         return false;
