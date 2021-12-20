@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
-import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
 import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
@@ -82,8 +81,6 @@ public class ApiDefinitionExecResultService {
             }
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                 ApiDefinitionExecResult result = this.save(item, dto.getReportId(), dto.getConsole(), count, dto.getRunMode(), dto.getTestId(), isFirst);
-                // 串行队列
-                SerialBlockingQueueUtil.offer(dto, result != null ? result : SerialBlockingQueueUtil.END_SIGN);
                 if (result != null) {
                     // 发送通知
                     sendNotice(result);
@@ -224,8 +221,6 @@ public class ApiDefinitionExecResultService {
                     //更新报告ID
                     caseReportMap.put(dto.getTestId(), saveResult.getId());
                     isFirst = false;
-                    // 串行队列
-                    SerialBlockingQueueUtil.offer(dto, SerialBlockingQueueUtil.END_SIGN);
                 }
             }
         }

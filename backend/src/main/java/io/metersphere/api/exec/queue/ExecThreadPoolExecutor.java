@@ -1,6 +1,7 @@
 package io.metersphere.api.exec.queue;
 
 import io.metersphere.api.exec.utils.NamedThreadFactory;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -103,6 +104,7 @@ public class ExecThreadPoolExecutor {
 
     public void setCorePoolSize(int corePoolSize) {
         try {
+            MessageCache.corePoolSize = corePoolSize;
             threadPool.setCorePoolSize(corePoolSize);
             threadPool.setMaximumPoolSize(corePoolSize);
             threadPool.allowCoreThreadTimeOut(true);
