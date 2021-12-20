@@ -1,25 +1,25 @@
 <template>
-  <test-plan-report-container id="overview" :title="'概览'">
+  <test-plan-report-container id="overview" :title="$t('test_track.report.overview')">
     <el-form class="form-info" v-loading="result.loading">
-      <el-form-item :label="$t('测试时间') + ':'">
+      <el-form-item :label="$t('test_track.report.testing_time') + ':'">
         {{showTime}}
       </el-form-item>
       <el-row type="flex" justify="space-between" class="select-time">
         <el-col :span="8">
-          <el-form-item :label="'测试总数' + ':'">
+          <el-form-item :label="$t('test_track.report.total_number_tests') + ':'">
             {{report.caseCount}}
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item :label="'执行率' + ':'">
+          <el-form-item :label="$t('test_track.report.exacutive_rate') + ':'">
             {{ (report.executeRate ? (report.executeRate * 100).toFixed(1) : 0) + '%'}}
-            <ms-instructions-icon content="执行过的用例/所有用例 * 100%"/>
+            <ms-instructions-icon :content="$t('test_track.report.exacutive_rate_tip')"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item :label="'通过率' + ':'">
+          <el-form-item :label="$t('test_track.report.passing_rate') + ':'">
             {{ (report.passRate ? (report.passRate  * 100 ).toFixed(1) : 0) + '%'}}
-            <ms-instructions-icon content="执行通过用例/所有用例 * 100%"/>
+            <ms-instructions-icon :content="$t('test_track.report.passing_rate_tip')"/>
           </el-form-item>
         </el-col>
       </el-row>

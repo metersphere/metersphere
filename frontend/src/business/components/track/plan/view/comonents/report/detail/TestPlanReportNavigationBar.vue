@@ -2,13 +2,13 @@
   <div>
     <ms-drawer class="drawer-content" :visible="true" :size="10" direction="left" :show-full-screen="false" :is-show-close="false">
       <div class="title-item" >
-         <span class="title-name">目录</span>
+         <span class="title-name">{{$t('test_track.report.content')}}</span>
         <el-tabs tab-position="right" v-model="activeName">
           <el-tab-pane v-for="item in data" :key="item.title" :label="item.title" :name="item.link"/>
         </el-tabs>
       </div>
         <div class="hiddenBottom">
-          <span>目录</span>
+          <span>{{$t('test_track.report.content')}}</span>
         </div>
     </ms-drawer>
   </div>
@@ -34,23 +34,23 @@ export default {
       contents: [
         {
           link: 'overview',
-          title: '概览',
+          title: this.$t('test_track.report.overview'),
         },
         {
           link: 'summary',
-          title: '报告总结',
+          title: this.$t('test_track.report.report_summary'),
         },
         {
           link: 'functional',
-          title: '功能用例统计分析',
+          title: this.$t('test_track.report.analysis_functional'),
         },
         {
           link: 'api',
-          title: '接口用例统计分析',
+          title: this.$t('test_track.report.analysis_api'),
         },
         {
           link: 'load',
-          title: '性能用例统计分析',
+          title: this.$t('test_track.report.analysis_load'),
         }
       ]
     }
