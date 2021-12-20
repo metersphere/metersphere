@@ -107,15 +107,13 @@ public class ApiScenarioReportService {
         example.createCriteria().andReportIdEqualTo(dto.getReportId());
         List<ApiScenarioReportResult> requestResults = apiScenarioReportResultMapper.selectByExample(example);
 
-        ApiScenarioReport scenarioReport = null;
-        if (CollectionUtils.isNotEmpty(requestResults)) {
-            if (StringUtils.equals(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
-                scenarioReport = updatePlanCase(requestResults, dto);
-            } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                scenarioReport = updateSchedulePlanCase(requestResults, dto);
-            } else {
-                scenarioReport = updateScenario(requestResults, dto);
-            }
+        ApiScenarioReport scenarioReport;
+        if (StringUtils.equals(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
+            scenarioReport = updatePlanCase(requestResults, dto);
+        } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+            scenarioReport = updateSchedulePlanCase(requestResults, dto);
+        } else {
+            scenarioReport = updateScenario(requestResults, dto);
         }
         // 串行队列
         SerialBlockingQueueUtil.offer(dto, scenarioReport != null ? scenarioReport : SerialBlockingQueueUtil.END_SIGN);
@@ -270,7 +268,7 @@ public class ApiScenarioReportService {
                 apiScenarioMapper.updateByPrimaryKey(scenario);
             }
         }
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 ? "Error" : "Success", dto.getRunMode());
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success", dto.getRunMode());
         return report;
     }
 
@@ -282,7 +280,7 @@ public class ApiScenarioReportService {
         Map<String, String> planScenarioReportMap = new HashMap<>();
 
         long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Error")).count();
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 ? "Error" : "Success", dto.getRunMode());
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success", dto.getRunMode());
         if (report != null) {
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
                 testPlanReportIdList.add(dto.getTestPlanReportId());
@@ -360,7 +358,7 @@ public class ApiScenarioReportService {
     public ApiScenarioReport updateScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
         long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Error")).count();
         // 更新报告状态
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 ? "Error" : "Success", dto.getRunMode());
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success", dto.getRunMode());
         // 更新场景状态
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (scenario == null) {
