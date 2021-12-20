@@ -81,20 +81,20 @@
         <el-row type="flex" :gutter="20">
           <el-col :span="12">
             <el-form-item
-              :label="$t('自动更新状态')"
-              :label-width="formLabelWidth"
+              :label="$t('test_track.plan_view.automatically_update_status')"
+              label-width="140px"
               prop="automaticStatusUpdate">
               <el-switch v-model="form.automaticStatusUpdate"/>
-              <ms-instructions-icon :content="'当功能用例关联的接口或性能用例在测试计划执行后，自动更新功能用例的状态'"/>
+              <ms-instructions-icon :content="$t('test_track.plan_view.automatically_update_status_tip')"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item
-              :label="$t('允许关联重复用例')"
+              :label="$t('test_track.plan_view.allow_associated_repetitive_cases')"
               label-width="140px"
               prop="automaticStatusUpdate">
               <el-switch v-model="form.repeatCase"/>
-              <ms-instructions-icon :content="'是否允许同一个测试计划中多次关联相同用例'"/>
+              <ms-instructions-icon :content="$t('test_track.plan_view.allow_associated_repetitive_cases_tip')"/>
             </el-form-item>
           </el-col>
         </el-row>
