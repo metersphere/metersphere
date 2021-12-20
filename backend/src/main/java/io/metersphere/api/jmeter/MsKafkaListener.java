@@ -4,9 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
-import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
 import io.metersphere.api.service.ApiEnvironmentRunningParamService;
+import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.TestResultService;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.KafkaConfig;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
@@ -28,8 +29,8 @@ public class MsKafkaListener {
         if (testResult != null && testResult.getArbitraryData() != null && testResult.getArbitraryData().containsKey("TEST_END") && (Boolean) testResult.getArbitraryData().get("TEST_END")) {
             LoggerUtil.info("报告 【 " + testResult.getReportId() + " 】资源 " + testResult.getTestId() + " 整体执行完成");
             testResultService.testEnded(testResult);
-            // 串行队列
-            SerialBlockingQueueUtil.offer(testResult, SerialBlockingQueueUtil.END_SIGN);
+            LoggerUtil.info("执行队列处理：" + testResult.getQueueId());
+            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(testResult);
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(testResult.getReportId());
         } else {

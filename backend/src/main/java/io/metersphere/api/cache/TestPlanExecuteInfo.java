@@ -2,7 +2,6 @@ package io.metersphere.api.cache;
 
 
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
-import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
 import io.metersphere.api.jmeter.JmeterThreadUtils;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiScenarioReportExample;
@@ -192,10 +191,6 @@ public class TestPlanExecuteInfo {
                     JmeterThreadUtils.stop(apiCaseExecuteThreadMap.get(resourceId));
                 }
             }
-
-            if (apiCaseExecuteThreadMap.containsKey(resourceId)) {
-                SerialBlockingQueueUtil.remove(apiCaseExecuteThreadMap.get(resourceId));
-            }
         }
 
         List<String> updateScenarioReportList = new ArrayList<>();
@@ -208,10 +203,6 @@ public class TestPlanExecuteInfo {
                 if (StringUtils.isNotEmpty(apiScenarioThreadMap.get(resourceId))) {
                     JmeterThreadUtils.stop(apiScenarioThreadMap.get(resourceId));
                 }
-            }
-
-            if (apiScenarioThreadMap.containsKey(resourceId)) {
-                SerialBlockingQueueUtil.remove(apiScenarioThreadMap.get(resourceId));
             }
         }
         if (CollectionUtils.isNotEmpty(updateScenarioReportList)) {
@@ -231,10 +222,6 @@ public class TestPlanExecuteInfo {
                     JmeterThreadUtils.stop(loadCaseReportIdMap.get(resourceId));
                 }
                 loadCaseExecInfo.put(resourceId, TestPlanApiExecuteStatus.FAILD.name());
-            }
-
-            if (loadCaseReportIdMap.containsKey(resourceId)) {
-                SerialBlockingQueueUtil.remove(loadCaseReportIdMap.get(resourceId));
             }
         }
 

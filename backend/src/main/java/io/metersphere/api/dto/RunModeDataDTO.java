@@ -27,8 +27,7 @@ public class RunModeDataDTO {
 
     }
 
-    public RunModeDataDTO(HashTree hashTree, APIScenarioReportResult report, String testId) {
-        this.hashTree = hashTree;
+    public RunModeDataDTO(APIScenarioReportResult report, String testId) {
         this.report = report;
         this.testId = testId;
     }
