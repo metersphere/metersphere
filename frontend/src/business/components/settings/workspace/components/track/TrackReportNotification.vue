@@ -242,6 +242,10 @@ export default {
           label:this.$t('commons.is_new'),
           value:'isNew',
         },
+        {
+          label:this.$t('report.plan_share_url'),
+          value:'planShareUrl',
+        },
       ]
     };
   },

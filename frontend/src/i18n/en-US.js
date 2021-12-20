@@ -879,7 +879,8 @@ export default {
     max_users: 'VUs',
     file_id:'Report File ID',
     avg_response_time:'Average Response Time',
-    tps:'Transactions Per Second'
+    tps:'Transactions Per Second',
+    plan_share_url:'Whether the link jump is logged in'
   },
   load_test: {
     id:'Load Test ID',
@@ -2199,6 +2200,7 @@ export default {
       status_in_progress: 'in_progress',
       status_rejected: 'rejected',
       status_upcoming:'upcoming',
+      status_reopened:'reopened',
       please_choose_current_owner: "Please choose current owner",
       tapd_current_owner: "Tapd Current Owner",
       zentao_bug_build: "Zentao Impact version",
