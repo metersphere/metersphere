@@ -54,7 +54,7 @@ public class ApiDefinitionExecResultUtil {
             apiResult.setTriggerMode(TriggerMode.BATCH.name());
         }
         apiResult.setActuator("LOCAL");
-        if (GenerateHashTreeUtil.isResourcePool(request.getConfig()).isPool()) {
+        if (request.getConfig() != null && GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()).isPool()) {
             apiResult.setActuator(request.getConfig().getResourcePoolId());
         }
         if (StringUtils.isEmpty(request.getUserId())) {

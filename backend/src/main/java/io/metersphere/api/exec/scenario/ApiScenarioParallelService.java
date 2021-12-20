@@ -30,7 +30,7 @@ public class ApiScenarioParallelService {
     @Resource
     private JMeterService jMeterService;
 
-    public void parallel(Map<String, RunModeDataDTO> executeQueue, RunScenarioRequest request, String serialReportId, List<MsExecResponseDTO> responseDTOS) {
+    public void parallel(Map<String, RunModeDataDTO> executeQueue, RunScenarioRequest request, String serialReportId, List<MsExecResponseDTO> responseDTOS, String queueId) {
         if (StringUtils.isEmpty(serialReportId)) {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
@@ -46,14 +46,16 @@ public class ApiScenarioParallelService {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         }
-
         for (String reportId : executeQueue.keySet()) {
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(executeQueue.get(reportId).getTestId(), StringUtils.isNotEmpty(serialReportId) ? serialReportId : reportId, request.getRunMode(), executeQueue.get(reportId).getHashTree());
-            runRequest.setConfig(request.getConfig());
             runRequest.setReportType(StringUtils.isNotEmpty(serialReportId) ? RunModeConstants.SET_REPORT.toString() : RunModeConstants.INDEPENDENCE.toString());
-            runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig()));
+            runRequest.setQueueId(queueId);
+            if (request.getConfig() != null) {
+                runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
+                runRequest.setPoolId(request.getConfig().getResourcePoolId());
+            }
             runRequest.setTestPlanReportId(request.getTestPlanReportId());
-
+            runRequest.setHashTree(executeQueue.get(reportId).getHashTree());
             if (LoggerUtil.getLogger().isDebugEnabled()) {
                 LoggerUtil.debug("Scenario run-开始并发执行：" + JSON.toJSONString(request));
             }
