@@ -222,7 +222,6 @@ export default {
       this.reload();
     },
     testPlanInfo() {
-      this.result.loading = true;
       this.$refs['planFrom'].validate((valid) => {
         if (valid) {
           let param = {};
