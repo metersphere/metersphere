@@ -312,6 +312,12 @@ export default {
         project_statistics: "Project statistics",
         project_report: "Project report",
       },
+      option: {
+        add_report: "Add content ",
+        select_user_group: "Select user group",
+        send: "Send",
+        save_as_draft: "Draft",
+      },
       project_report: {
         create_report: "Create report",
         report_name: "Report name",
@@ -321,6 +327,8 @@ export default {
         show: "Show",
       },
       title: "Report Statistics",
+      text: "Text",
+      report: "Report",
       test_case_analysis: "Test case analysis",
       test_case_activity: "Test case activity",
       test_case_count: "Count test case",
@@ -337,6 +345,7 @@ export default {
       bar: "Bar",
       desc: "Desc",
       asc: "Asc",
+      count: "Count",
       report_data: {
         all_report: "All report",
         my_report: "My report",
@@ -363,6 +372,7 @@ export default {
         }
       },
       alert: {
+        mail_is_exist: "E-mail is exist",
         cannot_add_more_options: "Cannot add more options",
         end_time_cannot_over_than_start_time: "End time cannot before than start time",
       },
@@ -449,6 +459,10 @@ export default {
       host: 'Prometheus Host',
       host_tip: 'example: http://ms-prometheus:9090',
       host_is_null: 'Prometheus Host cannot be empty'
+    },
+    selenium_docker_url: 'selenium-docker URL',
+    selenium_docker: {
+      url_tip: 'example: http://localhost:4444',
     }
   },
   custom_field: {
@@ -581,7 +595,7 @@ export default {
         '2. For robots that need security verification, you can choose "custom keyword" verification, and the keyword is "Message Notification";<br/>' +
         '3. To use the @ feature, the selected recipient must be a user included in the group, the recipient’s phone number is required and should be the phone number used by Dingding.',
       message: 'Event, receiver and receiving method are required\n',
-      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot or lark',
+      message_webhook: 'Webhook is required when the receiving mode is WeChat Enterprise, Dingding or Feishu',
       template: "Template",
       track: 'Track notification',
       api: 'Api notification',
@@ -866,7 +880,8 @@ export default {
     max_users: 'VUs',
     file_id:'Report File ID',
     avg_response_time:'Average Response Time',
-    tps:'Transactions Per Second'
+    tps:'Transactions Per Second',
+    plan_share_url:'Whether the link jump is logged in'
   },
   load_test: {
     id:'Load Test ID',
@@ -1334,12 +1349,15 @@ export default {
       clone: "Copy",
       cant_reference: 'Historical test files, can be referenced after re-saving',
       share_cookie: 'share cookie',
-      module_id:'Scenario Module ID',
+      module_id: 'Scenario Module ID',
       level: 'Level',
-      version:"Scenario Version",
-      warning_context:"It is not currently supported to add all scenarios to the test plan in batches!",
-      jmx_file_set:"Scenario JMX file set",
-      error_report_jmx:"Failed to export JMX file",
+      version: "Scenario Version",
+      warning_context: "It is not currently supported to add all scenarios to the test plan in batches!",
+      jmx_file_set: "Scenario JMX file set",
+      error_report_jmx: "Failed to export JMX file",
+      scenario_warning: "No other steps can be added to the referenced scenario steps and sub-steps",
+      scenario_step_warning: "No other steps can be added under the current step",
+      scenario_error: "Cannot reference or copy itself！",
     },
     request: {
       debug: "Debug",
@@ -2183,6 +2201,7 @@ export default {
       status_in_progress: 'in_progress',
       status_rejected: 'rejected',
       status_upcoming:'upcoming',
+      status_reopened:'reopened',
       please_choose_current_owner: "Please choose current owner",
       tapd_current_owner: "Tapd Current Owner",
       zentao_bug_build: "Zentao Impact version",
@@ -2207,6 +2226,26 @@ export default {
         manual: "Manual",
         automation: "Automation",
       },
+      overview: "Overview",
+      testing_time: "Testing time",
+      total_number_tests: "Total",
+      exacutive_rate: "Exacutive rate",
+      exacutive_rate_tip: "Use cases executed/all use cases * 100%",
+      passing_rate: "Passing rate",
+      passing_rate_tip: "Execute passed use cases/all use cases * 100%",
+      content: "Content",
+      report_summary: "Summary",
+      analysis_functional: "Analysis Functional",
+      analysis_api: "Analysis Api",
+      analysis_load: "Analysis Performance",
+      valid_for_24_hours: "Valid for 24 hours",
+      configuration: "Config",
+      share: "Share",
+      template_configuration: "Template configuration",
+      test_result: "Test Result",
+      fail_case: "Fail Case",
+      issue_list: "Issue List",
+      all_case: "All Case",
     },
     reporter:'Reporter',
     lastmodify:'Last Modify'

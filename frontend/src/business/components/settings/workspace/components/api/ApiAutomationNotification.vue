@@ -251,7 +251,7 @@ export default {
           value:'reportId',
         },
         {
-          label:this.$t('commons.num'),
+          label:this.$t('test_track.case.number'),
           value:'num',
         },
         {
@@ -289,6 +289,10 @@ export default {
         {
           label:this.$t('api_test.environment.environment'),
           value:'environment',
+        },
+        {
+          label:this.$t('report.plan_share_url'),
+          value:'planShareUrl',
         },
       ]
     };

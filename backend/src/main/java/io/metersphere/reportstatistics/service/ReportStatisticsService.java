@@ -146,7 +146,7 @@ public class ReportStatisticsService {
             yaxis = new ArrayList<>();
         }
         TestCaseCountTableDataDTO returnDTO = new TestCaseCountTableDataDTO();
-        String[] headers = new String[]{groupName, "总计", "testCase", "apiCase", "scenarioCase", "loadCaseCount"};
+        String[] headers = new String[]{groupName, "Count", "testCase", "apiCase", "scenarioCase", "loadCaseCount"};
 
         List<TestCaseCountTableItemDataDTO> heads = new ArrayList<>();
         boolean showTestCase = true;
@@ -155,7 +155,7 @@ public class ReportStatisticsService {
         boolean showLoad = true;
 
         for (String head : headers) {
-            if (StringUtils.equalsAnyIgnoreCase(head, groupName, "总计") || yaxis.contains(head)) {
+            if (StringUtils.equalsAnyIgnoreCase(head, groupName, "Count") || yaxis.contains(head)) {
                 TestCaseCountTableItemDataDTO headData = new TestCaseCountTableItemDataDTO();
                 headData.setId(UUID.randomUUID().toString());
                 headData.setValue(head);
@@ -251,18 +251,19 @@ public class ReportStatisticsService {
     }
 
     public String getImageContentById(ReportStatisticsWithBLOBs reportRecordId) {
-        ChromeUtils chromeUtils = new ChromeUtils();
+        ChromeUtils chromeUtils = ChromeUtils.getInstance();
         HeadlessRequest headlessRequest = new HeadlessRequest();
-
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         // 占位符
         String platformUrl = "http://localhost:8081";
+        String remoteDriverUrl = "http://localhost:4444";
         if (baseInfo != null) {
             platformUrl = baseInfo.getUrl();
+            remoteDriverUrl = baseInfo.getSeleniumDockerUrl();
         }
         platformUrl += "/echartPic?shareId=" + reportRecordId.getId();
-
         headlessRequest.setUrl(platformUrl);
+        headlessRequest.setRemoteDriverUrl(remoteDriverUrl);
         String imageData = chromeUtils.getImageInfo(headlessRequest);
         return imageData;
     }

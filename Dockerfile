@@ -16,10 +16,11 @@ COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
+RUN mv /app/lib/ms-jmeter-core-*.jar /app/lib/ms-jmeter-core.jar
 RUN mv /app/jmeter /opt/
 RUN mkdir -p /opt/jmeter/lib/junit
 
-ENV JAVA_CLASSPATH=/app:/app/lib/*
+ENV JAVA_CLASSPATH=/app:/app/lib/ms-jmeter-core.jar:/app/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.Application
 ENV AB_OFF=true
 ENV MS_VERSION=${MS_VERSION}

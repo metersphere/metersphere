@@ -331,6 +331,7 @@ export default {
 
 .script-index {
   margin-top: 10px;
+  width: 230px;
 }
 
 .show-menu {

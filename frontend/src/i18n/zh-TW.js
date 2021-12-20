@@ -313,6 +313,12 @@ export default {
         project_statistics: "項目報表",
         project_report: "項目報告",
       },
+      option: {
+        add_report: "添加報告內容",
+        select_user_group: "選擇用戶組",
+        send: "發送",
+        save_as_draft: "保存草稿",
+      },
       project_report: {
         create_report: "創建報告",
         report_name: "報告名稱",
@@ -322,6 +328,8 @@ export default {
         show: "查看",
       },
       title: "報表統計",
+      text: "文本",
+      report: "報表",
       test_case_analysis: "測試用例趨勢",
       test_case_activity: "測試用例活動情況",
       test_case_count: "測試用例統計",
@@ -338,6 +346,7 @@ export default {
       bar: "柱狀圖",
       desc: "總數從高到低",
       asc: "總數從低到高",
+      count: "總計",
       report_data: {
         all_report: "全部報表",
         my_report: "我的報表",
@@ -364,6 +373,7 @@ export default {
         }
       },
       alert: {
+        mail_is_exist: "郵箱已存在",
         cannot_add_more_options: "無法添加更多條件",
         end_time_cannot_over_than_start_time: "結束時間不能超過當前時間",
       },
@@ -451,6 +461,10 @@ export default {
       host: 'Prometheus地址',
       host_tip: '例如:http://ms-prometheus:9090',
       host_is_null: 'Prometheus地址不能為空'
+    },
+    selenium_docker_url: 'selenium-docker 地址',
+    selenium_docker: {
+      url_tip: '例如:http://localhost:4444',
     }
   },
   custom_field: {
@@ -870,7 +884,8 @@ export default {
     max_users: '並發數',
     file_id: '文件ID',
     avg_response_time: '平均響應時間',
-    tps: '每秒傳輸的事物處理個數'
+    tps: '每秒傳輸的事物處理個數',
+    plan_share_url:'鏈接跳轉是否登陸'
   },
   load_test: {
     id: '測試ID',
@@ -1344,6 +1359,9 @@ export default {
       warning_context: "暫不支持批量添加所有場景到測試計劃!",
       jmx_file_set: "場景JMX文件集",
       error_report_jmx: "導出JMX文件失敗",
+      scenario_warning: "引用的場景步驟及子步驟都無法添加其他步驟",
+      scenario_step_warning: "當前步驟下不能添加其他步驟",
+      scenario_error: "不能引用或複製自身！",
     },
     request: {
       debug: "調試",
@@ -2188,6 +2206,7 @@ export default {
       status_in_progress: '接受/處理',
       status_rejected: '拒絕',
       status_upcoming:'待辦',
+      status_reopened:'重新打開',
       please_choose_current_owner: "請選擇處理人",
       tapd_current_owner: "Tapd 處理人",
       zentao_bug_build: "禪道 影響版本",
@@ -2210,6 +2229,26 @@ export default {
         manual: "手動觸發",
         automation: "自動觸發",
       },
+      overview: "概覽",
+      testing_time: "測試時間",
+      total_number_tests: "測試總數",
+      exacutive_rate: "執行率",
+      exacutive_rate_tip: "執行過的用例/所有用例 * 100%",
+      passing_rate: "通過率",
+      passing_rate_tip: "執行通過用例/所有用例 * 100%",
+      content: "目錄",
+      report_summary: "報告總結",
+      analysis_functional: "功能用例統計分析",
+      analysis_api: "接口用例統計分析",
+      analysis_load: "性能用例統計分析",
+      valid_for_24_hours: "24小時有效",
+      configuration: "配置",
+      share: "分享",
+      template_configuration: "模板配置",
+      test_result: "測試結果",
+      fail_case: "失敗用例",
+      issue_list: "缺陷列表",
+      all_case: "所有用例",
     },
     reporter: '報告人',
     lastmodify: '最後更改'
