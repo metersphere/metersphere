@@ -7,7 +7,8 @@ import zh_TWLocale from "element-ui/lib/locale/lang/zh-TW";
 import zh_CN from "./zh-CN";
 import en_US from "./en-US";
 import zh_TW from "./zh-TW";
-import {CURRENT_LANGUAGE} from "@/common/js/constants";
+
+export const CURRENT_LANGUAGE = 'current_language';
 
 Vue.use(VueI18n);
 
