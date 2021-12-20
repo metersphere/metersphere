@@ -133,7 +133,7 @@
         </el-row>
       </el-card>
 
-      <edit-project ref="editProject"/>
+      <edit-project ref="editProject" :is-show-app="isShowApp"/>
     </ms-main-container>
   </ms-container>
 
@@ -157,7 +157,8 @@ export default {
         createUser: ''
       },
       memberSize: 0,
-      result: {}
+      result: {},
+      isShowApp: false
     }
   },
   methods: {

@@ -1344,6 +1344,9 @@ export default {
       warning_context: "暂不支持批量添加所有场景到测试计划!",
       jmx_file_set: "场景JMX文件集",
       error_report_jmx: "导出JMX文件失败",
+      scenario_warning: "引用的场景步骤及子步骤都无法添加其他步骤",
+      scenario_step_warning: "当前步骤下不能添加其他步骤",
+      scenario_error: "不能引用或复制自身！",
     },
     request: {
       debug: "调试",

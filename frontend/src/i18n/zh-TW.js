@@ -1344,6 +1344,9 @@ export default {
       warning_context: "暫不支持批量添加所有場景到測試計劃!",
       jmx_file_set: "場景JMX文件集",
       error_report_jmx: "導出JMX文件失敗",
+      scenario_warning: "引用的場景步驟及子步驟都無法添加其他步驟",
+      scenario_step_warning: "當前步驟下不能添加其他步驟",
+      scenario_error: "不能引用或複製自身！",
     },
     request: {
       debug: "調試",
