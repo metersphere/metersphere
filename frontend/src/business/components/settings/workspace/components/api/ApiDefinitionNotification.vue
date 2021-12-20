@@ -282,6 +282,10 @@ export default {
           label:this.$t('api_test.definition.document.order'),
           value:'order',
         },
+        {
+          label:this.$t('report.plan_share_url'),
+          value:'planShareUrl',
+        },
       ],
       caseVariables: [
         {
@@ -359,6 +363,10 @@ export default {
         {
           label:this.$t('api_test.definition.document.order'),
           value:'order',
+        },
+        {
+          label:this.$t('report.plan_share_url'),
+          value:'planShareUrl',
         },
       ]
     };

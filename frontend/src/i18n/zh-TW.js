@@ -883,7 +883,8 @@ export default {
     max_users: '並發數',
     file_id: '文件ID',
     avg_response_time: '平均響應時間',
-    tps: '每秒傳輸的事物處理個數'
+    tps: '每秒傳輸的事物處理個數',
+    plan_share_url:'鏈接跳轉是否登陸'
   },
   load_test: {
     id: '測試ID',

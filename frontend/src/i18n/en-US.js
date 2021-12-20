@@ -879,7 +879,8 @@ export default {
     max_users: 'VUs',
     file_id:'Report File ID',
     avg_response_time:'Average Response Time',
-    tps:'Transactions Per Second'
+    tps:'Transactions Per Second',
+    plan_share_url:'Whether the link jump is logged in'
   },
   load_test: {
     id:'Load Test ID',

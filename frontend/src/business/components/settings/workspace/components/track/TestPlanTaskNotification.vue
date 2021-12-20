@@ -260,6 +260,10 @@ export default {
           label:this.$t('test_track.automatic_status_update'),
           value:'automaticStatusUpdate',
         },
+        {
+          label:this.$t('report.plan_share_url'),
+          value:'planShareUrl',
+        },
       ]
     };
   },
