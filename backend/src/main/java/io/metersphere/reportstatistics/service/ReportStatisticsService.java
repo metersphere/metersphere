@@ -146,7 +146,7 @@ public class ReportStatisticsService {
             yaxis = new ArrayList<>();
         }
         TestCaseCountTableDataDTO returnDTO = new TestCaseCountTableDataDTO();
-        String[] headers = new String[]{groupName, "总计", "testCase", "apiCase", "scenarioCase", "loadCaseCount"};
+        String[] headers = new String[]{groupName, "Count", "testCase", "apiCase", "scenarioCase", "loadCaseCount"};
 
         List<TestCaseCountTableItemDataDTO> heads = new ArrayList<>();
         boolean showTestCase = true;
@@ -155,7 +155,7 @@ public class ReportStatisticsService {
         boolean showLoad = true;
 
         for (String head : headers) {
-            if (StringUtils.equalsAnyIgnoreCase(head, groupName, "总计") || yaxis.contains(head)) {
+            if (StringUtils.equalsAnyIgnoreCase(head, groupName, "Count") || yaxis.contains(head)) {
                 TestCaseCountTableItemDataDTO headData = new TestCaseCountTableItemDataDTO();
                 headData.setId(UUID.randomUUID().toString());
                 headData.setValue(head);

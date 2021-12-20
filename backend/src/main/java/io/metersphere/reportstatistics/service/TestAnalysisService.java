@@ -113,7 +113,7 @@ public class TestAnalysisService {
         List<Integer> upCollect = dtos.stream().map(item -> Integer.valueOf(item.getUpdateCount())).collect(Collectors.toList());
         // reduce求和
         Optional<Integer> updateCount = upCollect.stream().reduce(Integer::sum);
-        dtos.add(new TestAnalysisTableDTO("总计", createCount.get().toString(), updateCount.get().toString(), new LinkedList<>()));
+        dtos.add(new TestAnalysisTableDTO("Count", createCount.get().toString(), updateCount.get().toString(), new LinkedList<>()));
 
         TestAnalysisResult testAnalysisResult = new TestAnalysisResult();
         testAnalysisResult.setChartDTO(dto);
