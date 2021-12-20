@@ -17,6 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shiro.version>1.6.0</shiro.version>
         <java.version>1.8</java.version>
+        <flyway.version>7.15.0</flyway.version>
     </properties>
 
     <dependencies>
@@ -167,7 +168,7 @@
         <dependency>
             <groupId>com.fit2cloud</groupId>
             <artifactId>quartz-spring-boot-starter</artifactId>
-            <version>0.0.7</version>
+            <version>0.0.9</version>
         </dependency>
 
 
