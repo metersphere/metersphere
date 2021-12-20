@@ -9,6 +9,7 @@
     :show-btn="showBtn"
     color="#E6A23C"
     background-color="#FCF6EE"
+    :if-from-variable-advance="ifFromVariableAdvance"
     :title="$t('api_test.automation.if_controller')">
 
     <template v-slot:headerLeft>
@@ -58,6 +59,10 @@
       },
       index: Object,
       draggable: {
+        type: Boolean,
+        default: false,
+      },
+      ifFromVariableAdvance: {
         type: Boolean,
         default: false,
       },
@@ -133,7 +138,7 @@
         if (value.indexOf("empty") > 0 && !!this.controller.value) {
           this.controller.value = "";
         }
-      }
+      },
     },
     computed: {
       hasEmptyOperator() {

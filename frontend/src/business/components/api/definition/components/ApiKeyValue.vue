@@ -63,7 +63,7 @@
         </el-col>
       </el-row>
     </div>
-    <ms-api-variable-advance :append-to-body="appendToBody" :current-item="currentItem" :parameters="keyValues" ref="variableAdvance"/>
+    <ms-api-variable-advance :scenario-definition="scenarioDefinition" :append-to-body="appendToBody" :current-item="currentItem" :parameters="keyValues" ref="variableAdvance"/>
 
   </div>
 </template>
@@ -106,6 +106,7 @@
           return false;
         }
       },
+      scenarioDefinition: Array
     },
     data() {
       return {
@@ -135,7 +136,12 @@
     methods: {
       advanced(item) {
         this.currentItem = item;
-        this.$refs.variableAdvance.open();
+        // 冒泡到父组件，调用父组件的参数设置打开方法
+        if(this.scenarioDefinition != undefined){
+          this.$emit('editScenarioAdvance', this.currentItem);
+        }else{
+          this.$refs.variableAdvance.open();
+        }
       },
       funcFilter(queryString) {
         return (func) => {

@@ -1202,6 +1202,7 @@ export default {
         all_post_script: "Postscript",
         pre_sql: "JDBC Preprocessor",
         pre_return: "pre return",
+        extract_params: "extract params（variable / value）",
         post_sql: "JDBC Postprocessor",
         extract_param: "Extract parameters",
         add_module: "Add module",

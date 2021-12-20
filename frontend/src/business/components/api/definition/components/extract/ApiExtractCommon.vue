@@ -7,12 +7,12 @@
         </el-select>
       </el-col>
       <el-col>
-        <ms-api-variable-input :is-read-only="isReadOnly" v-model="common.variable" size="small" maxlength="60"
+        <ms-api-variable-input :if-from-variable-advance="ifFromVariableAdvance" @savePreParams="savePreParams" :is-read-only="isReadOnly" v-model="common.variable" size="small" maxlength="60"
                                @change="change" :show-copy-tip-with-multiple="common.multipleMatching" show-word-limit :placeholder="$t('api_test.variable_name')"/>
       </el-col>
       <el-col>
         <el-input :disabled="isReadOnly" v-model="common.expression" size="small" show-word-limit
-                  :placeholder="expression"/>
+                  :placeholder="expression" @click.native="savePreParams(common.variable)"/>
       </el-col>
       <el-col class="multiple_checkbox">
         <el-checkbox v-model="common.multipleMatching" :disabled="isReadOnly">
@@ -57,7 +57,11 @@
       isReadOnly: {
         type: Boolean,
         default: false
-      }
+      },
+      ifFromVariableAdvance: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     data() {
@@ -108,7 +112,12 @@
         setTimeout(() => {
           this.visible = false;
         }, 1000);
-      }
+      },
+      savePreParams(data) {
+        if(this.ifFromVariableAdvance){
+          this.$emit('savePreParams', data);
+        }
+      },
     },
 
     computed: {

@@ -9,6 +9,7 @@
     :show-btn="showBtn"
     color="#015478"
     background-color="#E6EEF2"
+    :if-from-variable-advance="ifFromVariableAdvance"
     :title="$t('api_test.definition.request.extract_param')">
     <div style="margin: 20px" v-loading="loading">
       <div class="extract-description">
@@ -26,7 +27,7 @@
             </el-select>
           </el-col>
           <el-col :span="22">
-            <ms-api-extract-common :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
+            <ms-api-extract-common :if-from-variable-advance="ifFromVariableAdvance" :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
           </el-col>
 
           <el-button v-if="!type" :disabled="true" type="primary" size="small">{{ $t('commons.add') }}</el-button>
@@ -36,7 +37,7 @@
       <api-json-path-suggest-button :open-tip="$t('api_test.request.extract.json_path_suggest')"
                                     :clear-tip="$t('api_test.request.extract.json_path_clear')" @open="suggestJsonOpen" @clear="clearJson"/>
 
-      <ms-api-extract-edit :is-read-only="isReadOnly" :reloadData="reloadData" :extract="extract"/>
+      <ms-api-extract-edit :if-from-variable-advance="ifFromVariableAdvance" @savePreParams="savePreParams" :is-read-only="isReadOnly" :reloadData="reloadData" :extract="extract"/>
     </div>
     <ms-api-jsonpath-suggest :tip="$t('api_test.request.extract.suggest_tip')" @addSuggest="addJsonPathSuggest" ref="jsonpathSuggest"/>
   </api-base-component>
@@ -84,6 +85,10 @@
       showBtn: {
         type: Boolean,
         default: true,
+      },
+      ifFromVariableAdvance: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -133,7 +138,10 @@
       },
       clearJson() {
         this.extract.json = [];
-      }
+      },
+      savePreParams(data) {
+        this.$emit("savePreParams", data);
+      },
     },
     computed: {
       list() {
