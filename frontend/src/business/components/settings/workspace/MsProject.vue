@@ -229,6 +229,7 @@ export default {
     AddMember
   },
   inject: [
+    'reload',
     'reloadTopMenus'
   ],
   data() {
@@ -306,6 +307,8 @@ export default {
         if (arr.length > 0) {
           window.sessionStorage.setItem(PROJECT_ID, row.id);
           this.$router.push('/track/home').then(() => {
+            this.reload();
+            this.reloadTopMenus();
             if (!getCurrentUser().lastProjectId) {
               window.location.reload();
             }
