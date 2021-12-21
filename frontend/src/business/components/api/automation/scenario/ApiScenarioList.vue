@@ -124,7 +124,7 @@
                            :field="item"
                            :fields-width="fieldsWidth"
                            sortable/>
-          <ms-table-column prop="userName" min-width="120px"
+          <ms-table-column prop="creator" min-width="120px"
                            :label="$t('api_test.automation.creator')"
                            :filters="userFilters"
                            :field="item"
