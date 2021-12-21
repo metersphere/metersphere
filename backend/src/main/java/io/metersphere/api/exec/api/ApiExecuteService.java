@@ -18,7 +18,6 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.TcpApiParamService;
 import io.metersphere.base.domain.*;
@@ -120,7 +119,6 @@ public class ApiExecuteService {
         }
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         for (RunCaseRequest runCaseRequest : executeQueue) {
-            MessageCache.caseExecResourceLock.put(runCaseRequest.getReportId(), runCaseRequest.getReport());
             responseDTOS.add(exec(runCaseRequest));
         }
         return responseDTOS;
@@ -153,13 +151,14 @@ public class ApiExecuteService {
                 JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCaseWithBLOBs.getId(), StringUtils.isEmpty(request.getReportId()) ? request.getId() : request.getReportId(), request.getRunMode(), jmeterHashTree);
                 jMeterService.run(runRequest);
             } catch (Exception ex) {
-                ApiDefinitionExecResult result = MessageCache.caseExecResourceLock.get(request.getReportId());
-                result.setStatus("error");
-                apiDefinitionExecResultMapper.updateByPrimaryKey(result);
-                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
-                caseWithBLOBs.setStatus("error");
-                apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
-                MessageCache.caseExecResourceLock.remove(request.getReportId());
+                ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
+                if (result != null) {
+                    result.setStatus("error");
+                    apiDefinitionExecResultMapper.updateByPrimaryKey(result);
+                    ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+                    caseWithBLOBs.setStatus("error");
+                    apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
+                }
                 LogUtil.error(ex.getMessage(), ex);
             }
         }
@@ -213,7 +212,6 @@ public class ApiExecuteService {
                 CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
                 request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode, hashTree);
-        runRequest.setConfig(request.getConfig());
         runRequest.setDebug(request.isDebug());
         // 开始执行
         jMeterService.run(runRequest);

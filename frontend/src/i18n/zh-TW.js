@@ -6,6 +6,7 @@ export default {
     trash: "回收站",
     yes: "是",
     no: "否",
+    example: "示例",
     excelFile: "表格文件.xls",
     xmindFile: "思維導圖.xmind",
     default: "默認值",
@@ -49,6 +50,7 @@ export default {
     save_as: '另存為',
     update: '更新',
     save_success: '保存成功',
+    send_success: '發送成功',
     delete_success: '刪除成功',
     copy_success: '復製成功',
     modify_success: '修改成功',
@@ -67,6 +69,7 @@ export default {
     input_limit: '長度在 {0} 到 {1} 個字符',
     login: '登錄',
     welcome: '一站式開源持續測試平臺',
+    theme_color: '主題色',
     username: '姓名',
     password: '密碼',
     input_username: '請輸入用戶姓名',
@@ -102,6 +105,7 @@ export default {
     api: '接口測試',
     follow_api: '跟隨API定義',
     encode: '編碼',
+    view: '查看',
     response_time_delay: '響應延遲時間',
     performance: '性能測試',
     enable_settings: '啟用設置',
@@ -181,6 +185,8 @@ export default {
     modifier: '修改人',
     validate: "校驗",
     batch_add: "批量添加",
+    batch_restore: "批量恢復",
+    batch_gc: "批量回收",
     check_project_tip: "請先創建或選擇項目",
     auth_redirect_tip: '即將跳轉到認證源頁面進行認證',
     tag_tip: "輸入回車添加標簽",
@@ -399,7 +405,9 @@ export default {
     original_state: '原始狀態',
     custom_num: '自定義編號',
     version: '版本',
-    is_new: "是否新建"
+    is_new: "是否新建",
+    form_config: "表單配置",
+    form_content: "表單內容"
   },
   login: {
     normal_Login: "普通登錄",
@@ -630,6 +638,8 @@ export default {
       zentao_account: '禪道賬戶',
       zentao_password: '禪道密碼',
       zentao_prompt_information: '該信息為通過禪道提交缺陷的的用戶名、密碼，若未填寫，則使用工作空間中配置的默認信息',
+      zentao_config_tip: "參考禪道配置文件中 $config->requestType 的值 ",
+      zentao_config_path: "配置文件參考路徑：/opt/zbox/app/zentao/config/my.php",
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 賬號信息在"公司管理-安全與集成-開放平臺"中查詢',
       use_tip_jira: 'Jira software server 認證信息為 賬號密碼，Jira software cloud 認證信息為 賬號+令牌(賬戶設置-安全-創建API令牌)',
@@ -691,7 +701,7 @@ export default {
     repeatable_info: '啟用後接口定義重復性校驗將不校驗URL',
     case_public: '公共用例庫',
     public: '啟動公共用例庫',
-    public_info: '可以使用公共用例庫數據，也可以自行添加用例至公共用例庫',
+    public_info: '可以自行添加用例至公共用例庫',
     upload_file_again: '重新上傳',
     code_segment: {
       code_segment: "自定義代碼片段",
@@ -791,6 +801,7 @@ export default {
     add_project_batch: '批量添加到項目',
     add_workspace_batch: "批量添加到工作空間",
     add_project_batch_tip: '默認為成員添加只讀用戶組(系統)',
+    import_user_tip: '用戶組只支持系統默認用戶組'
   },
   group: {
     add: '添加用戶組',
@@ -885,7 +896,7 @@ export default {
     file_id: '文件ID',
     avg_response_time: '平均響應時間',
     tps: '每秒傳輸的事物處理個數',
-    plan_share_url:'鏈接跳轉是否登陸'
+    plan_share_url: '鏈接跳轉是否登陸'
   },
   load_test: {
     id: '測試ID',
@@ -1051,11 +1062,13 @@ export default {
     jar_config: {
       title: "上傳jar包",
       jar_file: "jar包",
+      jar_manage: "JAR包管理",
       delete_tip: "刪除需重啟服務後生效",
       file_exist: "該項目下已存在該jar包",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
       upload_limit_size_warn: "上傳文件大小不能超過 {0} MB!",
       upload_limit: "上傳文件大小不能超過",
+      upload_tip: "只能上傳JAR包"
     },
     batch_menus: {
       select_all_data: "選擇所有數據(共{0}條)",
@@ -1327,6 +1340,8 @@ export default {
       import: "導入環境",
       request_timeout: "鏈接超時",
       response_timeout: "響應超時",
+      repeat_warning: "啟用條件為 '無' 的域名已經存在！",
+      copy_warning: "啟用條件為 '無' 的域名不支持複製！"
     },
     scenario: {
       id: "場景ID",
@@ -1361,7 +1376,7 @@ export default {
       error_report_jmx: "導出JMX文件失敗",
       scenario_warning: "引用的場景步驟及子步驟都無法添加其他步驟",
       scenario_step_warning: "當前步驟下不能添加其他步驟",
-      scenario_error: "不能引用或複製自身！",
+      scenario_error: "不能引用或復製自身！",
     },
     request: {
       debug: "調試",
@@ -1608,6 +1623,7 @@ export default {
       jmeter_export_tip: "通過 JMeter 生成JMX文件",
       jmeter_tip: "支持 JMeter5.2-5.4版本的JMX文件",
       suffixFormatErr: "文件格式不符合要求",
+      file_name_to_long: "文件名稱過長",
       swagger_url_import: "使用URL導入",
       add_request_params: "添加請求參數",
       optional: "（可選）",
@@ -1747,16 +1763,18 @@ export default {
       }
     },
     script: {
-      tip_1: "每一個API步驟後執行一次 如加解密",
-      tip_2: "全部API流程結束後執行一次 如token獲取，場景初始化",
       tip_3: "腳本步驟會統計到場景執行結果中，執行報錯時會影響場景的最終執行結果",
       filter_request_type: "過濾請求類型",
       execution_order: "腳本執行順序",
       associated_scene_results: "關聯場景結果",
       execute_before_step: "單個請求步驟前執行",
+      execute_before_step_tip: "每一個API步驟執行前均執行一次，如請求內容加密",
       execute_post_step: "單個請求步驟後執行",
+      execute_post_step_tip: "每一個API步驟執行後均執行一次，如響應內容解密",
       execute_before_all_steps: "所有請求步驟前執行",
+      execute_before_all_steps_tip: "全部API流程開始前執行一次，如token獲取及場景初始化",
       execute_post_all_steps: "所有請求步驟後執行",
+      execute_post_all_steps_tip: "全部API流程結束後執行一次，如數據銷毀及環境重置",
       after_the_pre_script_step: "步驟內前置腳本後",
       before_the_pre_script_step: "步驟內前置腳本前",
       after_the_post_script_step: "步驟內後置腳本後",
@@ -2171,8 +2189,8 @@ export default {
       export_report: "導出報告",
       no_case_relevance: "沒有關聯用例",
       automatically_update_status: "自動更新狀態",
-      allow_associated_repetitive_cases: "允許關聯重複用例",
       automatically_update_status_tip: "當功能用例關聯的接口或性能用例在測試計劃執行後，自動更新功能用例的狀態",
+      allow_associated_repetitive_cases: "允許關聯重復用例",
       allow_associated_repetitive_cases_tip: "是否允許同一個測試計劃中多次關聯相同用例"
     },
     issue: {
@@ -2205,12 +2223,14 @@ export default {
       status_delete: '刪除',
       status_in_progress: '接受/處理',
       status_rejected: '拒絕',
-      status_upcoming:'待辦',
-      status_reopened:'重新打開',
+      status_upcoming: '待辦',
+      status_reopened: '重新打開',
       please_choose_current_owner: "請選擇處理人",
       tapd_current_owner: "Tapd 處理人",
       zentao_bug_build: "禪道 影響版本",
       zentao_bug_assigned: "禪道 處理人",
+      third_party_integrated: "集成第三方平臺",
+      use_third_party: "使用 Jira 缺陷模板",
       update_third_party_bugs: "更新第三方平臺的缺陷",
       sync_bugs: "同步缺陷"
     },
@@ -2516,6 +2536,7 @@ export default {
     script_entry: "腳本執行入口",
     plugin_id: "插件ID",
     script_view: "查看腳本",
+    warning_tip: '未找到腳本內容'
   },
   mail: {
     input_mail_subject: "請輸入郵件主題",
@@ -2713,10 +2734,6 @@ export default {
       upload_file: "上傳文件",
       delete_file: "刪除文件",
     },
-    project_app_manager: {
-      name: "應用設置",
-      edit: "編輯應用設置"
-    },
     project_track_case: {
       name: "測試用例",
       read: "查詢用例",
@@ -2738,6 +2755,10 @@ export default {
       comment: "發表評論",
       relevance_or_cancel: "關聯/取消關聯用例",
 
+    },
+    project_app_manager: {
+      name: "應用設置",
+      edit: "編輯應用設置"
     },
     project_track_plan: {
       name: "測試計劃",

@@ -467,6 +467,7 @@ export default {
       if (this.validate(row)) {
         return;
       }
+      this.compare = [];
       if (this.compare.indexOf(row.id) === -1) {
         this.compare.push(row.id);
         if (this.api.saved) {

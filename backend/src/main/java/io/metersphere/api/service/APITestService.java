@@ -1,7 +1,6 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.nacos.client.utils.StringUtils;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.ProviderService;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -34,6 +33,7 @@ import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.jorphan.collections.HashTree;
@@ -504,6 +504,15 @@ public class APITestService {
 
                     //HTTPSamplerProxy， 进行附件转化： 1.elementProp里去掉路径； 2。elementProp->filePath获取路径并读出来
                     attachmentFilePathList.addAll(this.parseAttachmentFileInfo(element));
+
+                    //查看是否含有RunningDebugSampler,转jmx的时候去掉
+                    List<Element> debugSamplerElementList = element.elements("DebugSampler");
+                    for (Element debugSampler : debugSamplerElementList) {
+                        String testname = debugSampler.attributeValue("testname");
+                        if (StringUtils.equalsAnyIgnoreCase(testname, RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
+                            element.remove(debugSampler);
+                        }
+                    }
                 }
                 //如果存在证书文件，也要匹配出来
                 attachmentFilePathList.addAll(this.parseAttachmentFileInfo(innerHashTreeElement));

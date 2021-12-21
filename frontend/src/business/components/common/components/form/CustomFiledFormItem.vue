@@ -6,7 +6,7 @@
         <el-col :span="8" v-if="item.type !== 'richText'">
           <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
                         :label-width="formLabelWidth">
-            <custom-filed-component :data="item" :form="form" prop="defaultValue"/>
+            <custom-filed-component :data="item" :form="form" prop="defaultValue" :disabled="isPublic"/>
           </el-form-item>
         </el-col>
         <div v-else>
@@ -38,7 +38,13 @@ export default {
       }
     },
     formLabelWidth: String,
-    form: Object
+    form: Object,
+    isPublic: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    }
   },
   computed: {
     customFieldRowNums() {

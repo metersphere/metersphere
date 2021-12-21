@@ -142,7 +142,7 @@ export default {
       return CUSTOM_FIELD_LIST;
     },
     caseTypeFilters() {
-      return CASE_TYPE_OPTION;
+      return new CASE_TYPE_OPTION();
     },
     tableHeight() {
       return getDefaultTableHeight();

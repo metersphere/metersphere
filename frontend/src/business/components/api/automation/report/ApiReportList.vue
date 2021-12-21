@@ -128,7 +128,9 @@ export default {
       ],
       buttons: [
         {
-          name: this.$t('api_report.batch_delete'), handleClick: this.handleBatchDelete, permissions: ['PROJECT_API_REPORT:READ+DELETE']
+          name: this.$t('api_report.batch_delete'),
+          handleClick: this.handleBatchDelete,
+          permissions: ['PROJECT_API_REPORT:READ+DELETE']
         }
       ],
       selectRows: new Set(),
@@ -138,9 +140,9 @@ export default {
       screenHeight: 'calc(100vh - 200px)',
     }
   },
-  // watch: {
-  //   '$route': 'init',
-  // },
+  watch: {
+    '$route': 'init',
+  },
 
   methods: {
     search() {

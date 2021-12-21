@@ -32,16 +32,16 @@ public class GenerateHashTreeUtil {
 
     public static MsScenario parseScenarioDefinition(String scenarioDefinition) {
         MsScenario scenario = JSONObject.parseObject(scenarioDefinition, MsScenario.class);
-        parse(scenarioDefinition, scenario);
+        parse(scenarioDefinition, scenario, scenario.getId(), null);
         return scenario;
     }
 
-    public static void parse(String scenarioDefinition, MsScenario scenario) {
+    public static void parse(String scenarioDefinition, MsScenario scenario, String id, String reportType) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             JSONObject element = JSON.parseObject(scenarioDefinition);
-            ElementUtil.dataFormatting(element);
+            ElementUtil.dataFormatting(element, id, reportType);
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
             if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                 LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
@@ -77,29 +77,29 @@ public class GenerateHashTreeUtil {
         return new LinkedList<>();
     }
 
-    public static BooleanPool isResourcePool(RunModeConfigDTO config) {
+    public static BooleanPool isResourcePool(String id) {
         BooleanPool pool = new BooleanPool();
-        pool.setPool(config != null && StringUtils.isNotEmpty(config.getResourcePoolId()));
+        pool.setPool(StringUtils.isNotEmpty(id));
         if (pool.isPool()) {
-            TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolMapper.class).selectByPrimaryKey(config.getResourcePoolId());
+            TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolMapper.class).selectByPrimaryKey(id);
             pool.setK8s(resourcePool != null && resourcePool.getApi() && resourcePool.getType().equals(ResourcePoolTypeEnum.K8S.name()));
         }
         return pool;
     }
 
-    public static void setPoolResource(RunModeConfigDTO config) {
-        if (GenerateHashTreeUtil.isResourcePool(config).isPool()) {
-            if (GenerateHashTreeUtil.isResourcePool(config).isK8s()) {
+    public static List<JvmInfoDTO> setPoolResource(String id) {
+        if (GenerateHashTreeUtil.isResourcePool(id).isPool()) {
+            if (GenerateHashTreeUtil.isResourcePool(id).isK8s()) {
                 LogUtil.info("K8S 暂时不做校验 ");
             } else {
                 ResourcePoolCalculation resourcePoolCalculation = CommonBeanFactory.getBean(ResourcePoolCalculation.class);
-                List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(config.getResourcePoolId());
-                config.setTestResources(testResources);
+                return resourcePoolCalculation.getPools(id);
             }
         }
+        return null;
     }
 
-    public static HashTree generateHashTree(ApiScenarioWithBLOBs item, String reportId, Map<String, String> planEnvMap) {
+    public static HashTree generateHashTree(ApiScenarioWithBLOBs item, String reportId, Map<String, String> planEnvMap, String reportType) {
         HashTree jmeterHashTree = new HashTree();
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
@@ -109,10 +109,10 @@ public class GenerateHashTreeUtil {
             group.setName(reportId);
             MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
             group.setOnSampleError(scenario.getOnSampleError());
-            if (planEnvMap.size() > 0) {
+            if (planEnvMap != null && planEnvMap.size() > 0) {
                 scenario.setEnvironmentMap(planEnvMap);
             }
-            GenerateHashTreeUtil.parse(item.getScenarioDefinition(), scenario);
+            GenerateHashTreeUtil.parse(item.getScenarioDefinition(), scenario, item.getId(), reportType);
 
             group.setEnableCookieShare(scenario.isEnableCookieShare());
             LinkedList<MsTestElement> scenarios = new LinkedList<>();

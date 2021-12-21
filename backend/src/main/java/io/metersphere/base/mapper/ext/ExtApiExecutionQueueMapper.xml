@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiExecutionQueueMapper">
+    <delete id="delete">
+        DELETE from api_execution_queue where id not IN (SELECT t1.queue_id from api_execution_queue_detail t1);
+    </delete>
+</mapper>

@@ -7,7 +7,7 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth" :label="$t('集成第三方平台')"
+        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth" :label="$t('test_track.issue.third_party_integrated')"
                       prop="platform">
           <el-select filterable v-model="form.platform">
             <el-option v-for="item in platformOptions" :key="item.value" :label="item.text" :value="item.value">
@@ -19,14 +19,16 @@
           <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
 
-        <el-form-item v-if="xpackEable" :label-width="labelWidth" :label="$t('使用第三方平台模板')" prop="scenarioCustomNum">
-          <el-switch v-model="form.thirdPartTemplate"></el-switch>
-        </el-form-item>
-
-        <el-form-item v-if="!xpackEable || !form.thirdPartTemplate" :label-width="labelWidth"
+        <el-form-item :label-width="labelWidth"
                       :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
           <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId"
+                           :disabled="form.platform === 'Jira' && form.thirdPartTemplate"
                            ref="issueTemplate"/>
+
+          <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'" v-model="form.thirdPartTemplate" style="margin-left: 10px">
+            {{ $t('test_track.issue.use_third_party') }}
+          </el-checkbox>
+
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" label="TCP Mock Port">
@@ -164,8 +166,7 @@ export default {
       },
       screenHeight: 'calc(100vh - 195px)',
       labelWidth: '150px',
-      platformOptions: [],
-      xpackEable: false
+      platformOptions: []
     };
   },
   props: {
@@ -183,7 +184,6 @@ export default {
       this.create();
       this.$router.replace('/setting/project/all');
     }
-    this.xpackEable = hasLicense();
   },
   computed: {
     currentUser: () => {
@@ -217,6 +217,10 @@ export default {
         this.$refs.caseTemplate.getTemplateOptions();
       }
     },
+    thirdPartTemplateChange(val) {
+      if (val)
+        this.form.issueTemplateId = '';
+    },
     edit(row) {
       this.title = this.$t('project.edit');
       this.getOptions();
@@ -242,7 +246,7 @@ export default {
       if (platforms.indexOf(platform) === -1) {
         for (let i = 0; i < this.platformOptions.length; i++) {
           if (this.platformOptions[i].value === platform) {
-            this.platformOptions.splice(1, i);
+            this.platformOptions.splice(i, 1);
             break;
           }
         }

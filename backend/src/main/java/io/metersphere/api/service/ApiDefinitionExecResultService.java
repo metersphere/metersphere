@@ -4,8 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
-import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
-import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
@@ -82,8 +80,6 @@ public class ApiDefinitionExecResultService {
             }
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                 ApiDefinitionExecResult result = this.save(item, dto.getReportId(), dto.getConsole(), count, dto.getRunMode(), dto.getTestId(), isFirst);
-                // 串行队列
-                SerialBlockingQueueUtil.offer(dto, result != null ? result : SerialBlockingQueueUtil.END_SIGN);
                 if (result != null) {
                     // 发送通知
                     sendNotice(result);
@@ -224,8 +220,6 @@ public class ApiDefinitionExecResultService {
                     //更新报告ID
                     caseReportMap.put(dto.getTestId(), saveResult.getId());
                     isFirst = false;
-                    // 串行队列
-                    SerialBlockingQueueUtil.offer(dto, SerialBlockingQueueUtil.END_SIGN);
                 }
             }
         }
@@ -325,34 +319,22 @@ public class ApiDefinitionExecResultService {
 
     private ApiDefinitionExecResult save(RequestResult item, String reportId, String console, int expectProcessResultCount, String type, String testId, boolean isFirst) {
         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-            ApiDefinitionExecResult saveResult = MessageCache.caseExecResourceLock.get(reportId);
-            if (saveResult == null) {
-                saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
-            }
+            ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
             item.getResponseResult().setConsole(console);
-            boolean saved = true;
-            if (saveResult == null || expectProcessResultCount > 1) {
-                saveResult = new ApiDefinitionExecResult();
-                if (isFirst) {
-                    saveResult.setId(reportId);
-                } else {
-                    saveResult.setId(UUID.randomUUID().toString());
-                }
-                saveResult.setActuator("LOCAL");
-                saveResult.setName(item.getName());
-                if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
-                    saveResult.setTriggerMode(TriggerMode.API.name());
-                } else if (StringUtils.equals(type, ApiRunMode.MANUAL_PLAN.name())) {
-                    saveResult.setTriggerMode(TriggerMode.MANUAL.name());
-                } else {
-                    saveResult.setTriggerMode(TriggerMode.SCHEDULE.name());
-                }
-                saveResult.setType(type);
-                saveResult.setCreateTime(item.getStartTime());
-                if (SessionUtils.getUser() != null) {
-                    saveResult.setUserId(SessionUtils.getUser().getId());
-                }
-                saved = false;
+            saveResult.setId(reportId);
+            saveResult.setActuator("LOCAL");
+            saveResult.setName(item.getName());
+            if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
+                saveResult.setTriggerMode(TriggerMode.API.name());
+            } else if (StringUtils.equals(type, ApiRunMode.MANUAL_PLAN.name())) {
+                saveResult.setTriggerMode(TriggerMode.MANUAL.name());
+            } else {
+                saveResult.setTriggerMode(TriggerMode.SCHEDULE.name());
+            }
+            saveResult.setType(type);
+            saveResult.setCreateTime(item.getStartTime());
+            if (SessionUtils.getUser() != null) {
+                saveResult.setUserId(SessionUtils.getUser().getId());
             }
 
             String status = item.isSuccess() ? "success" : "error";
@@ -372,14 +354,7 @@ public class ApiDefinitionExecResultService {
             if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
                 saveResult.setTriggerMode(TriggerMode.MANUAL.name());
             }
-            if (!saved) {
-                apiDefinitionExecResultMapper.insert(saveResult);
-            } else {
-                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
-            }
-            if (StringUtils.isNotEmpty(reportId)) {
-                MessageCache.caseExecResourceLock.remove(reportId);
-            }
+            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
             return saveResult;
         }
         return null;

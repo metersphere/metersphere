@@ -19,7 +19,6 @@ package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunningParamKeys;
-import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -105,7 +104,6 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         result.setResponseCode(TEST_END);
         ResultDTO dto = new ResultDTO();
         dto.setReportId(this.getName());
-        SerialBlockingQueueUtil.offer(dto, SerialBlockingQueueUtil.END_SIGN);
         try {
             if (client != null) {
                 client.close();

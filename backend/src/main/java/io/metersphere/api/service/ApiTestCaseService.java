@@ -962,12 +962,12 @@ public class ApiTestCaseService {
                         String deleteCaseName = extApiTestCaseMapper.selectNameById(refreceId);
 
                         if (StringUtils.isNotEmpty(deleteCaseName) && CollectionUtils.isNotEmpty(scenarioNameList)) {
-                            String nameListStr = "【";
+                            String nameListStr = "[";
                             for (String name : scenarioNameList) {
                                 nameListStr += name + ",";
                             }
                             if (nameListStr.length() > 1) {
-                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "】";
+                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "]";
                             }
                             String msg = deleteCaseName + " " + Translator.get("delete_check_reference_by") + ": " + nameListStr + " ";
                             checkMsgList.add(msg);

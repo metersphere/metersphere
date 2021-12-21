@@ -12,8 +12,6 @@ import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
-import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.jmeter.ReportCounter;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -90,16 +88,7 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport testEnded(ResultDTO dto) {
-        // 并发集成报告计数
-        if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-            LoggerUtil.info("接收到集合报告【" + dto.getReportId() + "】部分结果【" + dto.getTestId() + "】");
-            Object obj = MessageCache.concurrencyCounter.get(dto.getReportId());
-            if (obj != null) {
-                ReportCounter counter = (ReportCounter) obj;
-                counter.getCompletedIds().add(dto.getTestId());
-                MessageCache.concurrencyCounter.put(dto.getReportId(), counter);
-            }
-        } else {
+        if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
             // 更新控制台信息
             apiScenarioReportStructureService.update(dto.getReportId(), dto.getConsole());
         }
@@ -116,7 +105,6 @@ public class ApiScenarioReportService {
             scenarioReport = updateScenario(requestResults, dto);
         }
         // 串行队列
-        SerialBlockingQueueUtil.offer(dto, scenarioReport != null ? scenarioReport : SerialBlockingQueueUtil.END_SIGN);
         return scenarioReport;
     }
 
@@ -268,7 +256,12 @@ public class ApiScenarioReportService {
                 apiScenarioMapper.updateByPrimaryKey(scenario);
             }
         }
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success", dto.getRunMode());
+        String status = errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success";
+        if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
+            LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
+            status = "Timeout";
+        }
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         return report;
     }
 
@@ -278,9 +271,14 @@ public class ApiScenarioReportService {
 
         Map<String, String> scenarioAndErrorMap = new HashMap<>();
         Map<String, String> planScenarioReportMap = new HashMap<>();
-
         long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Error")).count();
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success", dto.getRunMode());
+
+        String status = errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success";
+        if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
+            LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
+            status = "Timeout";
+        }
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         if (report != null) {
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
                 testPlanReportIdList.add(dto.getTestPlanReportId());
@@ -338,10 +336,7 @@ public class ApiScenarioReportService {
 
     public void margeReport(String reportId) {
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
-        // 要合并的报告已经被删除
-        if (report == null) {
-            MessageCache.concurrencyCounter.remove(reportId);
-        } else {
+        if (report != null) {
             // 更新场景状态
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
             example.createCriteria().andReportIdEqualTo(reportId).andStatusEqualTo("Error");
@@ -358,7 +353,12 @@ public class ApiScenarioReportService {
     public ApiScenarioReport updateScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
         long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Error")).count();
         // 更新报告状态
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success", dto.getRunMode());
+        String status = errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success";
+        if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
+            LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
+            status = "Timeout";
+        }
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         // 更新场景状态
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (scenario == null) {
@@ -478,7 +478,6 @@ public class ApiScenarioReportService {
         apiScenarioReportDetailMapper.deleteByPrimaryKey(request.getId());
         // 补充逻辑，如果是集成报告则把零时报告全部删除
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getId());
-        MessageCache.concurrencyCounter.remove(request.getId());
         if (report != null && StringUtils.isNotEmpty(report.getScenarioId())) {
             List<String> list = getReportIds(report.getScenarioId());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -506,9 +505,6 @@ public class ApiScenarioReportService {
 
     public void deleteAPIReportBatch(APIReportBatchRequest reportRequest) {
         List<String> ids = reportRequest.getIds();
-        ids.forEach(item -> {
-            MessageCache.concurrencyCounter.remove(item);
-        });
         if (reportRequest.isSelectAllDate()) {
             ids = this.idList(reportRequest);
             if (reportRequest.getUnSelectIds() != null) {

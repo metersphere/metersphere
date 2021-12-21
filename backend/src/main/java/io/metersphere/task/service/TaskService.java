@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.TaskRequest;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
@@ -124,7 +123,6 @@ public class TaskService {
                             result.setStatus("STOP");
                             apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
                             actuator = result.getActuator();
-                            MessageCache.caseExecResourceLock.remove(result.getId());
                         }
                     } else if (StringUtils.equals(request.getType(), "SCENARIO")) {
                         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
@@ -145,7 +143,6 @@ public class TaskService {
                                 item.setStatus("STOP");
                                 apiDefinitionExecResultMapper.updateByPrimaryKeySelective(item);
                                 actuator = item.getActuator();
-                                MessageCache.caseExecResourceLock.remove(item.getId());
                                 request.setReportId(item.getId());
                                 extracted(poolMap, request, actuator);
                             }
@@ -192,6 +189,5 @@ public class TaskService {
         } else {
             new LocalRunner().stop(request.getReportId());
         }
-        MessageCache.concurrencyCounter.remove(request.getReportId());
     }
 }

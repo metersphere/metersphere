@@ -19,6 +19,8 @@ public class ZentaoPathInfoClient extends ZentaoClient {
     private static final String FILE_UPLOAD = "/api-getModel-file-saveUpload.json?zentaosid=";
     private static final String REPLACE_IMG_URL = "<img src=\"%s/file-read-$1\"/>";
     private static final Pattern IMG_PATTERN = Pattern.compile("file-read-(.*?)\"/>");
+    private static final String BUG_LIST_URL = "/bug-browse-{1}---0--{2}-{3}-{4}.json?zentaosid={5}";
+
 
     public ZentaoPathInfoClient(String url) {
         super(url);
@@ -39,6 +41,7 @@ public class ZentaoPathInfoClient extends ZentaoClient {
         request.setImgPattern(IMG_PATTERN);
         request.setBugUpdate(getUrl(BUG_UPDATE));
         request.setBugDelete(getUrl(BUG_DELETE));
+        request.setBugList(getUrl(BUG_LIST_URL));
         requestUrl = request;
     }
 

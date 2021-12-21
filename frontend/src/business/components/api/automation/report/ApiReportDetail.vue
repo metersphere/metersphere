@@ -21,7 +21,7 @@
                   <template slot="label">
                     <span class="console">{{ $t('api_test.definition.request.console') }}</span>
                   </template>
-                  <pre>{{ content.console }}</pre>
+                  <ms-code-edit :mode="'text'" :read-only="true" :data.sync="content.console" height="calc(100vh - 500px)"/>
                 </el-tab-pane>
 
               </el-tabs>
@@ -50,6 +50,7 @@ import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {windowPrint, getUUID, getCurrentProjectID} from "@/common/js/utils";
 import {getScenarioReport, getShareScenarioReport} from "@/network/api";
 import {STEP} from "@/business/components/api/automation/scenario/Setting";
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 
 export default {
   name: "MsApiReport",
@@ -57,6 +58,7 @@ export default {
     MsApiReportViewHeader,
     MsApiReportExport,
     MsMainContainer,
+    MsCodeEdit,
     MsContainer, MsScenarioResults, MsRequestResultTail, MsMetricChart, MsScenarioResult, MsRequestResult
   },
   data() {
@@ -526,7 +528,10 @@ export default {
 .report-container .is-active .fail {
   color: inherit;
 }
-
+.report-console {
+  height: calc(100vh - 270px);
+  overflow-y: auto;
+}
 .export-button {
   float: right;
 }

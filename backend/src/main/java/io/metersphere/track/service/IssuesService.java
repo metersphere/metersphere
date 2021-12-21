@@ -640,4 +640,17 @@ public class IssuesService {
                 .andProjectIdEqualTo(projectId);
         return issuesMapper.selectByExampleWithBLOBs(example);
     }
+
+
+    public IssueTemplateDao getThirdPartTemplate(String projectId) {
+        if (StringUtils.isNotBlank(projectId)) {
+            Project project = projectService.getProjectById(projectId);
+            IssuesRequest issuesRequest = new IssuesRequest();
+            issuesRequest.setProjectId(projectId);
+            issuesRequest.setWorkspaceId(project.getWorkspaceId());
+            return IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), issuesRequest)
+                    .getThirdPartTemplate();
+        }
+        return new IssueTemplateDao();
+    }
 }

@@ -9,6 +9,7 @@
         :progress-enable="false"
         :tags="tags"
         :height="height"
+        :move-enable="moveEnable"
         :tag-edit-check="tagEditCheck"
         :priority-disable-check="priorityDisableCheck"
         :distinct-tags="distinctTags"
@@ -75,7 +76,11 @@ export default {
       default() {
         return true;
       }
-    }
+    },
+    moveEnable: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {

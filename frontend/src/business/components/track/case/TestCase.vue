@@ -49,6 +49,7 @@
             :public-enable="true"
             @refreshTable="refresh"
             @testCaseEdit="editTestCase"
+            @testCaseEditShow="editTestCaseShow"
             @testCaseCopy="copyTestCase"
             @testCaseDetail="showTestCaseDetail"
             @getTrashList="getTrashList"
@@ -101,7 +102,7 @@
           :label="item.label"
           :name="item.name"
           closable>
-          <div class="ms-api-scenario-div">
+          <div class="ms-api-scenario-div" v-if="!showPublic">
             <test-case-edit
               :currentTestCaseInfo="item.testCaseInfo"
               @refresh="refreshTable"
@@ -115,6 +116,22 @@
               @addTab="addTab"
               ref="testCaseEdit">
             </test-case-edit>
+          </div>
+          <div class="ms-api-scenario-div" v-if="showPublic">
+            <test-case-edit-show
+              :currentTestCaseInfo="item.testCaseInfo"
+              @refresh="refreshTable"
+              @caseEdit="handleCaseCreateOrEdit($event,'edit')"
+              @caseCreate="handleCaseCreateOrEdit($event,'add')"
+              :read-only="testCaseReadOnly"
+              :tree-nodes="treeNodes"
+              :select-node="selectNode"
+              :select-condition="condition"
+              :type="type"
+              :is-public="publicEnable"
+              @addTab="addTabShow"
+              ref="testCaseEditShow">
+            </test-case-edit-show>
           </div>
         </el-tab-pane>
         <el-tab-pane name="add" v-if="hasPermission('PROJECT_TRACK_CASE:READ+CREATE')">
@@ -162,7 +179,7 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
 import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMinder";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
-
+import TestCaseEditShow from "@/business/components/track/case/components/TestCaseEditShow";
 export default {
   name: "TestCase",
   components: {
@@ -171,7 +188,7 @@ export default {
     MsTabButton,
     TestCaseNodeTree,
     MsMainContainer,
-    MsAsideContainer, MsContainer, TestCaseList, NodeTree, TestCaseEdit, SelectMenu
+    MsAsideContainer, MsContainer, TestCaseList, NodeTree, TestCaseEdit, SelectMenu, TestCaseEditShow
   },
   comments: {},
   data() {
@@ -182,6 +199,7 @@ export default {
       testCaseReadOnly: true,
       trashEnable: false,
       publicEnable: false,
+      showPublic: false,
       condition: {},
       activeName: 'default',
       tabs: [],
@@ -321,6 +339,7 @@ export default {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
+      this.showPublic = true
       if (tab.name === 'add') {
         let label = this.$t('test_track.case.create');
         let name = getUUID().substring(0, 8);
@@ -337,6 +356,21 @@ export default {
       }
 
       setCurTabId(this, tab, 'testCaseEdit');
+    },
+    addTabShow(tab) {
+      if (!this.projectId) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
+      if (tab.name === 'show') {
+        this.showPublic = true
+        let label = this.$t('test_track.case.create');
+        let name = getUUID().substring(0, 8);
+        this.activeName = name;
+        label = tab.testCaseInfo.name;
+        this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo});
+      }
+      setCurTabId(this, tab, 'testCaseEditShow');
     },
     handleTabClose() {
       let message = "";
@@ -454,6 +488,25 @@ export default {
         let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
         this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
         this.addTab({name: 'edit', testCaseInfo: testCase});
+      } else {
+        this.activeName = index.name;
+      }
+    },
+
+    editTestCaseShow(testCase) {
+      const index = this.tabs.find(p => p.testCaseInfo && p.testCaseInfo.id === testCase.id);
+      if (!index) {
+        this.type = "edit";
+        this.testCaseReadOnly = false;
+        if (testCase.label !== "redirect") {
+          if (this.treeNodes.length < 1) {
+            this.$warning(this.$t('test_track.case.create_module_first'));
+            return;
+          }
+        }
+        let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
+        this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
+        this.addTabShow({name: 'show', testCaseInfo: testCase});
       } else {
         this.activeName = index.name;
       }

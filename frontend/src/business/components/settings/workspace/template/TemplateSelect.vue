@@ -1,6 +1,7 @@
 <template>
   <el-select filterable v-model="data[prop]">
     <el-option
+      :disabled="disabled"
       v-for="(item, index) in templateFilterOptions"
       :key="index"
       :label="item.name"
@@ -19,6 +20,7 @@ export default {
     scene: String,
     prop: String,
     platform: String,
+    disabled: Boolean,
     data: {
       type: Object,
       default() {

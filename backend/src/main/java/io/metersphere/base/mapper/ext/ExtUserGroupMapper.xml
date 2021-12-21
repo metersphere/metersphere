@@ -74,7 +74,8 @@
     <select id="getUserGroupInfo" resultType="io.metersphere.dto.UserGroupInfoDTO">
         select distinct user.id AS userId, user.name AS userName, user.email AS userEmail, g.`name` AS groupName, g.id AS groupId
         from user INNER JOIN user_group ug on user.id = ug.user_id
-                  INNER JOIN `group` g ON ug.group_id = g.id;
+                  INNER JOIN `group` g ON ug.group_id = g.id
+        order by ug.create_time ASC;
     </select>
 
 </mapper>

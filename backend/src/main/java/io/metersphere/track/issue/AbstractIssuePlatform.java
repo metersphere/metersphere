@@ -174,7 +174,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected void handleIssueUpdate(IssuesUpdateRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         issuesMapper.updateByPrimaryKeySelective(request);
-        handleTestCaseIssues(request);
+        if (!request.isWithoutTestCaseIssue()) {
+            handleTestCaseIssues(request);
+        }
     }
 
     protected void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
@@ -492,7 +494,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     public boolean isThirdPartTemplate() {
         Project project = projectService.getProjectById(projectId);
-        if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate() && LicenseUtils.valid()) {
+        if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate()) {
             return true;
         }
         return false;

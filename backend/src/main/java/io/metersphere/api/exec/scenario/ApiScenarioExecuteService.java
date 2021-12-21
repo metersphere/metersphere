@@ -9,14 +9,10 @@ import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.MessageCache;
-import io.metersphere.api.jmeter.ReportCounter;
-import io.metersphere.api.service.ApiScenarioReportService;
-import io.metersphere.api.service.ApiScenarioReportStructureService;
-import io.metersphere.api.service.RemakeReportService;
-import io.metersphere.api.service.TcpApiParamService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiScenarioExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiScenario;
@@ -24,6 +20,7 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.TriggerMode;
@@ -44,7 +41,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,6 +61,8 @@ public class ApiScenarioExecuteService {
     private ApiScenarioEnvService apiScenarioEnvService;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ApiExecutionQueueService apiExecutionQueueService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
@@ -85,6 +88,8 @@ public class ApiScenarioExecuteService {
     private TcpApiParamService tcpApiParamService;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     public List<MsExecResponseDTO> run(RunScenarioRequest request) {
         if (LoggerUtil.getLogger().isDebugEnabled()) {
@@ -101,9 +106,6 @@ public class ApiScenarioExecuteService {
         if (apiScenarios != null && apiScenarios.size() == 1 && (apiScenarios.get(0).getStepTotal() == null || apiScenarios.get(0).getStepTotal() == 0)) {
             MSException.throwException((apiScenarios.get(0).getName() + "，" + Translator.get("automation_exec_info")));
         }
-        // 资源池
-        LoggerUtil.info("Scenario run-执行脚本装载-开始检查是否需要加载资源池");
-        GenerateHashTreeUtil.setPoolResource(request.getConfig());
         // 环境检查
         LoggerUtil.info("Scenario run-执行脚本装载-开始针对所有执行场景进行环境检查");
         apiScenarioEnvService.checkEnv(request, apiScenarios);
@@ -145,33 +147,41 @@ public class ApiScenarioExecuteService {
             report.setId(serialReportId);
             request.getConfig().setAmassReport(serialReportId);
             apiScenarioReportMapper.insert(report);
-
             responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(scenarioIds), serialReportId, request.getRunMode()));
-
             // 增加并行集合报告
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
-                List<String> testIds = executeQueue.entrySet().stream().map(reports -> reports.getValue().getTestId()).collect(Collectors.toList());
-                ReportCounter counter = new ReportCounter();
-                counter.setCompletedIds(new LinkedList<>());
-                if (CollectionUtils.isNotEmpty(request.getConfig().getTestResources())) {
-                    counter.setPoolUrls(request.getConfig().getTestResources());
-                }
-                counter.setTestIds(testIds);
-                MessageCache.concurrencyCounter.put(serialReportId, counter);
-
-                LoggerUtil.debug("Scenario run-执行脚本装载-初始化并行集成报告队列：" + JSON.toJSONString(counter));
-                apiScenarioReportStructureService.save(apiScenarios, serialReportId);
+                apiScenarioReportStructureService.save(apiScenarios, serialReportId, request.getConfig() != null ? request.getConfig().getReportType() : null);
             }
         }
         // 开始执行
         if (executeQueue != null && executeQueue.size() > 0) {
+            String reportType = request.getConfig().getReportType();
+
+            DBTestQueue executionQueue = apiExecutionQueueService.add(executeQueue, request.getConfig().getResourcePoolId(), ApiRunMode.SCENARIO.name(), serialReportId, reportType, request.getRunMode());
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
                 if (StringUtils.isNotEmpty(serialReportId)) {
-                    apiScenarioReportStructureService.save(apiScenarios, serialReportId);
+                    apiScenarioReportStructureService.save(apiScenarios, serialReportId, request.getConfig() != null ? request.getConfig().getReportType() : null);
                 }
-                apiScenarioSerialService.serial(executeQueue, request, serialReportId, responseDTOS);
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
+                // 非集合报告，先生成执行队列
+                if (StringUtils.isEmpty(serialReportId)) {
+                    for (String reportId : executeQueue.keySet()) {
+                        APIScenarioReportResult report = executeQueue.get(reportId).getReport();
+                        report.setStatus(APITestStatus.Waiting.name());
+                        batchMapper.insert(report);
+                        responseDTOS.add(new MsExecResponseDTO(executeQueue.get(reportId).getTestId(), reportId, request.getRunMode()));
+                    }
+                    sqlSession.flushStatements();
+                    if (sqlSession != null && sqlSessionFactory != null) {
+                        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                    }
+                }
+                if (executionQueue.getQueue() != null) {
+                    apiScenarioSerialService.serial(executionQueue, executionQueue.getQueue());
+                }
             } else {
-                apiScenarioParallelService.parallel(executeQueue, request, serialReportId, responseDTOS);
+                apiScenarioParallelService.parallel(executeQueue, request, serialReportId, responseDTOS, executionQueue.getId());
             }
         }
         return responseDTOS;
@@ -254,9 +264,12 @@ public class ApiScenarioExecuteService {
                 executeQueue.put(report.getId(), runModeDataDTO);
             } else {
                 try {
-                    // 生成报告和HashTree
-                    HashTree hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap);
-                    executeQueue.put(report.getId(), new RunModeDataDTO(hashTree, report, testPlanScenarioId));
+                    // 生成并行报告和HashTree
+                    RunModeDataDTO runModeDataDTO = new RunModeDataDTO(report, testPlanScenarioId);
+                    if (request.getConfig() != null && !request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+                        runModeDataDTO.setHashTree(GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap, request.getConfig().getReportType()));
+                    }
+                    executeQueue.put(report.getId(), runModeDataDTO);
                 } catch (Exception ex) {
                     scenarioIds.remove(scenario.getId());
                     if (StringUtils.equalsAny(request.getTriggerMode(), TriggerMode.BATCH.name(), TriggerMode.SCHEDULE.name())) {
@@ -271,7 +284,7 @@ public class ApiScenarioExecuteService {
 
             // 生成文档结构
             if (request.getConfig() == null || !StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                apiScenarioReportStructureService.save(scenario, report.getId());
+                apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
             }
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
@@ -302,8 +315,12 @@ public class ApiScenarioExecuteService {
             } else {
                 // 生成报告和HashTree
                 try {
-                    HashTree hashTree = GenerateHashTreeUtil.generateHashTree(item, StringUtils.isNotEmpty(serialReportId) ? serialReportId + "-" + i : reportId, new HashMap<>());
-                    executeQueue.put(report.getId(), new RunModeDataDTO(hashTree, report, item.getId()));
+                    RunModeDataDTO runModeDataDTO = new RunModeDataDTO(report, item.getId());
+                    if (request.getConfig() != null && !request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+                        HashTree hashTree = GenerateHashTreeUtil.generateHashTree(item, StringUtils.isNotEmpty(serialReportId) ? serialReportId + "-" + i : reportId, new HashMap<>(), request.getConfig().getReportType());
+                        runModeDataDTO.setHashTree(hashTree);
+                    }
+                    executeQueue.put(report.getId(), runModeDataDTO);
                 } catch (Exception ex) {
                     scenarioIds.remove(item.getId());
                     if (StringUtils.equalsAny(request.getTriggerMode(), TriggerMode.BATCH.name(), TriggerMode.SCHEDULE.name())) {
@@ -315,7 +332,7 @@ public class ApiScenarioExecuteService {
             }
             // 生成报告结构
             if (request.getConfig() == null || !StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                apiScenarioReportStructureService.save(item, report.getId());
+                apiScenarioReportStructureService.save(item, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
             }
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
@@ -353,16 +370,14 @@ public class ApiScenarioExecuteService {
         apiScenarioReportMapper.insert(report);
         if (request.isSaved()) {
             ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(request.getScenarioId());
-            apiScenarioReportStructureService.save(scenario, report.getId());
+            apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
         }
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
 
         // 调用执行方法
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), ApiRunMode.SCENARIO.name(), hashTree);
-        runRequest.setConfig(request.getConfig());
         runRequest.setDebug(true);
-
         jMeterService.run(runRequest);
         return request.getId();
     }

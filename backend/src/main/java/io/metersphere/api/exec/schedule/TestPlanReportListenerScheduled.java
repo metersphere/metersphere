@@ -26,9 +26,9 @@ public class TestPlanReportListenerScheduled {
     }
 
     private void listener(String planReportId) {
-        LoggerUtil.info("检查测试计划执行报告：【" + planReportId + "】");
         if (TestPlanReportExecuteCatch.getTestPlanExecuteInfo(planReportId) != null) {
             if (!CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).checkPlanReport(planReportId)) {
+                LoggerUtil.info("检查测试计划执行报告：【" + planReportId + "】");
                 CommonBeanFactory.getBean(TestPlanReportService.class).countReport(planReportId);
             }
         } else {

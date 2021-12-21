@@ -43,7 +43,12 @@ public class ApiScenarioReportResultService {
         report.setId(UUID.randomUUID().toString());
         result.setEndTime(System.currentTimeMillis());
         if (result.getResponseResult() != null) {
-            result.getResponseResult().setResponseTime((result.getEndTime() - result.getStartTime()));
+            long time = result.getEndTime() - result.getStartTime();
+            if (time > 0) {
+                result.getResponseResult().setResponseTime(time);
+            } else {
+                result.setEndTime(result.getEndTime());
+            }
         }
         String resourceId = result.getResourceId();
         if (StringUtils.isNotEmpty(resourceId) && resourceId.contains("_")) {

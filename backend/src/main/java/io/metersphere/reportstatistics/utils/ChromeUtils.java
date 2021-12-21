@@ -10,6 +10,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChromeUtils {
     private static ChromeUtils chromeUtils = new ChromeUtils();
@@ -21,30 +23,30 @@ public class ChromeUtils {
         return chromeUtils;
     }
 
-    private synchronized WebDriver genWebDriver(HeadlessRequest headlessRequest) {
-        if (headlessRequest.isEmpty()) {
-            LogUtil.error("Headless request is null! " + JSON.toJSONString(headlessRequest));
+    private synchronized WebDriver genWebDriver(String seleniumUrl, String language) {
+        if (StringUtils.isEmpty(seleniumUrl)) {
+            LogUtil.error("Headless request is null! " + seleniumUrl);
             return null;
         }
         //初始化一个chrome浏览器实例driver
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("headless");
-        options.addArguments("no-sandbox");
-        options.addArguments("disable-gpu");
-        options.addArguments("disable-features=NetworkService");
-        options.addArguments("ignore-certificate-errors");
-        options.addArguments("silent-launch");
-        options.addArguments("disable-application-cache");
-        options.addArguments("disable-web-security");
-        options.addArguments("no-proxy-server");
-        options.addArguments("disable-dev-shm-usage");
-        options.addArguments("lang=zh_CN.UTF-8");
+
+        if (StringUtils.isEmpty(language)) {
+            language = "zh_cn";
+        }
+        if (StringUtils.equalsAnyIgnoreCase(language, "zh_cn")) {
+            Map<String, Object> optionMap = new HashMap<>();
+            optionMap.put("intl.accept_languages", "zh-CN,en,en_US");
+            options.setExperimentalOption("prefs", optionMap);
+        } else if (StringUtils.equalsAnyIgnoreCase(language, "zh_tw")) {
+            Map<String, Object> optionMap = new HashMap<>();
+            optionMap.put("intl.accept_languages", "zh-TW,en,en_US");
+            options.setExperimentalOption("prefs", optionMap);
+        }
 
         WebDriver driver = null;
         try {
-            driver = new RemoteWebDriver(new URL(headlessRequest.getRemoteDriverUrl()), options);
-            driver.get(headlessRequest.getUrl());
-            driver.manage().window().fullscreen();
+            driver = new RemoteWebDriver(new URL(seleniumUrl), options);
         } catch (Exception e) {
             if (driver != null) {
                 driver.quit();
@@ -55,31 +57,42 @@ public class ChromeUtils {
         return driver;
     }
 
-    public synchronized String getImageInfo(HeadlessRequest request) {
-        WebDriver driver = this.genWebDriver(request);
-        String files = null;
+    public synchronized Map<String, String> getImageInfo(HeadlessRequest request, String langurage) {
+        Map<String, String> returnMap = new HashMap<>();
+        if (request.isEmpty()) {
+            return returnMap;
+        }
+        WebDriver driver = this.genWebDriver(request.getRemoteDriverUrl(), langurage);
         if (driver != null) {
-            try {
-                //预留echart动画的加载时间
-                Thread.sleep(3 * 1000);
-                String js = "var chartsCanvas = document.getElementById('picChart').getElementsByTagName('canvas')[0];" +
-                        "var imageUrl = null;" +
-                        "if (chartsCanvas!= null) {" +
-                        " imageUrl = chartsCanvas && chartsCanvas.toDataURL('image/png');" +
-                        "return imageUrl;" +
-                        "}";
-                files = ((JavascriptExecutor) driver).executeScript(js).toString();
-            } catch (Exception e) {
-                LogUtil.error(e);
-            } finally {
+            for (Map.Entry<String, String> urlEntry : request.getUrlMap().entrySet()) {
+                String id = urlEntry.getKey();
+                String url = urlEntry.getValue();
+                try {
+                    driver.get(url);
+                    driver.manage().window().fullscreen();
+                    //预留echart动画的加载时间
+                    Thread.sleep(3 * 1000);
+                    String js = "var chartsCanvas = document.getElementById('picChart').getElementsByTagName('canvas')[0];" +
+                            "var imageUrl = null;" +
+                            "if (chartsCanvas!= null) {" +
+                            " imageUrl = chartsCanvas && chartsCanvas.toDataURL('image/png');" +
+                            "return imageUrl;" +
+                            "}";
+                    String files = ((JavascriptExecutor) driver).executeScript(js).toString();
+                    if (StringUtils.isNotEmpty(files)) {
+                        returnMap.put(id, files);
+                    }
+                    Thread.sleep(1 * 1000);
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
+
+            }
+
+            if (driver != null) {
                 driver.quit();
             }
         }
-        if (StringUtils.isNotEmpty(files)) {
-            return files;
-        } else {
-            LogUtil.error("获取报表图片失败！参数：" + JSON.toJSONString(request));
-            return null;
-        }
+        return returnMap;
     }
 }

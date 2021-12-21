@@ -75,7 +75,8 @@ export default {
       treeNodes: [],
       condition: {
         filterText: "",
-        trashEnable: false
+        trashEnable: false,
+        publicEnable: false
       },
       operators: [
         {

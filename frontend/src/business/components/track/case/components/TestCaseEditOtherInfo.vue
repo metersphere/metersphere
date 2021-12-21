@@ -119,9 +119,9 @@ export default {
       if (this.tabActiveName === 'demand') {
         this.getDemandOptions();
       } else if (this.tabActiveName === 'bug') {
-        if (this.$refs.issue) {
+        this.$nextTick(() => {
           this.$refs.issue.getIssues();
-        }
+        });
       } else if (this.tabActiveName === 'relationship') {
         this.$refs.relationship.open();
       } else if (this.tabActiveName === 'attachment') {

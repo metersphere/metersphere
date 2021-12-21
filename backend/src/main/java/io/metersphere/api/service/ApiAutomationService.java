@@ -690,6 +690,8 @@ public class ApiAutomationService {
     }
 
     public byte[] loadFileAsBytes(FileOperationRequest fileOperationRequest) {
+        if (fileOperationRequest.getId().contains("/") || fileOperationRequest.getName().contains("/"))
+            MSException.throwException(Translator.get("invalid_parameter"));
         File file = new File(FileUtils.BODY_FILE_DIR + "/" + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
         try (FileInputStream fis = new FileInputStream(file);
              ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);) {
@@ -719,7 +721,7 @@ public class ApiAutomationService {
             if (scenario == null) {
                 return null;
             }
-            GenerateHashTreeUtil.parse(apiScenario.getScenarioDefinition(), scenario);
+            GenerateHashTreeUtil.parse(apiScenario.getScenarioDefinition(), scenario, apiScenario.getId(), null);
             String environmentType = apiScenario.getEnvironmentType();
             String environmentJson = apiScenario.getEnvironmentJson();
             String environmentGroupId = apiScenario.getEnvironmentGroupId();
@@ -1816,12 +1818,12 @@ public class ApiAutomationService {
                         List<String> scenarioNames = extApiScenarioMapper.selectNameByIdIn(scenarioIdList);
 
                         if (StringUtils.isNotEmpty(deleteScenarioName) && CollectionUtils.isNotEmpty(scenarioNames)) {
-                            String nameListStr = "【";
+                            String nameListStr = "[";
                             for (String name : scenarioNames) {
                                 nameListStr += name + ",";
                             }
                             if (nameListStr.length() > 1) {
-                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "】";
+                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "]";
                             }
                             String msg = deleteScenarioName + " " + Translator.get("delete_check_reference_by") + ": " + nameListStr + " ";
                             checkMsgList.add(msg);

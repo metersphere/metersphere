@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
-import io.metersphere.api.exec.api.TestPlanApiExecuteService;
+import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.JarConfig;
@@ -38,7 +38,7 @@ import java.util.zip.ZipOutputStream;
 public class ApiJmeterFileService {
 
     @Resource
-    private TestPlanApiExecuteService testPlanApiExecuteService;
+    private ApiScenarioSerialService apiScenarioSerialService;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
@@ -58,7 +58,7 @@ public class ApiJmeterFileService {
         return listBytesToZip(files);
     }
 
-    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId) {
+    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType) {
         Map<String, String> planEnvMap = new HashMap<>();
         ApiScenarioWithBLOBs scenario = null;
         if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
@@ -78,7 +78,7 @@ public class ApiJmeterFileService {
         }
         HashTree hashTree;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            hashTree = testPlanApiExecuteService.generateHashTree(remoteTestId);
+            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId);
         } else {
             if (scenario == null) {
                 scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
@@ -96,7 +96,7 @@ public class ApiJmeterFileService {
                     planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
                 }
             }
-            hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap);
+            hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap, reportType);
         }
         return zipFilesToByteArray((reportId + "_" + remoteTestId), hashTree);
     }
