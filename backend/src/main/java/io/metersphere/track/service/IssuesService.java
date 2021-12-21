@@ -30,6 +30,7 @@ import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
+import io.metersphere.track.request.issues.IssuesRelevanceRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
@@ -79,6 +80,8 @@ public class IssuesService {
     private TestPlanTestCaseService testPlanTestCaseService;
     @Resource
     private IssueFollowMapper issueFollowMapper;
+    @Resource
+    private IssueCommentMapper issueCommentMapper;
 
     public void testAuth(String workspaceId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
@@ -111,6 +114,7 @@ public class IssuesService {
         //saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
         // todo 缺陷更新事件？
     }
+
     public void saveFollows(String issueId, List<String> follows) {
         IssueFollowExample example = new IssueFollowExample();
         example.createCriteria().andIssueIdEqualTo(issueId);
@@ -124,6 +128,7 @@ public class IssuesService {
             }
         }
     }
+
     public List<AbstractIssuePlatform> getAddPlatforms(IssuesUpdateRequest updateRequest) {
         List<String> platforms = new ArrayList<>();
         if (StringUtils.isNotBlank(updateRequest.getTestCaseId())) {
@@ -353,7 +358,7 @@ public class IssuesService {
                     .collect(Collectors.toList());
             item.setCaseIds(caseIds);
             item.setCaseCount(testCaseIssues.size());
-            if(StringUtils.equals(item.getPlatform(),"Tapd")){
+            if (StringUtils.equals(item.getPlatform(), "Tapd")) {
                 TapdPlatform platform = (TapdPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
                 List<String> tapdUsers = platform.getTapdUsers(item.getProjectId(), item.getPlatformId());
                 item.setTapdUsers(tapdUsers);
@@ -469,6 +474,7 @@ public class IssuesService {
 
     /**
      * 获取默认的自定义字段的取值，同步之后更新成第三方平台的值
+     *
      * @param projectId
      * @return
      */
@@ -606,7 +612,7 @@ public class IssuesService {
         issuesMapper.updateByPrimaryKeySelective(issues);
     }
 
-    public List<IssuesDao> getCountByStatus(IssuesRequest request){
+    public List<IssuesDao> getCountByStatus(IssuesRequest request) {
         return extIssuesMapper.getCountByStatus(request);
 
     }
@@ -619,7 +625,7 @@ public class IssuesService {
         IssueFollowExample example = new IssueFollowExample();
         example.createCriteria().andIssueIdEqualTo(issueId);
         List<IssueFollow> follows = issueFollowMapper.selectByExample(example);
-        if(follows==null||follows.size()==0){
+        if (follows == null || follows.size() == 0) {
             return result;
         }
         result = follows.stream().map(IssueFollow::getFollowId).distinct().collect(Collectors.toList());
@@ -634,5 +640,4 @@ public class IssuesService {
                 .andProjectIdEqualTo(projectId);
         return issuesMapper.selectByExampleWithBLOBs(example);
     }
-
 }

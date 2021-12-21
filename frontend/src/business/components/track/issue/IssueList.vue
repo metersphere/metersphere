@@ -1,6 +1,7 @@
 <template>
   <ms-container>
     <ms-main-container>
+
       <el-card class="table-card">
         <template v-slot:header>
           <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="getIssues" @create="handleCreate"

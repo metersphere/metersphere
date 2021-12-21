@@ -411,6 +411,7 @@ export default {
     }
   },
   methods: {
+    alert:alert,
     currentUser: () => {
       return getCurrentUser();
     },

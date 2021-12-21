@@ -174,6 +174,7 @@ export default {
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
+        {value: 'COMMENT', label: this.$t('commons.comment')},
       ],
       variables: [
         {
@@ -371,6 +372,14 @@ export default {
           }
           break;
         case "DELETE":
+          testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          if (row.isSet) {
+            if (i2 < 0) {
+              row.userIds.unshift('CREATOR');
+            }
+          }
+          break;
+        case "COMMENT":
           testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (row.isSet) {
             if (i2 < 0) {
