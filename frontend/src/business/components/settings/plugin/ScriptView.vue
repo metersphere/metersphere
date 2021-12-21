@@ -2,7 +2,7 @@
   <div v-if="!loading">
     <el-dialog :title="$t('plugin.script_view')" :visible.sync="dialogVisible" @close="close">
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="表单配置" name="formOption">
+        <el-tab-pane :label="$t('commons.form_config')" name="formOption">
           <ms-code-edit
             height="400px"
             :data.sync="plugin.formOption"
@@ -10,7 +10,7 @@
             :mode="'json'"
             ref="codeEdit"/>
         </el-tab-pane>
-        <el-tab-pane label="表单内容" name="formScript">
+        <el-tab-pane :label="$t('commons.form_content')" name="formScript">
           <ms-code-edit
             height="400px"
             :data.sync="plugin.formScript"
@@ -49,7 +49,7 @@ export default {
             this.plugin = response.data;
             this.reload();
           } else {
-            this.$warning("未找到脚本内容");
+            this.$warning(this.$t('plugin.warning_tip'));
           }
         });
       }

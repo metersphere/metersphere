@@ -1,3 +1,5 @@
+import i18n from "@/i18n/i18n";
+
 export function LOG_TYPE(_this) {
   let LOG_TYPE = [
     {id: 'CREATE', label: _this.$t('api_test.definition.request.create_info')},
@@ -20,8 +22,8 @@ export function LOG_TYPE(_this) {
     {id: 'BATCH_DEL', label: _this.$t('api_test.definition.request.batch_delete')},
     {id: 'BATCH_UPDATE', label: _this.$t('api_test.definition.request.batch_edit')},
     {id: 'BATCH_ADD', label: _this.$t('commons.batch_add')},
-    {id: 'BATCH_RESTORE', label: "批量恢复"},
-    {id: 'BATCH_GC', label: "批量回收"}
+    {id: 'BATCH_RESTORE', label: _this.$t('commons.batch_restore')},
+    {id: 'BATCH_GC', label: _this.$t('commons.batch_gc')}
   ];
   return LOG_TYPE;
 }
@@ -48,59 +50,62 @@ export function LOG_TYPE_MAP(_this) {
     ['BATCH_DEL', _this.$t('api_test.definition.request.batch_delete')],
     ['BATCH_UPDATE', _this.$t('api_test.definition.request.batch_edit')],
     ['BATCH_ADD', _this.$t('commons.batch_add')],
-    ['BATCH_RESTORE', "批量恢复"],
-    ['BATCH_GC', "批量回收"],
+    ['BATCH_RESTORE', _this.$t('commons.batch_restore')],
+    ['BATCH_GC', _this.$t('commons.batch_gc')],
   ]);
   return LOG_TYPE_MAP;
 }
 
-export const sysList = [
-  {
-    label: "测试跟踪", value: "测试跟踪", children: [
-      {label: "测试用例", value: "测试用例", leaf: true},
-      {label: "用例评审", value: "用例评审", leaf: true},
-      {label: "测试计划", value: "测试计划", leaf: true},
-      {label: "缺陷管理", value: "缺陷管理", leaf: true},
-      {label: "报告", value: "报告", leaf: true}]
-  },
-  {
-    label: "接口测试", value: "api", children: [
-      {label: "接口定义", value: "接口定义", leaf: true},
-      {label: "接口自动化", value: "接口自动化", leaf: true},
-      {label: "测试报告", value: "测试报告", leaf: true}]
-  },
-  {
-    label: "性能测试", value: "性能测试", children: [
-      {label: "性能测试", value: "性能测试", leaf: true},
-      {label: "性能测试报告", value: "性能测试报告", leaf: true}]
-  },
-  {
-    label: "系统设置", value: "系统设置", children: [
-      {label: "系统-用户", value: "系统-用户", leaf: true},
-      {label: "工作空间", value: "工作空间", leaf: true},
-      {label: "系统-测试资源池", value: "系统-测试资源池", leaf: true},
-      {label: "系统-系统参数设置", value: "系统-系统参数设置", leaf: true},
-      {label: "系统-配额管理", value: "系统-配额管理", leaf: true},
-      {label: "系统-授权管理", value: "系统-授权管理", leaf: true},
-      {label: "工作空间-服务集成", value: "工作空间-服务集成", leaf: true},
-      {label: "工作空间-消息设置", value: "工作空间-消息设置", leaf: true},
+export function SYSLIST(){
+  let sysList = [
+    {
+      label: i18n.t('test_track.test_track'), value: i18n.t('test_track.test_track'), children: [
+        {label: i18n.t('permission.project_track_case.name'), value: i18n.t('permission.project_track_case.name'), leaf: true},
+        {label: i18n.t('test_track.review.test_review'), value: i18n.t('test_track.review.test_review'), leaf: true},
+        {label: i18n.t('test_track.plan.test_plan'), value: i18n.t('test_track.plan.test_plan'), leaf: true},
+        {label: i18n.t('test_track.issue.issue_management'), value: i18n.t('test_track.issue.issue_management'), leaf: true},
+        {label: i18n.t('commons.report'), value: i18n.t('commons.report'), leaf: true}]
+    },
+    {
+      label: i18n.t('commons.api'), value: i18n.t('commons.api'), children: [
+        {label: i18n.t('workstation.table_name.api_definition'), value: i18n.t('workstation.table_name.api_definition'), leaf: true},
+        {label: i18n.t('workstation.table_name.api_automation'), value: i18n.t('workstation.table_name.api_automation'), leaf: true},
+        {label: i18n.t('permission.project_api_report.name'), value: i18n.t('permission.project_api_report.name'), leaf: true}]
+    },
+    {
+      label: i18n.t('workstation.table_name.performance'), value: i18n.t('workstation.table_name.performance'), children: [
+        {label: i18n.t('workstation.table_name.performance'), value: i18n.t('workstation.table_name.performance'), leaf: true},
+        {label: i18n.t('report.load_test_report'), value: i18n.t('report.load_test_report'), leaf: true}]
+    },
+    {
+      label: i18n.t('commons.system_setting'), value: i18n.t('commons.system_setting'), children: [
+        {label: i18n.t('commons.system')+"-"+i18n.t('commons.user'), value: i18n.t('commons.system')+"-"+i18n.t('commons.user'), leaf: true},
+        {label: i18n.t('commons.system')+"-"+i18n.t('commons.test_resource_pool'), value: i18n.t('commons.system')+"-"+i18n.t('commons.test_resource_pool'), leaf: true},
+        {label: i18n.t('commons.system')+"-"+i18n.t('commons.system_parameter_setting'), value: i18n.t('commons.system')+"-"+i18n.t('commons.system_parameter_setting'), leaf: true},
+        {label: i18n.t('commons.system')+"-"+i18n.t('commons.quota'), value: i18n.t('commons.system')+"-"+i18n.t('commons.quota'), leaf: true},
+        {label: i18n.t('commons.system')+"-"+i18n.t('license.title'), value: i18n.t('commons.system')+"-"+i18n.t('license.title'), leaf: true},
 
-      {label: "工作空间-成员", value: "工作空间-成员", leaf: true},
-      {label: "项目-项目管理", value: "项目-项目管理", leaf: true},
-      {label: "工作空间-模版设置", value: "工作空间-模版设置", leaf: true},
-      {label: "工作空间-项目管理", value: "工作空间-项目管理", leaf: true},
-      {label: "项目-项目管理", value: "项目-项目管理", leaf: true},
-      {label: "项目-成员", value: "项目-成员", leaf: true},
-      {label: "工作空间-成员", value: "工作空间-成员", leaf: true},
+        {label: i18n.t('commons.workspace'), value: i18n.t('commons.workspace'), leaf: true},
+        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_service.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_service.name'), leaf: true},
+        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_message.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_message.name'), leaf: true},
+        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.project_user.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.project_user.name'), leaf: true},
+        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_template.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_template.name'), leaf: true},
+        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_project_manager.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_project_manager.name'), leaf: true},
 
-      {label: "項目-JAR包管理", value: "項目-JAR包管理", leaf: true},
-      {label: "项目-环境设置", value: "项目-环境设置", leaf: true},
-      {label: "项目-文件管理", value: "项目-文件管理", leaf: true},
-      {label: "个人信息-个人设置", value: "个人信息-个人设置", leaf: true},
-      {label: "个人信息-API Keys", value: "个人信息-API Keys", leaf: true}
-    ]
-  },
-];
+        {label: i18n.t('commons.project')+"-"+i18n.t('project.manager'), value: i18n.t('commons.project')+"-"+i18n.t('project.manager'), leaf: true},
+        {label: i18n.t('commons.project')+"-"+i18n.t('permission.project_user.name'), value: i18n.t('commons.project')+"-"+i18n.t('permission.project_user.name'), leaf: true},
+        {label: i18n.t('commons.project')+"-"+i18n.t('api_test.jar_config.jar_manage'), value: i18n.t('commons.project')+"-"+i18n.t('api_test.jar_config.jar_manage'), leaf: true},
+        {label: i18n.t('commons.project')+"-"+i18n.t('permission.workspace_project_environment.name'), value: i18n.t('commons.project')+"-"+i18n.t('permission.workspace_project_environment.name'), leaf: true},
+        {label: i18n.t('commons.project')+"-"+i18n.t('permission.project_file.name'), value: i18n.t('commons.project')+"-"+i18n.t('permission.project_file.name'), leaf: true},
+
+        {label: i18n.t('commons.personal_information')+"-"+i18n.t('commons.personal_setting'), value: i18n.t('commons.personal_information')+"-"+i18n.t('commons.personal_setting'), leaf: true},
+        {label: i18n.t('commons.personal_information')+"-API Keys", value: i18n.t('commons.personal_information')+"-API Keys", leaf: true}
+      ]
+    },
+  ];
+  return sysList;
+}
+
 
 export function getUrl(d) {
   let url = "/#";

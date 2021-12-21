@@ -66,6 +66,7 @@ export default {
     input_limit: 'Within {0} and {1} characters',
     login: 'Sign In',
     welcome: 'One-stop open source continuous testing platform',
+    theme_color:'Theme color',
     username: 'Username',
     password: 'Password',
     input_username: 'Please enter username',
@@ -180,6 +181,8 @@ export default {
     modifier: 'Modifier',
     validate: "Validate",
     batch_add: "Batch add",
+    batch_restore: "Batch restore",
+    batch_gc: "Batch gc",
     check_project_tip: "Create or select the project first",
     auth_redirect_tip: 'Jump to the authentication source page for authentication',
     tag_tip: "Enter to Add Label",
@@ -397,7 +400,9 @@ export default {
     original_state:'Original State',
     custom_num:'CustomNum',
     version:'Version',
-    is_new:"Is new"
+    is_new:"Is new",
+    form_config:"Form config",
+    form_content:"Form content"
   },
   login: {
     normal_Login: "Normal Login",
@@ -627,6 +632,8 @@ export default {
       zentao_account:'Zentao Account',
       zentao_password:'Zentao Password',
       zentao_prompt_information:'This information is the username and password of the user who submitted the defect through ZenTao. If not filled in, the default information configured in the workspace will be used',
+      zentao_config_tip:"Refer to the value of $config->requestType in the ZenTao configuration file",
+      zentao_config_path:"Configuration file reference path: /opt/zbox/app/zentao/config/my.php",
       use_tip: 'Usage guidelines:',
       use_tip_tapd: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
       use_tip_jira: 'Jira software server authentication information is account password, Jira software cloud authentication information is account + token (account settings-security-create API token)',
@@ -680,7 +687,7 @@ export default {
     azureDevops_filter_id: 'AzureDevops Filter ID',
     azureDevops_info: 'AzureDevops Information',
     azureDevops_tip: 'This information is the user token information for submitting defects through Azure Devops. If not filled in, the default information configured in the workspace will be used',
-    manager: 'Project Manager',
+    manager: 'Project Manage',
     no_data: 'No Data',
     select: 'Select',
     repeatable: 'API URL Repeatable',
@@ -787,6 +794,7 @@ export default {
     add_project_batch: 'Batch Add User To Project',
     add_workspace_batch: "Batch Add User To Workspace",
     add_project_batch_tip: 'Add a read-only user group for members by default (system)',
+    import_user_tip:'User group only supports system default user group',
   },
   group: {
     add: 'Add User Group',
@@ -1045,11 +1053,13 @@ export default {
     jar_config: {
       title: "Upload jar package",
       jar_file: "Jar package",
+      jar_manage: "JAR package management",
       delete_tip: "The deletion takes effect after the service is restarted",
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
       upload_limit_size_warn: "Upload file size cannot exceed {0} MB!",
       upload_limit: "Upload file size cannot exceed",
+      upload_tip:"Only upload JAR packages"
     },
     batch_menus: {
       select_all_data: "Select all datas({0})",
@@ -2518,6 +2528,7 @@ export default {
     script_entry: "Script execution entry",
     plugin_id: "Plug-in id",
     script_view: "View script",
+    warning_tip:'Script content not found'
   },
   mail: {
     input_mail_subject: "Please input subject",
