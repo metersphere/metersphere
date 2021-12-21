@@ -174,7 +174,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected void handleIssueUpdate(IssuesUpdateRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         issuesMapper.updateByPrimaryKeySelective(request);
-        handleTestCaseIssues(request);
+        if (!request.isWithoutTestCaseIssue()) {
+            handleTestCaseIssues(request);
+        }
     }
 
     protected void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {

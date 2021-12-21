@@ -28,4 +28,6 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
     private boolean thirdPartPlatform;
 
     private List<String> follows;
+
+    private boolean withoutTestCaseIssue; // 不更新用例和缺陷的关联关系
 }
