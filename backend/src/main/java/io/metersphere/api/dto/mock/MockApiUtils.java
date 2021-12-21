@@ -407,6 +407,8 @@ public class MockApiUtils {
             JSONObject queryParamsObj = requestMockParams.getQueryParamsObj();
             for (String key : queryParamsObj.keySet()) {
                 String value = String.valueOf(queryParamsObj.get(key));
+                value = StringUtils.replace(value, "\\", "\\\\");
+                value = StringUtils.replace(value, "\"", "\\\"");
                 scriptStringBuffer.append("requestParams.put(\"query." + key + "\",\"" + value + "\");\n");
             }
         }
