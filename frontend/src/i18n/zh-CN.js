@@ -6,6 +6,7 @@ export default {
     trash: "回收站",
     yes: "是",
     no: "否",
+    example: "示例",
     excelFile: "表格文件.xls",
     xmindFile: "思维导图.xmind",
     default: "默认值",
@@ -49,6 +50,7 @@ export default {
     save_as: '另存为',
     update: '更新',
     save_success: '保存成功',
+    send_success: '发送成功',
     delete_success: '删除成功',
     copy_success: '复制成功',
     modify_success: '修改成功',
@@ -67,7 +69,7 @@ export default {
     input_limit: '长度在 {0} 到 {1} 个字符',
     login: '登录',
     welcome: '一站式开源持续测试平台',
-    theme_color:'主题色',
+    theme_color: '主题色',
     username: '姓名',
     password: '密码',
     input_username: '请输入用户姓名',
@@ -403,8 +405,8 @@ export default {
     custom_num: '自定义编号',
     version: '版本',
     is_new: "是否新建",
-    form_config:"表单配置",
-    form_content:"表单内容"
+    form_config: "表单配置",
+    form_content: "表单内容"
   },
   login: {
     normal_Login: "普通登录",
@@ -635,8 +637,8 @@ export default {
       zentao_account: '禅道账户',
       zentao_password: '禅道密码',
       zentao_prompt_information: '该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用工作空间中配置的默认信息',
-      zentao_config_tip:"参考禅道配置文件中 $config->requestType 的值 ",
-      zentao_config_path:"配置文件参考路径：/opt/zbox/app/zentao/config/my.php",
+      zentao_config_tip: "参考禅道配置文件中 $config->requestType 的值 ",
+      zentao_config_path: "配置文件参考路径：/opt/zbox/app/zentao/config/my.php",
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 账号信息在"公司管理-安全与集成-开放平台"中查询',
       use_tip_jira: 'Jira software server 认证信息为 账号密码，Jira software cloud 认证信息为 账号+令牌(账户设置-安全-创建API令牌)',
@@ -798,7 +800,7 @@ export default {
     add_project_batch: '批量添加到项目',
     add_workspace_batch: "批量添加到工作空间",
     add_project_batch_tip: '默认为成员添加只读用户组(系统)',
-    import_user_tip:'用户组只支持系统默认用户组',
+    import_user_tip: '用户组只支持系统默认用户组',
   },
   group: {
     add: '添加用户组',
@@ -893,7 +895,7 @@ export default {
     file_id: '文件ID',
     avg_response_time: '平均响应时间',
     tps: '每秒传输的事物处理个数',
-    plan_share_url:'链接跳转是否登陆'
+    plan_share_url: '链接跳转是否登陆'
   },
   load_test: {
     id: '测试ID',
@@ -1059,13 +1061,13 @@ export default {
     jar_config: {
       title: "上传jar包",
       jar_file: "jar包",
-      jar_manage:"JAR包管理",
+      jar_manage: "JAR包管理",
       delete_tip: "删除需重启服务后生效",
       file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
       upload_limit_size_warn: "上传文件大小不能超过 {0} MB!",
       upload_limit: "上传文件大小不能超过",
-      upload_tip:"只能上传JAR包"
+      upload_tip: "只能上传JAR包"
     },
     batch_menus: {
       select_all_data: "选择所有数据(共{0}条)",
@@ -2219,8 +2221,8 @@ export default {
       status_delete: '删除',
       status_in_progress: '接受/处理',
       status_rejected: '拒绝',
-      status_upcoming:'待办',
-      status_reopened:'重新打开',
+      status_upcoming: '待办',
+      status_reopened: '重新打开',
       please_choose_current_owner: "请选择处理人",
       tapd_current_owner: "Tapd 处理人",
       zentao_bug_build: "禅道 影响版本",
@@ -2532,7 +2534,7 @@ export default {
     script_entry: "脚本执行入口",
     plugin_id: "插件ID",
     script_view: "查看脚本",
-    warning_tip:'未找到脚本内容'
+    warning_tip: '未找到脚本内容'
   },
   mail: {
     input_mail_subject: "请输入邮件主题",
