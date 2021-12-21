@@ -7,7 +7,7 @@
     append-to-body
     ref="msEditDialog">
     <template v-slot:default="scope">
-      <issue-edit-detail :plan-id="planId" :case-id="caseId" :is-plan="true" @refresh="refresh" @close="handleClose" ref="issueEditDetail"/>
+      <issue-edit-detail :is-minder="isMinder" :plan-id="planId" :case-id="caseId" :is-plan="true" @refresh="refresh" @close="handleClose" ref="issueEditDetail"/>
     </template>
   </ms-edit-dialog>
 </template>
@@ -31,7 +31,7 @@ export default {
       return getCurrentProjectID();
     }
   },
-  props: ['caseId', 'planId'],
+  props: ['caseId', 'planId', 'isMinder'],
   methods: {
     open(data) {
       this.visible = true;

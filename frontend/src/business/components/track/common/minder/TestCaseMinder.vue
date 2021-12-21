@@ -18,7 +18,7 @@
       ref="minder"
     />
     <IssueRelateList :case-id="getCurCaseId()"  @refresh="refreshRelateIssue" ref="issueRelate"/>
-    <test-plan-issue-edit :plan-id="null" :case-id="getCurCaseId()" @refresh="refreshIssue" ref="issueEdit"/>
+    <test-plan-issue-edit :is-minder="true" :plan-id="null" :case-id="getCurCaseId()" @refresh="refreshIssue"  ref="issueEdit"/>
   </div>
 
 </template>

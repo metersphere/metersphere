@@ -150,7 +150,8 @@ export default {
       }
     },
     caseId: String,
-    planId: String
+    planId: String,
+    isMinder: Boolean,
   },
   computed: {
     isSystem() {
@@ -292,6 +293,8 @@ export default {
       if (this.planId) {
         param.resourceId = this.planId;
       }
+
+      param.withoutTestCaseIssue = this.isMinder;
 
       param.thirdPartPlatform = this.enableThirdPartTemplate;
       return param;
