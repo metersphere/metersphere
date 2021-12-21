@@ -144,6 +144,10 @@
             this.$warning(this.$t('api_test.jar_config.upload_limit_size_warn', [this.limitSize]));
             return false;
           }
+          if (file.name.length > 60) {
+            this.$warning(this.$t('api_test.api_import.file_name_to_long'));
+            return false;
+          }
           return true;
         },
         clickEdit() {
