@@ -16,15 +16,13 @@ import io.metersphere.reportstatistics.dto.table.TestCaseCountTableItemDataDTO;
 import io.metersphere.reportstatistics.dto.table.TestCaseCountTableRowDTO;
 import io.metersphere.reportstatistics.utils.ChromeUtils;
 import io.metersphere.service.SystemParameterService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author song.tianyang
@@ -73,6 +71,9 @@ public class ReportStatisticsService {
 
     public ReportStatisticsWithBLOBs selectById(String id) {
         ReportStatisticsWithBLOBs blob = reportStatisticsMapper.selectByPrimaryKey(id);
+        if (blob == null) {
+            return null;
+        }
         JSONObject selectOption = JSONObject.parseObject(blob.getSelectOption());
         JSONObject dataOption = JSONObject.parseObject(blob.getDataOption());
         boolean isReportNeedUpdate = this.isReportNeedUpdate(blob);
@@ -250,7 +251,11 @@ public class ReportStatisticsService {
         return reportStatisticsMapper.selectByExample(example);
     }
 
-    public String getImageContentById(ReportStatisticsWithBLOBs reportRecordId, String language) {
+    public Map<String, String> getImageContentById(List<ReportStatisticsWithBLOBs> reportRecordIdList, String language) {
+        if (CollectionUtils.isEmpty(reportRecordIdList)) {
+            return new HashMap<>();
+        }
+
         ChromeUtils chromeUtils = ChromeUtils.getInstance();
         HeadlessRequest headlessRequest = new HeadlessRequest();
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
@@ -261,11 +266,16 @@ public class ReportStatisticsService {
             platformUrl = baseInfo.getUrl();
             remoteDriverUrl = baseInfo.getSeleniumDockerUrl();
         }
-        platformUrl += "/echartPic?shareId=" + reportRecordId.getId();
-        headlessRequest.setUrl(platformUrl);
+
+        Map<String, String> urlMap = new HashMap<>();
+        for (ReportStatisticsWithBLOBs blob : reportRecordIdList) {
+            String url = platformUrl + "/echartPic?shareId=" + blob.getId();
+            urlMap.put(blob.getId(), url);
+        }
+        headlessRequest.setUrlMap(urlMap);
         headlessRequest.setRemoteDriverUrl(remoteDriverUrl);
-        String imageData = chromeUtils.getImageInfo(headlessRequest, language);
-        return imageData;
+        Map<String, String> returnMap = chromeUtils.getImageInfo(headlessRequest, language);
+        return returnMap;
     }
 
     public boolean isReportNeedUpdate(ReportStatisticsWithBLOBs model) {

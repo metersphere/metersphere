@@ -23,18 +23,18 @@ public class ChromeUtils {
         return chromeUtils;
     }
 
-    private synchronized WebDriver genWebDriver(HeadlessRequest headlessRequest, String language) {
-        if (headlessRequest.isEmpty()) {
-            LogUtil.error("Headless request is null! " + JSON.toJSONString(headlessRequest));
+    private synchronized WebDriver genWebDriver(String seleniumUrl, String language) {
+        if (StringUtils.isEmpty(seleniumUrl)) {
+            LogUtil.error("Headless request is null! " + seleniumUrl);
             return null;
         }
         //初始化一个chrome浏览器实例driver
         ChromeOptions options = new ChromeOptions();
 
         if (StringUtils.isEmpty(language)) {
-            language = "zh-cn";
+            language = "zh_cn";
         }
-        if (StringUtils.equalsAnyIgnoreCase(language, "zh-cn")) {
+        if (StringUtils.equalsAnyIgnoreCase(language, "zh_cn")) {
             Map<String, Object> optionMap = new HashMap<>();
             optionMap.put("intl.accept_languages", "zh-CN,en,en_US");
             options.setExperimentalOption("prefs", optionMap);
@@ -46,9 +46,7 @@ public class ChromeUtils {
 
         WebDriver driver = null;
         try {
-            driver = new RemoteWebDriver(new URL(headlessRequest.getRemoteDriverUrl()), options);
-            driver.get(headlessRequest.getUrl());
-            driver.manage().window().fullscreen();
+            driver = new RemoteWebDriver(new URL(seleniumUrl), options);
         } catch (Exception e) {
             if (driver != null) {
                 driver.quit();
@@ -59,31 +57,42 @@ public class ChromeUtils {
         return driver;
     }
 
-    public synchronized String getImageInfo(HeadlessRequest request, String langurage) {
-        WebDriver driver = this.genWebDriver(request, langurage);
-        String files = null;
+    public synchronized Map<String, String> getImageInfo(HeadlessRequest request, String langurage) {
+        Map<String, String> returnMap = new HashMap<>();
+        if (request.isEmpty()) {
+            return returnMap;
+        }
+        WebDriver driver = this.genWebDriver(request.getRemoteDriverUrl(), langurage);
         if (driver != null) {
-            try {
-                //预留echart动画的加载时间
-                Thread.sleep(3 * 1000);
-                String js = "var chartsCanvas = document.getElementById('picChart').getElementsByTagName('canvas')[0];" +
-                        "var imageUrl = null;" +
-                        "if (chartsCanvas!= null) {" +
-                        " imageUrl = chartsCanvas && chartsCanvas.toDataURL('image/png');" +
-                        "return imageUrl;" +
-                        "}";
-                files = ((JavascriptExecutor) driver).executeScript(js).toString();
-            } catch (Exception e) {
-                LogUtil.error(e);
-            } finally {
+            for (Map.Entry<String, String> urlEntry : request.getUrlMap().entrySet()) {
+                String id = urlEntry.getKey();
+                String url = urlEntry.getValue();
+                try {
+                    driver.get(url);
+                    driver.manage().window().fullscreen();
+                    //预留echart动画的加载时间
+                    Thread.sleep(3 * 1000);
+                    String js = "var chartsCanvas = document.getElementById('picChart').getElementsByTagName('canvas')[0];" +
+                            "var imageUrl = null;" +
+                            "if (chartsCanvas!= null) {" +
+                            " imageUrl = chartsCanvas && chartsCanvas.toDataURL('image/png');" +
+                            "return imageUrl;" +
+                            "}";
+                    String files = ((JavascriptExecutor) driver).executeScript(js).toString();
+                    if (StringUtils.isNotEmpty(files)) {
+                        returnMap.put(id, files);
+                    }
+                    Thread.sleep(1 * 1000);
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
+
+            }
+
+            if (driver != null) {
                 driver.quit();
             }
         }
-        if (StringUtils.isNotEmpty(files)) {
-            return files;
-        } else {
-            LogUtil.error("获取报表图片失败！参数：" + JSON.toJSONString(request));
-            return null;
-        }
+        return returnMap;
     }
 }
