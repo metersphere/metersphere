@@ -690,6 +690,8 @@ public class ApiAutomationService {
     }
 
     public byte[] loadFileAsBytes(FileOperationRequest fileOperationRequest) {
+        if (fileOperationRequest.getId().contains("/") || fileOperationRequest.getName().contains("/"))
+            MSException.throwException(Translator.get("invalid_parameter"));
         File file = new File(FileUtils.BODY_FILE_DIR + "/" + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
         try (FileInputStream fis = new FileInputStream(file);
              ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);) {

@@ -1,7 +1,9 @@
 package io.metersphere.service;
 
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.controller.request.MdUploadRequest;
+import io.metersphere.i18n.Translator;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +26,8 @@ public class ResourceService {
     }
 
     public ResponseEntity<FileSystemResource> getMdImage(String name) {
+        if (name.contains("/"))
+            MSException.throwException(Translator.get("invalid_parameter"));
         File file = new File(FileUtils.MD_IMAGE_DIR + "/" + name);
         HttpHeaders headers = new HttpHeaders();
         String fileName = "";
