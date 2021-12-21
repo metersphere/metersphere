@@ -484,7 +484,7 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
         },
         {
-          name: "生成依赖关系",
+          name: this.$t('test_track.case.generate_dependencies'),
           handleClick: this.generateGraph,
           isXPack: true,
           permissions: ['PROJECT_API_SCENARIO:READ+EDIT']
@@ -1057,7 +1057,7 @@ export default {
           if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
-              alertMsg += item + ";";
+              alertMsg += item;
             });
             if (alertMsg === "") {
               alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";

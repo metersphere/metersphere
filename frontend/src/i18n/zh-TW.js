@@ -105,6 +105,7 @@ export default {
     api: '接口測試',
     follow_api: '跟隨API定義',
     encode: '編碼',
+    view: '查看',
     response_time_delay: '響應延遲時間',
     performance: '性能測試',
     enable_settings: '啟用設置',
@@ -700,7 +701,7 @@ export default {
     repeatable_info: '啟用後接口定義重復性校驗將不校驗URL',
     case_public: '公共用例庫',
     public: '啟動公共用例庫',
-    public_info: '可以使用公共用例庫數據，也可以自行添加用例至公共用例庫',
+    public_info: '可以自行添加用例至公共用例庫',
     upload_file_again: '重新上傳',
     code_segment: {
       code_segment: "自定義代碼片段",
