@@ -1327,6 +1327,8 @@ export default {
       import: "導入環境",
       request_timeout: "鏈接超時",
       response_timeout: "響應超時",
+      repeat_warning: "啟用條件為 '無' 的域名已經存在！",
+      copy_warning: "啟用條件為 '無' 的域名不支持複製！"
     },
     scenario: {
       id: "場景ID",

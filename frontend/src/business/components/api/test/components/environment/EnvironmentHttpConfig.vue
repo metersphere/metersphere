@@ -229,7 +229,7 @@ export default {
     typeChange() {
       if (this.condition.type === "NONE" && this.condition.id && this.checkNode(this.condition.id)) {
         this.condition.type = this.beforeCondition.type;
-        this.$warning("启用条件为 '无' 的域名已经存在！");
+        this.$warning(this.$t('api_test.environment.repeat_warning'));
         return;
       }
       switch (this.condition.type) {
@@ -307,7 +307,7 @@ export default {
     },
     add() {
       if (this.condition.type === "NONE" && this.checkNode()) {
-        this.$warning("启用条件为 '无' 的域名已经存在，请更新！");
+        this.$warning(this.$t('api_test.environment.repeat_warning'));
         return;
       }
       this.validateSocket();
@@ -330,7 +330,7 @@ export default {
     },
     copy(row) {
       if (row.type === "NONE") {
-        this.$warning("启用条件为 '无' 的域名不支持复制！");
+        this.$warning(this.$t('api_test.environment.copy_warning'));
         return;
       }
       const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
