@@ -24,15 +24,17 @@ export const CUSTOM_FIELD_SCENE_OPTION = [
   {value: 'ISSUE',text: 'workspace.issue_template_manage'},
 ];
 
-export const CASE_TYPE_OPTION = [
-  {value: 'functional',text: '功能用例'},
-];
+export function CASE_TYPE_OPTION(){
+  return [
+    {value: 'functional', text: i18n.t('api_test.home_page.failed_case_list.table_value.case_type.functional')},
+  ];
+}
 
 export const ISSUE_PLATFORM_OPTION = [
   {value: LOCAL, text: 'Metersphere'},
   {value: TAPD, text: 'Tapd'},
   {value: JIRA, text: 'JIRA'},
-  {value: ZEN_TAO, text: '禅道'},
+  {value: ZEN_TAO, text: 'Zentao'},
   {value: AZURE_DEVOPS, text: 'Azure Devops'},
 ];
 
@@ -75,12 +77,12 @@ export const SYSTEM_FIELD_NAME_MAP = {
 
 
 export const ISSUE_STATUS_MAP = {
-  'new': '新建',
-  'closed': '已关闭',
-  'resolved': '已解决',
-  'active': '激活',
-  'delete': '已删除',
-  'created':'新建'
+  'new': i18n.t('test_track.issue.status_new'),
+  'closed': i18n.t('test_track.issue.status_closed'),
+  'resolved': i18n.t('test_track.issue.status_resolved'),
+  'active': i18n.t('test_track.issue.status_active'),
+  'delete': i18n.t('test_track.issue.status_delete'),
+  'created':i18n.t('test_track.issue.status_new')
 }
 
 export function API_SCENARIO_FILTERS () {

@@ -99,7 +99,7 @@ export default {
   },
   computed: {
     caseTypeOption() {
-      return CASE_TYPE_OPTION;
+      return new CASE_TYPE_OPTION();
     },
     isSystem() {
       return this.form.system;
