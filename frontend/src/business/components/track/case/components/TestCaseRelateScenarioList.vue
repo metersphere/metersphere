@@ -168,7 +168,7 @@ export default {
       }
     },
     buildPagePath(path) {
-      return path + "/" + this.currentPage + "/" + this.pageSize;
+      return path + this.currentPage + "/" + this.pageSize;
     },
     getSelectIds() {
       return this.$refs.table.selectIds;
