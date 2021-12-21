@@ -489,14 +489,7 @@ public class MockApiUtils {
             return returnJson;
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "text/xml")) {
             String xmlString = readXml(request);
-
-            org.json.JSONObject xmlJSONObj = XML.toJSONObject(xmlString);
-            String jsonStr = xmlJSONObj.toString();
-            JSONObject object = null;
-            try {
-                object = JSONObject.parseObject(jsonStr);
-            } catch (Exception e) {
-            }
+            JSONObject object = XMLUtils.XmlToJson(xmlString);
             return object;
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "application/x-www-form-urlencoded")) {
             JSONObject object = new JSONObject();
