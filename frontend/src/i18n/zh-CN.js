@@ -1327,6 +1327,8 @@ export default {
       import: "导入环境",
       request_timeout: "链接超时",
       response_timeout: "响应超时",
+      repeat_warning: "启用条件为 '无' 的域名已经存在！",
+      copy_warning: "启用条件为 '无' 的域名不支持复制！"
     },
     scenario: {
       id: "场景ID",

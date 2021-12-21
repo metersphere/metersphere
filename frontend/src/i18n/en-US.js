@@ -1322,6 +1322,8 @@ export default {
       import: "Import Environment",
       request_timeout: "Request Timeout",
       response_timeout: "Response Timeout",
+      repeat_warning: "The domain name whose activation condition is'None' already exists!",
+      copy_warning: "Domain names whose enabling conditions are'none' do not support copying!"
     },
     scenario: {
       id:"Scenario ID",
