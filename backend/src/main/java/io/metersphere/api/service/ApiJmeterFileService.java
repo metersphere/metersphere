@@ -58,7 +58,7 @@ public class ApiJmeterFileService {
         return listBytesToZip(files);
     }
 
-    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId) {
+    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType) {
         Map<String, String> planEnvMap = new HashMap<>();
         ApiScenarioWithBLOBs scenario = null;
         if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
@@ -96,7 +96,7 @@ public class ApiJmeterFileService {
                     planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
                 }
             }
-            hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap);
+            hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap, reportType);
         }
         return zipFilesToByteArray((reportId + "_" + remoteTestId), hashTree);
     }

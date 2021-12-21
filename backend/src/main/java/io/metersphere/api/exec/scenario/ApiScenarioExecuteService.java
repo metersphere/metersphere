@@ -150,7 +150,7 @@ public class ApiScenarioExecuteService {
             responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(scenarioIds), serialReportId, request.getRunMode()));
             // 增加并行集合报告
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
-                apiScenarioReportStructureService.save(apiScenarios, serialReportId);
+                apiScenarioReportStructureService.save(apiScenarios, serialReportId, request.getConfig() != null ? request.getConfig().getReportType() : null);
             }
         }
         // 开始执行
@@ -160,7 +160,7 @@ public class ApiScenarioExecuteService {
             DBTestQueue executionQueue = apiExecutionQueueService.add(executeQueue, request.getConfig().getResourcePoolId(), ApiRunMode.SCENARIO.name(), serialReportId, reportType, request.getRunMode());
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
                 if (StringUtils.isNotEmpty(serialReportId)) {
-                    apiScenarioReportStructureService.save(apiScenarios, serialReportId);
+                    apiScenarioReportStructureService.save(apiScenarios, serialReportId, request.getConfig() != null ? request.getConfig().getReportType() : null);
                 }
                 SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
                 ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
@@ -267,7 +267,7 @@ public class ApiScenarioExecuteService {
                     // 生成并行报告和HashTree
                     RunModeDataDTO runModeDataDTO = new RunModeDataDTO(report, testPlanScenarioId);
                     if (request.getConfig() != null && !request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-                        runModeDataDTO.setHashTree(GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap));
+                        runModeDataDTO.setHashTree(GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap, request.getConfig().getReportType()));
                     }
                     executeQueue.put(report.getId(), runModeDataDTO);
                 } catch (Exception ex) {
@@ -284,7 +284,7 @@ public class ApiScenarioExecuteService {
 
             // 生成文档结构
             if (request.getConfig() == null || !StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                apiScenarioReportStructureService.save(scenario, report.getId());
+                apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
             }
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
@@ -317,7 +317,7 @@ public class ApiScenarioExecuteService {
                 try {
                     RunModeDataDTO runModeDataDTO = new RunModeDataDTO(report, item.getId());
                     if (request.getConfig() != null && !request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-                        HashTree hashTree = GenerateHashTreeUtil.generateHashTree(item, StringUtils.isNotEmpty(serialReportId) ? serialReportId + "-" + i : reportId, new HashMap<>());
+                        HashTree hashTree = GenerateHashTreeUtil.generateHashTree(item, StringUtils.isNotEmpty(serialReportId) ? serialReportId + "-" + i : reportId, new HashMap<>(), request.getConfig().getReportType());
                         runModeDataDTO.setHashTree(hashTree);
                     }
                     executeQueue.put(report.getId(), runModeDataDTO);
@@ -332,7 +332,7 @@ public class ApiScenarioExecuteService {
             }
             // 生成报告结构
             if (request.getConfig() == null || !StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                apiScenarioReportStructureService.save(item, report.getId());
+                apiScenarioReportStructureService.save(item, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
             }
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
@@ -370,7 +370,7 @@ public class ApiScenarioExecuteService {
         apiScenarioReportMapper.insert(report);
         if (request.isSaved()) {
             ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(request.getScenarioId());
-            apiScenarioReportStructureService.save(scenario, report.getId());
+            apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
         }
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
