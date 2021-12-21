@@ -126,7 +126,7 @@
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
-import {getUrl, LOG_TYPE, LOG_TYPE_MAP, sysList} from "./config";
+import {getUrl, LOG_TYPE, LOG_TYPE_MAP, SYSLIST} from "./config";
 import MsLogDetail from "./LogDetail";
 
 export default {
@@ -153,7 +153,7 @@ export default {
         screenHeight: 'calc(100vh - 270px)',
         LOG_TYPE: new LOG_TYPE(this),
         LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
-        sysList: sysList,
+        sysList:new SYSLIST(),
       }
     },
     mounted() {

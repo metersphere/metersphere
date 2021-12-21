@@ -67,6 +67,7 @@ export default {
     input_limit: '長度在 {0} 到 {1} 個字符',
     login: '登錄',
     welcome: '一站式開源持續測試平臺',
+    theme_color:'主題色',
     username: '姓名',
     password: '密碼',
     input_username: '請輸入用戶姓名',
@@ -181,6 +182,8 @@ export default {
     modifier: '修改人',
     validate: "校驗",
     batch_add: "批量添加",
+    batch_restore: "批量恢復",
+    batch_gc: "批量回收",
     check_project_tip: "請先創建或選擇項目",
     auth_redirect_tip: '即將跳轉到認證源頁面進行認證',
     tag_tip: "輸入回車添加標簽",
@@ -399,7 +402,9 @@ export default {
     original_state: '原始狀態',
     custom_num: '自定義編號',
     version: '版本',
-    is_new: "是否新建"
+    is_new: "是否新建",
+    form_config:"表單配置",
+    form_content:"表單內容"
   },
   login: {
     normal_Login: "普通登錄",
@@ -630,6 +635,8 @@ export default {
       zentao_account: '禪道賬戶',
       zentao_password: '禪道密碼',
       zentao_prompt_information: '該信息為通過禪道提交缺陷的的用戶名、密碼，若未填寫，則使用工作空間中配置的默認信息',
+      zentao_config_tip:"參考禪道配置文件中 $config->requestType 的值 ",
+      zentao_config_path:"配置文件參考路徑：/opt/zbox/app/zentao/config/my.php",
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 賬號信息在"公司管理-安全與集成-開放平臺"中查詢',
       use_tip_jira: 'Jira software server 認證信息為 賬號密碼，Jira software cloud 認證信息為 賬號+令牌(賬戶設置-安全-創建API令牌)',
@@ -791,6 +798,7 @@ export default {
     add_project_batch: '批量添加到項目',
     add_workspace_batch: "批量添加到工作空間",
     add_project_batch_tip: '默認為成員添加只讀用戶組(系統)',
+    import_user_tip:'用戶組只支持系統默認用戶組'
   },
   group: {
     add: '添加用戶組',
@@ -1051,11 +1059,13 @@ export default {
     jar_config: {
       title: "上傳jar包",
       jar_file: "jar包",
+      jar_manage:"JAR包管理",
       delete_tip: "刪除需重啟服務後生效",
       file_exist: "該項目下已存在該jar包",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
       upload_limit_size_warn: "上傳文件大小不能超過 {0} MB!",
       upload_limit: "上傳文件大小不能超過",
+      upload_tip:"只能上傳JAR包"
     },
     batch_menus: {
       select_all_data: "選擇所有數據(共{0}條)",
@@ -2520,6 +2530,7 @@ export default {
     script_entry: "腳本執行入口",
     plugin_id: "插件ID",
     script_view: "查看腳本",
+    warning_tip:'未找到腳本內容'
   },
   mail: {
     input_mail_subject: "請輸入郵件主題",

@@ -3,7 +3,7 @@
              @close="close">
         <el-row>
           <el-alert
-            title="用户组只支持系统默认用户组"
+            :title="$t('user.import_user_tip')"
             type="info"
             show-icon
             :closable="false"
@@ -145,5 +145,8 @@ export default {
   padding: 5px 20px;
 }
 
+.user-import >>> .el-alert__content {
+  padding:0 0 0 8px
 
+}
 </style>
