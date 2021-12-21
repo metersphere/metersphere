@@ -19,14 +19,16 @@
           <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
 
-        <el-form-item v-if="form.platform == 'Jira'" :label-width="labelWidth" :label="$t('test_track.issue.use_third_party')" prop="scenarioCustomNum">
-          <el-switch v-model="form.thirdPartTemplate"></el-switch>
-        </el-form-item>
-
-        <el-form-item v-if="!form.thirdPartTemplate" :label-width="labelWidth"
+        <el-form-item :label-width="labelWidth"
                       :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
           <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId"
+                           :disabled="form.platform === 'Jira' && form.thirdPartTemplate"
                            ref="issueTemplate"/>
+
+          <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'" v-model="form.thirdPartTemplate" style="margin-left: 10px">
+            {{ $t('test_track.issue.use_third_party') }}
+          </el-checkbox>
+
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" label="TCP Mock Port">
@@ -214,6 +216,10 @@ export default {
       if (this.$refs.caseTemplate) {
         this.$refs.caseTemplate.getTemplateOptions();
       }
+    },
+    thirdPartTemplateChange(val) {
+      if (val)
+        this.form.issueTemplateId = '';
     },
     edit(row) {
       this.title = this.$t('project.edit');
