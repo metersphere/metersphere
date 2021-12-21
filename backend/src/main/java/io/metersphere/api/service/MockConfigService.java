@@ -365,8 +365,10 @@ public class MockConfigService {
                 if (jsonObject.containsKey("name") && jsonObject.containsKey("value")) {
                     String headerName = jsonObject.getString("name");
                     String headerValue = jsonObject.getString("value");
-                    if (!requestHeaderMap.containsKey(headerName) || !StringUtils.equals(requestHeaderMap.get(headerName), headerValue)) {
-                        return false;
+                    if(StringUtils.isNotEmpty(headerName)){
+                        if (!requestHeaderMap.containsKey(headerName) || !StringUtils.equals(requestHeaderMap.get(headerName), headerValue)) {
+                            return false;
+                        }
                     }
                 }
             }
