@@ -43,10 +43,10 @@ public abstract class ZentaoClient extends BaseClient {
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
             ResponseEntity<String> response = restTemplate.exchange(loginUrl + sessionId, HttpMethod.POST, requestEntity, String.class);
             getUserResponse = (GetUserResponse) getResultForObject(GetUserResponse.class, response);
+        } catch (JSONException e) {
+            MSException.throwException(Translator.get("zentao_test_type_error"));
         } catch (Exception e) {
             LogUtil.error(e);
-            if (e instanceof JSONException)
-                MSException.throwException(Translator.get("zentao_test_type_error"));
             MSException.throwException(e.getMessage());
         }
         GetUserResponse.User user = getUserResponse.getUser();
