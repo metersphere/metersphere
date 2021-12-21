@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,14 @@ public class MailNoticeSender extends AbstractNoticeSender {
             return;
         }
 
+        List<String> recipients = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(noticeModel.getRecipients())){
+            recipients = noticeModel.getRecipients().stream()
+                    .map(Receiver::getUserId)
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
         String[] users = userIds.stream()
                 .distinct()
                 .toArray(String[]::new);
@@ -88,6 +97,14 @@ public class MailNoticeSender extends AbstractNoticeSender {
         LogUtil.info("收件人地址: {}", userIds);
         helper.setText(context, true);
         helper.setTo(users);
+
+        if(CollectionUtils.isNotEmpty(recipients)){
+            String[] ccArr = recipients.stream()
+                    .distinct()
+                    .toArray(String[]::new);
+            helper.setCc(ccArr);
+        }
+
         javaMailSender.send(mimeMessage);
     }
 
