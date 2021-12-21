@@ -114,7 +114,6 @@ public class RemakeReportService {
                     }
                 }
             }
-            MessageCache.caseExecResourceLock.remove(request.getReportId());
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -143,6 +142,5 @@ public class RemakeReportService {
         }
         report.setStatus(APITestStatus.Error.name());
         apiScenarioReportMapper.insert(report);
-        MessageCache.caseExecResourceLock.remove(report.getId());
     }
 }

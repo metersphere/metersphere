@@ -225,7 +225,7 @@ public class ApiScenarioEnvService {
         }
         String definition = apiScenarioWithBLOBs.getScenarioDefinition();
         MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
-        GenerateHashTreeUtil.parse(definition, scenario);
+        GenerateHashTreeUtil.parse(definition, scenario, apiScenarioWithBLOBs.getId(), null);
         if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString())) {
             scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class));
         } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.toString())) {
@@ -427,5 +427,19 @@ public class ApiScenarioEnvService {
             });
             config.setConfig(envConfig);
         }
+    }
+
+    public Map<String, String> planEnvMap(String testPlanScenarioId) {
+        Map<String, String> planEnvMap = new HashMap<>();
+        TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
+        String envJson = planApiScenario.getEnvironment();
+        String envType = planApiScenario.getEnvironmentType();
+        String envGroupId = planApiScenario.getEnvironmentGroupId();
+        if (StringUtils.equals(envType, EnvironmentType.JSON.toString()) && StringUtils.isNotBlank(envJson)) {
+            planEnvMap = JSON.parseObject(envJson, Map.class);
+        } else if (StringUtils.equals(envType, EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(envGroupId)) {
+            planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
+        }
+        return planEnvMap;
     }
 }

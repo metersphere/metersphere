@@ -7,7 +7,6 @@ import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiExecutionQueue;
@@ -102,7 +101,6 @@ public class TestPlanApiExecuteService {
                 ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, APITestStatus.Running.name(), batchMapper);
                 executeQueue.put(report.getId(), testPlanApiCase);
                 executeThreadIdMap.put(testPlanApiCase.getId(), report.getId());
-                MessageCache.caseExecResourceLock.put(report.getId(), report);
                 responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
             });
             sqlSession.flushStatements();

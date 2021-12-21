@@ -15,17 +15,21 @@ import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.api.service.TestResultService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.ResultDTO;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +55,10 @@ public class ApiScenarioSerialService {
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private ApiScenarioEnvService apiScenarioEnvService;
 
     public void serial(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue) {
         LoggerUtil.debug("Scenario run-执行脚本装载-进入串行准备");
@@ -73,12 +81,22 @@ public class ApiScenarioSerialService {
             HashTree hashTree = null;
             if (StringUtils.isEmpty(executionQueue.getPoolId())) {
                 if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                    ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(queue.getTestId());
+                    ApiScenarioWithBLOBs scenario = null;
                     Map<String, String> planEnvMap = new LinkedHashMap<>();
-                    if (StringUtils.isNotEmpty(queue.getEvnMap())) {
+                    if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name())) {
+                        scenario = apiScenarioMapper.selectByPrimaryKey(queue.getTestId());
+                    } else {
+                        TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(queue.getTestId());
+                        if (planApiScenario != null) {
+                            planEnvMap = apiScenarioEnvService.planEnvMap(queue.getTestId());
+                            queue.setEvnMap(JSON.toJSONString(planEnvMap));
+                            scenario = apiScenarioMapper.selectByPrimaryKey(planApiScenario.getApiScenarioId());
+                        }
+                    }
+                    if ((planEnvMap == null || planEnvMap.isEmpty()) && StringUtils.isNotEmpty(queue.getEvnMap())) {
                         planEnvMap = JSON.parseObject(queue.getEvnMap(), Map.class);
                     }
-                    hashTree = GenerateHashTreeUtil.generateHashTree(scenario, queue.getReportId(), planEnvMap);
+                    hashTree = GenerateHashTreeUtil.generateHashTree(scenario, queue.getReportId(), planEnvMap, executionQueue.getReportType());
                 } else {
                     hashTree = generateHashTree(queue.getTestId());
                 }
@@ -86,6 +104,9 @@ public class ApiScenarioSerialService {
                 this.initEnv(hashTree);
             }
             String reportId = StringUtils.isNotEmpty(executionQueue.getReportId()) ? executionQueue.getReportId() : queue.getReportId();
+            if (!StringUtils.equals(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name())) {
+                reportId = queue.getReportId();
+            }
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(queue.getTestId(), reportId, executionQueue.getRunMode(), hashTree);
             runRequest.setReportType(executionQueue.getReportType());
             runRequest.setPool(GenerateHashTreeUtil.isResourcePool(executionQueue.getPoolId()));
@@ -96,11 +117,14 @@ public class ApiScenarioSerialService {
             // 开始执行
             jMeterService.run(runRequest);
         } catch (Exception e) {
-            LogUtil.error("执行终止：" + e.getMessage());
+            LoggerUtil.error("执行终止：" + e.getMessage());
+            ResultDTO dto = new ResultDTO();
+            BeanUtils.copyBean(dto, queue);
+            dto.setRunType(RunModeConstants.SERIAL.toString());
+            dto.setReportType(executionQueue.getReportType());
+            dto.setRunMode(executionQueue.getRunMode());
             if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(queue.getReportId());
-                report.setStatus(APITestStatus.Error.name());
-                apiScenarioReportMapper.updateByPrimaryKey(report);
+                CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
             } else {
                 ApiDefinitionExecResult apiDefinitionExecResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
                 if (apiDefinitionExecResult != null) {
@@ -108,6 +132,7 @@ public class ApiScenarioSerialService {
                     apiDefinitionExecResultMapper.updateByPrimaryKey(apiDefinitionExecResult);
                 }
             }
+            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
         }
     }
 

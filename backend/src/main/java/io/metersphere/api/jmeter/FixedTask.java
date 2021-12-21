@@ -12,9 +12,6 @@ public class FixedTask {
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void execute() {
-        if (MessageCache.caseExecResourceLock.size() > 10000) {
-            MessageCache.caseExecResourceLock.clear();
-        }
         if (queueService == null) {
             queueService = CommonBeanFactory.getBean(ApiExecutionQueueService.class);
         }
