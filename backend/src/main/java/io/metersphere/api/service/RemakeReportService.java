@@ -1,13 +1,12 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.dto.automation.ScenarioStatus;
-import io.metersphere.api.exec.queue.SerialBlockingQueueUtil;
 import io.metersphere.api.jmeter.MessageCache;
-import io.metersphere.api.jmeter.ReportCounter;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -36,12 +35,11 @@ public class RemakeReportService {
     public void remake(JmeterRunRequestDTO request) {
         try {
             if (StringUtils.equals(request.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                Object obj = MessageCache.concurrencyCounter.get(request.getReportId());
-                if (obj != null) {
-                    ReportCounter counter = (ReportCounter) obj;
-                    counter.getCompletedIds().add(request.getTestId());
-                    MessageCache.concurrencyCounter.put(request.getReportId(), counter);
-                }
+                ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+                example.createCriteria().andQueueIdEqualTo(request.getQueueId()).andTestIdEqualTo(request.getTestId());
+                CommonBeanFactory.getBean(ApiExecutionQueueDetailMapper.class).deleteByExample(example);
+
+                CommonBeanFactory.getBean(ApiExecutionQueueService.class).edit(request.getQueueId(), request.getTestId());
             }
             // 清理零时报告
             if (StringUtils.equalsAnyIgnoreCase(request.getRunMode(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
@@ -117,7 +115,6 @@ public class RemakeReportService {
                 }
             }
             MessageCache.caseExecResourceLock.remove(request.getReportId());
-            SerialBlockingQueueUtil.remove(request.getReportId());
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -147,6 +144,5 @@ public class RemakeReportService {
         report.setStatus(APITestStatus.Error.name());
         apiScenarioReportMapper.insert(report);
         MessageCache.caseExecResourceLock.remove(report.getId());
-        SerialBlockingQueueUtil.remove(report.getId());
     }
 }

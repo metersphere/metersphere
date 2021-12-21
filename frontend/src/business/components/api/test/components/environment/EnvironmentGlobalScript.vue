@@ -4,7 +4,7 @@
       <el-collapse-item name="1">
         <template slot="title">
           <span class="span-style">{{title}}</span>
-          <el-tooltip class="item" effect="dark" :content="$t('api_test.script.tip_1')" placement="right">
+          <el-tooltip class="item" effect="dark" :content="runEveryTimeTip" placement="right">
             <i class="el-icon-info"/>
           </el-tooltip>
 
@@ -39,7 +39,7 @@
       <el-collapse-item name="2">
         <template slot="title">
           {{ stepTitle }}
-          <el-tooltip class="item" effect="dark" :content="$t('api_test.script.tip_2')" placement="right">
+          <el-tooltip class="item" effect="dark" :content="runOnceTip" placement="right">
             <i class="el-icon-info"/>
           </el-tooltip>
           <div class="header-right" style="margin: 5px 5px 5px 50px;" @click.stop>
@@ -81,6 +81,8 @@ export default {
   data() {
     return {
       title: "",
+      runEveryTimeTip: "",
+      runOnceTip: "",
       preTitle: this.$t('api_test.script.execute_before_step'),
       postTitle: this.$t('api_test.script.execute_post_step'),
       stepTitle: "",
@@ -112,10 +114,14 @@ export default {
       this.scriptExecSort = this.scriptPreExecSort;
       this.title = this.preTitle;
       this.stepTitle = this.preStepTitle;
+      this.runEveryTimeTip = this.$t('api_test.script.execute_before_step_tip')
+      this.runOnceTip = this.$t('api_test.script.execute_before_all_steps_tip')
     } else {
       this.scriptExecSort = this.scriptPostExecSort;
       this.title = this.postTitle;
       this.stepTitle = this.postStepTitle;
+      this.runEveryTimeTip = this.$t('api_test.script.execute_post_step_tip')
+      this.runOnceTip = this.$t('api_test.script.execute_post_all_steps_tip')
     }
     this.isConnScenario = this.connScenario;
     this.isExecAfterPrivateScript = this.execAfterPrivateScript;

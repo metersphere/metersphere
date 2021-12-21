@@ -250,7 +250,7 @@ public class ReportStatisticsService {
         return reportStatisticsMapper.selectByExample(example);
     }
 
-    public String getImageContentById(ReportStatisticsWithBLOBs reportRecordId) {
+    public String getImageContentById(ReportStatisticsWithBLOBs reportRecordId, String language) {
         ChromeUtils chromeUtils = ChromeUtils.getInstance();
         HeadlessRequest headlessRequest = new HeadlessRequest();
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
@@ -264,7 +264,7 @@ public class ReportStatisticsService {
         platformUrl += "/echartPic?shareId=" + reportRecordId.getId();
         headlessRequest.setUrl(platformUrl);
         headlessRequest.setRemoteDriverUrl(remoteDriverUrl);
-        String imageData = chromeUtils.getImageInfo(headlessRequest);
+        String imageData = chromeUtils.getImageInfo(headlessRequest, language);
         return imageData;
     }
 

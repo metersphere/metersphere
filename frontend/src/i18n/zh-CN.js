@@ -67,6 +67,7 @@ export default {
     input_limit: '长度在 {0} 到 {1} 个字符',
     login: '登录',
     welcome: '一站式开源持续测试平台',
+    theme_color:'主题色',
     username: '姓名',
     password: '密码',
     input_username: '请输入用户姓名',
@@ -181,6 +182,8 @@ export default {
     modifier: '修改人',
     validate: "校验",
     batch_add: "批量添加",
+    batch_restore: "批量恢复",
+    batch_gc: "批量回收",
     check_project_tip: "请先创建或选择项目",
     auth_redirect_tip: '即将跳转到认证源页面进行认证',
     tag_tip: "输入回车添加标签",
@@ -399,7 +402,9 @@ export default {
     original_state: '原始状态',
     custom_num: '自定义编号',
     version: '版本',
-    is_new: "是否新建"
+    is_new: "是否新建",
+    form_config:"表单配置",
+    form_content:"表单内容"
   },
   login: {
     normal_Login: "普通登录",
@@ -630,6 +635,8 @@ export default {
       zentao_account: '禅道账户',
       zentao_password: '禅道密码',
       zentao_prompt_information: '该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用工作空间中配置的默认信息',
+      zentao_config_tip:"参考禅道配置文件中 $config->requestType 的值 ",
+      zentao_config_path:"配置文件参考路径：/opt/zbox/app/zentao/config/my.php",
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 账号信息在"公司管理-安全与集成-开放平台"中查询',
       use_tip_jira: 'Jira software server 认证信息为 账号密码，Jira software cloud 认证信息为 账号+令牌(账户设置-安全-创建API令牌)',
@@ -791,6 +798,7 @@ export default {
     add_project_batch: '批量添加到项目',
     add_workspace_batch: "批量添加到工作空间",
     add_project_batch_tip: '默认为成员添加只读用户组(系统)',
+    import_user_tip:'用户组只支持系统默认用户组',
   },
   group: {
     add: '添加用户组',
@@ -1051,11 +1059,13 @@ export default {
     jar_config: {
       title: "上传jar包",
       jar_file: "jar包",
+      jar_manage:"JAR包管理",
       delete_tip: "删除需重启服务后生效",
       file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
       upload_limit_size_warn: "上传文件大小不能超过 {0} MB!",
       upload_limit: "上传文件大小不能超过",
+      upload_tip:"只能上传JAR包"
     },
     batch_menus: {
       select_all_data: "选择所有数据(共{0}条)",
@@ -1327,6 +1337,8 @@ export default {
       import: "导入环境",
       request_timeout: "链接超时",
       response_timeout: "响应超时",
+      repeat_warning: "启用条件为 '无' 的域名已经存在！",
+      copy_warning: "启用条件为 '无' 的域名不支持复制！"
     },
     scenario: {
       id: "场景ID",
@@ -1747,16 +1759,18 @@ export default {
       }
     },
     script: {
-      tip_1: "每一个API步骤后执行一次 如加解密",
-      tip_2: "全部API流程结束后执行一次 如token获取，场景初始化",
       tip_3: "脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果",
       filter_request_type: "过滤请求类型",
       execution_order: "脚本执行顺序",
       associated_scene_results: "关联场景结果",
       execute_before_step: "单个请求步骤前执行",
+      execute_before_step_tip: "每一个API步骤执行前均执行一次，如请求内容加密",
       execute_post_step: "单个请求步骤后执行",
+      execute_post_step_tip: "每一个API步骤执行后均执行一次，如响应内容解密",
       execute_before_all_steps: "所有请求步骤前执行",
+      execute_before_all_steps_tip: "全部API流程开始前执行一次，如token获取及场景初始化",
       execute_post_all_steps: "所有请求步骤后执行",
+      execute_post_all_steps_tip: "全部API流程结束后执行一次，如数据销毁及环境重置",
       after_the_pre_script_step: "步骤内前置脚本后",
       before_the_pre_script_step: "步骤内前置脚本前",
       after_the_post_script_step: "步骤内后置脚本后",
@@ -2518,6 +2532,7 @@ export default {
     script_entry: "脚本执行入口",
     plugin_id: "插件ID",
     script_view: "查看脚本",
+    warning_tip:'未找到脚本内容'
   },
   mail: {
     input_mail_subject: "请输入邮件主题",

@@ -77,26 +77,26 @@ public class GenerateHashTreeUtil {
         return new LinkedList<>();
     }
 
-    public static BooleanPool isResourcePool(RunModeConfigDTO config) {
+    public static BooleanPool isResourcePool(String id) {
         BooleanPool pool = new BooleanPool();
-        pool.setPool(config != null && StringUtils.isNotEmpty(config.getResourcePoolId()));
+        pool.setPool(StringUtils.isNotEmpty(id));
         if (pool.isPool()) {
-            TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolMapper.class).selectByPrimaryKey(config.getResourcePoolId());
+            TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolMapper.class).selectByPrimaryKey(id);
             pool.setK8s(resourcePool != null && resourcePool.getApi() && resourcePool.getType().equals(ResourcePoolTypeEnum.K8S.name()));
         }
         return pool;
     }
 
-    public static void setPoolResource(RunModeConfigDTO config) {
-        if (GenerateHashTreeUtil.isResourcePool(config).isPool()) {
-            if (GenerateHashTreeUtil.isResourcePool(config).isK8s()) {
+    public static List<JvmInfoDTO> setPoolResource(String id) {
+        if (GenerateHashTreeUtil.isResourcePool(id).isPool()) {
+            if (GenerateHashTreeUtil.isResourcePool(id).isK8s()) {
                 LogUtil.info("K8S 暂时不做校验 ");
             } else {
                 ResourcePoolCalculation resourcePoolCalculation = CommonBeanFactory.getBean(ResourcePoolCalculation.class);
-                List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(config.getResourcePoolId());
-                config.setTestResources(testResources);
+                return resourcePoolCalculation.getPools(id);
             }
         }
+        return null;
     }
 
     public static HashTree generateHashTree(ApiScenarioWithBLOBs item, String reportId, Map<String, String> planEnvMap) {
@@ -109,7 +109,7 @@ public class GenerateHashTreeUtil {
             group.setName(reportId);
             MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
             group.setOnSampleError(scenario.getOnSampleError());
-            if (planEnvMap.size() > 0) {
+            if (planEnvMap != null && planEnvMap.size() > 0) {
                 scenario.setEnvironmentMap(planEnvMap);
             }
             GenerateHashTreeUtil.parse(item.getScenarioDefinition(), scenario);
