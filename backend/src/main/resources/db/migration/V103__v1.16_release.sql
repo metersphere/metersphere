@@ -67,27 +67,27 @@ VALUES (UUID(), 'project_app_manager', 'PROJECT_APP_MANAGER:READ+EDIT', 'PROJECT
 
 CREATE TABLE IF NOT EXISTS `api_execution_queue`
 (
-   `id` varchar(50) NOT NULL COMMENT 'ID',
-   `test_queue` LONGTEXT COMMENT '执行资源Id队列fifo',
+     `id` varchar(50) NOT NULL COMMENT 'ID',
 	 `report_id` varchar(100) COMMENT '集合报告/测试计划报告',
 	 `report_type` varchar(100) COMMENT '报告类型/计划报告/单独报告',
 	 `run_mode` varchar(100) COMMENT '执行模式/scenario/api/test_paln_api/test_pan_scenario',
 	 `pool_id` varchar(100) DEFAULT NULL  COMMENT '执行资源池',
-    create_time bigint(13)  NULL COMMENT '创建时间',
+      create_time bigint(13)  NULL COMMENT '创建时间',
 	PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
 
 CREATE TABLE IF NOT EXISTS `api_execution_queue_detail`
 (
-   `id` varchar(50) NOT NULL COMMENT 'ID',
-   `queue_id` LONGTEXT COMMENT '队列id',
-     `report_id` varchar(100) COMMENT '报告id',
-     `test_id` varchar(100) COMMENT '资源id',
-     `evn_map` varchar(100) COMMENT '环境',
-     `type` varchar(100) DEFAULT NULL  COMMENT '资源类型',
+    `id` varchar(50) NOT NULL COMMENT 'ID',
+    `queue_id` varchar(100) COMMENT '队列id',
+	`sort` int COMMENT '排序',
+	`report_id` varchar(100) COMMENT '报告id',
+	`test_id` varchar(100) COMMENT '资源id',
+	`evn_map` LONGTEXT COMMENT '环境',
+	`type` varchar(100) DEFAULT NULL  COMMENT '资源类型',
     create_time bigint(13)  NULL COMMENT '创建时间',
 	PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
 ALTER TABLE load_test
     MODIFY name VARCHAR(255) NOT NULL COMMENT 'Test name';
