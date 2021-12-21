@@ -140,7 +140,11 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             issuesMapper.updateByPrimaryKeySelective(issue);
         }
         issue.setTitle(bugObj.getTitle());
-        issue.setDescription(steps);
+
+        // 保留之前上传的图片
+        String images = getImages(issue.getDescription());
+        issue.setDescription(steps + "\n" + images);
+
         issue.setReporter(bugObj.getOpenedBy());
         issue.setPlatform(key);
         try {
