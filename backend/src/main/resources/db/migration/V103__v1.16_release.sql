@@ -69,3 +69,6 @@ CREATE TABLE IF NOT EXISTS `api_scenario_report_structure`
 
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_app_manager', 'PROJECT_APP_MANAGER:READ+EDIT', 'PROJECT_APP_MANAGER');
+
+ALTER TABLE load_test
+    MODIFY name VARCHAR(255) NOT NULL COMMENT 'Test name';
