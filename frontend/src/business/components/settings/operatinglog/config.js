@@ -120,82 +120,80 @@ export function getUrl(d) {
       return url;
     }
   }
-  switch (d.operModule) {
-    case "接口自动化" || "Api automation" || "接口自動化":
-      url += "/api/automation?resourceId=" + resourceId;
-      break;
-    case "测试计划" || "測試計劃" || "Test plan":
-      url += "/track/plan/view/" + resourceId;
-      break;
-    case "用例评审" || "Case review" || "用例評審":
-      url += "/track/review/view/" + resourceId;
-      break;
-    case "缺陷管理" || "Defect management":
-      url += "/track/issue";
-      break;
-    case "SWAGGER_TASK" :
-      url += "/api/definition";
-      break;
-    case "接口定义" || "接口定義" || "Api definition":
-      url += "/api/definition?resourceId=" + resourceId;
-      break;
-    case "接口定义用例" || "接口定義用例" || "Api definition case":
-      url += "/api/definition?caseId=" + resourceId;
-      break;
-    case "测试报告" || "測試報告" || "Test Report":
-      url += "/api/automation/report";
-      break;
-    case "性能测试报告" || "性能測試報告" || "Performance test report" :
-      url += "/performance/report/all";
-      break;
-    case "性能测试" || "性能測試" || "Performance test" :
-      url += "/performance/test/edit/" + resourceId;
-      break;
-    case "测试用例" || "測試用例" || "Test case":
-      url += "/track/case/all?resourceId=" + resourceId;
-      break;
-    case "系统-用户" || "系统-用户" || "System user":
-      url += "/setting/user";
-      break;
-    case "系统-组织" || "系統-組織" || "System organization":
-      url += "/setting/organization";
-      break;
-    case "工作空间" || "系统-工作空间" || "workspace" :
-      url += "/setting/systemworkspace";
-      break;
-    case "用户组与权限" || "用戶組與權限" || "Group" :
-      url += "/setting/usergroup";
-      break;
-    case "系统-测试资源池" || "系统-測試資源池" || "System test resource" :
-      url += "/setting/testresourcepool";
-      break;
-    case "系统-系统参数设置" || "系统-系統參數設置" || "System parameter setting" :
-      url += "/setting/systemparametersetting";
-      break;
-    case "工作空间-成员" || "工作空間-成員" || "Workspace member" :
-      url += "/setting/member";
-      break;
-    case "项目-项目管理" || "項目-項目管理" || "Project project manager" :
-      url += "/setting/project/:type";
-      break;
-    case "项目-环境设置" || "項目-環境設置" || "Project environment setting" :
-      url += "/project/env";
-      break;
-    case "工作空间-模版设置-自定义字段" || "工作空間-模版設置-自定義字段" || "Workspace template settings field" :
-      url += "/setting/workspace/template/field";
-      break;
-    case "工作空间-模版设置-用例模版" || "工作空間-模版設置-用例模板" || "Workspace template settings case" :
-      url += "/setting/workspace/template/case";
-      break;
-    case "工作空间-模版设置-缺陷模版" || "工作空間-模版設置-缺陷模板" || "Workspace template settings issue" :
-      url += "/setting/workspace/template/issues";
-      break;
-    case "项目-成员" || "項目-成員" || "Project member" :
-      url += "/project/member";
-      break;
-    default:
-      break;
 
+  if (d.operModule) {
+    if (d.operModule === "接口自动化" || d.operModule === "Api automation" || d.operModule === "接口自動化") {
+      url += "/api/automation?resourceId=" + resourceId;
+    }
+    if (d.operModule === "测试计划" || d.operModule === "Test plan" || d.operModule === "測試計劃") {
+      url += "/track/plan/view/" + resourceId;
+    }
+    if (d.operModule === "用例评审" || d.operModule === "Case review" || d.operModule === "用例評審") {
+      url += "/track/review/view/" + resourceId;
+    }
+    if (d.operModule === "缺陷管理" || d.operModule === "Defect management") {
+      url += "/track/issue";
+    }
+    if (d.operModule === "SWAGGER_TASK") {
+      url += "/api/definition";
+    }
+    if (d.operModule === "接口定义" || d.operModule === "Api definition" || d.operModule === "接口定義") {
+      url += "/api/definition?resourceId=" + resourceId;
+    }
+    if (d.operModule === "接口定义用例" || d.operModule === "Api definition case" || d.operModule === "接口定義用例") {
+      url += "/api/definition?resourceId=" + resourceId;
+    }
+    if (d.operModule === "测试报告" || d.operModule === "Test Report" || d.operModule === "測試報告") {
+      url += "/api/automation/report";
+    }
+    if (d.operModule === "性能测试报告" || d.operModule === "Performance test report" || d.operModule === "性能測試報告") {
+      url += "/performance/report/all";
+    }
+    if (d.operModule === "性能测试" || d.operModule === "Performance test" || d.operModule === "性能測試") {
+      url += "/performance/test/edit/" + resourceId;
+    }
+    if (d.operModule === "测试用例" || d.operModule === "Test case" || d.operModule === "測試用例") {
+      url += "/track/case/all?resourceId=" + resourceId;
+    }
+    if (d.operModule === "系统-用户" || d.operModule === "System user" || d.operModule === "系统-用户") {
+      url += "/setting/user";
+    }
+    if (d.operModule === "系统-组织" || d.operModule === "System organization" || d.operModule === "系統-組織") {
+      url += "/setting/organization";
+    }
+    if (d.operModule === "工作空间" || d.operModule === "workspace" || d.operModule === "系统-工作空间") {
+      url += "/setting/systemworkspace";
+    }
+    if (d.operModule === "用户组与权限" || d.operModule === "Group" || d.operModule === "用戶組與權限") {
+      url += "/setting/usergroup";
+    }
+    if (d.operModule === "系统-测试资源池" || d.operModule === "System test resource" || d.operModule === "系统-測試資源池") {
+      url += "/setting/testresourcepool";
+    }
+    if (d.operModule === "系统-系统参数设置" || d.operModule === "System parameter setting" || d.operModule === "系统-系統參數設置") {
+      url += "/setting/systemparametersetting";
+    }
+    if (d.operModule === "工作空间-成员" || d.operModule === "Workspace member" || d.operModule === "工作空間-成員") {
+      url += "/setting/member";
+    }
+    if (d.operModule === "项目-项目管理" || d.operModule === "Project project manager" || d.operModule === "項目-項目管理") {
+      url += "/setting/project/:type";
+    }
+    if (d.operModule === "项目-环境设置" || d.operModule === "Project environment setting" || d.operModule === "項目-環境設置") {
+      url += "/project/env";
+    }
+    if (d.operModule === "工作空间-模版设置-自定义字段" || d.operModule === "Workspace template settings field" || d.operModule === "工作空間-模版設置-自定義字段") {
+      url += "/setting/workspace/template/field";
+    }
+    if (d.operModule === "工作空间-模版设置-用例模版" || d.operModule === "Workspace template settings case" || d.operModule === "工作空間-模版設置-用例模版") {
+      url += "/setting/workspace/template/case";
+    }
+    if (d.operModule === "工作空间-模版设置-缺陷模版" || d.operModule === "Workspace template settings issue" || d.operModule === "工作空間-模版設置-缺陷模版") {
+      url += "/setting/workspace/template/issue";
+    }
+    if (d.operModule === "项目-成员" || d.operModule === "Project member" || d.operModule === "項目-成員") {
+      url += "/project/member";
+    }
   }
   return url;
 }
