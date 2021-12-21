@@ -9,27 +9,11 @@
                 <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="test.name"
                           class="input-with-select"
                           size="small"
-                          maxlength="30" show-word-limit/>
+                          maxlength="255" show-word-limit/>
               </el-form-item>
             </el-form>
           </el-col>
-<!--          <el-col :span="6">
-            <el-form>
-              <el-form-item :label="$t('api_test.automation.follow_people')">
-                <el-select v-model="test.follows"
-                           clearable
-                           :placeholder="$t('api_test.automation.follow_people')" multiple filterable size="small">
-                  <el-option
-                    v-for="item in maintainerOptions"
-                    :key="item.id"
-                    :label="item.id + ' (' + item.name + ')'"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
 
-          </el-col>-->
           <el-col :span="12">
             <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
               <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" />
