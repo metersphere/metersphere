@@ -1622,6 +1622,7 @@ export default {
       jmeter_export_tip: "通过 JMeter 生成JMX文件",
       jmeter_tip: "支持 JMeter5.2-5.4版本的JMX文件",
       suffixFormatErr: "文件格式不符合要求",
+      file_name_to_long: "文件名称过长",
       swagger_url_import: "使用URL导入",
       add_request_params: "添加请求参数",
       optional: "（可选）",

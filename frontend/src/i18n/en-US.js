@@ -1624,6 +1624,7 @@ export default {
       ms_env_import_file_limit: "It only supports JSON format files exported through metersphere",
       file_exceed_limit: "The number of files exceeds the limit",
       import_cover_tip: "Import mode: Overwrite mode description",
+      file_name_to_long: "File name is too long",
       cover_tip_1: "1. Add if the interface path does not exist",
       cover_tip_2: "2. The interface path is consistent with the original interface, if the content is inconsistent, the original interface will be overwritten",
       cover_tip_3: "3. If the interface path and content are consistent with the original interface, no change will be made",
