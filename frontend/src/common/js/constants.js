@@ -202,4 +202,4 @@ export const ENV_TYPE = {
   GROUP: "GROUP"
 }
 
-
+export const DEFAULT_XSS_ATTR = ['style', 'class'];
