@@ -10,6 +10,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChromeUtils {
     private static ChromeUtils chromeUtils = new ChromeUtils();
@@ -21,24 +23,26 @@ public class ChromeUtils {
         return chromeUtils;
     }
 
-    private synchronized WebDriver genWebDriver(HeadlessRequest headlessRequest) {
+    private synchronized WebDriver genWebDriver(HeadlessRequest headlessRequest, String language) {
         if (headlessRequest.isEmpty()) {
             LogUtil.error("Headless request is null! " + JSON.toJSONString(headlessRequest));
             return null;
         }
         //初始化一个chrome浏览器实例driver
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("headless");
-        options.addArguments("no-sandbox");
-        options.addArguments("disable-gpu");
-        options.addArguments("disable-features=NetworkService");
-        options.addArguments("ignore-certificate-errors");
-        options.addArguments("silent-launch");
-        options.addArguments("disable-application-cache");
-        options.addArguments("disable-web-security");
-        options.addArguments("no-proxy-server");
-        options.addArguments("disable-dev-shm-usage");
-        options.addArguments("lang=zh_CN.UTF-8");
+
+        if (StringUtils.isEmpty(language)) {
+            language = "zh-cn";
+        }
+        if (StringUtils.equalsAnyIgnoreCase(language, "zh-cn")) {
+            Map<String, Object> optionMap = new HashMap<>();
+            optionMap.put("intl.accept_languages", "zh-CN,en,en_US");
+            options.setExperimentalOption("prefs", optionMap);
+        } else if (StringUtils.equalsAnyIgnoreCase(language, "zh_tw")) {
+            Map<String, Object> optionMap = new HashMap<>();
+            optionMap.put("intl.accept_languages", "zh-TW,en,en_US");
+            options.setExperimentalOption("prefs", optionMap);
+        }
 
         WebDriver driver = null;
         try {
@@ -55,8 +59,8 @@ public class ChromeUtils {
         return driver;
     }
 
-    public synchronized String getImageInfo(HeadlessRequest request) {
-        WebDriver driver = this.genWebDriver(request);
+    public synchronized String getImageInfo(HeadlessRequest request, String langurage) {
+        WebDriver driver = this.genWebDriver(request, langurage);
         String files = null;
         if (driver != null) {
             try {
