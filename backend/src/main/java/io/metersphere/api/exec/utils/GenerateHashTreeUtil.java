@@ -32,16 +32,16 @@ public class GenerateHashTreeUtil {
 
     public static MsScenario parseScenarioDefinition(String scenarioDefinition) {
         MsScenario scenario = JSONObject.parseObject(scenarioDefinition, MsScenario.class);
-        parse(scenarioDefinition, scenario);
+        parse(scenarioDefinition, scenario, scenario.getId(), null);
         return scenario;
     }
 
-    public static void parse(String scenarioDefinition, MsScenario scenario) {
+    public static void parse(String scenarioDefinition, MsScenario scenario, String id, String reportType) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             JSONObject element = JSON.parseObject(scenarioDefinition);
-            ElementUtil.dataFormatting(element);
+            ElementUtil.dataFormatting(element, id, reportType);
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
             if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                 LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
@@ -99,7 +99,7 @@ public class GenerateHashTreeUtil {
         return null;
     }
 
-    public static HashTree generateHashTree(ApiScenarioWithBLOBs item, String reportId, Map<String, String> planEnvMap) {
+    public static HashTree generateHashTree(ApiScenarioWithBLOBs item, String reportId, Map<String, String> planEnvMap, String reportType) {
         HashTree jmeterHashTree = new HashTree();
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
@@ -112,7 +112,7 @@ public class GenerateHashTreeUtil {
             if (planEnvMap != null && planEnvMap.size() > 0) {
                 scenario.setEnvironmentMap(planEnvMap);
             }
-            GenerateHashTreeUtil.parse(item.getScenarioDefinition(), scenario);
+            GenerateHashTreeUtil.parse(item.getScenarioDefinition(), scenario, item.getId(), reportType);
 
             group.setEnableCookieShare(scenario.isEnableCookieShare());
             LinkedList<MsTestElement> scenarios = new LinkedList<>();

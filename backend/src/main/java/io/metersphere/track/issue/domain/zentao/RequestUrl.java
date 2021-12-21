@@ -12,6 +12,7 @@ public class RequestUrl {
     private String sessionGet;
     private String bugCreate;
     private String bugUpdate;
+    private String bugList;
     private String bugDelete;
     private String bugGet;
     private String storyGet;

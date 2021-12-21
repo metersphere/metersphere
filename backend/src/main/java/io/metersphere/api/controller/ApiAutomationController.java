@@ -7,7 +7,6 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
-import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -330,7 +329,6 @@ public class ApiAutomationController {
     @GetMapping(value = "/stop/{reportId}")
     public void stop(@PathVariable String reportId) {
         if (StringUtils.isNotEmpty(reportId)) {
-            MessageCache.caseExecResourceLock.remove(reportId);
             execThreadPoolExecutor.removeQueue(reportId);
             new LocalRunner().stop(reportId);
         }

@@ -8,6 +8,7 @@
 <script>
 import {getCurrentUser, getUUID} from "@/common/js/utils";
 import {deleteMarkDownImg, uploadMarkDownImg} from "@/network/image";
+import {DEFAULT_XSS_ATTR} from "@/common/js/constants";
 export default {
   name: "MsMarkDownText",
   components: {},
@@ -68,7 +69,39 @@ export default {
       id: getUUID(),
       xssOptions: {
         whiteList: {
-          img: ["src", "alt", "width", "height"],
+          div: DEFAULT_XSS_ATTR,
+          p: DEFAULT_XSS_ATTR,
+          br: [],
+          h1: DEFAULT_XSS_ATTR,
+          h2: DEFAULT_XSS_ATTR,
+          h3: DEFAULT_XSS_ATTR,
+          h4: DEFAULT_XSS_ATTR,
+          h5: DEFAULT_XSS_ATTR,
+          h6: DEFAULT_XSS_ATTR,
+          hr: DEFAULT_XSS_ATTR,
+          span: DEFAULT_XSS_ATTR,
+          strong: DEFAULT_XSS_ATTR,
+          b: DEFAULT_XSS_ATTR,
+          i: DEFAULT_XSS_ATTR,
+          pre: DEFAULT_XSS_ATTR,
+          code: DEFAULT_XSS_ATTR,
+          tr: DEFAULT_XSS_ATTR,
+          table: [...DEFAULT_XSS_ATTR, 'width', 'border'],
+          td: [...DEFAULT_XSS_ATTR, 'width', 'colspan'],
+          th: [...DEFAULT_XSS_ATTR, 'width', 'colspan'],
+          a: [...DEFAULT_XSS_ATTR, 'target', 'href', 'title', 'rel'],
+          img: [...DEFAULT_XSS_ATTR, "src", "alt", "width", "height"],
+          tbody: DEFAULT_XSS_ATTR,
+          ul: DEFAULT_XSS_ATTR,
+          li: DEFAULT_XSS_ATTR,
+          ol: DEFAULT_XSS_ATTR,
+          dl: DEFAULT_XSS_ATTR,
+          dt: DEFAULT_XSS_ATTR,
+          em: DEFAULT_XSS_ATTR,
+          blockquote: DEFAULT_XSS_ATTR,
+          // 如果支持视频
+    //      audio: ['autoplay', 'controls', 'loop', 'preload', 'src'],
+    //      video: ['autoplay', 'controls', 'loop', 'preload', 'src', 'height', 'width']
         },
         stripIgnoreTagBody: true
       },

@@ -24,6 +24,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
@@ -270,6 +271,24 @@ public class ElementUtil {
         }
     };
 
+    public final static List<String> requests = new ArrayList<String>() {{
+        this.add("HTTPSamplerProxy");
+        this.add("DubboSampler");
+        this.add("JDBCSampler");
+        this.add("TCPSampler");
+        this.add("JSR223Processor");
+        this.add("JSR223PreProcessor");
+        this.add("JSR223PostProcessor");
+        this.add("JDBCPreProcessor");
+        this.add("JDBCPostProcessor");
+        this.add("JmeterElement");
+        this.add("TestPlan");
+        this.add("ThreadGroup");
+        this.add("DNSCacheManager");
+        this.add("DebugSampler");
+        this.add("AuthManager");
+    }};
+
     private static void formatSampler(JSONObject element) {
         if (element == null || StringUtils.isEmpty(element.getString("type"))) {
             return;
@@ -337,6 +356,41 @@ public class ElementUtil {
         if (element != null && element.containsKey("hashTree")) {
             JSONArray elementJSONArray = element.getJSONArray("hashTree");
             dataFormatting(elementJSONArray);
+        }
+    }
+
+    public static void dataFormatting(JSONArray hashTree, String id, String reportType) {
+        for (int i = 0; i < hashTree.size(); i++) {
+            JSONObject element = hashTree.getJSONObject(i);
+            formatSampler(element);
+            if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
+                element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
+            }
+            if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
+                if (element != null && requests.contains(element.getString("type")) && !element.getString("resourceId").contains(id)) {
+                    element.fluentPut("resourceId", id + "=" + element.getString("resourceId"));
+                }
+            }
+            if (element.containsKey("hashTree")) {
+                JSONArray elementJSONArray = element.getJSONArray("hashTree");
+                dataFormatting(elementJSONArray, id, reportType);
+            }
+        }
+    }
+
+    public static void dataFormatting(JSONObject element, String id, String reportType) {
+        if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
+            element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
+        }
+        if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
+            if (element != null && requests.contains(element.getString("type")) && !element.getString("resourceId").contains(id)) {
+                element.fluentPut("resourceId", id + "=" + element.getString("resourceId"));
+            }
+        }
+        formatSampler(element);
+        if (element != null && element.containsKey("hashTree")) {
+            JSONArray elementJSONArray = element.getJSONArray("hashTree");
+            dataFormatting(elementJSONArray, id, reportType);
         }
     }
 

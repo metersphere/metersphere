@@ -107,7 +107,11 @@ public class JMeterService {
         if (baseInfo != null) {
             platformUrl = baseInfo.getUrl();
         }
-        platformUrl += "/api/jmeter/download?testId=" + request.getTestId() + "&reportId=" + request.getReportId() + "&runMode=" + request.getRunMode();
+        platformUrl += "/api/jmeter/download?testId="
+                + request.getTestId()
+                + "&reportId=" + request.getReportId()
+                + "&runMode=" + request.getRunMode()
+                + "&reportType=" + request.getReportType();
 
         request.setPlatformUrl(platformUrl);
         request.setKafkaConfig(KafkaConfig.getKafka());

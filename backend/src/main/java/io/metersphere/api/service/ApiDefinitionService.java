@@ -280,7 +280,7 @@ public class ApiDefinitionService {
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
-        return returnModel;
+        return getBLOBs(request.getId());
     }
 
     private void checkQuota() {
