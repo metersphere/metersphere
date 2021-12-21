@@ -30,7 +30,6 @@ import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
-import io.metersphere.track.request.issues.IssuesRelevanceRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
@@ -65,8 +64,6 @@ public class IssuesService {
     @Resource
     private TestCaseIssuesMapper testCaseIssuesMapper;
     @Resource
-    private IssueTemplateMapper issueTemplateMapper;
-    @Resource
     private ExtIssuesMapper extIssuesMapper;
     @Resource
     private CustomFieldTemplateService customFieldTemplateService;
@@ -80,8 +77,6 @@ public class IssuesService {
     private TestPlanTestCaseService testPlanTestCaseService;
     @Resource
     private IssueFollowMapper issueFollowMapper;
-    @Resource
-    private IssueCommentMapper issueCommentMapper;
 
     public void testAuth(String workspaceId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
