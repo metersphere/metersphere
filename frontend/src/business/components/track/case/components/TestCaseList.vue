@@ -12,6 +12,7 @@
       :total="page.total"
       :page-size.sync="page.pageSize"
       :operators="operators"
+      operator-width="170px"
       :screen-height="screenHeight"
       :batch-operators="batchButtons"
       :remember-order="true"
@@ -407,6 +408,11 @@ export default {
       ],
       publicOperators: [
         {
+          tip: this.$t('commons.view'), icon: "el-icon-view",
+          exec: this.handleEditShow,
+          permissions: ['PROJECT_TRACK_CASE:READ'],
+        },
+        {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
           permissions: ['PROJECT_TRACK_CASE:READ+EDIT'],
@@ -754,6 +760,15 @@ export default {
         this.$get('test/case/get/' + testCase.id, response => {
           let testCase = response.data;
           this.$emit('testCaseEdit', testCase);
+        });
+      }
+
+    },
+    handleEditShow(testCase, column) {
+      if (column.label !== this.$t('test_track.case.case_desc')) {
+        this.$get('test/case/get/' + testCase.id, response => {
+          let testCase = response.data;
+          this.$emit('testCaseEditShow', testCase);
         });
       }
 
