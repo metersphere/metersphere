@@ -1,6 +1,7 @@
 package io.metersphere.api.cache;
 
 import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,11 @@ public class TestPlanReportExecuteCatch {
     }
 
     public synchronized static boolean containsReport(String reportId) {
-        return testPlanReportMap != null && testPlanReportMap.containsKey(reportId);
+        if(StringUtils.isEmpty(reportId)){
+            return false;
+        }else {
+            return testPlanReportMap != null && testPlanReportMap.containsKey(reportId);
+        }
     }
 
     public synchronized static void updateApiTestPlanExecuteInfo(String reportId,
