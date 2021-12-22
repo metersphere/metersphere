@@ -251,7 +251,7 @@
       </el-col>
       <el-col :span="12">
         <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
-        <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
+        <ms-chart v-if="rampUpTimeVisible" class="chart-container" ref="chart1" :options="options" :autoresize="true"/>
       </el-col>
     </el-row>
   </div>
