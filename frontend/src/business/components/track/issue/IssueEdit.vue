@@ -29,10 +29,10 @@ export default {
     }
   },
   methods: {
-    open(data) {
+    open(data, type) {
       this.visible = true;
       this.$nextTick(() => {
-        this.$refs.issueEditDetail.open(data);
+          this.$refs.issueEditDetail.open(data, type);
       })
     },
     handleClose() {
