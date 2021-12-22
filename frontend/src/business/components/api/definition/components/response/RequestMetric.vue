@@ -4,12 +4,16 @@
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{ $t('api_report.response_code') }} :</div>
         <el-tooltip
+          v-if="responseResult.responseCode"
           :content="responseResult.responseCode"
           placement="top">
           <div class="node-title" :class="response && response.success ?'ms-req-success':'ms-req-error'">
             {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
           </div>
         </el-tooltip>
+        <div v-else class="node-title" :class="response && response.success ?'ms-req-success':'ms-req-error'">
+          {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
+        </div>
       </el-col>
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{ $t('api_report.response_time') }} :</div>

@@ -346,13 +346,13 @@ public class ApiDefinitionExecResultService {
             ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
             if (prevResult != null) {
                 prevResult.setContent(null);
-                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+                apiDefinitionExecResultMapper.updateByPrimaryKeySelective(prevResult);
             }
 
             if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
                 saveResult.setTriggerMode(TriggerMode.MANUAL.name());
             }
-            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
+            apiDefinitionExecResultMapper.updateByPrimaryKeySelective(saveResult);
             return saveResult;
         }
         return null;
