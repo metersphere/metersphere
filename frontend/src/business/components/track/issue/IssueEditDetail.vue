@@ -165,7 +165,8 @@ export default {
         title: '',
         description: '',
         creator: null,
-        remark: null
+        remark: null,
+        tapdUsers:[]
       },
       tapdUsers: [],
       zentaoUsers: [],

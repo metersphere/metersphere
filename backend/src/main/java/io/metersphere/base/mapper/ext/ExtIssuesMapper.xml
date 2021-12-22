@@ -114,6 +114,9 @@
             <if test="request.platform != null and request.platform != ''">
                 and issues.platform = #{request.platform}
             </if>
+            <if test="request.id != null and request.id != ''">
+                and issues.id = #{request.id}
+            </if>
 
 <!--            <if test="request.ids != null and request.ids.size() > 0">-->
 <!--                and issues.id in-->

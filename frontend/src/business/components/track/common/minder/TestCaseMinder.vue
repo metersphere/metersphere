@@ -41,6 +41,9 @@ import {addIssueHotBox, getSelectedNodeData, handleIssueAdd, handleIssueBatch} f
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
 import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
 import {getIssuesById} from "@/network/Issue";
+
+const {getIssuesListById} = require("@/network/Issue");
+const {getCurrentWorkspaceId} = require("@/common/js/utils");
 export default {
 name: "TestCaseMinder",
   components: {TestPlanIssueEdit, IssueRelateList, MsModuleMinder},
@@ -84,7 +87,11 @@ name: "TestCaseMinder",
     moveEnable() {
       // 如果不是默认的排序条件不能调换位置
       return !this.condition.orders || this.condition.orders.length < 1;
+    },
+    workspaceId(){
+      return getCurrentWorkspaceId();
     }
+
   },
   watch: {
     selectNode() {
@@ -119,7 +126,7 @@ name: "TestCaseMinder",
             isNotDisableNode = true;
           }
           if (node.data.type === 'issue') {
-            getIssuesById(node.data.id, (data) => {
+            getIssuesListById(node.data.id, this.projectId,this.workspaceId,(data) => {
               data.customFields = JSON.parse(data.customFields);
               this.$refs.issueEdit.open(data);
             });
