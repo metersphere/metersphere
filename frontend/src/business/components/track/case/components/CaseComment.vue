@@ -10,7 +10,7 @@
                            :key="index"
                            :comment="comment"
                            :read-only="readOnly"
-                           @refresh="getComments()"/>
+                           @refresh="getComments()" api-url="/test/case"/>
       <div v-if="comments.length === 0" style="text-align: center">
         <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
                 <span style="font-size: 15px; color: #8a8b8d;">
