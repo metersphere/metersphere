@@ -324,16 +324,21 @@ export default {
       if (data) {
         this.report = data;
         if (this.report.reportVersion && this.report.reportVersion > 1) {
-          if (data.content) {
-            let report = JSON.parse(data.content);
-            this.content = report;
-            this.fullTreeNodes = report.steps;
-            this.content.console = report.console;
-            this.content.error = report.error;
-            this.content.success = (report.total - report.error);
-            this.totalTime = report.totalTime;
+          this.report.status = data.status;
+          if (!this.isNotRunning) {
+            setTimeout(this.getReport, 2000)
+          } else {
+            if (data.content) {
+              let report = JSON.parse(data.content);
+              this.content = report;
+              this.fullTreeNodes = report.steps;
+              this.content.console = report.console;
+              this.content.error = report.error;
+              this.content.success = (report.total - report.error);
+              this.totalTime = report.totalTime;
+            }
+            this.loading = false;
           }
-          this.loading = false;
         } else {
           this.buildReport();
         }
@@ -528,10 +533,12 @@ export default {
 .report-container .is-active .fail {
   color: inherit;
 }
+
 .report-console {
   height: calc(100vh - 270px);
   overflow-y: auto;
 }
+
 .export-button {
   float: right;
 }

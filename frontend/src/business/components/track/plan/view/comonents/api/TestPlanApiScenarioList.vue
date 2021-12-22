@@ -450,7 +450,9 @@ export default {
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
-          this.reportId = response.data;
+          if (response.data && response.data.length > 0) {
+            this.reportId = response.data[0].reportId;
+          }
         });
       }
       if (this.reviewId) {
