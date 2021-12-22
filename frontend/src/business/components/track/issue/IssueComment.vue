@@ -88,7 +88,7 @@ export default {
       }
       this.result = this.$post('/issues/comment/save', comment, () => {
         this.$success(this.$t('test_track.comment.send_success'));
-        this.refresh(comment.IssueId);
+        this.refresh(comment.issuesId);
         this.from.description = '';
         this.dialogTableVisible = false;
       });

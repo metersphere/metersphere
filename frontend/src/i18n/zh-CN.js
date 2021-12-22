@@ -2088,7 +2088,7 @@ export default {
     comment: {
       no_comment: "暂无评论",
       send_comment: "发表评论（Ctrl+Enter发送）",
-      send: "发送",
+      send: "确定",
       description_is_null: "评论内容不能为空！",
       send_success: "评论成功！",
       cannot_edit: "无法编辑此评论！",
@@ -2239,7 +2239,8 @@ export default {
       third_party_integrated: "集成第三方平台",
       use_third_party: "使用 Jira 缺陷模板",
       update_third_party_bugs: "更新第三方平台的缺陷",
-      sync_bugs: "同步缺陷"
+      sync_bugs: "同步缺陷",
+      save_before_open_comment: "请先保存缺陷再添加评论",
     },
     report: {
       name: "测试计划报告",

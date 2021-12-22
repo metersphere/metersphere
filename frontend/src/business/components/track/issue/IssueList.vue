@@ -295,17 +295,17 @@ export default {
 
     },
     handleEdit(data) {
-      this.$refs.issueEdit.open(data);
+      this.$refs.issueEdit.open(data, 'edit');
     },
     handleCreate() {
-      this.$refs.issueEdit.open();
+      this.$refs.issueEdit.open(null, 'add');
     },
     handleCopy(data) {
       let copyData = {};
       Object.assign(copyData, data);
       copyData.id = null;
       copyData.name = data.name + '_copy';
-      this.$refs.issueEdit.open(copyData);
+      this.$refs.issueEdit.open(copyData, 'copy');
     },
     handleDelete(data) {
       this.page.result = this.$get('issues/delete/' + data.id, () => {

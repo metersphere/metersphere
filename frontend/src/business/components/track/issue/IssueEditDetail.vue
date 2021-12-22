@@ -235,8 +235,9 @@ export default {
     },
   },
   methods: {
-    open(data) {
+    open(data, type) {
       this.result.loading = true;
+      this.type = type;
       this.$nextTick(() => {
         getIssuePartTemplateWithProject((template, project) => {
           this.currentProject = project;
@@ -244,17 +245,18 @@ export default {
         });
       });
 
-      if(data&&data.id){
+      if (data && data.id) {
         this.$get('/issues/follow/' + data.id, response => {
           this.form.follows = response.data;
           for (let i = 0; i < response.data.length; i++) {
-            if(response.data[i]===this.currentUser().id){
+            if (response.data[i] === this.currentUser().id) {
               this.showFollow = true;
               break;
             }
           }
         })
-      }else {
+      } else {
+        this.issueId = null;
         this.form.follows = [];
       }
     },
@@ -325,6 +327,7 @@ export default {
         }
       }
       this.customFieldForm = parseCustomField(this.form, this.issueTemplate, this.customFieldRules);
+      this.comments = [];
       this.$nextTick(() => {
         if (this.$refs.testCaseIssueList) {
           this.$refs.testCaseIssueList.initTableData();
@@ -422,6 +425,10 @@ export default {
       }
     },
     openComment() {
+      if (!this.issueId) {
+        this.$warning(this.$t('test_track.issue.save_before_open_comment'));
+        return;
+      }
       this.$refs.issueComment.open();
     },
     getComments() {

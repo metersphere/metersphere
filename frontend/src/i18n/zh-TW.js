@@ -2088,7 +2088,7 @@ export default {
     comment: {
       no_comment: "暫無評論",
       send_comment: "發表評論（Ctrl+Enter發送）",
-      send: "發送",
+      send: "確定",
       description_is_null: "評論內容不能為空！",
       send_success: "評論成功！",
       cannot_edit: "無法編輯此評論！",
@@ -2239,7 +2239,8 @@ export default {
       third_party_integrated: "集成第三方平臺",
       use_third_party: "使用 Jira 缺陷模板",
       update_third_party_bugs: "更新第三方平臺的缺陷",
-      sync_bugs: "同步缺陷"
+      sync_bugs: "同步缺陷",
+      save_before_open_comment: "請先保存缺陷再添加評論",
     },
     report: {
       name: "測試計劃報告",

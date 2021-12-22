@@ -2084,7 +2084,7 @@ export default {
     comment: {
       no_comment: "No Comment",
       send_comment: "Post a comment (Ctrl + Enter to send)",
-      send: "Send",
+      send: "Confirm",
       description_is_null: "Comment content cannot be empty!",
       send_success: "Comment successful!",
     },
@@ -2235,7 +2235,8 @@ export default {
       third_party_integrated: "Third-party Platform Integrated",
       use_third_party: "Enable Jira Issue Template",
       update_third_party_bugs: "Update the defects of third-party platforms",
-      sync_bugs: "Synchronization Issue"
+      sync_bugs: "Synchronization Issue",
+      save_before_open_comment: "Please save issue before comment",
     },
     report: {
       name: "Test Plan Report",
