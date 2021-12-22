@@ -13,7 +13,7 @@
                      :placeholder="$t('api_test.definition.request.run_env')"
                      clearable>
             <el-option v-for="(environment, index) in environments" :key="index"
-                       :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
+                       :label="environment.name"
                        :value="environment.id"/>
             <template v-slot:empty>
               <div class="empty-environment">
