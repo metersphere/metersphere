@@ -1120,8 +1120,8 @@ public class TestPlanService {
                 testPlanLoadCaseService.update(testPlanLoadCase);
                 LogUtil.error(e);
             }
-            performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(), reportId);
             if (StringUtils.isNotEmpty(reportId)) {
+                performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(), reportId);
                 executePerformanceIdMap.put(performanceRequest.getTestPlanLoadId(), TestPlanApiExecuteStatus.RUNNING.name());
             } else {
                 executePerformanceIdMap.put(performanceRequest.getTestPlanLoadId(), TestPlanApiExecuteStatus.PREPARE.name());
