@@ -139,8 +139,8 @@ public class JMeterService {
             JvmInfoDTO jvmInfoDTO = resources.get(index);
             TestResourceDTO testResource = jvmInfoDTO.getTestResource();
             String configuration = testResource.getConfiguration();
-            request.setCorePoolSize(MessageCache.corePoolSize);
             NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
+            request.setCorePoolSize(node.getMaxConcurrency());
             String nodeIp = node.getIp();
             Integer port = node.getPort();
             String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
