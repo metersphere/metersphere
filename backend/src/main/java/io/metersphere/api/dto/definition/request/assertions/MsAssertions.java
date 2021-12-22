@@ -32,6 +32,8 @@ public class MsAssertions extends MsTestElement {
     private String type = "Assertions";
     private MsAssertionDocument document;
 
+    private static final String delimiter = "split==";
+
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
@@ -97,9 +99,9 @@ public class MsAssertions extends MsTestElement {
         ResponseAssertion assertion = new ResponseAssertion();
         assertion.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(assertionRegex.getDescription())) {
-            assertion.setName(this.getName() + "==" + assertionRegex.getDescription());
+            assertion.setName(this.getName() + delimiter + assertionRegex.getDescription());
         } else {
-            assertion.setName(this.getName() + "==" + "AssertionRegex");
+            assertion.setName(this.getName() + delimiter + "AssertionRegex");
         }
         assertion.setProperty(TestElement.TEST_CLASS, ResponseAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AssertionGui"));
@@ -126,9 +128,9 @@ public class MsAssertions extends MsTestElement {
         JSONPathAssertion assertion = new JSONPathAssertion();
         assertion.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(assertionJsonPath.getDescription())) {
-            assertion.setName(this.getName() + "==" + assertionJsonPath.getDescription());
+            assertion.setName(this.getName() + delimiter + assertionJsonPath.getDescription());
         } else {
-            assertion.setName(this.getName() + "==" + "JSONPathAssertion");
+            assertion.setName(this.getName() + delimiter + "JSONPathAssertion");
         }
         assertion.setProperty(TestElement.TEST_CLASS, JSONPathAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPathAssertionGui"));
@@ -146,9 +148,9 @@ public class MsAssertions extends MsTestElement {
         XPath2Assertion assertion = new XPath2Assertion();
         assertion.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(assertionXPath2.getExpression())) {
-            assertion.setName(this.getName() + "==" + assertionXPath2.getExpression());
+            assertion.setName(this.getName() + delimiter + assertionXPath2.getExpression());
         } else {
-            assertion.setName(this.getName() + "==" + "XPath2Assertion");
+            assertion.setName(this.getName() + delimiter + "XPath2Assertion");
         }
         assertion.setProperty(TestElement.TEST_CLASS, XPath2Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2AssertionGui"));
@@ -160,9 +162,9 @@ public class MsAssertions extends MsTestElement {
     private DurationAssertion durationAssertion(MsAssertionDuration assertionDuration) {
         DurationAssertion assertion = new DurationAssertion();
         assertion.setEnabled(this.isEnable());
-        assertion.setName("" + "==" + "Response In Time: " + assertionDuration.getValue());
+        assertion.setName("" + delimiter + "Response In Time: " + assertionDuration.getValue());
         if (StringUtils.isNotEmpty(this.getName())) {
-            assertion.setName(this.getName() + "==" + "Response In Time: " + assertionDuration.getValue());
+            assertion.setName(this.getName() + delimiter + "Response In Time: " + assertionDuration.getValue());
         }
         assertion.setProperty(TestElement.TEST_CLASS, DurationAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DurationAssertionGui"));
@@ -174,9 +176,9 @@ public class MsAssertions extends MsTestElement {
         JSR223Assertion assertion = new JSR223Assertion();
         assertion.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(assertionJSR223.getDesc())) {
-            assertion.setName("JSR223" + "==" + this.getName() + "==" + assertionJSR223.getDesc() + "&&" + assertionJSR223.getScript());
+            assertion.setName("JSR223" + delimiter + this.getName() + delimiter + assertionJSR223.getDesc() + "&&" + assertionJSR223.getScript());
         } else {
-            assertion.setName("JSR223" + "==" + this.getName() + "==" + "JSR223Assertion" + "&&" + assertionJSR223.getScript());
+            assertion.setName("JSR223" + delimiter + this.getName() + delimiter + "JSR223Assertion" + "&&" + assertionJSR223.getScript());
         }
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
