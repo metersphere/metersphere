@@ -191,14 +191,14 @@ export function getLabel(vueObj, type) {
 }
 
 
-export function buildBatchParam(vueObj, selectIds) {
+export function buildBatchParam(vueObj, selectIds, projectId) {
   let param = {};
   if (vueObj.selectRows) {
     param.ids = selectIds ? selectIds: Array.from(vueObj.selectRows).map(row => row.id);
   } else {
     param.ids = selectIds;
   }
-  param.projectId = getCurrentProjectID();
+  param.projectId = projectId ? projectId : getCurrentProjectID();
   param.condition = vueObj.condition;
   return param;
 }
