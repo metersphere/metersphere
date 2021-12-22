@@ -86,7 +86,7 @@ public class JMeterScriptUtil {
     private static void addItemHashTree(MsTestElement element, HashTree samplerHashTree, ParameterConfig config, String enviromentId) {
         if (element != null && element.getEnvironmentId() == null) {
             element.setEnvironmentId(enviromentId);
-            element.toHashTree(samplerHashTree, element.getHashTree(), config);
         }
+        element.toHashTree(samplerHashTree, element.getHashTree(), config);
     }
 }
