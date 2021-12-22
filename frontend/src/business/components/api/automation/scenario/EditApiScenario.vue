@@ -789,7 +789,7 @@ export default {
       }
       this.runningEvaluation(e.data);
       this.message = getUUID();
-      if (e.data && e.data.indexOf("断开连接") !== -1) {
+      if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
         this.runScenario = undefined;
         this.debugLoading = false;
         this.message = "stop";

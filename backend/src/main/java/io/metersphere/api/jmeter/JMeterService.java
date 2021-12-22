@@ -68,9 +68,9 @@ public class JMeterService {
     }
 
     private void addDebugListener(String testId, HashTree testPlan) {
-        MsDebugListener resultCollector = new MsDebugListener();
+        MsResultCollector resultCollector = new MsResultCollector();
         resultCollector.setName(testId);
-        resultCollector.setProperty(TestElement.TEST_CLASS, MsDebugListener.class.getName());
+        resultCollector.setProperty(TestElement.TEST_CLASS, MsResultCollector.class.getName());
         resultCollector.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ViewResultsFullVisualizer"));
         resultCollector.setEnabled(true);
         testPlan.add(testPlan.getArray()[0], resultCollector);
