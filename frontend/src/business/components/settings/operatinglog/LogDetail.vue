@@ -88,8 +88,8 @@
           {id: 'BATCH_UPDATE', label: this.$t('api_test.definition.request.batch_edit')},
           {id: 'BATCH_ADD', label: this.$t('commons.batch_add')},
           {id: 'UN_ASSOCIATE_CASE', label: this.$t('test_track.case.unlink')},
-          {id: 'BATCH_RESTORE', label: "批量恢复"},
-          {id: 'BATCH_GC', label: "批量回收"}
+          {id: 'BATCH_RESTORE', label: this.$t('commons.batch_restore')},
+          {id: 'BATCH_GC', label: this.$t('commons.batch_gc')}
         ],
         LOG_TYPE_MAP: new Map([
           ['CREATE', this.$t('api_test.definition.request.create_info')],

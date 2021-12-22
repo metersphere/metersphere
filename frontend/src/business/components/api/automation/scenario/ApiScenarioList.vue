@@ -454,7 +454,8 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
         },
         {
-          name: "批量恢复", handleClick: this.handleBatchRestore
+          name: this.$t('commons.batch_restore'),
+          handleClick: this.handleBatchRestore
         },
       ],
       unTrashButtons: [
@@ -794,7 +795,7 @@ export default {
 
       // todo 选取全部数据
       if (this.condition.selectAll) {
-        this.$warning("暂不支持批量添加所有场景到测试计划！");
+        this.$warning(this.$t('api_test.scenario.warning_context'));
       }
 
       this.planVisible = false;
@@ -1010,7 +1011,7 @@ export default {
           this.$get("/api/automation/checkScenarioEnv/" + this.currentScenario.id, res => {
             let data = res.data;
             if (!data) {
-              this.$warning("请为场景选择环境！");
+              this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
               return false;
             }
             this.reportId = getUUID().substring(0, 8);
