@@ -460,7 +460,7 @@ export default {
       if (arr && arr.length > 0) {
         arr.forEach(item => {
           if (item.id === this.currentScenario.id) {
-            this.$error("不能引用或复制自身！");
+            this.$error(this.$t('api_test.scenario.scenario_error'));
             return;
           }
           if (!item.hashTree) {
