@@ -243,6 +243,10 @@ public class TestPlanService {
         return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlanWithBLOBs());
     }
 
+    public TestPlanWithBLOBs get(String testPlanId) {
+        return testPlanMapper.selectByPrimaryKey(testPlanId);
+    }
+
     public TestPlan editTestPlanWithRequest(AddTestPlanRequest request) {
         List<String> principals = request.getPrincipals();
         if (!CollectionUtils.isEmpty(principals)) {
