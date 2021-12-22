@@ -325,6 +325,11 @@ export default {
         send: "Send",
         save_as_draft: "Draft",
       },
+      table: {
+        draft: "Draft",
+        sended: "Send",
+        send_error: "Send error",
+      },
       project_report: {
         create_report: "Create report",
         report_name: "Report name",
