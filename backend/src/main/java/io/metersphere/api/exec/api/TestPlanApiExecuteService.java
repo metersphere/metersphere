@@ -136,8 +136,13 @@ public class TestPlanApiExecuteService {
                     JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testPlanApiCase.getId(), reportId, request.getTriggerMode(), hashTree);
                     if (request.getConfig() != null) {
                         runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
+                        runRequest.setPoolId(request.getConfig().getResourcePoolId());
                     }
                     runRequest.setTestPlanReportId(request.getPlanReportId());
+                    runRequest.setReportType(executionQueue.getReportType());
+                    runRequest.setTestPlanReportId(request.getPlanReportId());
+                    runRequest.setRunType(RunModeConstants.PARALLEL.toString());
+                    runRequest.setQueueId(executionQueue.getId());
                     jMeterService.run(runRequest);
                 } catch (Exception e) {
                     executeErrorList.add(testPlanApiCase.getId());
