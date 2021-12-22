@@ -326,6 +326,11 @@ export default {
         send: "發送",
         save_as_draft: "保存草稿",
       },
+      table: {
+        draft: "草稿箱",
+        sended: "已發送",
+        send_error: "發送失敗",
+      },
       project_report: {
         create_report: "創建報告",
         report_name: "報告名稱",
