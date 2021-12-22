@@ -7,6 +7,7 @@ export default {
     yes: "是",
     no: "否",
     example: "示例",
+    subject: "主題",
     excelFile: "表格文件.xls",
     xmindFile: "思維導圖.xmind",
     default: "默認值",
