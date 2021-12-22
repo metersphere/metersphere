@@ -33,18 +33,18 @@
       :size="size.toString()"
       custom-class="ms-drawer-task">
       <el-card style="float: left;width: 850px" v-if="size > 550 ">
-        <div class="ms-task-opt-btn" @click="packUp">收起</div>
+        <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
         <!-- 接口用例结果 -->
         <ms-request-result-tail :response="response" ref="debugResult" v-if="reportType === 'API'"/>
 
-        <ms-api-report-detail :reportId="reportId" v-if="reportType === 'SCENARIO'"/>
+        <ms-api-report-detail :showCancelButton="false" :reportId="reportId" v-if="reportType === 'SCENARIO'"/>
 
         <performance-report-view :perReportId="reportId" v-if="reportType === 'PERFORMANCE'"/>
       </el-card>
 
       <el-card style="width: 550px;float: right" v-loading="loading">
         <div style="color: #2B415C;margin: 0px 20px 0px;">
-          <el-form label-width="68px" class="ms-el-form-item">
+          <el-form label-width="95px" class="ms-el-form-item">
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
@@ -99,7 +99,7 @@
               </el-button>
               <br/>
               <span>
-                  执行器：{{ item.actuator }} 由 {{ item.executor }} {{
+                  {{ $t('commons.actuator') }}：{{ item.actuator }} {{ $t('commons.from') }} {{ item.executor }} {{
                   item.executionTime | timestampFormatDate
                 }} {{ getMode(item.triggerMode) }}
               </span>
@@ -349,9 +349,9 @@ export default {
             this.getExecResult(row.id);
           }
         } else if (status === 'stop') {
-          this.$warning("当前任务已停止，无法查看报告");
+          this.$warning(this.$t('commons.run_stop'));
         } else {
-          this.$warning("正在运行中，请稍后查看");
+          this.$warning(this.$t('commons.run_warning'))
         }
       }
     },
@@ -468,7 +468,8 @@ export default {
   border-bottom: 1px solid #E6E6E6;
   background-color: #FFF;
   margin-bottom: 10px;
-  padding: 10px;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 .ms-card-task >>> .el-card__body {
@@ -524,6 +525,9 @@ export default {
   height: 10px;
   line-height: 10px;
 }
+
+
+
 
 .item {
   margin-right: 10px;

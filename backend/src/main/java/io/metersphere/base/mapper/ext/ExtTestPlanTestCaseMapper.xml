@@ -359,15 +359,6 @@
         from test_plan_test_case
         where plan_id = #{planId}
     </select>
-    <select id="getTestPlanTestCaseIds" resultType="java.lang.String">
-        select c.id from test_case a left join test_plan_test_case c on a.id=c.case_id
-        <where>
-            <if test="testId!=null">
-                and a.test_id=#{testId}
-            </if>
-        </where>
-    </select>
-
     <select id="get" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select test_case.remark,
                test_plan_test_case.id as id,

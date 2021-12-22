@@ -62,7 +62,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook" placeholder="webhook地址" size="mini"
+              <el-input v-model="scope.row.webhook"  size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -175,21 +175,57 @@ export default {
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
         {value: 'COMMENT', label: this.$t('commons.comment')},
-        {value: 'COMPLETE', label: '评审完成'}
+        {value: 'COMPLETE', label:this.$t('commons.review_complete')}
       ],
       variables: [
-        'operator',
-        'id',
-        'name',
-        'creator',
-        'status',
-        'createTime',
-        'updateTime',
-        'endTime',
-        'projectId',
-        'tags',
-        'createUser',
-        'description'
+        {
+          label:this.$t('group.operator'),
+          value:'operator',
+        },
+        {
+          label:'id',
+          value:'id',
+        },
+        {
+          label:this.$t('commons.name'),
+          value:'name',
+        },
+        {
+          label:this.$t('commons.create_user'),
+          value:'creator',
+        },
+        {
+          label:this.$t('commons.status'),
+          value:'status',
+        },
+        {
+          label:this.$t('commons.create_time'),
+          value:'createTime',
+        },
+        {
+          label:this.$t('commons.update_time'),
+          value:'updateTime',
+        },
+        {
+          label:this.$t('test_track.review.end_time'),
+          value:'endTime',
+        },
+        {
+          label:this.$t('project.id'),
+          value:'projectId',
+        },
+        {
+          label:this.$t('commons.tag'),
+          value:'tags',
+        },
+        {
+          label:this.$t('commons.create_user'),
+          value:'createUser',
+        },
+        {
+          label:this.$t('commons.description'),
+          value:'description',
+        },
       ]
     };
   },

@@ -21,7 +21,10 @@ export default {
     return {
       caseDataMap: new Map([
         ["success", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
+        ["Success", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
+        ["SUCCESS", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
         ["error", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
+        ["Error", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
         ["run", {name: this.$t('运行中'), itemStyle: {color: '#DEDE10'}}],
         ["Prepare", {name: this.$t('api_test.home_page.detail_card.unexecute'), itemStyle: {color: '#909399'}}],
       ]),

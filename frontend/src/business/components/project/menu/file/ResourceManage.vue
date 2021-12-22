@@ -1,11 +1,10 @@
 <template>
-  <el-card v-loading="result.loading">
+  <el-card v-loading="result.loading" class="table-card">
     <template v-slot:header>
       <ms-table-header title="" :condition.sync="condition" @search="getProjectFiles"
                        :show-create="false">
         <template v-slot:button>
           <el-upload
-            style="margin-bottom: 10px;"
             accept=".jmx,.jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx,.txt"
             action=""
             :limit="fileNumLimit"

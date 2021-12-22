@@ -12,8 +12,8 @@ import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -63,7 +63,7 @@ public class MsThreadGroup extends MsTestElement {
             boolean isConnScenarioPost = false;
             //获取projectConfig
             String projectId = this.checkProjectId(hashTree);
-            this.checkEnviromentConfig(projectId,config,hashTree);
+            this.checkEnvironmentConfig(projectId,config,hashTree);
             if (config.getConfig() != null) {
                 if (config.isEffective(projectId)) {
                     EnvironmentConfig environmentConfig = config.getConfig().get(projectId);
@@ -154,7 +154,7 @@ public class MsThreadGroup extends MsTestElement {
         return projectId;
     }
 
-    private void checkEnviromentConfig(String projectId, ParameterConfig config, List<MsTestElement> hashTree) {
+    private void checkEnvironmentConfig(String projectId, ParameterConfig config, List<MsTestElement> hashTree) {
         //检查全局前后置脚本
         if (config.getConfig() == null) {
             // 单独接口执行

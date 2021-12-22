@@ -3,6 +3,7 @@ package io.metersphere.track.issue;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
+import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -71,4 +72,10 @@ public interface IssuesPlatform {
      * @param project
      */
     void syncAllIssues(Project project);
+
+    /**
+     * 获取第三方平台缺陷模板
+     * @return
+     */
+    IssueTemplateDao getThirdPartTemplate();
 }

@@ -93,7 +93,6 @@
 </template>
 
 <script>
-import MsCreateBox from "../CreateBox";
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsRolesTag from "../../common/components/MsRolesTag";
@@ -125,7 +124,7 @@ export default {
   name: "MsMember",
   components: {
     BatchToProjectGroupCascader, GroupCascader,
-    AddMember, MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
+    AddMember, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
     MsTableHeaderSelectPopover, UserCascader, ShowMoreBtn
   },
   data() {
@@ -366,20 +365,6 @@ export default {
 
 .select-width {
   width: 80%;
-}
-
-.workspace-member-name {
-  float: left;
-}
-
-.workspace-member-email {
-  float: right;
-  color: #8492a6;
-  font-size: 13px;
-}
-
-.input-with-autocomplete {
-  width: 100%;
 }
 
 /deep/ .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {

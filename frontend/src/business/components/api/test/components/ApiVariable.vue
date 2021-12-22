@@ -59,8 +59,10 @@
       </el-row>
     </div>
     <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario"
+                             :append-to-body="appendDialogToBody"
                              :parameters="parameters"
-                             :current-item="currentItem"/>
+                             :current-item="currentItem"
+                             @advancedRefresh="reload"/>
   </div>
 </template>
 
@@ -83,6 +85,12 @@
       type: {
         type: String,
         default: ''
+      },
+      appendDialogToBody: {
+        type: Boolean,
+        default() {
+          return false;
+        }
       },
       isReadOnly: {
         type: Boolean,
@@ -165,7 +173,13 @@
         } else {
           item.contentType = 'text/plain';
         }
-      }
+      },
+      reload() {
+        this.isActive = false;
+        this.$nextTick(() => {
+          this.isActive = true;
+        });
+      },
     },
     created() {
       if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {

@@ -51,6 +51,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.util.FileUtil;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -852,6 +853,10 @@ public class PerformanceTestService {
             scenarioLoadTest.setId(UUID.randomUUID().toString());
             mapper.insert(scenarioLoadTest);
         });
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public Integer getGranularity(String reportId) {

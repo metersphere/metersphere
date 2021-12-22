@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :close-on-click-modal="false"
-    title="添加监控"
+    :title="$t('load_test.add_monitor')"
     :visible.sync="dialogVisible"
     width="70%"
     @closed="closeFunc"
@@ -10,11 +10,11 @@
     v-loading="result.loading"
   >
     <div style="height: 50vh;overflow-y: auto;">
-      <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rule" ref="monitorForm">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="monitorForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
-        <h4 style="margin-left: 80px;">监控配置</h4>
+        <h4 style="margin-left: 80px;">{{ $t('load_test.monitor_host') }}</h4>
         <el-row>
           <el-col :span="12">
             <el-form-item label="IP" prop="ip">
@@ -27,10 +27,10 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="描述" prop="description">
+        <el-form-item :label="$t('commons.description')" prop="description">
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
-        <h4 style="margin-left: 80px;">监控项</h4>
+        <h4 style="margin-left: 80px;">{{ $t('load_test.monitor_item') }}</h4>
         <el-row>
           <el-col :span="20" :offset="2">
             <monitor-key-value key-placeholder="Label" value-placeholder="promQL" :items="monitorList"

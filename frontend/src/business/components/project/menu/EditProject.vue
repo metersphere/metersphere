@@ -7,15 +7,33 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
+        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth" :label="$t('test_track.issue.third_party_integrated')"
+                      prop="platform">
+          <el-select filterable v-model="form.platform">
+            <el-option v-for="item in platformOptions" :key="item.value" :label="item.text" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item :label-width="labelWidth" :label="$t('workspace.case_template_manage')" prop="caseTemplateId">
           <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
-          <template-select :data="form" scene="ISSUE" prop="issueTemplateId" ref="issueTemplate"/>
+
+        <el-form-item :label-width="labelWidth"
+                      :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
+          <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId"
+                           :disabled="form.platform === 'Jira' && form.thirdPartTemplate"
+                           ref="issueTemplate"/>
+
+          <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'" v-model="form.thirdPartTemplate" style="margin-left: 10px">
+            {{ $t('test_track.issue.use_third_party') }}
+          </el-checkbox>
+
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" label="TCP Mock Port">
-          <el-input-number v-model="form.mockTcpPort" :controls="false" style="width: 37%;margin-right: 30px"></el-input-number>
+          <el-input-number v-model="form.mockTcpPort" :controls="false"
+                           style="width: 37%;margin-right: 30px"></el-input-number>
           <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
         </el-form-item>
 
@@ -47,13 +65,20 @@
         <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_id')" v-if="azuredevops">
           <el-input v-model="form.azureDevopsId" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
+        <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_filter_id')" v-if="azuredevops">
+          <el-input v-model="form.azureFilterId" autocomplete="off"/>
+          <ms-instructions-icon content="非必填项，用例关联需求时，可以只筛选出，所填的 workItem 下的选项" effect="light"/>
+        </el-form-item>
+        <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable"
+                      v-if="this.isShowApp">
           <el-switch v-model="form.repeatable"></el-switch>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id')" prop="customNum">
+        <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id')" prop="customNum"
+                      v-if="this.isShowApp">
           <el-switch v-model="form.customNum"></el-switch>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id')" prop="scenarioCustomNum">
+        <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id')" prop="scenarioCustomNum"
+                      v-if="this.isShowApp">
           <el-switch v-model="form.scenarioCustomNum"></el-switch>
         </el-form-item>
       </el-form>
@@ -75,12 +100,12 @@
 import {
   getCurrentProjectID,
   getCurrentUser, getCurrentUserId,
-  getCurrentWorkspaceId,
+  getCurrentWorkspaceId, hasLicense,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
 
-import {PROJECT_ID} from "@/common/js/constants";
+import {AZURE_DEVOPS, JIRA, PROJECT_ID, TAPD, ZEN_TAO} from "@/common/js/constants";
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
@@ -95,13 +120,13 @@ import MsDeleteConfirm from "@/business/components/common/components/MsDeleteCon
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
-import MsCreateBox from "@/business/components/settings/CreateBox";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import {ISSUE_PLATFORM_OPTION} from "@/common/js/table-constants";
 
 export default {
-  name: "MsProject",
+  name: "EditProject",
   components: {
     MsInstructionsIcon,
     TemplateSelect,
@@ -113,7 +138,7 @@ export default {
     MsTableOperatorButton,
     MsDeleteConfirm,
     MsMainContainer,
-    MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
+    MsContainer, MsTableOperator, MsTablePagination, MsTableHeader, MsDialogFooter
   },
   data() {
     return {
@@ -123,10 +148,6 @@ export default {
       title: this.$t('project.create'),
       condition: {components: PROJECT_CONFIGS},
       items: [],
-      tapd: false,
-      jira: false,
-      zentao: false,
-      azuredevops: false,
       form: {},
       currentPage: 1,
       pageSize: 10,
@@ -144,12 +165,17 @@ export default {
         // issueTemplateId: [{required: true}],
       },
       screenHeight: 'calc(100vh - 195px)',
-      labelWidth: '150px'
+      labelWidth: '150px',
+      platformOptions: []
     };
   },
   props: {
     baseUrl: {
       type: String
+    },
+    isShowApp: {
+      type: Boolean,
+      default: true
     }
   },
   mounted() {
@@ -162,7 +188,19 @@ export default {
   computed: {
     currentUser: () => {
       return getCurrentUser();
-    }
+    },
+    tapd() {
+      return this.form.platform === TAPD && this.platformOptions.map(i => i.value).indexOf(TAPD) > -1;
+    },
+    jira() {
+      return this.form.platform === JIRA && this.platformOptions.map(i => i.value).indexOf(JIRA) > -1;
+    },
+    zentao() {
+      return this.form.platform === ZEN_TAO && this.platformOptions.map(i => i.value).indexOf(ZEN_TAO) > -1;
+    },
+    azuredevops() {
+      return this.form.platform === AZURE_DEVOPS && this.platformOptions.map(i => i.value).indexOf(AZURE_DEVOPS) > -1;
+    },
   },
   inject: [
     'reload'
@@ -179,28 +217,40 @@ export default {
         this.$refs.caseTemplate.getTemplateOptions();
       }
     },
+    thirdPartTemplateChange(val) {
+      if (val)
+        this.form.issueTemplateId = '';
+    },
     edit(row) {
       this.title = this.$t('project.edit');
       this.getOptions();
       this.createVisible = true;
       listenGoBack(this.handleClose);
-      this.form = Object.assign({}, row);
+      if (row) {
+        this.form = Object.assign({}, row);
+      } else {
+        this.form = {};
+      }
+      this.platformOptions = [];
+      this.platformOptions.push(...ISSUE_PLATFORM_OPTION);
       this.$get("/service/integration/all/" + getCurrentUser().lastWorkspaceId, response => {
         let data = response.data;
         let platforms = data.map(d => d.platform);
-        if (platforms.indexOf("Tapd") !== -1) {
-          this.tapd = true;
-        }
-        if (platforms.indexOf("Jira") !== -1) {
-          this.jira = true;
-        }
-        if (platforms.indexOf("Zentao") !== -1) {
-          this.zentao = true;
-        }
-        if (platforms.indexOf("AzureDevops") !== -1) {
-          this.azuredevops = true;
-        }
+        this.filterPlatformOptions(platforms, TAPD);
+        this.filterPlatformOptions(platforms, JIRA);
+        this.filterPlatformOptions(platforms, ZEN_TAO);
+        this.filterPlatformOptions(platforms, AZURE_DEVOPS);
       });
+    },
+    filterPlatformOptions(platforms, platform) {
+      if (platforms.indexOf(platform) === -1) {
+        for (let i = 0; i < this.platformOptions.length; i++) {
+          if (this.platformOptions[i].value === platform) {
+            this.platformOptions.splice(i, 1);
+            break;
+          }
+        }
+      }
     },
     submit(formName) {
       this.$refs[formName].validate((valid) => {
@@ -251,13 +301,9 @@ export default {
     handleClose() {
       removeGoBackListener(this.handleClose);
       this.createVisible = false;
-      this.tapd = false;
-      this.jira = false;
-      this.zentao = false;
-      this.azuredevops = false;
     },
-    chengeMockTcpSwitch(value){
-      if(value && this.form.mockTcpPort === 0){
+    chengeMockTcpSwitch(value) {
+      if (value && this.form.mockTcpPort === 0) {
         this.result = this.$get('/project/genTcpMockPort/' + this.form.id, res => {
           let port = res.data;
           this.form.mockTcpPort = port;
@@ -280,7 +326,7 @@ pre {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
 }
 
-.el-input,.el-textarea {
+.el-input, .el-textarea {
   width: 80%;
 }
 </style>

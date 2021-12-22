@@ -544,9 +544,10 @@ export function handleMinderIssueDelete(commandName, isPlan) {
           isAllIssue = false;
         }
       });
-      Promise.all(promises).then(() => {
-        success('取消缺陷关联成功');
-      });
+      if (promises.length > 0)
+        Promise.all(promises).then(() => {
+          success(i18n.t('test_track.case.minder_issue_delete_tip'));
+        });
       return isAllIssue;
     }
   }
@@ -567,10 +568,18 @@ export function openMinderConfirm(vueObj, activeDom) {
 export function saveMinderConfirm(vueObj, isSave) {
   if (isSave) {
     vueObj.$refs.minder.save(window.minder.exportJson());
-  } else {
-    vueObj.$store.commit('setIsTestCaseMinderChanged', false);
   }
+  vueObj.$store.commit('setIsTestCaseMinderChanged', false);
   vueObj.$nextTick(() => {
-    vueObj.activeDom = vueObj.tmpActiveDom;
+    if (vueObj.tmpActiveDom) {
+      vueObj.activeDom = vueObj.tmpActiveDom;
+      vueObj.tmpActiveDom = null;
+    }
+    if (vueObj.tmpPath) {
+      vueObj.$router.push({
+        path: vueObj.tmpPath
+      });
+      vueObj.tmpPath = null;
+    }
   });
 }

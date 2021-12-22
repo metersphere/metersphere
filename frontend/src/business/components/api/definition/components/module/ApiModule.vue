@@ -4,22 +4,22 @@
     <slot name="header"></slot>
 
     <ms-node-tree
-      :is-display="getIsRelevance"
-      v-loading="result.loading"
-      :tree-nodes="data"
-      :type="isReadOnly ? 'view' : 'edit'"
-      :allLabel="$t('全部接口')"
-      :default-label="'未规划接口'"
-      @add="add"
-      @edit="edit"
-      @drag="drag"
-      @remove="remove"
-      @refresh="list"
-      @filter="filter"
-      :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
-      :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
-      :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
-      @nodeSelectEvent="nodeChange"
+        :is-display="getIsRelevance"
+        v-loading="result.loading"
+        :tree-nodes="data"
+        :type="isReadOnly ? 'view' : 'edit'"
+        :allLabel="$t('api_test.definition.api_all')"
+        :default-label="$t('api_test.definition.unplanned_api')"
+        @add="add"
+        @edit="edit"
+        @drag="drag"
+        @remove="remove"
+        @refresh="list"
+        @filter="filter"
+        :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
+        :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
+        :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
+        @nodeSelectEvent="nodeChange"
       ref="nodeTree">
 
       <template v-slot:header>
@@ -145,11 +145,17 @@
     },
     methods: {
       initProtocol() {
-        this.$get('/api/module/getUserDefaultApiType/', response => {
-          this.condition.protocol = response.data;
+        if(this.$route.params.type){
+          this.condition.protocol = this.$route.params.type;
           this.$emit('protocolChange', this.condition.protocol);
           this.list();
-        });
+        }else {
+          this.$get('/api/module/getUserDefaultApiType/', response => {
+            this.condition.protocol = response.data;
+            this.$emit('protocolChange', this.condition.protocol);
+            this.list();
+          });
+        }
       },
       filter() {
         this.$refs.nodeTree.filter(this.condition.filterText);

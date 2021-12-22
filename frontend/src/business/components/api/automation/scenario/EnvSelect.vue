@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
     <div v-for="pe in data" :key="pe.id" style="margin-left: 20px;">
-      <el-select v-model="pe['selectEnv']" placeholder="请选择环境" style="margin-top: 8px;width: 200px;" size="small">
+      <el-select v-model="pe['selectEnv']" :placeholder="$t('workspace.env_group.please_select_env')" style="margin-top: 8px;width: 200px;" size="small">
         <el-option v-for="(environment, index) in pe.envs" :key="index"
                    :label="environment.name"
                    :value="environment.id"/>
@@ -23,7 +23,7 @@
       </span>
     </div>
 
-    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">确 定</el-button>
+    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">{{$t('workspace.env_group.confirm')}}</el-button>
 
     <!-- 环境配置 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -57,7 +57,6 @@ export default {
   data() {
     return {
       data: [],
-      // result: {},
       projects: [],
       environments: [],
       permissionProjectIds:[],
@@ -153,127 +152,11 @@ export default {
         map.set(dt.id, dt.selectEnv);
       })
       if (!sign) {
-        this.$warning("请为当前场景选择一个运行环境！");
+        this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
         return;
       }
       this.$emit('setProjectEnvMap', map);
       this.$emit('close');
-    },
-    getApiInfo(request) {
-      if (request.id && request.referenced === 'REF') {
-        let requestResult = request.requestResult;
-        let url = request.refType && request.refType === 'CASE' ? "/api/testcase/get/" : "/api/definition/get/";
-        let enable = request.enable;
-        this.$get(url + request.id, response => {
-          if (response.data) {
-            Object.assign(request, JSON.parse(response.data.request));
-            request.name = response.data.name;
-            request.enable = enable;
-            if (response.data.path && response.data.path != null) {
-              request.path = response.data.path;
-              request.url = response.data.url;
-              this.setUrl(request.path);
-            }
-            if (response.data.method && response.data.method != null) {
-              request.method = response.data.method;
-            }
-            request.requestResult = requestResult;
-            request.id = response.data.id;
-            request.disabled = true;
-            request.root = true;
-            if (!request.projectId) {
-              request.projectId = response.data.projectId;
-            }
-            this.reload();
-            this.sort();
-          } else {
-            request.referenced = "Deleted";
-          }
-        })
-      }
-    },
-    getScenario(scenario) {
-      this.result = this.$get("/api/automation/getApiScenario/" + scenario.id, response => {
-        if (response.data) {
-          scenario.loaded = true;
-          let obj = {};
-          if (response.data.scenarioDefinition) {
-            obj = JSON.parse(response.data.scenarioDefinition);
-            scenario.hashTree = obj.hashTree;
-          }
-          //scenario.disabled = true;
-          scenario.name = response.data.name;
-          if (!scenario.projectId) {
-            scenario.projectId = response.data.projectId;
-          }
-          scenario.headers = obj.headers;
-          scenario.variables = obj.variables;
-          scenario.environmentMap = obj.environmentMap;
-          this.$emit('refReload');
-        } else {
-          scenario.referenced = "Deleted";
-        }
-      })
-    },
-    recursiveSorting(arr) {
-      for (let i in arr) {
-        if (arr[i].referenced === 'REF') {
-          // 分场景和接口
-          if (arr[i].type === "HTTPSamplerProxy") {
-            // 获取源头内容
-            this.getApiInfo(arr[i]);
-            // 校验是否是全路径
-            if (!arr[i].url || (!arr[i].url.startsWith("http://") && !arr[i].url.startsWith("https://"))) {
-              this.isFullUrl = false;
-            }
-          } else if (arr[i].type === "scenario") {
-            this.getScenario(arr[i]);
-          }
-
-        } else {
-          if (arr[i].type === "HTTPSamplerProxy") {
-            // 校验是否是全路径
-            if (arr[i].enable) {
-              if (!arr[i].url || (!arr[i].url.startsWith("http://") && !arr[i].url.startsWith("https://"))) {
-                this.isFullUrl = false;
-              }
-            }
-          }
-        }
-        if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-          this.recursiveSorting(arr[i].hashTree);
-        }
-      }
-    },
-    checkFullUrl(scenarioDefinition) {
-      for (let i in scenarioDefinition) {
-        // 设置项目ID
-        let request = scenarioDefinition[i];
-        if (request.referenced === 'REF') {
-          if (request.type === "HTTPSamplerProxy") {
-            this.getApiInfo(request);
-            // 校验是否是全路径
-            if (!request.url || (!request.url.startsWith("http://") && !request.url.startsWith("https://"))) {
-              this.isFullUrl = false;
-            }
-          } else if (request.type === "scenario") {
-            this.getScenario(request);
-          }
-        } else {
-          if (request.type === "HTTPSamplerProxy") {
-            // 校验是否是全路径
-
-            if (request.enable) {
-              if (!request.url || (!request.url.startsWith("http://") && !request.url.startsWith("https://"))) {
-                this.isFullUrl = false;
-              }
-            }
-          }
-        }
-        if (scenarioDefinition[i].hashTree != undefined && scenarioDefinition[i].hashTree.length > 0) {
-          this.recursiveSorting(scenarioDefinition[i].hashTree);
-        }
-      }
     },
     checkEnv(data) {
       let sign = true;
@@ -301,7 +184,7 @@ export default {
       }
 
       if (!sign) {
-        this.$warning("请为当前场景选择一个运行环境！");
+        this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
         return false;
       }
       return true;

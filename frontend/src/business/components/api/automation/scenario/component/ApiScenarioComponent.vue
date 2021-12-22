@@ -13,11 +13,11 @@
     :show-btn="showBtn"
     color="#606266"
     background-color="#F4F4F5"
-    title='场景'>
+    :title="$t('commons.scenario')">
 
-    <template v-slot:afterTitle>
-      <span v-if="isShowNum" @click = "clickResource(scenario)">{{"（ ID: "+scenario.num+"）"}}</span>
-      <span v-else >
+    <template v-slot:afterTitle v-if="isSameSpace">
+      <span v-if="isShowNum" @click="clickResource(scenario)">{{ "（ ID: " + scenario.num + "）" }}</span>
+      <span v-else>
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
           <i class="el-icon-warning"/>
         </el-tooltip>
@@ -40,8 +40,10 @@
       </span>
     </template>
     <template v-slot:scenarioEnable>
-      <el-tooltip content="启用场景环境：当前步骤使用场景原始环境配置运行" placement="top">
-        <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">启用场景环境</el-checkbox>
+      <el-tooltip :content="$t('commons.enable_scene_info')" placement="top">
+        <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">
+          {{ $t('commons.enable_scene') }}
+        </el-checkbox>
       </el-tooltip>
     </template>
     <template v-slot:button>
@@ -66,7 +68,7 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, strMapToObj} from "@/common/js/utils";
 
 export default {
   name: "ApiScenarioComponent",
@@ -126,7 +128,7 @@ export default {
           }
           if(response.data.num){
             this.scenario.num = response.data.num;
-            this.isShowNum = true;
+            this.getWorkspaceId(response.data.projectId);
           }
           this.scenario.name = response.data.name;
           this.scenario.headers = obj.headers;
@@ -136,13 +138,17 @@ export default {
         }
       })
     }
-    else if(this.scenario.id && this.scenario.referenced === 'Copy' && !this.scenario.loaded){
+    else if(this.scenario.id && (this.scenario.referenced === 'Copy'||this.scenario.referenced === 'Created') && !this.scenario.loaded){
       this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
         if (response.data) {
           if(response.data.num){
             this.scenario.num = response.data.num;
-            this.isShowNum = true;
+            this.getWorkspaceId(response.data.projectId);
+          }else {
+            this.isSameSpace = false
           }
+        } else {
+          this.isSameSpace = false
         }
       })
     }
@@ -153,6 +159,7 @@ export default {
       loading: false,
       isShowInput: false,
       isShowNum:false,
+      isSameSpace:true
     }
   },
   computed: {
@@ -177,10 +184,10 @@ export default {
       this.reload();
     },
     checkEnv(val) {
-      this.$post("/api/automation/checkScenarioEnv", {scenarioDefinition: JSON.stringify(this.scenario), projectId: this.projectId}, res => {
+      this.$get("/api/automation/checkScenarioEnv/" + this.scenario.id, res => {
         if (this.scenario.environmentEnable && !res.data) {
           this.scenario.environmentEnable = false;
-          this.$warning("当前场景没有环境，需要先设置自身环境");
+          this.$warning(this.$t('commons.scenario_warning'));
           return;
         }
         this.setDomain(val);
@@ -269,14 +276,24 @@ export default {
       }
 
     },
-
     clickResource(resource) {
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id}
+        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id,projectId:resource.projectId}
       });
       window.open(automationData.href, '_blank');
     },
+    getWorkspaceId(projectId){
+      this.$get("/project/get/" + projectId, response => {
+        if(response.data){
+          if(response.data.workspaceId===getCurrentWorkspaceId()){
+            this.isShowNum = true;
+          }else {
+            this.isSameSpace = false;
+          }
+        }
+      });
+    }
   }
 }
 </script>

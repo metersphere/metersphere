@@ -6,7 +6,7 @@
 
       <ms-table
         :data="tableData"
-        :screen-height="isRelate ? 'calc(100vh - 400px)' :  screenHeight"
+        :screen-height="isRelate ? 'calc(100vh - 300px)' :  screenHeight"
         :condition="condition"
         :page-size="pageSize"
         :operators="isRelate ? [] : operators"
@@ -52,7 +52,7 @@
                            :fields-width="fieldsWidth"
                            min-width="120px">
             <template slot-scope="scope">
-              <el-tooltip content="编辑">
+              <el-tooltip :content="$t('commons.edit')">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
@@ -65,7 +65,7 @@
             :fields-width="fieldsWidth"
             min-width="120px">
             <template slot-scope="scope">
-              <el-tooltip content="编辑">
+              <el-tooltip :content="$t('commons.edit')">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.customNum }} </a>
               </el-tooltip>
             </template>
@@ -83,7 +83,7 @@
             sortable
             :field="item"
             :fields-width="fieldsWidth"
-            :filters="LEVEL_FILTERS"
+            :filters="apiscenariofilters.LEVEL_FILTERS"
             min-width="130px"
             :label="$t('api_test.automation.case_level')">
             <template v-slot:default="scope">
@@ -96,7 +96,7 @@
                            sortable
                            :field="item"
                            :fields-width="fieldsWidth"
-                           :filters="STATUS_FILTERS"
+                           :filters="apiscenariofilters.STATUS_FILTERS"
                            min-width="120px">
             <template v-slot:default="scope">
               <plan-status-table-item :value="scope.row.status"/>
@@ -124,7 +124,7 @@
                            :field="item"
                            :fields-width="fieldsWidth"
                            sortable/>
-          <ms-table-column prop="userName" min-width="120px"
+          <ms-table-column prop="creator" min-width="120px"
                            :label="$t('api_test.automation.creator')"
                            :filters="userFilters"
                            :field="item"
@@ -191,7 +191,7 @@
                            min-width="80px"/>
           <ms-table-column prop="lastResult"
                            :label="$t('api_test.automation.last_result')"
-                           :filters="RESULT_FILTERS"
+                           :filters="apiscenariofilters.RESULT_FILTERS"
                            :field="item"
                            :fields-width="fieldsWidth"
                            sortable
@@ -484,7 +484,7 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
         },
         {
-          name: "生成依赖关系",
+          name: this.$t('test_track.case.generate_dependencies'),
           handleClick: this.generateGraph,
           isXPack: true,
           permissions: ['PROJECT_API_SCENARIO:READ+EDIT']
@@ -500,7 +500,6 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH']
         },
       ],
-      ...API_SCENARIO_FILTERS,
       typeArr: [
         {id: 'level', name: this.$t('test_track.case.priority')},
         {id: 'status', name: this.$t('test_track.plan.plan_status')},
@@ -531,10 +530,12 @@ export default {
       },
       graphData: {},
       environmentType: "",
-      envGroupId: ""
+      envGroupId: "",
+      apiscenariofilters:{},
     };
   },
   created() {
+    this.apiscenariofilters = API_SCENARIO_FILTERS();
     scenario.$on('hide', id => {
       this.hideStopBtn(id);
     });
@@ -1005,9 +1006,17 @@ export default {
           }
           this.environmentType = this.currentScenario.environmentType;
           this.envGroupId = this.currentScenario.environmentGroupId;
-          this.reportId = getUUID().substring(0, 8);
-          this.runVisible = true;
-          this.$set(row, "isStop", true);
+
+          this.$get("/api/automation/checkScenarioEnv/" + this.currentScenario.id, res => {
+            let data = res.data;
+            if (!data) {
+              this.$warning("请为场景选择环境！");
+              return false;
+            }
+            this.reportId = getUUID().substring(0, 8);
+            this.runVisible = true;
+            this.$set(row, "isStop", true);
+          })
         }
       });
     },
@@ -1048,7 +1057,7 @@ export default {
           if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
-              alertMsg += item + ";";
+              alertMsg += item;
             });
             if (alertMsg === "") {
               alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";

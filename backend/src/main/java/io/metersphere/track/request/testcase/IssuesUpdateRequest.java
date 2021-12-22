@@ -25,5 +25,9 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
     private List<String> zentaoBuilds;
     private List<String> testCaseIds;
 
+    private boolean thirdPartPlatform;
+
     private List<String> follows;
+
+    private boolean withoutTestCaseIssue; // 不更新用例和缺陷的关联关系
 }

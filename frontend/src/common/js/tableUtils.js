@@ -3,6 +3,7 @@ import {CUSTOM_TABLE_HEADER} from "@/common/js/default-table-header";
 import {updateCustomFieldTemplate} from "@/network/custom-field-template";
 import i18n from "@/i18n/i18n";
 import Sortable from 'sortablejs'
+import {timestampFormatDate} from "@/common/js/filter";
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -436,6 +437,7 @@ export function getCustomFieldValue(row, field, members) {
     for (let i = 0; i < row.customFields.length; i++) {
       let item = row.customFields[i];
       if (item.name === field.name) {
+        if (!item.value) return '';
         if (field.type === 'member') {
           for (let j = 0; j < members.length; j++) {
             let member = members[j];
@@ -444,52 +446,72 @@ export function getCustomFieldValue(row, field, members) {
             }
           }
         } else if (field.type === 'multipleMember') {
-          if (item.value) {
-            let values = '';
+          let values = '';
+          item.value.forEach(v => {
+            for (let j = 0; j < members.length; j++) {
+              let member = members[j];
+              if (member.id === v) {
+                values += member.name;
+                values += " ";
+                break;
+              }
+            }
+          });
+          return values;
+        } else if (['radio', 'select'].indexOf(field.type) > -1) {
+          if (field.options) {
+            for (let j = 0; j < field.options.length; j++) {
+              let option = field.options[j];
+              if (option.value === item.value) {
+                return field.system ? i18n.t(option.text) : option.text;
+              }
+            }
+          }
+        }
+        else if (['multipleSelect', 'checkbox'].indexOf(field.type) > -1) {
+          let values = '';
+          try {
+            if (field.type === 'multipleSelect') {
+              if (typeof (item.value) === 'string' || item.value instanceof String) {
+                item.value = JSON.parse(item.value);
+              }
+            }
             item.value.forEach(v => {
-              for (let j = 0; j < members.length; j++) {
-                let member = members[j];
-                if (member.id === v) {
-                  values += member.name;
+              for (let j = 0; j < field.options.length; j++) {
+                let option = field.options[j];
+                if (option.value === v) {
+                  values += (field.system ? i18n.t(option.text) : option.text);
                   values += " ";
                   break;
                 }
               }
             });
-            return values;
+          } catch (e) {
+            values = '';
           }
-        } else if (['radio', 'select'].indexOf(field.type) > -1) {
-          for (let j = 0; j < field.options.length; j++) {
-            let option = field.options[j];
-            if (option.value === item.value) {
-              return field.system ? i18n.t(option.text) : option.text;
-            }
-          }
-        }
-        else if (['multipleSelect', 'checkbox'].indexOf(field.type) > -1) {
-          if (item.value) {
-            let values = '';
-            try {
-              if (field.type === 'multipleSelect') {
-                if (typeof (item.value) === 'string' || item.value instanceof String) {
-                  item.value = JSON.parse(item.value);
-                }
+          return values;
+        } else if (field.type === 'cascadingSelect') {
+          let val = '';
+          let options = field.options;
+          for (const v of item.value) {
+            if (!options) break;
+            for (const o of options) {
+              if (o.value === v) {
+                val = o.text;
+                options = o.children;
+                break;
               }
-              item.value.forEach(v => {
-                for (let j = 0; j < field.options.length; j++) {
-                  let option = field.options[j];
-                  if (option.value === v) {
-                    values += (field.system ? i18n.t(option.text) : option.text);
-                    values += " ";
-                    break;
-                  }
-                }
-              });
-            } catch (e) {
-              values = '';
             }
-            return values;
           }
+          return val;
+        }  else if (field.type === 'multipleInput') {
+          let val = '';
+          item.value.forEach(i => {
+            val += i + ' ';
+          });
+          return val;
+        } else if (field.type === 'datetime') {
+          return timestampFormatDate(item.value);
         }
         return item.value;
       }
@@ -511,7 +533,8 @@ export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, m
       typeArr.push({
         id: item.name,
         name: item.name,
-        uuid: item.id
+        uuid: item.id,
+        custom: "custom" + item.id
       });
 
       let options = [];

@@ -27,7 +27,7 @@
         <el-card :body-style="{ padding: '0px' }" class="ms-col">
           <img src="@/assets/other.png" class="image">
           <div style="padding: 10px;">
-            <span>预留模块敬请期待</span>
+            <span>{{ $t('commons.report_statistics.reserved') }}</span>
             <div class="bottom clearfix">
               <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>
@@ -38,7 +38,7 @@
         <el-card :body-style="{ padding: '0px' }" class="ms-col">
           <img src="@/assets/other.png" class="image">
           <div style="padding: 10px;">
-            <span>预留模块敬请期待</span>
+            <span>{{ $t('commons.report_statistics.reserved') }}</span>
             <div class="bottom clearfix">
               <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>
@@ -49,7 +49,7 @@
         <el-card :body-style="{ padding: '0px' }" class="ms-col">
           <img src="@/assets/other.png" class="image">
           <div style="padding: 10px;">
-            <span>预留模块敬请期待</span>
+            <span>{{ $t('commons.report_statistics.reserved') }}</span>
             <div class="bottom clearfix">
               <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>
@@ -60,7 +60,7 @@
         <el-card :body-style="{ padding: '0px' }" class="ms-col">
           <img src="@/assets/other.png" class="image">
           <div style="padding: 10px;">
-            <span>预留模块敬请期待</span>
+            <span>{{ $t('commons.report_statistics.reserved') }}</span>
             <div class="bottom clearfix">
               <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
             </div>

@@ -7,14 +7,12 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.definition.parse.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
-import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.dto.scenario.environment.GlobalScriptConfig;
 import io.metersphere.api.dto.scenario.environment.GlobalScriptFilterRequest;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
@@ -22,12 +20,11 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -41,7 +38,6 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,7 +96,7 @@ public class MsJDBCSampler extends MsTestElement {
         // 数据兼容处理
         if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
             // 1.8 之后 当前正常数据
-        } else if ( config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
+        } else if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
             // 1.8 前后 混合数据
             this.setProjectId(getParentProjectId());
         } else {
@@ -152,55 +148,28 @@ public class MsJDBCSampler extends MsTestElement {
         if (arguments != null) {
             tree.add(arguments);
         }
-
         // 环境通用请求头
         Arguments envArguments = getConfigArguments(config);
         if (envArguments != null) {
             tree.add(envArguments);
         }
 
-        MsJSR223PreProcessor preProcessor = envConfig != null ? envConfig.getPreProcessor() : null;
-        MsJSR223PostProcessor postProcessor = envConfig != null ? envConfig.getPostProcessor() : null;
-        GlobalScriptConfig globalScriptConfig = envConfig != null ? envConfig.getGlobalScriptConfig() : null;
-        if (globalScriptConfig != null) {
-            boolean isPreScriptExecAfterPrivateScript = globalScriptConfig.isPreScriptExecAfterPrivateScript();
-            boolean isPostScriptExecAfterPrivateScript = globalScriptConfig.isPostScriptExecAfterPrivateScript();
-            List<String> preFilters = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
-            List<String> postFilters = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
-            boolean globalPreScriptIsFilter = preFilters.contains(GlobalScriptFilterRequest.JDBC.name());
-            boolean globalPostScriptIsFilter = postFilters.contains(GlobalScriptFilterRequest.JDBC.name());
-
-            if (!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter) {
-                this.addItemHashTree(preProcessor, samplerHashTree, config);
-            }
-            if (!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter) {
-                this.addItemHashTree(postProcessor, samplerHashTree, config);
-            }
-
-            if (isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter) {
-                this.addItemHashTree(preProcessor, samplerHashTree, config);
-            }
-            if (isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter) {
-                this.addItemHashTree(postProcessor, samplerHashTree, config);
-            }
+        //处理全局前后置脚本(步骤内)
+        String enviromentId = this.getEnvironmentId();
+        if (enviromentId == null) {
+            enviromentId = this.useEnvironment;
         }
+        //根据配置将脚本放置在私有脚本之前
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), enviromentId, config, false);
+
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }
+        //根据配置将脚本放置在私有脚本之后
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), enviromentId, config, true);
 
-    }
-
-    private void addItemHashTree(MsTestElement element, HashTree samplerHashTree, ParameterConfig config) {
-        if (element != null && element.getEnvironmentId() == null) {
-            if (this.getEnvironmentId() == null) {
-                element.setEnvironmentId(useEnvironment);
-            } else {
-                element.setEnvironmentId(this.getEnvironmentId());
-            }
-            element.toHashTree(samplerHashTree, element.getHashTree(), config);
-        }
     }
 
     /**
@@ -329,10 +298,6 @@ public class MsJDBCSampler extends MsTestElement {
         JDBCSampler sampler = new JDBCSampler();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
-        String name = ElementUtil.getParentName(this.getParent());
-        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            sampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
-        }
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         sampler.setProperty("MS-ID", this.getId());

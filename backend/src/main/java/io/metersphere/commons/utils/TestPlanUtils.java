@@ -44,6 +44,7 @@ public class TestPlanUtils {
         addToReportStatusResultList(resultMap, statusResult, "Fail");
         addToReportStatusResultList(resultMap, statusResult, "success");
         addToReportStatusResultList(resultMap, statusResult, "Success");
+        addToReportStatusResultList(resultMap, statusResult, "SUCCESS");
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Prepare.name());
     }
 
@@ -59,8 +60,6 @@ public class TestPlanUtils {
                 if (StringUtils.equals(successStatus, status)) {
                     report.setPassCount(report.getPassCount() + 1);
                 }
-            }else {
-                System.out.println(status);
             }
             TestPlanUtils.getStatusResultMap(statusResultMap, status);
         });

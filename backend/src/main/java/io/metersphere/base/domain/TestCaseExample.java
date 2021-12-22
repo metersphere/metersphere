@@ -1933,6 +1933,66 @@ public class TestCaseExample {
             addCriterion("`order` not between", value1, value2, "order");
             return (Criteria) this;
         }
+
+        public Criteria andCasePublicIsNull() {
+            addCriterion("case_public is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicIsNotNull() {
+            addCriterion("case_public is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicEqualTo(Boolean value) {
+            addCriterion("case_public =", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicNotEqualTo(Boolean value) {
+            addCriterion("case_public <>", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicGreaterThan(Boolean value) {
+            addCriterion("case_public >", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("case_public >=", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicLessThan(Boolean value) {
+            addCriterion("case_public <", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicLessThanOrEqualTo(Boolean value) {
+            addCriterion("case_public <=", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicIn(List<Boolean> values) {
+            addCriterion("case_public in", values, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicNotIn(List<Boolean> values) {
+            addCriterion("case_public not in", values, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicBetween(Boolean value1, Boolean value2) {
+            addCriterion("case_public between", value1, value2, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("case_public not between", value1, value2, "casePublic");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

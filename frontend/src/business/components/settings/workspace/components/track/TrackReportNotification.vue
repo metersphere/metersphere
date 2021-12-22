@@ -62,7 +62,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook" placeholder="webhook地址" size="mini"
+              <el-input v-model="scope.row.webhook"  size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -174,23 +174,78 @@ export default {
         {value: 'DELETE', label: this.$t('commons.delete')},
       ],
       variables: [
-        'operator',
-        'id',
-        'testPlanId',
-        'createTime',
-        'updateTime',
-        'name',
-        'status',
-        'triggerMode',
-        'creator',
-        'startTime',
-        'endTime',
-        'isApiCaseExecuting',
-        'isScenarioExecuting',
-        'isPerformanceExecuting',
-        'principal',
-        'components',
-        'isNew'
+        {
+          label:this.$t('group.operator'),
+          value:'operator',
+        },
+        {
+          label:'id',
+          value:'id',
+        },
+        {
+          label:this.$t('test_track.plan.test_plan_id'),
+          value:'testPlanId',
+        },
+        {
+          label:this.$t('commons.create_time'),
+          value:'createTime',
+        },
+        {
+          label:this.$t('commons.update_time'),
+          value:'updateTime',
+        },
+        {
+          label:this.$t('commons.name'),
+          value:'name',
+        },
+        {
+          label:this.$t('commons.status'),
+          value:'status',
+        },
+        {
+          label:this.$t('test_track.report.list.trigger_mode'),
+          value:'triggerMode',
+        },
+        {
+          label:this.$t('commons.create_user'),
+          value:'creator',
+        },
+        {
+          label:this.$t('api_report.start_time'),
+          value:'startTime',
+        },
+        {
+          label:this.$t('test_track.review.end_time'),
+          value:'endTime',
+        },
+        {
+          label:this.$t('test_track.plan.is_api_case_executing'),
+          value:'isApiCaseExecuting',
+        },
+        {
+          label:this.$t('test_track.plan.is_scenario_executing'),
+          value:'isScenarioExecuting',
+        },
+        {
+          label:this.$t('test_track.plan.is_performance_executing'),
+          value:'isPerformanceExecuting',
+        },
+        {
+          label:this.$t('api_test.automation.scenario.principal'),
+          value:'principal',
+        },
+        {
+          label:this.$t('test_track.plan_view.component'),
+          value:'components',
+        },
+        {
+          label:this.$t('commons.is_new'),
+          value:'isNew',
+        },
+        {
+          label:this.$t('report.plan_share_url'),
+          value:'planShareUrl',
+        },
       ]
     };
   },

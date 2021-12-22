@@ -1433,6 +1433,266 @@ public class ProjectExample {
             addCriterion("azure_filter_id not between", value1, value2, "azureFilterId");
             return (Criteria) this;
         }
+
+        public Criteria andApiQuickIsNull() {
+            addCriterion("api_quick is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickIsNotNull() {
+            addCriterion("api_quick is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickEqualTo(String value) {
+            addCriterion("api_quick =", value, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickNotEqualTo(String value) {
+            addCriterion("api_quick <>", value, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickGreaterThan(String value) {
+            addCriterion("api_quick >", value, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickGreaterThanOrEqualTo(String value) {
+            addCriterion("api_quick >=", value, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickLessThan(String value) {
+            addCriterion("api_quick <", value, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickLessThanOrEqualTo(String value) {
+            addCriterion("api_quick <=", value, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickLike(String value) {
+            addCriterion("api_quick like", value, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickNotLike(String value) {
+            addCriterion("api_quick not like", value, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickIn(List<String> values) {
+            addCriterion("api_quick in", values, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickNotIn(List<String> values) {
+            addCriterion("api_quick not in", values, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickBetween(String value1, String value2) {
+            addCriterion("api_quick between", value1, value2, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiQuickNotBetween(String value1, String value2) {
+            addCriterion("api_quick not between", value1, value2, "apiQuick");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicIsNull() {
+            addCriterion("case_public is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicIsNotNull() {
+            addCriterion("case_public is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicEqualTo(Boolean value) {
+            addCriterion("case_public =", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicNotEqualTo(Boolean value) {
+            addCriterion("case_public <>", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicGreaterThan(Boolean value) {
+            addCriterion("case_public >", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("case_public >=", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicLessThan(Boolean value) {
+            addCriterion("case_public <", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicLessThanOrEqualTo(Boolean value) {
+            addCriterion("case_public <=", value, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicIn(List<Boolean> values) {
+            addCriterion("case_public in", values, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicNotIn(List<Boolean> values) {
+            addCriterion("case_public not in", values, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicBetween(Boolean value1, Boolean value2) {
+            addCriterion("case_public between", value1, value2, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePublicNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("case_public not between", value1, value2, "casePublic");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIsNull() {
+            addCriterion("platform is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIsNotNull() {
+            addCriterion("platform is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformEqualTo(String value) {
+            addCriterion("platform =", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformNotEqualTo(String value) {
+            addCriterion("platform <>", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformGreaterThan(String value) {
+            addCriterion("platform >", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformGreaterThanOrEqualTo(String value) {
+            addCriterion("platform >=", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformLessThan(String value) {
+            addCriterion("platform <", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformLessThanOrEqualTo(String value) {
+            addCriterion("platform <=", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformLike(String value) {
+            addCriterion("platform like", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformNotLike(String value) {
+            addCriterion("platform not like", value, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformIn(List<String> values) {
+            addCriterion("platform in", values, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformNotIn(List<String> values) {
+            addCriterion("platform not in", values, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformBetween(String value1, String value2) {
+            addCriterion("platform between", value1, value2, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlatformNotBetween(String value1, String value2) {
+            addCriterion("platform not between", value1, value2, "platform");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateIsNull() {
+            addCriterion("third_part_template is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateIsNotNull() {
+            addCriterion("third_part_template is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateEqualTo(Boolean value) {
+            addCriterion("third_part_template =", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateNotEqualTo(Boolean value) {
+            addCriterion("third_part_template <>", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateGreaterThan(Boolean value) {
+            addCriterion("third_part_template >", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("third_part_template >=", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateLessThan(Boolean value) {
+            addCriterion("third_part_template <", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateLessThanOrEqualTo(Boolean value) {
+            addCriterion("third_part_template <=", value, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateIn(List<Boolean> values) {
+            addCriterion("third_part_template in", values, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateNotIn(List<Boolean> values) {
+            addCriterion("third_part_template not in", values, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateBetween(Boolean value1, Boolean value2) {
+            addCriterion("third_part_template between", value1, value2, "thirdPartTemplate");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartTemplateNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("third_part_template not between", value1, value2, "thirdPartTemplate");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

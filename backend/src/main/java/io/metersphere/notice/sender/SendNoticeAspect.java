@@ -101,6 +101,28 @@ public class SendNoticeAspect {
             String[] params = discoverer.getParameterNames(method);
             //获取操作
             SendNotice sendNotice = method.getAnnotation(SendNotice.class);
+            // 再次从数据库查询一次内容，方便获取最新参数
+            InvocationHandler invocationHandler = Proxy.getInvocationHandler(sendNotice);
+            Field value = invocationHandler.getClass().getDeclaredField("memberValues");
+            value.setAccessible(true);
+
+            if (StringUtils.isNotEmpty(sendNotice.target())) {
+                //将参数纳入Spring管理
+                EvaluationContext context = new StandardEvaluationContext();
+                for (int len = 0; len < params.length; len++) {
+                    context.setVariable(params[len], args[len]);
+                }
+                context.setVariable("targetClass", CommonBeanFactory.getBean(sendNotice.targetClass()));
+
+                String target = sendNotice.target();
+                Expression titleExp = parser.parseExpression(target);
+                Object v = titleExp.getValue(context, Object.class);
+                if (v != null) {
+                    Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
+                    memberValues.put("source", JSON.toJSONString(v));
+                }
+            }
+
             EvaluationContext context = new StandardEvaluationContext();
             for (int len = 0; len < params.length; len++) {
                 context.setVariable(params[len], args[len]);

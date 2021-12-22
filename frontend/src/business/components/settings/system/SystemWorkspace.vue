@@ -14,7 +14,7 @@
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-link type="primary" class="member-size" @click="cellClick(scope.row)">
+            <el-link type="primary" class="member-size" @click="cellClick(scope.row)" :disabled="disabledEditWorkspaceMember">
               {{ scope.row.memberSize }}
             </el-link>
           </template>
@@ -74,7 +74,7 @@
 
     <!-- dialog of workspace member -->
     <el-dialog :close-on-click-modal="false" :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true"
-               @close="closeWsMemberDialog" class="dialog-css">
+               @close="closeWsMemberDialog" class="dialog-css" top="15vh">
       <template v-slot:title>
         <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
@@ -152,7 +152,6 @@
 </template>
 
 <script>
-import MsCreateBox from "../CreateBox";
 import {Message} from "element-ui";
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
@@ -161,7 +160,7 @@ import MsTableOperator from "../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
-  getCurrentWorkspaceId,
+  getCurrentWorkspaceId, hasPermission,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -173,7 +172,6 @@ export default {
   name: "MsSystemWorkspace",
   components: {
     MsDeleteConfirm,
-    MsCreateBox,
     MsTablePagination,
     MsTableHeader,
     MsRolesTag,
@@ -400,6 +398,9 @@ export default {
   computed: {
     workspaceId() {
       return getCurrentWorkspaceId();
+    },
+    disabledEditWorkspaceMember() {
+      return !hasPermission('SYSTEM_WORKSPACE:READ+EDIT');
     }
   },
   data() {
@@ -463,7 +464,6 @@ export default {
 }
 
 .member-size {
-  text-decoration: underline;
   cursor: pointer;
 }
 
@@ -483,9 +483,8 @@ export default {
 .form-input{
   width: 80%;
 }
-/*.dialog-css >>> .el-dialog__header {*/
-/*  padding: 0;*/
-/*}*/
-
+.dialog-css >>> .el-dialog__body {
+  padding-top: 0;
+}
 </style>
 

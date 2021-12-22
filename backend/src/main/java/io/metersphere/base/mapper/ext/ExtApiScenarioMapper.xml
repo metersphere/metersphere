@@ -161,7 +161,8 @@
         api_scenario.status, api_scenario.principal, api_scenario.step_total,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
         api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
-        project.name as project_name, user.name as user_name,deleteUser.name AS delete_user,api_scenario.delete_time ,u2.name as principal_name
+        project.name as project_name, user.name as user_name,deleteUser.name AS delete_user,api_scenario.delete_time ,u2.name as principal_name,
+        api_scenario.create_user as creator
         from api_scenario
         left join project on api_scenario.project_id = project.id
         left join user on api_scenario.user_id = user.id
@@ -279,6 +280,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='creator'">
+                                and api_scenario.create_user in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
 
                         </choose>
                     </if>
@@ -388,6 +395,9 @@
     </update>
     <update id="updateCustomNumByProjectId">
         update api_scenario set custom_num = num where (custom_num is null or custom_num = '') and project_id = #{projectId}
+    </update>
+    <update id="setScenarioEnvGroupIdNull">
+        update api_scenario set environment_group_id = null where environment_group_id = #{environmentGroupId}
     </update>
 
     <select id="countByProjectID" resultType="java.lang.Long">

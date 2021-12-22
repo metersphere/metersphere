@@ -129,7 +129,7 @@ import {
 import Crontab from "@/business/components/common/cron/Crontab";
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
-import MsScheduleNotification from "@/business/components/api/automation/schedule/ScheduleNotification";
+import MsScheduleNotification from "./ScheduleNotification";
 import ScheduleSwitch from "@/business/components/api/automation/schedule/ScheduleSwitch";
 
 function defaultCustomValidate() {
@@ -165,6 +165,11 @@ export default {
   watch: {
     'schedule.value'() {
       this.form.cronValue = this.schedule.value;
+    },
+    'runConfig.runWithinResourcePool'() {
+      if (!this.runConfig.runWithinResourcePool) {
+        this.runConfig.resourcePoolId = null;
+      }
     }
   },
   data() {

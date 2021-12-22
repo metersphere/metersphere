@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.automation;
 
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.dto.RunModeConfigDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,5 +37,5 @@ public class RunTestPlanScenarioRequest extends ApiScenarioWithBLOBs {
 
     private TestPlanScenarioRequest condition;
 
-    private RunModeConfig config;
+    private RunModeConfigDTO config;
 }

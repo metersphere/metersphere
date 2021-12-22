@@ -188,6 +188,85 @@
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+
+    <select id="publicList" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select
+        deleteUser.name AS delete_user_id,test_case.delete_time,
+        <if test="request.selectFields != null and request.selectFields.size() > 0">
+            <foreach collection="request.selectFields" item="field" separator=",">
+                ${field}
+            </foreach>
+        </if>
+        <if test="request.selectFields == null or request.selectFields.size() == 0">
+            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+            test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
+            test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
+            test_case.other_test_name, test_case.review_status, test_case.tags,
+            test_case.demand_id, test_case.demand_name, test_case.`status`,
+            test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName,
+            test_case.custom_fields,test_case.case_public , project.name as projectName
+        </if>
+        from test_case left join user u on test_case.create_user=u.id
+        left join user deleteUser on test_case.delete_user_id=deleteUser.id
+        left join project on test_case.project_id = project.id
+        <where>
+            <include refid="filters"/>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+
+            <if test="request.statusIsNot != null">
+                and (test_case.status is null or test_case.status != #{request.statusIsNot})
+            </if>
+
+            <if test="request.notEqStatus != null">
+                and (test_case.status is null or test_case.status != #{request.notEqStatus})
+            </if>
+            <if test="request.name != null">
+                and (test_case.name like CONCAT('%', #{request.name},'%')
+                or test_case.num like CONCAT('%', #{request.name},'%')
+                or test_case.tags like CONCAT('%', #{request.name},'%')
+                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
+            </if>
+            <if test="request.ids != null">
+                and test_case.id in
+                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="request.relevanceCreateTime >0">
+                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
+                #{request.createTime})
+            </if>
+            <if test="request.createTime >0">
+                and test_case.create_time >= #{request.createTime}
+            </if>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                and test_case.node_id in
+                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.workspaceId != null">
+                AND test_case.project_id in (select id from project where workspace_id=#{request.workspaceId})
+            </if>
+            and test_case.case_public = TRUE
+            <include refid="filters"/>
+            <if test="request.caseCoverage == 'uncoverage' ">
+                and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
+            </if>
+            <if test="request.caseCoverage == 'coverage' ">
+                and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
+            </if>
+        </where>
+
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+
     <select id="moduleCount" resultType="java.lang.Integer">
         select count(test_case.id) from test_case
         left join project on test_case.project_id = project.id
@@ -440,7 +519,7 @@
         group by tc.maintainer
     </select>
     <select id="getTestPlanBug" resultType="int">
-        select count(tci.issues_id) from test_plan_test_case tptc join test_case_issues tci on tptc.case_id = tci.test_case_id join issues on tci.issues_id  = issues.id
+        select count(distinct (tci.issues_id)) from test_plan_test_case tptc join test_case_issues tci on tptc.case_id = tci.test_case_id join issues on tci.issues_id  = issues.id
         where tptc.plan_id = #{planId} and (issues.status != 'closed' or issues.status is null);
     </select>
     <select id="getTestPlanCase" resultType="int">
@@ -594,12 +673,20 @@
     </select>
 
     <update id="deleteToGc">
-        update test_case set original_status=status,
-        status = 'Trash',
-        delete_time = #{request.deleteTime},
-        delete_user_id = #{request.deleteUserId}
+        update test_case
+        set original_status=status,
+            status         = 'Trash',
+            delete_time    = #{request.deleteTime},
+            delete_user_id = #{request.deleteUserId}
         where id = #{request.id}
     </update>
+
+    <update id="deletePublic">
+        update test_case
+        set case_public = false
+        where id = #{request.id}
+    </update>
+
     <update id="reduction">
         update test_case
         set
@@ -620,5 +707,23 @@
             #{v}
         </foreach>
     </update>
+
+    <select id="getLastExecStatusById" resultType="java.lang.String">
+        SELECT `status`
+        FROM test_plan_test_case
+        WHERE case_id = #{0}
+        ORDER BY update_time DESC limit 1;
+    </select>
+
+    <select id="countByWorkSpaceId" resultType="java.lang.Integer">
+        select count(id)
+        from test_case
+        where project_id in (
+            select id
+            from project
+            where workspace_id = #{workSpaceId})
+          and case_public = true
+          and status != 'Trash'
+    </select>
 
 </mapper>

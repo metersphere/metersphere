@@ -47,11 +47,11 @@ public class ApiJmeterFileController {
     }
 
     @GetMapping("download")
-    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("testId") String testId, @RequestParam("reportId") String reportId, @RequestParam("runMode") String runMode, @RequestParam("testPlanScenarioId") String testPlanScenarioId) {
-        byte[] bytes = apiJmeterFileService.downloadJmeterFiles(runMode, testId, reportId, testPlanScenarioId);
+    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("testId") String testId, @RequestParam("reportId") String reportId, @RequestParam("runMode") String runMode, @RequestParam("reportType") String reportType) {
+        byte[] bytes = apiJmeterFileService.downloadJmeterFiles(runMode, testId, reportId, reportType);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + testId + ".zip\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + reportId + "_" + testId + ".zip\"")
                 .body(bytes);
     }
 

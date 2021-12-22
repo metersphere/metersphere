@@ -137,7 +137,6 @@ import MsTableOperator from "../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import MsDialogFooter from "../../../common/components/MsDialogFooter";
 import MsTableHeader from "../../../common/components/MsTableHeader";
-import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
 import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {_filter, _sort, deepClone, getLabel, getLastTableSortField,saveLastTableSortField} from "@/common/js/tableUtils";
@@ -159,7 +158,6 @@ export default {
     MsTableOperatorButton,
     MsDialogFooter,
     MsTableHeader,
-    MsCreateBox,
     MsTablePagination,
     PlanStatusTableItem
   },

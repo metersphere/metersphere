@@ -3,6 +3,7 @@
     :label="$t('test_track.issue.description')"
     prop="description"
     :field="field"
+    min-width="120"
     :fields-width="fieldsWidth">
     <template v-slot:default="scope">
       <el-popover
@@ -11,9 +12,7 @@
         trigger="hover"
         popper-class="issues-popover"
       >
-        <mavon-editor :editable="false" default-open="preview" class="mavon-editor"
-                      :xss-options="xssOptions"
-                      :subfield="false" :toolbarsFlag="false" v-model="scope.row.description" ref="md"/>
+        <ms-mark-down-text prop="description" :data="scope.row" :disabled="true"/>
         <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
       </el-popover>
     </template>
@@ -22,20 +21,10 @@
 
 <script>
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
+import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 export default {
   name: "IssueDescriptionTableItem",
-  components: {MsTableColumn},
-  data() {
-    return {
-      readConfig: {toolbar: []},
-      xssOptions: {
-        whiteList: {
-          img: ["src", "alt", "width", "height"],
-        },
-        stripIgnoreTagBody: true
-      },
-    };
-  },
+  components: {MsMarkDownText, MsTableColumn},
   props: {
     field: Object,
     fieldsWidth: Object

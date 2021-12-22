@@ -25,14 +25,12 @@
 import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
 import MsShowAll from "../../common/head/ShowAll";
-import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 
 export default {
   name: "PerformanceHeaderMenus",
   components: {
     ProjectChange,
-    SearchList,
     MsCreateButton,
     MsShowAll,
     MsRecentList,

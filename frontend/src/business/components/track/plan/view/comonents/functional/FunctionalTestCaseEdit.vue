@@ -391,7 +391,7 @@ export default {
           }
         }
         this.testCase = item;
-        parseCustomField(this.testCase, this.testCaseTemplate, null, null, buildTestCaseOldFields(this.testCase));
+        parseCustomField(this.testCase, this.testCaseTemplate, null, buildTestCaseOldFields(this.testCase));
         this.isCustomFiledActive = true;
         if (!this.testCase.actualResult) {
           // 如果没值,使用模板的默认值

@@ -62,7 +62,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook" placeholder="webhook地址" size="mini"
+              <el-input v-model="scope.row.webhook" size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -177,21 +177,66 @@ export default {
         {value: 'EXECUTE_COMPLETED', label: this.$t('commons.run_completed')},
       ],
       variables: [
-        'operator',
-        'id',
-        'projectId',
-        'name',
-        'description',
-        'createTime',
-        'updateTime',
-        'status',
-        'testResourcePoolId',
-        'userId',
-        'num',
-        'createUser',
-        'scenarioVersion',
-        'scenarioId',
-        'order'
+        {
+          label:this.$t('group.operator'),
+          value:'operator',
+        },
+        {
+          label:'id',
+          value:'id',
+        },
+        {
+          label:this.$t('project.id'),
+          value:'projectId',
+        },
+        {
+          label:this.$t('commons.name'),
+          value:'name',
+        },
+        {
+          label:this.$t('commons.description'),
+          value:'description',
+        },
+        {
+          label:this.$t('commons.create_time'),
+          value:'createTime',
+        },
+        {
+          label:this.$t('commons.update_time'),
+          value:'updateTime',
+        },
+        {
+          label:this.$t('commons.status'),
+          value:'status',
+        },
+        {
+          label:this.$t('test_resource_pool.id'),
+          value:'testResourcePoolId',
+        },
+        {
+          label:this.$t('user.id'),
+          value:'userId',
+        },
+        {
+          label:this.$t('test_track.case.number'),
+          value:'num',
+        },
+        {
+          label:this.$t('commons.create_user'),
+          value:'createUser',
+        },
+        {
+          label:this.$t('api_test.scenario.version'),
+          value:'scenarioVersion',
+        },
+        {
+          label:this.$t('api_test.scenario.id'),
+          value:'scenarioId',
+        },
+        {
+          label:this.$t('api_test.definition.document.order'),
+          value:'order',
+        },
       ]
     };
   },

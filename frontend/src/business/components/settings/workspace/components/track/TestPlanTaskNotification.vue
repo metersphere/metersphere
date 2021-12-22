@@ -61,7 +61,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook" placeholder="webhook地址" size="mini"
+              <el-input v-model="scope.row.webhook" size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -175,31 +175,95 @@ export default {
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
-        {value: 'COMPLETE', label: '执行完成'},
+        {value: 'COMPLETE', label: this.$t('commons.run_completed')},
         // {value: 'SUCCESS_ONE_BY_ONE', label: '逐条成功（接口）'},
         // {value: 'FAIL_ONE_BY_ONE', label: '逐条失败（接口）'},
       ],
       variables: [
-        'operator',
-        'id',
-        'workspaceId',
-        'reportId',
-        'name',
-        'description',
-        'status',
-        'stage',
-        'testCaseMatchRule',
-        'executorMatchRule',
-        'createTime',
-        'updateTime',
-        'actualEndTime',
-        'plannedStartTime',
-        'plannedEndTime',
-        'actualStartTime',
-        'creator',
-        'projectId',
-        'executionTimes',
-        'automaticStatusUpdate'
+        {
+          label:this.$t('group.operator'),
+          value:'operator',
+        },
+        {
+          label:'id',
+          value:'id',
+        },
+        {
+          label:this.$t('workspace.id'),
+          value:'workspaceId',
+        },
+        {
+          label:this.$t('report.id'),
+          value:'reportId',
+        },
+        {
+          label:this.$t('commons.name'),
+          value:'name',
+        },
+        {
+          label:this.$t('commons.description'),
+          value:'description',
+        },
+        {
+          label:this.$t('commons.status'),
+          value:'status',
+        },
+        {
+          label:this.$t('test_track.plan.plan_stage'),
+          value:'stage',
+        },
+        {
+          label:this.$t('test_track.case.match_rule'),
+          value:'testCaseMatchRule',
+        },
+        {
+          label:this.$t('test_track.plan.plan_stage'),
+          value:'executorMatchRule',
+        },
+        {
+          label:this.$t('commons.create_time'),
+          value:'createTime',
+        },
+        {
+          label:this.$t('commons.update_time'),
+          value:'updateTime',
+        },
+        {
+          label:this.$t('test_track.plan.actual_start_time'),
+          value:'actualStartTime',
+        },
+        {
+          label:this.$t('test_track.plan.actual_end_time'),
+          value:'actualEndTime',
+        },
+        {
+          label:this.$t('test_track.plan.planned_start_time'),
+          value:'plannedStartTime',
+        },
+        {
+          label:this.$t('test_track.plan.planned_end_time'),
+          value:'plannedEndTime',
+        },
+        {
+          label:this.$t('commons.create_user'),
+          value:'creator',
+        },
+        {
+          label:this.$t('project.id'),
+          value:'projectId',
+        },
+        {
+          label:this.$t('commons.execution_times'),
+          value:'executionTimes',
+        },
+        {
+          label:this.$t('test_track.automatic_status_update'),
+          value:'automaticStatusUpdate',
+        },
+        {
+          label:this.$t('report.plan_share_url'),
+          value:'planShareUrl',
+        },
       ]
     };
   },

@@ -338,7 +338,7 @@ public class TestCaseCountService {
 
     private TestCaseCountTableDataDTO countShowTable(String groupName, List<String> yaxis, List<TestCaseCountTableDTO> dtos) {
         TestCaseCountTableDataDTO returnDTO = new TestCaseCountTableDataDTO();
-        String[] headers = new String[]{groupName, "总计", "testCase", "apiCase", "scenarioCase", "loadCaseCount"};
+        String[] headers = new String[]{groupName, "Count", "testCase", "apiCase", "scenarioCase", "loadCaseCount"};
 
         List<TestCaseCountTableItemDataDTO> heads = new ArrayList<>();
         boolean showTestCase = true;
@@ -346,7 +346,7 @@ public class TestCaseCountService {
         boolean showScenario = true;
         boolean showLoad = true;
         for (String head : headers) {
-            if (StringUtils.equalsAnyIgnoreCase(head, groupName, "总计") || yaxis.contains(head)) {
+            if (StringUtils.equalsAnyIgnoreCase(head, groupName, "Count") || yaxis.contains(head)) {
                 TestCaseCountTableItemDataDTO headData = new TestCaseCountTableItemDataDTO();
                 headData.setId(UUID.randomUUID().toString());
                 headData.setValue(head);
@@ -495,6 +495,13 @@ public class TestCaseCountService {
                 this.add(leftPxStr);
                 this.add("50%");
             }});
+
+            Map<String,Object> labelMap = new HashMap<>();
+            Map<String,Object> normalMap = new HashMap<>();
+            normalMap.put("show",true);
+            normalMap.put("formatter","{b}: {c}({d}%)");
+            labelMap.put("normal",normalMap);
+            series.setLabel(labelMap);
 
             Title title = new Title();
             title.setSubtext(summary.groupName);

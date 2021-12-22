@@ -62,7 +62,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook" placeholder="webhook地址" size="mini"
+              <el-input v-model="scope.row.webhook" size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -174,25 +174,86 @@ export default {
         {value: 'DELETE', label: this.$t('commons.delete')},
       ],
       variables: [
-        'operator',
-        'id',
-        'testId',
-        'name',
-        'createTime',
-        'updateTime',
-        'status',
-        'userId',
-        'triggerMode',
-        'fileId',
-        'maxUsers',
-        'avgResponseTime',
-        'tps',
-        'projectId',
-        'testName',
-        'testStartTime',
-        'testEndTime',
-        'testDuration',
-        'testResourcePoolId'
+        {
+          label:this.$t('group.operator'),
+          value:'operator',
+        },
+        {
+          label:'id',
+          value:'id',
+        },
+        {
+          label:this.$t('load_test.id'),
+          value:'testId',
+        },
+        {
+          label:this.$t('commons.name'),
+          value:'name',
+        },
+        {
+          label:this.$t('commons.create_time'),
+          value:'createTime',
+        },
+        {
+          label:this.$t('commons.update_time'),
+          value:'updateTime',
+        },
+        {
+          label:this.$t('commons.status'),
+          value:'status',
+        },
+        {
+          label:this.$t('user.id'),
+          value:'userId',
+        },
+        {
+          label:this.$t('test_track.report.list.trigger_mode'),
+          value:'triggerMode',
+        },
+        {
+          label:this.$t('report.file_id'),
+          value:'fileId',
+        },
+        {
+          label:this.$t('report.max_users'),
+          value:'maxUsers',
+        },
+        {
+          label:this.$t('report.avg_response_time'),
+          value:'avgResponseTime',
+        },
+        {
+          label:this.$t('report.tps'),
+          value:'tps',
+        },
+        {
+          label:this.$t('project.id'),
+          value:'projectId',
+        },
+        {
+          label:this.$t('load_test.name'),
+          value:'testName',
+        },
+        {
+          label:this.$t('report.test_start_time'),
+          value:'testStartTime',
+        },
+        {
+          label:this.$t('report.test_end_time'),
+          value:'testEndTime',
+        },
+        {
+          label:this.$t('report.test_duration'),
+          value:'testDuration',
+        },
+        {
+          label:this.$t('test_resource_pool.id'),
+          value:'testResourcePoolId',
+        },
+        {
+          label:this.$t('report.plan_share_url'),
+          value:'planShareUrl',
+        },
       ]
     };
   },

@@ -1,6 +1,7 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.SystemHeaderMapper;
@@ -9,6 +10,7 @@ import io.metersphere.base.mapper.UserHeaderMapper;
 import io.metersphere.base.mapper.ext.ExtSystemParameterMapper;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.HeaderRequest;
@@ -251,6 +253,9 @@ public class SystemParameterService {
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.PROMETHEUS_HOST.getValue())) {
                     baseSystemConfigDTO.setPrometheusHost(param.getParamValue());
                 }
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.SELENIUM_DOCKER_URL.getValue())) {
+                    baseSystemConfigDTO.setSeleniumDockerUrl(param.getParamValue());
+                }
             }
         }
         return baseSystemConfigDTO;
@@ -260,6 +265,12 @@ public class SystemParameterService {
         SystemParameterExample example = new SystemParameterExample();
 
         parameters.forEach(param -> {
+            if (param.getParamKey().equals("base.concurrency")) {
+                if (StringUtils.isNotEmpty(param.getParamValue())) {
+                    int poolSize = Integer.parseInt(param.getParamValue());
+                    CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).setCorePoolSize(poolSize);
+                }
+            }
             // 去掉路径最后的 /
             param.setParamValue(StringUtils.removeEnd(param.getParamValue(), "/"));
             example.createCriteria().andParamKeyEqualTo(param.getParamKey());

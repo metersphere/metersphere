@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-card>
+    <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE']"
                          :condition.sync="condition" @search="initData" @create="create"
@@ -17,7 +17,7 @@
         </el-table-column>
         <el-table-column :label="$t('commons.member')" width="100">
           <template v-slot:default="scope">
-            <el-link type="primary" class="member-size" @click="memberClick(scope.row)">
+            <el-link type="primary" class="member-size" @click="memberClick(scope.row)" :disabled="disabledEditGroupMember">
               {{ scope.row.memberSize || 0 }}
             </el-link>
           </template>
@@ -79,6 +79,7 @@ import EditPermission from "@/business/components/settings/system/group/EditPerm
 import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
 import {_sort} from "@/common/js/tableUtils";
 import GroupMember from "@/business/components/settings/system/group/GroupMember";
+import {hasPermission} from "@/common/js/utils";
 
 export default {
   name: "UserGroup",
@@ -110,6 +111,9 @@ export default {
   computed: {
     userGroupType() {
       return USER_GROUP_SCOPE;
+    },
+    disabledEditGroupMember() {
+      return !hasPermission('SYSTEM_GROUP:READ+EDIT');
     }
   },
   methods: {

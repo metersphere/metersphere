@@ -97,9 +97,9 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
-import {deleteIssueRelate, getIssuesByCaseId} from "@/network/Issue";
-import {getIssueTemplate} from "@/network/custom-field-template";
+import {deleteIssueRelate, getIssuePartTemplateWithProject, getIssuesByCaseId} from "@/network/Issue";
 import {getCustomFieldValue, getTableHeaderWithCustomFields} from "@/common/js/tableUtils";
+import {LOCAL} from "@/common/js/constants";
 export default {
   name: "TestCaseIssueRelate",
   components: {IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
@@ -131,34 +131,34 @@ export default {
     },
   },
   created() {
-    getIssueTemplate()
-      .then((template) => {
-        this.issueTemplate = template;
-        if (this.issueTemplate.platform === 'metersphere') {
-          this.isThirdPart = false;
-        } else {
-          this.isThirdPart = true;
-        }
-        if (template) {
-          let customFields = template.customFields;
-          for (let fields of customFields) {
-            if (fields.name === '状态') {
-              this.status = fields.options;
-              break;
-            }
+    getIssuePartTemplateWithProject((template, project) => {
+      this.currentProject = project;
+      this.issueTemplate = template;
+      if (this.issueTemplate.platform === LOCAL) {
+        this.isThirdPart = false;
+      } else {
+        this.isThirdPart = true;
+      }
+      if (template) {
+        let customFields = template.customFields;
+        for (let fields of customFields) {
+          if (fields.name === '状态') {
+            this.status = fields.options;
+            break;
           }
         }
-        this.fields = getTableHeaderWithCustomFields('ISSUE_LIST', this.issueTemplate.customFields);
-        if (!this.isThirdPart) {
-          for (let i = 0; i < this.fields.length; i++) {
-            if (this.fields[i].id === 'platformStatus') {
-              this.fields.splice(i, 1);
-              break;
-            }
+      }
+      this.fields = getTableHeaderWithCustomFields('ISSUE_LIST', this.issueTemplate.customFields);
+      if (!this.isThirdPart) {
+        for (let i = 0; i < this.fields.length; i++) {
+          if (this.fields[i].id === 'platformStatus') {
+            this.fields.splice(i, 1);
+            break;
           }
         }
-        this.$refs.table.reloadTable();
-      });
+      }
+      this.$refs.table.reloadTable();
+    });
   },
   methods: {
     statusChange(param) {

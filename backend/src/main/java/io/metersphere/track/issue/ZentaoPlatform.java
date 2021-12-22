@@ -140,9 +140,22 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             issuesMapper.updateByPrimaryKeySelective(issue);
         }
         issue.setTitle(bugObj.getTitle());
-        issue.setDescription(steps);
+
+        // 保留之前上传的图片
+        String images = getImages(issue.getDescription());
+        issue.setDescription(steps + "\n" + images);
+
         issue.setReporter(bugObj.getOpenedBy());
         issue.setPlatform(key);
+        try {
+            issue.setCreateTime(bug.getLong("openedDate"));
+            issue.setUpdateTime(bug.getLong("lastEditedDate"));
+        } catch (Exception e) {
+            LogUtil.error("update zentao time" + e.getMessage());
+        }
+        if (issue.getUpdateTime() == null) {
+            issue.setUpdateTime(System.currentTimeMillis());
+        }
         issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), bug));
         return issue;
     }

@@ -198,7 +198,7 @@ public class PerformanceTestController {
         byte[] bytes = fileService.loadFileAsBytes(fileOperationRequest.getId());
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getId()+".jmx" + "\"")
                 .body(bytes);
     }
 

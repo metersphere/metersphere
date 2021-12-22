@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card class="table-card">
 
     <template v-slot:header>
       <ms-table-header :condition.sync="condition" @search="initTableData" @create="handleCreate"
@@ -142,7 +142,7 @@ export default {
       return CUSTOM_FIELD_LIST;
     },
     caseTypeFilters() {
-      return CASE_TYPE_OPTION;
+      return new CASE_TYPE_OPTION();
     },
     tableHeight() {
       return getDefaultTableHeight();

@@ -98,6 +98,7 @@
 <script>
 
 import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
+import {PROJECT_ID} from "@/common/js/constants";
 
 export default {
   name: "ApiAutomation",
@@ -148,6 +149,12 @@ export default {
       //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
       initApiTableOpretion: 'init',
     };
+  },
+  created() {
+    let projectId = this.$route.params.projectId;
+    if(projectId){
+      sessionStorage.setItem(PROJECT_ID, projectId);
+    }
   },
   mounted() {
     this.getProject();
@@ -308,7 +315,7 @@ export default {
         }
       })
       if (message !== "") {
-        this.$alert("场景[ " + message.substr(0, message.length - 1) + " ]未保存，是否确认关闭全部？", '', {
+        this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           callback: (action) => {
@@ -351,7 +358,7 @@ export default {
     closeConfirm(targetName) {
       let t = this.tabs.filter(tab => tab.name === targetName);
       if (t && this.$store.state.scenarioMap.has(t[0].currentScenario.id) && this.$store.state.scenarioMap.get(t[0].currentScenario.id) > 1) {
-        this.$alert("场景[ " + t[0].currentScenario.name + " ]未保存，是否确认关闭？", '', {
+        this.$alert(this.$t('commons.scenario') + " [ " + t[0].currentScenario.name + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           callback: (action) => {

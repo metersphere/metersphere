@@ -15,13 +15,15 @@ import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.TestPlanUtils;
 import io.metersphere.controller.request.ResetOrderRequest;
+import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.*;
@@ -31,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -159,7 +162,7 @@ public class TestPlanScenarioCaseService {
         testPlanApiScenarioMapper.deleteByExample(example);
     }
 
-    public String run(RunTestPlanScenarioRequest testPlanScenarioRequest) {
+    public List<MsExecResponseDTO> run(RunTestPlanScenarioRequest testPlanScenarioRequest) {
         StringBuilder idStr = new StringBuilder();
         List<String> planCaseIdList = testPlanScenarioRequest.getPlanCaseIds();
         if (testPlanScenarioRequest.getCondition() != null && testPlanScenarioRequest.getCondition().isSelectAll()) {
@@ -172,7 +175,7 @@ public class TestPlanScenarioCaseService {
         if (CollectionUtils.isEmpty(planCaseIdList)) {
             MSException.throwException("未找到执行场景！");
         }
-        RunModeConfig config = testPlanScenarioRequest.getConfig();
+        RunModeConfigDTO config = testPlanScenarioRequest.getConfig();
         if (config != null) {
             String envType = config.getEnvironmentType();
             String envGroupId = config.getEnvironmentGroupId();
@@ -210,7 +213,7 @@ public class TestPlanScenarioCaseService {
         return apiAutomationService.run(request);
     }
 
-    public void setScenarioEnv(List<String> planScenarioIds, RunModeConfig runModeConfig) {
+    public void setScenarioEnv(List<String> planScenarioIds, RunModeConfigDTO runModeConfig) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
         testPlanApiScenarioExample.createCriteria().andIdIn(planScenarioIds);
@@ -247,6 +250,9 @@ public class TestPlanScenarioCaseService {
                 mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
             }
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
             return;
         }
 

@@ -9,14 +9,21 @@
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
-                  <ms-scenario-results :treeData="fullTreeNodes" :console="content.console" v-on:requestResult="requestResult"/>
+                  <ms-scenario-results :treeData="fullTreeNodes" :console="content.console" v-on:requestResult="requestResult" ref="resultsTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label">
                     <span class="fail">{{ $t('api_report.fail') }}</span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console" :treeData="failsTreeNodes"/>
+                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console" :treeData="fullTreeNodes" ref="failsTree"/>
                 </el-tab-pane>
+                <el-tab-pane name="console">
+                  <template slot="label">
+                    <span class="console">{{ $t('api_test.definition.request.console') }}</span>
+                  </template>
+                  <ms-code-edit :mode="'text'" :read-only="true" :data.sync="content.console" height="calc(100vh - 500px)"/>
+                </el-tab-pane>
+
               </el-tabs>
             </div>
             <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
@@ -42,6 +49,8 @@ import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {windowPrint, getUUID, getCurrentProjectID} from "@/common/js/utils";
 import {getScenarioReport, getShareScenarioReport} from "@/network/api";
+import {STEP} from "@/business/components/api/automation/scenario/Setting";
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 
 export default {
   name: "MsApiReport",
@@ -49,6 +58,7 @@ export default {
     MsApiReportViewHeader,
     MsApiReportExport,
     MsMainContainer,
+    MsCodeEdit,
     MsContainer, MsScenarioResults, MsRequestResultTail, MsMetricChart, MsScenarioResult, MsRequestResult
   },
   data() {
@@ -67,6 +77,7 @@ export default {
       reportExportVisible: false,
       requestType: undefined,
       fullTreeNodes: [],
+      stepFilter: new STEP,
     }
   },
   activated() {
@@ -100,6 +111,11 @@ export default {
     }
   },
   methods: {
+    filter(index) {
+      if (index === "1") {
+        this.$refs.failsTree.filter(index);
+      }
+    },
     init() {
       this.loading = true;
       this.report = {};
@@ -111,7 +127,10 @@ export default {
       this.isRequestResult = false;
     },
     handleClick(tab, event) {
-      this.isRequestResult = false
+      this.isRequestResult = false;
+      if (this.report && this.report.reportVersion && this.report.reportVersion > 1) {
+        this.filter(tab.index);
+      }
     },
     active() {
       this.isActive = !this.isActive;
@@ -161,10 +180,10 @@ export default {
             label: nodeArray[i],
             value: item,
           };
-          if (i !== (nodeArray.length -1)) {
+          if (i !== (nodeArray.length - 1)) {
             node.children = [];
-          }else {
-            if(item.subRequestResults && item.subRequestResults.length > 0){
+          } else {
+            if (item.subRequestResults && item.subRequestResults.length > 0) {
               let itemChildren = this.deepFormatTreeNode(item.subRequestResults);
               node.children = itemChildren;
               if (node.label.indexOf("UUID=")) {
@@ -251,11 +270,11 @@ export default {
           value: item,
           children: []
         };
-        if(item.subRequestResults && item.subRequestResults.length > 0){
+        if (item.subRequestResults && item.subRequestResults.length > 0) {
           let itemChildren = this.deepFormatTreeNode(item.subRequestResults);
           node.children = itemChildren;
         }
-            children.push(node);
+        children.push(node);
         children.forEach(itemNode => {
           returnChildren.push(itemNode);
         });
@@ -300,10 +319,24 @@ export default {
         });
       }
     },
+
     handleGetScenarioReport(data) {
       if (data) {
         this.report = data;
-        this.buildReport();
+        if (this.report.reportVersion && this.report.reportVersion > 1) {
+          if (data.content) {
+            let report = JSON.parse(data.content);
+            this.content = report;
+            this.fullTreeNodes = report.steps;
+            this.content.console = report.console;
+            this.content.error = report.error;
+            this.content.success = (report.total - report.error);
+            this.totalTime = report.totalTime;
+          }
+          this.loading = false;
+        } else {
+          this.buildReport();
+        }
       } else {
         this.$emit('invisible');
         this.$warning('报告已删除');
@@ -360,20 +393,22 @@ export default {
     },
     computeTotalTime() {
       if (this.content.scenarios) {
-        let startTime = 99991611737506593;
+        let startTime = 0;
         let endTime = 0;
+        let requestTime = 0;
         this.content.scenarios.forEach((scenario) => {
           scenario.requestResults.forEach((request) => {
-            if (request.startTime && Number(request.startTime) < startTime) {
+            if (request.startTime && Number(request.startTime)) {
               startTime = request.startTime;
             }
-            if (request.endTime && Number(request.endTime) > endTime) {
+            if (request.endTime && Number(request.endTime)) {
               endTime = request.endTime;
             }
+            requestTime = requestTime + (endTime - startTime);
           })
         })
         if (startTime < endTime) {
-          this.totalTime = endTime - startTime + 100;
+          this.totalTime = requestTime
         }
       }
     },
@@ -390,7 +425,30 @@ export default {
         this.scenarioName = requestResult.scenarioName;
       });
     },
+    formatExportApi(array, scenario) {
+      array.forEach(item => {
+        if (this.stepFilter && this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
+          scenario.requestResults.push(item.value);
+        }
+        if (item.children && item.children.length > 0) {
+          this.formatExportApi(item.children, scenario);
+        }
+      })
+    },
     handleExport() {
+      if (this.report.reportVersion && this.report.reportVersion > 1) {
+        this.fullTreeNodes.forEach(item => {
+          if (item.type === "scenario") {
+            let scenario = {name: item.label, requestResults: []};
+            if (this.content.scenarios && this.content.scenarios.length > 0) {
+              this.content.scenarios.push(scenario);
+            } else {
+              this.content.scenarios = [scenario];
+            }
+            this.formatExportApi(item.children, scenario);
+          }
+        })
+      }
       this.reportExportVisible = true;
       let reset = this.exportReportReset;
       this.$nextTick(() => {
@@ -470,7 +528,10 @@ export default {
 .report-container .is-active .fail {
   color: inherit;
 }
-
+.report-console {
+  height: calc(100vh - 270px);
+  overflow-y: auto;
+}
 .export-button {
   float: right;
 }

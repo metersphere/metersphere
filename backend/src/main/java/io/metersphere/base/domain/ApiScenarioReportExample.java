@@ -1053,6 +1053,66 @@ public class ApiScenarioReportExample {
             addCriterion("end_time not between", value1, value2, "endTime");
             return (Criteria) this;
         }
+
+        public Criteria andReportVersionIsNull() {
+            addCriterion("report_version is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionIsNotNull() {
+            addCriterion("report_version is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionEqualTo(Integer value) {
+            addCriterion("report_version =", value, "reportVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionNotEqualTo(Integer value) {
+            addCriterion("report_version <>", value, "reportVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionGreaterThan(Integer value) {
+            addCriterion("report_version >", value, "reportVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionGreaterThanOrEqualTo(Integer value) {
+            addCriterion("report_version >=", value, "reportVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionLessThan(Integer value) {
+            addCriterion("report_version <", value, "reportVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionLessThanOrEqualTo(Integer value) {
+            addCriterion("report_version <=", value, "reportVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionIn(List<Integer> values) {
+            addCriterion("report_version in", values, "reportVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionNotIn(List<Integer> values) {
+            addCriterion("report_version not in", values, "reportVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionBetween(Integer value1, Integer value2) {
+            addCriterion("report_version between", value1, value2, "reportVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportVersionNotBetween(Integer value1, Integer value2) {
+            addCriterion("report_version not between", value1, value2, "reportVersion");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

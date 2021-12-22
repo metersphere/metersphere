@@ -3,7 +3,7 @@
     width="600px"
     :visible.sync="visible"
     @confirm="confirm"
-    :title="'模板配置'"
+    :title="$t('test_track.report.template_configuration')"
     append-to-body
     ref="msEditDialog">
     <el-scrollbar>

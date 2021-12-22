@@ -14,7 +14,7 @@ function setDefaultValue(item, value) {
  * @param rules 自定义表单的校验规则
  * @param oldFields 用于兼容旧版本数据
  */
-export function parseCustomField(data, template, customFieldForm, rules, oldFields) {
+export function parseCustomField(data, template, rules, oldFields) {
   let hasOldData = false;
   if (!data.customFields) {
     // 旧数据
@@ -24,6 +24,8 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
   if (!(data.customFields instanceof Object) && !(data.customFields instanceof Array)) {
     data.customFields = JSON.parse(data.customFields);
   }
+
+  let customFieldForm = {};
 
   // 设置页面显示的默认值
   template.customFields.forEach(item => {
@@ -82,10 +84,10 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
       }
     }
 
-    if (customFieldForm) {
-      customFieldForm[item.name] = item.defaultValue;
-    }
+    customFieldForm[item.name] = item.defaultValue;
   });
+
+  return customFieldForm;
 }
 
 // 将template的属性值设置给customFields
@@ -115,6 +117,7 @@ export function buildCustomFields(data, param, template) {
           hasField = true;
           customFields[index].name = item.name;
           customFields[index].value = item.defaultValue;
+          customFields[index].type = item.type;
           break;
         }
       }

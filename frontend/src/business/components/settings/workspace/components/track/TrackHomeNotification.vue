@@ -62,7 +62,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook" placeholder="webhook地址" size="mini"
+              <el-input v-model="scope.row.webhook" size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -171,25 +171,73 @@ export default {
         isReadOnly: false,
       }],
       eventOptions: [
-        {value: 'CLOSE_SCHEDULE', label: '关闭定时任务'},
+        {value: 'CLOSE_SCHEDULE', label: this.$t('commons.close_schedule')},
       ],
       variables: [
-        'operator',
-        'id',
-        'key',
-        'type',
-        'value',
-        'group',
-        'job',
-        'enable',
-        'resourceId',
-        'userId',
-        'workspaceId',
-        'createTime',
-        'updateTime',
-        'projectId',
-        'name',
-        'config'
+        {
+          label:this.$t('group.operator'),
+          value:'operator',
+        },
+        {
+          label:'id',
+          value:'id',
+        },
+        {
+          label:this.$t('api_test.key'),
+          value:'key',
+        },
+        {
+          label:this.$t('operating_log.type'),
+          value:'type',
+        },
+        {
+          label:this.$t('api_test.value'),
+          value:'value',
+        },
+        {
+          label:this.$t('commons.group'),
+          value:'group',
+        },
+        {
+          label:this.$t('schedule.job'),
+          value:'job',
+        },
+        {
+          label:this.$t('api_test.scenario.enable'),
+          value:'enable',
+        },
+        {
+          label:this.$t('commons.resourceId'),
+          value:'resourceId',
+        },
+        {
+          label:this.$t('user.id'),
+          value:'userId',
+        },
+        {
+          label:this.$t('workspace.id'),
+          value:'workspaceId',
+        },
+        {
+          label:this.$t('commons.create_time'),
+          value:'createTime',
+        },
+        {
+          label:this.$t('commons.update_time'),
+          value:'updateTime',
+        },
+        {
+          label:this.$t('project.id'),
+          value:'projectId',
+        },
+        {
+          label:this.$t('commons.name'),
+          value:'name',
+        },
+        {
+          label:this.$t('variables.config'),
+          value:'config',
+        }
       ]
     };
   },

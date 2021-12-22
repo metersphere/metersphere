@@ -1,7 +1,7 @@
 <template>
-  <el-card class="ms-cards">
+  <el-card class="ms-cards" v-if="request && request.responseResult">
     <div class="request-result">
-      <div @click="active">
+      <div @click="active" >
         <el-row :gutter="10" type="flex" align="middle" class="info">
           <el-col :span="10" v-if="indexNumber!=undefined">
             <el-tooltip :content="getName(request.name)" placement="top">

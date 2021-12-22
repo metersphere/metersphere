@@ -70,7 +70,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'level', key: '3', label: 'api_test.automation.case_level'},
     {id: 'status', key: '4', label: 'test_track.plan.plan_status'},
     {id: 'tags', key: '5', label: 'commons.tag'},
-    {id: 'userName', key: '6', label: 'api_test.automation.creator'},
+    {id: 'creator', key: '6', label: 'api_test.automation.creator'},
     {id: 'principalName', key: '7', label: 'api_test.definition.api_principal'},
     {id: 'environmentMap', key: 'e', label: 'commons.environment'},
     {id: 'updateTime', key: '8', label: 'api_test.definition.api_last_time'},
@@ -101,7 +101,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'reviewerName', key: '7', label: 'test_track.review.reviewer'},
     {id: 'reviewStatus', key: '8', label: 'test_track.case.status'},
     {id: 'updateTime', key: '9', label: 'commons.update_time'},
-    {id: 'maintainer', key: 'a', label: 'custom_field.case_maintainer'},
+    {id: 'maintainerName', key: 'a', label: 'custom_field.case_maintainer'},
   ],
   //测试计划
   TEST_PLAN_LIST: [
@@ -184,10 +184,12 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'reviewStatus', key: '3', label: 'test_track.case.status'},
     {id: 'tags', key: '4', label: 'commons.tag'},
     {id: 'nodePath', key: '5', label: 'test_track.case.module'},
+    {id: 'projectName', key: 'a', label: 'test_track.review.review_project'},
     {id: 'updateTime', key: '6', label: 'commons.update_time'},
     {id: 'createUser', key: '7', label: 'commons.create_user'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
+    {id: 'lastExecResult', key: '10', label: 'test_track.plan_view.execute_result'},
   ],
   //缺陷列表
   ISSUE_LIST: [

@@ -1,7 +1,7 @@
 <template>
   <div>
     <span class="kv-description" v-if="description">
-      {{description}}
+      {{ description }}
     </span>
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="5" justify="space-between" align="middle">
@@ -11,8 +11,16 @@
         </el-col>
 
         <el-col>
-          <ms-api-variable-input :show-copy="showCopy" :show-variable="showVariable" :is-read-only="isReadOnly" v-model="item.name" size="small" maxlength="200" @change="change"
-                                 :placeholder="$t('api_test.variable_name')" show-word-limit/>
+          <ms-api-variable-input
+            :show-copy="showCopy"
+            :show-variable="showVariable"
+            :is-read-only="isReadOnly"
+            :placeholder="$t('api_test.variable_name')"
+            v-model="item.name"
+            size="small"
+            maxlength="200"
+            @change="change"
+            show-word-limit/>
         </el-col>
         <el-col>
           <el-autocomplete
@@ -21,8 +29,8 @@
             :fetch-suggestions="funcSearch"
             :placeholder="$t('api_test.value')"
             value-key="name"
-            highlight-first-item>
-            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced"></i>
+            highlight-first-item style="width: 100%">
+            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
           </el-autocomplete>
         </el-col>
         <el-col>
@@ -40,52 +48,56 @@
         </el-col>
       </el-row>
     </div>
-    <ms-api-variable-advance ref="variableAdvance"/>
+    <ms-api-variable-advance ref="variableAdvance" :current-item="currentItem" @advancedRefresh="reload"/>
   </div>
 </template>
 
 <script>
-  import {KeyValue} from "../model/ApiTestModel";
-  import MsApiVariableInput from "./ApiVariableInput";
-  import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-  import MsApiVariableAdvance from "../../test/components/ApiVariableAdvance";
+import {KeyValue} from "../model/ApiTestModel";
+import MsApiVariableInput from "./ApiVariableInput";
+import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
+import MsApiVariableAdvance from "../../test/components/ApiVariableAdvance";
 
-  export default {
-    name: "MsApiScenarioVariables",
-    components: {MsApiVariableInput, MsApiVariableAdvance},
-    props: {
-      description: String,
-      items: Array,
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      },
-      showVariable: {
-        type: Boolean,
-        default: true
-      },
-      showCopy: {
-        type: Boolean,
-        default: true
-      },
+export default {
+  name: "MsApiScenarioVariables",
+  components: {MsApiVariableInput, MsApiVariableAdvance},
+  props: {
+    description: String,
+    items: Array,
+    isReadOnly: {
+      type: Boolean,
+      default: false
     },
-    data() {
-      return {
-      }
+    showVariable: {
+      type: Boolean,
+      default: true
     },
-    methods: {
-      remove: function (index) {
+    showCopy: {
+      type: Boolean,
+      default: true
+    },
+  },
+  data() {
+    return {
+      currentItem: null
+    }
+  },
+  methods: {
+    remove: function (index) {
+      if (this.items) {
         this.items.splice(index, 1);
         this.$emit('change', this.items);
-      },
-      copy: function (item, index) {
-        let copy = {};
-        Object.assign(copy, item);
-        this.items.splice(index + 1, 0, copy);
-      },
-      change: function () {
-        let isNeedCreate = true;
-        let removeIndex = -1;
+      }
+    },
+    copy: function (item, index) {
+      let copy = {};
+      Object.assign(copy, item);
+      this.items.splice(index + 1, 0, copy);
+    },
+    change: function () {
+      let isNeedCreate = true;
+      let removeIndex = -1;
+      if (this.items) {
         this.items.forEach((item, index) => {
           if (!item.name && !item.value) {
             // 多余的空行
@@ -96,59 +108,67 @@
             isNeedCreate = false;
           }
         });
-        if (isNeedCreate) {
-          this.items.push(new KeyValue({enable: true}));
-        }
-        this.$emit('change', this.items);
-        // TODO 检查key重复
-      },
-      isDisable: function (index) {
-        return this.items.length - 1 === index;
-      },
-      advanced() {
-        this.$refs.variableAdvance.open();
-      },
-      createFilter(queryString) {
-        return (variable) => {
-          return (variable.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-        };
-      },
-      funcFilter(queryString) {
-        return (func) => {
-          return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
-        };
-      },
-      funcSearch(queryString, cb) {
-        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-        let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
-        // 调用 callback 返回建议列表的数据
-        cb(results);
-      },
-    },
-
-    created() {
-      if (this.items.length === 0) {
+      }
+      if (isNeedCreate) {
         this.items.push(new KeyValue({enable: true}));
       }
+      this.$emit('change', this.items);
+    },
+    isDisable: function (index) {
+      return this.items.length - 1 === index;
+    },
+    advanced(item) {
+      this.currentItem = item;
+      this.$refs.variableAdvance.open();
+
+    },
+    createFilter(queryString) {
+      return (variable) => {
+        return (variable.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
+    funcFilter(queryString) {
+      return (func) => {
+        return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
+      };
+    },
+    funcSearch(queryString, cb) {
+      let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
+    reload() {
+      this.isActive = false;
+      this.$nextTick(() => {
+        this.isActive = true;
+      });
+    },
+  },
+
+  created() {
+    if (this.items.length === 0) {
+      this.items.push(new KeyValue({enable: true}));
     }
   }
+}
 </script>
 
 <style scoped>
-  .kv-description {
-    font-size: 13px;
-  }
+.kv-description {
+  font-size: 13px;
+}
 
-  .kv-checkbox {
-    width: 20px;
-    margin-right: 10px;
-  }
+.kv-checkbox {
+  width: 70px;
+  margin-right: 10px;
+}
 
-  .kv-row {
-    margin-top: 10px;
-  }
+.kv-row {
+  margin-top: 10px;
+}
 
-  .kv-delete,.kv-copy {
-    width: 60px;
-  }
+.kv-delete, .kv-copy {
+  width: 60px;
+}
 </style>

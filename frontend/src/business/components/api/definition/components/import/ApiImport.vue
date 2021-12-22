@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('api_test.api_import.title')" width="30%"
+  <el-dialog :close-on-click-modal="false" :title="$t('api_test.api_import.title')" width="90%"
              :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close"
              :destroy-on-close="true">
 
@@ -23,7 +23,7 @@
 
     <el-form :model="formData" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
       <el-row>
-        <el-col :span="11">
+        <el-col :span="8">
           <el-form-item :label="$t('commons.import_module')" prop="moduleId">
             <ms-select-tree size="small" :data="moduleOptions" :defaultKey="formData.moduleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
           </el-form-item>
@@ -49,11 +49,32 @@
         <el-col :span="1">
           <el-divider direction="vertical"/>
         </el-col>
-        <el-col :span="12" v-show="isSwagger2 && swaggerUrlEnable" style="margin-top: 40px">
+
+        <el-col :span="14" v-show="isSwagger2 && swaggerUrlEnable" style="margin-top: 40px">
           <el-form-item :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
             <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
           </el-form-item>
+          <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')"></el-switch>
         </el-col>
+
+        <el-col :span="14" v-show="isSwagger2 && authEnable && swaggerUrlEnable">
+            <!--请求头 -->
+            <div style="margin-top: 15px;">
+              <span>{{$t('api_test.request.headers')}}{{$t('api_test.api_import.optional')}}：</span>
+            </div>
+            <ms-api-key-value :show-desc="true" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers"/>
+            <!--query 参数-->
+            <div style="margin-top: 10px">
+              <span>{{$t('api_test.definition.request.query_param')}}{{$t('api_test.api_import.optional')}}：</span>
+            </div>
+            <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="queryArguments"/>
+            <!--认证配置-->
+            <div style="margin-top: 10px">
+              <span>{{$t('api_test.definition.request.auth_config')}}{{$t('api_test.api_import.optional')}}：</span>
+            </div>
+            <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false"/>
+        </el-col>
+
         <el-col :span="12"
                 v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEnable)">
           <el-upload
@@ -98,10 +119,20 @@
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {listenGoBack, removeGoBackListener, hasLicense, getCurrentProjectID} from "@/common/js/utils";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
+  import MsApiKeyValue from "../ApiKeyValue";
+  import MsApiVariable from "../ApiVariable";
+  import MsApiAuthConfig from "../auth/ApiAuthConfig";
+  import {REQUEST_HEADERS} from "@/common/js/constants";
+  import {ELEMENT_TYPE, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
   export default {
     name: "ApiImport",
-    components: {MsDialogFooter, MsSelectTree},
+    components: {
+      MsDialogFooter,
+      MsSelectTree,
+      MsApiKeyValue,
+      MsApiVariable,
+      MsApiAuthConfig},
     props: {
       saved: {
         type: Boolean,
@@ -118,8 +149,10 @@
       return {
         visible: false,
         swaggerUrlEnable: false,
+        authEnable: false,
         showEnvironmentSelect: true,
         showXpackCompnent:false,
+        headerSuggestions: REQUEST_HEADERS,
         moduleObj: {
           id: 'id',
           label: 'name',
@@ -189,7 +222,7 @@
           file: undefined,
           swaggerUrl: '',
           modeId: 'incrementalMerge',
-          moduleId: '',
+          moduleId: ''
         },
         rules: {
           modeId: [
@@ -197,7 +230,14 @@
           ],
         },
         currentModule: {},
-        fileList: []
+        fileList: [],
+        isShowEnable: true,
+        isReadOnly: false,
+        headers: [],
+        queryArguments: [],
+        authConfig: {
+          hashTree: []
+        }
       }
     },
     created() {
@@ -341,6 +381,16 @@
         param.projectId = this.projectId;
         if (!this.swaggerUrlEnable) {
           param.swaggerUrl = undefined;
+        }else{
+          // 设置请求头
+          param.headers = this.headers;
+          // 设置 query 参数
+          param.arguments = this.queryArguments;
+          // 设置 BaseAuth 参数
+          if(this.authConfig.authManager != undefined){
+            this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
+            param.authManager = this.authConfig.authManager;
+          }
         }
         return param;
       },

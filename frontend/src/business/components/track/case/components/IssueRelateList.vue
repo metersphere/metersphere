@@ -66,13 +66,12 @@
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import {getRelateIssues, testCaseIssueRelate} from "@/network/Issue";
+import {getRelateIssues, isThirdPartEnable, testCaseIssueRelate} from "@/network/Issue";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {getPageInfo} from "@/common/js/tableUtils";
 import {getCurrentProjectID} from "@/common/js/utils";
-import {getIssueTemplate} from "../../../../../network/custom-field-template";
 export default {
   name: "IssueRelateList",
   components: {MsTablePagination, IssueDescriptionTableItem, MsTableColumn, MsTable, MsEditDialog},
@@ -93,14 +92,9 @@ export default {
   },
   props: ['caseId'],
   created() {
-    getIssueTemplate()
-      .then((template) => {
-        if (template.platform === 'metersphere') {
-          this.isThirdPart = false;
-        } else {
-          this.isThirdPart = true;
-        }
-      });
+    isThirdPartEnable((data) => {
+      this.isThirdPart = data;
+    });
   },
   methods: {
     open() {

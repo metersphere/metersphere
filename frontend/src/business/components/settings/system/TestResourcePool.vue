@@ -230,7 +230,6 @@
 </template>
 
 <script>
-import MsCreateBox from "../CreateBox";
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
@@ -240,7 +239,7 @@ import BatchAddResource from "@/business/components/settings/system/components/B
 
 export default {
   name: "MsTestResourcePool",
-  components: {BatchAddResource, MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
+  components: {BatchAddResource, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
   data() {
     return {
       result: {},

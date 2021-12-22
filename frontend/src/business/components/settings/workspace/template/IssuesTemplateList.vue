@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card class="table-card">
 
     <template v-slot:header>
       <ms-table-header :condition.sync="condition" @search="initTableData" @create="handleCreate"
@@ -105,7 +105,7 @@ export default {
       currentPage: 1,
       result: {},
       issuePlatformMap:{
-        metersphere: 'Metersphere',
+        Local: 'Metersphere',
         Jira: 'JIRA',
         Tapd: 'Tapd',
         Zentao: '禅道',

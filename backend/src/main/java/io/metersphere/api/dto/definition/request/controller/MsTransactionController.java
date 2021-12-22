@@ -1,9 +1,7 @@
 package io.metersphere.api.dto.definition.request.controller;
 
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -37,11 +35,6 @@ public class MsTransactionController extends MsTestElement {
         }
 
         TransactionController transactionController = transactionController();
-        String name = ElementUtil.getParentName(this.getParent());
-        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            transactionController.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
-        }
-
         final HashTree groupTree = tree.add(transactionController);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
@@ -58,7 +51,7 @@ public class MsTransactionController extends MsTestElement {
         if (StringUtils.isEmpty(this.getName())) {
             this.setName(getLabelName());
         }
-        transactionController.setName(this.getName());
+        transactionController.setName("Transaction=" + this.getName());
         transactionController.setProperty(TestElement.TEST_CLASS, TransactionController.class.getName());
         transactionController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TransactionControllerGui"));
         transactionController.setGenerateParentSample(generateParentSample);

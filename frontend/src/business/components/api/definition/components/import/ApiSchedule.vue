@@ -30,6 +30,29 @@
               </el-select>
             </el-form-item>
           </el-col>
+
+          <el-col :span="12" style="margin-left: 50px">
+            <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')"></el-switch>
+          </el-col>
+
+          <el-col :span="19" v-show="authEnable" style="margin-top: 10px; margin-left: 50px" class="request-tabs">
+            <!-- 请求头 -->
+            <div>
+              <span>{{$t('api_test.request.headers')}}{{$t('api_test.api_import.optional')}}：</span>
+            </div>
+            <ms-api-key-value :label="$t('api_test.definition.request.auth_config')"
+                              :show-desc="true" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers"/>
+            <!--query 参数-->
+            <div style="margin-top: 10px">
+              <span>{{$t('api_test.definition.request.query_param')}}{{$t('api_test.api_import.optional')}}：</span>
+            </div>
+            <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="queryArguments"/>
+            <!--认证配置-->
+            <div style="margin-top: 10px">
+              <span>{{$t('api_test.definition.request.auth_config')}}{{$t('api_test.api_import.optional')}}：</span>
+            </div>
+            <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false"/>
+          </el-col>
         </el-row>
 
         <el-form-item class="expression-link">
@@ -100,11 +123,17 @@ import {cronValidate} from "@/common/js/cron";
 import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import SelectTree from "@/business/components/common/select-tree/SelectTree";
 import SwaggerTaskNotification from "@/business/components/api/definition/components/import/SwaggerTaskNotification";
+import MsApiKeyValue from "../ApiKeyValue";
+import MsApiVariable from "../ApiVariable";
+import MsApiAuthConfig from "../auth/ApiAuthConfig";
+import {REQUEST_HEADERS} from "@/common/js/constants";
+import {KeyValue} from "../../model/ApiTestModel";
+import {ELEMENT_TYPE, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiSchedule",
   components: {
-    SwaggerTaskNotification, SelectTree, MsFormDivider, SwaggerTaskList, CrontabResult, Crontab
+    SwaggerTaskNotification, SelectTree, MsFormDivider, SwaggerTaskList, CrontabResult, Crontab, MsApiKeyValue, MsApiVariable, MsApiAuthConfig
   },
   props: {
     customValidate: {
@@ -118,7 +147,7 @@ export default {
       default: false
     },
     moduleOptions: Array,
-    param: Object,
+    param: Object
   },
 
   watch: {
@@ -180,6 +209,14 @@ export default {
         id: 'id',
         label: 'name',
       },
+      isShowEnable: true,
+      authEnable: false,
+      headerSuggestions: REQUEST_HEADERS,
+      headers: [],
+      queryArguments: [],
+      authConfig: {
+        hashTree: []
+      }
     };
   },
 
@@ -209,6 +246,7 @@ export default {
       if (!this.formData.rule) {
         this.$refs.crontabResult.resultList = [];
       }
+      this.clearAuthInfo();
       this.$nextTick(() => {
         this.$refs.selectTree.init();
       });
@@ -241,6 +279,14 @@ export default {
       this.formData.projectId = getCurrentProjectID();
       this.formData.workspaceId = getCurrentWorkspaceId();
       this.formData.value = this.formData.rule;
+      // 设置请求头或 query 参数
+      this.formData.headers = this.headers;
+      this.formData.arguments = this.queryArguments;
+      // 设置 BaseAuth 参数
+      if(this.authConfig.authManager != undefined){
+        this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
+        this.formData.authManager = this.authConfig.authManager;
+      }
       let url = '';
       if (this.formData.id) {
         url = '/api/definition/schedule/update';
@@ -275,10 +321,32 @@ export default {
       this.formData.modulePath = data.path;
     },
     handleRowClick(row) {
+      // 如果认证信息不为空，进行转化
+      if(row.config != null || row.config != undefined){
+        this.authEnable = true;
+        let config = JSON.parse(row.config);
+        this.headers = config.headers;
+        this.queryArguments = config.arguments;
+        if(config.authManager != null || config.authManager != undefined){
+          this.authConfig = config;
+        }else {
+          this.authConfig = {hashTree: [], authManager: {}};
+        }
+      }else {
+        this.clearAuthInfo();
+      }
       Object.assign(this.formData, row);
       this.$nextTick(() => {
         this.$refs.selectTree.init();
       });
+    },
+    clearAuthInfo(){
+      this.headers = [];
+      this.queryArguments = [];
+      this.headers.push(new KeyValue({enable: true}));
+      this.queryArguments.push(new KeyValue({enable: true}));
+      this.authConfig = {hashTree: [], authManager: {}};
+      this.authEnable = false;
     }
 
   },

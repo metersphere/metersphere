@@ -7,8 +7,8 @@
     @show="showPopover"
     trigger="click">
     <el-radio-group v-model="radio" style="margin-left: 20px;" @change="radioChange">
-      <el-radio :label="ENV_TYPE.JSON">环境列表</el-radio>
-      <el-radio :label="ENV_TYPE.GROUP">环境组</el-radio>
+      <el-radio :label="ENV_TYPE.JSON">{{$t('workspace.env_group.env_list')}}</el-radio>
+      <el-radio :label="ENV_TYPE.GROUP">{{$t('workspace.env_group.name')}}</el-radio>
     </el-radio-group>
     <env-select :project-ids="projectIds"
                 :result="result"
@@ -19,9 +19,13 @@
                 @setProjectEnvMap="setProjectEnvMap"
                 v-show="!radio || radio === ENV_TYPE.JSON"
                 ref="envSelect"/>
-    <!-- todo 如果工作空间下的环境组都不包含当前项目则不显示 -->
-    <env-group ref="envGroup" v-show="radio === ENV_TYPE.GROUP" @close="visible = false" :project-ids="projectIds"
+    <env-group ref="envGroup" v-show="radio === ENV_TYPE.GROUP && !hasOptionGroup" @close="visible = false"
+               :project-ids="projectIds"
                @setEnvGroup="setEnvGroup" :group-id="groupId"></env-group>
+    <!-- 对环境组选项进行分类 可用｜不可用 -->
+    <env-group-with-option ref="envOptionGroup" v-show="radio === ENV_TYPE.GROUP && hasOptionGroup" @close="visible = false"
+                           :project-ids="projectIds"
+                           @setEnvGroup="setEnvGroup" :group-id="groupId"></env-group-with-option>
     <el-button type="primary" slot="reference" size="mini" style="margin-top: 2px;">
       {{ $t('api_test.definition.request.run_env') }}
       <i class="el-icon-caret-bottom el-icon--right"></i>
@@ -33,15 +37,16 @@
 import EnvSelect from "@/business/components/api/automation/scenario/EnvSelect";
 import {ENV_TYPE} from "@/common/js/constants";
 import EnvGroup from "@/business/components/api/automation/scenario/EnvGroup";
+import EnvGroupWithOption from "@/business/components/api/automation/scenario/EnvGroupWithOption";
 
 export default {
   name: "EnvPopover",
-  components: {EnvGroup, EnvSelect},
+  components: {EnvGroup, EnvSelect, EnvGroupWithOption},
   props: {
     envMap: Map,
     projectIds: Set,
     projectList: Array,
-    showConfigButtonWithOutPermission:{
+    showConfigButtonWithOutPermission: {
       type: Boolean,
       default() {
         return true;
@@ -77,6 +82,12 @@ export default {
       default() {
         return "bottom";
       }
+    },
+    hasOptionGroup: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     }
   },
   data() {
@@ -105,8 +116,13 @@ export default {
     },
     openEnvSelect() {
       this.$refs.envSelect.open();
-      this.$refs.envGroup.init();
-      this.$refs.envGroup.open();
+      if (!this.hasOptionGroup) {
+        this.$refs.envGroup.init();
+        this.$refs.envGroup.open();
+      } else {
+        this.$refs.envOptionGroup.init();
+        this.$refs.envOptionGroup.open();
+      }
     },
     setProjectEnvMap(map) {
       this.$emit("setProjectEnvMap", map);
@@ -119,14 +135,23 @@ export default {
     },
     checkEnv(data) {
       return new Promise((resolve => {
-        if (this.environmentType === ENV_TYPE.JSON) {
-          let res = this.$refs.envSelect.checkEnv(data);
-          resolve(res);
-        } else if (this.environmentType === ENV_TYPE.GROUP) {
-          let res = this.$refs.envGroup.checkEnv();
-          res.then(r => {
-            resolve(r);
-          })
+        if (data) {
+          // 所有请求全路径不检查环境
+          resolve(true);
+        } else {
+          if (!this.environmentType) {
+            this.$warning(this.$t('workspace.env_group.please_select_env'));
+            resolve(false);
+          } else if (this.environmentType === ENV_TYPE.JSON) {
+            let res = this.$refs.envSelect.checkEnv(data);
+            resolve(res);
+          } else if (this.environmentType === ENV_TYPE.GROUP) {
+            let res = !this.hasOptionGroup ? this.$refs.envGroup.checkEnv() :
+              this.$refs.envOptionGroup.checkEnv();
+            res.then(r => {
+              resolve(r);
+            })
+          }
         }
       }))
     },

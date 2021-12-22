@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ServiceUtils {
+
+    public static final int ORDER_STEP = 5000;
 
     public static List<OrderRequest> getDefaultOrder(List<OrderRequest> orders) {
         return getDefaultOrder(null, orders);
@@ -56,6 +59,10 @@ public class ServiceUtils {
             return orders;
         }
         return orders;
+    }
+
+    public static List<OrderRequest> getDefaultOrderByField(List<OrderRequest> orders, String field) {
+        return getDefaultOrderByField(null, orders, field);
     }
 
     /**
@@ -149,11 +156,14 @@ public class ServiceUtils {
                     T item = clazz.newInstance();
                     setId.invoke(item, id);
                     setOrder.invoke(item, order);
-                    order += 5000;
+                    order += ServiceUtils.ORDER_STEP;
                     Method updateByPrimaryKeySelectiveFunc = mapper.getClass().getMethod("updateByPrimaryKeySelective", clazz);
                     updateByPrimaryKeySelectiveFunc.invoke(mapper, item);
                 }
                 sqlSession.flushStatements();
+            }
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         } catch (Throwable e) {
             LogUtil.error(e.getMessage(), e);
@@ -176,8 +186,8 @@ public class ServiceUtils {
                               BiFunction<String, Long, Long> getPreOrderFunc,
                               BiFunction<String, Long, Long> getLastOrderFunc,
                               Consumer<T> updateByPrimaryKeySelectiveFuc) {
-        Long order = null;
-        Long lastOrPreOrder = null;
+        Long order;
+        Long lastOrPreOrder;
         try {
             Method getOrder = clazz.getMethod("getOrder");
             Method setId = clazz.getMethod("setId", String.class);
@@ -189,12 +199,12 @@ public class ServiceUtils {
 
             if (request.getMoveMode().equals(ResetOrderRequest.MoveMode.AFTER.name())) {
                 // 追加到参考对象的之后
-                order = targetOrder - 5000;
+                order = targetOrder - ServiceUtils.ORDER_STEP;
                 // ，因为是降序排，则查找比目标 order 小的一个order
                 lastOrPreOrder = getPreOrderFunc.apply(request.getGroupId(), targetOrder);
             } else {
                 // 追加到前面
-                order = targetOrder + 5000;
+                order = targetOrder + ServiceUtils.ORDER_STEP;
                 // 因为是降序排，则查找比目标 order 更大的一个order
                 lastOrPreOrder = getLastOrderFunc.apply(request.getGroupId(), targetOrder);
             }
@@ -222,7 +232,7 @@ public class ServiceUtils {
      */
     public static Long getNextOrder(String groupId, BiFunction<String, Long, Long> getLastOrderFunc) {
         Long lastOrder = getLastOrderFunc.apply(groupId, null);
-       return (lastOrder == null ? 0 : lastOrder) + 5000;
+       return (lastOrder == null ? 0 : lastOrder) + ServiceUtils.ORDER_STEP;
     }
 
     public static SqlSession getBatchSqlSession() {

@@ -13,7 +13,7 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
-import io.metersphere.dto.CustomFieldTemplateDao;
+import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -64,8 +64,6 @@ public class IssuesService {
     @Resource
     private TestCaseIssuesMapper testCaseIssuesMapper;
     @Resource
-    private IssueTemplateMapper issueTemplateMapper;
-    @Resource
     private ExtIssuesMapper extIssuesMapper;
     @Resource
     private CustomFieldTemplateService customFieldTemplateService;
@@ -111,6 +109,7 @@ public class IssuesService {
         //saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
         // todo 缺陷更新事件？
     }
+
     public void saveFollows(String issueId, List<String> follows) {
         IssueFollowExample example = new IssueFollowExample();
         example.createCriteria().andIssueIdEqualTo(issueId);
@@ -124,16 +123,15 @@ public class IssuesService {
             }
         }
     }
+
     public List<AbstractIssuePlatform> getAddPlatforms(IssuesUpdateRequest updateRequest) {
         List<String> platforms = new ArrayList<>();
         if (StringUtils.isNotBlank(updateRequest.getTestCaseId())) {
             // 测试计划关联
-            String p = getPlatformsByCaseId(updateRequest.getTestCaseId());
-            platforms.add(p);
+            platforms.add(getPlatformsByCaseId(updateRequest.getTestCaseId()));
         } else {
             // 缺陷管理关联
-            String t = getIssueTemplate(updateRequest.getProjectId());
-            platforms.add(t);
+            platforms.add(getPlatform(updateRequest.getProjectId()));
         }
 
         if (CollectionUtils.isEmpty(platforms)) {
@@ -193,26 +191,12 @@ public class IssuesService {
     public String getPlatformsByCaseId(String caseId) {
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(caseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
-        return getIssueTemplate(project.getId());
+        return getPlatform(project.getId());
     }
 
-    public String getIssueTemplate(String projectId) {
+    public String getPlatform(String projectId) {
         Project project = projectService.getProjectById(projectId);
-        IssueTemplate issueTemplate;
-        String id = project.getIssueTemplateId();
-        if (StringUtils.isBlank(id)) {
-            issueTemplate = issueTemplateService.getDefaultTemplate(project.getWorkspaceId());
-        } else {
-            issueTemplate = issueTemplateMapper.selectByPrimaryKey(id);
-        }
-        if (issueTemplate == null) {
-            MSException.throwException("project issue template id is null.");
-        }
-        String platform = issueTemplate.getPlatform();
-        if (StringUtils.equals(platform, "metersphere")) {
-            return IssuesManagePlatform.Local.name();
-        }
-        return platform;
+        return project.getPlatform();
     }
 
     public List<String> getPlatforms(Project project) {
@@ -338,7 +322,7 @@ public class IssuesService {
     }
 
     public List<IssuesDao> list(IssuesRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
         List<IssuesDao> issues = extIssuesMapper.getIssues(request);
 
         List<String> ids = issues.stream()
@@ -369,7 +353,7 @@ public class IssuesService {
                     .collect(Collectors.toList());
             item.setCaseIds(caseIds);
             item.setCaseCount(testCaseIssues.size());
-            if(StringUtils.equals(item.getPlatform(),"Tapd")){
+            if (StringUtils.equals(item.getPlatform(), "Tapd")) {
                 TapdPlatform platform = (TapdPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
                 List<String> tapdUsers = platform.getTapdUsers(item.getProjectId(), item.getPlatformId());
                 item.setTapdUsers(tapdUsers);
@@ -485,6 +469,7 @@ public class IssuesService {
 
     /**
      * 获取默认的自定义字段的取值，同步之后更新成第三方平台的值
+     *
      * @param projectId
      * @return
      */
@@ -492,8 +477,11 @@ public class IssuesService {
         IssueTemplateDao template = issueTemplateService.getTemplate(projectId);
         CustomFieldTemplate request = new CustomFieldTemplate();
         request.setTemplateId(template.getId());
-        List<CustomFieldTemplateDao> customFields = customFieldTemplateService.list(request);
+        List<CustomFieldDao> customFields = customFieldTemplateService.lisSimple(request);
+        return getCustomFieldsValuesString(customFields);
+    }
 
+    public String getCustomFieldsValuesString(List<CustomFieldDao> customFields) {
         JSONArray fields = new JSONArray();
         customFields.forEach(item -> {
             JSONObject field = new JSONObject(true);
@@ -619,7 +607,7 @@ public class IssuesService {
         issuesMapper.updateByPrimaryKeySelective(issues);
     }
 
-    public List<IssuesDao> getCountByStatus(IssuesRequest request){
+    public List<IssuesDao> getCountByStatus(IssuesRequest request) {
         return extIssuesMapper.getCountByStatus(request);
 
     }
@@ -632,7 +620,7 @@ public class IssuesService {
         IssueFollowExample example = new IssueFollowExample();
         example.createCriteria().andIssueIdEqualTo(issueId);
         List<IssueFollow> follows = issueFollowMapper.selectByExample(example);
-        if(follows==null||follows.size()==0){
+        if (follows == null || follows.size() == 0) {
             return result;
         }
         result = follows.stream().map(IssueFollow::getFollowId).distinct().collect(Collectors.toList());
@@ -648,4 +636,16 @@ public class IssuesService {
         return issuesMapper.selectByExampleWithBLOBs(example);
     }
 
+
+    public IssueTemplateDao getThirdPartTemplate(String projectId) {
+        if (StringUtils.isNotBlank(projectId)) {
+            Project project = projectService.getProjectById(projectId);
+            IssuesRequest issuesRequest = new IssuesRequest();
+            issuesRequest.setProjectId(projectId);
+            issuesRequest.setWorkspaceId(project.getWorkspaceId());
+            return IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), issuesRequest)
+                    .getThirdPartTemplate();
+        }
+        return new IssueTemplateDao();
+    }
 }

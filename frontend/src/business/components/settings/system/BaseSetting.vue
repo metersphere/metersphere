@@ -15,11 +15,15 @@
             <el-input v-model="formInline.prometheusHost" :placeholder="$t('system_config.prometheus.host_tip')"/>
             <i>({{ $t('commons.examples') }}:http://ms-prometheus:9090)</i>
           </el-form-item>
+          <el-form-item :label="$t('system_config.selenium_docker_url')" prop="seleniumDockerUrl">
+            <el-input v-model="formInline.seleniumDockerUrl" :placeholder="$t('system_config.selenium_docker.url_tip')"/>
+            <i>({{ $t('commons.examples') }}:http://localhost:4444)</i>
+          </el-form-item>
         </el-col>
       </el-row>
     </el-form>
     <div>
-      <el-button @click="edit" v-if="showEdit" size="small">{{ $t('commons.edit') }}</el-button>
+      <el-button @click="edit" v-if="showEdit" size="small" v-permission="['SYSTEM_SETTING:READ+EDIT']">{{ $t('commons.edit') }}</el-button>
       <el-button type="success" @click="save('formInline')" v-if="showSave" :disabled="disabledSave" size="small">
         {{ $t('commons.save') }}
       </el-button>
@@ -91,6 +95,7 @@ export default {
         {paramKey: "base.url", paramValue: this.formInline.url, type: "text", sort: 1},
         {paramKey: "base.concurrency", paramValue: this.formInline.concurrency, type: "text", sort: 2},
         {paramKey: "base.prometheus.host", paramValue: this.formInline.prometheusHost, type: "text", sort: 1},
+        {paramKey: "base.selenium.docker.url", paramValue: this.formInline.seleniumDockerUrl, type: "text", sort: 1},
       ];
 
       this.$refs[formInline].validate(valid => {

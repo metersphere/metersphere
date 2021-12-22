@@ -13,9 +13,9 @@ import java.util.Map;
 
 public class ShiroUtils {
 
-    public static void loadBaseFilterChain(Map<String, String> filterChainDefinitionMap){
+    public static void loadBaseFilterChain(Map<String, String> filterChainDefinitionMap) {
 
-        filterChainDefinitionMap.put("/resource/**", "anon");
+        filterChainDefinitionMap.put("/resource/md/get/", "anon");
         filterChainDefinitionMap.put("/*.worker.js", "anon");
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/signin", "anon");
@@ -53,9 +53,11 @@ public class ShiroUtils {
         //分享相关接口
         filterChainDefinitionMap.put("/share/info/generateShareInfoWithExpired", "anon");
         filterChainDefinitionMap.put("/share/info/selectApiInfoByParam", "anon");
+        filterChainDefinitionMap.put("/share/info/selectHistoryReportById", "anon");
         filterChainDefinitionMap.put("/share/get/**", "anon");
         filterChainDefinitionMap.put("/share/info", "apikey, csrf, authc"); // 需要认证
         filterChainDefinitionMap.put("/document/**", "anon");
+        filterChainDefinitionMap.put("/echartPic/**", "anon");
         filterChainDefinitionMap.put("/share/**", "anon");
         filterChainDefinitionMap.put("/sharePlanReport", "anon");
 
@@ -82,14 +84,14 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/resource/md/get/**", "apikey, authc");
     }
 
-    public static Cookie getSessionIdCookie(){
+    public static Cookie getSessionIdCookie() {
         SimpleCookie sessionIdCookie = new SimpleCookie();
         sessionIdCookie.setPath("/");
         sessionIdCookie.setName("MS_SESSION_ID");
         return sessionIdCookie;
     }
 
-    public static SessionManager getSessionManager(Long sessionTimeout, CacheManager cacheManager){
+    public static SessionManager getSessionManager(Long sessionTimeout, CacheManager cacheManager) {
         DefaultWebSessionManager sessionManager = new CustomSessionManager();
         sessionManager.setSessionIdUrlRewritingEnabled(false);
         sessionManager.setDeleteInvalidSessions(true);

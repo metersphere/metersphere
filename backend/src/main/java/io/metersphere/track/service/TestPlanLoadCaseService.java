@@ -3,17 +3,17 @@ package io.metersphere.track.service;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.service.task.NamedThreadFactory;
+import io.metersphere.api.exec.utils.NamedThreadFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
-import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,7 +116,7 @@ public class TestPlanLoadCaseService {
                 t.setLoadConfiguration(loadTest.getLoadConfiguration());
                 t.setAdvancedConfiguration(loadTest.getAdvancedConfiguration());
             }
-            nextOrder += 5000;
+            nextOrder += ServiceUtils.ORDER_STEP;
             testPlanLoadCaseMapper.insert(t);
         }
 
@@ -128,6 +129,9 @@ public class TestPlanLoadCaseService {
             testPlanMapper.updateByPrimaryKey(testPlan);
         }
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public void delete(String id) {
@@ -173,7 +177,7 @@ public class TestPlanLoadCaseService {
     private void serialRun(RunBatchTestPlanRequest request) throws Exception {
         ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(), new NamedThreadFactory("TestPlanLoadCaseService-serial"));
         for (RunTestPlanRequest runTestPlanRequest : request.getRequests()) {
-            Future<LoadTestReportWithBLOBs> future = executorService.submit(new SerialExecTask(performanceTestService, testPlanLoadCaseMapper, loadTestReportMapper, runTestPlanRequest, request.getConfig()));
+            Future<LoadTestReportWithBLOBs> future = executorService.submit(new SerialExecTask(performanceTestService, testPlanLoadCaseMapper, loadTestReportMapper, runTestPlanRequest));
             LoadTestReportWithBLOBs report = future.get();
             // 如果开启失败结束执行，则判断返回结果状态
             if (request.getConfig().isOnSampleError()) {

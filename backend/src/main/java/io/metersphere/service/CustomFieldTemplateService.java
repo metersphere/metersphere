@@ -4,14 +4,17 @@ package io.metersphere.service;
 import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.CustomFieldTemplate;
 import io.metersphere.base.domain.CustomFieldTemplateExample;
+import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.CustomFieldTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldTemplateMapper;
+import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldTemplateDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,8 @@ public class CustomFieldTemplateService {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     CustomFieldService customFieldService;
+    @Resource
+    private CustomFieldMapper customFieldMapper;
 
     public List<String> getCustomFieldIds(String templateId) {
         return extCustomFieldTemplateMapper.getCustomFieldIds(templateId);
@@ -45,6 +50,10 @@ public class CustomFieldTemplateService {
 
     public List<CustomFieldTemplateDao> list(CustomFieldTemplate request) {
         return extCustomFieldTemplateMapper.list(request);
+    }
+
+    public List<CustomFieldDao> lisSimple(CustomFieldTemplate request) {
+        return extCustomFieldTemplateMapper.lisSimple(request);
     }
 
     public void deleteByTemplateId(String templateId) {
@@ -111,11 +120,19 @@ public class CustomFieldTemplateService {
             });
         }
         sqlSession.flushStatements();
-        sqlSession.close();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
 
     public void update(CustomFieldTemplate request) {
         customFieldTemplateMapper.updateByPrimaryKeySelective(request);
+    }
+
+    public CustomField getCustomField(String id) {
+        CustomFieldTemplate customFieldTemplate = customFieldTemplateMapper.selectByPrimaryKey(id);
+        String fieldId = customFieldTemplate.getFieldId();
+        return customFieldMapper.selectByPrimaryKey(fieldId);
     }
 }

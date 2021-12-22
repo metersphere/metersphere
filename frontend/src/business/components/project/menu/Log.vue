@@ -127,7 +127,7 @@
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
 import {getCurrentProjectID} from "@/common/js/utils";
-import {getUrl, LOG_TYPE, LOG_TYPE_MAP, sysList} from "@/business/components/settings/operatinglog/config";
+import {getUrl, LOG_TYPE, LOG_TYPE_MAP, SYSLIST} from "@/business/components/settings/operatinglog/config";
 import MsLogDetail from "@/business/components/settings/operatinglog/LogDetail";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsContainer from "@/business/components/common/components/MsContainer";
@@ -156,7 +156,7 @@ export default {
       screenHeight: 'calc(100vh - 215px)',
       LOG_TYPE: new LOG_TYPE(this),
       LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
-      sysList: sysList,
+      sysList: new SYSLIST(),
     }
   },
   mounted() {

@@ -47,6 +47,7 @@ import CustomFieldFormList from "@/business/components/settings/workspace/templa
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
 import FormRIchTextItem from "@/business/components/track/case/components/FormRichTextItem";
+import {LOCAL} from "@/common/js/constants";
 
 export default {
   name: "IssueTemplateEdit",
@@ -64,7 +65,7 @@ export default {
       showDialog: false,
       form: {
         name: "",
-        platform: 'metersphere',
+        platform: LOCAL,
         description: '',
         title: '',
         content: '',
@@ -106,7 +107,7 @@ export default {
         this.form = {
           id: "",
           name: "",
-          platform: 'metersphere',
+          platform: LOCAL,
           description: '',
           title: '',
           content: '',

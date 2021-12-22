@@ -217,14 +217,6 @@ public class TestPlanTestCaseService {
         testPlanTestCaseMapper.deleteByExample(example);
     }
 
-    public List<String> getTestPlanTestCaseIds(String testId) {
-        return extTestPlanTestCaseMapper.getTestPlanTestCaseIds(testId);
-    }
-
-    public int updateTestCaseStates(List<String> ids, String reportStatus) {
-        return extTestPlanTestCaseMapper.updateTestCaseStates(ids, reportStatus);
-    }
-
     /**
      * 更新测试计划关联接口测试的功能用例的状态
      *

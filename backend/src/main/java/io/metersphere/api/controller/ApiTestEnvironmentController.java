@@ -12,7 +12,6 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.log.annotation.MsAuditLog;
-import io.metersphere.service.CheckPermissionService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,13 +25,10 @@ public class ApiTestEnvironmentController {
     @Resource
     ApiTestEnvironmentService apiTestEnvironmentService;
     @Resource
-    private CheckPermissionService checkPermissionService;
-    @Resource
     private CommandService commandService;
 
     @GetMapping("/list/{projectId}")
     public List<ApiTestEnvironmentWithBLOBs> list(@PathVariable String projectId) {
-//        checkPermissionService.checkProjectOwner(projectId);
         return apiTestEnvironmentService.list(projectId);
     }
 
@@ -46,10 +42,6 @@ public class ApiTestEnvironmentController {
      */
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiTestEnvironmentWithBLOBs>> listByCondition(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EnvironmentRequest environmentRequest) {
-//        List<String> projectIds = environmentRequest.getProjectIds();
-//        for (String projectId : projectIds) {
-//            checkPermissionService.checkProjectOwner(projectId);
-//        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiTestEnvironmentService.listByConditions(environmentRequest));
     }

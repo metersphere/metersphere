@@ -130,7 +130,7 @@ export default {
   },
 
   watch: {
-    'body.typeChange'(){
+    'body.typeChange'() {
       this.reloadCodeEdit();
     },
     'body.raw'() {
@@ -139,8 +139,8 @@ export default {
           const MsConvert = new Convert();
           let data = MsConvert.format(JSON.parse(this.body.raw));
           if (this.body.jsonSchema) {
-            this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
-          }else{
+            this.body.jsonSchema = this.deepAssign(data);
+          } else {
             this.body.jsonSchema = data;
           }
         } catch (ex) {
@@ -294,8 +294,8 @@ export default {
         let keyValues = [];
         params.forEach(item => {
           let line = [];
-          line[0] = item.substring(0,item.indexOf(":"));
-          line[1] = item.substring(item.indexOf(":")+1,item.length);
+          line[0] = item.substring(0, item.indexOf(":"));
+          line[1] = item.substring(item.indexOf(":") + 1, item.length);
           let required = false;
           keyValues.unshift(new KeyValue({
             name: line[0],

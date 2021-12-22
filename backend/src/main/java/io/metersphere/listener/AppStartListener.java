@@ -1,5 +1,6 @@
 package io.metersphere.listener;
 
+import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.service.ApiAutomationService;
@@ -7,14 +8,12 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.api.service.MockConfigService;
 import io.metersphere.base.domain.JarConfig;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RunInterface;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.performance.service.PerformanceTestService;
-import io.metersphere.service.JarConfigService;
-import io.metersphere.service.ProjectService;
-import io.metersphere.service.PluginService;
-import io.metersphere.service.ScheduleService;
-import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.*;
 import io.metersphere.track.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.python.core.Options;
@@ -77,6 +76,13 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         System.setProperty("jmeter.home", jmeterHome);
 
+        // 设置并发队列核心数
+        BaseSystemConfigDTO dto = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
+        if (StringUtils.isNotEmpty(dto.getConcurrency())) {
+            int size = Integer.parseInt(dto.getConcurrency());
+            CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).setCorePoolSize(size);
+        }
+
         loadJars();
 
         initPythonEnv();
@@ -95,13 +101,13 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         }
 
         scheduleService.startEnableSchedules();
-
     }
 
 
     /**
      * 处理初始化数据、兼容数据
      * 只在第一次升级的时候执行一次
+     *
      * @param initFuc
      * @param key
      */
@@ -135,7 +141,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(testPlanLoadCaseService::initOrderField, "init.sort.plan.api.load");
         initOnceOperate(testReviewTestCaseService::initOrderField, "init.sort.review.test.case");
         initOnceOperate(apiDefinitionService::initDefaultModuleId, "init.default.module.id");
-        initOnceOperate(mockConfigService::initExpectNum,"init.mock.expectNum");
+        initOnceOperate(mockConfigService::initExpectNum, "init.mock.expectNum");
     }
 
     /**

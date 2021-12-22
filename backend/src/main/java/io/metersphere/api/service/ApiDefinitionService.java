@@ -13,20 +13,15 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImportParserFactory;
 import io.metersphere.api.dto.definition.parse.Swagger3Parser;
-import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
-import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.Scenario;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
-import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.RequestResult;
-import io.metersphere.api.jmeter.TestResult;
+import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -38,7 +33,7 @@ import io.metersphere.commons.json.JSONToDocumentUtils;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
-import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
@@ -58,13 +53,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.jorphan.collections.HashTree;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
-import sun.security.util.Cache;
 
 import javax.annotation.Resource;
 import java.net.MalformedURLException;
@@ -90,7 +84,7 @@ public class ApiDefinitionService {
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
-    private JMeterService jMeterService;
+    private ApiExecuteService apiExecuteService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
@@ -130,8 +124,6 @@ public class ApiDefinitionService {
     @Resource
     @Lazy
     private TestPlanService testPlanService;
-
-    private static Cache cache = Cache.newHardMemoryCache(0, 3600);
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -288,7 +280,7 @@ public class ApiDefinitionService {
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
-        return returnModel;
+        return getBLOBs(request.getId());
     }
 
     private void checkQuota() {
@@ -514,11 +506,13 @@ public class ApiDefinitionService {
         }
         this.setModule(test);
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
-        // 同步修改用例
-        List<String> ids = new ArrayList<>();
-        ids.add(request.getId());
-        apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol());
-        //saveFollows(test.getId(), request.getFollows());
+
+        // 同步修改用例路径
+        if (StringUtils.equals(test.getProtocol(), "HTTP")) {
+            List<String> ids = new ArrayList<>();
+            ids.add(request.getId());
+            apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol());
+        }
         return test;
     }
 
@@ -652,7 +646,7 @@ public class ApiDefinitionService {
         if (order == null) {
             order = ServiceUtils.getNextOrder(projectId, extApiDefinitionMapper::getLastOrder);
         }
-        order = (order == null ? 0 : order) + 5000;
+        order = (order == null ? 0 : order) + ServiceUtils.ORDER_STEP;
         currentApiOrder.set(order);
         return order;
     }
@@ -662,7 +656,7 @@ public class ApiDefinitionService {
         if (order == null) {
             order = ServiceUtils.getNextOrder(projectId, extApiTestCaseMapper::getLastOrder);
         }
-        order = (order == null ? 0 : order) + 5000;
+        order = (order == null ? 0 : order) + ServiceUtils.ORDER_STEP;
         currentApiCaseOrder.set(order);
         return order;
     }
@@ -819,6 +813,7 @@ public class ApiDefinitionService {
         apiTestCase.setUpdateUserId(SessionUtils.getUserId());
         if (sameCase == null) {
             apiTestCase.setId(UUID.randomUUID().toString());
+            apiTestCase.setStatus("");
             apiTestCase.setNum(apiTestCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum()));
             apiTestCase.setCreateTime(System.currentTimeMillis());
             apiTestCase.setUpdateTime(System.currentTimeMillis());
@@ -859,111 +854,8 @@ public class ApiDefinitionService {
      * @param bodyFiles
      * @return
      */
-    public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        int count = 100;
-        BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
-        if (StringUtils.isNotEmpty(dto.getConcurrency())) {
-            count = Integer.parseInt(dto.getConcurrency());
-        }
-        if (request.getTestElement() != null && request.getTestElement().getHashTree().size() == 1 && request.getTestElement().getHashTree().get(0).getHashTree().size() > count) {
-            MSException.throwException("并发数量过大，请重新选择！");
-        }
-
-        ParameterConfig config = new ParameterConfig();
-        config.setProjectId(request.getProjectId());
-
-        Map<String, EnvironmentConfig> envConfig = new HashMap<>();
-        Map<String, String> map = request.getEnvironmentMap();
-        if (map != null && map.size() > 0) {
-            for (String key : map.keySet()) {
-                ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(key));
-                if (environment != null) {
-                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                    env.setApiEnvironmentid(environment.getId());
-                    envConfig.put(key, env);
-                }
-            }
-            config.setConfig(envConfig);
-        }
-
-        if (CollectionUtils.isNotEmpty(bodyFiles)) {
-            List<MsHTTPSamplerProxy> requests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(request.getTestElement());
-            // 单接口调试生成tmp临时目录
-            requests.forEach(item -> {
-                Body body = item.getBody();
-                String tmpFilePath = "tmp/" + UUID.randomUUID().toString();
-                body.setTmpFilePath(tmpFilePath);
-                FileUtils.copyBdyFile(item.getId(), tmpFilePath);
-                FileUtils.createBodyFiles(tmpFilePath, bodyFiles);
-            });
-        }
-
-
-        try {
-            //检查TCP数据结构，等其他进行处理
-            tcpApiParamService.checkTestElement(request.getTestElement());
-        } catch (Exception e) {
-        }
-
-        HashTree hashTree = request.getTestElement().generateHashTree(config);
-        String runMode = ApiRunMode.DEFINITION.name();
-        if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
-            runMode = ApiRunMode.API_PLAN.name();
-        }
-
-        // 调用执行方法
-        if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-            jMeterService.runTest(request.getId(), request.getId(), runMode, null, request.getConfig());
-        } else {
-            jMeterService.runLocal(request.getId(), request.getConfig(), hashTree, request.getReportId(), runMode);
-        }
-        return request.getId();
-    }
-
-    public void addResult(TestResult res) {
-        if (res != null && CollectionUtils.isNotEmpty(res.getScenarios()) && res.getScenarios().get(0) != null && CollectionUtils.isNotEmpty(res.getScenarios().get(0).getRequestResults())) {
-            RequestResult result = null;
-            for (RequestResult itemResult : res.getScenarios().get(0).getRequestResults()) {
-                if (!StringUtils.startsWithAny(itemResult.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                    result = itemResult;
-                    break;
-                }
-            }
-            if (result.getName().indexOf(DelimiterConstants.SEPARATOR.toString()) != -1) {
-                result.setName(result.getName().substring(0, result.getName().indexOf(DelimiterConstants.SEPARATOR.toString())));
-            }
-            result.getResponseResult().setConsole(res.getConsole());
-            cache.put(res.getTestId(), result);
-        } else {
-            RequestResult result = new RequestResult();
-            result.getResponseResult().setConsole(res.getConsole());
-            cache.put(res.getTestId(), result);
-            //MSException.throwException(Translator.get("test_not_found"));
-        }
-    }
-
-    /**
-     * 获取零时执行结果报告
-     *
-     * @param testId
-     * @param test
-     * @return
-     */
-    public APIReportResult getResult(String testId, String test) {
-        Object res = cache.get(testId);
-        if (res != null) {
-            cache.remove(testId);
-            APIReportResult reportResult = new APIReportResult();
-            reportResult.setContent(JSON.toJSONString(res));
-            return reportResult;
-        }
-        return null;
-    }
-
-    public void removeCache(String testId) {
-        if (StringUtils.isNotEmpty(testId)) {
-            cache.remove(testId);
-        }
+    public MsExecResponseDTO run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        return apiExecuteService.debug(request, bodyFiles);
     }
 
     /**
@@ -1023,10 +915,10 @@ public class ApiDefinitionService {
 
     public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
         //通过platform，获取对应的导入解析类型。
-        ApiImportParser apiImportParser = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
+        ApiImportParser runService = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         try {
-            apiImport = (ApiDefinitionImport) Objects.requireNonNull(apiImportParser).parse(file == null ? null : file.getInputStream(), request);
+            apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             String returnThrowException = e.getMessage();
@@ -1142,6 +1034,9 @@ public class ApiDefinitionService {
 
         if (!CollectionUtils.isEmpty(apiImport.getCases())) {
             importMsCase(apiImport, sqlSession, request);
+        }
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 
@@ -1345,10 +1240,13 @@ public class ApiDefinitionService {
 
     /*swagger定时导入*/
     public void createSchedule(ScheduleRequest request) {
+        String config = setAuthParams(request);
         /*保存swaggerUrl*/
         SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         BeanUtils.copyBean(swaggerUrlProject, request);
         swaggerUrlProject.setId(UUID.randomUUID().toString());
+        // 设置鉴权信息
+        swaggerUrlProject.setConfig(config);
         scheduleService.addSwaggerUrlSchedule(swaggerUrlProject);
 
         request.setResourceId(swaggerUrlProject.getId());
@@ -1369,8 +1267,11 @@ public class ApiDefinitionService {
     }
 
     public void updateSchedule(ScheduleRequest request) {
+        String config = setAuthParams(request);
         SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         BeanUtils.copyBean(swaggerUrlProject, request);
+        // 设置鉴权信息
+        swaggerUrlProject.setConfig(config);
         scheduleService.updateSwaggerUrlSchedule(swaggerUrlProject);
         // 只修改表达式和名称
         Schedule schedule = new Schedule();
@@ -1387,6 +1288,23 @@ public class ApiDefinitionService {
         request.setResourceId(swaggerUrlProject.getId());
         this.addOrUpdateSwaggerImportCronJob(request);
     }
+
+
+    // 设置 SwaggerUrl 同步鉴权参数
+    public String setAuthParams(ScheduleRequest request) {
+        // list 数组转化成 json 字符串
+        JSONObject configObj = new JSONObject();
+        configObj.put("headers", request.getHeaders());
+        configObj.put("arguments", request.getArguments());
+        // 设置 BaseAuth 参数
+        if (request.getAuthManager() != null
+                && StringUtils.isNotBlank(request.getAuthManager().getUsername())
+                && StringUtils.isNotBlank(request.getAuthManager().getPassword())) {
+            configObj.put("authManager", request.getAuthManager());
+        }
+        return JSONObject.toJSONString(configObj);
+    }
+
 
     /**
      * 列表开关切换

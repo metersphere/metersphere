@@ -62,7 +62,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook" placeholder="webhook地址" size="mini"
+              <el-input v-model="scope.row.webhook"  size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -155,11 +155,11 @@ export default {
         "</head>\n" +
         "<body>\n" +
         "<div>\n" +
-        "    <p>${operator}创建了缺陷:${name}</p>\n" +
+        "    <p>${operator}创建了缺陷:${title}</p>\n" +
         "</div>\n" +
         "</body>\n" +
         "</html>",
-      robotTitle: "${operator}创建了缺陷:${name}",
+      robotTitle: "${operator}创建了缺陷:${title}",
       defectTask: [{
         taskType: "defectTask",
         event: "",
@@ -174,22 +174,65 @@ export default {
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
+        {value: 'COMMENT', label: this.$t('commons.comment')},
       ],
       variables: [
-        'operator',
-        'id',
-        'title',
-        'status',
-        'createTime',
-        'updateTime',
-        'reporter',
-        'lastmodify',
-        'platform',
-        'projectId',
-        'creator',
-        'resourceId',
-        'num',
-        'platformStatus'
+        {
+          label:this.$t('group.operator'),
+          value:'operator',
+        },
+        {
+          label:'id',
+          value:'id',
+        },
+        {
+          label:this.$t('commons.title'),
+          value:'title',
+        },
+        {
+          label:this.$t('commons.status'),
+          value:'status',
+        },
+        {
+          label:this.$t('commons.create_time'),
+          value:'createTime',
+        },
+        {
+          label:this.$t('commons.update_time'),
+          value:'updateTime',
+        },
+        {
+          label:this.$t('test_track.reporter'),
+          value:'reporter',
+        },
+        {
+          label:this.$t('test_track.lastmodify'),
+          value:'lastmodify',
+        },
+        {
+          label:this.$t('test_track.issue.platform'),
+          value:'platform',
+        },
+        {
+          label:this.$t('project.id'),
+          value:'projectId',
+        },
+        {
+          label:this.$t('commons.create_user'),
+          value:'creator',
+        },
+        {
+          label:this.$t('commons.resourceId'),
+          value:'resourceId',
+        },
+        {
+          label:this.$t('test_track.case.number'),
+          value:'num',
+        },
+        {
+          label:this.$t('test_track.issue.platform_status'),
+          value:'platformStatus',
+        },
       ]
     };
   },
@@ -329,6 +372,14 @@ export default {
           }
           break;
         case "DELETE":
+          testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          if (row.isSet) {
+            if (i2 < 0) {
+              row.userIds.unshift('CREATOR');
+            }
+          }
+          break;
+        case "COMMENT":
           testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (row.isSet) {
             if (i2 < 0) {

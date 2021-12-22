@@ -20,12 +20,18 @@
       </template>
     </ms-test-plan-header-bar>
     <test-plan-functional v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
-                          :clickType="clickType" :plan-id="planId"/>
+                          :clickType="clickType" :plan-id="planId" ref="testPlanFunctional"/>
     <test-plan-api v-if="activeIndex === 'api'" :redirectCharType="redirectCharType" :clickType="clickType"
                    :plan-id="planId"/>
     <test-plan-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
                     :plan-id="planId"/>
     <test-plan-report-content v-if="activeIndex === 'report'" :plan-id="planId"/>
+
+    <is-change-confirm
+      :title="'请保存脑图'"
+      :tip="'脑图未保存，确认保存脑图吗？'"
+      @confirm="changeConfirm"
+      ref="isChangeConfirm"/>
 
   </div>
 
@@ -45,10 +51,12 @@ import TestPlanApi from "./comonents/api/TestPlanApi";
 import TestPlanLoad from "@/business/components/track/plan/view/comonents/load/TestPlanLoad";
 import {getCurrentProjectID} from "@/common/js/utils";
 import TestPlanReportContent from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContent";
+import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 
 export default {
   name: "TestPlanView",
   components: {
+    IsChangeConfirm,
     TestPlanReportContent,
     TestPlanApi,
     TestPlanFunctional,
@@ -66,6 +74,7 @@ export default {
       redirectCharType: '',
       //报表跳转过来的参数-通过哪种数据跳转的
       clickType: '',
+      tmpActiveIndex: ''
     };
   },
   computed: {
@@ -80,6 +89,13 @@ export default {
     '$route.params.planId'() {
       this.genRedirectParam();
       this.getTestPlans();
+    },
+  },
+  beforeRouteLeave(to, from, next) {
+    if (!this.$refs.testPlanFunctional) {
+      next();
+    } else if (this.$refs.testPlanFunctional.handleBeforeRouteLeave(to)) {
+      next();
     }
   },
   created() {
@@ -124,7 +140,25 @@ export default {
       this.$router.push('/track/plan/view/' + plan.id);
     },
     handleSelect(key) {
+      let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
+      if (key !== 'functional' && isTestCaseMinderChanged) {
+        this.$refs.isChangeConfirm.open();
+        this.tmpActiveIndex = key;
+        return;
+      }
       this.activeIndex = key;
+    },
+    changeConfirm(isSave) {
+      if (isSave) {
+        this.$refs.testPlanFunctional.$refs.minder.save(window.minder.exportJson());
+      }
+      this.$store.commit('setIsTestCaseMinderChanged', false);
+      this.$nextTick(() => {
+        if (this.tmpActiveIndex) {
+          this.activeIndex = this.tmpActiveIndex;
+          this.tmpActiveIndex = null;
+        }
+      });
     },
     reloadMenu() {
       this.isMenuShow = false;

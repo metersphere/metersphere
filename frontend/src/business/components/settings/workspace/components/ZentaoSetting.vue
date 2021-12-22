@@ -17,8 +17,8 @@
           <el-radio v-model="form.request" label="PATH_INFO" size="small" border> PATH_INFO</el-radio>
           <el-radio v-model="form.request" label="GET" size="small" border>GET</el-radio>
           <ms-instructions-icon effect="light" style="margin-left: -20px;">
-            参考禅道配置文件中 $config->requestType 的值 <br/><br/>
-            配置文件参考路径：/opt/zbox/app/zentao/config/my.php
+            {{ $t('organization.integration.zentao_config_tip')}} <br/><br/>
+            {{ $t('organization.integration.zentao_config_path')}}
           </ms-instructions-icon>
         </el-form-item>
       </el-form>

@@ -4,21 +4,21 @@
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
       <el-form-item prop="project" label-width="0px">
         <el-alert
-          title="若环境组中已经包含此次将要加入的项目，则该项目环境将被覆盖" style="height: 33px;"
+          :title="$t('workspace.env_group.cascader_tip')" style="height: 33px;"
           type="info" :closable="false" show-icon></el-alert>
         <el-row type="flex" justify="space-between" :gutter="10">
           <el-col :span="10" class="search">
             <el-input v-model="searchName" prefix-icon="el-icon-search"
-                      placeholder="请输入名称搜索环境组" size="mini" style="width: 100%;"></el-input>
+                      :placeholder="$t('workspace.env_group.search_tip')" size="mini" style="width: 100%;"></el-input>
           </el-col>
           <el-col :span="10" class="search">
-            <el-input v-model="groupName" placeholder="请输入环境组名称快速创建"
+            <el-input v-model="groupName" :placeholder="$t('workspace.env_group.fast_create_tip')"
                       prefix-icon="el-icon-plus"
                       size="mini">
             </el-input>
           </el-col>
           <el-col :span="4">
-            <el-button type="primary" @click="save" size="mini" style="width: 100%;">快速添加</el-button>
+            <el-button type="primary" @click="save" size="mini" style="width: 100%;">{{ $t('workspace.env_group.quickly_add') }}</el-button>
           </el-col>
         </el-row>
         <el-cascader-panel :props="props" v-loading="result.loading"
@@ -115,7 +115,7 @@ export default {
         selectValueArr.push(node.value);
       }
       if (selectValueArr.length < 1) {
-        this.$warning("请选择环境组");
+        this.$warning(this.$t('workspace.env_group.select'));
         return false;
       }
       this.$emit('confirm', selectValueArr);
@@ -135,7 +135,7 @@ export default {
     },
     save() {
       if (!this.groupName) {
-        this.$warning("环境组名不能为空！");
+        this.$warning(this.$t('workspace.env_group.name_not_null'));
         return false;
       }
       this.$post("/environment/group/add", {name: this.groupName}, () => {

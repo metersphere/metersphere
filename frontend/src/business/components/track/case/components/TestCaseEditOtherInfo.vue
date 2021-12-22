@@ -27,6 +27,7 @@
 
     <el-tab-pane :label="$t('test_track.case.relate_issue')" name="bug">
       <test-case-issue-relate
+        v-if="tabActiveName === 'bug'"
         :plan-id="planId"
         :read-only="readOnly && !(isTestPlan)"
         :case-id="caseId" ref="issue"/>
@@ -118,7 +119,9 @@ export default {
       if (this.tabActiveName === 'demand') {
         this.getDemandOptions();
       } else if (this.tabActiveName === 'bug') {
-        this.$refs.issue.getIssues();
+        this.$nextTick(() => {
+          this.$refs.issue.getIssues();
+        });
       } else if (this.tabActiveName === 'relationship') {
         this.$refs.relationship.open();
       } else if (this.tabActiveName === 'attachment') {

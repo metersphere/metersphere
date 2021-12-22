@@ -3,9 +3,7 @@
  */
 package io.metersphere.track.service.utils;
 
-import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
-import io.metersphere.base.domain.TestPlanLoadCase;
 import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
@@ -18,17 +16,15 @@ import java.util.concurrent.Callable;
 
 public class SerialExecTask<T> implements Callable<T> {
     private RunTestPlanRequest request;
-    private RunModeConfig config;
     private PerformanceTestService performanceTestService;
     private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
     private LoadTestReportMapper loadTestReportMapper;
 
-    public SerialExecTask(PerformanceTestService performanceTestService, TestPlanLoadCaseMapper testPlanLoadCaseMapper,LoadTestReportMapper loadTestReportMapper, RunTestPlanRequest request, RunModeConfig config) {
+    public SerialExecTask(PerformanceTestService performanceTestService, TestPlanLoadCaseMapper testPlanLoadCaseMapper,LoadTestReportMapper loadTestReportMapper, RunTestPlanRequest request) {
         this.performanceTestService = performanceTestService;
         this.testPlanLoadCaseMapper = testPlanLoadCaseMapper;
         this.loadTestReportMapper = loadTestReportMapper;
         this.request = request;
-        this.config = config;
     }
 
     @Override

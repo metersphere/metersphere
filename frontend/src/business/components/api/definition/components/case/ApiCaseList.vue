@@ -158,6 +158,7 @@ export default {
         }
         this.api.method = apiCase.request.method
         this.api.name = apiCase.request.name;
+        this.api.path = apiCase.request.path;
       }
       if (apiCase.tags) {
         apiCase.tags = JSON.parse(apiCase.tags);
@@ -266,7 +267,8 @@ export default {
     },
     getTestCase() {
       return new Promise((resolve) => {
-        this.environment = "";
+        let commonUseEnvironment = this.$store.state.useEnvironment;
+        this.environment = commonUseEnvironment ? commonUseEnvironment : "";
         this.result = this.$get("/api/testcase/findById/" + this.testCaseId, response => {
           let apiCase = response.data;
           if (apiCase) {

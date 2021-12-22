@@ -3,6 +3,7 @@
     <el-tree :data="treeData"
              :expand-on-click-node="false"
              :default-expand-all="defaultExpand"
+             :filter-node-method="filterNode"
              highlight-current
              class="ms-tree ms-report-tree" ref="resultsTree">
           <span slot-scope="{ node, data}" style="width: 99%" @click="nodeClick(node)">
@@ -33,6 +34,24 @@ export default {
     }
   },
   methods: {
+    filterNode(value, data) {
+      if (!data.value && data.children && data.children.length > 0) {
+        return true;
+      }
+      if (!data.value && !data.children && data.children.length === 0) {
+        return false;
+      }
+      if (!value) return true;
+      if (data.value) {
+        return data.value.error > 0;
+      }
+      return false;
+    },
+    filter(val) {
+      this.$nextTick(() => {
+        this.$refs.resultsTree.filter(val);
+      });
+    },
     requestResult(requestResult) {
       this.$emit("requestResult", requestResult);
     },

@@ -10,6 +10,8 @@ import java.util.List;
 @Getter
 @Setter
 public class IssuesRelevanceRequest {
+    private String id;
+
     /**
      * 缺陷ID
      */
@@ -30,4 +32,6 @@ public class IssuesRelevanceRequest {
     private List<String> issueIds;
 
     private Boolean checked;
+
+    private String description;
 }

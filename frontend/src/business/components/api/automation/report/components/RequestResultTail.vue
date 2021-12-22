@@ -13,7 +13,9 @@
           </el-tooltip>
         </el-col>
         <el-col :span="8">
-          <div class="url"> {{ $t('api_report.start_time') }}：{{ request.startTime | timestampFormatDate(true) }}
+          <div class="url">
+            {{ $t('api_report.start_time') }}：{{ request.startTime | timestampFormatDate(true) }}
+            {{ $t('report.test_end_time') }}：{{ request.endTime | timestampFormatDate(true) }}
           </div>
         </el-col>
       </el-row>

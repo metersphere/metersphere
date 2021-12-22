@@ -25,9 +25,13 @@
       :custom-num="customNum"
       ref="apiScenarioList"/>
 
-    <template v-slot:footer>
-      <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent>{{$t('commons.copy')}}</el-button>
-      <el-button type="primary" @click="reference" :loading="buttonIsWorking" @keydown.enter.native.prevent> {{ $t('api_test.scenario.reference') }}</el-button>
+    <template v-slot:headerBtn>
+      <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent size="mini">
+        {{ $t('commons.copy') }}
+      </el-button>
+      <el-button type="primary" @click="reference" :loading="buttonIsWorking" @keydown.enter.native.prevent size="mini">
+        {{ $t('api_test.scenario.reference') }}
+      </el-button>
     </template>
   </test-case-relevance-base>
 </template>

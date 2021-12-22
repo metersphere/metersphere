@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="btn-div">
-      <el-button size="mini" type="primary" class="save-btn" v-if="!rowReadOnly && !showSaveBtn" @click="update">保存</el-button>
+      <el-button size="mini" type="primary" class="save-btn" v-if="!rowReadOnly && !showSaveBtn" @click="update">
+        {{ $t('commons.save') }}
+      </el-button>
     </div>
     <div v-loading="result.loading" class="group-row">
       <el-form class="row-form">
@@ -10,7 +12,7 @@
             <el-col :span="6">
               <el-select v-model="item.projectId" filterable clearable style="width: 100%" @change="projectChange(item)"
                          :size="itemSize"
-                         placeholder="请选择项目" :disabled="rowReadOnly">
+                         :placeholder="$t('workspace.env_group.please_select_project')" :disabled="rowReadOnly">
                 <el-option v-for="(project, projectIndex) in projectList" :key="projectIndex" :label="project.name"
                            :disabled="project.disabled"
                            :value="project.id"></el-option>
@@ -20,7 +22,7 @@
             <el-col :span="6">
               <el-select v-model="item.environmentId" filterable clearable style="width: 100%"
                          @change="environmentChange(item)" :size="itemSize"
-                         placeholder="请选择环境" :disabled="rowReadOnly">
+                         :placeholder="$t('workspace.env_group.please_select_env')" :disabled="rowReadOnly">
                 <el-option v-for="(environment, envIndex) in item.environments" :key="envIndex"
                            :label="environment.name"
                            :value="environment.id"></el-option>
@@ -29,14 +31,17 @@
 
             <el-col :span="4">
               <el-button :size="itemSize" icon="el-icon-s-data" style="width: 100%;"
-                         @click="showDomainInfo(item)" v-if="item.moreDomain">查看域名详情
+                         @click="showDomainInfo(item)" v-if="item.moreDomain">
+                {{ $t('workspace.env_group.view_details') }}
               </el-button>
               <el-input v-else v-model="item.domainName" :disabled="true" :size="itemSize"/>
             </el-col>
 
             <el-col :span="5">
-              <el-input prop="description" show-overflow-tooltip placeholder="备注" maxlength="100" v-model="item.description"
-                        show-word-limit :size="itemSize" :disabled="rowReadOnly"/>
+              <el-input prop="description" show-overflow-tooltip :placeholder="$t('commons.description')"
+                        maxlength="100"
+                        v-model="item.domainDescription"
+                        show-word-limit :size="itemSize" :disabled="true"/>
             </el-col>
 
             <el-col :span="3">
@@ -48,34 +53,47 @@
           </el-row>
         </el-form-item>
       </el-form>
-      <el-dialog title="域名列表" :visible.sync="domainVisible" append-to-body>
+      <el-dialog :title="$t('workspace.env_group.domain_list')" :visible.sync="domainVisible" append-to-body>
         <el-table :data="conditions">
           <el-table-column prop="socket" :label="$t('load_test.domain')" show-overflow-tooltip width="180">
             <template v-slot:default="{row}">
-              {{ getUrl(row) }}
+              {{ row.conditionType ? row.server : getUrl(row) }}
+            </template>
+          </el-table-column>
+          <el-table-column :label="$t('commons.type')" show-overflow-tooltip
+                           min-width="100px">
+            <template v-slot:default="{row}">
+              <el-tag type="info" size="mini">{{ row.conditionType ? row.conditionType : "HTTP" }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="type" :label="$t('api_test.environment.condition_enable')" show-overflow-tooltip
                            min-width="100px">
             <template v-slot:default="{row}">
-              {{ getName(row) }}
+              {{ row.conditionType ? "-" : getName(row) }}
             </template>
           </el-table-column>
           <el-table-column prop="details" show-overflow-tooltip min-width="120px" :label="$t('api_test.value')">
             <template v-slot:default="{row}">
-              {{ getDetails(row) }}
+              {{ row.conditionType ? "-" : getDetails(row) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="description" show-overflow-tooltip min-width="120px"
+                           :label="$t('commons.description')">
+            <template v-slot:default="{row}">
+              <span>{{ row.description ? row.description : "-" }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="createTime" show-overflow-tooltip min-width="120px" :label="$t('commons.create_time')">
             <template v-slot:default="{row}">
-              <span>{{ row.time | timestampFormatDate }}</span>
+              <span v-if="!row.conditionType">{{ row.time | timestampFormatDate }}</span>
+              <span v-else>-</span>
             </template>
           </el-table-column>
         </el-table>
         <span slot="footer" class="dialog-footer">
-        <el-button @click="domainVisible = false" size="mini">{{ $t('commons.cancel') }}</el-button>
-        <el-button type="primary" @click="domainVisible = false" size="mini">{{ $t('commons.confirm') }}</el-button>
-      </span>
+          <el-button @click="domainVisible = false" size="small">{{ $t('commons.cancel') }}</el-button>
+          <el-button type="primary" @click="domainVisible = false" size="small">{{ $t('commons.confirm') }}</el-button>
+        </span>
       </el-dialog>
     </div>
   </div>
@@ -156,10 +174,12 @@ export default {
       // 环境改变时初始化判断状态
       this.$set(item, "moreDomain", false);
       this.$set(item, "domainName", '');
+      this.$set(item, "domainDescription", '');
       let environments = item.environments;
       let index = environments.findIndex(e => e.id === item.environmentId);
       if (index === -1) {
         this.$set(item, "domainName", '');
+        this.$set(item, "domainDescription", '');
         return;
       }
       let environment = environments[index].config;
@@ -169,25 +189,37 @@ export default {
           if (config.httpConfig.protocol && config.httpConfig.domain) {
             let domain = config.httpConfig.protocol + "://" + config.httpConfig.domain;
             this.$set(item, "domainName", domain);
+            this.$set(item, "domainDescription", config.httpConfig.description ? config.httpConfig.description : "");
             return;
           }
         } else {
           if (config.httpConfig.conditions.length === 1) {
+            if (config.tcpConfig && config.tcpConfig.server) {
+              this.$set(item, "moreDomain", true);
+              return;
+            }
             let obj = config.httpConfig.conditions[0];
             if (obj.protocol && obj.domain) {
               this.$set(item, "domainName", obj.protocol + "://" + obj.domain);
+              this.$set(item, "domainDescription", obj.description ? obj.description : "");
               return;
             }
           } else if (config.httpConfig.conditions.length > 1) {
             this.$set(item, "moreDomain", true);
             return;
+          } else if (config.tcpConfig && config.tcpConfig.server) {
+            this.$set(item, "domainName", config.tcpConfig.server);
+            this.$set(item, "domainDescription", config.tcpConfig.description);
+            return;
           }
         }
       } else {
         this.$set(item, "domainName", environment.protocol + '://' + environment.domain);
+        this.$set(item, "domainDescription", environment.description ? environment.description : "");
         return;
       }
       this.$set(item, "domainName", "");
+      this.$set(item, "domainDescription", "");
     },
     showDomainInfo(item) {
       const index = item.environments.findIndex(e => e.id === item.environmentId);
@@ -197,6 +229,14 @@ export default {
       let environment = item.environments[index]
       const config = JSON.parse(environment.config);
       this.conditions = config.httpConfig.conditions;
+      if (config.tcpConfig && config.tcpConfig.server) {
+        let condition = {
+          conditionType: 'TCP',
+          server: config.tcpConfig.server,
+          description: config.tcpConfig.description
+        }
+        this.conditions.push(condition);
+      }
       this.domainVisible = true;
     },
     getProjects() {
@@ -245,20 +285,31 @@ export default {
           if (config.httpConfig.protocol && config.httpConfig.domain) {
             let domain = config.httpConfig.protocol + "://" + config.httpConfig.domain;
             this.$set(item, "domainName", domain);
+            this.$set(item, "domainDescription", config.httpConfig.description ? config.httpConfig.description : "");
           }
         } else {
           if (config.httpConfig.conditions.length === 1) {
+            if (config.tcpConfig && config.tcpConfig.server) {
+              this.$set(item, "moreDomain", true);
+              return;
+            }
             let obj = config.httpConfig.conditions[0];
             if (obj.protocol && obj.domain) {
               this.$set(item, "domainName", obj.protocol + "://" + obj.domain);
+              this.$set(item, "domainDescription", obj.description ? obj.description : "");
             }
           } else if (config.httpConfig.conditions.length > 1) {
             this.$set(item, "moreDomain", true);
+            return;
+          } else if (config.tcpConfig && config.tcpConfig.server) {
+            this.$set(item, "domainName", config.tcpConfig.server);
+            this.$set(item, "domainDescription", config.tcpConfig.description);
             return;
           }
         }
       } else {
         this.$set(item, "domainName", environment.protocol + '://' + environment.domain);
+        this.$set(item, "domainDescription", environment.description ? environment.description : "");
       }
     },
     getName(row) {
@@ -328,7 +379,7 @@ export default {
     update() {
       let sign = this.valid();
       if (!sign) {
-        this.$warning("项目与环境对应关系不完整！");
+        this.$warning(this.$t('workspace.env_group.not_intact'));
         return false;
       }
       let param = {

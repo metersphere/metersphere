@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.automation;
 
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.dto.RunModeConfigDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,11 +9,14 @@ import java.util.Map;
 
 @Setter
 @Getter
-public class RunScenarioRequest extends ApiScenarioWithBLOBs {
+public class RunScenarioRequest {
+    private String id;
 
     private String reportId;
 
     private String environmentId;
+
+    private String projectId;
 
     private String triggerMode;
 
@@ -21,7 +24,9 @@ public class RunScenarioRequest extends ApiScenarioWithBLOBs {
 
     private String runMode;
 
-    /**测试情景和测试计划的关联ID*/
+    /**
+     * 测试情景和测试计划的关联ID
+     */
     private String planScenarioId;
 
     private List<String> planCaseIds;
@@ -34,9 +39,10 @@ public class RunScenarioRequest extends ApiScenarioWithBLOBs {
 
     private ApiScenarioRequest condition;
 
-    private RunModeConfig config;
+    private RunModeConfigDTO config;
 
     private boolean isTestPlanScheduleJob = false;
+
     //生成测试报告：当isTestPlanScheduleJob为ture时使用
     private String testPlanReportId;
 

@@ -6,8 +6,7 @@ import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.jmeter.LocalRunner;
-import io.metersphere.api.jmeter.MessageCache;
+import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -17,6 +16,8 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.task.service.TaskService;
@@ -42,6 +43,8 @@ public class ApiAutomationController {
     private ApiAutomationService apiAutomationService;
     @Resource
     private TaskService taskService;
+    @Resource
+    private ExecThreadPoolExecutor execThreadPoolExecutor;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
@@ -208,7 +211,7 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/run")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
-    public String run(@RequestBody RunScenarioRequest request) {
+    public List<MsExecResponseDTO> run(@RequestBody RunScenarioRequest request) {
         if (!StringUtils.equals(request.getExecuteType(), ExecuteType.Saved.name())) {
             request.setExecuteType(ExecuteType.Completed.name());
         }
@@ -219,7 +222,7 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/run/jenkins")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
-    public String runByJenkins(@RequestBody RunScenarioRequest request) {
+    public List<MsExecResponseDTO> runByJenkins(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(TriggerMode.API.name());
         request.setRunMode(ApiRunMode.SCENARIO.name()); // 回退
@@ -228,7 +231,7 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/run/batch")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
-    public String runBatch(@RequestBody RunScenarioRequest request) {
+    public List<MsExecResponseDTO> runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(TriggerMode.BATCH.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
@@ -283,7 +286,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/genPerformanceTestJmx")
-    public JmxInfoDTO genPerformanceTestJmx(@RequestBody RunScenarioRequest runRequest) throws Exception {
+    public JmxInfoDTO genPerformanceTestJmx(@RequestBody GenScenarioRequest runRequest) throws Exception {
         runRequest.setExecuteType(ExecuteType.Completed.name());
         return apiAutomationService.genPerformanceTestJmx(runRequest);
     }
@@ -326,7 +329,7 @@ public class ApiAutomationController {
     @GetMapping(value = "/stop/{reportId}")
     public void stop(@PathVariable String reportId) {
         if (StringUtils.isNotEmpty(reportId)) {
-            MessageCache.caseExecResourceLock.remove(reportId);
+            execThreadPoolExecutor.removeQueue(reportId);
             new LocalRunner().stop(reportId);
         }
     }
@@ -364,13 +367,19 @@ public class ApiAutomationController {
         return apiAutomationService.checkScenarioEnv(request);
     }
 
+    @GetMapping(value = "/checkScenarioEnv/{scenarioId}")
+    public boolean checkScenarioEnvByScenarioId(@PathVariable String scenarioId) {
+        return apiAutomationService.checkScenarioEnv(scenarioId);
+    }
+
     @GetMapping("/follow/{scenarioId}")
     public List<String> getFollows(@PathVariable String scenarioId) {
         return apiAutomationService.getFollows(scenarioId);
     }
+
     @PostMapping("/update/follows/{scenarioId}")
-    public void saveFollows(@PathVariable String scenarioId,@RequestBody List<String> follows) {
-        apiAutomationService.saveFollows(scenarioId,follows);
+    public void saveFollows(@PathVariable String scenarioId, @RequestBody List<String> follows) {
+        apiAutomationService.saveFollows(scenarioId, follows);
     }
 }
 

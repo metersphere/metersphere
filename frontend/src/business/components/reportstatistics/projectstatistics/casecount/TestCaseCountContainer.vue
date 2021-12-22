@@ -94,6 +94,7 @@ export default {
         let data = response.data.barChartDTO;
         let pieData = response.data.pieChartDTO;
         let selectTableData = response.data.tableDTOs;
+        console.info(response.data);
         this.initPic(data, pieData, selectTableData);
       }, error => {
         this.loading = false;
@@ -101,6 +102,7 @@ export default {
     },
     initPic(barData, pieData, selectTableData) {
       this.loading = true;
+      this.resetOptions();
       if (barData) {
         this.loadOption.legend = barData.legend;
         this.loadOption.xAxis = barData.xaxis;
@@ -172,7 +174,7 @@ export default {
               let dataOptionObj = JSON.parse(reportData.dataOption);
               if (dataOptionObj.chartType) {
                 this.chartType = dataOptionObj.chartType;
-              }else {
+              } else {
                 this.chartType = "bar";
               }
               this.initPic(dataOptionObj.loadOption, dataOptionObj.pieOption, dataOptionObj.tableData);
@@ -206,6 +208,24 @@ export default {
       } else {
         return "";
       }
+    },
+    resetOptions() {
+      this.loadOption = {
+        legend: {},
+        xAxis: {},
+        yAxis: {},
+        label: {},
+        tooltip: {},
+        series: []
+      };
+      this.pieOption = {
+        legend: {},
+        label: {},
+        tooltip: {},
+        series: [],
+        title: [],
+      };
+      this.tableData = [];
     },
     selectAndSaveReport(reportName) {
       let opt = this.$refs.countFilter.getOption();

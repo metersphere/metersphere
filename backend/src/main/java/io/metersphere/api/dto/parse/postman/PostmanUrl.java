@@ -11,4 +11,5 @@ public class PostmanUrl {
     private String protocol;
     private String port;
     private List<PostmanKeyValue> query;
+    private List<PostmanKeyValue> variable;
 }

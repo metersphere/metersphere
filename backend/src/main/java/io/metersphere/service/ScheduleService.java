@@ -67,7 +67,7 @@ public class ScheduleService {
         swaggerUrlProjectMapper.updateByPrimaryKeySelective(swaggerUrlProject);
     }
 
-    public ApiSwaggerUrlDTO selectApiSwaggerUrlDTO(String id){
+    public ApiSwaggerUrlDTO selectApiSwaggerUrlDTO(String id) {
         return extScheduleMapper.select(id);
     }
 
@@ -120,13 +120,13 @@ public class ScheduleService {
     }
 
     private void removeJob(String resourceId, String group) {
-        if(StringUtils.equals(ScheduleGroup.API_SCENARIO_TEST.name(), group)){
+        if (StringUtils.equals(ScheduleGroup.API_SCENARIO_TEST.name(), group)) {
             scheduleManager.removeJob(ApiScenarioTestJob.getJobKey(resourceId), ApiScenarioTestJob.getTriggerKey(resourceId));
-        } else if(StringUtils.equals(ScheduleGroup.TEST_PLAN_TEST.name(), group)){
+        } else if (StringUtils.equals(ScheduleGroup.TEST_PLAN_TEST.name(), group)) {
             scheduleManager.removeJob(TestPlanTestJob.getJobKey(resourceId), TestPlanTestJob.getTriggerKey(resourceId));
-        } else if(StringUtils.equals(ScheduleGroup.SWAGGER_IMPORT.name(), group)){
+        } else if (StringUtils.equals(ScheduleGroup.SWAGGER_IMPORT.name(), group)) {
             scheduleManager.removeJob(SwaggerUrlImportJob.getJobKey(resourceId), SwaggerUrlImportJob.getTriggerKey(resourceId));
-        } else if(StringUtils.equals(ScheduleGroup.PERFORMANCE_TEST.name(), group)){
+        } else if (StringUtils.equals(ScheduleGroup.PERFORMANCE_TEST.name(), group)) {
             scheduleManager.removeJob(PerformanceTestJob.getJobKey(resourceId), PerformanceTestJob.getTriggerKey(resourceId));
         } else {
             scheduleManager.removeJob(ApiTestJob.getJobKey(resourceId), ApiTestJob.getTriggerKey(resourceId));
@@ -173,6 +173,22 @@ public class ScheduleService {
         return schedule;
     }
 
+    public void resetJob(Schedule request, JobKey jobKey, TriggerKey triggerKey, Class clazz) {
+        try {
+            scheduleManager.removeJob(jobKey, triggerKey);
+        } catch (Exception e) {
+            LogUtil.error(e);
+            MSException.throwException("重置定时任务-删除旧定时任务时出现异常");
+        }
+        try {
+            scheduleManager.addCronJob(jobKey, triggerKey, clazz, request.getValue(),
+                    scheduleManager.getDefaultJobDataMap(request, request.getValue(), SessionUtils.getUser().getId()));
+        } catch (Exception e) {
+            LogUtil.error(e);
+            MSException.throwException("重置定时任务-启动新定时任务出现异常");
+        }
+    }
+
     public void addOrUpdateCronJob(Schedule request, JobKey jobKey, TriggerKey triggerKey, Class clazz) {
         Boolean enable = request.getEnable();
         String cronExpression = request.getValue();
@@ -213,7 +229,7 @@ public class ScheduleService {
     }
 
     public long countTaskByProjectId(String projectId) {
-        return  extScheduleMapper.countTaskByProjectId(projectId);
+        return extScheduleMapper.countTaskByProjectId(projectId);
     }
 
     public long countTaskByProjectIdInThisWeek(String projectId) {
@@ -222,16 +238,16 @@ public class ScheduleService {
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
 
-        if(firstTime==null || lastTime == null){
-            return  0;
-        }else {
-            return extScheduleMapper.countTaskByProjectIdAndCreateTimeRange(projectId,firstTime.getTime(),lastTime.getTime());
+        if (firstTime == null || lastTime == null) {
+            return 0;
+        } else {
+            return extScheduleMapper.countTaskByProjectIdAndCreateTimeRange(projectId, firstTime.getTime(), lastTime.getTime());
         }
     }
 
     public List<TaskInfoResult> findRunningTaskInfoByProjectID(String projectID, BaseQueryRequest request) {
         List<TaskInfoResult> runningTaskInfoList = extScheduleMapper.findRunningTaskInfoByProjectID(projectID, request);
-        return  runningTaskInfoList;
+        return runningTaskInfoList;
     }
 
     public void createSchedule(ScheduleRequest request) {
@@ -241,7 +257,7 @@ public class ScheduleService {
         JobKey jobKey = null;
         TriggerKey triggerKey = null;
         Class clazz = null;
-        if("testPlan".equals(request.getScheduleFrom())){
+        if ("testPlan".equals(request.getScheduleFrom())) {
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getResourceId());
             schedule.setName(testPlan.getName());
             schedule.setProjectId(testPlan.getProjectId());
@@ -251,7 +267,7 @@ public class ScheduleService {
             triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
             clazz = TestPlanTestJob.class;
             schedule.setJob(TestPlanTestJob.class.getName());
-        }else {
+        } else {
             //默认为情景
             ApiScenarioWithBLOBs apiScene = apiScenarioMapper.selectByPrimaryKey(request.getResourceId());
             schedule.setName(apiScene.getName());
@@ -265,21 +281,23 @@ public class ScheduleService {
         }
         this.addSchedule(schedule);
 
-        this.addOrUpdateCronJob(request,jobKey ,triggerKey , clazz);
+        this.addOrUpdateCronJob(request, jobKey, triggerKey, clazz);
     }
 
     public void updateSchedule(Schedule request) {
-
-
         JobKey jobKey = null;
         TriggerKey triggerKey = null;
         Class clazz = null;
-        if(ScheduleGroup.TEST_PLAN_TEST.name().equals(request.getGroup())){
+
+        //测试计划的定时任务修改会修改任务的配置信息，并不只是单纯的修改定时任务时间。需要重新配置这个定时任务
+        boolean needResetJob = false;
+        if (ScheduleGroup.TEST_PLAN_TEST.name().equals(request.getGroup())) {
             jobKey = TestPlanTestJob.getJobKey(request.getResourceId());
             triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
             clazz = TestPlanTestJob.class;
             request.setJob(TestPlanTestJob.class.getName());
-        }else {
+            needResetJob = true;
+        } else {
             //默认为情景
             jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
             triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
@@ -288,7 +306,12 @@ public class ScheduleService {
         }
         this.editSchedule(request);
 
-        this.addOrUpdateCronJob(request, jobKey, triggerKey, clazz);
+        if (needResetJob) {
+            this.resetJob(request, jobKey, triggerKey, clazz);
+        } else {
+            this.addOrUpdateCronJob(request, jobKey, triggerKey, clazz);
+        }
+
     }
 
     public Object getCurrentlyExecutingJobs() {

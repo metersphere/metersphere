@@ -7,6 +7,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.definition.parse.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
@@ -32,13 +33,12 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.commons.constants.ConditionType;
-import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
@@ -195,10 +195,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (StringUtils.isEmpty(this.getName())) {
             sampler.setName("HTTPSamplerProxy");
         }
-        String name = ElementUtil.getParentName(this.getParent());
-        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            sampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
-        }
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         sampler.setProperty("MS-ID", this.getId());
@@ -307,12 +303,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
         MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
         GlobalScriptConfig globalScriptConfig = httpConfig.getGlobalScriptConfig();
-        List<String> filterPreProtocal = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
-        List<String> filterPostProtocal = globalScriptConfig == null ? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
+        List<String> filterPreProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPreScript();
+        List<String> filterPostProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPostScript();
 
-        boolean filterPre = filterPreProtocal.contains(GlobalScriptFilterRequest.HTTP.name());
-        boolean filterPost = filterPostProtocal.contains(GlobalScriptFilterRequest.HTTP.name());
-
+        boolean filterPre = JMeterScriptUtil.isScriptFilter(filterPreProtocal, GlobalScriptFilterRequest.HTTP.name());
+        boolean filterPost = JMeterScriptUtil.isScriptFilter(filterPostProtocal, GlobalScriptFilterRequest.HTTP.name());
         boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
         boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
 
@@ -556,6 +551,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
                 if (StringUtils.isEmpty(this.alias)) {
                     this.alias = sslConfig.getDefaultAlias();
+                } else {
+                    this.alias = sslConfig.getAlias(this.alias);
                 }
 
                 if (StringUtils.isNotEmpty(this.alias)) {
@@ -702,7 +699,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private String getPostQueryParameters(String path) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(path);
-        stringBuffer.append("?");
+        if (path.indexOf("?") != -1) {
+            stringBuffer.append("&");
+        } else {
+            stringBuffer.append("?");
+        }
         this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue -> {
             stringBuffer.append(keyValue.getName());
             if (keyValue.getValue() != null) {
@@ -766,7 +767,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 for (int i = 0; i < headerManager.getHeaders().size(); i++) {
                     Header header = headerManager.getHeader(i);
                     String headName = header.getName();
-                    if (StringUtils.equals(headName, keyValue.getName())) {
+                    if (StringUtils.equals(headName, keyValue.getName()) && !StringUtils.equals(headName, "Cookie")) {
                         hasHead = true;
                         break;
                     }

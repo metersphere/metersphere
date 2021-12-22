@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -144,4 +145,10 @@ public class IssuesController {
     public void saveFollows(@PathVariable String issueId,@RequestBody List<String> follows) {
         issuesService.saveFollows(issueId,follows);
     }
+
+    @GetMapping("/thirdpart/template/{projectId}")
+    public IssueTemplateDao getThirdPartTemplate(@PathVariable String projectId) {
+        return issuesService.getThirdPartTemplate(projectId);
+    }
+
 }

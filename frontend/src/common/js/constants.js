@@ -1,3 +1,5 @@
+import i18n from "@/i18n/i18n";
+
 export const TEST_CASE_LIST = 'test_case_list'
 export const TEST_CASE_REVIEW_LIST = 'test_case_review_list'
 export const API_LIST = 'api_list'
@@ -13,6 +15,7 @@ export const TEST_PLAN_SCENARIO_CASE = 'test_plan_scenario_case'
 export const TokenKey = 'Admin-Token';
 export const LicenseKey = 'License';
 export const DEFAULT_LANGUAGE = 'default_language';
+export const CURRENT_LANGUAGE = 'current_language';
 
 export const ROLE_ADMIN = 'admin';
 export const ROLE_ORG_ADMIN = 'org_admin';
@@ -38,6 +41,7 @@ export const EN_US = 'en_US';
 export const TAPD = 'Tapd';
 export const JIRA = 'Jira';
 export const ZEN_TAO = 'Zentao';
+export const LOCAL = 'Local';
 export const AZURE_DEVOPS = 'AzureDevops';
 
 export const GROUP_SYSTEM = 'SYSTEM';
@@ -84,57 +88,57 @@ export const REQUEST_HEADERS = [
 ]
 
 export const MOCKJS_FUNC = [
-  {name: '@boolean'},
-  {name: '@natural'},
-  {name: '@integer'},
-  {name: '@float'},
-  {name: '@character'},
-  {name: '@string'},
-  {name: '@range'},
-  {name: '@date'},
-  {name: '@time'},
-  {name: '@datetime'},
-  {name: '@now'},
-  {name: '@img'},
-  {name: '@dataImage'},
-  {name: '@color'},
-  {name: '@hex'},
-  {name: '@rgb'},
-  {name: '@rgba'},
-  {name: '@hsl'},
-  {name: '@paragraph'},
-  {name: '@sentence'},
-  {name: '@word'},
-  {name: '@title'},
-  {name: '@cparagraph'},
-  {name: '@csentence'},
-  {name: '@cword'},
-  {name: '@ctitle'},
-  {name: '@first'},
-  {name: '@last'},
-  {name: '@name'},
-  {name: '@cfirst'},
-  {name: '@clast'},
-  {name: '@cname'},
-  {name: '@url'},
-  {name: '@domain'},
-  {name: '@protocol'},
-  {name: '@tld'},
-  {name: '@email'},
-  {name: '@ip'},
-  {name: '@region'},
-  {name: '@province'},
-  {name: '@city'},
-  {name: '@county'},
-  {name: '@zip'},
-  {name: '@capitalize'},
-  {name: '@upper'},
-  {name: '@lower'},
-  {name: '@pick'},
-  {name: '@shuffle'},
-  {name: '@guid'},
-  {name: '@id'},
-  {name: '@increment'}
+  {name: '@boolean', des: i18n.t('api_test.request.boolean'), ex: true},
+  {name: '@natural', des: i18n.t('api_test.request.natural'), ex: 72834},
+  {name: '@integer', des: i18n.t('api_test.request.integer'), ex: 79750},
+  {name: '@float', des: i18n.t('api_test.request.float'), ex: 24.2},
+  {name: '@character', des: i18n.t('api_test.request.character'), ex: "k"},
+  {name: '@string', des: i18n.t('api_test.request.string'), ex: "hello"},
+  {name: '@range', des: i18n.t('api_test.request.range'), ex: "org.mozilla.javascript.NavicatArray@1739f809"},
+  {name: '@date', des: i18n.t('api_test.request.date'), ex: "1973-01-08"},
+  {name: '@time', des: i18n.t('api_test.request.time'), ex: "06:15:27"},
+  {name: '@datetime', des: i18n.t('api_test.request.datetime'), ex: "1975-10-12 02:32:04"},
+  {name: '@now', des: i18n.t('api_test.request.now'), ex: (new Date()).toLocaleTimeString().toLocaleString()},
+  {name: '@img', des: i18n.t('api_test.request.img'), ex: "http://dummyimage.com/120x60"},
+  {name: '@dataImage', des: i18n.t('api_test.request.dataImage'), ex: "data:image/png;base64,iVBORw0KG=="},
+  {name: '@color', des: i18n.t('api_test.request.color'), ex: "#b479f2"},
+  {name: '@hex', des: i18n.t('api_test.request.hex'), ex: "#f27984"},
+  {name: '@rgb', des: i18n.t('api_test.request.rgb'), ex: "rgb(203, 242, 121)"},
+  {name: '@rgba', des: i18n.t('api_test.request.rgba'), ex: "rgba(242, 121, 238, 0.66)"},
+  {name: '@hsl', des: i18n.t('api_test.request.hsl'), ex: "hsl(164, 82, 71)"},
+  {name: '@paragraph', des: i18n.t('api_test.request.paragraph'), ex: "Iwvh qxuvn uigzjw xijvntv dfidxtof"},
+  {name: '@sentence', des: i18n.t('api_test.request.sentence'), ex: "Hfi fpqnqerrs sghxldx oqpghvnmy"},
+  {name: '@word', des: i18n.t('api_test.request.word'), ex: "shnjlyazvi"},
+  {name: '@title', des: i18n.t('api_test.request.title'), ex: "Tefsdc Vhs Ujx"},
+  {name: '@cparagraph', des: i18n.t('api_test.request.cparagraph'), ex: "色青元处才不米拉律消叫别金如上。"},
+  {name: '@csentence', des: i18n.t('api_test.request.csentence'), ex: "与形府部速她运改织图集料进完。"},
+  {name: '@cword', des: i18n.t('api_test.request.cword'), ex: "满"},
+  {name: '@ctitle', des: i18n.t('api_test.request.ctitle'), ex: "运满前省快"},
+  {name: '@first', des: i18n.t('api_test.request.first'), ex: "Mary"},
+  {name: '@last', des: i18n.t('api_test.request.last'), ex: "Miller"},
+  {name: '@name', des: i18n.t('api_test.request.name'), ex: "Robert Lee"},
+  {name: '@cfirst', des: i18n.t('api_test.request.cfirst'), ex: "龚"},
+  {name: '@clast', des: i18n.t('api_test.request.clast'), ex: "刚"},
+  {name: '@cname', des: i18n.t('api_test.request.cname'), ex: "江娟"},
+  {name: '@url', des: i18n.t('api_test.request.url'), ex: "wais://jopnwwj.bh/lqnhn"},
+  {name: '@domain', des: i18n.t('api_test.request.domain'), ex: "rsh.bt"},
+  {name: '@protocol', des: i18n.t('api_test.request.protocol'), ex: "rlogin"},
+  {name: '@tld', des: i18n.t('api_test.request.tld'), ex: "sa"},
+  {name: '@email', des: i18n.t('api_test.request.email'), ex: "d.somdg@edntlm.cd"},
+  {name: '@ip', des: i18n.t('api_test.request.ip'), ex: "22.151.93.255"},
+  {name: '@region', des: i18n.t('api_test.request.region'), ex: "东北"},
+  {name: '@province', des: i18n.t('api_test.request.province'), ex: "陕西省"},
+  {name: '@city', des: i18n.t('api_test.request.city'), ex: "珠海市"},
+  {name: '@county', des: i18n.t('api_test.request.county'), ex: "正宁县"},
+  {name: '@zip', des: i18n.t('api_test.request.zip'), ex: 873247},
+  {name: '@capitalize', des: i18n.t('api_test.request.capitalize'), ex: "Undefined"},
+  {name: '@upper', des: i18n.t('api_test.request.upper'), ex: "UNDEFINED"},
+  {name: '@lower', des: i18n.t('api_test.request.lower'), ex: "undefined"},
+  {name: '@pick', des: i18n.t('api_test.request.pick'), ex: "None example"},
+  {name: '@shuffle', des: i18n.t('api_test.request.shuffle'), ex: "org.mozilla.javascript.NavicatArray@2264545d"},
+  {name: '@guid', des: i18n.t('api_test.request.guid'), ex: "4f9CeC2c-8d59-40f6-ec4F-2Abbc5C94Ddf"},
+  {name: '@id', des: i18n.t('api_test.request.id'), ex: "450000197511051762"},
+  {name: '@increment', des: i18n.t('api_test.request.increment'), ex: 1}
 ]
 
 export const JMETER_FUNC = [
@@ -198,4 +202,4 @@ export const ENV_TYPE = {
   GROUP: "GROUP"
 }
 
-
+export const DEFAULT_XSS_ATTR = ['style', 'class'];

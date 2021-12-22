@@ -365,8 +365,10 @@ public class MockConfigService {
                 if (jsonObject.containsKey("name") && jsonObject.containsKey("value")) {
                     String headerName = jsonObject.getString("name");
                     String headerValue = jsonObject.getString("value");
-                    if (!requestHeaderMap.containsKey(headerName) || !StringUtils.equals(requestHeaderMap.get(headerName), headerValue)) {
-                        return false;
+                    if(StringUtils.isNotEmpty(headerName)){
+                        if (!requestHeaderMap.containsKey(headerName) || !StringUtils.equals(requestHeaderMap.get(headerName), headerValue)) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -1202,7 +1204,7 @@ public class MockConfigService {
 
         if (!isMatch) {
             response.setStatus(404);
-            returnStr = "未找到匹配的Mock期望!";
+            returnStr = Translator.get("mock_warning");
         }
         return returnStr;
     }
@@ -1244,7 +1246,7 @@ public class MockConfigService {
 
         if (!isMatch) {
             response.setStatus(404);
-            returnStr = "未找到匹配的Mock期望!";
+            returnStr = Translator.get("mock_warning");
         }
         return returnStr;
     }

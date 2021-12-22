@@ -9,4 +9,5 @@ public class BaseSystemConfigDTO {
     private String url;
     private String concurrency;
     private String prometheusHost;
+    private String seleniumDockerUrl;
 }

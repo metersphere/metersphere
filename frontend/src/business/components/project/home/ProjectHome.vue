@@ -114,13 +114,26 @@
                     <span class="desc">{{ $t('project.log_desc') }}</span>
                   </div>
                 </div>
+                <div class="div-item">
+                  <div style="float: left">
+                    <i class="el-icon-mobile-phone icon-color"
+                       @click="click('/project/app', ['PROJECT_APP_MANAGER:READ+EDIT'])">
+                    </i>
+                  </div>
+                  <div style="float: left">
+                    <span class="title" @click="click('/project/app', ['PROJECT_APP_MANAGER:READ+EDIT'])">
+                      {{ $t('project.app_manage') }}
+                    </span><br/>
+                    <span class="desc">{{ $t('project.app_manage_desc') }}</span>
+                  </div>
+                </div>
               </div>
             </el-card>
           </el-col>
         </el-row>
       </el-card>
 
-      <edit-project ref="editProject"/>
+      <edit-project ref="editProject" :is-show-app="isShowApp"/>
     </ms-main-container>
   </ms-container>
 
@@ -144,7 +157,8 @@ export default {
         createUser: ''
       },
       memberSize: 0,
-      result: {}
+      result: {},
+      isShowApp: false
     }
   },
   methods: {

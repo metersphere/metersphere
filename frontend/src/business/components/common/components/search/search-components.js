@@ -165,7 +165,9 @@ export const API_CASE_RESULT = {
   },
   options: [
     {value: 'success', label: 'api_test.automation.success'},
-    {value: 'error', label: 'api_test.automation.fail'}
+    {value: 'error', label: 'api_test.automation.fail'},
+    {value: '', label: 'api_test.home_page.detail_card.unexecute'},
+    {value: 'Running', label: 'commons.testing'}
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true

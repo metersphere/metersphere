@@ -5,30 +5,30 @@
         placement="right"
         width="300">
         <p>{{shareUrl}}</p>
-        <span style="color: red;float: left;margin-left: 10px;">24小时有效</span>
+        <span style="color: red;float: left;margin-left: 10px;">{{ $t('test_track.report.valid_for_24_hours') }}</span>
         <div style="text-align: right; margin: 0">
           <el-button type="primary" size="mini" :disabled="!shareUrl"
                      v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
         </div>
         <el-button icon="el-icon-share" slot="reference" :disabled="!isTestManagerOrTestUser"
                    plain size="mini" @click="handleShare()">
-          {{'分享'}}
+          {{ $t('test_track.report.share') }}
         </el-button>
       </el-popover>
     </el-row>
     <el-row>
       <el-button icon="el-icon-receiving" v-if="!isDb" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
-        {{'保存'}}
+        {{ $t('commons.save')}}
       </el-button>
     </el-row>
     <el-row>
       <el-button icon="el-icon-download" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml()">
-        {{'导出'}}
+        {{ $t('commons.export')}}
       </el-button>
     </el-row>
     <el-row>
       <el-button icon="el-icon-setting" v-if="!isDb"  :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
-        {{'配置'}}
+        {{ $t('test_track.report.configuration') }}
       </el-button>
     </el-row>
     <test-plan-report-edit :plan-id="planId" :config.sync="report.config" ref="reportEdit"/>

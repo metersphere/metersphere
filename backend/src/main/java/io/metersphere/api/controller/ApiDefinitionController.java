@@ -12,6 +12,7 @@ import io.metersphere.api.dto.definition.request.assertions.document.DocumentEle
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
+import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.EsbApiParamService;
@@ -28,6 +29,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
@@ -57,6 +59,8 @@ public class ApiDefinitionController {
     private EsbImportService esbImportService;
     @Resource
     private ApiTestEnvironmentService apiTestEnvironmentService;
+    @Resource
+    private ExecThreadPoolExecutor execThreadPoolExecutor;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
@@ -174,20 +178,16 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "api_definition", type = OperLogConstants.DEBUG, title = "#request.name", project = "#request.projectId")
-    public String runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
+    public MsExecResponseDTO runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
+        request.setDebug(true);
         return apiDefinitionService.run(request, bodyFiles);
     }
 
     @PostMapping(value = "/run", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "api_definition", type = OperLogConstants.EXECUTE, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
-    public String run(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
+    public MsExecResponseDTO run(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         request.setReportId(null);
         return apiDefinitionService.run(request, bodyFiles);
-    }
-
-    @GetMapping("/report/get/{testId}/{test}")
-    public APIReportResult getResult(@PathVariable String testId, @PathVariable String test) {
-        return apiDefinitionService.getResult(testId, test);
     }
 
     @GetMapping("/report/getReport/{testId}")
@@ -333,18 +333,23 @@ public class ApiDefinitionController {
     }
 
     @GetMapping("/getDocument/{id}/{type}")
-    public List<DocumentElement> getDocument(@PathVariable String id,@PathVariable String type) {
-        return apiDefinitionService.getDocument(id,type);
+    public List<DocumentElement> getDocument(@PathVariable String id, @PathVariable String type) {
+        return apiDefinitionService.getDocument(id, type);
     }
 
     @PostMapping("/jsonGenerator")
     public List<DocumentElement> jsonGenerator(@RequestBody Body body) {
-        return JSONToDocumentUtils.getDocument(body.getRaw(),body.getType());
+        return JSONToDocumentUtils.getDocument(body.getRaw(), body.getType());
     }
 
     @PostMapping("/update/follows/{definitionId}")
-    public void saveFollows(@PathVariable String definitionId,@RequestBody List<String> follows) {
-        apiDefinitionService.saveFollows(definitionId,follows);
+    public void saveFollows(@PathVariable String definitionId, @RequestBody List<String> follows) {
+        apiDefinitionService.saveFollows(definitionId, follows);
     }
 
+
+    @GetMapping("/getWorkerQueue")
+    public String getWorkerQueue() {
+        return execThreadPoolExecutor.getWorkerQueue();
+    }
 }

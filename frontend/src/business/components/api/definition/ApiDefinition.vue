@@ -254,6 +254,7 @@ import MockConfig from "@/business/components/api/definition/components/mock/Moc
 import ApiSchedule from "@/business/components/api/definition/components/import/ApiSchedule";
 import MsEditCompleteContainer from "./components/EditCompleteContainer";
 import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
+import {PROJECT_ID} from "@/common/js/constants";
 
 
 export default {
@@ -397,6 +398,13 @@ export default {
     },
   },
   created() {
+    let projectId = this.$route.params.projectId;
+    if(projectId){
+      sessionStorage.setItem(PROJECT_ID, projectId);
+    }
+    if (this.$route.query.projectId){
+      sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
+    }
     this.getEnv();
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
@@ -456,7 +464,15 @@ export default {
     },
     addTab(tab) {
       if (tab.name === 'add') {
-        this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+        this.result = this.$get('/project/get/' + this.projectId, res => {
+          let projectData = res.data;
+          if (projectData && projectData.apiQuick === 'api') {
+            this.handleTabAdd("ADD");
+          } else {
+            this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+          }
+        })
+
       } else if (tab.name === 'trash') {
         if (this.$refs.trashApiList) {
           this.$refs.trashApiList.initTable();
@@ -536,7 +552,7 @@ export default {
         }
       })
       if (message !== "") {
-        this.$alert("接口[ " + message.substr(0, message.length - 1) + " ]未保存，是否确认关闭全部？", '', {
+        this.$alert(this.$t('commons.api') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           callback: (action) => {
@@ -561,7 +577,7 @@ export default {
           if (t.api && this.$store.state.apiMap.size > 0 && this.$store.state.apiMap.has(t.api.id)) {
             if (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
               this.$store.state.apiMap.get(t.api.id).get("fromChange") === true) {
-              this.$alert("接口[ " + t.api.name + " ]未保存，是否确认关闭？", '', {
+              this.$alert(this.$t('commons.api') + " [ " + t.api.name + " ] " + this.$t('commons.confirm_info'), '', {
                 confirmButtonText: this.$t('commons.confirm'),
                 cancelButtonText: this.$t('commons.cancel'),
                 callback: (action) => {

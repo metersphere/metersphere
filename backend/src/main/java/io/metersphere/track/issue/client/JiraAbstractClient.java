@@ -4,11 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.track.issue.domain.jira.JiraAddIssueResponse;
-import io.metersphere.track.issue.domain.jira.JiraConfig;
-import io.metersphere.track.issue.domain.jira.JiraField;
-import io.metersphere.track.issue.domain.jira.JiraIssue;
-import io.metersphere.track.issue.domain.jira.JiraIssueListResponse;
+import io.metersphere.track.issue.domain.jira.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
@@ -17,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 public abstract class JiraAbstractClient extends BaseClient {
 
@@ -33,6 +30,34 @@ public abstract class JiraAbstractClient extends BaseClient {
         ResponseEntity<String> responseEntity;
         responseEntity = restTemplate.exchange(getBaseUrl() + "/issue/" + issuesId, HttpMethod.GET, getAuthHttpEntity(), String.class);
         return  (JiraIssue) getResultForObject(JiraIssue.class, responseEntity);
+    }
+
+    public Map<String, JiraCreateMetadataResponse.Field> getCreateMetadata(String projectKey, String issueType) {
+        String url = getBaseUrl() + "/issue/createmeta?projectKeys={1}&issuetypeNames={2}&expand=projects.issuetypes.fields";
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectKey, issueType);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+        Map<String, JiraCreateMetadataResponse.Field> fields = ((JiraCreateMetadataResponse) getResultForObject(JiraCreateMetadataResponse.class, response))
+                .getProjects().get(0).getIssuetypes().get(0).getFields();
+        fields.remove("project");
+        fields.remove("issuetype");
+        return fields;
+    }
+
+    public List<JiraUser> getAssignableUser(String projectKey) {
+        String url = getBaseUrl() + "/user/assignable/search?project={1}";
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectKey);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+        return (List<JiraUser>) getResultForList(JiraUser.class, response);
     }
 
     public JSONArray getDemands(String projectKey, String issueType, int startAt, int maxResults) {

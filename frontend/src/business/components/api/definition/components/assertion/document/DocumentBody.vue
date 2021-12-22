@@ -6,7 +6,7 @@
          {{ $t('commons.import') }}
        </span>
       <span v-if="apiId!=='none'">
-         <el-checkbox v-model="checked" @change="checkedAPI">跟随API定义</el-checkbox>
+         <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
       </span>
     </div>
     <el-table
@@ -27,13 +27,15 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="include" width="78" label="必含" :render-header="renderHeader">
+      <el-table-column prop="include" width="78" :label="$t('api_test.request.assertions.must_contain')"
+                       :render-header="renderHeader">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.include" @change="handleCheckOneChange" :disabled="checked"/>
         </template>
       </el-table-column>
 
-      <el-table-column prop="typeVerification" width="100" label="类型校验" :render-header="renderHeaderType">
+      <el-table-column prop="typeVerification" width="100" :label="$t('api_test.request.assertions.type_verification')"
+                       :render-header="renderHeaderType">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.typeVerification" @change="handleCheckOneChange" :disabled="checked"/>
         </template>
@@ -47,34 +49,43 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="contentVerification" label="内容校验" width="200">
+      <el-table-column prop="contentVerification" :label="$t('api_test.request.assertions.content_verification')"
+                       width="200">
         <template slot-scope="scope">
-          <el-select v-model="scope.row.contentVerification" :placeholder="$t('commons.please_select')" size="mini" :disabled="checked">
+          <el-select v-model="scope.row.contentVerification" :placeholder="$t('commons.please_select')" size="mini"
+                     :disabled="checked">
             <el-option v-for="item in verificationOptions " :key="item.value" :label="item.label" :value="item.value"/>
           </el-select>
         </template>
       </el-table-column>
-      <el-table-column prop="expectedOutcome" label="预期结果" min-width="200">
+      <el-table-column prop="expectedOutcome" :label="$t('api_test.request.assertions.expected_results')"
+                       min-width="200">
         <template slot-scope="scope">
           <el-input v-if="scope.row.status && scope.column.fixed" v-model="scope.row.expectedOutcome" size="mini"/>
           <span v-else>{{ scope.row.expectedOutcome }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column prop="arrayVerification" width="140" label="校验数组内元素" :render-header="renderHeaderArray">
+      <el-table-column prop="arrayVerification" width="140" :label="$t('api_test.request.assertions.check')"
+                       :render-header="renderHeaderArray">
         <template slot-scope="scope">
-          <el-checkbox v-model="scope.row.arrayVerification" @change="handleCheckOneChange" v-if="scope.row.type==='array'" :disabled="checked"/>
+          <el-checkbox v-model="scope.row.arrayVerification" @change="handleCheckOneChange"
+                       v-if="scope.row.type==='array'" :disabled="checked"/>
         </template>
       </el-table-column>
 
       <el-table-column :label="$t('commons.operating')" width="130" fixed="right">
         <template v-slot:default="scope">
           <span>
-            <el-tooltip effect="dark" content="添加校验" placement="top-start">
-              <el-button icon="el-icon-document-checked" circle type="primary" size="mini" @click="addVerification(scope.row)" :disabled="scope.row.type ==='object' ||scope.row.type ==='array' || checked || scope.row.id==='root'"/>
+            <el-tooltip effect="dark" :content="$t('api_test.request.assertions.add_check')" placement="top-start">
+              <el-button icon="el-icon-document-checked" circle type="primary" size="mini"
+                         @click="addVerification(scope.row)"
+                         :disabled="scope.row.type ==='object' ||scope.row.type ==='array' || checked || scope.row.id==='root'"/>
             </el-tooltip>
-            <el-tooltip effect="dark" content="添加子字段" placement="top-start">
-              <el-button icon="el-icon-plus" circle type="primary" size="mini" style="margin-left: 10px" @click="addRow(scope.row)" :disabled="(scope.row.type !=='object' && scope.row.type !=='array')  || checked"/>
+            <el-tooltip effect="dark" :content="$t('api_test.request.assertions.add_subfield')" placement="top-start">
+              <el-button icon="el-icon-plus" circle type="primary" size="mini" style="margin-left: 10px"
+                         @click="addRow(scope.row)"
+                         :disabled="(scope.row.type !=='object' && scope.row.type !=='array')  || checked"/>
             </el-tooltip>
             <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
               <el-button icon="el-icon-delete" type="primary" circle size="mini" style="margin-left: 10px" @click="remove(scope.row)" :disabled="checked || scope.row.id==='root'"/>
@@ -105,15 +116,15 @@ export default {
     return {
       loading: false,
       verificationOptions: [
-        {value: 'none', label: '不校验[]'},
-        {value: 'value_eq', label: '值-等于[value=]'},
-        {value: 'value_not_eq', label: '值-不等于[value!=]'},
-        {value: 'value_in', label: '值-包含[include=]'},
-        {value: 'length_eq', label: '长度-等于[length=]'},
-        {value: 'length_not_eq', label: '长度-不等于[length!=]'},
-        {value: 'length_gt', label: '长度-大于[length>]'},
-        {value: 'length_lt', label: '长度-小于[length<]'},
-        {value: 'regular', label: '正则匹配'}
+        {value: 'none', label: this.$t('api_test.request.assertions.none')},
+        {value: 'value_eq', label: this.$t('api_test.request.assertions.value_eq')},
+        {value: 'value_not_eq', label: this.$t('api_test.request.assertions.value_not_eq')},
+        {value: 'value_in', label: this.$t('api_test.request.assertions.value_in')},
+        {value: 'length_eq', label: this.$t('api_test.request.assertions.length_eq')},
+        {value: 'length_not_eq', label: this.$t('api_test.request.assertions.length_not_eq')},
+        {value: 'length_gt', label: this.$t('api_test.request.assertions.length_gt')},
+        {value: 'length_lt', label: this.$t('api_test.request.assertions.length_lt')},
+        {value: 'regular', label: this.$t('api_test.request.assertions.regular_match')}
       ],
       typeSelectOptions: [
         {value: 'object', label: 'object'},
@@ -124,8 +135,8 @@ export default {
 
       ],
       requiredSelectOptions: [
-        {value: true, label: '必填'},
-        {value: false, label: '非必填'},
+        {value: true, label: this.$t('commons.selector.required')},
+        {value: false, label: this.$t('commons.selector.not_required')},
       ],
       checked: false,
       tableData: Array,

@@ -19,7 +19,7 @@ public class ExecutedHandleSingleton {
     private ExecutedHandleSingleton() {
     }
 
-    public synchronized static void parseEnvironment(List<String> evnStrList) {
+    public  static void parseEnvironment(List<String> evnStrList) {
         for (String evnStr: evnStrList) {
             try {
                 Thread.sleep(1000);

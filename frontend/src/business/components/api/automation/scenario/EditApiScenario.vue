@@ -137,7 +137,7 @@
                                  :group-id="envGroupId" :project-list="projectList"
                                  :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                                  @setProjectEnvMap="setProjectEnvMap" @setEnvGroup="setEnvGroup"
-                                 @showPopover="showPopover"
+                                 @showPopover="showPopover" :has-option-group="true"
                                  ref="envPopover" class="ms-message-right"/>
                     <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
                       <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
@@ -344,7 +344,7 @@ import {
 } from "@/common/js/utils";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
-import {saveScenario} from "@/business/components/api/automation/api-automation";
+import {savePreciseEnvProjectIds, saveScenario} from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "@/common/js/constants";
 
@@ -486,6 +486,7 @@ export default {
         this.$store.state.scenarioMap.set(this.currentScenario.id, change);
       }
     },
+
   },
   created() {
     if (!this.currentScenario.apiScenarioModuleId) {
@@ -559,6 +560,11 @@ export default {
             if (data.hashTree) {
               this.sort(data.hashTree);
               this.scenarioDefinition = data.hashTree;
+              if (this.$store.state.currentApiCase) {
+                this.$store.state.currentApiCase.resetDataSource = getUUID();
+              } else {
+                this.$store.state.currentApiCase = {resetDataSource: getUUID()};
+              }
             }
           }
         })
@@ -692,57 +698,6 @@ export default {
         })
       }
     },
-    initWebSocket() {
-      let protocol = "ws://";
-      if (window.location.protocol === 'https:') {
-        protocol = "wss://";
-      }
-      const uri = protocol + window.location.host + "/api/scenario/report/get/real/" + this.reportId;
-      this.websocket = new WebSocket(uri);
-      this.websocket.onmessage = this.onMessage;
-    },
-    onMessage(e) {
-      if (e.data) {
-        let data = JSON.parse(e.data);
-        this.formatResult(data);
-        this.message = getUUID();
-        if (data.end) {
-          this.removeReport();
-          this.runScenario = undefined;
-          this.debugLoading = false;
-          this.message = "stop";
-          this.stopDebug = "stop";
-        }
-      }
-    },
-    getTransaction(transRequests, startTime, endTime, resMap) {
-      transRequests.forEach(subItem => {
-        if (subItem.method === 'Request') {
-          this.getTransaction(subItem.subRequestResults, startTime, endTime, resMap);
-        }
-        this.reqTotal++;
-        let key = subItem.resourceId;
-        if (resMap.get(key)) {
-          if (resMap.get(key).indexOf(subItem) === -1) {
-            resMap.get(key).push(subItem);
-          }
-        } else {
-          resMap.set(key, [subItem]);
-        }
-        if (subItem.success) {
-          this.reqSuccess++;
-        } else {
-          this.reqError++;
-        }
-        if (subItem.startTime && Number(subItem.startTime) < startTime) {
-          startTime = subItem.startTime;
-        }
-        if (subItem.endTime && Number(subItem.endTime) > endTime) {
-          endTime = subItem.endTime;
-        }
-      })
-    },
-
     initMessageSocket() {
       let protocol = "ws://";
       if (window.location.protocol === 'https:') {
@@ -750,7 +705,7 @@ export default {
       }
       const uri = protocol + window.location.host + "/ws/" + this.reportId;
       this.messageWebSocket = new WebSocket(uri);
-      this.messageWebSocket.onmessage = this.onMessage2;
+      this.messageWebSocket.onmessage = this.onDebugMessage;
     },
     runningEditParent(node) {
       if (node) {
@@ -760,89 +715,87 @@ export default {
         }
       }
     },
-    runningNodeChild(arr, resourceId) {
+    runningNodeChild(arr, resultData) {
       arr.forEach(item => {
-        if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
+        if (resultData && resultData.startsWith("result_")) {
+          let data = JSON.parse(resultData.substring(7));
+          if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
+            data.subRequestResults.forEach(subItem => {
+              if (item.data && item.data.resourceId + "_" + item.data.parentIndex === subItem.resourceId) {
+                item.data.requestResult.push(subItem);
+                // 更新父节点状态
+                this.resultEvaluation(subItem.resourceId, subItem.success);
+                item.data.testing = false;
+                item.data.debug = true;
+              }
+            })
+          } else if (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId) {
+            item.data.requestResult.push(data);
+            // 更新父节点状态
+            this.resultEvaluation(data.resourceId, data.success);
+            item.data.testing = false;
+            item.data.debug = true;
+          }
+        } else if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resultData) {
           item.data.testing = true;
           this.runningEditParent(item.parent);
         }
         if (item.childNodes && item.childNodes.length > 0) {
-          this.runningNodeChild(item.childNodes, resourceId);
+          this.runningNodeChild(item.childNodes, resultData);
         }
       })
     },
-    runningEvaluation(resourceId) {
+    runningEvaluation(resultData) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
-          if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
+          if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resultData) {
             item.data.testing = true;
+          } else if (resultData && resultData.startsWith("result_")) {
+            let data = JSON.parse(resultData.substring(7));
+            if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
+              data.subRequestResults.forEach(subItem => {
+                if (item.data && item.data.resourceId + "_" + item.data.parentIndex === subItem.resourceId) {
+                  item.data.requestResult.push(subItem);
+                  // 更新父节点状态
+                  this.resultEvaluation(subItem.resourceId, subItem.success);
+                  item.data.testing = false;
+                  item.data.debug = true;
+                }
+              })
+            } else if (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId) {
+              item.data.requestResult.push(data);
+              // 更新父节点状态
+              this.resultEvaluation(data.resourceId, data.success);
+              item.data.testing = false;
+              item.data.debug = true;
+            }
           }
           if (item.childNodes && item.childNodes.length > 0) {
-            this.runningNodeChild(item.childNodes, resourceId);
+            this.runningNodeChild(item.childNodes, resultData);
           }
         })
       }
     },
-    onMessage2(e) {
+    onDebugMessage(e) {
+      if (e.data && e.data.startsWith("result_")) {
+        let data = JSON.parse(e.data.substring(7));
+        this.reqTotal += 1;
+        this.reqTotalTime += (data.endTime - data.startTime);
+        if (data.error === 0) {
+          this.reqSuccess += 1;
+        } else {
+          this.reqError += 1;
+        }
+      }
       this.runningEvaluation(e.data);
       this.message = getUUID();
-    },
-
-    formatResult(res) {
-      let resMap = new Map;
-      let startTime = 99991611737506593;
-      let endTime = 0;
-      this.clearDebug();
-      if (res && res.scenarios) {
-        res.scenarios.forEach(item => {
-          if (item && item.requestResults) {
-            item.requestResults.forEach(req => {
-              req.responseResult.console = res.console;
-              if (req.method === 'Request' && req.subRequestResults && req.subRequestResults.length > 0) {
-                this.getTransaction(req.subRequestResults, startTime, endTime, resMap);
-              } else {
-                this.reqTotal++;
-                let key = req.resourceId;
-                if (resMap.get(key)) {
-                  if (resMap.get(key).indexOf(req) === -1) {
-                    resMap.get(key).push(req);
-                  }
-                } else {
-                  resMap.set(key, [req]);
-                }
-                if (req.success) {
-                  this.reqSuccess++;
-                } else {
-                  this.reqError++;
-                }
-                if (req.startTime && Number(req.startTime) < startTime) {
-                  startTime = req.startTime;
-                }
-                if (req.endTime && Number(req.endTime) > endTime) {
-                  endTime = req.endTime;
-                }
-              }
-            })
-          }
-        })
+      if (e.data && e.data.indexOf("断开连接") !== -1) {
+        this.runScenario = undefined;
+        this.debugLoading = false;
+        this.message = "stop";
+        this.stopDebug = "stop";
+        this.reload();
       }
-      if (startTime < endTime) {
-        this.reqTotalTime = endTime - startTime + 100;
-      }
-      this.debugResult = resMap;
-      if (this.runScenario && this.runScenario.hashTree) {
-        this.sort(this.runScenario.hashTree);
-      } else {
-        this.sort();
-      }
-      this.reloadDebug = getUUID();
-    },
-    removeReport() {
-      let url = "/api/scenario/report/remove/real/" + this.reportId;
-      this.$get(url, response => {
-        this.messageWebSocket.close();
-        this.websocket.close();
-      });
     },
     handleCommand() {
       this.debug = false;
@@ -953,9 +906,9 @@ export default {
     fabClick() {
       if (this.operatingElements && this.operatingElements.length < 1) {
         if (this.selectedTreeNode && this.selectedTreeNode.referenced === 'REF' || this.selectedTreeNode.disabled) {
-          this.$warning("引用的场景步骤及子步骤都无法添加其他步骤");
+          this.$warning(this.$t('api_test.scenario.scenario_warning'));
         } else {
-          this.$warning("当前步骤下不能添加其他步骤");
+          this.$warning(this.$t('api_test.scenario.scenario_step_warning'));
         }
       }
     },
@@ -1031,13 +984,6 @@ export default {
         }
         // 添加debug结果
         stepArray[i].parentIndex = fullPath ? fullPath + "_" + stepArray[i].index : stepArray[i].index;
-        let key = stepArray[i].resourceId + "_" + stepArray[i].parentIndex;
-        if (this.debugResult && this.debugResult.get(key)) {
-          stepArray[i].requestResult = this.debugResult.get(key);
-          stepArray[i].result = null;
-          stepArray[i].debug = this.debug;
-          this.resultEvaluation(key, stepArray[i].requestResult[0].success);
-        }
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
           this.stepSize += stepArray[i].hashTree.length;
           this.sort(stepArray[i].hashTree, stepArray[i].projectId, stepArray[i].parentIndex);
@@ -1060,7 +1006,7 @@ export default {
       if (arr && arr.length > 0) {
         arr.forEach(item => {
           if (item.id === this.currentScenario.id) {
-            this.$error("不能引用或复制自身！");
+            this.$error(this.$t("api_test.scenario.scenario_error"));
             this.$refs.scenarioRelevance.changeButtonLoadingType();
             return;
           }
@@ -1315,9 +1261,9 @@ export default {
       }
       return new Promise((resolve) => {
         document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
-        this.$refs['currentScenario'].validate((valid) => {
+        this.$refs['currentScenario'].validate(async (valid) => {
           if (valid) {
-            this.setParameter();
+            await this.setParameter();
             saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
               this.$store.state.scenarioMap.delete(this.currentScenario.id);
@@ -1426,6 +1372,8 @@ export default {
             this.resetResourceId(this.scenarioDefinition);
           }
           this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
+          // 让接口自动化参数设置的地方，可以拿到场景变量
+          this.$store.state.scenarioMap.set("currentScenarioId", this.currentScenario.variables);
         })
       }
     },
@@ -1458,7 +1406,7 @@ export default {
         }
       }
     },
-    setParameter() {
+    async setParameter() {
       this.currentScenario.stepTotal = this.scenarioDefinition.length;
       if (!this.currentScenario.projectId) {
         this.currentScenario.projectId = this.projectId;
@@ -1483,6 +1431,11 @@ export default {
         this.formatData(scenario.hashTree);
       }
       this.currentScenario.environmentType = this.environmentType;
+      let definition = JSON.parse(JSON.stringify(this.currentScenario));
+      definition.hashTree = this.scenarioDefinition;
+      await this.getEnv(JSON.stringify(definition));
+      // 保存时同步所需要的项目环境
+      savePreciseEnvProjectIds(this.projectIds, this.projectEnvMap);
       this.currentScenario.environmentJson = JSON.stringify(strMapToObj(this.projectEnvMap));
       this.currentScenario.environmentGroupId = this.envGroupId;
       this.currentScenario.scenarioDefinition = scenario;
@@ -1499,7 +1452,6 @@ export default {
         this.debugVisible = true;
         this.loading = false;
       } else {
-        this.initWebSocket();
         this.initMessageSocket();
       }
     },

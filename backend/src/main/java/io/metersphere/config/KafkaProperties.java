@@ -2,6 +2,7 @@ package io.metersphere.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = KafkaProperties.KAFKA_PREFIX)
@@ -29,6 +30,8 @@ public class KafkaProperties {
     private KafkaProperties.Log log = new KafkaProperties.Log();
     private KafkaProperties.Report report = new KafkaProperties.Report();
 
+    @Value("${spring.kafka.producer.properties.max.request.size}")
+    private String maxRequestSize;
     @Getter
     @Setter
     public static class Ssl {

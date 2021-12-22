@@ -3,7 +3,7 @@
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :create-tip="btnTips" :condition.sync="condition" :show-create="!readOnly"
-                         @search="search" @create="createEnvironment">
+                         @search="search" @create="createEnvironment" :create-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE_GROUP']">
         </ms-table-header>
       </template>
       <el-table :data="environmentGroupList"
@@ -26,7 +26,7 @@
             </span>
             <span v-else>
               <span>{{ scope.row.name }}</span>
-              <i class="el-icon-edit" style="cursor:pointer;margin-left: 4px;" @click="editName(scope.row)"/>
+              <i class="el-icon-edit" style="cursor:pointer;margin-left: 4px;" @click="editName(scope.row)" v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT_GROUP']"/>
             </span>
           </template>
         </el-table-column>
@@ -38,9 +38,13 @@
         <el-table-column :label="$t('commons.operating')" width="350">
           <template v-slot:default="scope">
             <div v-if="!readOnly">
-              <ms-table-operator @editClick="editEnvironment(scope.row)" @deleteClick="deleteEnvironment(scope.row)">
+              <ms-table-operator @editClick="editEnvironment(scope.row)"
+                                 :edit-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT_GROUP']"
+                                 :delete-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE_GROUP']"
+                                 @deleteClick="deleteEnvironment(scope.row)">
                 <template v-slot:middle>
                   <ms-table-operator-button :tip="$t('commons.copy')" @exec="copyEnvironment(scope.row)"
+                                            v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY_GROUP']"
                                             icon="el-icon-document-copy" type="info"/>
                 </template>
               </ms-table-operator>
@@ -53,7 +57,7 @@
     </el-card>
 
     <edit-environment-group ref="editEnvironmentGroup" @refresh="init"/>
-    <ms-delete-confirm :title="'删除环境组'" @delete="_handleDelete" ref="deleteConfirm"/>
+    <ms-delete-confirm :title="$t('workspace.env_group.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
   </div>
 </template>
@@ -69,7 +73,6 @@ import EnvironmentEdit from "@/business/components/api/test/components/environme
 import MsAsideItem from "@/business/components/common/components/MsAsideItem";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import ProjectSwitch from "@/business/components/common/head/ProjectSwitch";
-import SearchList from "@/business/components/common/head/SearchList";
 import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
 import EnvironmentGroupRow from "@/business/components/settings/workspace/environment/EnvironmentGroupRow";
 import EditEnvironmentGroup from "@/business/components/settings/workspace/environment/EditEnvironmentGroup";
@@ -80,7 +83,6 @@ export default {
   components: {
     EditEnvironmentGroup,
     EnvironmentImport,
-    SearchList,
     ProjectSwitch,
     MsAsideContainer,
     MsAsideItem,
@@ -96,7 +98,7 @@ export default {
   },
   data() {
     return {
-      btnTips: '创建环境组',
+      btnTips: this.$t('workspace.env_group.create'),
       envGroupId: '',
       condition: {},
       environmentGroupList: [],

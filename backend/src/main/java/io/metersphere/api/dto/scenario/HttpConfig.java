@@ -29,6 +29,7 @@ public class HttpConfig {
     private MsJSR223PostProcessor postProcessor;
     private GlobalScriptConfig globalScriptConfig;
     private ApiModuleMapper apiModuleMapper;
+    private String description;
 
 
     public HttpConfig initHttpConfig(HttpConfigCondition configCondition) {

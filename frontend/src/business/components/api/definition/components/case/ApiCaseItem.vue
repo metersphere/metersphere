@@ -6,7 +6,8 @@
           <span @click.stop>
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
-                      class="ms-api-header-select" style="width: 180px" :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
+                      class="ms-api-header-select" style="width: 180px"
+                      :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
                       @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
@@ -124,7 +125,7 @@
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
         </div>
 
-        <ms-jmx-step :request="apiCase.request" :api-id="api.id" :response="apiCase.responseData"/>
+        <ms-jmx-step v-if="apiCase.request.hashTree && apiCase.request.hashTree.length > 0" :request="apiCase.request" :api-id="api.id" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
                    v-if="type!=='detail'"
@@ -408,9 +409,6 @@ export default {
     saveCase(row, hideAlert) {
       let tmp = JSON.parse(JSON.stringify(row));
       this.isShowInput = false;
-      if (this.validate(tmp)) {
-        return;
-      }
       tmp.request.body = row.request.body;
       let bodyFiles = this.getBodyUploadFiles(tmp);
       tmp.projectId = getCurrentProjectID();
@@ -466,6 +464,10 @@ export default {
       });
     },
     saveTestCase(row, hideAlert) {
+      if (this.validate(row)) {
+        return;
+      }
+      this.compare = [];
       if (this.compare.indexOf(row.id) === -1) {
         this.compare.push(row.id);
         if (this.api.saved) {
@@ -498,6 +500,10 @@ export default {
     validate(row) {
       if (!row.name) {
         this.$warning(this.$t('api_test.input_name'));
+        return true;
+      }
+      if (row.name.length > 100) {
+        this.$warning(this.$t('api_test.input_name_length'));
         return true;
       }
     },

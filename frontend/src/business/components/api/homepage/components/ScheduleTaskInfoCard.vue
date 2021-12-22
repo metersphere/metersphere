@@ -48,13 +48,13 @@
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
             <el-container>
               <el-aside width="30%">
-                {{$t('api_test.home_page.detail_card.rate.success')+":"}}
+                {{ $t('api_test.home_page.detail_card.rate.success') + ":" }}
               </el-aside>
               <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
                 <span class="count-number">
-                {{scheduleTaskCountData.successRage}}
+                {{ scheduleTaskCountData.successRage }}
                   <el-tooltip placement="top" class="info-tool-tip">
-                    <div slot="content">{{ $t('api_test.home_page.formula.success')}}</div>
+                    <div slot="content">{{ $t('api_test.home_page.formula.success') }}</div>
                     <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
                   </el-tooltip>
               </span>

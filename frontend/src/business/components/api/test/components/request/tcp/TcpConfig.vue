@@ -28,7 +28,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout">
+        <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout" label-width="120px">
           <el-input-number v-model="config.timeout" controls-position="right" :min="0" :step="1000" :controls="false"/>
         </el-form-item>
       </el-col>
@@ -41,15 +41,23 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
+        <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte" label-width="120px">
           <el-input v-model="config.eolByte"/>
         </el-form-item>
       </el-col>
     </el-row>
 
     <el-row :gutter="10">
+      <el-col :span="24">
+        <el-form-item :label="$t('commons.description')" prop="description">
+          <el-input v-model="config.description" maxlength="200" :show-word-limit="true" size="small"/>
+        </el-form-item>
+      </el-col>
+    </el-row>
+
+    <el-row :gutter="10">
       <el-col :span="8">
-        <el-form-item :label="$t('api_test.request.tcp.re_use_connection')">
+        <el-form-item :label="$t('api_test.request.tcp.re_use_connection')" label-width="135px">
           <el-checkbox v-model="config.reUseConnection"/>
         </el-form-item>
       </el-col>

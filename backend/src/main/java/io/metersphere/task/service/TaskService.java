@@ -2,9 +2,8 @@ package io.metersphere.task.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.TaskRequest;
+import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.LocalRunner;
-import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
@@ -16,6 +15,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtTaskMapper;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.NodeDTO;
+import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
@@ -55,6 +55,8 @@ public class TaskService {
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
+    @Resource
+    private ExecThreadPoolExecutor execThreadPoolExecutor;
 
     public List<TaskCenterDTO> getTasks(TaskCenterRequest request) {
         if (StringUtils.isEmpty(request.getProjectId())) {
@@ -110,6 +112,9 @@ public class TaskService {
             // 聚类，同一批资源池的一批发送
             Map<String, List<String>> poolMap = new HashMap<>();
             for (TaskRequest request : reportIds) {
+                // 从队列移除
+                execThreadPoolExecutor.removeQueue(request.getReportId());
+
                 String actuator = null;
                 if (StringUtils.isNotEmpty(request.getReportId())) {
                     if (StringUtils.equals(request.getType(), "API")) {
@@ -118,7 +123,6 @@ public class TaskService {
                             result.setStatus("STOP");
                             apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
                             actuator = result.getActuator();
-                            MessageCache.caseExecResourceLock.remove(result.getId());
                         }
                     } else if (StringUtils.equals(request.getType(), "SCENARIO")) {
                         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
@@ -139,7 +143,6 @@ public class TaskService {
                                 item.setStatus("STOP");
                                 apiDefinitionExecResultMapper.updateByPrimaryKeySelective(item);
                                 actuator = item.getActuator();
-                                MessageCache.caseExecResourceLock.remove(item.getId());
                                 request.setReportId(item.getId());
                                 extracted(poolMap, request, actuator);
                             }
@@ -186,7 +189,5 @@ public class TaskService {
         } else {
             new LocalRunner().stop(request.getReportId());
         }
-        MessageCache.cache.remove(request.getReportId());
-        MessageCache.terminationOrderDeque.add(request.getReportId());
     }
 }

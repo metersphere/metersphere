@@ -59,6 +59,10 @@ public class NoticeModel implements Serializable {
      */
     private List<Receiver> receivers;
     /**
+     * 抄送人
+     */
+    private List<Receiver> recipients;
+    /**
      *
      */
     private boolean excludeSelf;

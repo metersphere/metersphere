@@ -58,12 +58,16 @@ export default {
     'reload',
     'reloadTopMenus'
   ],
+  props:{
+    form:{
+      type:Object
+    }
+  },
   data() {
     return {
       result: {},
       isLocalUser: false,
       updatePath: '/user/update/current',
-      form: {platformInfo: {}},
       ruleForm: {},
       rule: {
         name: [
@@ -93,20 +97,18 @@ export default {
           }
         ],
       },
-      workspaceList:[],
-      projectList:[]
     };
   },
 
   created() {
-    this.initTableData();
+
   },
   methods: {
     currentUser: () => {
       return getCurrentUser();
     },
     cancel() {
-
+      this.$emit("cancel");
     },
     updateUser(updateUserForm) {
       this.$refs[updateUserForm].validate(valid => {
@@ -118,30 +120,11 @@ export default {
           this.result = this.$post(this.updatePath, param, response => {
             this.$success(this.$t('commons.modify_success'));
             localStorage.setItem(TokenKey, JSON.stringify(response.data));
-            this.initTableData();
             this.reload();
           });
         } else {
           return false;
         }
-      });
-    },
-    initTableData() {
-      this.result = this.$get("/user/info/" + encodeURIComponent(this.currentUser().id), response => {
-        let data = response.data;
-        this.isLocalUser = response.data.source === 'LOCAL';
-        let dataList = [];
-        dataList[0] = data;
-        this.form = data;
-        this.$emit('getPlatformInfo', data);
-        this.getWsAndPj();
-      });
-    },
-    getWsAndPj(){
-      this.$get("/user/get/ws_pj/" + encodeURIComponent(this.currentUser().id), response => {
-        let data = response.data;
-        this.workspaceList = data.workspace;
-        this.projectList = data.project
       });
     },
     handleClose() {

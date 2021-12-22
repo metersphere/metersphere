@@ -142,5 +142,6 @@ export function editTestPlanLoadCaseOrder(request, callback) {
 }
 
 export function getPlanStageOption(callback) {
-  return baseGet('/test/plan/get/stage/option/' + getCurrentWorkspaceId(), callback);
+  let wId = getCurrentWorkspaceId();
+  return wId ? baseGet('/test/plan/get/stage/option/' + wId, callback) : {};
 }

@@ -24,6 +24,7 @@
           :condition="condition"
           :commands="operators"/>
           <module-trash-button :condition="condition" :total="total" :exe="enableTrash"/>
+        <module-public-button :condition="condition" :public-total="publicTotal" :exe="enablePublic"/>
       </template>
     </ms-node-tree>
     <test-case-import @refreshAll="refreshAll" ref="testCaseImport"/>
@@ -49,11 +50,21 @@ import {buildTree} from "../../api/definition/model/NodeTree";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 import {getCurrentProjectID} from "@/common/js/utils";
 import ModuleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
+import ModulePublicButton from "@/business/components/api/definition/components/module/ModulePublicButton";
 import {getTestCaseNodes} from "@/network/testCase";
 
 export default {
   name: "TestCaseNodeTree",
-  components: {MsSearchBar, TestCaseImport,TestCaseExport, TestCaseCreate, MsNodeTree, NodeEdit,ModuleTrashButton},
+  components: {
+    MsSearchBar,
+    TestCaseImport,
+    TestCaseExport,
+    TestCaseCreate,
+    MsNodeTree,
+    NodeEdit,
+    ModuleTrashButton,
+    ModulePublicButton
+  },
   data() {
     return {
       defaultProps: {
@@ -64,7 +75,8 @@ export default {
       treeNodes: [],
       condition: {
         filterText: "",
-        trashEnable: false
+        trashEnable: false,
+        publicEnable: false
       },
       operators: [
         {
@@ -92,6 +104,7 @@ export default {
     },
     showOperator: Boolean,
     total: Number,
+    publicTotal: Number,
   },
   watch: {
     treeNodes() {
@@ -132,9 +145,13 @@ export default {
     refreshAll() {
       this.$emit('refreshAll');
     },
-    enableTrash(){
+    enableTrash() {
       this.condition.trashEnable = true;
       this.$emit('enableTrash', this.condition.trashEnable);
+    },
+    enablePublic() {
+      this.condition.publicEnable = true;
+      this.$emit('enablePublic', this.condition.publicEnable);
     },
     list() {
       if (this.projectId) {

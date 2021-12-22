@@ -19,7 +19,7 @@
           width="180">
           <template v-slot:default="scope">
             <span v-if="scope.row.type !== 'PROJECT'">
-              {{ userGroupType[scope.row.type] ? $t(userGroupType[scope.row.type]) : scope.row.type }}
+              {{ userGroupType[scope.row.type] ? $t(userGroupType[scope.row.type]) : $t(scope.row.type) }}
             </span>
             <span v-else>{{ _computedMenuName(scope.row.resource) }}</span>
           </template>
@@ -29,7 +29,7 @@
           :label="$t('group.operation_object')"
           width="180">
           <template v-slot:default="scope">
-            {{ scope.row.resource.name }}
+            {{ $t(scope.row.resource.name) }}
           </template>
         </el-table-column>
         <el-table-column
@@ -127,7 +127,8 @@ export default {
       }
     },
     _computedMenuName(resource) {
-      return PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] ? PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] : '项目设置';
+      return this.$t(PROJECT_GROUP_SCOPE[resource.id.split('_')[1]]) ?
+        this.$t(PROJECT_GROUP_SCOPE[resource.id.split('_')[1]]) : this.$t('permission.other.project');
     },
     onSubmit() {
       let param = {};

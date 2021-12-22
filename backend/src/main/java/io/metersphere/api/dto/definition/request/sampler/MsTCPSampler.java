@@ -9,13 +9,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
+import io.metersphere.api.dto.definition.parse.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.dto.scenario.environment.GlobalScriptConfig;
 import io.metersphere.api.dto.scenario.environment.GlobalScriptFilterRequest;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
@@ -151,50 +150,25 @@ public class MsTCPSampler extends MsTestElement {
             samplerHashTree.add(tcpPreProcessor.getJSR223PreProcessor());
         }
 
-        MsJSR223PreProcessor preProcessor = null;
-        MsJSR223PostProcessor postProcessor = null;
-        GlobalScriptConfig globalScriptConfig = null;
-        if(envConfig != null){
-            preProcessor = envConfig.getPreProcessor();
-            postProcessor = envConfig.getPostProcessor();
-            globalScriptConfig = envConfig.getGlobalScriptConfig();
+        //处理全局前后置脚本(步骤内)
+        String enviromentId = this.getEnvironmentId();
+        if (enviromentId == null) {
+            enviromentId = this.useEnvironment;
         }
-
-        boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
-        boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
-        boolean globalPreScriptIsFilter = false;
-        boolean globalPostScriptIsFilter = false;
-        List<String> preFilterProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPreScript();
-        List<String> postFilterProtocal = globalScriptConfig == null? new ArrayList<>() : globalScriptConfig.getFilterRequestPostScript();
-        if(preFilterProtocal.contains(GlobalScriptFilterRequest.TCP.name())){
-            globalPreScriptIsFilter = true;
-        }
-        if(postFilterProtocal.contains(GlobalScriptFilterRequest.TCP.name())){
-            globalPostScriptIsFilter = true;
-        }
-
-        if(!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter){
-            this.addItemHashTree(preProcessor,samplerHashTree,config);
-        }
-        if(!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter){
-            this.addItemHashTree(postProcessor,samplerHashTree,config);
-        }
+        //根据配置将脚本放置在私有脚本之前
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), enviromentId, config, false);
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }
-
-        if(isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter){
-            this.addItemHashTree(preProcessor,samplerHashTree,config);
-        }
-        if(isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter){
-            this.addItemHashTree(postProcessor,samplerHashTree,config);
-        }
+        //根据配置将脚本放置在私有脚本之后
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), enviromentId, config, false);
     }
-    private void addItemHashTree(MsTestElement element, HashTree samplerHashTree,ParameterConfig config){
-        if(element != null){
+
+    private void addItemHashTree(MsTestElement element, HashTree samplerHashTree, ParameterConfig config) {
+        if (element != null) {
             if (element.getEnvironmentId() == null) {
                 if (this.getEnvironmentId() == null) {
                     element.setEnvironmentId(useEnvironment);
@@ -205,6 +179,7 @@ public class MsTCPSampler extends MsTestElement {
             element.toHashTree(samplerHashTree, element.getHashTree(), config);
         }
     }
+
     private void setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
@@ -234,7 +209,7 @@ public class MsTCPSampler extends MsTestElement {
             if (proxy != null) {
                 if (StringUtils.equals(this.getRefType(), "CASE")) {
                     ElementUtil.mergeHashTree(this, proxy.getHashTree());
-                }else {
+                } else {
                     this.setHashTree(proxy.getHashTree());
                 }
                 this.setClassname(proxy.getClassname());
@@ -268,10 +243,6 @@ public class MsTCPSampler extends MsTestElement {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setEnabled(this.isEnable());
         tcpSampler.setName(this.getName());
-        String name = ElementUtil.getParentName(this.getParent());
-        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            tcpSampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
-        }
         tcpSampler.setProperty("MS-ID", this.getId());
         String indexPath = this.getIndex();
         tcpSampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));

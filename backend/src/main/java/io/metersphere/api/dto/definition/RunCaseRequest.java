@@ -8,10 +8,11 @@ import lombok.Setter;
 @Setter
 @Getter
 public class RunCaseRequest {
+    private String reportId;
+
+    private String id;
 
     private String caseId;
-
-    private String reportId;
 
     private String runMode;
 

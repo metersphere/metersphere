@@ -7,11 +7,13 @@ import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
+import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.dto.CustomFieldItemDTO;
+import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -63,6 +65,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected String workspaceId;
     protected String userId;
     protected String defaultCustomFields;
+    protected boolean isThirdPartTemplate;
 
 
     public String getKey() {
@@ -171,7 +174,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected void handleIssueUpdate(IssuesUpdateRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         issuesMapper.updateByPrimaryKeySelective(request);
-        handleTestCaseIssues(request);
+        if (!request.isWithoutTestCaseIssue()) {
+            handleTestCaseIssues(request);
+        }
     }
 
     protected void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
@@ -363,16 +368,33 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         });
     }
 
-
     protected String syncIssueCustomField(String customFieldsStr, JSONObject issue) {
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
+        Set<String> names = issue.keySet();
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
             Object value = issue.get(fieldName);
             if (value != null) {
-                if (value instanceof JSONObject) {
-                    if (!fieldName.equals("assignee") && !fieldName.equals("reporter")) { // 获取不到账号名
-                        item.setValue(((JSONObject)value).getString("id"));
+               if (value instanceof JSONObject) {
+                   JSONObject valObj = ((JSONObject) value);
+                   String accountId = valObj.getString("accountId");
+                   JSONObject child = valObj.getJSONObject("child");
+                   if (child != null) {// 级联框
+                       List<Object> values = new ArrayList<>();
+                       if (StringUtils.isNotBlank(valObj.getString("id")))  {
+                           values.add(valObj.getString("id"));
+                       }
+                       if (StringUtils.isNotBlank(child.getString("id")))  {
+                           values.add(child.getString("id"));
+                       }
+                       item.setValue(values);
+                   } else if (StringUtils.isNotBlank(accountId)) {
+                       // 用户选择框
+                       if (isThirdPartTemplate) {
+                           item.setValue(accountId);
+                       }
+                    } else {
+                       item.setValue(valObj.getString("id"));
                     }
                 } else if (value instanceof JSONArray) {
                     List<Object> values = new ArrayList<>();
@@ -387,6 +409,12 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
                 } else {
                     item.setValue(value);
                 }
+            } else if (names.contains(fieldName)) {
+                if (item.getType().equals(CustomFieldType.CHECKBOX.getValue())) {
+                    item.setValue(new ArrayList<>());
+                } else {
+                    item.setValue(null);
+                }
             }
         });
         return JSONObject.toJSONString(customFields);
@@ -395,16 +423,20 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     @Override
     public void syncAllIssues(Project project) {}
 
+    @Override
+    public IssueTemplateDao getThirdPartTemplate() {return null;}
+
     protected List<IssuesWithBLOBs> getIssuesByPlatformIds(List<String> platformIds) {
         IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
         return issuesService.getIssuesByPlatformIds(platformIds, projectId);
     }
 
     protected Map<String, IssuesWithBLOBs> getUuIdMap(List<IssuesWithBLOBs> issues) {
+        HashMap<String, IssuesWithBLOBs> issueMap = new HashMap<>();
         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(issues)) {
-            return issues.stream().collect(Collectors.toMap(Issues::getPlatformId, i -> i));
+            issues.forEach(item -> issueMap.put(item.getPlatformId(), item));
         }
-        return new HashMap<>();
+        return issueMap;
     }
 
     protected void deleteSyncIssue(List<String> ids) {
@@ -456,10 +488,15 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issue.setProjectId(projectId);
         issue.setId(UUID.randomUUID().toString());
         issue.setPlatformId(platformId);
-        issue.setCreateTime(System.currentTimeMillis());
-        issue.setUpdateTime(System.currentTimeMillis());
         issue.setCreator(SessionUtils.getUserId());
         issue.setNum(nextNum);
-        issuesMapper.insert(issue); // 批量新增
+    }
+
+    public boolean isThirdPartTemplate() {
+        Project project = projectService.getProjectById(projectId);
+        if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate()) {
+            return true;
+        }
+        return false;
     }
 }

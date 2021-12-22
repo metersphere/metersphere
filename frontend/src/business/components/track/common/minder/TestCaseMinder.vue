@@ -9,6 +9,7 @@
       :distinct-tags="tags"
       :module-disable="false"
       :show-module-tag="true"
+      :move-enable="moveEnable"
       :tag-edit-check="tagEditCheck()"
       @afterMount="handleAfterMount"
       :priority-disable-check="priorityDisableCheck()"
@@ -17,7 +18,7 @@
       ref="minder"
     />
     <IssueRelateList :case-id="getCurCaseId()"  @refresh="refreshRelateIssue" ref="issueRelate"/>
-    <test-plan-issue-edit :plan-id="null" :case-id="getCurCaseId()" @refresh="refreshIssue" ref="issueEdit"/>
+    <test-plan-issue-edit :is-minder="true" :plan-id="null" :case-id="getCurCaseId()" @refresh="refreshIssue"  ref="issueEdit"/>
   </div>
 
 </template>
@@ -80,6 +81,10 @@ name: "TestCaseMinder",
     disabled() {
       return !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
     },
+    moveEnable() {
+      // 如果不是默认的排序条件不能调换位置
+      return !this.condition.orders || this.condition.orders.length < 1;
+    }
   },
   watch: {
     selectNode() {
@@ -252,11 +257,13 @@ name: "TestCaseMinder",
       if (data.isExtraNode) {
         // 如果是临时节点，打上了模块标签，则删除临时节点并新建模块
         this.pushDeleteNode(data);
+        module.id = null;
       }
 
       if (data.type === 'case') {
         // 如果是用例节点，打上了模块标签，则用例节点并新建模块
         this.pushDeleteNode(data);
+        module.id = null;
       }
 
       if (module.id && module.id.length > 20) {
@@ -299,11 +306,6 @@ name: "TestCaseMinder",
         let tip = data.text + '是模块，不能修改为用例';
         this.$error(tip)
         throw new Error(tip);
-      }
-
-      if (data.isExtraNode) {
-        // 如果是临时节点，打上了用例标签，则删除临时节点并新建用例节点
-        this.pushDeleteNode(data);
       }
 
       let isChange = false;
@@ -360,20 +362,29 @@ name: "TestCaseMinder",
       }
       testCase.steps = JSON.stringify(steps);
 
+      if (data.isExtraNode) {
+        // 如果是临时节点，打上了用例标签，则删除临时节点并新建用例节点
+        this.pushDeleteNode(data);
+        testCase.id = null;
+      }
+
       if (isChange) {
 
         testCase.targetId = null; // 排序处理
-        if (this.isCaseNode(preNode)) {
-          let preId = preNode.data.id;
-          if (preId && preId.length > 15) {
-            testCase.targetId = preId;
-            testCase.moveMode = 'AFTER';
-          }
-        } else if (this.isCaseNode(nextNode)) {
-          let nextId = nextNode.data.id;
-          if (nextId && nextId.length > 15) {
-            testCase.targetId = nextId;
-            testCase.moveMode = 'BEFORE';
+
+        if (this.moveEnable) {
+          if (this.isCaseNode(preNode)) {
+            let preId = preNode.data.id;
+            if (preId && preId.length > 15) {
+              testCase.targetId = preId;
+              testCase.moveMode = 'AFTER';
+            }
+          } else if (this.isCaseNode(nextNode)) {
+            let nextId = nextNode.data.id;
+            if (nextId && nextId.length > 15) {
+              testCase.targetId = nextId;
+              testCase.moveMode = 'BEFORE';
+            }
           }
         }
 
@@ -400,7 +411,7 @@ name: "TestCaseMinder",
       data.id = "";
     },
     isCaseNode(node) {
-      if (node && node.resource && node.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
+      if (node && node.data.resource && node.data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
         return true;
       }
       return false;
@@ -425,6 +436,7 @@ name: "TestCaseMinder",
           nodeData.children.push(this._buildExtraNode(item));
         });
       }
+      data.isExtraNode = true;
       return nodeData;
     },
     tagEditCheck() {

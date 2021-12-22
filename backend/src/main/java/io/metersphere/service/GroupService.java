@@ -28,6 +28,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.poi.ss.formula.functions.T;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -199,6 +200,9 @@ public class GroupService {
             }
         });
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public List<Group> getGroupByType(EditGroupRequest request) {
@@ -438,6 +442,9 @@ public class GroupService {
                 mapper.insertSelective(userGroup);
             }
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
     }
 
@@ -467,6 +474,9 @@ public class GroupService {
                     mapper.insertSelective(userGroup);
                 }
                 sqlSession.flushStatements();
+                if (sqlSession != null && sqlSessionFactory != null) {
+                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                }
             }
         }
     }

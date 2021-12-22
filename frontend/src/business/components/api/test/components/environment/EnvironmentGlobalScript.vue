@@ -4,14 +4,14 @@
       <el-collapse-item name="1">
         <template slot="title">
           <span class="span-style">{{title}}</span>
-          <el-tooltip class="item" effect="dark" content="每一个API步骤后执行一次 如加解密" placement="right">
+          <el-tooltip class="item" effect="dark" :content="runEveryTimeTip" placement="right">
             <i class="el-icon-info"/>
           </el-tooltip>
 
           <div class="header-right" style="margin: 5px 5px 5px 50px" @click.stop>
-            <span class="span-style">过滤请求类型</span>
+            <span class="span-style">{{$t('api_test.script.filter_request_type')}}</span>
             <el-select multiple v-model="filterRequestArray" style="margin : 0px 10px 0px 10px; width: 214px "
-                       size="small" placeholder="请选择">
+                       size="small" :placeholder="$t('commons.please_select')">
               <el-option
                 v-for="item in requestArray"
                 :key="item.value"
@@ -19,8 +19,8 @@
                 :value="item.value">
               </el-option>
             </el-select>
-            <span class="span-style" style="margin-right: 10px">脚本执行顺序</span>
-            <el-select v-model="isExecAfterPrivateScript" size="small" placeholder="请选择">
+            <span class="span-style" style="margin-right: 10px">{{$t('api_test.script.execution_order')}}</span>
+            <el-select v-model="isExecAfterPrivateScript" size="small" :placeholder="$t('commons.please_select')">
               <el-option
                   v-for="item in scriptExecSort"
                   :key="item.value"
@@ -39,13 +39,13 @@
       <el-collapse-item name="2">
         <template slot="title">
           {{ stepTitle }}
-          <el-tooltip class="item" effect="dark" content="全部API流程结束后执行一次 如token获取，场景初始化" placement="right">
+          <el-tooltip class="item" effect="dark" :content="runOnceTip" placement="right">
             <i class="el-icon-info"/>
           </el-tooltip>
           <div class="header-right" style="margin: 5px 5px 5px 50px;" @click.stop>
-            <el-switch v-model="isConnScenario" active-text="关联场景结果" style="font-size: 13px;font-weight: 300"
+            <el-switch v-model="isConnScenario" :active-text="$t('api_test.script.associated_scene_results')" style="font-size: 13px;font-weight: 300"
                        @click.stop/>
-            <el-tooltip class="item" effect="dark" content="脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果" placement="right">
+            <el-tooltip class="item" effect="dark" :content="$t('api_test.script.tip_3')" placement="right">
               <i class="el-icon-info"/>
             </el-tooltip>
           </div>
@@ -81,11 +81,13 @@ export default {
   data() {
     return {
       title: "",
-      preTitle: "单个请求步骤前执行",
-      postTitle: "单个请求步骤后执行",
+      runEveryTimeTip: "",
+      runOnceTip: "",
+      preTitle: this.$t('api_test.script.execute_before_step'),
+      postTitle: this.$t('api_test.script.execute_post_step'),
       stepTitle: "",
-      preStepTitle: "所有请求步骤前执行",
-      postStepTitle: "所有请求步骤后执行",
+      preStepTitle: this.$t('api_test.script.execute_before_all_steps'),
+      postStepTitle: this.$t('api_test.script.execute_post_all_steps'),
       result: {},
       activeNames: [],
       isConnScenario: false,
@@ -98,12 +100,12 @@ export default {
       ],
       scriptExecSort: [],
       scriptPreExecSort: [
-        {value: true, label: "步骤内前置脚本后"},
-        {value: false, label: "步骤内前置脚本前"},
+        {value: true, label: this.$t('api_test.script.after_the_pre_script_step')},
+        {value: false, label: this.$t('api_test.script.before_the_pre_script_step')},
       ],
       scriptPostExecSort: [
-        {value: true, label: "步骤内后置脚本后"},
-        {value: false, label: "步骤内后置脚本前"},
+        {value: true, label: this.$t('api_test.script.after_the_post_script_step')},
+        {value: false, label: this.$t('api_test.script.before_the_post_script_step')},
       ],
     }
   },
@@ -112,10 +114,14 @@ export default {
       this.scriptExecSort = this.scriptPreExecSort;
       this.title = this.preTitle;
       this.stepTitle = this.preStepTitle;
+      this.runEveryTimeTip = this.$t('api_test.script.execute_before_step_tip')
+      this.runOnceTip = this.$t('api_test.script.execute_before_all_steps_tip')
     } else {
       this.scriptExecSort = this.scriptPostExecSort;
       this.title = this.postTitle;
       this.stepTitle = this.postStepTitle;
+      this.runEveryTimeTip = this.$t('api_test.script.execute_post_step_tip')
+      this.runOnceTip = this.$t('api_test.script.execute_post_all_steps_tip')
     }
     this.isConnScenario = this.connScenario;
     this.isExecAfterPrivateScript = this.execAfterPrivateScript;

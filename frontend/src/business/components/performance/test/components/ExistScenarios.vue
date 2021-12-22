@@ -1,10 +1,11 @@
 <template>
+
   <el-dialog :title="$t('load_test.scenario_list')"
              :close-on-click-modal="false"
              :destroy-on-close="true"
              width="60%" :visible.sync="loadApiAutomationVisible"
              :modal="true">
-
+    <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="$t('commons.search_by_id_name_tag')" />
     <el-table v-loading="projectLoadingResult.loading" class="basic-config"
               :data="apiScenarios"
               @select-all="handleSelectAll"
@@ -48,10 +49,12 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
+import MsTableSearchBar from "@/business/components/common/components/MsTableSearchBar";
 
 export default {
   name: "ExistScenarios",
-  components: {MsTag, MsTablePagination, MsDialogFooter},
+  components: {MsTag, MsTablePagination, MsDialogFooter,MsTableSearchBar},
   props: {
     fileList: Array,
     tableData: Array,
@@ -67,6 +70,11 @@ export default {
       total: 0,
       apiScenarios: [],
       selectIds: new Set,
+      condition: {
+        components: API_SCENARIO_CONFIGS,
+        projectId: getCurrentProjectID(),
+        filters: {status: ["Prepare", "Underway", "Completed"]}
+      },
     };
   },
   methods: {
@@ -99,11 +107,7 @@ export default {
       }
     },
     getProjectScenarios() {
-      let condition = {
-        projectId: getCurrentProjectID(),
-        filters: {status: ["Prepare", "Underway", "Completed"]}
-      };
-      this.projectLoadingResult = this.$post('/api/automation/list/' + this.currentPage + "/" + this.pageSize, condition, res => {
+      this.projectLoadingResult = this.$post('/api/automation/list/' + this.currentPage + "/" + this.pageSize, this.condition, res => {
         let data = res.data;
         this.total = data.itemCount;
         this.apiScenarios = data.listObject;
@@ -164,6 +168,9 @@ export default {
         this.loadApiAutomationVisible = false;
       });
       this.selectIds.clear();
+    },
+    search() {
+      this.getProjectScenarios();
     },
   }
 };

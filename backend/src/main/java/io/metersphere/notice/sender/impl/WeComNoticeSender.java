@@ -22,7 +22,7 @@ public class WeComNoticeSender extends AbstractNoticeSender {
     public void sendWechatRobot(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
         List<Receiver> receivers = noticeModel.getReceivers();
 
-        TextMessage message = new TextMessage(context);
+        TextMessage message = new TextMessage("消息通知: \n" + context);
         if (CollectionUtils.isNotEmpty(receivers)) {
             List<String> userIds = receivers.stream()
                     .map(Receiver::getUserId)

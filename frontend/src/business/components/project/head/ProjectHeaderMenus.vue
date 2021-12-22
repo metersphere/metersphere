@@ -30,10 +30,11 @@
           <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
             {{ $t('project.log') }}
           </el-menu-item>
-          <el-menu-item popper-class="submenu" @click="clickPlanMenu" class="hidden-sm-and-down">
+          <el-menu-item popper-class="submenu" @click="clickPlanMenu">
             {{ $t('project.version_manage') }}
           </el-menu-item>
-          <el-menu-item popper-class="submenu" @click="clickPlanMenu" class="hidden-sm-and-down">
+          <el-menu-item :index="'/project/app'" popper-class="submenu"
+                        v-permission="['PROJECT_APP_MANAGER:READ+EDIT']">
             {{ $t('project.app_manage') }}
           </el-menu-item>
         </el-menu>
@@ -47,16 +48,17 @@
 import MsShowAll from "@/business/components/common/head/ShowAll";
 import MsRecentList from "@/business/components/common/head/RecentList";
 import MsCreateButton from "@/business/components/common/head/CreateButton";
-import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "ProjectHeaderMenus",
-  components: {ProjectChange, SearchList, MsShowAll, MsRecentList, MsCreateButton},
+  components: {ProjectChange, MsShowAll, MsRecentList, MsCreateButton},
   data() {
     return {
       currentProject: '',
       pathName: '',
+      isProjectAdmin: true
     };
   },
   watch: {
@@ -71,7 +73,7 @@ export default {
     clickPlanMenu() {
       this.$info(this.$t('commons.function_planning'));
       return false;
-    }
+    },
   }
 };
 

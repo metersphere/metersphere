@@ -85,7 +85,6 @@
 import MsRolesTag from "@/business/components/common/components/MsRolesTag";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import MsCreateBox from "@/business/components/settings/CreateBox";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
@@ -105,7 +104,6 @@ export default {
     MsRolesTag,
     MsTableOperator,
     MsTablePagination,
-    MsCreateBox,
     MsTableHeader,
     MsDialogFooter,
     MsTableHeaderSelectPopover,

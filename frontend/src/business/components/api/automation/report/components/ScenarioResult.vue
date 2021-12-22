@@ -1,6 +1,6 @@
 <template>
   <div class="scenario-result">
-    <div v-if="(node.children && node.children.length >0) || node.unsolicited">
+    <div v-if="(node.children && node.children.length >0) || node.unsolicited || this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1">
       <el-card class="ms-card">
         <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner"> {{ node.index }}</div>
@@ -18,6 +18,7 @@
 
 <script>
 import MsRequestResult from "./RequestResult";
+import {STEP} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "MsScenarioResult",
@@ -31,6 +32,7 @@ export default {
   data() {
     return {
       isActive: false,
+      stepFilter: new STEP,
     }
   },
   methods: {

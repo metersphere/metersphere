@@ -1,6 +1,5 @@
 package io.metersphere.websocket;
 
-import com.alibaba.nacos.client.utils.StringUtils;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.commons.utils.LogUtil;
@@ -91,12 +90,7 @@ public class ApiReportWebSocket {
         @Override
         public void run() {
             try {
-                APIReportResult report = null;
-                if (StringUtils.equals(runMode, "debug")) {
-                    report = apiDefinitionService.getResult(reportId, runMode);
-                } else {
-                    report = apiDefinitionService.getReportById(reportId);
-                }
+                APIReportResult report = apiDefinitionService.getReportById(reportId);
                 if (!session.isOpen()) {
                     return;
                 }

@@ -9,6 +9,7 @@
                sup.mode_id,
                sup.module_id,
                sup.project_id,
+               sup.config,
                sch.value as rule,
                sch.enable,
                sch.id as taskId

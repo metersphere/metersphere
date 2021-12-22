@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close
                @close="handleClose">
-      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="60px" size="small">
+      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="90px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off" show-word-limit maxlength="50"></el-input>
         </el-form-item>
@@ -37,7 +37,7 @@ export default {
   },
   data() {
     return {
-      title: '创建环境组',
+      title: this.$t('workspace.env_group.create'),
       form: {},
       createVisible: false,
       rules: {
@@ -61,7 +61,7 @@ export default {
         if (valid) {
           let sign = this.$refs.environmentGroupRow.valid();
           if (!sign) {
-            this.$warning("项目与环境对应关系不完整！");
+            this.$warning(this.$t('workspace.env_group.not_intact'));
             return false;
           }
           let envGroupProject = this.$refs.environmentGroupRow.envGroupProject;

@@ -139,7 +139,7 @@ public class JSONSchemaGenerator {
                     try {
                         Number value = object.get("mock").getAsJsonObject().get("mock").getAsNumber();
                         if (value.toString().indexOf(".") == -1) {
-                            concept.put(propertyName, value.intValue());
+                            concept.put(propertyName, value.longValue());
                         } else {
                             concept.put(propertyName, value.floatValue());
                         }

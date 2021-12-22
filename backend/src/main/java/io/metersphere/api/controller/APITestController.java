@@ -340,7 +340,7 @@ public class APITestController {
     @GetMapping("/faliureCaseAboutTestPlan/{projectId}/{limitNumber}")
     public List<ExecutedCaseInfoDTO> faliureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable int limitNumber) {
 
-        List<ExecutedCaseInfoResult> selectDataList = apiDefinitionExecResultService.findFaliureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, limitNumber);
+        List<ExecutedCaseInfoResult> selectDataList = apiDefinitionExecResultService.findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, limitNumber);
 
         List<ExecutedCaseInfoDTO> returnList = new ArrayList<>(limitNumber);
 

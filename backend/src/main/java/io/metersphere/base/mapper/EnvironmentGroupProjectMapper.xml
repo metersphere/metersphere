@@ -6,7 +6,6 @@
     <result column="environment_group_id" jdbcType="VARCHAR" property="environmentGroupId" />
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, environment_group_id, environment_id, project_id, description
+    id, environment_group_id, environment_id, project_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.EnvironmentGroupProjectExample" resultMap="BaseResultMap">
     select
@@ -101,9 +100,9 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.EnvironmentGroupProject">
     insert into environment_group_project (id, environment_group_id, environment_id, 
-      project_id, description)
+      project_id)
     values (#{id,jdbcType=VARCHAR}, #{environmentGroupId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR})
+      #{projectId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.EnvironmentGroupProject">
     insert into environment_group_project
@@ -120,9 +119,6 @@
       <if test="projectId != null">
         project_id,
       </if>
-      <if test="description != null">
-        description,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -136,9 +132,6 @@
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -163,9 +156,6 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -176,8 +166,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR}
+      project_id = #{record.projectId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -194,9 +183,6 @@
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -204,8 +190,7 @@
     update environment_group_project
     set environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
       environment_id = #{environmentId,jdbcType=VARCHAR},
-      project_id = #{projectId,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR}
+      project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

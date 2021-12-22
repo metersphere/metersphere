@@ -5,42 +5,28 @@
         <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
         <span>{{ $t('commons.system') }}</span>
       </template>
-      <el-menu-item v-for="menu in systems" :key="menu.index" v-permission="menu.permissions" :index="menu.index"
-                    class="setting-item">
+      <el-menu-item v-for="menu in systems" :key="menu.index" v-permission="menu.permissions"
+                    :index="menu.index" class="setting-item">
         {{ $t(menu.title) }}
       </el-menu-item>
     </el-submenu>
-
-    <el-submenu index="3"
-                v-permission="workspacePermission">
+    <el-submenu index="2" v-permission="workspacePermission">
       <template v-slot:title>
         <font-awesome-icon class="icon workspace" :icon="['far', 'list-alt']" size="lg"/>
         <span>{{ $t('commons.workspace') }}</span>
       </template>
-      <el-menu-item v-for="menu in workspaces" v-permission="menu.permissions" :key="menu.index" :index="menu.index"
-                    class="setting-item">
+      <el-menu-item v-for="menu in workspaces" v-permission="menu.permissions" :key="menu.index"
+                    :index="menu.index" class="setting-item">
         {{ $t(menu.title) }}
       </el-menu-item>
-      <el-submenu index="3-1"
-                  v-permission="['WORKSPACE_TEMPLATE:READ']">
+      <el-submenu index="2-1" v-permission="['WORKSPACE_TEMPLATE:READ']" class="lower_submenu_title">
         <template slot="title">{{ $t('workspace.template_manage') }}</template>
-        <el-menu-item v-for="menu in workspaceTemplate" v-permission="menu.permissions" :key="menu.index" :index="menu.index" class="setting-item">
+        <el-menu-item v-for="menu in workspaceTemplate" v-permission="menu.permissions" :key="menu.index"
+                      :index="menu.index" class="setting-item">
           {{ $t(menu.title) }}
         </el-menu-item>
       </el-submenu>
     </el-submenu>
-
-<!--    <el-submenu index="5">
-      <template v-slot:title>
-        <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
-        <span>{{ $t('commons.personal_info') }}</span>
-      </template>
-      <el-menu-item v-for="menu in persons" :key="menu.index" :index="menu.index" class="setting-item">
-        {{ $t(menu.title) }}
-      </el-menu-item>
-    </el-submenu>-->
-
-
   </el-menu>
 </template>
 
@@ -70,17 +56,15 @@ export default {
     };
     return {
       systems: getMenus('system'),
-      organizations: getMenus('organization'),
       workspaces: getMenus('workspace'),
-     /* persons: getMenus('person'),*/
       project: getMenus('project'),
       workspaceTemplate: getMenus('workspaceTemplate'),
       systemPermission: [
-        'SYSTEM_USER:READ','SYSTEM_ORGANIZATION:READ', 'SYSTEM_GROUP:READ',
-        'ORGANIZATION_GROUP:READ', 'SYSTEM_WORKSPACE:READ','SYSTEM_TEST_POOL:READ',
-        'SYSTEM_SETTING:READ','SYSTEM_QUOTA:READ','SYSTEM_AUTH:READ'
+        'SYSTEM_USER:READ', 'SYSTEM_ORGANIZATION:READ', 'SYSTEM_GROUP:READ',
+        'ORGANIZATION_GROUP:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_TEST_POOL:READ',
+        'SYSTEM_SETTING:READ', 'SYSTEM_QUOTA:READ', 'SYSTEM_AUTH:READ'
       ],
-      workspacePermission: ['WORKSPACE_USER:READ','WORKSPACE_SERVICE:READ','WORKSPACE_MESSAGE:READ',
+      workspacePermission: ['WORKSPACE_USER:READ', 'WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ',
         'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ',
         'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ']
     };
@@ -89,7 +73,7 @@ export default {
     valid() {
       Promise.all([component.default.valid(this)]).then(() => {
         let license = localStorage.getItem(LicenseKey);
-        if (license != "valid") {
+        if (license !== "valid") {
           this.systems.forEach(item => {
             if (item.valid === true) {
               this.systems.splice(this.systems.indexOf(item), 1);
@@ -127,8 +111,9 @@ export default {
   color: #5a78f0;
 }
 
-.organization {
-  color: #b33a5b;
+.lower_submenu_title >>> .el-submenu__title {
+  height: 40px;
+  line-height: 40px;
 }
 
 .workspace {

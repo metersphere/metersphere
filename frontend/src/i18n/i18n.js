@@ -8,6 +8,8 @@ import zh_CN from "./zh-CN";
 import en_US from "./en-US";
 import zh_TW from "./zh-TW";
 
+export const CURRENT_LANGUAGE = 'current_language';
+
 Vue.use(VueI18n);
 
 const messages = {
@@ -35,8 +37,9 @@ const loadedLanguages = ['en_US', 'zh_CN', 'zh_TW'];
 
 function setI18nLanguage(lang) {
   i18n.locale = lang;
-  axios.defaults.headers.common['Accept-Language'] = lang;
+  axios.defaults.headers.common['Accept-Language'] = lang.replace("_", "-");
   document.querySelector('html').setAttribute('lang', lang);
+  localStorage.setItem(CURRENT_LANGUAGE, lang);
   return lang;
 }
 

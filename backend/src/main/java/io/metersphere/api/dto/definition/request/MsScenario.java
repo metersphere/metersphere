@@ -17,9 +17,9 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
@@ -162,7 +162,7 @@ public class MsScenario extends MsTestElement {
             tree.add(ParameterConfig.valueSupposeMock(arguments));
         }
         ElementUtil.addCsvDataSet(tree, variables, config, "shareMode.group");
-        ElementUtil.addCounter(tree, variables);
+        ElementUtil.addCounter(tree, variables, false);
         ElementUtil.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
             config.setHeaders(this.headers);

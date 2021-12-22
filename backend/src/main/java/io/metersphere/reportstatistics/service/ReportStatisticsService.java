@@ -6,21 +6,23 @@ import io.metersphere.base.domain.ReportStatistics;
 import io.metersphere.base.domain.ReportStatisticsExample;
 import io.metersphere.base.domain.ReportStatisticsWithBLOBs;
 import io.metersphere.base.mapper.ReportStatisticsMapper;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.reportstatistics.dto.ReportStatisticsSaveRequest;
-import io.metersphere.reportstatistics.dto.ReportStatisticsType;
-import io.metersphere.reportstatistics.dto.TestCaseCountTableDTO;
+import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.reportstatistics.dto.*;
+import io.metersphere.reportstatistics.dto.charts.Series;
 import io.metersphere.reportstatistics.dto.table.TestCaseCountTableDataDTO;
 import io.metersphere.reportstatistics.dto.table.TestCaseCountTableItemDataDTO;
 import io.metersphere.reportstatistics.dto.table.TestCaseCountTableRowDTO;
+import io.metersphere.reportstatistics.utils.ChromeUtils;
+import io.metersphere.service.SystemParameterService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author song.tianyang
@@ -31,19 +33,21 @@ import java.util.UUID;
 public class ReportStatisticsService {
     @Resource
     private ReportStatisticsMapper reportStatisticsMapper;
+    @Resource
+    private TestCaseCountService testCaseCountService;
 
     public ReportStatisticsWithBLOBs saveByRequest(ReportStatisticsSaveRequest request) {
         ReportStatisticsWithBLOBs model = new ReportStatisticsWithBLOBs();
         model.setId(UUID.randomUUID().toString());
 
         String name = "用例分析报表";
-        if(StringUtils.equalsIgnoreCase(ReportStatisticsType.TEST_CASE_COUNT.name(),request.getReportType())){
+        if (StringUtils.equalsIgnoreCase(ReportStatisticsType.TEST_CASE_COUNT.name(), request.getReportType())) {
             name = "用例统计报表";
             model.setReportType(ReportStatisticsType.TEST_CASE_COUNT.name());
-        }else {
+        } else {
             model.setReportType(ReportStatisticsType.TEST_CASE_ANALYSIS.name());
         }
-        if(StringUtils.isEmpty(request.getName())){
+        if (StringUtils.isEmpty(request.getName())) {
             request.setName(name);
         }
         model.setName(request.getName());
@@ -66,23 +70,84 @@ public class ReportStatisticsService {
     }
 
     public ReportStatisticsWithBLOBs selectById(String id) {
-        ReportStatisticsWithBLOBs blob =  reportStatisticsMapper.selectByPrimaryKey(id);
-        JSONObject dataOption = JSONObject.parseObject(blob.getDataOption());
+        ReportStatisticsWithBLOBs blob = reportStatisticsMapper.selectByPrimaryKey(id);
+        if (blob == null) {
+            return null;
+        }
         JSONObject selectOption = JSONObject.parseObject(blob.getSelectOption());
-        if(!dataOption.containsKey("showTable")){
-            List<TestCaseCountTableDTO> dtos = JSONArray.parseArray(dataOption.getString("tableData"),TestCaseCountTableDTO.class);
-            TestCaseCountTableDataDTO showTable = this.countShowTable(selectOption.getString("xaxis"), JSONArray.parseArray(selectOption.getString("yaxis"),String.class),dtos);
-            dataOption.put("showTable",showTable);
+        JSONObject dataOption = JSONObject.parseObject(blob.getDataOption());
+        boolean isReportNeedUpdate = this.isReportNeedUpdate(blob);
+        if (isReportNeedUpdate) {
+            TestCaseCountRequest countRequest = JSONObject.parseObject(blob.getSelectOption(), TestCaseCountRequest.class);
+            JSONObject returnDataOption = this.reloadDatas(countRequest, dataOption.getString("chartType"));
+            if (returnDataOption != null) {
+                dataOption = returnDataOption;
+            }
+        }
+
+        if (!dataOption.containsKey("showTable")) {
+            List<TestCaseCountTableDTO> dtos = JSONArray.parseArray(dataOption.getString("tableData"), TestCaseCountTableDTO.class);
+            TestCaseCountTableDataDTO showTable = this.countShowTable(selectOption.getString("xaxis"), JSONArray.parseArray(selectOption.getString("yaxis"), String.class), dtos);
+            dataOption.put("showTable", showTable);
             blob.setDataOption(dataOption.toString());
         }
         return blob;
     }
+
+    private JSONObject reloadDatas(TestCaseCountRequest request, String chartType) {
+        if (StringUtils.isEmpty(chartType)) {
+            chartType = "bar";
+        }
+        JSONObject returnObject = new JSONObject();
+        TestCaseCountResponse testCaseCountResponse = testCaseCountService.getReport(request);
+        if (testCaseCountResponse.getBarChartDTO() != null) {
+            JSONObject loadOptionObject = new JSONObject();
+            loadOptionObject.put("legend", JSONObject.toJSON(testCaseCountResponse.getBarChartDTO().getLegend()));
+            loadOptionObject.put("xAxis", JSONObject.toJSON(testCaseCountResponse.getBarChartDTO().getXAxis()));
+            loadOptionObject.put("xaxis", JSONObject.toJSON(testCaseCountResponse.getBarChartDTO().getXAxis()));
+            loadOptionObject.put("yAxis", JSONObject.toJSON(testCaseCountResponse.getBarChartDTO().getYAxis()));
+            loadOptionObject.put("tooltip", new JSONObject());
+            loadOptionObject.put("lable", new JSONObject());
+            if (!CollectionUtils.isEmpty(testCaseCountResponse.getBarChartDTO().getSeries())) {
+                List<Series> list = testCaseCountResponse.getBarChartDTO().getSeries();
+                for (Series model : list) {
+                    model.setType(chartType);
+                }
+                loadOptionObject.put("series", JSONArray.toJSON(list));
+            }
+            loadOptionObject.put("grid", new JSONObject().put("bottom", "75px"));
+            returnObject.put("loadOption", loadOptionObject);
+        }
+        if (testCaseCountResponse.getPieChartDTO() != null) {
+            JSONObject pieOptionObject = new JSONObject();
+            pieOptionObject.put("title", JSONObject.toJSON(testCaseCountResponse.getPieChartDTO().getTitle()));
+            pieOptionObject.put("xAxis", JSONObject.toJSON(testCaseCountResponse.getPieChartDTO().getXAxis()));
+            if (!CollectionUtils.isEmpty(testCaseCountResponse.getPieChartDTO().getSeries())) {
+                List<Series> list = testCaseCountResponse.getPieChartDTO().getSeries();
+                for (Series model : list) {
+                    model.setType(chartType);
+                }
+                pieOptionObject.put("series", JSONArray.toJSON(list));
+            }
+            pieOptionObject.put("grid", new JSONObject().put("bottom", "75px"));
+            if (testCaseCountResponse.getPieChartDTO().getWidth() > 0) {
+                pieOptionObject.put("width", testCaseCountResponse.getPieChartDTO().getWidth());
+            }
+            returnObject.put("pieOption", pieOptionObject);
+        }
+        if (testCaseCountResponse.getTableDTOs() != null) {
+            returnObject.put("tableData", JSONArray.toJSON(testCaseCountResponse.getTableDTOs()));
+        }
+        returnObject.put("chartType", chartType);
+        return returnObject;
+    }
+
     private TestCaseCountTableDataDTO countShowTable(String groupName, List<String> yaxis, List<TestCaseCountTableDTO> dtos) {
-        if(yaxis == null){
+        if (yaxis == null) {
             yaxis = new ArrayList<>();
         }
         TestCaseCountTableDataDTO returnDTO = new TestCaseCountTableDataDTO();
-        String [] headers = new String[]{groupName,"总计","testCase","apiCase","scenarioCase","loadCaseCount"};
+        String[] headers = new String[]{groupName, "Count", "testCase", "apiCase", "scenarioCase", "loadCaseCount"};
 
         List<TestCaseCountTableItemDataDTO> heads = new ArrayList<>();
         boolean showTestCase = true;
@@ -91,19 +156,19 @@ public class ReportStatisticsService {
         boolean showLoad = true;
 
         for (String head : headers) {
-            if(StringUtils.equalsAnyIgnoreCase(head,groupName,"总计") || yaxis.contains(head)){
+            if (StringUtils.equalsAnyIgnoreCase(head, groupName, "Count") || yaxis.contains(head)) {
                 TestCaseCountTableItemDataDTO headData = new TestCaseCountTableItemDataDTO();
                 headData.setId(UUID.randomUUID().toString());
                 headData.setValue(head);
                 heads.add(headData);
-            }else {
-                if(StringUtils.equalsIgnoreCase(head,"testCase")){
+            } else {
+                if (StringUtils.equalsIgnoreCase(head, "testCase")) {
                     showTestCase = false;
-                }else if(StringUtils.equalsIgnoreCase(head,"apiCase")){
+                } else if (StringUtils.equalsIgnoreCase(head, "apiCase")) {
                     showApi = false;
-                }else if(StringUtils.equalsIgnoreCase(head,"scenarioCase")){
+                } else if (StringUtils.equalsIgnoreCase(head, "scenarioCase")) {
                     showScenario = false;
-                }else if(StringUtils.equalsIgnoreCase(head,"loadCaseCount")){
+                } else if (StringUtils.equalsIgnoreCase(head, "loadCaseCount")) {
                     showLoad = false;
                 }
             }
@@ -123,28 +188,28 @@ public class ReportStatisticsService {
             countData.setValue(data.getAllCount());
             rowDataList.add(countData);
 
-            if(showTestCase){
+            if (showTestCase) {
                 TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
                 itemData.setId(UUID.randomUUID().toString());
                 itemData.setValue(data.getTestCaseCount());
                 rowDataList.add(itemData);
             }
 
-            if(showApi){
+            if (showApi) {
                 TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
                 itemData.setId(UUID.randomUUID().toString());
                 itemData.setValue(data.getApiCaseCount());
                 rowDataList.add(itemData);
             }
 
-            if(showScenario){
+            if (showScenario) {
                 TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
                 itemData.setId(UUID.randomUUID().toString());
                 itemData.setValue(data.getScenarioCaseCount());
                 rowDataList.add(itemData);
             }
 
-            if(showLoad){
+            if (showLoad) {
                 TestCaseCountTableItemDataDTO itemData = new TestCaseCountTableItemDataDTO();
                 itemData.setId(UUID.randomUUID().toString());
                 itemData.setValue(data.getLoadCaseCount());
@@ -173,16 +238,48 @@ public class ReportStatisticsService {
     public List<ReportStatistics> selectByRequest(ReportStatisticsSaveRequest request) {
         ReportStatisticsExample example = new ReportStatisticsExample();
         ReportStatisticsExample.Criteria criteria = example.createCriteria();
-        if(StringUtils.isNotEmpty(request.getProjectId())){
+        if (StringUtils.isNotEmpty(request.getProjectId())) {
             criteria.andProjectIdEqualTo(request.getProjectId());
         }
-        if(StringUtils.isNotEmpty(request.getReportType())){
+        if (StringUtils.isNotEmpty(request.getReportType())) {
             criteria.andReportTypeEqualTo(request.getReportType());
         }
-        if(StringUtils.isNotEmpty(request.getName())){
+        if (StringUtils.isNotEmpty(request.getName())) {
             criteria.andNameLike(request.getName());
         }
         example.setOrderByClause("create_time DESC");
-        return  reportStatisticsMapper.selectByExample(example);
+        return reportStatisticsMapper.selectByExample(example);
+    }
+
+    public Map<String, String> getImageContentById(List<ReportStatisticsWithBLOBs> reportRecordIdList, String language) {
+        if (CollectionUtils.isEmpty(reportRecordIdList)) {
+            return new HashMap<>();
+        }
+
+        ChromeUtils chromeUtils = ChromeUtils.getInstance();
+        HeadlessRequest headlessRequest = new HeadlessRequest();
+        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
+        // 占位符
+        String platformUrl = "http://localhost:8081";
+        String remoteDriverUrl = "http://localhost:4444";
+        if (baseInfo != null) {
+            platformUrl = baseInfo.getUrl();
+            remoteDriverUrl = baseInfo.getSeleniumDockerUrl();
+        }
+
+        Map<String, String> urlMap = new HashMap<>();
+        for (ReportStatisticsWithBLOBs blob : reportRecordIdList) {
+            String url = platformUrl + "/echartPic?shareId=" + blob.getId();
+            urlMap.put(blob.getId(), url);
+        }
+        headlessRequest.setUrlMap(urlMap);
+        headlessRequest.setRemoteDriverUrl(remoteDriverUrl);
+        Map<String, String> returnMap = chromeUtils.getImageInfo(headlessRequest, language);
+        return returnMap;
+    }
+
+    public boolean isReportNeedUpdate(ReportStatisticsWithBLOBs model) {
+        JSONObject selectOption = JSONObject.parseObject(model.getSelectOption());
+        return selectOption.containsKey("timeType") && StringUtils.equalsIgnoreCase("dynamicTime", selectOption.getString("timeType"));
     }
 }

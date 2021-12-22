@@ -54,13 +54,13 @@
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
             <el-container style="height: 50px;margin-top: 10px">
               <el-aside width="50%" style="line-height: 40px;">
-                {{$t('api_test.home_page.detail_card.rate.pass')+":"}}
+                {{ $t('api_test.home_page.detail_card.rate.pass') + ":" }}
               </el-aside>
               <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
                 <span class="rows-count-number">
-                {{sceneCountData.passRage}}
+                {{ sceneCountData.passRage }}
                   <el-tooltip placement="top" class="info-tool-tip">
-                    <div slot="content">{{ $t('api_test.home_page.formula.pass')}}</div>
+                    <div slot="content">{{ $t('api_test.home_page.formula.pass') }}</div>
                     <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
                   </el-tooltip>
               </span>

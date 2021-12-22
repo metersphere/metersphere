@@ -4,12 +4,17 @@
     <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
     <el-submenu index="2" popper-class="submenu">
       <template v-slot:title>
-        <span class="project-name" :title="currentProject">
-          {{ $t('commons.project') }}: {{ currentProject }}
-        </span>
+        <el-tooltip effect="light" placement="right" :enterable="false">
+          <div slot="content">{{ currentProject }}</div>
+          <span class="project-name">
+            {{ $t('commons.project') }}: {{ currentProject }}
+          </span>
+        </el-tooltip>
       </template>
       <search-list :current-project.sync="currentProject"/>
-      <el-divider/>
+      <div v-permission="['WORKSPACE_PROJECT_MANAGER:READ']">
+        <el-divider/>
+      </div>
       <el-menu-item :index="'/setting/project/create'" v-permission="['WORKSPACE_PROJECT_MANAGER:READ+CREATE']">
         <font-awesome-icon :icon="['fa', 'plus']"/>
         <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
@@ -52,7 +57,7 @@ export default {
 <style scoped>
 .project-name {
   display: inline-block;
-  width: 130px;
+  width: 160px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
