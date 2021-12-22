@@ -19,14 +19,12 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -159,9 +157,16 @@ public class EnvironmentGroupService {
     }
 
     private void checkEnvironmentGroup(EnvironmentGroupRequest request) {
+        Locale locale = LocaleContextHolder.getLocale();
         String name = request.getName();
         if (StringUtils.isBlank(name)) {
-            MSException.throwException("environment group name is null.");
+            if(Locale.US.toString().equalsIgnoreCase(locale.toString())){
+                MSException.throwException("environment group name is null.");
+            }else if(Locale.TRADITIONAL_CHINESE.toString().equalsIgnoreCase(locale.toString())){
+                MSException.throwException("環境組名稱不存在。");
+            }else{
+                MSException.throwException("环境组名称不存在。");
+            }
         }
 
         EnvironmentGroupExample environmentGroupExample = new EnvironmentGroupExample();
@@ -173,7 +178,13 @@ public class EnvironmentGroupService {
         }
 
         if (environmentGroupMapper.countByExample(environmentGroupExample) > 0) {
-            MSException.throwException("环境组名称 " + request.getName() + " 已存在！");
+            if(Locale.US.toString().equalsIgnoreCase(locale.toString())){
+                MSException.throwException("Environment group name " + request.getName() + " already exists！");
+            }else if(Locale.TRADITIONAL_CHINESE.toString().equalsIgnoreCase(locale.toString())){
+                MSException.throwException("環境組名稱 " + request.getName() + " 已存在！");
+            }else{
+                MSException.throwException("环境组名称 " + request.getName() + " 已存在！");
+            }
         }
     }
 
