@@ -314,6 +314,7 @@ export default {
       default_module: "Default module",
     },
     report_statistics: {
+      reserved: "Reserved",
       menu: {
         project_statistics: "Project statistics",
         project_report: "Project report",

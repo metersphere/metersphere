@@ -33,6 +33,7 @@ import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
@@ -43,7 +44,6 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -505,14 +505,9 @@ public class APITestService {
                     //HTTPSamplerProxy， 进行附件转化： 1.elementProp里去掉路径； 2。elementProp->filePath获取路径并读出来
                     attachmentFilePathList.addAll(this.parseAttachmentFileInfo(element));
 
-                    //查看是否含有RunningDebugSampler,转jmx的时候去掉
-                    List<Element> debugSamplerElementList = element.elements("DebugSampler");
-                    for (Element debugSampler : debugSamplerElementList) {
-                        String testname = debugSampler.attributeValue("testname");
-                        if (StringUtils.equalsAnyIgnoreCase(testname, RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
-                            element.remove(debugSampler);
-                        }
-                    }
+                    //检查并去掉RunningDebugSampler,转jmx的时候去掉
+                    this.checkAndRemoveRunningDebugSampler(element);
+
                 }
                 //如果存在证书文件，也要匹配出来
                 attachmentFilePathList.addAll(this.parseAttachmentFileInfo(innerHashTreeElement));
@@ -549,6 +544,23 @@ public class APITestService {
         JmxInfoDTO returnDTO = new JmxInfoDTO("Demo.jmx", jmxString, attachmentFiles);
         returnDTO.setFileMetadataList(fileMetadataList);
         return returnDTO;
+    }
+
+    private void checkAndRemoveRunningDebugSampler(Element element) {
+        List<Element> childElements = element.elements();
+        if (CollectionUtils.isNotEmpty(childElements)) {
+            if (childElements.size() > 1) {
+                Element checkElement = childElements.get(childElements.size() - 2);
+                String elementName = checkElement.attributeValue("testname");
+                if (StringUtils.equalsIgnoreCase(elementName, RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
+                    Element checkHashTreeElement = childElements.get(childElements.size() - 1);
+                    if (StringUtils.equalsIgnoreCase("hashtree", checkHashTreeElement.getName())) {
+                        element.remove(checkHashTreeElement);
+                        element.remove(checkElement);
+                    }
+                }
+            }
+        }
     }
 
     private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {

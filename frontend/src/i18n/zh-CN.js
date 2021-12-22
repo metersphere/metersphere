@@ -315,6 +315,7 @@ export default {
       default_module: "默认模块",
     },
     report_statistics: {
+      reserved: "预留模块敬请期待",
       menu: {
         project_statistics: "项目报表",
         project_report: "项目报告",

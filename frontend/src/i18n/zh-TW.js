@@ -315,6 +315,7 @@ export default {
       default_module: "默認模塊",
     },
     report_statistics: {
+      reserved: "預留模塊敬請期待",
       menu: {
         project_statistics: "項目報表",
         project_report: "項目報告",
