@@ -23,11 +23,10 @@ import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.RequestResult;
-import io.metersphere.dto.ResultDTO;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.utils.JMeterVars;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.websocket.c.to.c.MsWebSocketClient;
+import io.metersphere.websocket.c.to.c.WebSocketUtils;
 import io.metersphere.websocket.c.to.c.util.MsgDto;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +43,7 @@ import java.util.Map;
 /**
  * 实时结果监听
  */
-public class MsDebugListener extends AbstractListenerElement implements SampleListener, Clearable, Serializable,
+public class MsResultCollector extends AbstractListenerElement implements SampleListener, Clearable, Serializable,
         TestStateListener, Remoteable, NoThreadClone {
 
     private static final String ERROR_LOGGING = "MsResultCollector.error_logging"; // $NON-NLS-1$
@@ -55,11 +54,9 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
 
     public static final String TEST_END = "MS_TEST_END";
 
-    private MsWebSocketClient client;
-
     @Override
     public Object clone() {
-        MsDebugListener clone = (MsDebugListener) super.clone();
+        MsResultCollector clone = (MsResultCollector) super.clone();
         return clone;
     }
 
@@ -100,28 +97,20 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
     @Override
     public void testEnded(String host) {
         LoggerUtil.debug("TestEnded " + this.getName());
-        SampleResult result = new SampleResult();
-        result.setResponseCode(TEST_END);
-        ResultDTO dto = new ResultDTO();
-        dto.setReportId(this.getName());
-        try {
-            if (client != null) {
-                client.close();
-            }
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
+        MsgDto dto = new MsgDto();
+        dto.setExecEnd(false);
+        dto.setContent(TEST_END);
+        dto.setReportId("send." + this.getName());
+        dto.setToReport(this.getName());
+        LoggerUtil.debug("send. " + this.getName());
+        WebSocketUtils.sendMessageSingle(dto);
+        WebSocketUtils.onClose(this.getName());
     }
 
     @Override
     public void testStarted(String host) {
         LogUtil.debug("TestStarted " + this.getName());
-        try {
-            client = new MsWebSocketClient("ws://127.0.0.1:8081/ws/" + "send." + this.getName());
-            client.connect();
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
+
     }
 
     @Override
@@ -142,10 +131,9 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
             dto.setReportId("send." + this.getName());
             dto.setToReport(this.getName());
             LoggerUtil.debug("send. " + this.getName());
-            if (client != null) {
-                client.send(JSON.toJSONString(dto));
-            }
+            WebSocketUtils.sendMessageSingle(dto);
         } catch (Exception ex) {
+            LoggerUtil.error("消息推送失败：" + ex.getMessage());
         }
     }
 
@@ -179,9 +167,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                     dto.setReportId("send." + this.getName());
                     dto.setToReport(this.getName());
                     LoggerUtil.debug("send. " + this.getName());
-                    if (client != null) {
-                        client.send(JSON.toJSONString(dto));
-                    }
+                    WebSocketUtils.sendMessageSingle(dto);
                 }
             }
         }

@@ -22,7 +22,7 @@ public class IndexWebSocket {
     public void openSession(@PathParam("reportId") String reportId, Session session) {
         WebSocketUtils.ONLINE_USER_SESSIONS.put(reportId, session);
         log.info("客户端: [" + reportId + "] : 连接成功！");
-        WebSocketUtils.sendMessageAll("客户端: [" + reportId + "] : 连接成功！");
+        //WebSocketUtils.sendMessageAll("客户端: [" + reportId + "] : 连接成功！");
     }
 
     /**
@@ -45,7 +45,7 @@ public class IndexWebSocket {
         WebSocketUtils.ONLINE_USER_SESSIONS.remove(reportId);
         log.info("[" + reportId + "] : 断开连接！");
         //并且通知其他人当前用户已经断开连接了
-        WebSocketUtils.sendMessageAll("[" + reportId + "] : 断开连接！");
+        //WebSocketUtils.sendMessageAll("[" + reportId + "] : 断开连接！");
         session.close();
     }
 
