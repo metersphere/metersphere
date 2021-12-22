@@ -171,7 +171,6 @@ export default {
   created() {
     this.data = [];
     this.instances = [];
-    this.id = this.$route.path.split('/')[4];
     this.getResource();
   },
   methods: {
@@ -350,13 +349,6 @@ export default {
     },
   },
   watch: {
-    '$route'(to) {
-      if (to.name === "perReportView") {
-        this.id = to.path.split('/')[4];
-        this.init = false;
-        this.getResource();
-      }
-    },
     report: {
       handler(val) {
         if (!val.status || !val.id) {
