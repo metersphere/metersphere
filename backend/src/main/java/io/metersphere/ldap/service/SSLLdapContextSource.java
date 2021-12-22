@@ -6,6 +6,10 @@ import javax.naming.Context;
 import java.util.Hashtable;
 
 public class SSLLdapContextSource extends LdapContextSource {
+    static {
+        System.setProperty("com.sun.jndi.ldap.object.disableEndpointIdentification", "true");
+    }
+
     public Hashtable<String, Object> getAnonymousEnv() {
         Hashtable<String, Object> anonymousEnv = super.getAnonymousEnv();
         anonymousEnv.put("java.naming.security.protocol", "ssl");
