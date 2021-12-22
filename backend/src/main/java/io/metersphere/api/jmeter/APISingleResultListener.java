@@ -24,7 +24,6 @@ public class APISingleResultListener extends MsExecListener {
     public void testEnded(ResultDTO dto, Map<String, Object> kafkaConfig) {
         try {
             LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】整体执行完成；" + dto.getRunMode());
-
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
             dto.setConsole(CommonBeanFactory.getBean(MsResultService.class).getJmeterLogger(dto.getReportId()));

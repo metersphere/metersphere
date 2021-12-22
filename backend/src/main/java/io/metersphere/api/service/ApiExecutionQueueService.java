@@ -180,8 +180,8 @@ public class ApiExecutionQueueService {
         final int SECOND_MILLIS = 1000;
         final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
         long now = System.currentTimeMillis();
-        // 八分钟前的数据
-        now = now - 8 * MINUTE_MILLIS;
+        // 半小时前的超时报告
+        now = now - 30 * MINUTE_MILLIS;
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
         example.createCriteria().andCreateTimeLessThan(now);
         List<ApiExecutionQueueDetail> queueDetails = executionQueueDetailMapper.selectByExample(example);

@@ -87,6 +87,7 @@ public class ApiScenarioReportService {
         apiScenarioReportResultService.save(dto.getReportId(), requestResults);
     }
 
+
     public ApiScenarioReport testEnded(ResultDTO dto) {
         if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
             // 更新控制台信息
@@ -95,6 +96,15 @@ public class ApiScenarioReportService {
         ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
         example.createCriteria().andReportIdEqualTo(dto.getReportId());
         List<ApiScenarioReportResult> requestResults = apiScenarioReportResultMapper.selectByExample(example);
+
+        if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
+            String status = getStatus(requestResults, dto);
+            Map<String, String> reportMap = new HashMap<String, String>() {{
+                this.put(dto.getReportId(), status);
+            }};
+            testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(dto.getReportId()) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(reportMap));
+            TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(dto.getTestPlanReportId(), null, reportMap, null);
+        }
 
         ApiScenarioReport scenarioReport;
         if (StringUtils.equals(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
@@ -226,7 +236,7 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updatePlanCase(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
-        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Error")).count();
+        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (testPlanApiScenario != null) {
             if (errorSize > 0) {
@@ -234,7 +244,7 @@ public class ApiScenarioReportService {
             } else {
                 testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
             }
-            long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Success")).count();
+            long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
 
             String passRate = new DecimalFormat("0%").format((float) successSize / requestResults.size());
             testPlanApiScenario.setPassRate(passRate);
@@ -245,7 +255,7 @@ public class ApiScenarioReportService {
             // 更新场景状态
             ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
             if (scenario != null) {
-                scenario.setLastResult(errorSize > 0 ? "Fail" : "Success");
+                scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
                 scenario.setPassRate(passRate);
                 scenario.setReportId(dto.getReportId());
                 int executeTimes = 0;
@@ -256,11 +266,7 @@ public class ApiScenarioReportService {
                 apiScenarioMapper.updateByPrimaryKey(scenario);
             }
         }
-        String status = errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success";
-        if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
-            LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
-            status = "Timeout";
-        }
+        String status = getStatus(requestResults, dto);
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         return report;
     }
@@ -269,15 +275,8 @@ public class ApiScenarioReportService {
         List<String> testPlanReportIdList = new ArrayList<>();
         StringBuilder scenarioNames = new StringBuilder();
 
-        Map<String, String> scenarioAndErrorMap = new HashMap<>();
-        Map<String, String> planScenarioReportMap = new HashMap<>();
-        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Error")).count();
-
-        String status = errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success";
-        if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
-            LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
-            status = "Timeout";
-        }
+        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
+        String status = getStatus(requestResults, dto);
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         if (report != null) {
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
@@ -288,15 +287,12 @@ public class ApiScenarioReportService {
                 report.setScenarioId(testPlanApiScenario.getApiScenarioId());
                 report.setEndTime(System.currentTimeMillis());
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-                planScenarioReportMap.put(dto.getTestId(), report.getId());
                 if (errorSize > 0) {
-                    scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.FAILD.name());
                     testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
                 } else {
-                    scenarioAndErrorMap.put(testPlanApiScenario.getId(), TestPlanApiExecuteStatus.SUCCESS.name());
                     testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
                 }
-                long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Success")).count();
+                long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
                 String passRate = new DecimalFormat("0%").format((float) successSize / requestResults.size());
                 testPlanApiScenario.setPassRate(passRate);
 
@@ -312,7 +308,7 @@ public class ApiScenarioReportService {
                     if (errorSize > 0) {
                         scenario.setLastResult("Fail");
                     } else {
-                        scenario.setLastResult("Success");
+                        scenario.setLastResult(ScenarioStatus.Success.name());
                     }
                     scenario.setPassRate(passRate);
                     scenario.setReportId(report.getId());
@@ -325,11 +321,6 @@ public class ApiScenarioReportService {
                     apiScenarioMapper.updateByPrimaryKey(scenario);
                 }
             }
-            testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
-            for (String item : testPlanReportIdList) {
-                TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(item, null, scenarioAndErrorMap, null);
-                TestPlanReportExecuteCatch.updateTestPlanReport(item, null, planScenarioReportMap);
-            }
         }
         return report;
     }
@@ -339,9 +330,9 @@ public class ApiScenarioReportService {
         if (report != null) {
             // 更新场景状态
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
-            example.createCriteria().andReportIdEqualTo(reportId).andStatusEqualTo("Error");
+            example.createCriteria().andReportIdEqualTo(reportId).andStatusEqualTo(ScenarioStatus.Error.name());
             long size = apiScenarioReportResultMapper.countByExample(example);
-            report.setStatus(size > 0 ? "Error" : "Success");
+            report.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
             report.setEndTime(System.currentTimeMillis());
             // 更新控制台信息
             apiScenarioReportStructureService.update(reportId, resultService.getJmeterLogger(reportId));
@@ -351,13 +342,10 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updateScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
-        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Error")).count();
+        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
         // 更新报告状态
-        String status = errorSize > 0 || requestResults.isEmpty() ? "Error" : "Success";
-        if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
-            LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
-            status = "Timeout";
-        }
+        String status = getStatus(requestResults, dto);
+
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         // 更新场景状态
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(dto.getTestId());
@@ -365,8 +353,8 @@ public class ApiScenarioReportService {
             scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
         }
         if (scenario != null) {
-            scenario.setLastResult(errorSize > 0 ? "Fail" : "Success");
-            long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), "Success")).count();
+            scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
+            long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
             scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
             scenario.setReportId(dto.getReportId());
             int executeTimes = 0;
@@ -417,7 +405,7 @@ public class ApiScenarioReportService {
 
         String event;
         String status;
-        if (StringUtils.equals(scenario.getLastResult(), "Success")) {
+        if (StringUtils.equals(scenario.getLastResult(), ScenarioStatus.Success.name())) {
             event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
             status = "成功";
         } else {
@@ -706,5 +694,15 @@ public class ApiScenarioReportService {
         report.setScenarioName(scenarioName);
         report.setScenarioId(scenarioId);
         return report;
+    }
+
+    private String getStatus(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
+        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
+        String status = errorSize > 0 || requestResults.isEmpty() ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name();
+        if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
+            LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
+            status = ScenarioStatus.Timeout.name();
+        }
+        return status;
     }
 }
