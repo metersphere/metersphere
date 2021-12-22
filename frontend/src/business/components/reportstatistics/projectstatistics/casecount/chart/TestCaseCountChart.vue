@@ -73,7 +73,7 @@ export default {
         {id: 'pie', name: this.$t('commons.report_statistics.pie')}
       ],
       order: "",
-      orders: [{id: '', name: '默认排序'}, {id: 'desc', name: this.$t('commons.report_statistics.desc')}, {
+      orders: [{id: '', name: this.$t('commons.sort_default')}, {id: 'desc', name: this.$t('commons.report_statistics.desc')}, {
         id: 'asc',
         name: this.$t('commons.report_statistics.asc')
       }],
