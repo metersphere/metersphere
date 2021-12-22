@@ -302,7 +302,8 @@ export default {
           permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API']
         },
         {
-          name: "批量恢复", handleClick: this.handleBatchRestore
+          name: this.$t('commons.batch_restore'),
+          handleClick: this.handleBatchRestore
         },
       ],
       tableOperatorButtons: [],
