@@ -3,6 +3,7 @@ package io.metersphere.job.sechedule;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.track.service.TestPlanService;
 import org.quartz.*;
 
@@ -16,25 +17,10 @@ import org.quartz.*;
 public class TestPlanTestJob extends MsScheduleJob {
     private String projectID;
 
-
-    //    private PerformanceTestService performanceTestService;
-//    private TestPlanScenarioCaseService testPlanScenarioCaseService;
-//    private TestPlanApiCaseService testPlanApiCaseService;
-//    private ApiTestCaseService apiTestCaseService;
-//    private TestPlanReportService testPlanReportService;
-//    private TestPlanLoadCaseService testPlanLoadCaseService;
     private TestPlanService testPlanService;
 
     public TestPlanTestJob() {
-//        this.performanceTestService = CommonBeanFactory.getBean(PerformanceTestService.class);
-//        this.testPlanScenarioCaseService = CommonBeanFactory.getBean(TestPlanScenarioCaseService.class);
-//        this.testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
-//        this.apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
-//        this.testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-//        this.testPlanLoadCaseService = CommonBeanFactory.getBean(TestPlanLoadCaseService.class);
         this.testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
-
-
     }
 
     /**
@@ -63,7 +49,17 @@ public class TestPlanTestJob extends MsScheduleJob {
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
         String config = jobDataMap.getString("config");
 
-        testPlanService.run(this.resourceId, this.projectID, this.userId, ReportTriggerMode.SCHEDULE.name(),config);
+        String runResourceId = this.resourceId;
+        String runProjectId = this.projectID;
+        String runUserId = this.userId;
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.info("Start test_plan_scehdule. test_plan_id:" + runResourceId);
+                testPlanService.run(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(),config);
+            }
+        });
+        thread.start();
     }
 
     public static JobKey getJobKey(String testId) {

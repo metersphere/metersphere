@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TestPlanResourceType;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.track.dto.TestPlanReportExecuteCheckResultDTO;
 import io.metersphere.utils.LoggerUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author song.tianyang
@@ -30,17 +32,16 @@ import java.util.Map;
 public class TestPlanExecuteInfo {
     private String reportId;
     private String creator;
-    private Map<String, String> apiCaseExecInfo = new HashMap<>();
-    private Map<String, String> apiScenarioCaseExecInfo = new HashMap<>();
-    private Map<String, String> loadCaseExecInfo = new HashMap<>();
+    private Map<String, String> apiCaseExecInfo = new ConcurrentHashMap<>();
+    private Map<String, String> apiScenarioCaseExecInfo = new ConcurrentHashMap<>();
+    private Map<String, String> loadCaseExecInfo = new ConcurrentHashMap<>();
 
-    private Map<String, String> apiCaseExecuteThreadMap = new HashMap<>();
-    private Map<String, String> apiScenarioThreadMap = new HashMap<>();
-    private Map<String, String> loadCaseReportIdMap = new HashMap<>();
+    private Map<String, String> apiCaseExecuteThreadMap = new ConcurrentHashMap<>();
+    private Map<String, String> apiScenarioThreadMap = new ConcurrentHashMap<>();
+    private Map<String, String> loadCaseReportIdMap = new ConcurrentHashMap<>();
 
-    private Map<String, String> apiCaseReportMap = new HashMap<>();
-    private Map<String, String> apiScenarioReportMap = new HashMap<>();
-
+    private Map<String, String> apiCaseReportMap = new ConcurrentHashMap<>();
+    private Map<String, String> apiScenarioReportMap = new ConcurrentHashMap<>();
     private boolean reportDataInDataBase;
 
     int lastUnFinishedNumCount = 0;
@@ -83,7 +84,8 @@ public class TestPlanExecuteInfo {
         }
     }
 
-    public synchronized int countUnFinishedNum() {
+    public synchronized TestPlanReportExecuteCheckResultDTO countUnFinishedNum() {
+        TestPlanReportExecuteCheckResultDTO executeCheck = new TestPlanReportExecuteCheckResultDTO();
         int unFinishedCount = 0;
 
         this.isApiCaseAllExecuted = true;
@@ -129,8 +131,22 @@ public class TestPlanExecuteInfo {
             LoggerUtil.info("执行的报告还在队列中，重置超时时间");
             lastUnFinishedNumCount = unFinishedCount;
             lastFinishedNumCountTime = System.currentTimeMillis();
+            executeCheck.setFinishedCaseChanged(true);
+        } else if (unFinishedCount == 0) {
+            executeCheck.setFinishedCaseChanged(true);
+        } else {
+            executeCheck.setFinishedCaseChanged(false);
         }
-        return unFinishedCount;
+
+        executeCheck.setTimeOut(false);
+        if (unFinishedCount > 0) {
+            //20分钟没有案例执行结果更新，则定位超时
+            long nowTime = System.currentTimeMillis();
+            if (nowTime - lastFinishedNumCountTime > 1200000) {
+                executeCheck.setTimeOut(true);
+            }
+        }
+        return executeCheck;
     }
 
     public Map<String, Map<String, String>> getExecutedResult() {
@@ -228,7 +244,7 @@ public class TestPlanExecuteInfo {
         this.countUnFinishedNum();
     }
 
-    public void updateReport(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo) {
+    public synchronized void updateReport(Map<String, String> apiCaseExecResultInfo, Map<String, String> apiScenarioCaseExecResultInfo) {
         if (MapUtils.isNotEmpty(apiCaseExecResultInfo)) {
             this.apiCaseReportMap.putAll(apiCaseExecResultInfo);
         }
@@ -236,6 +252,35 @@ public class TestPlanExecuteInfo {
         if (MapUtils.isNotEmpty(apiScenarioCaseExecResultInfo)) {
             this.apiScenarioReportMap.putAll(apiScenarioCaseExecResultInfo);
         }
+    }
 
+    public Map<String, String> getRunningApiCaseReportMap() {
+        //key: reportId, value: testPlanApiCaseId
+        Map<String, String> returnMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : apiCaseExecInfo.entrySet()) {
+            String planCaseId = entry.getKey();
+            String status = entry.getValue();
+            if (StringUtils.equalsIgnoreCase(status, TestPlanApiExecuteStatus.RUNNING.name())) {
+                if (apiCaseExecuteThreadMap.containsKey(planCaseId)) {
+                    returnMap.put(apiCaseExecuteThreadMap.get(planCaseId), planCaseId);
+                }
+            }
+        }
+        return returnMap;
+    }
+
+    public Map<String, String> getRunningScenarioReportMap() {
+        //key: reportId, value: testPlanApiScenarioId
+        Map<String, String> returnMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : apiScenarioCaseExecInfo.entrySet()) {
+            String planScenarioId = entry.getKey();
+            String status = entry.getValue();
+            if (StringUtils.equalsIgnoreCase(status, TestPlanApiExecuteStatus.RUNNING.name())) {
+                if (apiScenarioThreadMap.containsKey(planScenarioId)) {
+                    returnMap.put(apiScenarioThreadMap.get(planScenarioId), planScenarioId);
+                }
+            }
+        }
+        return returnMap;
     }
 }
