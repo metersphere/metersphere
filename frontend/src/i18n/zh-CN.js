@@ -10,6 +10,7 @@ export default {
     excelFile: "表格文件.xls",
     xmindFile: "思维导图.xmind",
     default: "默认值",
+    sort_default: "默认排序",
     please_select_import_mode: '请选择导入模式',
     please_select_import_module: '请选择导入模块',
     pass_rate: '通过率',
