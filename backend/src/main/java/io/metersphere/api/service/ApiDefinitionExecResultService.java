@@ -116,8 +116,8 @@ public class ApiDefinitionExecResultService {
                 .operator(SessionUtils.getUserId())
                 .context(context)
                 .subject("接口用例通知")
-                .successMailTemplate("api/CaseResult")
-                .failedMailTemplate("api/CaseResult")
+                .successMailTemplate("api/CaseResultSuccess")
+                .failedMailTemplate("api/CaseResultFailed")
                 .paramMap(paramMap)
                 .event(event)
                 .build();
