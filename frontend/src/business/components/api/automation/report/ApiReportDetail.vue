@@ -409,12 +409,16 @@ export default {
             if (request.endTime && Number(request.endTime)) {
               endTime = request.endTime;
             }
-            requestTime = requestTime + (endTime - startTime);
+            let resTime;
+            if (startTime === 0 || endTime === 0) {
+              resTime = 0
+            } else {
+              resTime = endTime - startTime
+            }
+            requestTime = requestTime + resTime;
           })
         })
-        if (startTime < endTime) {
           this.totalTime = requestTime
-        }
       }
     },
     requestResult(requestResult) {
