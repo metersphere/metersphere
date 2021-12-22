@@ -164,7 +164,7 @@ public class MsTCPSampler extends MsTestElement {
             });
         }
         //根据配置将脚本放置在私有脚本之后
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), enviromentId, config, false);
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), enviromentId, config, true);
     }
 
     private void addItemHashTree(MsTestElement element, HashTree samplerHashTree, ParameterConfig config) {
