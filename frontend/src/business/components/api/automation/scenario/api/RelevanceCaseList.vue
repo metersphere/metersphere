@@ -282,7 +282,7 @@ export default {
     },
     getConditions() {
       let sampleSelectRows = this.$refs.table.getSelectRows();
-      let batchParam = buildBatchParam(this);
+      let batchParam = buildBatchParam(this, undefined, this.projectId);
       let param = {};
       if (batchParam.condition) {
         param = batchParam.condition;

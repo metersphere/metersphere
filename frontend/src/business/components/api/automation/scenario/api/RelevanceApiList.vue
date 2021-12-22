@@ -148,7 +148,7 @@
       },
       getConditions() {
         let sampleSelectRows = this.selectRows;
-        let param = buildBatchParam(this);
+        let param = buildBatchParam(this, undefined, this.projectId);
         param.ids = Array.from(sampleSelectRows).map(row => row.id);
         return param;
       },
