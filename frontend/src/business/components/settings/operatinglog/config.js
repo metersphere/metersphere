@@ -56,50 +56,144 @@ export function LOG_TYPE_MAP(_this) {
   return LOG_TYPE_MAP;
 }
 
-export function SYSLIST(){
+export function SYSLIST() {
   let sysList = [
     {
       label: i18n.t('test_track.test_track'), value: i18n.t('test_track.test_track'), children: [
-        {label: i18n.t('permission.project_track_case.name'), value: i18n.t('permission.project_track_case.name'), leaf: true},
+        {
+          label: i18n.t('permission.project_track_case.name'),
+          value: i18n.t('permission.project_track_case.name'),
+          leaf: true
+        },
         {label: i18n.t('test_track.review.test_review'), value: i18n.t('test_track.review.test_review'), leaf: true},
         {label: i18n.t('test_track.plan.test_plan'), value: i18n.t('test_track.plan.test_plan'), leaf: true},
-        {label: i18n.t('test_track.issue.issue_management'), value: i18n.t('test_track.issue.issue_management'), leaf: true},
+        {
+          label: i18n.t('test_track.issue.issue_management'),
+          value: i18n.t('test_track.issue.issue_management'),
+          leaf: true
+        },
         {label: i18n.t('commons.report'), value: i18n.t('commons.report'), leaf: true}]
     },
     {
       label: i18n.t('commons.api'), value: i18n.t('commons.api'), children: [
-        {label: i18n.t('workstation.table_name.api_definition'), value: i18n.t('workstation.table_name.api_definition'), leaf: true},
-        {label: i18n.t('workstation.table_name.api_automation'), value: i18n.t('workstation.table_name.api_automation'), leaf: true},
-        {label: i18n.t('permission.project_api_report.name'), value: i18n.t('permission.project_api_report.name'), leaf: true}]
+        {
+          label: i18n.t('workstation.table_name.api_definition'),
+          value: i18n.t('workstation.table_name.api_definition'),
+          leaf: true
+        },
+        {
+          label: i18n.t('workstation.table_name.api_automation'),
+          value: i18n.t('workstation.table_name.api_automation'),
+          leaf: true
+        },
+        {
+          label: i18n.t('permission.project_api_report.name'),
+          value: i18n.t('permission.project_api_report.name'),
+          leaf: true
+        }]
     },
     {
-      label: i18n.t('workstation.table_name.performance'), value: i18n.t('workstation.table_name.performance'), children: [
-        {label: i18n.t('workstation.table_name.performance'), value: i18n.t('workstation.table_name.performance'), leaf: true},
+      label: i18n.t('workstation.table_name.performance'),
+      value: i18n.t('workstation.table_name.performance'),
+      children: [
+        {
+          label: i18n.t('workstation.table_name.performance'),
+          value: i18n.t('workstation.table_name.performance'),
+          leaf: true
+        },
         {label: i18n.t('report.load_test_report'), value: i18n.t('report.load_test_report'), leaf: true}]
     },
     {
       label: i18n.t('commons.system_setting'), value: i18n.t('commons.system_setting'), children: [
-        {label: i18n.t('commons.system')+"-"+i18n.t('commons.user'), value: i18n.t('commons.system')+"-"+i18n.t('commons.user'), leaf: true},
-        {label: i18n.t('commons.system')+"-"+i18n.t('commons.test_resource_pool'), value: i18n.t('commons.system')+"-"+i18n.t('commons.test_resource_pool'), leaf: true},
-        {label: i18n.t('commons.system')+"-"+i18n.t('commons.system_parameter_setting'), value: i18n.t('commons.system')+"-"+i18n.t('commons.system_parameter_setting'), leaf: true},
-        {label: i18n.t('commons.system')+"-"+i18n.t('commons.quota'), value: i18n.t('commons.system')+"-"+i18n.t('commons.quota'), leaf: true},
-        {label: i18n.t('commons.system')+"-"+i18n.t('license.title'), value: i18n.t('commons.system')+"-"+i18n.t('license.title'), leaf: true},
+        {
+          label: i18n.t('commons.system') + "-" + i18n.t('commons.user'),
+          value: i18n.t('commons.system') + "-" + i18n.t('commons.user'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.system') + "-" + i18n.t('commons.test_resource_pool'),
+          value: i18n.t('commons.system') + "-" + i18n.t('commons.test_resource_pool'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.system') + "-" + i18n.t('commons.system_parameter_setting'),
+          value: i18n.t('commons.system') + "-" + i18n.t('commons.system_parameter_setting'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.system') + "-" + i18n.t('commons.quota'),
+          value: i18n.t('commons.system') + "-" + i18n.t('commons.quota'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.system') + "-" + i18n.t('license.title'),
+          value: i18n.t('commons.system') + "-" + i18n.t('license.title'),
+          leaf: true
+        },
 
         {label: i18n.t('commons.workspace'), value: i18n.t('commons.workspace'), leaf: true},
-        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_service.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_service.name'), leaf: true},
-        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_message.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_message.name'), leaf: true},
-        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.project_user.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.project_user.name'), leaf: true},
-        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_template.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_template.name'), leaf: true},
-        {label: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_project_manager.name'), value: i18n.t('commons.workspace')+"-"+i18n.t('permission.workspace_project_manager.name'), leaf: true},
+        {
+          label: i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_service.name'),
+          value: i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_service.name'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_message.name'),
+          value: i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_message.name'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.workspace') + "-" + i18n.t('permission.project_user.name'),
+          value: i18n.t('commons.workspace') + "-" + i18n.t('permission.project_user.name'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_template.name'),
+          value: i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_template.name'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_project_manager.name'),
+          value: i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_project_manager.name'),
+          leaf: true
+        },
 
-        {label: i18n.t('commons.project')+"-"+i18n.t('project.manager'), value: i18n.t('commons.project')+"-"+i18n.t('project.manager'), leaf: true},
-        {label: i18n.t('commons.project')+"-"+i18n.t('permission.project_user.name'), value: i18n.t('commons.project')+"-"+i18n.t('permission.project_user.name'), leaf: true},
-        {label: i18n.t('commons.project')+"-"+i18n.t('api_test.jar_config.jar_manage'), value: i18n.t('commons.project')+"-"+i18n.t('api_test.jar_config.jar_manage'), leaf: true},
-        {label: i18n.t('commons.project')+"-"+i18n.t('permission.workspace_project_environment.name'), value: i18n.t('commons.project')+"-"+i18n.t('permission.workspace_project_environment.name'), leaf: true},
-        {label: i18n.t('commons.project')+"-"+i18n.t('permission.project_file.name'), value: i18n.t('commons.project')+"-"+i18n.t('permission.project_file.name'), leaf: true},
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('project.manager'),
+          value: i18n.t('commons.project') + "-" + i18n.t('project.manager'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('permission.project_user.name'),
+          value: i18n.t('commons.project') + "-" + i18n.t('permission.project_user.name'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('api_test.jar_config.jar_manage'),
+          value: i18n.t('commons.project') + "-" + i18n.t('api_test.jar_config.jar_manage'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('permission.workspace_project_environment.name'),
+          value: i18n.t('commons.project') + "-" + i18n.t('permission.workspace_project_environment.name'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('permission.project_file.name'),
+          value: i18n.t('commons.project') + "-" + i18n.t('permission.project_file.name'),
+          leaf: true
+        },
 
-        {label: i18n.t('commons.personal_information')+"-"+i18n.t('commons.personal_setting'), value: i18n.t('commons.personal_information')+"-"+i18n.t('commons.personal_setting'), leaf: true},
-        {label: i18n.t('commons.personal_information')+"-API Keys", value: i18n.t('commons.personal_information')+"-API Keys", leaf: true}
+        {
+          label: i18n.t('commons.personal_information') + "-" + i18n.t('commons.personal_setting'),
+          value: i18n.t('commons.personal_information') + "-" + i18n.t('commons.personal_setting'),
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.personal_information') + "-API Keys",
+          value: i18n.t('commons.personal_information') + "-API Keys",
+          leaf: true
+        }
       ]
     },
   ];
@@ -121,76 +215,120 @@ export function getUrl(d) {
     }
   }
   switch (d.operModule) {
-    case "接口自动化" || "Api automation" || "接口自動化":
+    case "接口自动化" :
+    case "Api automation" :
+    case"接口自動化":
       url += "/api/automation?resourceId=" + resourceId;
       break;
-    case "测试计划" || "測試計劃" || "Test plan":
+    case "测试计划" :
+    case "測試計劃" :
+    case "Test plan":
       url += "/track/plan/view/" + resourceId;
       break;
-    case "用例评审" || "Case review" || "用例評審":
+    case "用例评审" :
+    case "Case review" :
+    case "用例評審":
       url += "/track/review/view/" + resourceId;
       break;
-    case "缺陷管理" || "Defect management":
+    case "缺陷管理" :
+    case "Defect management":
       url += "/track/issue";
       break;
     case "SWAGGER_TASK" :
       url += "/api/definition";
       break;
-    case "接口定义" || "接口定義" || "Api definition":
+    case "接口定义" :
+    case "接口定義" :
+    case "Api definition":
       url += "/api/definition?resourceId=" + resourceId;
       break;
-    case "接口定义用例" || "接口定義用例" || "Api definition case":
+    case "接口定义用例" :
+    case "接口定義用例":
+    case "Api definition case":
       url += "/api/definition?caseId=" + resourceId;
       break;
-    case "测试报告" || "測試報告" || "Test Report":
+    case "测试报告" :
+    case "測試報告" :
+    case "Test Report":
       url += "/api/automation/report";
       break;
-    case "性能测试报告" || "性能測試報告" || "Performance test report" :
+    case "性能测试报告" :
+    case "性能測試報告" :
+    case "Performance test report" :
       url += "/performance/report/all";
       break;
-    case "性能测试" || "性能測試" || "Performance test" :
+    case "性能测试" :
+    case "性能測試" :
+    case "Performance test" :
       url += "/performance/test/edit/" + resourceId;
       break;
-    case "测试用例" || "測試用例" || "Test case":
+    case "测试用例" :
+    case "測試用例" :
+    case "Test case":
       url += "/track/case/all?resourceId=" + resourceId;
       break;
-    case "系统-用户" || "系统-用户" || "System user":
+    case "系统-用户":
+    case "System user":
       url += "/setting/user";
       break;
-    case "系统-组织" || "系統-組織" || "System organization":
+    case "系统-组织" :
+    case "系統-組織" :
+    case "System organization":
       url += "/setting/organization";
       break;
-    case "工作空间" || "系统-工作空间" || "workspace" :
+    case "工作空间" :
+    case "系统-工作空间" :
+    case "workspace" :
       url += "/setting/systemworkspace";
       break;
-    case "用户组与权限" || "用戶組與權限" || "Group" :
+    case "用户组与权限" :
+    case "用戶組與權限" :
+    case "Group" :
       url += "/setting/usergroup";
       break;
-    case "系统-测试资源池" || "系统-測試資源池" || "System test resource" :
+    case "系统-测试资源池":
+    case "系统-測試資源池" :
+    case "System test resource" :
       url += "/setting/testresourcepool";
       break;
-    case "系统-系统参数设置" || "系统-系統參數設置" || "System parameter setting" :
+    case "系统-系统参数设置":
+    case "系统-系統參數設置" :
+    case "System parameter setting" :
       url += "/setting/systemparametersetting";
       break;
-    case "工作空间-成员" || "工作空間-成員" || "Workspace member" :
+    case "工作空间-成员" :
+    case "工作空間-成員" :
+    case "Workspace member" :
       url += "/setting/member";
       break;
-    case "项目-项目管理" || "項目-項目管理" || "Project project manager" :
+    case "项目-项目管理" :
+    case "項目-項目管理" :
+    case "Project project manager" :
       url += "/setting/project/:type";
       break;
-    case "项目-环境设置" || "項目-環境設置" || "Project environment setting" :
+    case "项目-环境设置" :
+    case "項目-環境設置" :
+    case "Project environment setting" :
       url += "/project/env";
       break;
-    case "工作空间-模版设置-自定义字段" || "工作空間-模版設置-自定義字段" || "Workspace template settings field" :
+    case "工作空间-模版设置-自定义字段" :
+    case "工作空間-模版設置-自定義字段" :
+    case "Workspace template settings field" :
       url += "/setting/workspace/template/field";
       break;
-    case "工作空间-模版设置-用例模版" || "工作空間-模版設置-用例模板" || "Workspace template settings case" :
+    case "工作空间-模版设置-用例模版" :
+    case "工作空間-模版設置-用例模板" :
+    case "Workspace template settings case" :
       url += "/setting/workspace/template/case";
       break;
-    case "工作空间-模版设置-缺陷模版" || "工作空間-模版設置-缺陷模板" || "Workspace template settings issue" :
+    case "工作空间-模版设置-缺陷模版" :
+    case "工作空間-模版設置-缺陷模板" :
+    case "Workspace template settings issue" :
       url += "/setting/workspace/template/issues";
       break;
-    case "项目-成员" || "項目-成員" || "Project member" :
+    case "项目-成员":
+    case "項目-成員" :
+    case "Project member" :
       url += "/project/member";
       break;
     default:
