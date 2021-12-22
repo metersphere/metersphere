@@ -19,11 +19,10 @@ import io.metersphere.track.service.TestCaseReviewService;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.springframework.context.annotation.Lazy;
 
 import javax.annotation.Resource;
@@ -128,29 +127,31 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     }
 
     protected String getContent(String template, Map<String, Object> context) {
-        if (MapUtils.isNotEmpty(context)) {
-            for (String k : context.keySet()) {
-                if (context.get(k) != null) {
-                    String value = handleTime(k, context);
-                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", value);
-                } else {
-                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", "");
-                }
+        // 处理 null
+        context.forEach((k, v) -> {
+            if (v == null) {
+                context.put(k, "");
             }
-        }
-        return template;
+        });
+        // 处理时间格式的数据
+        handleTime(context);
+        StringSubstitutor sub = new StringSubstitutor(context);
+        return sub.replace(template);
     }
 
-    private String handleTime(String k, Map<String, Object> context) {
-        String value = context.get(k).toString();
-        if (StringUtils.endsWithIgnoreCase(k, "Time")) {
-            try {
-                long time = Long.parseLong(value);
-                value = DateFormatUtils.format(time, "yyyy-MM-dd HH:mm:ss");
-            } catch (Exception ignore) {
+    private void handleTime(Map<String, Object> context) {
+        context.forEach((k, v) -> {
+            if (StringUtils.endsWithIgnoreCase(k, "Time")) {
+                try {
+                    String value = v.toString();
+                    long time = Long.parseLong(value);
+                    v = DateFormatUtils.format(time, "yyyy-MM-dd HH:mm:ss");
+                    context.put(k, v);
+                } catch (Exception ignore) {
+                }
             }
-        }
-        return value;
+        });
+
     }
 
     protected List<UserDetail> getUserDetails(List<String> userIds) {

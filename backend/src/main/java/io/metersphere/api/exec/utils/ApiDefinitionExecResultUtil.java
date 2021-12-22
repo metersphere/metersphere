@@ -91,7 +91,6 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.DEFINITION.name());
         apiResult.setStatus(status);
-
         return apiResult;
     }
 }

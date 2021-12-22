@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue;
+
 @Aspect
 @Component
 public class SendNoticeAspect {
@@ -81,7 +83,7 @@ public class SendNoticeAspect {
                 Expression titleExp = parser.parseExpression(target);
                 Object v = titleExp.getValue(context, Object.class);
                 Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
-                memberValues.put("source", JSON.toJSONString(v));
+                memberValues.put("source", JSON.toJSONString(v, WriteMapNullValue));
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -119,7 +121,7 @@ public class SendNoticeAspect {
                 Object v = titleExp.getValue(context, Object.class);
                 if (v != null) {
                     Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
-                    memberValues.put("source", JSON.toJSONString(v));
+                    memberValues.put("source", JSON.toJSONString(v, WriteMapNullValue));
                 }
             }
 

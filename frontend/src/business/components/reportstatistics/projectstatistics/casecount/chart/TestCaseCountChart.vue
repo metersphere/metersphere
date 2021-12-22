@@ -28,10 +28,12 @@
                              size="lg" @click="unFullScreen"/>
         </div>
       </el-row>
-      <el-row style="overflow: auto">
-        <ms-chart ref="chart1" v-if="!loading" :options="dataOption"
-                  :style="{width: chartWidthNumber+'px', height: (h-50) + 'px'}" class="chart-config" :autoresize="true"
-                  id="picChart"/>
+      <el-row>
+        <div class="chart-style">
+          <ms-chart ref="chart1" v-if="!loading" :options="dataOption"
+                    :style="{width: chartWidthNumber+'px', height: (h-70) + 'px'}" class="chart-config" :autoresize="true"
+                    id="picChart"/>
+        </div>
       </el-row>
     </el-card>
   </div>
@@ -73,7 +75,7 @@ export default {
         {id: 'pie', name: this.$t('commons.report_statistics.pie')}
       ],
       order: "",
-      orders: [{id: '', name: '默认排序'}, {id: 'desc', name: this.$t('commons.report_statistics.desc')}, {
+      orders: [{id: '', name: this.$t('commons.sort_default')}, {id: 'desc', name: this.$t('commons.report_statistics.desc')}, {
         id: 'asc',
         name: this.$t('commons.report_statistics.asc')
       }],
@@ -223,6 +225,9 @@ export default {
   height: calc(100vh / 1.95);
 }
 
+.chart-style{
+  overflow: auto;
+}
 .tip {
   float: left;
   font-size: 14px;

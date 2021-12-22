@@ -945,7 +945,7 @@ export default {
               apiNames += ";" + item;
             }
           });
-          this.$error("请先恢复[" + apiNames + "]接口");
+          this.$error(this.$t('api_test.definition.case_reduction_error_text') + "[" + apiNames + "]" + this.$t("api_test.home_page.api_details_card.title"));
         } else {
           this.$success(this.$t('commons.save_success'));
         }
@@ -971,7 +971,7 @@ export default {
               apiNames += ";" + item;
             }
           });
-          this.$error("请先恢复[" + apiNames + "]接口");
+          this.$error(this.$t('api_test.definition.case_reduction_error_text') + "[" + apiNames + "]" + this.$t("api_test.home_page.api_details_card.title"));
         } else {
           this.$success(this.$t('commons.save_success'));
         }

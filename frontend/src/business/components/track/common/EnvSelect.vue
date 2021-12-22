@@ -1,15 +1,17 @@
 <template>
   <div v-loading="result.loading">
     <div v-for="pe in data" :key="pe.id" style="margin-left: 20px;">
-      <el-select v-model="pe['selectEnv']" placeholder="请选择环境" style="margin-top: 8px;width: 200px;" size="small">
+      <el-select v-model="pe['selectEnv']" :placeholder="$t('api_test.environment.select_environment')"
+                 style="margin-top: 8px;width: 200px;" size="small">
         <el-option v-for="(environment, index) in pe.envs" :key="index"
                    :label="environment.name"
                    :value="environment.id"/>
-        <el-button class="ms-scenario-button" v-if="isShowConfirmButton(pe.id)"  size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
+        <el-button class="ms-scenario-button" v-if="isShowConfirmButton(pe.id)" size="mini" type="primary"
+                   @click="openEnvironmentConfig(pe.id)">
           {{ $t('api_test.environment.environment_config') }}
         </el-button>
         <template v-slot:empty>
-          <div v-if="isShowConfirmButton(pe.id)"  class="empty-environment">
+          <div v-if="isShowConfirmButton(pe.id)" class="empty-environment">
             <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
               {{ $t('api_test.environment.environment_config') }}
             </el-button>
@@ -21,7 +23,8 @@
       </span>
     </div>
 
-    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">确 定</el-button>
+    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">{{ $t('commons.confirm') }}
+    </el-button>
 
     <!-- 环境配置 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>

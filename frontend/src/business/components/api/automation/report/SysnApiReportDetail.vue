@@ -356,7 +356,7 @@ export default {
       if (e.data) {
         this.runningEvaluation(e.data);
       }
-      if (e.data && e.data.indexOf("断开连接") !== -1) {
+      if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
         this.getReport();
         this.messageWebSocket.close();
         scenario.$emit('hide', this.scenarioId);

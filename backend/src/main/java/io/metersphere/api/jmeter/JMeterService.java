@@ -68,9 +68,9 @@ public class JMeterService {
     }
 
     private void addDebugListener(String testId, HashTree testPlan) {
-        MsDebugListener resultCollector = new MsDebugListener();
+        MsResultCollector resultCollector = new MsResultCollector();
         resultCollector.setName(testId);
-        resultCollector.setProperty(TestElement.TEST_CLASS, MsDebugListener.class.getName());
+        resultCollector.setProperty(TestElement.TEST_CLASS, MsResultCollector.class.getName());
         resultCollector.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ViewResultsFullVisualizer"));
         resultCollector.setEnabled(true);
         testPlan.add(testPlan.getArray()[0], resultCollector);
@@ -139,8 +139,8 @@ public class JMeterService {
             JvmInfoDTO jvmInfoDTO = resources.get(index);
             TestResourceDTO testResource = jvmInfoDTO.getTestResource();
             String configuration = testResource.getConfiguration();
-            request.setCorePoolSize(MessageCache.corePoolSize);
             NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
+            request.setCorePoolSize(node.getMaxConcurrency());
             String nodeIp = node.getIp();
             Integer port = node.getPort();
             String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);

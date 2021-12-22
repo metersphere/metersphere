@@ -364,7 +364,7 @@ export default {
           }
         }
       }
-      if (databaseConfigsOptions.length > 0) {
+      if (databaseConfigsOptions.length > 0 && this.request.environmentId !== this.environment.id) {
         this.request.dataSourceId = databaseConfigsOptions[0].id;
         this.request.environmentId = this.environment.id;
       }
@@ -639,7 +639,7 @@ export default {
 
     clickResource(resource) {
       if (resource.refType && resource.refType === 'API') {
-        if(resource.protocol==='dubbo://'){
+        if (resource.protocol === 'dubbo://') {
           resource.protocol = 'DUBBO'
         }
         let definitionData = this.$router.resolve({

@@ -37,6 +37,19 @@ export function getIssuesById(id, callback) {
   return id ? baseGet('/issues/get/' + id, callback) : {};
 }
 
+export function getIssuesListById(id,projectId,workspaceId,callback) {
+  let condition ={
+    id:id,
+    projectId : projectId,
+    workspaceId: workspaceId
+  };
+  return post('issues/list/' + 1 + '/' + 10, condition, (response) => {
+    if (callback) {
+      callback(response.data.listObject[0]);
+    }
+  });
+}
+
 export function getIssuesByPlanId(planId, callback) {
   return planId ? baseGet('/issues/plan/get/' + planId, callback) : {};
 }

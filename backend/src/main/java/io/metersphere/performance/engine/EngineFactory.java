@@ -300,12 +300,20 @@ public class EngineFactory {
                     rootDocument = docBuilder.parse(inputSource);
                     Element jmeterTestPlan = rootDocument.getDocumentElement();
                     NodeList childNodes = jmeterTestPlan.getChildNodes();
+
+                    outer:
                     for (int i = 0; i < childNodes.getLength(); i++) {
                         Node node = childNodes.item(i);
                         if (node instanceof Element) {
                             // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
-                            hashTree = (Element) node;
-                            break;
+                            NodeList childNodes1 = node.getChildNodes();
+                            for (int j = 0; j < childNodes1.getLength(); j++) {
+                                Node item = childNodes1.item(j);
+                                if (StringUtils.equalsIgnoreCase("hashTree", item.getNodeName())) {
+                                    hashTree = (Element) node;
+                                    break outer;
+                                }
+                            }
                         }
                     }
                 } else {
@@ -320,9 +328,19 @@ public class EngineFactory {
                             NodeList secondChildNodes = secondHashTree.getChildNodes();
                             for (int j = 0; j < secondChildNodes.getLength(); j++) {
                                 Node item = secondChildNodes.item(j);
-                                Node newNode = item.cloneNode(true);
-                                rootDocument.adoptNode(newNode);
-                                hashTree.appendChild(newNode);
+                                if (StringUtils.equalsIgnoreCase("TestPlan", item.getNodeName())) {
+                                    continue;
+                                }
+                                if (StringUtils.equalsIgnoreCase("hashTree", item.getNodeName())) {
+                                    NodeList itemChildNodes = item.getChildNodes();
+                                    for (int k = 0; k < itemChildNodes.getLength(); k++) {
+                                        Node item1 = itemChildNodes.item(k);
+                                        Node newNode = item1.cloneNode(true);
+                                        rootDocument.adoptNode(newNode);
+                                        hashTree.appendChild(newNode);
+                                    }
+                                }
+
                             }
                         }
                     }

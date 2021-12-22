@@ -339,7 +339,7 @@ export default {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
-      this.showPublic = true
+      this.showPublic = false
       if (tab.name === 'add') {
         let label = this.$t('test_track.case.create');
         let name = getUUID().substring(0, 8);

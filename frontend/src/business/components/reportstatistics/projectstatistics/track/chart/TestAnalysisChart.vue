@@ -53,7 +53,7 @@
         chartType: "line",
         charts: [{id: 'line', name: this.$t('commons.report_statistics.line')}, {id: 'bar', name: this.$t('commons.report_statistics.bar')}],
         order: "",
-        orders: [{id: '', name: '默认排序'},{id: 'desc', name: this.$t('commons.report_statistics.desc')}, {id: 'asc', name: this.$t('commons.report_statistics.asc')}],
+        orders: [{id: '', name: this.$t('commons.sort_default')},{id: 'desc', name: this.$t('commons.report_statistics.desc')}, {id: 'asc', name: this.$t('commons.report_statistics.asc')}],
         loading: false,
         options: {},
       }

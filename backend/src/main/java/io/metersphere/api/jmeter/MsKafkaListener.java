@@ -7,6 +7,7 @@ import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.service.ApiEnvironmentRunningParamService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.TestResultService;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.KafkaConfig;
 import io.metersphere.dto.ResultDTO;
@@ -34,6 +35,13 @@ public class MsKafkaListener {
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(testResult.getReportId());
         } else {
+            // 更新报告最后接收到请求的时间
+            if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCENARIO.name(),
+                    ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                    ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                CommonBeanFactory.getBean(TestResultService.class).editReportTime(testResult);
+            }
+
             testResultService.saveResults(testResult);
         }
         LoggerUtil.info("执行内容存储结束");

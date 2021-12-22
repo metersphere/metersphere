@@ -246,8 +246,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         msResponse.setType(RequestType.HTTP);
         // todo 状态码要调整？
         msResponse.setStatusCode(new ArrayList<>());
-        ApiResponse apiResponse = responses.get("200");
         if (responses != null) {
+            ApiResponse apiResponse = responses.get("200");
             if (apiResponse == null) {
                 responses.forEach((responseCode, response) -> {
                     parseResponseHeader(response, msResponse.getHeaders());
@@ -257,10 +257,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 parseResponseHeader(apiResponse, msResponse.getHeaders());
                 parseResponseBody(apiResponse, msResponse.getBody());
             }
+            responses.forEach((responseCode, response) -> {
+                parseResponseCode(msResponse.getStatusCode(), responseCode, response);
+            });
         }
-        responses.forEach((responseCode, response) -> {
-            parseResponseCode(msResponse.getStatusCode(), responseCode, response);
-        });
         return msResponse;
     }
 

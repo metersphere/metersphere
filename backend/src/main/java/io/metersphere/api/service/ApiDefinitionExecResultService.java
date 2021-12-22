@@ -116,8 +116,8 @@ public class ApiDefinitionExecResultService {
                 .operator(SessionUtils.getUserId())
                 .context(context)
                 .subject("接口用例通知")
-                .successMailTemplate("api/CaseResult")
-                .failedMailTemplate("api/CaseResult")
+                .successMailTemplate("api/CaseResultSuccess")
+                .failedMailTemplate("api/CaseResultFailed")
                 .paramMap(paramMap)
                 .event(event)
                 .build();
@@ -187,8 +187,6 @@ public class ApiDefinitionExecResultService {
      * 定时任务时，userID要改为定时任务中的用户
      */
     public void saveApiResultByScheduleTask(List<RequestResult> requestResults, ResultDTO dto) {
-        Map<String, String> apiIdResultMap = new HashMap<>();
-        Map<String, String> caseReportMap = new HashMap<>();
         boolean isFirst = true;
         int countExpectProcessResultCount = 0;
         if (CollectionUtils.isNotEmpty(requestResults)) {
@@ -201,7 +199,7 @@ public class ApiDefinitionExecResultService {
 
             for (RequestResult item : requestResults) {
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                    ApiDefinitionExecResult saveResult = this.save(item, dto.getReportId(), dto.getConsole(), countExpectProcessResultCount, dto.getRunMode(), dto.getTestId(), isFirst);
+                    this.save(item, dto.getReportId(), dto.getConsole(), countExpectProcessResultCount, dto.getRunMode(), dto.getTestId(), isFirst);
                     String status = item.isSuccess() ? "success" : "error";
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseService.getById(dto.getTestId());
@@ -214,19 +212,19 @@ public class ApiDefinitionExecResultService {
                         testPlanApiCaseService.setExecResult(dto.getTestId(), status, item.getStartTime());
                         testCaseReviewApiCaseService.setExecResult(dto.getTestId(), status, item.getStartTime());
                     }
-                    if (StringUtils.isNotEmpty(dto.getTestId())) {
-                        apiIdResultMap.put(dto.getTestId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
-                    }
-                    //更新报告ID
-                    caseReportMap.put(dto.getTestId(), saveResult.getId());
                     isFirst = false;
                 }
             }
         }
         updateTestCaseStates(dto.getTestId());
+        Map<String, String> apiIdResultMap = new HashMap<>();
+        long errorSize = requestResults.stream().filter(requestResult -> requestResult.getError() > 0).count();
+        String status = errorSize > 0 || requestResults.isEmpty() ? TestPlanApiExecuteStatus.FAILD.name() : TestPlanApiExecuteStatus.SUCCESS.name();
+        if (StringUtils.isNotEmpty(dto.getReportId())) {
+            apiIdResultMap.put(dto.getReportId(), status);
+        }
         testPlanLog.info("TestPlanReportId[" + dto.getTestPlanReportId() + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
         TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(dto.getTestPlanReportId(), apiIdResultMap, null, null);
-        TestPlanReportExecuteCatch.updateTestPlanReport(dto.getTestPlanReportId(), caseReportMap, null);
     }
 
     /**
@@ -348,13 +346,13 @@ public class ApiDefinitionExecResultService {
             ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
             if (prevResult != null) {
                 prevResult.setContent(null);
-                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+                apiDefinitionExecResultMapper.updateByPrimaryKeySelective(prevResult);
             }
 
             if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
                 saveResult.setTriggerMode(TriggerMode.MANUAL.name());
             }
-            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
+            apiDefinitionExecResultMapper.updateByPrimaryKeySelective(saveResult);
             return saveResult;
         }
         return null;

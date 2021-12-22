@@ -243,6 +243,10 @@ public class TestPlanService {
         return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlanWithBLOBs());
     }
 
+    public TestPlanWithBLOBs get(String testPlanId) {
+        return testPlanMapper.selectByPrimaryKey(testPlanId);
+    }
+
     public TestPlan editTestPlanWithRequest(AddTestPlanRequest request) {
         List<String> principals = request.getPrincipals();
         if (!CollectionUtils.isEmpty(principals)) {
@@ -1116,8 +1120,8 @@ public class TestPlanService {
                 testPlanLoadCaseService.update(testPlanLoadCase);
                 LogUtil.error(e);
             }
-            performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(), reportId);
             if (StringUtils.isNotEmpty(reportId)) {
+                performaneThreadIDMap.put(performanceRequest.getTestPlanLoadId(), reportId);
                 executePerformanceIdMap.put(performanceRequest.getTestPlanLoadId(), TestPlanApiExecuteStatus.RUNNING.name());
             } else {
                 executePerformanceIdMap.put(performanceRequest.getTestPlanLoadId(), TestPlanApiExecuteStatus.PREPARE.name());

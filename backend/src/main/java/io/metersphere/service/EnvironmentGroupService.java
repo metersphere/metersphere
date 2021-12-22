@@ -11,6 +11,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.EnvironmentGroupRequest;
 import io.metersphere.dto.EnvironmentGroupDTO;
+import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -161,7 +162,7 @@ public class EnvironmentGroupService {
     private void checkEnvironmentGroup(EnvironmentGroupRequest request) {
         String name = request.getName();
         if (StringUtils.isBlank(name)) {
-            MSException.throwException("environment group name is null.");
+            MSException.throwException(Translator.get("null_environment_group_name"));
         }
 
         EnvironmentGroupExample environmentGroupExample = new EnvironmentGroupExample();
@@ -173,7 +174,7 @@ public class EnvironmentGroupService {
         }
 
         if (environmentGroupMapper.countByExample(environmentGroupExample) > 0) {
-            MSException.throwException("环境组名称 " + request.getName() + " 已存在！");
+            MSException.throwException(Translator.get("environment_group_name")+request.getName()+Translator.get("environment_group_exist"));
         }
     }
 
