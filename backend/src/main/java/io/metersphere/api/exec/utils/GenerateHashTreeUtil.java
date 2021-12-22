@@ -31,9 +31,12 @@ import java.util.Map;
 public class GenerateHashTreeUtil {
 
     public static MsScenario parseScenarioDefinition(String scenarioDefinition) {
-        MsScenario scenario = JSONObject.parseObject(scenarioDefinition, MsScenario.class);
-        parse(scenarioDefinition, scenario, scenario.getId(), null);
-        return scenario;
+        if(StringUtils.isNotEmpty(scenarioDefinition)) {
+            MsScenario scenario = JSONObject.parseObject(scenarioDefinition, MsScenario.class);
+            parse(scenarioDefinition, scenario, scenario.getId(), null);
+            return scenario;
+        }
+        return null;
     }
 
     public static void parse(String scenarioDefinition, MsScenario scenario, String id, String reportType) {
