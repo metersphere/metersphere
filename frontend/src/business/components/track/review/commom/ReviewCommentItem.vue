@@ -77,6 +77,7 @@ export default {
       default: false
     },
     reviewStatus: String,
+    apiUrl: String
   },
   data() {
     return {
@@ -106,7 +107,7 @@ export default {
           this.$get('/resource/md/delete/' + imgName);
         });
       }
-      this.$get("/test/case/comment/delete/" + this.comment.id, () => {
+      this.$get(this.apiUrl + "/comment/delete/" + this.comment.id, () => {
         this.$success(this.$t('commons.delete_success'));
         this.$emit("refresh");
       });
@@ -120,7 +121,7 @@ export default {
       this.visible = true;
     },
     editComment() {
-      this.$post("/test/case/comment/edit", {id: this.comment.id, description: this.description}, () => {
+      this.$post(this.apiUrl + "/comment/edit", {id: this.comment.id, description: this.description}, () => {
         this.visible = false;
         this.$success(this.$t('commons.modify_success'));
         this.$emit("refresh");

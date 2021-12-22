@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtIssueCommentMapper">
+
+    <select id="getComments" resultType="io.metersphere.track.dto.IssueCommentDTO"
+            parameterType="java.lang.String">
+        select *, user.name as authorName
+        from issue_comment,
+             user
+        where issue_comment.author = user.id
+          and issue_id = #{issueId}
+        order by issue_comment.update_time desc
+    </select>
+
+</mapper>

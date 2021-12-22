@@ -150,4 +150,5 @@ public class IssuesController {
     public IssueTemplateDao getThirdPartTemplate(@PathVariable String projectId) {
         return issuesService.getThirdPartTemplate(projectId);
     }
+
 }

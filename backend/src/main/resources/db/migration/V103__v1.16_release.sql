@@ -65,6 +65,19 @@ CREATE TABLE IF NOT EXISTS `api_scenario_report_structure`
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_app_manager', 'PROJECT_APP_MANAGER:READ+EDIT', 'PROJECT_APP_MANAGER');
 
+CREATE TABLE `issue_comment`
+(
+    `id`          varchar(64) NOT NULL,
+    `issue_id`    varchar(64) DEFAULT NULL,
+    `description` text,
+    `author`      varchar(50) DEFAULT NULL,
+    `create_time` bigint(13)  DEFAULT NULL,
+    `update_time` bigint(13)  DEFAULT NULL,
+    `status`      varchar(80) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
+
 CREATE TABLE IF NOT EXISTS `api_execution_queue`
 (
      `id` varchar(50) NOT NULL COMMENT 'ID',
@@ -91,3 +104,4 @@ CREATE TABLE IF NOT EXISTS `api_execution_queue_detail`
 
 ALTER TABLE load_test
     MODIFY name VARCHAR(255) NOT NULL COMMENT 'Test name';
+
