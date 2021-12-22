@@ -33,7 +33,7 @@ public class PoolExecBlockingQueueUtil {
             if (StringUtils.isNotEmpty(key) && !queue.containsKey(key)) {
                 BlockingQueue<Object> blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
                 queue.put(key, blockingQueue);
-                return blockingQueue.poll(5, TimeUnit.MINUTES);
+                return blockingQueue.poll(10, TimeUnit.MINUTES);
             }
         } catch (Exception e) {
             LogUtil.error("初始化队列失败：" + e.getMessage());

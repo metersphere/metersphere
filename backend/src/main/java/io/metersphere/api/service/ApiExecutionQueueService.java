@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunModeDataDTO;
+import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.base.domain.*;
@@ -179,9 +180,8 @@ public class ApiExecutionQueueService {
     public void timeOut() {
         final int SECOND_MILLIS = 1000;
         final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
-        long now = System.currentTimeMillis();
-        // 八分钟前的数据
-        now = now - 8 * MINUTE_MILLIS;
+        // 二十分钟前的超时报告
+        final long now = System.currentTimeMillis() - (20 * MINUTE_MILLIS);
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
         example.createCriteria().andCreateTimeLessThan(now);
         List<ApiExecutionQueueDetail> queueDetails = executionQueueDetailMapper.selectByExample(example);
@@ -190,14 +190,14 @@ public class ApiExecutionQueueService {
             queueDetails.forEach(item -> {
                 if (StringUtils.equalsAny(item.getType(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                     ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                    if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name())) {
-                        report.setStatus("timeout");
+                    if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && report.getUpdateTime() < now) {
+                        report.setStatus(ScenarioStatus.Timeout.name());
                         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                     }
                 } else {
                     ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
                     if (result != null && StringUtils.equalsAny(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
-                        result.setStatus("timeout");
+                        result.setStatus(ScenarioStatus.Timeout.name());
                         apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
                     }
                 }
@@ -211,8 +211,8 @@ public class ApiExecutionQueueService {
         if (CollectionUtils.isNotEmpty(executionQueues)) {
             executionQueues.forEach(item -> {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name())) {
-                    report.setStatus("timeout");
+                if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && report.getUpdateTime() < now) {
+                    report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 }
             });

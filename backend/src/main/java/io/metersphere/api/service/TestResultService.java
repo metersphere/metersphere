@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.jmeter.ExecutedHandleSingleton;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.ReportTriggerMode;
@@ -47,6 +48,8 @@ public class TestResultService {
     private TestPlanTestCaseService testPlanTestCaseService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
 
     public void saveResults(ResultDTO dto) {
         // 处理环境
@@ -68,6 +71,14 @@ public class TestResultService {
             apiScenarioReportService.saveResult(requestResults, dto);
         }
         updateTestCaseStates(requestResults, dto.getRunMode());
+    }
+
+    public void editReportTime(ResultDTO dto) {
+        ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
+        if (report != null) {
+            report.setUpdateTime(System.currentTimeMillis());
+            apiScenarioReportMapper.updateByPrimaryKey(report);
+        }
     }
 
     public void testEnded(ResultDTO dto) {

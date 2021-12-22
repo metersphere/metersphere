@@ -22,6 +22,7 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.exec.api.ApiExecuteService;
+import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -102,15 +103,11 @@ public class ApiDefinitionService {
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
-    private ApiTestEnvironmentService environmentService;
-    @Resource
     private EsbApiParamService esbApiParamService;
     @Resource
     private TcpApiParamService tcpApiParamService;
     @Resource
     private ApiModuleMapper apiModuleMapper;
-    @Resource
-    private SystemParameterService systemParameterService;
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
@@ -855,6 +852,15 @@ public class ApiDefinitionService {
      * @return
      */
     public MsExecResponseDTO run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        if (!request.isDebug()) {
+            String testId = request.getTestElement() != null &&
+                    CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
+                    CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
+                    request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
+            ApiDefinitionExecResult result = ApiDefinitionExecResultUtil.add(testId, APITestStatus.Running.name(), request.getId());
+            result.setTriggerMode(TriggerMode.MANUAL.name());
+            apiDefinitionExecResultMapper.insert(result);
+        }
         return apiExecuteService.debug(request, bodyFiles);
     }
 
