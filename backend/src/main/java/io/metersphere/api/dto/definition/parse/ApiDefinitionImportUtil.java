@@ -61,6 +61,7 @@ public class ApiDefinitionImportUtil {
         if (parentModule != null) {
             module = apiModuleService.getNewModule(name, projectId, parentModule.getLevel() + 1);
             module.setParentId(parentModule.getId());
+            module.setProtocol(parentModule.getProtocol());
         } else {
             module = apiModuleService.getNewModule(name, projectId, 1);
         }
@@ -121,6 +122,7 @@ public class ApiDefinitionImportUtil {
         if (parentModule != null) {
             module = apiModuleService.getNewModule(name, projectId, parentModule.getLevel() + 1);
             module.setParentId(parentModule.getId());
+            module.setProtocol(parentModule.getProtocol());
         } else {
             module = apiModuleService.getNewModule(name, projectId, 1);
         }
