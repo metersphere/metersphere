@@ -317,7 +317,10 @@ public class ApiDefinitionExecResultService {
 
     private ApiDefinitionExecResult save(RequestResult item, String reportId, String console, int expectProcessResultCount, String type, String testId, boolean isFirst) {
         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-            ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
+            ApiDefinitionExecResult saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
+            if (saveResult == null) {
+                saveResult = new ApiDefinitionExecResult();
+            }
             item.getResponseResult().setConsole(console);
             saveResult.setId(reportId);
             saveResult.setActuator("LOCAL");
