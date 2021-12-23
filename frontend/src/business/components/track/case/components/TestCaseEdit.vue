@@ -18,19 +18,12 @@
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
-          <ms-table-button v-if="this.path!=='/test/case/add'"
-                           id="inputDelay"
-                           type="primary"
-                           :content="$t('commons.save')"
-                           size="small" @click="saveCase"
-                           icon=""
-                           :disabled="readOnly"
-                           title="ctrl + s"/>
-          <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+
+          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
             {{ $t('commons.save') }}
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="ADD_AND_CREATE">{{
+              <el-dropdown-item command="ADD_AND_CREATE" v-if="this.path =='/test/case/add'">{{
                   $t('test_track.case.save_create_continue')
                 }}
               </el-dropdown-item>
