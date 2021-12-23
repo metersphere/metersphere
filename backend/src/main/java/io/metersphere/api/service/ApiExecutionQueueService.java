@@ -66,28 +66,15 @@ public class ApiExecutionQueueService {
         ApiExecutionQueueDetailMapper batchMapper = sqlSession.getMapper(ApiExecutionQueueDetailMapper.class);
         if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
             final int[] sort = {0};
-            if (StringUtils.equals(reportType, RunModeConstants.PARALLEL.toString())) {
-                Map<String, TestPlanApiCase> runMap = (Map<String, TestPlanApiCase>) runObj;
-                runMap.forEach((k, v) -> {
-                    ApiExecutionQueueDetail queue = detail(k, v.getId(), type, sort[0], executionQueue.getId(), null);
-                    if (sort[0] == 0) {
-                        resQueue.setQueue(queue);
-                    }
-                    sort[0]++;
-                    batchMapper.insert(queue);
-                });
-            } else {
-                Map<TestPlanApiCase, ApiDefinitionExecResult> runMap = (Map<TestPlanApiCase, ApiDefinitionExecResult>) runObj;
-                runMap.forEach((k, v) -> {
-                    ApiExecutionQueueDetail queue = detail(v.getId(), k.getId(), type, sort[0], executionQueue.getId(), null);
-                    if (sort[0] == 0) {
-                        resQueue.setQueue(queue);
-                    }
-                    sort[0]++;
-                    batchMapper.insert(queue);
-                });
-            }
-
+            Map<TestPlanApiCase, ApiDefinitionExecResult> runMap = (Map<TestPlanApiCase, ApiDefinitionExecResult>) runObj;
+            runMap.forEach((k, v) -> {
+                ApiExecutionQueueDetail queue = detail(v.getId(), k.getId(), type, sort[0], executionQueue.getId(), null);
+                if (sort[0] == 0) {
+                    resQueue.setQueue(queue);
+                }
+                sort[0]++;
+                batchMapper.insert(queue);
+            });
         } else {
             Map<String, RunModeDataDTO> runMap = (Map<String, RunModeDataDTO>) runObj;
             final int[] sort = {0};
