@@ -18,7 +18,16 @@
         :node="node"
         :is-read-only="this.jsr223Processor.disabled"/>
     </legend>
-
+    <template v-slot:debugStepCode>
+         <span v-if="jsr223Processor.testing" class="ms-test-running">
+           <i class="el-icon-loading" style="font-size: 16px"/>
+           {{ $t('commons.testing') }}
+         </span>
+      <span class="ms-step-debug-code" :class="jsr223Processor.requestResult[0].success && reqSuccess?'ms-req-success':'ms-req-error'"
+            v-if="!loading &&!jsr223Processor.testing && jsr223Processor.debug && jsr223Processor.requestResult[0] && jsr223Processor.requestResult[0].responseResult">
+          {{ jsr223Processor.requestResult[0].success && reqSuccess ? 'success' : 'error' }}
+        </span>
+    </template>
   </api-base-component>
 </template>
 
@@ -33,6 +42,8 @@ export default {
   name: "MsJsr233Processor",
   components: {Jsr233ProcessorContent, ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit},
   props: {
+    request: {},
+    message: String,
     draggable: {
       type: Boolean,
       default: false,
@@ -48,11 +59,11 @@ export default {
     isReadOnly: {
       type: Boolean,
       default:
-          false
-      },
-      jsr223Processor: {
-        type: Object,
-      },
+        false
+    },
+    jsr223Processor: {
+      type: Object,
+    },
     isPreProcessor: {
       type: Boolean,
       default:
@@ -63,10 +74,39 @@ export default {
     backgroundColor: String,
     node: {},
   },
+  watch: {
+    message() {
+      this.forStatus();
+      this.reload();
+    },
+  },
   data() {
-    return {loading: false}
+    return {
+      loading: false,
+      reqSuccess: true
+    }
   },
   methods: {
+    forStatus() {
+      if (this.jsr223Processor && this.jsr223Processor.result && this.jsr223Processor.result.length > 0) {
+        this.jsr223Processor.result.forEach(item => {
+          item.requestResult.forEach(req => {
+            if (!req.success) {
+              this.reqSuccess = req.success;
+            }
+          })
+        })
+      } else if (this.jsr223Processor && this.jsr223Processor.requestResult && this.jsr223Processor.requestResult.length > 1) {
+        this.jsr223Processor.requestResult.forEach(item => {
+          if (!item.success) {
+            this.reqSuccess = item.success;
+            if (this.node && this.node.parent && this.node.parent.data) {
+              this.node.parent.data.code = 'error';
+            }
+          }
+        })
+      }
+    },
     remove() {
       this.$emit('remove', this.jsr223Processor, this.node);
     },
@@ -84,11 +124,24 @@ export default {
       this.reload();
     },
   }
-  }
+}
 </script>
 
 <style scoped>
-  /deep/ .el-divider {
-    margin-bottom: 10px;
-  }
+/deep/ .el-divider {
+  margin-bottom: 10px;
+}
+
+.ms-req-error {
+  color: #F56C6C;
+}
+
+.ms-test-running {
+  color: #6D317C;
+}
+
+.ms-req-success {
+  color: #67C23A;
+}
+
 </style>
