@@ -35,7 +35,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="failureTimes"  :label="$t('api_test.home_page.failed_case_list.table_coloum.failure_times')" width="100" show-overflow-tooltip/>
+      <el-table-column prop="failureTimes"  :label="$t('api_test.home_page.failed_case_list.table_coloum.failure_times')" width="110" show-overflow-tooltip/>
     </el-table>
   </el-card>
 </template>
