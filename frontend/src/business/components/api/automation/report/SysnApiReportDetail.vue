@@ -35,8 +35,9 @@
                   </template>
                   <ms-scenario-results
                     :console="content.console"
-                    :treeData="failsTreeNodes"
+                    :treeData="fullTreeNodes"
                     v-on:requestResult="requestResult"
+                    ref="failsTree"
                   />
                 </el-tab-pane>
                 <el-tab-pane name="console">
@@ -91,8 +92,6 @@ export default {
       content: {total: 0, scenarioTotal: 1},
       report: {},
       loading: false,
-      fails: [],
-      failsTreeNodes: [],
       totalTime: 0,
       isRequestResult: false,
       startTime: 99991611737506593,
@@ -186,8 +185,14 @@ export default {
         reset();
       });
     },
+    filter(index) {
+      if (index === "1") {
+        this.$refs.failsTree.filter(index);
+      }
+    },
     handleClick(tab, event) {
-      this.isRequestResult = false
+      this.isRequestResult = false;
+      this.filter(tab.index);
     },
     exportReportReset() {
       this.$router.go(0);
@@ -222,26 +227,16 @@ export default {
         this.loading = false;
       });
     },
-    getFails(arrays) {
-      for (let i = 0; i < arrays.length; i++) {
-        let item = arrays [i];
-        if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1 && item.value && item.value.success) {
-          arrays.splice(i, 1);
-        }
-        if (item.children && item.children.length > 0) {
-          this.getFails(item.children);
-        }
-      }
-      if (arrays[0] && this.stepFilter.get("AllSamplerProxy").indexOf(arrays[0].type) !== -1 && arrays[0].value && arrays[0].value.success) {
-        arrays.splice(0, 1);
-      }
-    },
     recursiveSorting(arr) {
       for (let i in arr) {
-        if (arr[i]) {
-          arr[i].index = Number(i) + 1;
-          if (arr[i].children && arr[i].children.length > 0) {
-            this.recursiveSorting(arr[i].children);
+        let step = arr[i];
+        if (step) {
+          step.index = Number(i) + 1;
+          if (step.value) {
+            step.value.testing = false;
+          }
+          if (step.children && step.children.length > 0) {
+            this.recursiveSorting(step.children);
           }
         }
       }
@@ -284,8 +279,8 @@ export default {
           this.content.error = this.content.error;
           this.content.success = (this.content.total - this.content.error);
           this.totalTime = this.content.totalTime;
-          this.failsTreeNodes = JSON.parse(JSON.stringify(this.fullTreeNodes));
-          this.getFails(this.failsTreeNodes);
+          this.fullTreeNodes = JSON.parse(JSON.stringify(this.fullTreeNodes));
+          this.recursiveSorting(this.fullTreeNodes);
           this.reload();
         }
       });
