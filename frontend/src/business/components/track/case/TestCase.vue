@@ -75,6 +75,7 @@
               :isRedirectEdit="isRedirectEdit"
               :tree-nodes="treeNodes"
               :trash-enable="false"
+              :public-enable="false"
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
@@ -112,6 +113,7 @@
               :tree-nodes="treeNodes"
               :select-node="selectNode"
               :select-condition="condition"
+              :public-enable="currentActiveName === 'default' ? false : true"
               :type="type"
               @addTab="addTab"
               ref="testCaseEdit">
@@ -128,7 +130,7 @@
               :select-node="selectNode"
               :select-condition="condition"
               :type="type"
-              :is-public="publicEnable"
+              :public-enable="currentActiveName === 'default' ? false : true"
               @addTab="addTabShow"
               ref="testCaseEditShow">
             </test-case-edit-show>
@@ -202,6 +204,7 @@ export default {
       showPublic: false,
       condition: {},
       activeName: 'default',
+      currentActiveName: '',
       tabs: [],
       renderComponent: true,
       loading: false,
@@ -344,12 +347,18 @@ export default {
         let label = this.$t('test_track.case.create');
         let name = getUUID().substring(0, 8);
         this.activeName = name;
+        this.currentActiveName = 'default'
         this.type = 'add';
         this.tabs.push({label: label, name: name, testCaseInfo: {testCaseModuleId: "", id: getUUID()}});
       }
       if (tab.name === 'edit') {
         let label = this.$t('test_track.case.create');
         let name = getUUID().substring(0, 8);
+        if (this.activeName === 'public') {
+          this.currentActiveName = 'public'
+        } else {
+          this.currentActiveName = 'default'
+        }
         this.activeName = name;
         label = tab.testCaseInfo.name;
         this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo});
@@ -367,6 +376,7 @@ export default {
         let label = this.$t('test_track.case.create');
         let name = getUUID().substring(0, 8);
         this.activeName = name;
+        this.currentActiveName = 'public'
         label = tab.testCaseInfo.name;
         this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo});
       }

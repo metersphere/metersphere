@@ -18,23 +18,15 @@
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
-          <ms-table-button v-if="this.path!=='/test/case/add'"
-                           id="inputDelay"
-                           type="primary"
-                           :content="$t('commons.save')"
-                           size="small" @click="saveCase"
-                           icon=""
-                           :disabled="readOnly"
-                           title="ctrl + s"/>
-          <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
             {{ $t('commons.save') }}
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="ADD_AND_CREATE">{{
+              <el-dropdown-item command="ADD_AND_CREATE" v-if="this.path =='/test/case/add'">{{
                   $t('test_track.case.save_create_continue')
                 }}
               </el-dropdown-item>
-              <el-dropdown-item command="ADD_AND_PUBLIC" v-if="this.publicEnable && this.isXpack">{{
+              <el-dropdown-item command="ADD_AND_PUBLIC" v-if="this.isPublic && this.isXpack">{{
                   $t('test_track.case.save_add_public')
                 }}
               </el-dropdown-item>
@@ -55,9 +47,19 @@
             </el-col>
 
             <el-col :span="8">
-              <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
+              <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module"
+                            v-if="!publicEnable">
                 <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"
                                 @getValue="setModule" clearable checkStrictly size="small"/>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="8">
+              <el-form-item :label="$t('test_track.case.project')" :label-width="formLabelWidth" prop="projectId"
+                            v-if="publicEnable">
+                <el-select v-model="form.projectId" filterable clearable>
+                  <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                </el-select>
               </el-form-item>
             </el-col>
 
@@ -198,9 +200,10 @@ export default {
     return {
       // sysList: [],//一级选择框的数据
       path: "/test/case/add",
-      publicEnable: false,
+      isPublic: false,
       isXpack: false,
       testCaseTemplate: {},
+      projectList: [],
       options: REVIEW_STATUS,
       statuOptions: API_STATUS,
       comments: [],
@@ -294,6 +297,11 @@ export default {
       type: Object
     },
     type: String,
+    publicEnable: {
+      type: Boolean,
+      default: false,
+    },
+    activeName: String
   },
   computed: {
     projectIds() {
@@ -367,6 +375,11 @@ export default {
     this.$store.state.testCaseMap.set(this.form.id, 0);
   },
   created() {
+    if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
+      this.$get("/project/listAll", (response) => {
+        this.projectList = response.data;  //获取当前工作空间所拥有的项目,
+      })
+    }
     this.projectId = this.projectIds;
     let initAddFuc = this.initAddFuc;
     getTestTemplate()
@@ -401,7 +414,7 @@ export default {
       this.result = this.$get('/project/get/' + this.projectId, res => {
         let data = res.data;
         if (data.casePublic) {
-          this.publicEnable = true;
+          this.isPublic = true;
         }
       })
     if (hasLicense()) {
@@ -583,16 +596,28 @@ export default {
       this.getTestCase(this.index);
     },
     initTestCases(testCase) {
-      this.selectCondition.workspaceId = null;
-      this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
-        this.testCases = response.data;
-        for (let i = 0; i < this.testCases.length; i++) {
-          if (this.testCases[i].id === testCase.id) {
-            this.index = i;
-            this.getTestCase(i);
+      if (this.publicEnable) {
+        this.result = this.$post('/test/case/list/ids/public', this.selectCondition, response => {
+          this.testCases = response.data;
+          for (let i = 0; i < this.testCases.length; i++) {
+            if (this.testCases[i].id === testCase.id) {
+              this.index = i;
+              this.getTestCase(i);
+            }
           }
-        }
-      });
+        });
+      } else {
+        this.selectCondition.workspaceId = null;
+        this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
+          this.testCases = response.data;
+          for (let i = 0; i < this.testCases.length; i++) {
+            if (this.testCases[i].id === testCase.id) {
+              this.index = i;
+              this.getTestCase(i);
+            }
+          }
+        });
+      }
     },
     getTestCase(index) {
       let id = "";
