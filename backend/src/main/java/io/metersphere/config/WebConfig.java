@@ -11,16 +11,20 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        return getTimeOutTemplate(10 * 1000, 10 * 1000, 30 * 1000);
     }
 
     @Bean
     public RestTemplate restTemplateWithTimeOut() {
+        return getTimeOutTemplate(4000, 4000, 10 * 1000);
+    }
+
+    private RestTemplate getTimeOutTemplate(int requestTimeout, int connectTimeout, int readTimeout) {
         RestTemplate restTemplate = new RestTemplate();
         HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-        httpRequestFactory.setConnectionRequestTimeout(4000);
-        httpRequestFactory.setConnectTimeout(4000);
-        httpRequestFactory.setReadTimeout(10 * 1000);
+        httpRequestFactory.setConnectionRequestTimeout(requestTimeout);
+        httpRequestFactory.setConnectTimeout(connectTimeout);
+        httpRequestFactory.setReadTimeout(readTimeout);
         restTemplate.setRequestFactory(httpRequestFactory);
         return restTemplate;
     }
