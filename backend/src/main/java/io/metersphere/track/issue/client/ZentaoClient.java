@@ -15,7 +15,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 public abstract class ZentaoClient extends BaseClient {
 
@@ -74,7 +73,6 @@ public abstract class ZentaoClient extends BaseClient {
     public AddIssueResponse.Issue addIssue(MultiValueMap<String, Object> paramMap) {
         String sessionId = login();
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = null;
         try {
             String bugCreate = requestUrl.getBugCreate();
@@ -91,7 +89,6 @@ public abstract class ZentaoClient extends BaseClient {
     public void updateIssue(String id, MultiValueMap<String, Object> paramMap) {
         String sessionId = login();
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
-        RestTemplate restTemplate = new RestTemplate();
         try {
             restTemplate.exchange(requestUrl.getBugUpdate(),
                     HttpMethod.POST, requestEntity, String.class, id, sessionId);
