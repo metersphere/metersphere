@@ -17,7 +17,7 @@
         <el-col :span="20">
           <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
                                  :callback="after"/>
-          <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"
+          <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" :assume-success = "assertions.assumeSuccess" v-if="type === options.REGEX"
                                   :callback="after"/>
           <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath"
                                       v-if="type === options.JSON_PATH" :callback="after"/>
