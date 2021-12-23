@@ -2,7 +2,9 @@
   <div id="app" v-loading="loading">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane :label="$t('organization.message.template')" name="apiTemplate">
-        <el-button type="primary" size="mini" style="margin: 10px 10px 0px" @click="openOneClickOperation">导入</el-button>
+        <el-button type="primary" size="mini" style="margin: 10px 10px 0px" @click="openOneClickOperation">
+          {{ this.$t('commons.import') }}
+        </el-button>
         <div style="min-height: 200px">
           <json-schema-editor class="schema" :value="schema" lang="zh_CN" custom/>
         </div>

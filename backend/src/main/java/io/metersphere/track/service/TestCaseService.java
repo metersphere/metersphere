@@ -1337,6 +1337,7 @@ public class TestCaseService {
             BeanUtils.copyBean(batchCopy, item);
             checkTestCaseExist(batchCopy);
             batchCopy.setId(UUID.randomUUID().toString());
+            batchCopy.setName("copy_" + item.getName());
             batchCopy.setCreateTime(System.currentTimeMillis());
             batchCopy.setUpdateTime(System.currentTimeMillis());
             batchCopy.setNum(getNextNum(SessionUtils.getCurrentProjectId()));
