@@ -12,6 +12,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 public class ReflexObjectUtil {
     static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    static final String DIFF_ADD = "++";
 
     public static List<DetailColumn> getColumns(Object obj, Map<String, String> columns) {
         List<DetailColumn> columnList = new LinkedList<>();
@@ -169,10 +171,7 @@ public class ReflexObjectUtil {
                                 String diffStr = diff.diff(oldTags, newTags);
                                 diffValue = diff.apply(newTags, diffStr);
                             } else {
-                                int indexAdd = newTags.indexOf("[");
-                                String substring = newTags.substring(0, indexAdd + 2);
-                                String substring1 = newTags.substring(indexAdd + 2);
-                                diffValue = substring + "++" + substring1;
+                                diffValue = reviverJson(newTags, "root", DIFF_ADD);
                             }
                             column.setDiffValue(diffValue);
                         }
@@ -206,4 +205,21 @@ public class ReflexObjectUtil {
         }
         return comparedColumns;
     }
+
+    private static String reviverJson(String str,String key,String option){
+        JSONObject obj = new JSONObject(str);
+        org.json.JSONArray arr = obj.getJSONArray(key);
+        for (int i = 0; i < arr.length(); i++) {
+            String s = arr.getString(i);
+            if(option.equals(DIFF_ADD)){
+                s = DIFF_ADD+s;
+            }
+            arr.put(i,s);
+        }
+        return obj.toString();
+    }
+
+
 }
+
+
