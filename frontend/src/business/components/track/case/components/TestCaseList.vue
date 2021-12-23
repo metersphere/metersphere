@@ -757,10 +757,14 @@ export default {
     },
     handleEdit(testCase, column) {
       if (column.label !== this.$t('test_track.case.case_desc')) {
-        this.$get('test/case/get/' + testCase.id, response => {
-          let testCase = response.data;
-          this.$emit('testCaseEdit', testCase);
-        });
+        if (this.publicEnable) {
+          return;
+        } else {
+          this.$get('test/case/get/' + testCase.id, response => {
+            let testCase = response.data;
+            this.$emit('testCaseEdit', testCase);
+          });
+        }
       }
 
     },
@@ -774,14 +778,10 @@ export default {
 
     },
     isPublic(testCase) {
-      if (testCase.maintainer && testCase.maintainer !== getCurrentUserId()) {
-        return true;
-      }
-      if (testCase.createUser && testCase.createUser !== getCurrentUserId()) {
-        return true;
-      } else {
+      if ((testCase.maintainer && testCase.maintainer === getCurrentUserId()) || (testCase.createUser && testCase.createUser === getCurrentUserId())) {
         return false;
       }
+      return true;
     },
     getCase(id) {
       this.$refs.testCasePreview.open();
