@@ -768,7 +768,7 @@ public class ApiTestCaseService {
         //提前生成报告
         ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId());
         report.setName(caseWithBLOBs.getName());
-        report.setTriggerMode(ApiRunMode.API.name());
+        report.setTriggerMode(ApiRunMode.JENKINS.name());
         report.setType(ApiRunMode.JENKINS.name());
         apiDefinitionExecResultMapper.insert(report);
         //更新接口案例的最后执行状态等信息
