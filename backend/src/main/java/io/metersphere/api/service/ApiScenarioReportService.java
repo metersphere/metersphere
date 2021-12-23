@@ -87,7 +87,6 @@ public class ApiScenarioReportService {
         apiScenarioReportResultService.save(dto.getReportId(), requestResults);
     }
 
-
     public ApiScenarioReport testEnded(ResultDTO dto) {
         if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
             // 更新控制台信息
@@ -179,38 +178,26 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport editReport(String reportType, String reportId, String status, String runMode) {
-        try {
-            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
-            if (report == null) {
-                int index = 0;
-                while (index < 3) {
-                    LogUtil.info("未获取到报告，尝试重新获取：【" + reportId + "】");
-                    report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
-                    Thread.sleep(2000);
-                    index++;
-                }
-            }
-            if (report != null) {
-                if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
-                    return report;
-                }
-                if (runMode.equals("CASE")) {
-                    report.setTriggerMode(TriggerMode.MANUAL.name());
-                }
-                report.setStatus(status);
-                report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
-                report.setEndTime(System.currentTimeMillis());
-                report.setUpdateTime(System.currentTimeMillis());
-                if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
-                    report.setTriggerMode(TriggerMode.MANUAL.name());
-                }
-                apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-            }
-            return report;
-        } catch (Exception e) {
-            LoggerUtil.error(e);
+        ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+        if (report == null) {
+            report = new ApiScenarioReport();
+            report.setId(reportId);
         }
-        return null;
+        if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
+            return report;
+        }
+        if (runMode.equals("CASE")) {
+            report.setTriggerMode(TriggerMode.MANUAL.name());
+        }
+        report.setStatus(status);
+        report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
+        report.setEndTime(System.currentTimeMillis());
+        report.setUpdateTime(System.currentTimeMillis());
+        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+            report.setTriggerMode(TriggerMode.MANUAL.name());
+        }
+        apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+        return report;
     }
 
     public ApiScenarioReport updateReport(APIScenarioReportResult test) {
