@@ -35,6 +35,7 @@
           <ms-api-assertion-regex
             :is-read-only="isReadOnly"
             :list="assertions.regex"
+            :assume-success = "assertions.assumeSuccess"
             :callback="after"
             v-if="type === options.REGEX"
           />
@@ -173,6 +174,7 @@ export default {
       this.reload();
     },
     copyRow() {
+      console.log("添加")
       this.$emit('copyRow', this.assertions, this.node);
     },
     suggestJsonOpen() {
@@ -217,6 +219,7 @@ export default {
       this.assertions.jsonPath = [];
     }
   }
+
 }
 </script>
 
