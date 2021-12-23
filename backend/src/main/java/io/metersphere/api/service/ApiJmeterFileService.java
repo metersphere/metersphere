@@ -68,7 +68,7 @@ public class ApiJmeterFileService {
             }
         }
         HashTree hashTree;
-        if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(),ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
+        if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             String testId = remoteTestId;
             if (remoteTestId.contains(":")) {
                 //执行测试计划案例时会有拼接ID,ID为 planTestCaseId:测试计划报告ID
@@ -82,8 +82,10 @@ public class ApiJmeterFileService {
             }
             hashTree = apiAutomationService.generateHashTree(item, reportId, planEnvMap);
         }
-        return zipFilesToByteArray(reportId, hashTree);
+        String jmxName = reportId + "_" + remoteTestId + ".jmx";
+        return zipFilesToByteArray(jmxName, hashTree);
     }
+
 
     public byte[] downloadJmx(String runMode, String testId, String reportId, String testPlanScenarioId) {
         Map<String, String> planEnvMap = new HashMap<>();
@@ -222,12 +224,11 @@ public class ApiJmeterFileService {
         return multipartFiles;
     }
 
-    private byte[] zipFilesToByteArray(String testId, HashTree hashTree) {
-        String fileName = testId + ".jmx";
+    private byte[] zipFilesToByteArray(String jmxName, HashTree hashTree) {
         String jmx = new MsTestPlan().getJmx(hashTree);
         Map<String, byte[]> files = new HashMap<>();
         //  每个测试生成一个文件夹
-        files.put(fileName, jmx.getBytes(StandardCharsets.UTF_8));
+        files.put(jmxName, jmx.getBytes(StandardCharsets.UTF_8));
         // 获取JMX使用到的附件
         Map<String, byte[]> multipartFiles = this.getMultipartFiles(hashTree);
         if (!com.alibaba.excel.util.CollectionUtils.isEmpty(multipartFiles)) {
