@@ -13,11 +13,6 @@
         <el-input :disabled="isReadOnly" v-model="regex.expression" size="small" show-word-limit
                   :placeholder="$t('api_test.request.assertions.expression')"/>
       </el-col>
-      <el-col class="assertion-checkbox">
-        <el-checkbox v-model="regex.assumeSuccess" :disabled="isReadOnly">
-          {{ $t('api_test.request.assertions.ignore_status') }}
-        </el-checkbox>
-      </el-col>
       <el-col class="assertion-btn">
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"
                    v-if="edit"/>
@@ -51,7 +46,11 @@ export default {
     isReadOnly: {
       type: Boolean,
       default: false
-    }
+    },
+    assumeSuccess: {
+      type: Boolean,
+      default: false
+    },
   },
 
   data() {
@@ -80,6 +79,7 @@ export default {
     getRegex() {
       let regex = new Regex(this.regex);
       regex.description = regex.subject + " has: " + regex.expression;
+      regex.assumeSuccess = this.assumeSuccess;
       return regex;
     },
     setRegexDescription() {
@@ -96,11 +96,6 @@ export default {
 
 .assertion-item {
   width: 100%;
-}
-
-.assertion-checkbox {
-  text-align: center;
-  width: 120px;
 }
 
 .assertion-btn {
