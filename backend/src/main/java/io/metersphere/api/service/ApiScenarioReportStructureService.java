@@ -132,7 +132,11 @@ public class ApiScenarioReportStructureService {
                     scenarioError.set((scenarioError.longValue() + 1));
                 }
             } else if (step.getValue() != null) {
-                totalTime.set((totalTime.longValue() + (step.getValue().getEndTime() - step.getValue().getStartTime())));
+                if (step.getValue().getStartTime() == 0 || step.getValue().getEndTime() == 0) {
+                    totalTime.set(totalTime.longValue() + 0);
+                } else {
+                    totalTime.set((totalTime.longValue() + (step.getValue().getEndTime() - step.getValue().getStartTime())));
+                }
             }
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
                 calculate(step.getChildren(), totalScenario, scenarioError, totalTime);
