@@ -107,6 +107,12 @@ public class TestCaseController {
         return testCaseService.listTestCaseIds(request);
     }
 
+    @PostMapping("/list/ids/public")
+    public List<TestCaseDTO> getTestPlanCaseIdsPublic(@RequestBody QueryTestCaseRequest request) {
+        return testCaseService.publicListTestCase(request);
+    }
+
+
     @GetMapping("/relationship/case/{id}/{relationshipType}")
     public List<RelationshipEdgeDTO> getRelationshipCase(@PathVariable("id") String id, @PathVariable("relationshipType") String relationshipType) {
         return testCaseService.getRelationshipCase(id, relationshipType);
@@ -184,7 +190,6 @@ public class TestCaseController {
 
     @GetMapping("/get/{testCaseId}")
     public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId) {
-        checkPermissionService.checkTestCaseOwner(testCaseId);
         return testCaseService.getTestCase(testCaseId);
     }
 
