@@ -241,6 +241,13 @@ export default {
           if (!sign) {
             return false;
           }
+          if (this.environmentType === ENV_TYPE.JSON && (!this.projectEnvMap || this.projectEnvMap.size < 1)) {
+            this.$warning(this.$t("api_test.environment.select_environment"));
+            return false;
+          } else if (this.environmentType === ENV_TYPE.GROUP && !this.envGroupId) {
+            this.$warning(this.$t("api_test.environment.select_environment"));
+            return false;
+          }
           this.$emit('addTestPlan', this.selection, this.projectEnvMap, this.map, this.environmentType, this.envGroupId);
         }
       },
