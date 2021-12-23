@@ -91,6 +91,7 @@ public class ApiExecuteService {
         for (ApiTestCaseWithBLOBs caseWithBLOBs : list) {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null);
             report.setName(caseWithBLOBs.getName());
+            report.setTriggerMode(request.getTriggerMode());
             caseWithBLOBs.setLastResultId(report.getId());
             caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
             caseWithBLOBs.setStatus(APITestStatus.Running.name());

@@ -325,11 +325,7 @@ public class ApiDefinitionExecResultService {
             saveResult.setId(reportId);
             saveResult.setActuator("LOCAL");
             saveResult.setName(item.getName());
-            if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
-                saveResult.setTriggerMode(TriggerMode.API.name());
-            } else if (StringUtils.equals(type, ApiRunMode.MANUAL_PLAN.name())) {
-                saveResult.setTriggerMode(TriggerMode.MANUAL.name());
-            } else {
+            if (StringUtils.equals(type, TriggerMode.SCHEDULE.name())) {
                 saveResult.setTriggerMode(TriggerMode.SCHEDULE.name());
             }
             saveResult.setType(type);

@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 public class ApiCaseRunRequest {
     private String reportId;
+    private String triggerMode;
     private String id;
     private List<String> ids;
     private List<OrderRequest> orders;
