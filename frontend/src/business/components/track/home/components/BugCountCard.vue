@@ -27,7 +27,7 @@
                          width="60" show-overflow-tooltip/>
         <el-table-column prop="planName" :label="$t('test_track.home.test_plan_name')"
                          width="130" show-overflow-tooltip/>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180" show-overflow-tooltip>
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="160" show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
@@ -36,7 +36,6 @@
           prop="status"
           column-key="status"
           :label="$t('test_track.plan.plan_status')"
-          width="100"
           show-overflow-tooltip>
           <template v-slot:default="scope">
           <span @click.stop="clickt = 'stop'">
@@ -45,11 +44,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="caseSize" :label="$t('test_track.home.case_size')"
-                         width="80" show-overflow-tooltip/>
+                         show-overflow-tooltip/>
         <el-table-column prop="bugSize" :label="$t('test_track.home.bug_size')"
-                         width="80" show-overflow-tooltip/>
+                         show-overflow-tooltip/>
         <el-table-column prop="passRage" :label="$t('test_track.home.passing_rate')"
-                         width="80" show-overflow-tooltip/>
+                         show-overflow-tooltip/>
       </el-table>
     </el-container>
   </el-card>
