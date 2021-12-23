@@ -12,6 +12,7 @@ import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironment;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -192,6 +193,7 @@ public class ApiTestCaseController {
     @PostMapping(value = "/batch/run")
     @MsAuditLog(module = "api_definition_case", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
     public void batchRun(@RequestBody ApiCaseRunRequest request) {
+        request.setTriggerMode(ReportTriggerMode.BATCH.name());
         apiTestCaseService.batchRun(request);
     }
 
