@@ -33,7 +33,6 @@
       <div class="header-right" @click.stop>
         <slot name="message"></slot>
         <slot name="debugStepCode"></slot>
-        <slot name="neglectStatus"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
           <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root" style="width: 30px"/>
         </el-tooltip>
