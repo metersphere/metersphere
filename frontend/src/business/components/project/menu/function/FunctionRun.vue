@@ -57,6 +57,27 @@ export default {
         this.$emit('runRefresh', data);
       }
     },
+    onDebugMessage(e) {
+      if (e.data && e.data.startsWith("result_")) {
+        try {
+          let data = e.data.substring(7);
+          this.websocket.close();
+          this.$emit('runRefresh', JSON.parse(data));
+        } catch (e) {
+          this.websocket.close();
+          this.$emit('runRefresh', "");
+        }
+      }
+    },
+    debugSocket() {
+      let protocol = "ws://";
+      if (window.location.protocol === 'https:') {
+        protocol = "wss://";
+      }
+      const uri = protocol + window.location.host + "/ws/" + this.reportId;
+      this.websocket = new WebSocket(uri);
+      this.websocket.onmessage = this.onDebugMessage;
+    },
     sort(stepArray) {
       if (stepArray) {
         for (let i in stepArray) {
@@ -94,7 +115,7 @@ export default {
       reqObj.reportId = this.reportId;
       this.$post(url, reqObj, res => {
         this.requestResult = res.data;
-        this.initWebSocket();
+        this.debugSocket();
       }, () => {
         this.$emit('errorRefresh', {});
       })
