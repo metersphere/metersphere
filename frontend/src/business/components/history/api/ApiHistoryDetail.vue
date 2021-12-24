@@ -218,6 +218,10 @@ export default {
       }
     },
     formatDubbo(diffValue) {
+      if (diffValue.interface) {
+        this.detail.interface = JSON.parse(diffValue.interface);
+        this.detail.headerId = getUUID();
+      }
       if (diffValue.config) {
         this.detail.config = JSON.parse(diffValue.config);
         this.detail.headerId = getUUID();
