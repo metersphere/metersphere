@@ -8,6 +8,7 @@
     :draggable="draggable"
     :is-max="isMax"
     :show-btn="showBtn"
+    :show-neglect = true
     color="#A30014"
     background-color="#F7E6E9"
     :title="$t('api_test.definition.request.assertions_rule')">

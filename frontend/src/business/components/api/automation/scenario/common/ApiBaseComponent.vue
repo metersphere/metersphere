@@ -33,7 +33,7 @@
       <div class="header-right" @click.stop>
         <slot name="message"></slot>
         <slot name="debugStepCode"></slot>
-        <el-checkbox v-model="data.assumeSuccess" class="assertion-checkbox" >
+        <el-checkbox v-model="data.assumeSuccess" v-if="showNeglect" class="assertion-checkbox" >
           {{ $t('api_test.request.assertions.ignore_status') }}
         </el-checkbox>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
@@ -120,6 +120,10 @@ export default {
       default() {
         return true
       }
+    },
+    showNeglect: {
+      type: Boolean,
+      default: false,
     },
     title: String
   },
