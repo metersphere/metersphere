@@ -137,13 +137,13 @@ export default {
       } else {
         url = "/api/definition/run";
       }
+      if (this.debug) {
+        this.debugSocket();
+      } else {
+        this.initWebSocket();
+      }
       this.$fileUpload(url, null, bodyFiles, reqObj, response => {
         this.requestResult = response.data;
-        if (this.debug) {
-          this.debugSocket();
-        } else {
-          this.initWebSocket();
-        }
         this.$emit('autoCheckStatus');  //   执行结束后，自动更新计划状态
       }, error => {
         this.$emit('errorRefresh', {});
