@@ -73,9 +73,9 @@ export default {
         scenarioId: this.runData.id, testElement: testPlan, projectId: getCurrentProjectID(), environmentMap: strMapToObj(map),
         environmentType: this.environmentType, environmentGroupId: this.environmentGroupId, environmentJson: JSON.stringify(strMapToObj(map))
       };
+      this.$emit('runRefresh', {});
       saveScenario('/api/automation/run/debug', reqObj, this.runData.hashTree, this, (response) => {
         this.runId = response.data;
-        this.$emit('runRefresh', {});
       });
     },
   }
