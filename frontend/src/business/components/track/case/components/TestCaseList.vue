@@ -757,14 +757,10 @@ export default {
     },
     handleEdit(testCase, column) {
       if (column.label !== this.$t('test_track.case.case_desc')) {
-        if (this.publicEnable) {
-          return;
-        } else {
-          this.$get('test/case/get/' + testCase.id, response => {
-            let testCase = response.data;
-            this.$emit('testCaseEdit', testCase);
-          });
-        }
+        this.$get('test/case/get/' + testCase.id, response => {
+          let testCase = response.data;
+          this.$emit('testCaseEdit', testCase);
+        });
       }
 
     },
