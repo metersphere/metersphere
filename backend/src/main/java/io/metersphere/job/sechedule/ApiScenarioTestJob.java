@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RunModeConfigDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
@@ -26,7 +27,7 @@ import java.util.UUID;
  */
 public class ApiScenarioTestJob extends MsScheduleJob {
 
-    private  String projectID;
+    private String projectID;
 
     private List<String> scenarioIds;
 
@@ -67,12 +68,15 @@ public class ApiScenarioTestJob extends MsScheduleJob {
         request.setIds(this.scenarioIds);
         request.setReportUserID(this.userId);
         request.setRunMode(ApiRunMode.SCHEDULE_SCENARIO.name());
-
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
         String config = jobDataMap.getString("config");
         if (StringUtils.isNotBlank(config)) {
             RunModeConfigDTO runModeConfig = JSONObject.parseObject(config, RunModeConfigDTO.class);
             request.setConfig(runModeConfig);
+        } else {
+            RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
+            runModeConfigDTO.setMode(RunModeConstants.PARALLEL.toString());
+            request.setConfig(runModeConfigDTO);
         }
 
         apiAutomationService.run(request);
