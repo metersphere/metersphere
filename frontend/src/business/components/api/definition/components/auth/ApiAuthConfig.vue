@@ -99,18 +99,17 @@ export default {
         if (this.authConfig.username == undefined && this.authConfig.password == undefined) {
           this.authConfig = authManager;
         }
+        this.request.authManager = this.authConfig;
       } else {
-        if (this.request.hashTree) {
-          for (let index in this.request.hashTree) {
-            if (this.request.hashTree[index].type === "AuthManager") {
-              this.request.hashTree.splice(index, 1);
-            }
-          }
+        let authManager = createComponent("AuthManager");
+        authManager.verification = "No Auth";
+        if (this.request.hashTree == undefined) {
+          this.request.hashTree = [];
         }
-        this.request.authManager = {};
+        this.request.hashTree.push(authManager);
+        this.authConfig = authManager;
+        this.request.authManager = this.authConfig;
       }
-
-      this.request.authManager = this.authConfig;
     },
     initData() {
       if (this.request.hashTree) {
