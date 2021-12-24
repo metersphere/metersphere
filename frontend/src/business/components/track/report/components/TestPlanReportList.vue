@@ -35,7 +35,8 @@
                        show-overflow-tooltip></el-table-column>
       <el-table-column prop="creator" :label="$t('test_track.report.list.creator')"
                        show-overflow-tooltip></el-table-column>
-      <el-table-column prop="createTime" sortable :label="$t('test_track.report.list.create_time' )" show-overflow-tooltip>
+      <el-table-column prop="createTime" sortable :label="$t('test_track.report.list.create_time' )"
+                       show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | timestampFormatDate }}</span>
         </template>
@@ -48,7 +49,9 @@
       <el-table-column prop="status" :label="$t('commons.status')">
         <template v-slot:default="scope">
           <ms-tag v-if="scope.row.status == 'RUNNING'" type="success" effect="plain" :content="'Running'"/>
-          <ms-tag v-else-if="scope.row.status == 'COMPLETED'||scope.row.status == 'SUCCESS'||scope.row.status == 'FAILED'" type="info" effect="plain" :content="'Completed'"/>
+          <ms-tag
+            v-else-if="scope.row.status == 'COMPLETED'||scope.row.status == 'SUCCESS'||scope.row.status == 'FAILED'"
+            type="info" effect="plain" :content="'Completed'"/>
           <ms-tag v-else type="effect" effect="plain" :content="scope.row.status"/>
         </template>
       </el-table-column>
@@ -87,9 +90,12 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort,
+  getLastTableSortField,
   getSelectDataCounts,
   initCondition,
-  setUnSelectIds, toggleAllSelection,saveLastTableSortField,getLastTableSortField
+  saveLastTableSortField,
+  setUnSelectIds,
+  toggleAllSelection
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import {getCurrentProjectID} from "@/common/js/utils";
@@ -109,7 +115,7 @@ export default {
     return {
       result: {},
       enableDeleteTip: false,
-      tableHeaderKey:"TRACK_REPORT_TABLE",
+      tableHeaderKey: "TRACK_REPORT_TABLE",
       queryPath: "/test/plan/report/list",
       condition: {
         components: TEST_PLAN_REPORT_CONFIGS
@@ -132,10 +138,14 @@ export default {
         {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
       ],
       buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch, permission: ['PROJECT_TRACK_REPORT:READ+DELETE']},
+        {
+          name: this.$t('api_test.definition.request.batch_delete'),
+          handleClick: this.handleDeleteBatch,
+          permission: ['PROJECT_TRACK_REPORT:READ+DELETE']
+        },
       ],
       selectDataCounts: 0,
-    }
+    };
   },
   watch: {
     '$route'(to, from) {
@@ -152,6 +162,13 @@ export default {
     this.isTestManagerOrTestUser = true;
 
     this.initTableData();
+
+    // 通知过来的数据跳转到报告
+    if (this.$route.query.resourceId) {
+      this.$get('/test/plan/report/db/' + this.$route.query.resourceId, response => {
+        this.$refs.dbReport.open(response.data);
+      });
+    }
   },
   methods: {
     initTableData() {
@@ -202,7 +219,7 @@ export default {
         }
       });
     },
-    handleDeleteBatch(){
+    handleDeleteBatch() {
       this.$alert(this.$t('report.delete_batch_confirm') + ' ' + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
@@ -224,7 +241,7 @@ export default {
       });
     },
     getIds(rowSets) {
-      let rowArray = Array.from(rowSets)
+      let rowArray = Array.from(rowSets);
       let ids = rowArray.map(s => s.id);
       return ids;
     },
@@ -238,7 +255,7 @@ export default {
         this.condition.orders = [];
       }
       _sort(column, this.condition);
-      this.saveSortField(this.tableHeaderKey,this.condition.orders);
+      this.saveSortField(this.tableHeaderKey, this.condition.orders);
       this.initTableData();
     },
     openReport(report) {
@@ -261,11 +278,11 @@ export default {
       //更新统计信息
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
+    saveSortField(key, orders) {
+      saveLastTableSortField(key, JSON.stringify(orders));
     },
   }
-}
+};
 </script>
 
 <style scoped>
