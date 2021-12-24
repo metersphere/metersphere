@@ -29,6 +29,7 @@ public class DefinitionReference {
         definitionColumns.put("response", "返回参数");
         definitionColumns.put("description", "描述");
         definitionColumns.put("followPeople", "关注人");
+        definitionColumns.put("remark", "备注");
         // 需要深度对比的字段，可以支持多个req1,req2
         definitionColumns.put("ms-dff-col", "request,response,tags");
 

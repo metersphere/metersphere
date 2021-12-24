@@ -325,6 +325,11 @@ public class ApiDefinitionDiffUtil {
 
     private static void diffDubbo(MsDubboSampler dubboNew, MsDubboSampler dubboOld, JsonDiff jsonDiff, Map<String, String> diffMap) {
         // Config对比
+        List<DetailColumn> interfaceColumns = getColumn(ReflexObjectUtil.getColumns(dubboNew.get_interface()), ReflexObjectUtil.getColumns(dubboOld.get_interface()));
+        if (CollectionUtils.isNotEmpty(interfaceColumns)) {
+            diffMap.put("interface", JSON.toJSONString(interfaceColumns));
+        }
+        // Config对比
         List<DetailColumn> diffColumns = getColumn(ReflexObjectUtil.getColumns(dubboNew.getConfigCenter()), ReflexObjectUtil.getColumns(dubboOld.getConfigCenter()));
         if (CollectionUtils.isNotEmpty(diffColumns)) {
             diffMap.put("config", JSON.toJSONString(diffColumns));
