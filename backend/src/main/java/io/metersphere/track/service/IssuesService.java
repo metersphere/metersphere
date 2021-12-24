@@ -358,6 +358,10 @@ public class IssuesService {
                 List<String> tapdUsers = platform.getTapdUsers(item.getProjectId(), item.getPlatformId());
                 item.setTapdUsers(tapdUsers);
             }
+            if (StringUtils.equals(item.getPlatform(), "Zentao")) {
+                ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
+                platform.getZentaoAssignedAndBuilds(item);
+            }
         });
         return issues;
     }
