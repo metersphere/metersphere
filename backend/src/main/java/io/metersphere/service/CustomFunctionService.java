@@ -116,6 +116,7 @@ public class CustomFunctionService {
     }
 
     public MsExecResponseDTO run(RunDefinitionRequest request) {
+        request.setDebug(true);
         return apiDefinitionService.run(request, new LinkedList<>());
     }
 }
