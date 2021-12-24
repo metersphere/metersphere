@@ -20,6 +20,7 @@ import io.metersphere.track.issue.domain.zentao.ZentaoConfig;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -61,6 +62,19 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }
         return issues;
+    }
+
+    public IssuesDao getZentaoAssignedAndBuilds(IssuesDao issue){
+        JSONObject zentaoIssue = zentaoClient.getBugById(issue.getPlatformId());
+        String openedBy = zentaoIssue.getString("openedBy");
+        String openedBuild = zentaoIssue.getString("openedBuild");
+        List<String>zentaoBuilds = new ArrayList<>();
+        if(Strings.isNotBlank(openedBuild)){
+            zentaoBuilds = Arrays.asList(openedBuild.split(","));
+        }
+        issue.setZentaoAssigned(openedBy);
+        issue.setZentaoBuilds(zentaoBuilds);
+        return issue;
     }
 
     @Override
