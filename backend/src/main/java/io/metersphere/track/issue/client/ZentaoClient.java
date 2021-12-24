@@ -1,5 +1,6 @@
 package io.metersphere.track.issue.client;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
@@ -117,6 +118,16 @@ public abstract class ZentaoClient extends BaseClient {
         ResponseEntity<String> response = restTemplate.exchange(bugGet,
                 HttpMethod.GET, null, String.class, id, sessionId);
         GetIssueResponse getIssueResponse = (GetIssueResponse) getResultForObject(GetIssueResponse.class, response);
+        if(StringUtils.equalsIgnoreCase(getIssueResponse.getStatus(),"fail")){
+            GetIssueResponse.Issue issue = new GetIssueResponse.Issue();
+            issue.setId(id);
+            issue.setSteps(" ");
+            issue.setTitle(" ");
+            issue.setStatus("closed");
+            issue.setDeleted("1");
+            issue.setOpenedBy(" ");
+            getIssueResponse.setData(JSON.toJSON(issue).toString());
+        }
         return JSONObject.parseObject(getIssueResponse.getData());
     }
 
