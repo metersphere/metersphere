@@ -8,11 +8,14 @@
     :draggable="draggable"
     :is-max="isMax"
     :show-btn="showBtn"
-    :show-neglect = true
     color="#A30014"
     background-color="#F7E6E9"
     :title="$t('api_test.definition.request.assertions_rule')">
-
+    <template v-slot:neglectStatus>
+      <el-checkbox v-model="assertions.assumeSuccess" class="assertion-checkbox" >
+        {{ $t('api_test.request.assertions.ignore_status') }}
+      </el-checkbox>
+    </template>
     <div class="assertion-add" :draggable="draggable">
       <el-row :gutter="10">
         <el-col :span="4">
@@ -175,7 +178,6 @@ export default {
       this.reload();
     },
     copyRow() {
-      console.log("添加")
       this.$emit('copyRow', this.assertions, this.node);
     },
     suggestJsonOpen() {
@@ -234,6 +236,11 @@ export default {
   margin: 5px 0;
   border-radius: 5px;
   border: #DCDFE6 solid 1px;
+}
+
+.assertion-checkbox {
+  text-align: center;
+  width: 120px;
 }
 
 .icon.is-active {
