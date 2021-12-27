@@ -43,7 +43,6 @@
       <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
     </template>
     <template v-if="isArray && reloadItemOver">
-<!--      <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>-->
       <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
     <!-- 高级设置-->
@@ -72,31 +71,6 @@
             </el-form-item>
           </div>
       </el-form>
-      <!--<h3 v-text="$t('schema.add_custom')" v-show="custom">添加自定义属性</h3>
-      <el-form class="ms-advanced-search-form" v-show="custom">
-        <el-row :gutter="6">
-          <el-col :span="8" v-for="item in customProps" :key="item.key">
-            <el-form-item :label="item.key">
-              <el-input v-model="item.value" style="width:calc(100% - 30px)" size="small"/>
-              <el-button icon="close" type="link" @click="customProps.splice(customProps.indexOf(item),1)" size="small"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8" v-show="addProp.key != undefined">
-            <el-form-item>
-              <el-input slot="label" v-model="addProp.key" size="small"/>
-              <el-input v-model="addProp.value" size="small"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item>
-              <el-button icon="check" type="link" @click="confirmAddCustomNode" v-if="customing"/>
-              <el-tooltip content="$t('schema.add_custom')" v-else>
-                <el-button icon="el-icon-plus" type="link" @click="addCustomNode"/>
-              </el-tooltip>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>-->
       <p class="tip">{{$t('schema.preview')}} </p>
       <pre style="width:100%">{{completeNodeValue}}</pre>
 
