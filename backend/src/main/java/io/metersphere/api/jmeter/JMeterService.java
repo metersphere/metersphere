@@ -149,6 +149,7 @@ public class JMeterService {
 
             ResponseEntity<String> result = restTemplate.postForEntity(uri, request, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
+                LogUtil.info(result.getBody());
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 RunRequest runRequest = new RunRequest();
                 runRequest.setTestId(request.getTestId());
@@ -158,6 +159,7 @@ public class JMeterService {
                 LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + uri + " 节点执行失败");
             }
         } catch (Exception e) {
+            LogUtil.error(e);
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
             RunRequest runRequest = new RunRequest();
             runRequest.setTestId(request.getTestId());
