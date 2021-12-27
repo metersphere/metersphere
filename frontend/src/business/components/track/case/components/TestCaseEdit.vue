@@ -739,12 +739,13 @@ export default {
       Object.assign(param, this.form);
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
-      param.nodePath = getNodePath(this.form.module, this.moduleOptions);
-      if (this.projectId) {
-        param.projectId = this.projectId;
+      if (!this.publicEnable) {
+        param.nodePath = getNodePath(this.form.module, this.moduleOptions);
+        if (this.projectId) {
+          param.projectId = this.projectId;
+        }
       }
       param.name = param.name.trim();
-
       if (this.form.tags instanceof Array) {
         this.form.tags = JSON.stringify(this.form.tags);
       }

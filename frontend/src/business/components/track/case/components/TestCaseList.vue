@@ -414,7 +414,7 @@ export default {
         },
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
-          exec: this.handleEdit,
+          exec: this.handleEditPublic,
           permissions: ['PROJECT_TRACK_CASE:READ+EDIT'],
           isDisable: this.isPublic
         },
@@ -757,12 +757,23 @@ export default {
     },
     handleEdit(testCase, column) {
       if (column.label !== this.$t('test_track.case.case_desc')) {
+        if (this.publicEnable) {
+          return;
+        } else {
+          this.$get('test/case/get/' + testCase.id, response => {
+            let testCase = response.data;
+            this.$emit('testCaseEdit', testCase);
+          });
+        }
+      }
+    },
+    handleEditPublic(testCase, column) {
+      if (column.label !== this.$t('test_track.case.case_desc')) {
         this.$get('test/case/get/' + testCase.id, response => {
           let testCase = response.data;
           this.$emit('testCaseEdit', testCase);
         });
       }
-
     },
     handleEditShow(testCase, column) {
       if (column.label !== this.$t('test_track.case.case_desc')) {
