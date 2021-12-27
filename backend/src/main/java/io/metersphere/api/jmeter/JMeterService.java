@@ -195,10 +195,12 @@ public class JMeterService {
             String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
             ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
+                LogUtil.info(result.getBody());
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 remakeReportService.remake(runRequest, config, reportId);
             }
         } catch (Exception e) {
+            LogUtil.error(e);
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
             remakeReportService.remake(runRequest, config, reportId);
         }
