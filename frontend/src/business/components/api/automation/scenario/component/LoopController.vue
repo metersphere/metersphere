@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ms-run :debug="true" :environment="envMap" :reportId="reportId" :run-data="debugData" @runRefresh="runRefresh" ref="runTest"/>
+    <ms-run :debug="true" :environment="envMap" :reportId="reportId" :runMode="'DEFINITION'" :run-data="debugData" @runRefresh="runRefresh" ref="runTest"/>
     <api-base-component @copy="copyRow" @active="active(controller)" @remove="remove" :data="controller" :draggable="draggable" :is-max="isMax" :show-btn="showBtn" color="#02A7F0" background-color="#F4F4F5" :title="$t('api_test.automation.loop_controller')" v-loading="loading">
 
       <template v-slot:headerLeft>
@@ -12,7 +12,6 @@
 
       <template v-slot:message>
         <span v-if="requestResult && requestResult.scenarios && requestResult.scenarios.length > 0 " style="color: #8c939d;margin-right: 10px">
-          <!--{{$t('api_test.automation.loop_name')}}{{requestResult.scenarios.length}}次 成功{{success}}次 失败{{error}}次-->
         </span>
       </template>
 
@@ -89,7 +88,7 @@ import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import MsRun from "../DebugRun";
 import {getUUID} from "@/common/js/utils";
-import {ELEMENT_TYPE, STEP} from "../Setting";
+import {STEP} from "../Setting";
 
 export default {
   name: "MsLoopController",
@@ -118,8 +117,7 @@ export default {
   data() {
     return {
       loading: false,
-      activeName: "first",
-      requestResult: {responseResult: {}},
+      requestResult: new Map(),
       success: 0,
       error: 0,
       debugData: {},
@@ -159,6 +157,7 @@ export default {
           value: "is not empty",
         },
         stepFilter: new STEP,
+        messageWebSocket: {},
       },
     };
   },
@@ -168,6 +167,35 @@ export default {
     },
   },
   methods: {
+    initMessageSocket() {
+      let protocol = "ws://";
+      if (window.location.protocol === 'https:') {
+        protocol = "wss://";
+      }
+      const uri = protocol + window.location.host + "/ws/" + this.reportId;
+      this.requestResult = new Map();
+      this.messageWebSocket = new WebSocket(uri);
+      this.messageWebSocket.onmessage = this.onDebugMessage;
+    },
+    onDebugMessage(e) {
+      if (e.data && e.data.startsWith("result_")) {
+        let data = JSON.parse(e.data.substring(7));
+        let resourceId = data.resourceId.split("_")[0];
+        if (this.requestResult.has(resourceId)) {
+          this.requestResult.get(resourceId).push(data);
+        } else {
+          this.requestResult.set(resourceId, [data]);
+        }
+      } else if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
+        this.loading = false;
+        this.node.expanded = true;
+        this.messageWebSocket.close();
+        // 把请求结果分给各个请求
+        this.setResult(this.controller.hashTree);
+        this.$store.state.currentApiCase = {debugLoop: getUUID()};
+        this.reload();
+      }
+    },
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
         if (this.node.data.code && this.node.data.code === 'error') {
@@ -177,25 +205,6 @@ export default {
         }
       }
       return '';
-    },
-    initResult() {
-      if (this.controller) {
-        switch (this.controller.loopType) {
-          case "LOOP_COUNT":
-            this.requestResult = this.controller.countController && this.controller.countController.requestResult ? this.controller.countController.requestResult : {};
-            break;
-          case "FOREACH":
-            this.requestResult = this.controller.forEachController && this.controller.forEachController.requestResult ? this.controller.forEachController.requestResult : {};
-            break;
-          case "WHILE":
-            this.requestResult = this.controller.whileController && this.controller.whileController.requestResult ? this.controller.whileController.requestResult : {};
-            break;
-          default:
-            break;
-        }
-      }
-      this.getFails();
-      this.activeName = this.requestResult && this.requestResult.scenarios && this.requestResult.scenarios.length > 0 ? this.requestResult.scenarios[0].name : "";
     },
     switchChange() {
       if (this.controller.hashTree && this.controller.hashTree.length > 1) {
@@ -214,7 +223,6 @@ export default {
             this.recursive(item.hashTree, count);
           }
         });
-
         if (count > 1) {
           this.$warning(this.$t('api_test.automation.loop_message'));
           this.controller.countController.proceed = true;
@@ -282,83 +290,18 @@ export default {
       });
     },
     runRefresh() {
-      this.getReport();
-    },
-    getFails() {
-      this.error = 0;
-      this.success = 0;
-      if (this.requestResult.scenarios && this.requestResult.scenarios !== null) {
-        this.requestResult.scenarios.forEach((scenario) => {
-          if (scenario.requestResults) {
-            scenario.requestResults.forEach((item) => {
-              if (item.error > 0) {
-                this.error++;
-                return;
-              }
-            });
-          }
-        });
-        this.success = this.requestResult.scenarios && this.requestResult.scenarios !== null ? this.requestResult.scenarios.length - this.error : 0;
-      }
+      this.initMessageSocket();
     },
     setResult(hashTree) {
       if (hashTree) {
         hashTree.forEach((item) => {
           if (item.type === "HTTPSamplerProxy" || item.type === "DubboSampler" || item.type === "JDBCSampler" || item.type === "TCPSampler") {
-            item.result = this.requestResult;
-            item.activeName = this.activeName;
+            item.activeName = "0";
             item.active = true;
-            item.requestResult = [];
+            item.requestResult = this.requestResult.get(item.resourceId);
           }
           if (item.hashTree && item.hashTree.length > 0) {
             this.setResult(item.hashTree);
-          }
-        });
-      }
-    },
-    getReport() {
-      if (this.reportId) {
-        let url = "/api/scenario/report/get/" + this.reportId;
-        this.$get(url, (response) => {
-          this.report = response.data || {};
-          if (response.data) {
-            if (this.isNotRunning) {
-              try {
-                this.requestResult = JSON.parse(this.report.content);
-                if (!this.requestResult) {
-                  this.requestResult = {scenarios: []};
-                }
-                this.controller.requestResult = this.requestResult;
-                switch (this.controller.loopType) {
-                  case "LOOP_COUNT":
-                    this.controller.countController.requestResult = this.requestResult;
-                    break;
-                  case "FOREACH":
-                    this.controller.forEachController.requestResult = this.requestResult;
-                    break;
-                  case "WHILE":
-                    this.controller.whileController.requestResult = this.requestResult;
-                    break;
-                  default:
-                    break;
-                }
-                this.getFails();
-                this.activeName = this.requestResult && this.requestResult.scenarios && this.requestResult.scenarios !== null && this.requestResult.scenarios.length > 0 ? this.requestResult.scenarios[0].name : "";
-                // 把请求结果分给各个请求
-                this.setResult(this.controller.hashTree);
-                this.$emit("refReload", this.node);
-              } catch (e) {
-                throw e;
-              }
-              this.loading = false;
-              this.node.expanded = true;
-              this.reload();
-            } else {
-              setTimeout(this.getReport, 2000);
-            }
-          } else {
-            this.loading = false;
-            this.$error(this.$t("api_report.not_exist"));
           }
         });
       }
@@ -367,9 +310,6 @@ export default {
   computed: {
     hasEmptyOperator() {
       return !!this.controller.operator && this.controller.operator.indexOf("empty") > 0;
-    },
-    isNotRunning() {
-      return "Running" !== this.report.status;
     },
   },
 };
