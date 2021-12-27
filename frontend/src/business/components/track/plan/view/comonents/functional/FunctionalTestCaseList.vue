@@ -88,7 +88,7 @@
               :field="item"
               :fields-width="fieldsWidth"
               :label="$t('commons.create_time')"
-              min-width="120px">
+              min-width="140px">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
@@ -202,7 +202,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.update_time')"
-          min-width="120px">
+          min-width="140px">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -213,8 +213,8 @@
                          :field="item"
                          column-key="priority"
                          :fields-width="fieldsWidth"
-                         :label="field.name"
-                         :min-width="90"
+                         :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
+                         :min-width="120"
                          :prop="field.name">
           <template v-slot="scope">
               <span v-if="field.name === '用例等级'">
@@ -281,6 +281,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import {getProjectMember} from "@/network/user";
 import {getTestTemplate} from "@/network/custom-field-template";
 import {editTestPlanTestCaseOrder} from "@/network/test-plan";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -399,7 +400,10 @@ export default {
   computed: {
     editTestPlanTestCaseOrder() {
       return editTestPlanTestCaseOrder;
-    }
+    },
+    systemFiledMap() {
+      return SYSTEM_FIELD_NAME_MAP;
+    },
   },
   watch: {
     planId() {
