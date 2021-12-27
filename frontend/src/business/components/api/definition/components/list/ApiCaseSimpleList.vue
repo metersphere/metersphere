@@ -132,7 +132,7 @@
 
           <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')">
             <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=120"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
               <span/>
             </template>
