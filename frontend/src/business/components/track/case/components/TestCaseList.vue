@@ -88,7 +88,7 @@
           min-width="120"
         />
 
-        <ms-table-column :label="$t('test_track.case.case_desc')" prop="desc" :field="item">
+        <ms-table-column :label="$t('test_track.case.case_desc')" prop="desc" :field="item" min-width="100px">
           <template v-slot:default="scope">
             <el-link @click.stop="getCase(scope.row.id)" style="color:#783887;">{{ $t('commons.preview') }}</el-link>
           </template>
@@ -107,7 +107,7 @@
 
         <ms-table-column
           prop="reviewStatus"
-          min-width="100px"
+          min-width="120px"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.case.status')">
