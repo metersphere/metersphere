@@ -20,7 +20,7 @@
         </el-select>
       </el-col>
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="value" maxlength="200" size="small" show-word-limit
+        <el-input :disabled="isReadOnly" v-model="value" maxlength="500" size="small" show-word-limit
                   :placeholder="$t('api_test.request.assertions.value')"/>
       </el-col>
       <el-col class="assertion-checkbox">
