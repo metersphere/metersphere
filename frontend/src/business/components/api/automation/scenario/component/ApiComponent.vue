@@ -89,16 +89,7 @@
       <template v-slot:result>
         <div v-loading="loading">
           <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-          <div v-if="request.result">
-            <div v-for="(scenario,h) in request.result.scenarios" :key="h">
-              <el-tabs v-model="request.activeName" closable class="ms-tabs">
-                <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
-                  <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
-                </el-tab-pane>
-              </el-tabs>
-            </div>
-          </div>
-          <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
+          <div v-if="showXpackCompnent&&request.backEsbDataStruct != null">
             <esb-definition-response
               :currentProtocol="request.protocol"
               :request="request"
@@ -147,7 +138,6 @@ import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
 import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
-import {ENV_TYPE} from "@/common/js/constants";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -255,6 +245,10 @@ export default {
     },
     environmentType(val) {
       this.envType = val;
+    },
+    '$store.state.currentApiCase.debugLoop'() {
+      this.forStatus();
+      this.reload();
     },
     '$store.state.currentApiCase.resetDataSource'() {
       if (this.request.id && this.request.referenced !== 'REF') {
