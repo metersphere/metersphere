@@ -7,6 +7,7 @@ import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.IssueTemplateDao;
@@ -18,6 +19,7 @@ import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -31,18 +33,21 @@ public class IssuesController {
     private IssuesService issuesService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public Pager<List<IssuesDao>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody IssuesRequest request) {
         Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, issuesService.list(request));
     }
 
     @PostMapping("/list/relate/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public Pager<List<IssuesDao>> relateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody IssuesRequest request) {
         Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, issuesService.relateList(request));
     }
 
     @PostMapping("/add")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_CREATE)
     @MsAuditLog(module = "track_bug", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.CREATE, mailTemplate = "track/IssuesCreate", subject = "缺陷通知")
@@ -51,6 +56,7 @@ public class IssuesController {
     }
 
     @PostMapping("/update")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     @MsAuditLog(module = "track_bug", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.UPDATE, mailTemplate = "track/IssuesUpdate", subject = "缺陷通知")
@@ -59,17 +65,20 @@ public class IssuesController {
     }
 
     @GetMapping("/get/case/{id}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<IssuesDao> getIssues(@PathVariable String id) {
         return issuesService.getIssues(id);
     }
 
     @GetMapping("/get/{id}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public IssuesWithBLOBs getIssue(@PathVariable String id) {
         return issuesService.getIssue(id);
     }
 
     @GetMapping("/plan/get/{planId}")
-    public List<IssuesDao> getIssuesByPlanoId(@PathVariable String planId) {
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
+    public List<IssuesDao> getIssuesByPlanId(@PathVariable String planId) {
         return issuesService.getIssuesByPlanoId(planId);
     }
 
@@ -89,6 +98,7 @@ public class IssuesController {
     }
 
     @PostMapping("/delete")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_DELETE)
     @MsAuditLog(module = "track_bug", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = IssuesService.class)
     public void deleteIssue(@RequestBody IssuesRequest request) {
         issuesService.deleteIssue(request);
