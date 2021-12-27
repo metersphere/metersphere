@@ -14,6 +14,8 @@ public class RunDefinitionRequest {
 
     private String reportId;
 
+    private String runMode;
+
     private boolean isDebug;
 
     private boolean saved;
