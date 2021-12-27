@@ -2,7 +2,7 @@
   <div v-loading="loading">
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="jsonPath.expression" maxlength="200" size="small" show-word-limit
+        <el-input :disabled="isReadOnly" v-model="jsonPath.expression" maxlength="500" size="small" show-word-limit
                   :placeholder="$t('api_test.request.extract.json_path_expression')"/>
       </el-col>
       <el-col>
