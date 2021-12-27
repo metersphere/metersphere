@@ -110,6 +110,9 @@ class Convert {
         }
         let $id = `${name}/properties/${key}`
         // 判断当前 element 的值 是否也是对象，如果是就继续递归，不是就赋值给result
+        if(!result["properties"]){
+          continue;
+        }
         if (isObject(element)) {
           // 创建当前属性的基本信息
           result["properties"][key] = this._value2object(element, $id, key)
@@ -137,7 +140,9 @@ class Convert {
           }
         } else {
           // 一般属性直接获取基本信息
-          result["properties"][key] = this._value2object(element, $id, key);
+          if (result["properties"]) {
+            result["properties"][key] = this._value2object(element, $id, key);
+          }
         }
       }
     }
