@@ -60,7 +60,7 @@ export default {
       if (this.apiItem && this.apiItem.id) {
         let url = "/api/definition/report/getReport/" + this.apiItem.id;
         this.$get(url, response => {
-          if (response.data) {
+          if (response.data && response.data.content) {
             try {
               let data = JSON.parse(response.data.content);
               this.response = data;
