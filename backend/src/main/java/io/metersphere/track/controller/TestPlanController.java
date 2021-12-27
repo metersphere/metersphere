@@ -71,6 +71,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/list/all")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public List<TestPlan> listAll(@RequestBody QueryTestPlanRequest request) {
         return testPlanService.listTestAllPlan(request);
     }
@@ -87,6 +88,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/get/{testPlanId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public TestPlan getTestPlan(@PathVariable String testPlanId) {
         checkPermissionService.checkTestPlanOwner(testPlanId);
         return testPlanService.getTestPlan(testPlanId);
