@@ -374,9 +374,9 @@ public class ApiScenarioExecuteService {
         }
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
-
+        String runMode = StringUtils.isEmpty(request.getRunMode()) ? ApiRunMode.SCENARIO.name() : request.getRunMode();
         // 调用执行方法
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), ApiRunMode.SCENARIO.name(), hashTree);
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, hashTree);
         runRequest.setDebug(true);
         jMeterService.run(runRequest);
         return request.getId();
