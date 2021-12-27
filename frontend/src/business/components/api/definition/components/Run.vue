@@ -23,7 +23,7 @@ export default {
     return {
       result: {},
       loading: false,
-      requestResult: {},
+      requestResult: {responseResult: {}},
       reqNumber: 0,
       websocket: {}
     }
@@ -123,6 +123,7 @@ export default {
         threadGroup.hashTree.push(item);
       })
       this.sort(testPlan.hashTree);
+      this.requestResult.reportId = this.reportId;
       let reqObj = {id: this.reportId, testElement: testPlan, type: this.type, clazzName: this.clazzName ? this.clazzName : TYPE_TO_C.get(this.type), projectId: projectId, environmentMap: strMapToObj(this.envMap)};
       let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
       if (this.runData[0].url) {
