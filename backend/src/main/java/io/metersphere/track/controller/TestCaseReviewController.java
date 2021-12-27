@@ -44,6 +44,7 @@ public class TestCaseReviewController {
     private TestCaseCommentService testCaseCommentService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public Pager<List<TestCaseReviewDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryCaseReviewRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseReviewService.listCaseReview(request));
@@ -59,6 +60,7 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/project")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public List<Project> getProjectByReviewId(@RequestBody TestCaseReview request) {
         return testCaseReviewService.getProjectByReviewId(request);
     }
@@ -99,6 +101,7 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/list/all")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public List<TestCaseReview> listAll() {
         return testCaseReviewService.listCaseReviewAll();
     }
@@ -126,6 +129,7 @@ public class TestCaseReviewController {
 
 
     @GetMapping("/get/{reviewId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public TestCaseReview getTestReview(@PathVariable String reviewId) {
         checkPermissionService.checkTestReviewOwner(reviewId);
         return testCaseReviewService.getTestReview(reviewId);
