@@ -128,16 +128,21 @@
                 </el-col>
               </el-row>
               <el-row>
-                <el-col :span="12">
+                <el-col :span="8">
                   <el-form-item :label="$t('test_resource_pool.max_threads')"
                                 :rules="requiredRules">
                     <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"/>
                   </el-form-item>
                 </el-col>
-                <el-col :span="12">
+                <el-col :span="8">
                   <el-form-item :label="$t('test_resource_pool.pod_thread_limit')"
                                 :rules="requiredRules">
                     <el-input-number v-model="item.podThreadLimit" :min="1" :max="1000000"/>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item :label="$t('test_resource_pool.sync_jar')">
+                    <el-checkbox v-model="item.enable"/>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -199,6 +204,14 @@
                     <template v-slot:default="{row}">
                       <el-input-number size="small" v-model="row.maxConcurrency" :min="1"
                                        :max="1000000000"></el-input-number>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="enable"
+                    :label="$t('test_resource_pool.sync_jar')">
+                    <template v-slot:default="{row}">
+                      <el-checkbox size="small" v-model="row.enable"/>
                     </template>
                   </el-table-column>
                   <el-table-column align="center" :label="$t('commons.operating')">
