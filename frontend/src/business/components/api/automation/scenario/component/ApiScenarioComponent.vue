@@ -22,7 +22,7 @@
           <i class="el-icon-warning"/>
         </el-tooltip>
       </span>
-      <span v-xpack v-if="scenario.versionEnable">{{$t('project.version.name')}}: {{ scenario.versionName }}</span>
+      <span v-xpack v-if="scenario.versionEnable">{{ $t('project.version.name') }}: {{ scenario.versionName }}</span>
     </template>
 
     <template v-slot:behindHeaderLeft>
@@ -104,7 +104,7 @@ export default {
     },
   },
   created() {
-    if(this.scenario.num){
+    if (this.scenario.num) {
       this.isShowNum = true;
     }
     if (!this.scenario.projectId) {
@@ -127,7 +127,7 @@ export default {
           if (this.scenario.hashTree) {
             this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
           }
-          if(response.data.num){
+          if (response.data.num) {
             this.scenario.num = response.data.num;
             this.getWorkspaceId(response.data.projectId);
           }
@@ -140,11 +140,10 @@ export default {
           this.$emit('refReload');
         }
       })
-    }
-    else if(this.scenario.id && (this.scenario.referenced === 'Copy'||this.scenario.referenced === 'Created') && !this.scenario.loaded){
+    } else if (this.scenario.id && (this.scenario.referenced === 'Copy' || this.scenario.referenced === 'Created') && !this.scenario.loaded) {
       this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
         if (response.data) {
-          if(response.data.num){
+          if (response.data.num) {
             this.scenario.num = response.data.num;
             this.getWorkspaceId(response.data.projectId);
           } else {
@@ -163,8 +162,8 @@ export default {
     return {
       loading: false,
       isShowInput: false,
-      isShowNum:false,
-      isSameSpace:true
+      isShowNum: false,
+      isSameSpace: true
     }
   },
   computed: {
@@ -181,7 +180,9 @@ export default {
   methods: {
     run() {
       this.scenario.run = true;
-      this.$emit('runScenario', this.scenario);
+      let runScenario = JSON.parse(JSON.stringify(this.scenario));
+      runScenario.hashTree = [this.scenario];
+      this.$emit('runScenario', runScenario);
     },
     stop() {
       this.scenario.run = false;
@@ -284,16 +285,16 @@ export default {
     clickResource(resource) {
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id,projectId:resource.projectId}
+        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId}
       });
       window.open(automationData.href, '_blank');
     },
-    getWorkspaceId(projectId){
+    getWorkspaceId(projectId) {
       this.$get("/project/get/" + projectId, response => {
-        if(response.data){
-          if(response.data.workspaceId===getCurrentWorkspaceId()){
+        if (response.data) {
+          if (response.data.workspaceId === getCurrentWorkspaceId()) {
             this.isShowNum = true;
-          }else {
+          } else {
             this.isSameSpace = false;
           }
         }
@@ -363,7 +364,8 @@ export default {
 .ms-test-running {
   color: #6D317C;
 }
-.ms-num{
+
+.ms-num {
   margin-left: 1rem;
   font-size: 15px;
   color: #de9d1c;
