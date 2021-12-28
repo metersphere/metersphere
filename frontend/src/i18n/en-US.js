@@ -2301,6 +2301,7 @@ export default {
     update_resource_pool: 'Create resource pool',
     select_pool_type: 'Select resource type',
     max_threads: 'Maximum concurrent number',
+    sync_jar: 'Timing synchronization jar',
     input_pool_name: 'Please enter the resource pool name',
     pool_name_valid: 'Resource pool name does not support special characters',
     cannot_remove_all_node: 'Cannot delete all independent nodes',
