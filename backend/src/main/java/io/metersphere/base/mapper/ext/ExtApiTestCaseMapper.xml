@@ -445,6 +445,7 @@
             </when>
             <otherwise>
                 and a.status != 'Trash'
+                and t1.status != 'Trash'
             </otherwise>
         </choose>
         <where>
