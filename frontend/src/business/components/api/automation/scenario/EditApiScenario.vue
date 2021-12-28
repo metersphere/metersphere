@@ -724,6 +724,7 @@ export default {
           if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
             data.subRequestResults.forEach(subItem => {
               if (item.data && item.data.resourceId + "_" + item.data.parentIndex === subItem.resourceId) {
+                subItem.requestResult.console = data.responseResult.console;
                 item.data.requestResult.push(subItem);
                 // 更新父节点状态
                 this.resultEvaluation(subItem.resourceId, subItem.success);
