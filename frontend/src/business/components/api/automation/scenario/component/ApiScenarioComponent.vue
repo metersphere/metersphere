@@ -176,7 +176,9 @@ export default {
   methods: {
     run() {
       this.scenario.run = true;
-      this.$emit('runScenario', this.scenario);
+      let runScenario = JSON.parse(JSON.stringify(this.scenario));
+      runScenario.hashTree = [this.scenario];
+      this.$emit('runScenario', runScenario);
     },
     stop() {
       this.scenario.run = false;

@@ -611,25 +611,27 @@ export default {
       });
     },
     stop() {
-      let url = "/api/automation/stop/" + this.reportId;
-      this.$get(url, response => {
-        this.debugLoading = false;
-        try {
-          if (this.websocket) {
-            this.websocket.close();
-          }
-          if (this.messageWebSocket) {
-            this.messageWebSocket.close();
-          }
-          this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
-          this.clearDebug();
-          this.$success(this.$t('report.test_stop_success'));
-          this.showHide();
-        } catch (e) {
+      if (this.reportId) {
+        let url = "/api/automation/stop/" + this.reportId;
+        this.$get(url, response => {
           this.debugLoading = false;
-        }
-      });
-      this.runScenario = undefined;
+          try {
+            if (this.websocket) {
+              this.websocket.close();
+            }
+            if (this.messageWebSocket) {
+              this.messageWebSocket.close();
+            }
+            this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+            this.clearDebug();
+            this.$success(this.$t('report.test_stop_success'));
+            this.showHide();
+          } catch (e) {
+            this.debugLoading = false;
+          }
+        });
+        this.runScenario = undefined;
+      }
     },
     clearDebug() {
       this.reqError = 0;
