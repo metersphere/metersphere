@@ -126,17 +126,12 @@
         </div>
 
         <ms-jmx-step v-if="apiCase.request.hashTree && apiCase.request.hashTree.length > 0" :request="apiCase.request" :api-id="api.id" :response="apiCase.responseData"/>
-        <!-- 保存操作 -->
-        <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
-                   v-if="type!=='detail'"
-                   v-prevent-re-click
-                   v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
-          {{ $t('commons.save') }}
-        </el-button>
+
       </div>
     </el-collapse-transition>
     <ms-change-history ref="changeHistory"/>
   </el-card>
+
 
 </template>
 
@@ -165,6 +160,7 @@ import {API_METHOD_COLOUR} from "../../model/JsonData";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import {hasPermission} from '@/common/js/utils';
+import ApiCaseHeader from "./ApiCaseHeader";
 
 export default {
   name: "ApiCaseItem",
@@ -196,7 +192,8 @@ export default {
     ShowMoreBtn,
     MsChangeHistory,
     "esbDefinition": esbDefinition.default,
-    "esbDefinitionResponse": esbDefinitionResponse.default
+    "esbDefinitionResponse": esbDefinitionResponse.default ,
+    ApiCaseHeader
   },
   data() {
     return {
