@@ -72,7 +72,7 @@ export default {
 .item_outer {
   border-radius: 2px;
   width: 580px;
-  height: 40px;
+  height: 35px;
   border: 1px solid #DCDFE6;
   padding-bottom: 15px;
 }
@@ -82,20 +82,20 @@ export default {
 }
 
 .item_prepend {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .item_prepend_lh {
-  line-height: 40px;
+  line-height: 35px;
 }
 
 .item_middle {
-  line-height: 55px;
+  line-height: 50px;
 }
 
 .item_append {
   position: absolute;
-  line-height: 55px;
+  line-height: 50px;
   right: 20px;
 }
 
