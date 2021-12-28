@@ -39,8 +39,8 @@
       </el-tabs>
     </el-card>
     <el-card style="width: 50%;" ref="new">
-      <p>2</p>
-      <span>v2</span>
+      <p>v1</p>
+      <span>1</span>
       <h4>2</h4>
       <el-row>
         <el-col :span="12">
