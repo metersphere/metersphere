@@ -46,13 +46,7 @@ public class ApiDefinitionExecResultUtil {
         if (caseWithBLOBs != null) {
             apiResult.setName(caseWithBLOBs.getName());
         }
-        if (StringUtils.equalsIgnoreCase(request.getTriggerMode(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
-            apiResult.setTriggerMode(TriggerMode.SCHEDULE.name());
-        } else if (StringUtils.equalsIgnoreCase(request.getTriggerMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
-            apiResult.setTriggerMode(TriggerMode.MANUAL.name());
-        } else {
-            apiResult.setTriggerMode(TriggerMode.BATCH.name());
-        }
+        apiResult.setTriggerMode(request.getTriggerMode());
         apiResult.setActuator("LOCAL");
         if (request.getConfig() != null && GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()).isPool()) {
             apiResult.setActuator(request.getConfig().getResourcePoolId());
