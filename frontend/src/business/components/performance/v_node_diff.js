@@ -126,9 +126,8 @@ function changeStyleBySubset(vnodeElm,color){
  * @param oldChildren Array<VNode>
  * @param newChildren Array<VNode>
  * @param diffNode
- * @param isCompareChildren
  */
-function diffChildren(oldChildren,newChildren,diffNode,isCompareChildren){
+function diffChildren(oldChildren,newChildren,diffNode){
   let oldLength = oldChildren.length;
   let newLength = newChildren.length;
   //如果isCompareChildren===true，证明是需要轮巡比较table内容是否有重复的,方法是比较每个元素的最子dom,tr的td的length是相等的；
