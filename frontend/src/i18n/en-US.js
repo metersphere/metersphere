@@ -766,7 +766,10 @@ export default {
       please_input_version: 'Please input version',
       tips: 'Note: The closed version will not appear in the system field <strong>Version</strong> drop-down box option',
       enable: 'Enable version management',
-    }
+    },
+    timing_clean_report: "Regularly clean up report",
+    keep_recent: "Keep recent",
+    please_select_cleaning_time: "please select cleaning time！"
   },
   member: {
     create: 'Create',

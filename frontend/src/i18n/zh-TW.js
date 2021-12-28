@@ -770,7 +770,10 @@ export default {
       please_input_version: '請輸入版本',
       tips: '注意: 已關閉的版本不會出現在系統字段<strong>版本</strong>下拉框選項中',
       enable: '啟用版本管理',
-    }
+    },
+    timing_clean_report: "定時清理測試計劃報告",
+    keep_recent: "保留最近",
+    please_select_cleaning_time: "請選擇清理時間！"
   },
   member: {
     create: '添加成員',

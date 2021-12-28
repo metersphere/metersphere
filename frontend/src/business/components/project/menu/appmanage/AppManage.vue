@@ -26,6 +26,7 @@
                     <el-switch v-model="form.customNum"></el-switch>
                   </template>
                 </app-manage-item>
+                <timing-item :quantity.sync="quantity" :choose.sync="choose" :unit.sync="unit" @chooseChange="chooseChange"/>
               </el-row>
             </el-tab-pane>
 
@@ -56,6 +57,7 @@
                         <el-switch v-model="form.isMockTcpOpen" @change="chooseChange"></el-switch>
                       </template>
                     </app-manage-item>
+                    <timing-item :quantity.sync="quantity" :choose.sync="choose" :unit.sync="unit" @chooseChange="chooseChange"/>
                   </el-row>
                 </el-col>
                 <el-col :span="8" :offset="4">
@@ -81,9 +83,12 @@
               </el-row>
             </el-tab-pane>
 
-            <el-tab-pane :label="$t('commons.performance')" name="performance" :disabled="true">
+            <el-tab-pane :label="$t('commons.performance')" name="performance">
               <el-row style="margin-top: 10px">
                 <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
+              </el-row>
+              <el-row style="margin-top: 15px">
+                <timing-item :quantity.sync="quantity" :choose.sync="choose" :unit.sync="unit" @chooseChange="chooseChange"/>
               </el-row>
             </el-tab-pane>
 
@@ -106,11 +111,13 @@ import {
   getCurrentWorkspaceId,
   hasLicense,
 } from "@/common/js/utils";
-import AppManageItem from "@/business/components/settings/common/AppManageItem";
+import AppManageItem from "@/business/components/project/menu/appmanage/AppManageItem";
+import TimingItem from "@/business/components/project/menu/appmanage/TimingItem";
 
 export default {
   name: "appManage",
   components: {
+    TimingItem,
     AppManageItem,
     MsMainContainer,
     MsContainer
@@ -121,7 +128,10 @@ export default {
       form: {},
       count: 0,
       isXpack: false,
-      result: {}
+      result: {},
+      quantity: "",
+      unit: "",
+      choose: false
     };
   },
   created() {
