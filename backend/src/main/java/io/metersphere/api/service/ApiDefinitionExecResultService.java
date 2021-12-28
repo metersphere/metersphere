@@ -325,9 +325,6 @@ public class ApiDefinitionExecResultService {
             saveResult.setId(reportId);
             saveResult.setActuator("LOCAL");
             saveResult.setName(item.getName());
-            if (StringUtils.equals(type, TriggerMode.SCHEDULE.name())) {
-                saveResult.setTriggerMode(TriggerMode.SCHEDULE.name());
-            }
             saveResult.setType(type);
             saveResult.setCreateTime(item.getStartTime());
             if (SessionUtils.getUser() != null) {
