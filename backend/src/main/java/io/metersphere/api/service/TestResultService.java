@@ -107,6 +107,7 @@ public class TestResultService {
                 reportTask.setPrincipal(principal);
                 reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
                 reportTask.setEnvironment(environment);
+                reportTask.setProjectId(scenarioReport.getProjectId());
 
                 updateScenarioTestCaseStates(dto.getTestId(), dto.getRunMode());
                 if (reportTask != null) {
