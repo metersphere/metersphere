@@ -88,7 +88,7 @@
           min-width="120"
         />
 
-        <ms-table-column :label="$t('test_track.case.case_desc')" prop="desc" :field="item">
+        <ms-table-column :label="$t('test_track.case.case_desc')" prop="desc" :field="item" min-width="100px">
           <template v-slot:default="scope">
             <el-link @click.stop="getCase(scope.row.id)" style="color:#783887;">{{ $t('commons.preview') }}</el-link>
           </template>
@@ -107,7 +107,7 @@
 
         <ms-table-column
           prop="reviewStatus"
-          min-width="100px"
+          min-width="120px"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.case.status')">
@@ -125,8 +125,8 @@
           :label="$t('commons.tag')"
           min-width="80">
           <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=80"
+                     :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             <span/>
           </template>
         </ms-table-column>
@@ -414,7 +414,7 @@ export default {
         },
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
-          exec: this.handleEdit,
+          exec: this.handleEditPublic,
           permissions: ['PROJECT_TRACK_CASE:READ+EDIT'],
           isDisable: this.isPublic
         },
@@ -757,12 +757,23 @@ export default {
     },
     handleEdit(testCase, column) {
       if (column.label !== this.$t('test_track.case.case_desc')) {
+        if (this.publicEnable) {
+          return;
+        } else {
+          this.$get('test/case/get/' + testCase.id, response => {
+            let testCase = response.data;
+            this.$emit('testCaseEdit', testCase);
+          });
+        }
+      }
+    },
+    handleEditPublic(testCase, column) {
+      if (column.label !== this.$t('test_track.case.case_desc')) {
         this.$get('test/case/get/' + testCase.id, response => {
           let testCase = response.data;
           this.$emit('testCaseEdit', testCase);
         });
       }
-
     },
     handleEditShow(testCase, column) {
       if (column.label !== this.$t('test_track.case.case_desc')) {
@@ -774,14 +785,10 @@ export default {
 
     },
     isPublic(testCase) {
-      if (testCase.maintainer && testCase.maintainer !== getCurrentUserId()) {
-        return true;
-      }
-      if (testCase.createUser && testCase.createUser !== getCurrentUserId()) {
-        return true;
-      } else {
+      if ((testCase.maintainer && testCase.maintainer === getCurrentUserId()) || (testCase.createUser && testCase.createUser === getCurrentUserId())) {
         return false;
       }
+      return true;
     },
     getCase(id) {
       this.$refs.testCasePreview.open();

@@ -8,7 +8,7 @@
         </el-tabs>
       </div>
         <div class="hiddenBottom">
-          <span>{{$t('test_track.report.content')}}</span>
+          <span :class="navBtnClass">{{$t('test_track.report.content')}}</span>
         </div>
     </ms-drawer>
   </div>
@@ -16,6 +16,8 @@
 
 <script>
 import MsDrawer from "@/business/components/common/components/MsDrawer";
+import {DEFAULT_LANGUAGE, EN_US} from "@/common/js/constants";
+import {getCurrentUser} from "@/common/js/utils";
 export default {
   name: "TestPlanReportNavigationBar",
   components: {MsDrawer},
@@ -80,6 +82,19 @@ export default {
       this.setData();
     },
   },
+  computed: {
+    navBtnClass() {
+      let lang = getCurrentUser().language;
+      if (!lang) {
+        lang = localStorage.getItem(DEFAULT_LANGUAGE);
+      }
+      if (lang === EN_US) {
+        return 'en-button-span';
+      } else {
+        return 'zh-button-span';
+      }
+    }
+  },
   mounted() {
     this.setData();
   },
@@ -113,7 +128,7 @@ export default {
   padding: 3px;
   /*top: 0;*/
   top: 40%;
-  line-height: 30px;
+  /*line-height: 30px;*/
   border-radius: 0 15px 15px 0;
   /*background-color: #acb7c1;*/
   background-color: #783887;
@@ -125,6 +140,17 @@ export default {
   font-size: 10px;
   font-weight: bold;
   margin-left: 1px;
+}
+
+.en-button-span {
+  writing-mode: vertical-rl;
+  letter-spacing: 0.1em;
+}
+
+.zh-button-span {
+  writing-mode: vertical-rl;
+  letter-spacing: 0.8em;
+  margin-top: 13px;
 }
 
 .hiddenBottom i {

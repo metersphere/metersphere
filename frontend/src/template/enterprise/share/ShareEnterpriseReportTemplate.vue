@@ -4,7 +4,7 @@
 </template>
 
 <script>
-import ReportChart from "@/business/components/xpack/reportstatistics/projectreport/components/chart/ReportChart";
+import ReportChart from "@/template/enterprise/share/ReportChart";
 import {getShareId} from "@/common/js/utils";
 
 export default {

@@ -12,6 +12,7 @@ export default {
   components: {},
   props: {
     environment: Map,
+    runMode: String,
     debug: Boolean,
     reportId: String,
     runData: Object,
@@ -69,13 +70,13 @@ export default {
       testPlan.hashTree.push(threadGroup);
       this.sort(testPlan.hashTree);
       let reqObj = {
-        id: this.reportId, reportId: this.reportId, scenarioName: this.runData.name, saved: this.saved,
+        id: this.reportId, reportId: this.reportId, scenarioName: this.runData.name, saved: this.saved, runMode: this.runMode,
         scenarioId: this.runData.id, testElement: testPlan, projectId: getCurrentProjectID(), environmentMap: strMapToObj(map),
         environmentType: this.environmentType, environmentGroupId: this.environmentGroupId, environmentJson: JSON.stringify(strMapToObj(map))
       };
+      this.$emit('runRefresh', {});
       saveScenario('/api/automation/run/debug', reqObj, this.runData.hashTree, this, (response) => {
         this.runId = response.data;
-        this.$emit('runRefresh', {});
       });
     },
   }

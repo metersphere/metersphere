@@ -59,7 +59,7 @@
           <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
                    class="case-form">
             <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth"
-                                    :issue-template="testCaseTemplate" :is-public="isPublic"/>
+                                    :issue-template="testCaseTemplate" :is-public="publicEnable"/>
           </el-form>
 
           <el-row v-if="isCustomNum">
@@ -121,7 +121,7 @@
       <ms-change-history ref="changeHistory"/>
 
     </div>
-    <batch-move ref="testBatchMove" :public-enable="isPublic"
+    <batch-move ref="testBatchMove" :public-enable="publicEnable"
                 @copyPublic="copyPublic"/>
   </el-card>
 
@@ -191,7 +191,7 @@ export default {
       path: "/test/case/add",
       selectIds: [],
       projectList: [],
-      publicEnable: false,
+      isPublic: false,
       isXpack: false,
       testCaseTemplate: {},
       options: REVIEW_STATUS,
@@ -287,8 +287,9 @@ export default {
       type: Object
     },
     type: String,
-    isPublic: {
-      type: Boolean
+    publicEnable: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -381,7 +382,7 @@ export default {
       this.result = this.$get('/project/get/' + this.projectId, res => {
         let data = res.data;
         if (data.casePublic) {
-          this.publicEnable = true;
+          this.isPublic = true;
         }
       })
     if (hasLicense()) {
@@ -562,16 +563,28 @@ export default {
       this.getTestCase(this.index);
     },
     initTestCases(testCase) {
-      this.selectCondition.workspaceId = null;
-      this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
-        this.testCases = response.data;
-        for (let i = 0; i < this.testCases.length; i++) {
-          if (this.testCases[i].id === testCase.id) {
-            this.index = i;
-            this.getTestCase(i);
+      if (this.publicEnable) {
+        this.result = this.$post('/test/case/list/ids/public', this.selectCondition, response => {
+          this.testCases = response.data;
+          for (let i = 0; i < this.testCases.length; i++) {
+            if (this.testCases[i].id === testCase.id) {
+              this.index = i;
+              this.getTestCase(i);
+            }
           }
-        }
-      });
+        });
+      } else {
+        this.selectCondition.workspaceId = null;
+        this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
+          this.testCases = response.data;
+          for (let i = 0; i < this.testCases.length; i++) {
+            if (this.testCases[i].id === testCase.id) {
+              this.index = i;
+              this.getTestCase(i);
+            }
+          }
+        });
+      }
     },
     getTestCase(index) {
       let id = "";

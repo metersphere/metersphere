@@ -575,7 +575,7 @@ export default {
       });
     },
     handleRunBatch(config) {
-      let obj = {planIds: this.testPlanCaseIds, config: config};
+      let obj = {planIds: this.testPlanCaseIds, config: config, triggerMode:"BATCH"};
       this.$post("/test/plan/api/case/run", obj, response => {
         this.$message(this.$t('commons.run_message'));
         this.$refs.taskCenter.open();

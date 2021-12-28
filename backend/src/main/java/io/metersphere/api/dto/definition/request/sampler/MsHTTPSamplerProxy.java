@@ -270,7 +270,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         if (this.authManager != null) {
-            this.authManager.setAuth(tree, this.authManager, sampler);
+            this.authManager.setAuth(httpSamplerTree, this.authManager, sampler);
         }
 
         addCertificate(config, httpSamplerTree);

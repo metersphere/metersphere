@@ -1152,13 +1152,7 @@ public class TestPlanService {
 
     private void executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfigDTO runModeConfig) {
         BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
-        if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
-            request.setTriggerMode(ApiRunMode.JENKINS_API_PLAN.name());
-        } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
-            request.setTriggerMode(ApiRunMode.MANUAL_PLAN.name());
-        } else {
-            request.setTriggerMode(ApiRunMode.SCHEDULE_API_PLAN.name());
-        }
+        request.setTriggerMode(triggerMode);
         request.setPlanIds(planCaseIds);
         request.setPlanReportId(planReportId);
         request.setConfig(runModeConfig);
@@ -1912,7 +1906,6 @@ public class TestPlanService {
     }
 
     public String runPlan(TestplanRunRequest testplanRunRequest) {
-
         String envType = testplanRunRequest.getEnvironmentType();
         Map<String, String> envMap = testplanRunRequest.getEnvMap();
         String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();

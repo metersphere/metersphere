@@ -19,6 +19,7 @@ package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunningParamKeys;
+import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -105,12 +106,12 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
         LoggerUtil.debug("send. " + this.getName());
         WebSocketUtils.sendMessageSingle(dto);
         WebSocketUtils.onClose(this.getName());
+        PoolExecBlockingQueueUtil.offer(this.getName());
     }
 
     @Override
     public void testStarted(String host) {
         LogUtil.debug("TestStarted " + this.getName());
-
     }
 
     @Override

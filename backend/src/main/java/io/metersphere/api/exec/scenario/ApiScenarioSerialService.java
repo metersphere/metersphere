@@ -71,8 +71,10 @@ public class ApiScenarioSerialService {
                 apiScenarioReportMapper.updateByPrimaryKey(report);
             } else {
                 ApiDefinitionExecResult execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
-                execResult.setStatus(APITestStatus.Running.name());
-                apiDefinitionExecResultMapper.updateByPrimaryKey(execResult);
+                if (execResult != null) {
+                    execResult.setStatus(APITestStatus.Running.name());
+                    apiDefinitionExecResultMapper.updateByPrimaryKey(execResult);
+                }
             }
         }
 

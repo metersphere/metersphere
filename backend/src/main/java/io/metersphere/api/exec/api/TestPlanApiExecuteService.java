@@ -9,16 +9,17 @@ import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiExecutionQueue;
 import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.base.domain.TestPlanApiCaseExample;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -30,7 +31,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -38,19 +42,20 @@ public class TestPlanApiExecuteService {
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
-    private JMeterService jMeterService;
-    @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiScenarioSerialService apiScenarioSerialService;
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
+    @Resource
+    private JMeterService jMeterService;
 
     public List<MsExecResponseDTO> run(BatchRunDefinitionRequest request) {
         List<String> ids = request.getPlanIds();
         if (CollectionUtils.isEmpty(ids)) {
             return new LinkedList<>();
         }
+        LoggerUtil.debug("开始查询测试计划用例");
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andIdIn(ids);
         example.setOrderByClause("`order` DESC");
@@ -62,94 +67,80 @@ public class TestPlanApiExecuteService {
         }
 
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
-        // 开始选择执行模式
-        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-            Map<TestPlanApiCase, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
-            //记录案例线程结果以及执行失败的案例ID
-            Map<String, String> executeThreadIdMap = new HashMap<>();
-
-            planApiCases.forEach(testPlanApiCase -> {
-                ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, APITestStatus.Waiting.name(), batchMapper);
-                executeQueue.put(testPlanApiCase, report);
-                executeThreadIdMap.put(testPlanApiCase.getId(), report.getId());
-                responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
-            });
-
-            //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
-            if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
-                if (!executeThreadIdMap.isEmpty()) {
-                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap, null, null);
-                }
-            }
-            sqlSession.flushStatements();
-            if (sqlSession != null && sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            }
-            // 开始串行执行
-            String runMode = request.getTriggerMode();
-            DBTestQueue executionQueue = apiExecutionQueueService.add(executeQueue, request.getConfig() != null ? request.getConfig().getResourcePoolId() : null, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), null, runMode);
-            if (executionQueue != null) {
-                if (executionQueue.getQueue() != null) {
-                    apiScenarioSerialService.serial(executionQueue, executionQueue.getQueue());
-                }
-            }
-        } else {
-            Map<String, TestPlanApiCase> executeQueue = new HashMap<>();
-            //记录案例线程结果以及执行失败的案例ID
-            Map<String, String> executeThreadIdMap = new HashMap<>();
-            planApiCases.forEach(testPlanApiCase -> {
-                ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, APITestStatus.Running.name(), batchMapper);
-                executeQueue.put(report.getId(), testPlanApiCase);
-                executeThreadIdMap.put(testPlanApiCase.getId(), report.getId());
-                responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
-            });
-            sqlSession.flushStatements();
-            if (sqlSession != null && sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            }
-            //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
-            if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
-                if (!executeThreadIdMap.isEmpty()) {
-                    TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap, null, null);
-                }
-            }
-            // 开始并发执行
-            this.parallel(executeQueue, request);
+        Map<TestPlanApiCase, ApiDefinitionExecResult> executeQueue = new HashMap<>();
+        //记录案例线程结果以及执行失败的案例ID
+        Map<String, String> executeThreadIdMap = new HashMap<>();
+        String status = request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
+        planApiCases.forEach(testPlanApiCase -> {
+            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, batchMapper);
+            executeQueue.put(testPlanApiCase, report);
+            executeThreadIdMap.put(testPlanApiCase.getId(), report.getId());
+            responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
+        });
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
 
+        LoggerUtil.debug("开始生成测试计划队列");
+        String reportType = request.getConfig() != null ? request.getConfig().getReportType() : null;
+        String poolId = request.getConfig() != null ? request.getConfig().getResourcePoolId() : null;
+        String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
+        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode);
+
+        //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
+        if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
+            if (!executeThreadIdMap.isEmpty()) {
+                TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap, null, null);
+            }
+        }
+        // 开始选择执行模式
+        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+            LoggerUtil.debug("开始串行执行");
+            if (deQueue != null && deQueue.getQueue() != null) {
+                apiScenarioSerialService.serial(deQueue, deQueue.getQueue());
+            }
+        } else {
+            LoggerUtil.debug("开始并发执行");
+            if (deQueue != null && deQueue.getQueue() != null) {
+                parallel(executeQueue, request, deQueue);
+            }
+        }
         return responseDTOS;
     }
 
-    private void parallel(Map<String, TestPlanApiCase> executeQueue, BatchRunDefinitionRequest request) {
-        List<String> executeErrorList = new ArrayList<>();
-        String poolId = request.getConfig() != null ? request.getConfig().getResourcePoolId() : null;
-        String mode = request.getConfig() != null ? request.getConfig().getMode() : null;
-        ApiExecutionQueue executionQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), mode, request.getTriggerMode());
-        if (executionQueue != null) {
-            for (String reportId : executeQueue.keySet()) {
-                TestPlanApiCase testPlanApiCase = executeQueue.get(reportId);
+    private void parallel(Map<TestPlanApiCase, ApiDefinitionExecResult> executeQueue, BatchRunDefinitionRequest request, DBTestQueue executionQueue) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
                 try {
-                    HashTree hashTree = null;
-                    if (request.getConfig() == null || !GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()).isPool()) {
-                        hashTree = apiScenarioSerialService.generateHashTree(testPlanApiCase.getId());
+                    Thread.sleep(5000);
+                    Thread.currentThread().setName("测试计划入列线程");
+                    for (TestPlanApiCase testPlanApiCase : executeQueue.keySet()) {
+                        ApiDefinitionExecResult result = executeQueue.get(testPlanApiCase);
+                        String reportId = result.getId();
+                        HashTree hashTree = null;
+                        if (request.getConfig() == null || !GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()).isPool()) {
+                            hashTree = apiScenarioSerialService.generateHashTree(testPlanApiCase.getId());
+                        }
+                        String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
+                        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testPlanApiCase.getId(), reportId, runMode, hashTree);
+                        if (request.getConfig() != null) {
+                            runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
+                            runRequest.setPoolId(request.getConfig().getResourcePoolId());
+                        }
+                        runRequest.setTestPlanReportId(request.getPlanReportId());
+                        runRequest.setReportType(executionQueue.getReportType());
+                        runRequest.setTestPlanReportId(request.getPlanReportId());
+                        runRequest.setRunType(RunModeConstants.PARALLEL.toString());
+                        runRequest.setQueueId(executionQueue.getId());
+                        jMeterService.run(runRequest);
                     }
-                    JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testPlanApiCase.getId(), reportId, request.getTriggerMode(), hashTree);
-                    if (request.getConfig() != null) {
-                        runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
-                        runRequest.setPoolId(request.getConfig().getResourcePoolId());
-                    }
-                    runRequest.setTestPlanReportId(request.getPlanReportId());
-                    runRequest.setReportType(executionQueue.getReportType());
-                    runRequest.setTestPlanReportId(request.getPlanReportId());
-                    runRequest.setRunType(RunModeConstants.PARALLEL.toString());
-                    runRequest.setQueueId(executionQueue.getId());
-                    jMeterService.run(runRequest);
                 } catch (Exception e) {
-                    executeErrorList.add(testPlanApiCase.getId());
+                    LoggerUtil.error("并发执行测试计划用例失败：" + e.getMessage());
                 }
             }
-            //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
-            TestPlanReportExecuteCatch.set(request.getPlanReportId(), executeErrorList);
-        }
+        });
+        thread.start();
     }
 }
