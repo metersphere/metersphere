@@ -44,7 +44,7 @@ import java.util.Map;
 /**
  * 实时结果监听
  */
-public class MsResultCollector extends AbstractListenerElement implements SampleListener, Clearable, Serializable,
+public class MsDebugListener extends AbstractListenerElement implements SampleListener, Clearable, Serializable,
         TestStateListener, Remoteable, NoThreadClone {
 
     private static final String ERROR_LOGGING = "MsResultCollector.error_logging"; // $NON-NLS-1$
@@ -57,7 +57,7 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
 
     @Override
     public Object clone() {
-        MsResultCollector clone = (MsResultCollector) super.clone();
+        MsDebugListener clone = (MsDebugListener) super.clone();
         return clone;
     }
 
@@ -145,7 +145,39 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
     @Override
     public void sampleOccurred(SampleEvent event) {
         SampleResult result = event.getResult();
-        JMeterVariables variables = JMeterVars.get(result.hashCode());
+        this.setVars(result);
+        if (isSampleWanted(result.isSuccessful()) && !StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
+            RequestResult requestResult = JMeterBase.getRequestResult(result);
+            if (requestResult != null) {
+                MsgDto dto = new MsgDto();
+                dto.setExecEnd(false);
+                dto.setReportId("send." + this.getName());
+                dto.setToReport(this.getName());
+                String console = CommonBeanFactory.getBean(MsResultService.class).getJmeterLogger(this.getName());
+                if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
+                    requestResult.getSubRequestResults().forEach(transactionResult -> {
+                        transactionResult.getResponseResult().setConsole(console);
+                        dto.setContent("result_" + JSON.toJSONString(transactionResult));
+                        WebSocketUtils.sendMessageSingle(dto);
+                    });
+                } else {
+                    requestResult.getResponseResult().setConsole(console);
+                    dto.setContent("result_" + JSON.toJSONString(requestResult));
+                    WebSocketUtils.sendMessageSingle(dto);
+                }
+                LoggerUtil.debug("send. " + this.getName());
+            }
+        }
+    }
+
+    private void setVars(SampleResult result) {
+        if (StringUtils.isNotEmpty(result.getSampleLabel()) && result.getSampleLabel().startsWith("Transaction=")) {
+            for (int i = 0; i < result.getSubResults().length; i++) {
+                SampleResult subResult = result.getSubResults()[i];
+                this.setVars(subResult);
+            }
+        }
+        JMeterVariables variables = JMeterVars.get(result.getResourceId());
         if (variables != null && CollectionUtils.isNotEmpty(variables.entrySet())) {
             StringBuilder builder = new StringBuilder();
             for (Map.Entry<String, Object> entry : variables.entrySet()) {
@@ -153,23 +185,6 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
             }
             if (StringUtils.isNotEmpty(builder)) {
                 result.setExtVars(builder.toString());
-            }
-        }
-        if (isSampleWanted(result.isSuccessful()) && !StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
-            RequestResult requestResult = JMeterBase.getRequestResult(result);
-            if (requestResult != null) {
-                if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=") && CollectionUtils.isEmpty(requestResult.getSubRequestResults())) {
-                    LoggerUtil.debug("进入合并事物，暂不处理");
-                } else {
-                    requestResult.getResponseResult().setConsole(CommonBeanFactory.getBean(MsResultService.class).getJmeterLogger(this.getName()));
-                    MsgDto dto = new MsgDto();
-                    dto.setExecEnd(false);
-                    dto.setContent("result_" + JSON.toJSONString(requestResult));
-                    dto.setReportId("send." + this.getName());
-                    dto.setToReport(this.getName());
-                    LoggerUtil.debug("send. " + this.getName());
-                    WebSocketUtils.sendMessageSingle(dto);
-                }
             }
         }
     }

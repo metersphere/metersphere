@@ -27,10 +27,6 @@ public class ApiScenarioReportResultService {
                 // 事物控制器出来的结果特殊处理
                 if (StringUtils.isNotEmpty(item.getName()) && item.getName().startsWith("Transaction=") && CollectionUtils.isEmpty(item.getSubRequestResults())) {
                     LoggerUtil.debug("合并事物请求暂不入库");
-                } else if (StringUtils.isNotEmpty(item.getName()) && item.getName().startsWith("Transaction=") && CollectionUtils.isNotEmpty(item.getSubRequestResults())) {
-                    item.getSubRequestResults().forEach(subItem -> {
-                        apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, subItem));
-                    });
                 } else {
                     apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
                 }
