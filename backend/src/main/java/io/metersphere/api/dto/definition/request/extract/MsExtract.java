@@ -66,7 +66,7 @@ public class MsExtract extends MsTestElement {
             shell.setProperty(TestElement.TEST_CLASS, JSR223PostProcessor.class.getName());
             shell.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
             shell.setProperty("cacheKey", false);
-            shell.setProperty("script", "io.metersphere.utils.JMeterVars.addVars(prev.hashCode(),vars," + "\"" + extract.toString() + "\"" + ");");
+            shell.setProperty("script", "io.metersphere.utils.JMeterVars.addVars(prev.getResourceId(),vars," + "\"" + extract.toString() + "\"" + ");");
             samplerHashTree.add(shell);
         }
     }
