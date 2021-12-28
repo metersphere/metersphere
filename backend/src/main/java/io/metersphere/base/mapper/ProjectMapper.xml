@@ -22,11 +22,17 @@
     <result column="mock_tcp_port" jdbcType="INTEGER" property="mockTcpPort" />
     <result column="is_mock_tcp_open" jdbcType="BIT" property="isMockTcpOpen" />
     <result column="azure_filter_id" jdbcType="VARCHAR" property="azureFilterId" />
-    <result column="version_enable" jdbcType="BIT" property="versionEnable" />
+    <result column="api_quick" jdbcType="VARCHAR" property="apiQuick" />
+    <result column="case_public" jdbcType="BIT" property="casePublic" />
     <result column="platform" jdbcType="VARCHAR" property="platform" />
     <result column="third_part_template" jdbcType="BIT" property="thirdPartTemplate" />
-    <result column="case_public" jdbcType="BIT" property="casePublic" />
-    <result column="api_quick" jdbcType="VARCHAR" property="apiQuick" />
+    <result column="version_enable" jdbcType="BIT" property="versionEnable" />
+    <result column="clean_track_report" jdbcType="BIT" property="cleanTrackReport" />
+    <result column="clean_track_report_expr" jdbcType="VARCHAR" property="cleanTrackReportExpr" />
+    <result column="clean_api_report" jdbcType="BIT" property="cleanApiReport" />
+    <result column="clean_api_report_expr" jdbcType="VARCHAR" property="cleanApiReportExpr" />
+    <result column="clean_load_report" jdbcType="BIT" property="cleanLoadReport" />
+    <result column="clean_load_report_expr" jdbcType="VARCHAR" property="cleanLoadReportExpr" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -90,7 +96,9 @@
     id, workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key, 
     zentao_id, azure_devops_id, `repeatable`, case_template_id, issue_template_id, custom_num, 
     scenario_custom_num, create_user, system_id, mock_tcp_port, is_mock_tcp_open, azure_filter_id, 
-    version_enable, platform, third_part_template, case_public, api_quick
+    api_quick, case_public, platform, third_part_template, version_enable, clean_track_report, 
+    clean_track_report_expr, clean_api_report, clean_api_report_expr, clean_load_report, 
+    clean_load_report_expr
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -129,18 +137,22 @@
       azure_devops_id, `repeatable`, case_template_id, 
       issue_template_id, custom_num, scenario_custom_num, 
       create_user, system_id, mock_tcp_port, 
-      is_mock_tcp_open, azure_filter_id, version_enable, 
-      platform, third_part_template, case_public, 
-      api_quick)
+      is_mock_tcp_open, azure_filter_id, api_quick, 
+      case_public, platform, third_part_template, 
+      version_enable, clean_track_report, clean_track_report_expr, 
+      clean_api_report, clean_api_report_expr, clean_load_report, 
+      clean_load_report_expr)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
       #{azureDevopsId,jdbcType=VARCHAR}, #{repeatable,jdbcType=BIT}, #{caseTemplateId,jdbcType=VARCHAR}, 
       #{issueTemplateId,jdbcType=VARCHAR}, #{customNum,jdbcType=BIT}, #{scenarioCustomNum,jdbcType=BIT}, 
       #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR}, #{mockTcpPort,jdbcType=INTEGER}, 
-      #{isMockTcpOpen,jdbcType=BIT}, #{azureFilterId,jdbcType=VARCHAR}, #{versionEnable,jdbcType=BIT}, 
-      #{platform,jdbcType=VARCHAR}, #{thirdPartTemplate,jdbcType=BIT}, #{casePublic,jdbcType=BIT}, 
-      #{apiQuick,jdbcType=VARCHAR})
+      #{isMockTcpOpen,jdbcType=BIT}, #{azureFilterId,jdbcType=VARCHAR}, #{apiQuick,jdbcType=VARCHAR}, 
+      #{casePublic,jdbcType=BIT}, #{platform,jdbcType=VARCHAR}, #{thirdPartTemplate,jdbcType=BIT}, 
+      #{versionEnable,jdbcType=BIT}, #{cleanTrackReport,jdbcType=BIT}, #{cleanTrackReportExpr,jdbcType=VARCHAR}, 
+      #{cleanApiReport,jdbcType=BIT}, #{cleanApiReportExpr,jdbcType=VARCHAR}, #{cleanLoadReport,jdbcType=BIT}, 
+      #{cleanLoadReportExpr,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -205,8 +217,11 @@
       <if test="azureFilterId != null">
         azure_filter_id,
       </if>
-      <if test="versionEnable != null">
-        version_enable,
+      <if test="apiQuick != null">
+        api_quick,
+      </if>
+      <if test="casePublic != null">
+        case_public,
       </if>
       <if test="platform != null">
         platform,
@@ -214,11 +229,26 @@
       <if test="thirdPartTemplate != null">
         third_part_template,
       </if>
-      <if test="casePublic != null">
-        case_public,
+      <if test="versionEnable != null">
+        version_enable,
       </if>
-      <if test="apiQuick != null">
-        api_quick,
+      <if test="cleanTrackReport != null">
+        clean_track_report,
+      </if>
+      <if test="cleanTrackReportExpr != null">
+        clean_track_report_expr,
+      </if>
+      <if test="cleanApiReport != null">
+        clean_api_report,
+      </if>
+      <if test="cleanApiReportExpr != null">
+        clean_api_report_expr,
+      </if>
+      <if test="cleanLoadReport != null">
+        clean_load_report,
+      </if>
+      <if test="cleanLoadReportExpr != null">
+        clean_load_report_expr,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -282,8 +312,11 @@
       <if test="azureFilterId != null">
         #{azureFilterId,jdbcType=VARCHAR},
       </if>
-      <if test="versionEnable != null">
-        #{versionEnable,jdbcType=BIT},
+      <if test="apiQuick != null">
+        #{apiQuick,jdbcType=VARCHAR},
+      </if>
+      <if test="casePublic != null">
+        #{casePublic,jdbcType=BIT},
       </if>
       <if test="platform != null">
         #{platform,jdbcType=VARCHAR},
@@ -291,11 +324,26 @@
       <if test="thirdPartTemplate != null">
         #{thirdPartTemplate,jdbcType=BIT},
       </if>
-      <if test="casePublic != null">
-        #{casePublic,jdbcType=BIT},
+      <if test="versionEnable != null">
+        #{versionEnable,jdbcType=BIT},
       </if>
-      <if test="apiQuick != null">
-        #{apiQuick,jdbcType=VARCHAR},
+      <if test="cleanTrackReport != null">
+        #{cleanTrackReport,jdbcType=BIT},
+      </if>
+      <if test="cleanTrackReportExpr != null">
+        #{cleanTrackReportExpr,jdbcType=VARCHAR},
+      </if>
+      <if test="cleanApiReport != null">
+        #{cleanApiReport,jdbcType=BIT},
+      </if>
+      <if test="cleanApiReportExpr != null">
+        #{cleanApiReportExpr,jdbcType=VARCHAR},
+      </if>
+      <if test="cleanLoadReport != null">
+        #{cleanLoadReport,jdbcType=BIT},
+      </if>
+      <if test="cleanLoadReportExpr != null">
+        #{cleanLoadReportExpr,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -368,8 +416,11 @@
       <if test="record.azureFilterId != null">
         azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
       </if>
-      <if test="record.versionEnable != null">
-        version_enable = #{record.versionEnable,jdbcType=BIT},
+      <if test="record.apiQuick != null">
+        api_quick = #{record.apiQuick,jdbcType=VARCHAR},
+      </if>
+      <if test="record.casePublic != null">
+        case_public = #{record.casePublic,jdbcType=BIT},
       </if>
       <if test="record.platform != null">
         platform = #{record.platform,jdbcType=VARCHAR},
@@ -377,11 +428,26 @@
       <if test="record.thirdPartTemplate != null">
         third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
       </if>
-      <if test="record.casePublic != null">
-        case_public = #{record.casePublic,jdbcType=BIT},
+      <if test="record.versionEnable != null">
+        version_enable = #{record.versionEnable,jdbcType=BIT},
       </if>
-      <if test="record.apiQuick != null">
-        api_quick = #{record.apiQuick,jdbcType=VARCHAR},
+      <if test="record.cleanTrackReport != null">
+        clean_track_report = #{record.cleanTrackReport,jdbcType=BIT},
+      </if>
+      <if test="record.cleanTrackReportExpr != null">
+        clean_track_report_expr = #{record.cleanTrackReportExpr,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cleanApiReport != null">
+        clean_api_report = #{record.cleanApiReport,jdbcType=BIT},
+      </if>
+      <if test="record.cleanApiReportExpr != null">
+        clean_api_report_expr = #{record.cleanApiReportExpr,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cleanLoadReport != null">
+        clean_load_report = #{record.cleanLoadReport,jdbcType=BIT},
+      </if>
+      <if test="record.cleanLoadReportExpr != null">
+        clean_load_report_expr = #{record.cleanLoadReportExpr,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -410,11 +476,17 @@
       mock_tcp_port = #{record.mockTcpPort,jdbcType=INTEGER},
       is_mock_tcp_open = #{record.isMockTcpOpen,jdbcType=BIT},
       azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
-      version_enable = #{record.versionEnable,jdbcType=BIT},
+      api_quick = #{record.apiQuick,jdbcType=VARCHAR},
+      case_public = #{record.casePublic,jdbcType=BIT},
       platform = #{record.platform,jdbcType=VARCHAR},
       third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
-      case_public = #{record.casePublic,jdbcType=BIT},
-      api_quick = #{record.apiQuick,jdbcType=VARCHAR}
+      version_enable = #{record.versionEnable,jdbcType=BIT},
+      clean_track_report = #{record.cleanTrackReport,jdbcType=BIT},
+      clean_track_report_expr = #{record.cleanTrackReportExpr,jdbcType=VARCHAR},
+      clean_api_report = #{record.cleanApiReport,jdbcType=BIT},
+      clean_api_report_expr = #{record.cleanApiReportExpr,jdbcType=VARCHAR},
+      clean_load_report = #{record.cleanLoadReport,jdbcType=BIT},
+      clean_load_report_expr = #{record.cleanLoadReportExpr,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -479,8 +551,11 @@
       <if test="azureFilterId != null">
         azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
       </if>
-      <if test="versionEnable != null">
-        version_enable = #{versionEnable,jdbcType=BIT},
+      <if test="apiQuick != null">
+        api_quick = #{apiQuick,jdbcType=VARCHAR},
+      </if>
+      <if test="casePublic != null">
+        case_public = #{casePublic,jdbcType=BIT},
       </if>
       <if test="platform != null">
         platform = #{platform,jdbcType=VARCHAR},
@@ -488,11 +563,26 @@
       <if test="thirdPartTemplate != null">
         third_part_template = #{thirdPartTemplate,jdbcType=BIT},
       </if>
-      <if test="casePublic != null">
-        case_public = #{casePublic,jdbcType=BIT},
+      <if test="versionEnable != null">
+        version_enable = #{versionEnable,jdbcType=BIT},
       </if>
-      <if test="apiQuick != null">
-        api_quick = #{apiQuick,jdbcType=VARCHAR},
+      <if test="cleanTrackReport != null">
+        clean_track_report = #{cleanTrackReport,jdbcType=BIT},
+      </if>
+      <if test="cleanTrackReportExpr != null">
+        clean_track_report_expr = #{cleanTrackReportExpr,jdbcType=VARCHAR},
+      </if>
+      <if test="cleanApiReport != null">
+        clean_api_report = #{cleanApiReport,jdbcType=BIT},
+      </if>
+      <if test="cleanApiReportExpr != null">
+        clean_api_report_expr = #{cleanApiReportExpr,jdbcType=VARCHAR},
+      </if>
+      <if test="cleanLoadReport != null">
+        clean_load_report = #{cleanLoadReport,jdbcType=BIT},
+      </if>
+      <if test="cleanLoadReportExpr != null">
+        clean_load_report_expr = #{cleanLoadReportExpr,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -518,11 +608,17 @@
       mock_tcp_port = #{mockTcpPort,jdbcType=INTEGER},
       is_mock_tcp_open = #{isMockTcpOpen,jdbcType=BIT},
       azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
-      version_enable = #{versionEnable,jdbcType=BIT},
+      api_quick = #{apiQuick,jdbcType=VARCHAR},
+      case_public = #{casePublic,jdbcType=BIT},
       platform = #{platform,jdbcType=VARCHAR},
       third_part_template = #{thirdPartTemplate,jdbcType=BIT},
-      case_public = #{casePublic,jdbcType=BIT},
-      api_quick = #{apiQuick,jdbcType=VARCHAR}
+      version_enable = #{versionEnable,jdbcType=BIT},
+      clean_track_report = #{cleanTrackReport,jdbcType=BIT},
+      clean_track_report_expr = #{cleanTrackReportExpr,jdbcType=VARCHAR},
+      clean_api_report = #{cleanApiReport,jdbcType=BIT},
+      clean_api_report_expr = #{cleanApiReportExpr,jdbcType=VARCHAR},
+      clean_load_report = #{cleanLoadReport,jdbcType=BIT},
+      clean_load_report_expr = #{cleanLoadReportExpr,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

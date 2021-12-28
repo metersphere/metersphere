@@ -26,6 +26,8 @@
                     <el-switch v-model="form.customNum" @change="chooseChange"></el-switch>
                   </template>
                 </app-manage-item>
+                <timing-item ref="trackTimingItem" :choose.sync="form.cleanTrackReport" :expr.sync="form.cleanTrackReportExpr"
+                             @chooseChange="chooseChange" :title="$t('project.timing_clean_plan_report')"/>
               </el-row>
             </el-tab-pane>
 
@@ -56,6 +58,8 @@
                         <el-switch v-model="form.isMockTcpOpen" @change="chooseChange"></el-switch>
                       </template>
                     </app-manage-item>
+                    <timing-item ref="apiTimingItem" :choose.sync="form.cleanApiReport" :expr.sync="form.cleanApiReportExpr"
+                                 @chooseChange="chooseChange" :title="$t('project.timing_clean_api_report')"/>
                   </el-row>
                 </el-col>
                 <el-col :span="8" :offset="4">
@@ -81,9 +85,13 @@
               </el-row>
             </el-tab-pane>
 
-            <el-tab-pane :label="$t('commons.performance')" name="performance" :disabled="true">
+            <el-tab-pane :label="$t('commons.performance')" name="performance">
               <el-row style="margin-top: 10px">
                 <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
+              </el-row>
+              <el-row style="margin-top: 15px">
+                <timing-item ref="loadTimingItem" :choose.sync="form.cleanLoadReport" :expr.sync="form.cleanLoadReportExpr"
+                             @chooseChange="chooseChange" :title="$t('project.timing_clean_load_report')"/>
               </el-row>
             </el-tab-pane>
 
@@ -106,11 +114,13 @@ import {
   getCurrentWorkspaceId,
   hasLicense,
 } from "@/common/js/utils";
-import AppManageItem from "@/business/components/settings/common/AppManageItem";
+import AppManageItem from "@/business/components/project/menu/appmanage/AppManageItem";
+import TimingItem from "@/business/components/project/menu/appmanage/TimingItem";
 
 export default {
   name: "appManage",
   components: {
+    TimingItem,
     AppManageItem,
     MsMainContainer,
     MsContainer
@@ -118,10 +128,20 @@ export default {
   data() {
     return {
       activeName: 'test_track',
-      form: {},
+      form: {
+        cleanTrackReport: false,
+        cleanTrackReportExpr: "",
+        cleanApiReport: false,
+        cleanApiReportExpr: "",
+        cleanLoadReport: false,
+        cleanLoadReportExpr: ""
+      },
       count: 0,
       isXpack: false,
-      result: {}
+      result: {},
+      quantity: "",
+      unit: "",
+      choose: false
     };
   },
   created() {
