@@ -117,7 +117,7 @@ ALTER TABLE api_scenario
     ADD version_id VARCHAR(50) NULL;
 
 ALTER TABLE api_scenario
-    ADD ref_id VARCHAR(50) NULL;
+    ADD ref_id VARCHAR(255) NULL;
 
 ALTER TABLE api_scenario_report
     ADD version_id VARCHAR(50) NULL;
