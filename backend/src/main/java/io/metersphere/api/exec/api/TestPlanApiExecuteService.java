@@ -15,6 +15,7 @@ import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.MsExecResponseDTO;
@@ -54,6 +55,7 @@ public class TestPlanApiExecuteService {
         if (CollectionUtils.isEmpty(ids)) {
             return new LinkedList<>();
         }
+        LoggerUtil.debug("开始查询测试计划用例");
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andIdIn(ids);
         example.setOrderByClause("`order` DESC");
@@ -80,9 +82,11 @@ public class TestPlanApiExecuteService {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
 
+        LoggerUtil.debug("开始生成测试计划队列");
         String reportType = request.getConfig() != null ? request.getConfig().getReportType() : null;
         String poolId = request.getConfig() != null ? request.getConfig().getResourcePoolId() : null;
-        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, request.getTriggerMode());
+        String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
+        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode);
 
         //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
         if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
@@ -92,12 +96,12 @@ public class TestPlanApiExecuteService {
         }
         // 开始选择执行模式
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-            // 开始串行执行
+            LoggerUtil.debug("开始串行执行");
             if (deQueue != null && deQueue.getQueue() != null) {
                 apiScenarioSerialService.serial(deQueue, deQueue.getQueue());
             }
         } else {
-            // 开始并发执行
+            LoggerUtil.debug("开始并发执行");
             if (deQueue != null && deQueue.getQueue() != null) {
                 parallel(executeQueue, request, deQueue);
             }
@@ -119,7 +123,8 @@ public class TestPlanApiExecuteService {
                         if (request.getConfig() == null || !GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()).isPool()) {
                             hashTree = apiScenarioSerialService.generateHashTree(testPlanApiCase.getId());
                         }
-                        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testPlanApiCase.getId(), reportId, request.getTriggerMode(), hashTree);
+                        String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
+                        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testPlanApiCase.getId(), reportId, runMode, hashTree);
                         if (request.getConfig() != null) {
                             runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
                             runRequest.setPoolId(request.getConfig().getResourcePoolId());
