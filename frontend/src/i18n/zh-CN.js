@@ -1928,6 +1928,7 @@ export default {
     update_resource_pool: '修改资源池',
     select_pool_type: '选择资源类型',
     max_threads: '最大并发数',
+    sync_jar: '定时同步JAR',
     input_pool_name: '请输入资源池名称',
     pool_name_valid: '资源池名称不支持特殊字符',
     cannot_remove_all_node: '不能删除所有独立节点',

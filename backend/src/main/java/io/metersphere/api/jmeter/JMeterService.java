@@ -192,6 +192,7 @@ public class JMeterService {
             NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
             String nodeIp = node.getIp();
             Integer port = node.getPort();
+            runRequest.setEnable(node.isEnable());
             String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
             ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
