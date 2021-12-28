@@ -9,4 +9,5 @@ public class ApiTestReportVariable extends ApiTestReport {
     public String executor;
     public String environment;
     public String principal;
+    private String projectId;
 }
