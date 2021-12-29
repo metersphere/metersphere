@@ -247,6 +247,13 @@ public class ApiAutomationController {
         apiAutomationService.bathEdit(request);
     }
 
+    @PostMapping("/batch/copy")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
+    @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
+    public void batchCopy(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.batchCopy(request);
+    }
+
     @PostMapping("/batch/update/env")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
     @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
@@ -295,13 +302,6 @@ public class ApiAutomationController {
     public List<JmxInfoDTO> batchGenPerformanceTestJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.batchGenPerformanceTestJmx(request);
     }
-
-    @PostMapping("/batchCopy")
-    public BatchOperaResponse batchCopy(@RequestBody ApiScenarioBatchRequest request) {
-        BatchOperaResponse response = apiAutomationService.batchCopy(request);
-        return response;
-    }
-
 
     @PostMapping("/file/download")
     public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {

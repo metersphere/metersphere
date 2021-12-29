@@ -2194,14 +2194,18 @@ public class TestCaseService {
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
         Long nextOrder = ServiceUtils.getNextOrder(request.getProjectId(), extTestCaseMapper::getLastOrder);
 
+        int nextNum = getNextNum(request.getProjectId());
+
         try {
             for (int i = 0; i < testCases.size(); i++) {
                 TestCaseWithBLOBs testCase = testCases.get(i);
                 testCase.setId(UUID.randomUUID().toString());
-                testCase.setName(testCase.getName() + "_" + testCase.getId().substring(0, 5));
+                testCase.setName(ServiceUtils.getCopyName(testCase.getName()));
                 testCase.setNodeId(request.getNodeId());
                 testCase.setNodePath(request.getNodePath());
                 testCase.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
+                testCase.setCustomNum(String.valueOf(nextNum));
+                testCase.setNum(nextNum++);
                 mapper.insert(testCase);
                 if (i % 50 == 0)
                     sqlSession.flushStatements();
