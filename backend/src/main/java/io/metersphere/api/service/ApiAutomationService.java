@@ -1726,65 +1726,35 @@ public class ApiAutomationService {
         }
     }
 
-    public BatchOperaResponse batchCopy(ApiScenarioBatchRequest batchRequest) {
+    public void batchCopy(ApiScenarioBatchRequest request) {
 
-        ServiceUtils.getSelectAllIds(batchRequest, batchRequest.getCondition(),
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery(query));
-        List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(batchRequest.getIds());
-        StringBuffer stringBuffer = new StringBuffer();
-        for (ApiScenarioWithBLOBs apiModel : apiScenarioList) {
-            long time = System.currentTimeMillis();
-            ApiScenarioWithBLOBs newModel = apiModel;
-            newModel.setId(UUID.randomUUID().toString());
-            newModel.setName("copy_" + apiModel.getName());
-            newModel.setCreateTime(time);
-            newModel.setUpdateTime(time);
-            newModel.setNum(getNextNum(newModel.getProjectId()));
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isEmpty(ids)) return;
+        List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(ids);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiScenarioMapper mapper = sqlSession.getMapper(ApiScenarioMapper.class);
+        Long nextOrder = ServiceUtils.getNextOrder(request.getProjectId(), extApiScenarioMapper::getLastOrder);
+        int nextNum = getNextNum(request.getProjectId());
 
-            ApiScenarioExample example = new ApiScenarioExample();
-            example.createCriteria().andNameEqualTo(newModel.getName()).
-                    andProjectIdEqualTo(newModel.getProjectId()).andStatusNotEqualTo("Trash").andIdNotEqualTo(newModel.getId());
-            if (apiScenarioMapper.countByExample(example) > 0) {
-                stringBuffer.append(newModel.getName() + ";");
-                continue;
-            } else {
-                boolean insertFlag = true;
-                if (StringUtils.isNotBlank(newModel.getCustomNum())) {
-                    insertFlag = false;
-                    String projectId = newModel.getProjectId();
-                    Project project = projectMapper.selectByPrimaryKey(projectId);
-                    if (project != null) {
-                        Boolean customNum = project.getScenarioCustomNum();
-                        // 未开启自定义ID
-                        if (!customNum) {
-                            insertFlag = true;
-                            newModel.setCustomNum(null);
-                        } else {
-                            boolean isCustomNumExist = true;
-                            try {
-                                isCustomNumExist = this.isCustomNumExist(newModel);
-                            } catch (Exception e) {
-                            }
-                            insertFlag = !isCustomNumExist;
-                        }
-                    }
-                }
-
-                if (insertFlag) {
-                    apiScenarioMapper.insert(newModel);
-                    apiScenarioReferenceIdService.saveByApiScenario(newModel);
-                }
+        try {
+            for (int i = 0; i < apiScenarioList.size(); i++) {
+                ApiScenarioWithBLOBs api = apiScenarioList.get(i);
+                api.setId(UUID.randomUUID().toString());
+                api.setName(ServiceUtils.getCopyName(api.getName()));
+                api.setApiScenarioModuleId(request.getApiScenarioModuleId());
+                api.setModulePath(request.getModulePath());
+                api.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
+                api.setNum(nextNum++);
+                mapper.insert(api);
+                if (i % 50 == 0)
+                    sqlSession.flushStatements();
             }
+            sqlSession.flushStatements();
+        } finally {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
-
-        BatchOperaResponse result = new BatchOperaResponse();
-        if (stringBuffer.length() == 0) {
-            result.result = true;
-        } else {
-            result.result = false;
-            result.errorMsg = stringBuffer.substring(0, stringBuffer.length() - 1);
-        }
-        return result;
     }
 
     public DeleteCheckResult checkBeforeDelete(ApiScenarioBatchRequest request) {
