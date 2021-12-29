@@ -15,7 +15,7 @@ public class ShiroUtils {
 
     public static void loadBaseFilterChain(Map<String, String> filterChainDefinitionMap) {
 
-        filterChainDefinitionMap.put("/resource/md/get/", "anon");
+        filterChainDefinitionMap.put("/resource/md/get/*", "anon");
         filterChainDefinitionMap.put("/*.worker.js", "anon");
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/signin", "anon");
