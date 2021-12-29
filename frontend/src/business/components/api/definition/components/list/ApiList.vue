@@ -288,6 +288,7 @@ export default {
       enableOrderDrag: true,
       selectDataRange: "all",
       graphData: [],
+      isMoveBatch: true,
       deletePath: "/test/case/delete",
       buttons: [
         {
@@ -304,6 +305,11 @@ export default {
           name: this.$t('api_test.definition.request.batch_move'),
           handleClick: this.handleBatchMove,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
+        },
+        {
+          name: this.$t('api_test.batch_copy'),
+          handleClick: this.handleBatchCopy,
+          permissions: ['PROJECT_API_DEFINITION:READ+CREATE_API']
         },
         {
           name: this.$t('test_track.case.generate_dependencies'),
@@ -547,7 +553,12 @@ export default {
       });
     },
     handleBatchMove() {
+      this.isMoveBatch = true;
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
+    },
+    handleBatchCopy() {
+      this.isMoveBatch = false;
+      this.$refs.testCaseBatchMove.open(this.moduleTree, this.$refs.table.selectIds, this.moduleOptions);
     },
     closeCaseModel() {
       //关闭案例弹窗
@@ -766,7 +777,10 @@ export default {
       param.projectId = this.projectId;
       param.condition = this.condition;
       param.moduleId = param.nodeId;
-      this.$post('/api/definition/batch/editByParams', param, () => {
+      let url = '/api/definition/batch/editByParams';
+      if (!this.isMoveBatch)
+        url = '/api/definition/batch/copy';
+      this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.testCaseBatchMove.close();
         this.initTable();
