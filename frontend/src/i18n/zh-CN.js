@@ -223,6 +223,7 @@ export default {
     run_completed: "执行完成",
     run_warning: "正在运行中，请稍后查看",
     run_stop: "当前任务已停止，无法查看报告",
+    report_delete: "报告已删除",
     run_fail: "执行失败",
     follow_success: "关注成功",
     cancel_follow_success: "取消关注成功",

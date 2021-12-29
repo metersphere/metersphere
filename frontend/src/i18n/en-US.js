@@ -223,6 +223,7 @@ export default {
     run_fail: "Run Fail",
     run_warning: "Is running, please check later",
     run_stop: "The current task has been stopped and the report cannot be viewed",
+    report_delete: "Report deleted",
     follow_success: "Follow Success",
     cancel_follow_success: "Cancel Follow Success",
     generate_test_data: "Generate test data",
