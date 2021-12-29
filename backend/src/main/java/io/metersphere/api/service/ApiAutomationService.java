@@ -1189,6 +1189,9 @@ public class ApiAutomationService {
             if (StringUtils.isBlank(item.getId())) {
                 item.setId(UUID.randomUUID().toString());
             }
+            // 导入时设置版本
+            item.setVersionId(extProjectVersionMapper.getDefaultVersion(project.getId()));
+            item.setRefId(item.getId());
             importCreate(item, batchMapper, request);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
