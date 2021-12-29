@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.i18n.Translator;
 import io.metersphere.track.issue.domain.jira.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.FileSystemResource;
@@ -35,14 +36,19 @@ public abstract class JiraAbstractClient extends BaseClient {
     public Map<String, JiraCreateMetadataResponse.Field> getCreateMetadata(String projectKey, String issueType) {
         String url = getBaseUrl() + "/issue/createmeta?projectKeys={1}&issuetypeNames={2}&expand=projects.issuetypes.fields";
         ResponseEntity<String> response = null;
+        Map<String, JiraCreateMetadataResponse.Field> fields = null;
         try {
             response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectKey, issueType);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
         }
-        Map<String, JiraCreateMetadataResponse.Field> fields = ((JiraCreateMetadataResponse) getResultForObject(JiraCreateMetadataResponse.class, response))
-                .getProjects().get(0).getIssuetypes().get(0).getFields();
+        try {
+             fields = ((JiraCreateMetadataResponse) getResultForObject(JiraCreateMetadataResponse.class, response))
+                    .getProjects().get(0).getIssuetypes().get(0).getFields();
+        } catch (Exception e) {
+            MSException.throwException(Translator.get("issue_jira_info_error"));
+        }
         fields.remove("project");
         fields.remove("issuetype");
         return fields;
