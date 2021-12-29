@@ -68,7 +68,7 @@
         <ms-table-column
           prop="status"
           sortable="custom"
-          :filters="statusFilters"
+          :filters="!trashEnable ? statusFilters : statusFiltersTrash"
           :field="item"
           :fields-width="fieldsWidth"
           min-width="120px"
@@ -80,6 +80,7 @@
           </span>
           </template>
         </ms-table-column>
+
 
         <ms-table-column
           prop="method"
@@ -379,8 +380,12 @@ export default {
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
+      ],
+
+      statusFiltersTrash: [
         {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
       ],
+
       caseStatusFilters: [
         {text: this.$t('api_test.home_page.detail_card.unexecute'), value: '未执行'},
         {text: this.$t('test_track.review.pass'), value: '通过'},
