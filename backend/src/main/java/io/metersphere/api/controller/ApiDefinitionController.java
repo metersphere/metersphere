@@ -280,6 +280,13 @@ public class ApiDefinitionController {
         apiDefinitionService.editApiByParam(request);
     }
 
+    @PostMapping("/batch/copy")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_COPY_API)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
+    public void batchCopy(@RequestBody ApiBatchRequest request) {
+        apiDefinitionService.batchCopy(request);
+    }
+
     @PostMapping("/relevance")
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {

@@ -314,10 +314,8 @@ public class TestCaseController {
     }
 
     @PostMapping("/batch/copy")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
-    @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
-            event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestCaseUpdate", subject = "测试用例通知")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_COPY)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     public void copyTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.copyTestCaseBath(request);
     }

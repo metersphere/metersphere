@@ -16,10 +16,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -238,5 +235,9 @@ public class ServiceUtils {
     public static SqlSession getBatchSqlSession() {
         SqlSessionFactory sqlSessionFactory = CommonBeanFactory.getBean(SqlSessionFactory.class);
         return sqlSessionFactory.openSession(ExecutorType.BATCH);
+    }
+
+    public static String getCopyName(String name) {
+        return "copy_" + name + "_" + UUID.randomUUID().toString().substring(0, 4);
     }
 }

@@ -384,6 +384,7 @@ export default {
         components: API_SCENARIO_CONFIGS
       },
       scenarioId: "",
+      isMoveBatch: true,
       currentScenario: {},
       schedule: {},
       tableData: [],
@@ -470,14 +471,14 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+EDIT']
         },
         {
-          name: this.$t('api_test.batch_copy'),
-          handleClick: this.batchCopy,
-          permissions: ['PROJECT_API_SCENARIO:READ+BATCH_COPY']
-        },
-        {
           name: this.$t('test_track.case.batch_move_case'),
           handleClick: this.handleBatchMove,
           permissions: ['PROJECT_API_SCENARIO:READ+MOVE_BATCH']
+        },
+        {
+          name: this.$t('api_test.batch_copy'),
+          handleClick: this.handleBatchCopy,
+          permissions: ['PROJECT_API_SCENARIO:READ+BATCH_COPY']
         },
         {
           name: this.$t('api_test.definition.request.batch_delete'),
@@ -732,13 +733,21 @@ export default {
       }
     },
     handleBatchMove() {
+      this.isMoveBatch = true;
       this.$refs.testBatchMove.open(this.moduleTree, [], this.moduleOptions);
+    },
+    handleBatchCopy() {
+      this.isMoveBatch = false;
+      this.$refs.testBatchMove.open(this.moduleTree, this.$refs.scenarioTable.selectIds, this.moduleOptions);
     },
     moveSave(param) {
       this.buildBatchParam(param);
       param.apiScenarioModuleId = param.nodeId;
       param.modulePath = param.nodePath;
-      this.$post('/api/automation/batch/edit', param, () => {
+      let url = '/api/automation/batch/edit';
+      if (!this.isMoveBatch)
+        url = '/api/automation/batch/copy';
+      this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.testBatchMove.close();
         this.search();
@@ -1175,28 +1184,6 @@ export default {
               this.$router.push({
                 path: "/performance/test/create"
               });
-            });
-          }
-        }
-      });
-    },
-    batchCopy() {
-      this.$alert(this.$t('api_test.definition.request.batch_copy_confirm') + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this.infoDb = false;
-            let param = {};
-            this.buildBatchParam(param);
-            this.$post('/api/automation/batchCopy', param, response => {
-              let copyResult = response.data;
-              if (copyResult.result) {
-                this.$success(this.$t('api_test.definition.request.batch_copy_end'));
-              } else {
-                this.$error(this.$t('commons.already_exists') + ":" + copyResult.errorMsg);
-              }
-
-              this.search();
             });
           }
         }
