@@ -344,7 +344,7 @@ export default {
         }
       } else {
         this.$emit('invisible');
-        this.$warning('报告已删除');
+        this.$warning(this.$t('commons.report_delete'));
       }
     },
     buildReport() {
