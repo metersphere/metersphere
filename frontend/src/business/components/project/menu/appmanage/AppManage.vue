@@ -16,14 +16,14 @@
                 <app-manage-item :title="$t('project.public')" :description="$t('project.public_info')"
                                  v-if="isXpack">
                   <template #append>
-                    <el-switch v-model="form.casePublic"></el-switch>
+                    <el-switch v-model="form.casePublic" @change="chooseChange" ></el-switch>
                   </template>
                 </app-manage-item>
 
                 <app-manage-item :title="$t('project.test_case_custom_id')"
                                  :description="$t('project.test_case_custom_id_info')">
                   <template #append>
-                    <el-switch v-model="form.customNum"></el-switch>
+                    <el-switch v-model="form.customNum" @change="chooseChange" ></el-switch>
                   </template>
                 </app-manage-item>
               </el-row>
