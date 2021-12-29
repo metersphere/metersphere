@@ -1696,4 +1696,41 @@ public class ApiDefinitionService {
         }
         return elements;
     }
+
+    public List<ApiDefinitionWithBLOBs> getByIds(List<String> ids) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andIdIn(ids);
+        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public void batchCopy(ApiBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isEmpty(ids)) return;
+        List<ApiDefinitionWithBLOBs> apis = getByIds(ids);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiDefinitionMapper mapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        Long nextOrder = ServiceUtils.getNextOrder(request.getProjectId(), extApiDefinitionMapper::getLastOrder);
+
+        int nextNum = getNextNum(request.getProjectId());
+
+        try {
+            for (int i = 0; i < apis.size(); i++) {
+                ApiDefinitionWithBLOBs api = apis.get(i);
+                api.setId(UUID.randomUUID().toString());
+                api.setName(ServiceUtils.getCopyName(api.getName()));
+                api.setModuleId(request.getModuleId());
+                api.setModulePath(request.getModulePath());
+                api.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
+                api.setNum(nextNum++);
+                mapper.insert(api);
+                if (i % 50 == 0)
+                    sqlSession.flushStatements();
+            }
+            sqlSession.flushStatements();
+        } finally {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
 }
