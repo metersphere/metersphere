@@ -359,7 +359,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 return new JSONObject(true);
             }
             refSet.add(schema.get$ref());
-            Object propertiesResult = parseSchemaPropertiesToJson(getModelByRef(schema.get$ref()), refSet, infoMap);
+            Schema modelByRef = getModelByRef(schema.get$ref());
+            Object propertiesResult = null;
+            if (modelByRef != null)
+                propertiesResult = parseSchemaPropertiesToJson(modelByRef, refSet, infoMap);
             return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
         } else if (schema instanceof ArraySchema) {
             JSONArray jsonArray = new JSONArray();
@@ -436,7 +439,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (ref.split("/").length > 3) {
             ref = ref.replace("#/components/schemas/", "");
         }
-        return this.components.getSchemas().get(ref);
+        if (this.components.getSchemas() != null)
+            return this.components.getSchemas().get(ref);
+        return null;
     }
 
     private JsonSchemaItem parseSchema(Schema schema, Set<String> refSet) {
@@ -446,7 +451,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             if (refSet.contains(schema.get$ref())) return item;
             item.setType("object");
             refSet.add(schema.get$ref());
-            item.setProperties(parseSchemaProperties(getModelByRef(schema.get$ref()), refSet));
+            Schema modelByRef = getModelByRef(schema.get$ref());
+            if (modelByRef != null)
+                item.setProperties(parseSchemaProperties(modelByRef, refSet));
         } else if (schema instanceof ArraySchema) {
             Schema items = ((ArraySchema) schema).getItems();
             item.setType("array");
