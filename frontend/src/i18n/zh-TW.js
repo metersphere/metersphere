@@ -770,6 +770,9 @@ export default {
       please_input_version: '請輸入版本',
       tips: '注意: 已關閉的版本不會出現在系統字段<strong>版本</strong>下拉框選項中',
       enable: '啟用版本管理',
+      latest: '最新版',
+      set_latest: '設置為最新版本',
+      delete_tip: '此版本已經關聯繫統資源，刪除會導致無法查詢到版本信息',
     }
   },
   member: {

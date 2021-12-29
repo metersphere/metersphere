@@ -766,6 +766,9 @@ export default {
       please_input_version: 'Please input version',
       tips: 'Note: The closed version will not appear in the system field <strong>Version</strong> drop-down box option',
       enable: 'Enable version management',
+      latest: 'Latest',
+      set_latest: 'Latest',
+      delete_tip: 'This version has been associated with system resources. Deleting it will cause the version information lost',
     }
   },
   member: {
