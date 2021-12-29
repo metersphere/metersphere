@@ -76,6 +76,18 @@
 
       <ms-change-history ref="changeHistory"/>
 
+      <el-dialog
+        :fullscreen="true"
+        :visible.sync="dialogVisible"
+        width="100%"
+        >
+        <diff-version :old-data="oldData" :show-follow="showFollow" :new-data="newData" :new-show-follow="newShowFollow" ></diff-version>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible=false">取 消</el-button>
+          <el-button type="primary" >确 定</el-button>
+        </span>
+      </el-dialog>
+
     </ms-main-container>
   </ms-container>
 </template>
@@ -91,6 +103,7 @@ import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import MsChangeHistory from "../../history/ChangeHistory";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
+import DiffVersion from "@/business/components/performance/test/DiffVersion";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -108,14 +121,19 @@ export default {
     MsMainContainer,
     MsChangeHistory,
     'MsVersionHistory': versionHistory.default,
+    DiffVersion
   },
   inject: [
     'reload'
   ],
   data() {
     return {
+      dialogVisible:false,
       result: {},
       test: {schedule: {}, follows: []},
+      oldData: {schedule: {}, follows: []},
+      newData:{schedule: {}, follows: []},
+      newShowFollow:false,
       savePath: "/performance/save",
       editPath: "/performance/edit",
       runPath: "/performance/run",
@@ -183,7 +201,10 @@ export default {
     },
     importAPITest() {
       let apiTest = this.$store.state.test;
+      console.log("输出vuex的test")
+      console.log(apiTest)
       if (apiTest && apiTest.name) {
+        console.log("set test name")
         this.$set(this.test, "name", apiTest.name);
         if (apiTest.jmx.scenarioId) {
           this.$refs.basicConfig.importScenario(apiTest.jmx.scenarioId);
@@ -220,7 +241,10 @@ export default {
         this.$store.commit("clearTest");
       } else {
         let scenarioJmxs = this.$store.state.scenarioJmxs;
+        console.log("输出vuex的scenarioJmxs")
+        console.log(scenarioJmxs)
         if (scenarioJmxs && scenarioJmxs.name) {
+          console.log("set scenarioJmxs name")
           this.$set(this.test, "name", scenarioJmxs.name);
           let relateApiList = [];
           if (scenarioJmxs.jmxs) {
@@ -444,6 +468,7 @@ export default {
       };
     },
     fileChange(threadGroups) {
+      console.log("zou")
       let handler = this.$refs.pressureConfig;
 
       let csvSet = new Set;
@@ -524,7 +549,27 @@ export default {
       });
     },
     compare(row) {
-      // console.log(row);
+      this.oldData = this.test;
+      this.$get('/performance/get/' +  row.id+"/"+this.test.refId, response => {
+        this.$get('/performance/get/' + response.data.id, res => {
+          if (res.data) {
+            this.newData = res.data;
+            this.$get('/performance/test/follow/' + response.data.id, resp => {
+              if(resp.data&&resp.data.follows){
+                for (let i = 0; i <resp.data.follows.length; i++) {
+                  if(resp.data.follows[i]===this.currentUser().id){
+                    this.newShowFollow = true;
+                    break;
+                  }
+                }
+              }
+            });
+          }
+        });
+      });
+      if(this.newData){
+        this.dialogVisible = true;
+      }
     },
     checkout(row) {
       //let test = this.versionData.filter(v => v.versionId === row.id)[0];
@@ -580,4 +625,5 @@ export default {
   margin-right: 25px;
   margin-top: 5px;
 }
+
 </style>
