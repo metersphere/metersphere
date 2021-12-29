@@ -327,10 +327,6 @@ public class ApiDefinitionExecResultService {
             saveResult.setName(item.getName());
             saveResult.setType(type);
             saveResult.setCreateTime(item.getStartTime());
-            if (SessionUtils.getUser() != null) {
-                saveResult.setUserId(SessionUtils.getUser().getId());
-            }
-
             String status = item.isSuccess() ? "success" : "error";
             saveResult.setName(editStatus(type, status, saveResult.getCreateTime(), saveResult.getId(), testId));
             saveResult.setStatus(status);
