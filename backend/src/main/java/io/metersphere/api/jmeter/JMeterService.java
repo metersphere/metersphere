@@ -179,16 +179,18 @@ public class JMeterService {
                     for (HTTPFileArg arg : source.getHTTPFiles()) {
                         BodyFile file = new BodyFile();
                         file.setId(arg.getParamName());
+                        file.setResourceId(source.getPropertyAsString("MS-ID"));
                         file.setName(arg.getPath());
                         files.add(file);
                     }
                 }
             } else if (key instanceof CSVDataSet) {
                 CSVDataSet source = (CSVDataSet) key;
-                if (source != null && source.getFilename() != null) {
+                String fileName = source.getPropertyAsString("filename");
+                if (source != null && StringUtils.isNotEmpty(fileName)) {
                     BodyFile file = new BodyFile();
-                    file.setId(source.getFilename());
-                    file.setName(source.getFilename());
+                    file.setId(source.getName());
+                    file.setName(fileName);
                     files.add(file);
                 }
             }
@@ -221,14 +223,18 @@ public class JMeterService {
         if (CollectionUtils.isNotEmpty(files)) {
             for (BodyFile bodyFile : files) {
                 File file = new File(bodyFile.getName());
-                if (file != null && !file.exists()) {
+                if (file != null && file.exists()) {
                     FileSystemResource resource = new FileSystemResource(file);
                     byte[] fileByte = this.fileToByte(file);
                     if (fileByte != null) {
                         ByteArrayResource byteArrayResource = new ByteArrayResource(fileByte) {
                             @Override
                             public String getFilename() throws IllegalStateException {
-                                return resource.getFilename();
+                                if (StringUtils.isEmpty(bodyFile.getResourceId())) {
+                                    return resource.getFilename();
+                                } else {
+                                    return "/" + bodyFile.getResourceId() + "/" + resource.getFilename();
+                                }
                             }
                         };
                         multipartFiles.add(byteArrayResource);
