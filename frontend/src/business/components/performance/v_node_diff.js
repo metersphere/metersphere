@@ -1,8 +1,4 @@
-/* @flow */
 
-const hooks = ['create', 'activate', 'update', 'remove', 'destroy']
-// These helpers produce better VM code in JS engines due to their
-// explicitness and function inlining.
 function isUndef (v) {
   return v === undefined || v === null
 }
@@ -81,7 +77,7 @@ function changeStyle(diffNode){
       let rowVnodeElm = findRowVnodeElm(diffNode.oldNodeArray[i]);
       rowVnodeElm.style.setProperty("background-color","rgb(241,200,196)",'important')
     }else{
-      diffNode.oldNodeArray[i].style.setProperty("background-color","rgb(241,200,196)",'important')
+      changeStyleBySubset(diffNode.oldNodeArray[i],"rgb(241,200,196)");
     }
   }
 
@@ -93,7 +89,24 @@ function changeStyle(diffNode){
       let rowVnodeElm = findRowVnodeElm(diffNode.nodeArray[i]);
       rowVnodeElm.style.setProperty("background-color","rgb(215, 243, 215)",'important')
     }else{
-      diffNode.nodeArray[i].style.setProperty("background-color","rgb(215, 243, 215)",'important')
+      changeStyleBySubset(diffNode.nodeArray[i],"rgb(215, 243, 215)");
+    }
+  }
+}
+
+function changeStyleBySubset(vnodeElm,color){
+  if(isDef(vnodeElm.children)&&vnodeElm.children.length>0){
+    if(isDef(vnodeElm.style)){
+      vnodeElm.style.setProperty("background-color",color,'important')
+    }
+    for (let i = 0; i < vnodeElm.children.length; i++) {
+      changeStyleBySubset(vnodeElm.children[i],color);
+    }
+  }else {
+    if(isDef(vnodeElm.style)){
+      vnodeElm.style.setProperty("background-color",color,'important')
+    }else {
+      vnodeElm.parentNode.style.setProperty("background-color",color,'important')
     }
   }
 }
@@ -110,10 +123,9 @@ function diffChildren(oldChildren,newChildren,diffNode,isCompareChildren){
   let newLength = newChildren.length;
   //如果isCompareChildren===true，证明是需要轮巡比较table内容是否有重复的,方法是比较每个元素的最子dom,tr的td的length是相等的；
   if(isCompareChildren===true){
-    //现在oldChildren，newChildren是tbody的所有数据，
     let oldIndexArray = [];
     let newIndexArray = [];
-
+    //现在oldChildren，newChildren是tbody的所有数据，
     for (let i = 0; i < oldLength; i++) {
       for (let j = 0; j < newLength; j++) {
         let sameNode = {
@@ -132,34 +144,37 @@ function diffChildren(oldChildren,newChildren,diffNode,isCompareChildren){
         }
       }
     }
+    for (let j = 0; j < oldLength; j++) {
+      if(oldIndexArray.indexOf(j)===-1){
+        diffNode.oldNodeArray.push(oldChildren[j].elm);
+      }
+    }
 
-    for (let i = 0; i < oldIndexArray.length; i++) {
-      oldChildren.splice(oldIndexArray[i],1);
+    for (let j = 0; j < newLength; j++) {
+      if(newIndexArray.indexOf(j)===-1){
+        diffNode.nodeArray.push(newChildren[j].elm);
+      }
     }
-    for (let i = 0; i < newIndexArray.length; i++) {
-      newChildren.splice(newIndexArray[i],1);
-    }
-    oldLength = oldChildren.length;
-    newLength = newChildren.length;
-  }
-  //取二者公共长度
-  let childrenLength = Math.min(oldLength, newLength);
-  for (let i = 0; i < childrenLength; i++) {
+
+  }else {
+    //取二者公共长度
+    let childrenLength = Math.min(oldLength, newLength);
+    for (let i = 0; i < childrenLength; i++) {
       let oldVnode = oldChildren[i]
       let newVnode = newChildren[i]
       diffDetail(oldVnode,newVnode,diffNode)
-  }
-  for (let i = childrenLength; i <= (oldLength - childrenLength); i++) {
-    if(oldChildren[i]){
-      diffNode.oldNodeArray.push(oldChildren[i].elm);
+    }
+    for (let i = childrenLength; i <= (oldLength - childrenLength); i++) {
+      if(oldChildren[i]){
+        diffNode.oldNodeArray.push(oldChildren[i].elm);
+      }
+    }
+    for (let i = childrenLength; i <= (newLength - childrenLength); i++) {
+      if(newChildren[i]){
+        diffNode.nodeArray.push(newChildren[i].elm);
+      }
     }
   }
-  for (let i = childrenLength; i <= (newLength - childrenLength); i++) {
-    if(newChildren[i]){
-      diffNode.nodeArray.push(newChildren[i].elm);
-    }
-  }
-
 }
 function sameChildren(oldChildren,newChildren,sameNode){
   let oldLength = oldChildren.length;
@@ -245,6 +260,11 @@ function diffDetail(oldVnode,newVnode,diffNode){
     let isCompareChildren = false;
     if(oldVnode.tag==='tbody'&&newVnode.tag==='tbody'){
       isCompareChildren = true;
+    }else
+    if(isDef(oldVnode.elm.className)&&isDef(newVnode.elm.className)){
+      if(oldVnode.elm.className==='el-collapse'&&newVnode.elm.className==='el-collapse'){
+        isCompareChildren = true;
+      }
     }
     diffChildren(oldVnode.children,newVnode.children,diffNode,isCompareChildren)
   }
