@@ -65,4 +65,25 @@
     <update id="changeVersionEnable">
         update project set version_enable = #{status} where id = #{projectId}
     </update>
+
+    <select id="checkForDelete" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM (
+             SELECT 1
+             FROM api_definition
+             WHERE version_id = #{id}
+             UNION
+             SELECT 1
+             FROM api_scenario
+             WHERE version_id = #{id}
+             UNION
+             SELECT 1
+             FROM api_test_case
+             WHERE version_id = #{id}
+             UNION
+             SELECT 1
+             FROM load_test
+             WHERE version_id = #{id}
+        ) AS tmp
+    </select>
 </mapper>

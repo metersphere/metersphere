@@ -770,6 +770,9 @@ export default {
       please_input_version: '请输入版本',
       tips: '注意: 已关闭的版本不会出现在系统字段<strong>版本</strong>下拉框选项中',
       enable: '启用版本管理',
+      latest: '最新版',
+      set_latest: '设置为最新版本',
+      delete_tip: '此版本已经关联系统资源，删除会导致无法查询到版本信息',
     }
   },
   member: {
