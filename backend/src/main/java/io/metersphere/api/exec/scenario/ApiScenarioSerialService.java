@@ -100,7 +100,11 @@ public class ApiScenarioSerialService {
                     }
                     hashTree = GenerateHashTreeUtil.generateHashTree(scenario, queue.getReportId(), planEnvMap, executionQueue.getReportType());
                 } else {
-                    hashTree = generateHashTree(queue.getTestId());
+                    Map<String, String> map = new LinkedHashMap<>();
+                    if (StringUtils.isNotEmpty(queue.getEvnMap())) {
+                        map = JSON.parseObject(queue.getEvnMap(), Map.class);
+                    }
+                    hashTree = generateHashTree(queue.getTestId(), queue.getType(), map);
                 }
                 // 更新环境变量
                 this.initEnv(hashTree);
@@ -116,6 +120,9 @@ public class ApiScenarioSerialService {
             runRequest.setRunType(RunModeConstants.SERIAL.toString());
             runRequest.setQueueId(executionQueue.getId());
             runRequest.setPoolId(executionQueue.getPoolId());
+            if (queue != null) {
+                runRequest.setPlatformUrl(queue.getId());
+            }
             // 开始执行
             jMeterService.run(runRequest);
         } catch (Exception e) {
@@ -145,25 +152,36 @@ public class ApiScenarioSerialService {
         hashTreeUtil.mergeParamDataMap(null, envParamsMap);
     }
 
-    public HashTree generateHashTree(String testId) {
-        TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
-        if (apiCase != null) {
-            ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(apiCase.getApiCaseId());
+    public HashTree generateHashTree(String testId, String type, Map<String, String> envMap) {
+        ApiTestCaseWithBLOBs caseWithBLOBs = null;
+        String envId = null;
+        if (StringUtils.equals(type, ApiRunMode.DEFINITION.name())) {
+            caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testId);
+        } else {
+            TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
+            if (apiCase != null) {
+                caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(apiCase.getApiCaseId());
+                envId = apiCase.getEnvironmentId();
+            }
+        }
+        if (envMap != null && envMap.containsKey(caseWithBLOBs.getProjectId())) {
+            envId = envMap.get(caseWithBLOBs.getProjectId());
+        }
+        if (caseWithBLOBs != null) {
             HashTree jmeterHashTree = new HashTree();
             MsTestPlan testPlan = new MsTestPlan();
             testPlan.setHashTree(new LinkedList<>());
-            if (caseWithBLOBs != null) {
-                try {
-                    MsThreadGroup group = new MsThreadGroup();
-                    group.setLabel(caseWithBLOBs.getName());
-                    group.setName(caseWithBLOBs.getName());
-                    MsTestElement testElement = parse(caseWithBLOBs, testId);
-                    group.setHashTree(new LinkedList<>());
-                    group.getHashTree().add(testElement);
-                    testPlan.getHashTree().add(group);
-                } catch (Exception ex) {
-                    MSException.throwException(ex.getMessage());
-                }
+            try {
+                MsThreadGroup group = new MsThreadGroup();
+                group.setLabel(caseWithBLOBs.getName());
+                group.setName(caseWithBLOBs.getName());
+
+                MsTestElement testElement = parse(caseWithBLOBs, testId, envId);
+                group.setHashTree(new LinkedList<>());
+                group.getHashTree().add(testElement);
+                testPlan.getHashTree().add(group);
+            } catch (Exception ex) {
+                MSException.throwException(ex.getMessage());
             }
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
             return jmeterHashTree;
@@ -171,7 +189,7 @@ public class ApiScenarioSerialService {
         return null;
     }
 
-    private MsTestElement parse(ApiTestCaseWithBLOBs caseWithBLOBs, String planId) {
+    private MsTestElement parse(ApiTestCaseWithBLOBs caseWithBLOBs, String planId, String envId) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
@@ -186,31 +204,38 @@ public class ApiScenarioSerialService {
                         });
                 list.addAll(elements);
             }
-            TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(planId);
             if (element.getString("type").equals("HTTPSamplerProxy")) {
                 MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(api, MsHTTPSamplerProxy.class);
                 httpSamplerProxy.setHashTree(list);
                 httpSamplerProxy.setName(planId);
-                httpSamplerProxy.setUseEnvironment(apiCase.getEnvironmentId());
+                if (StringUtils.isNotEmpty(envId)) {
+                    httpSamplerProxy.setUseEnvironment(envId);
+                }
                 return httpSamplerProxy;
             }
             if (element.getString("type").equals("TCPSampler")) {
                 MsTCPSampler msTCPSampler = JSON.parseObject(api, MsTCPSampler.class);
-                msTCPSampler.setUseEnvironment(apiCase.getEnvironmentId());
+                if (StringUtils.isNotEmpty(envId)) {
+                    msTCPSampler.setUseEnvironment(envId);
+                }
                 msTCPSampler.setHashTree(list);
                 msTCPSampler.setName(planId);
                 return msTCPSampler;
             }
             if (element.getString("type").equals("DubboSampler")) {
                 MsDubboSampler dubboSampler = JSON.parseObject(api, MsDubboSampler.class);
-                dubboSampler.setUseEnvironment(apiCase.getEnvironmentId());
+                if (StringUtils.isNotEmpty(envId)) {
+                    dubboSampler.setUseEnvironment(envId);
+                }
                 dubboSampler.setHashTree(list);
                 dubboSampler.setName(planId);
                 return dubboSampler;
             }
             if (element.getString("type").equals("JDBCSampler")) {
                 MsJDBCSampler jDBCSampler = JSON.parseObject(api, MsJDBCSampler.class);
-                jDBCSampler.setUseEnvironment(apiCase.getEnvironmentId());
+                if (StringUtils.isNotEmpty(envId)) {
+                    jDBCSampler.setUseEnvironment(envId);
+                }
                 jDBCSampler.setHashTree(list);
                 jDBCSampler.setName(planId);
                 return jDBCSampler;

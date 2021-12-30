@@ -206,9 +206,9 @@
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="initTable"/>
 
-    <api-case-batch-run :project-id="projectId" @batchRun="runBatch" ref="batchRun"/>
-
     <ms-task-center ref="taskCenter" :show-menu="false"/>
+
+    <ms-api-case-run-mode-with-env @handleRunBatch="runBatch" ref="batchRun" :project-id="projectId"/>
 
     <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
                :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">
@@ -232,6 +232,8 @@ import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
+import MsApiCaseRunModeWithEnv from "./ApiCaseRunModeWithEnv";
+
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
 import {getBodyUploadFiles, getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
@@ -247,7 +249,7 @@ import MsTableAdvSearchBar from "@/business/components/common/components/search/
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {
   _filter,
-  _sort,
+  _sort, buildBatchParam,
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
@@ -285,8 +287,9 @@ export default {
     MsTable,
     MsTableColumn,
     MsRequestResultTail,
+    MsApiCaseRunModeWithEnv,
     PlanStatusTableItem: () => import("../../../../track/common/tableItems/plan/PlanStatusTableItem"),
-    MsTaskCenter: () => import("../../../../task/TaskCenter"),
+    MsTaskCenter: () => import("@/business/components/task/TaskCenter"),
   },
   data() {
     return {
@@ -391,6 +394,7 @@ export default {
       resVisible: false,
       response: {},
       timeoutIndex: 0,
+      runCaseIds: []
     };
   },
   props: {
@@ -537,17 +541,16 @@ export default {
           return this.$t('api_test.home_page.detail_card.unexecute');
       }
     },
-
     handleRunBatch() {
       this.$refs.batchRun.open();
     },
-    runBatch(environment) {
+    runBatch(config) {
       let obj = {};
       obj.projectId = this.projectId;
       obj.selectAllDate = this.selectAll;
       obj.unSelectIds = this.unSelection;
       obj.ids = Array.from(this.selectRows).map(row => row.id);
-      obj.environmentId = environment.id;
+      obj.config = config;
       obj.condition = this.condition;
       obj.condition.status = "";
       this.$post('/api/testcase/batch/run', obj, () => {
@@ -558,7 +561,7 @@ export default {
         } else {
           this.$store.state.currentApiCase = {case: true};
         }
-        this.search();
+        this.$refs.taskCenter.open();
       });
     },
     customHeader() {

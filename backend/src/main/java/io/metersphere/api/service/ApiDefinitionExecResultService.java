@@ -90,43 +90,47 @@ public class ApiDefinitionExecResultService {
     }
 
     private void sendNotice(ApiDefinitionExecResult result) {
-        String resourceId = result.getResourceId();
-        ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(resourceId);
-        // 接口定义直接执行不发通知
-        if (apiTestCaseWithBLOBs == null) {
-            return;
-        }
-        BeanMap beanMap = new BeanMap(apiTestCaseWithBLOBs);
+        try {
+            String resourceId = result.getResourceId();
+            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(resourceId);
+            // 接口定义直接执行不发通知
+            if (apiTestCaseWithBLOBs == null) {
+                return;
+            }
+            BeanMap beanMap = new BeanMap(apiTestCaseWithBLOBs);
 
-        String event;
-        String status;
-        if (StringUtils.equals(result.getStatus(), "success")) {
-            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
-            status = "成功";
-        } else {
-            event = NoticeConstants.Event.EXECUTE_FAILED;
-            status = "失败";
-        }
+            String event;
+            String status;
+            if (StringUtils.equals(result.getStatus(), "success")) {
+                event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+                status = "成功";
+            } else {
+                event = NoticeConstants.Event.EXECUTE_FAILED;
+                status = "失败";
+            }
 
-        Map paramMap = new HashMap<>(beanMap);
-        paramMap.put("operator", SessionUtils.getUser().getName());
-        paramMap.put("status", result.getStatus());
-        String context = "${operator}执行接口用例" + status + ": ${name}";
-        NoticeModel noticeModel = NoticeModel.builder()
-                .operator(SessionUtils.getUserId())
-                .context(context)
-                .subject("接口用例通知")
-                .successMailTemplate("api/CaseResultSuccess")
-                .failedMailTemplate("api/CaseResultFailed")
-                .paramMap(paramMap)
-                .event(event)
-                .build();
+            Map paramMap = new HashMap<>(beanMap);
+            paramMap.put("operator", SessionUtils.getUser().getName());
+            paramMap.put("status", result.getStatus());
+            String context = "${operator}执行接口用例" + status + ": ${name}";
+            NoticeModel noticeModel = NoticeModel.builder()
+                    .operator(SessionUtils.getUserId())
+                    .context(context)
+                    .subject("接口用例通知")
+                    .successMailTemplate("api/CaseResultSuccess")
+                    .failedMailTemplate("api/CaseResultFailed")
+                    .paramMap(paramMap)
+                    .event(event)
+                    .build();
 
-        String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
-        if (StringUtils.equals(ReportTriggerMode.API.name(), result.getTriggerMode())) {
-            noticeSendService.send(ReportTriggerMode.API.name(), taskType, noticeModel);
-        } else {
-            noticeSendService.send(taskType, noticeModel);
+            String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
+            if (StringUtils.equals(ReportTriggerMode.API.name(), result.getTriggerMode())) {
+                noticeSendService.send(ReportTriggerMode.API.name(), taskType, noticeModel);
+            } else {
+                noticeSendService.send(taskType, noticeModel);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 

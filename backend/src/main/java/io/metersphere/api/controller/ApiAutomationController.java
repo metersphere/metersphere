@@ -381,5 +381,10 @@ public class ApiAutomationController {
     public void saveFollows(@PathVariable String scenarioId, @RequestBody List<String> follows) {
         apiAutomationService.saveFollows(scenarioId, follows);
     }
+
+    @PostMapping(value = "/env")
+    public List<String> getEnvProjects(@RequestBody RunScenarioRequest request) {
+        return apiAutomationService.getProjects(request);
+    }
 }
 
