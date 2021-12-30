@@ -889,6 +889,36 @@
       "name": "permission.project_enterprise_report.edit",
       "resourceId": "PROJECT_ENTERPRISE_REPORT",
       "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ",
+      "name": "project.version.read",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ+CREATE",
+      "name": "project.version.create_version",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ+EDIT",
+      "name": "project.version.edit_version",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ+DELETE",
+      "name": "project.version.delete_version",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ+ENABLE",
+      "name": "project.version.enable",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
     }
   ],
   "resource": [
@@ -979,6 +1009,11 @@
     {
       "id": "PROJECT_FILE",
       "name": "permission.project_file.name"
+    },
+    {
+      "id": "PROJECT_VERSION",
+      "name": "project.version_manage",
+      "license": true
     },
     {
       "id": "PROJECT_APP_MANAGER",

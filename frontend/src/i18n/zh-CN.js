@@ -760,6 +760,7 @@ export default {
     scenario_custom_id_info: '场景用例ID默认为系统自增ID',
     version: {
       name: '版本',
+      read: '查看',
       create_version: '创建版本',
       edit_version: '编辑版本',
       version_closed: '已关闭',

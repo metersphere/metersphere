@@ -756,6 +756,7 @@ export default {
     scenario_custom_id_info: 'The scenario use case ID defaults to the system self-incremented ID',
     version: {
       name: 'Version',
+      read: 'Search',
       create_version: 'Create version',
       edit_version: 'Edit version',
       version_closed: 'Closed',
