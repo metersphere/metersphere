@@ -100,6 +100,8 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         Set<String> pathNames = paths.keySet();
 
         this.definitions = swagger.getDefinitions();
+        if (this.definitions == null)
+            this.definitions = new HashMap<>();
 
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
