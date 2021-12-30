@@ -1,6 +1,9 @@
 <template>
   <div>
     <div>
+      <div class="ms-opt-btn">
+        {{ $t('project.version.name') }}:  {{ mockConfigData.versionName }}
+      </div>
       <el-input :placeholder="$t('commons.search_by_name')" class="search-input" size="small"
                 :clearable="true"
                 v-model="tableSearch"/>

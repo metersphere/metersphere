@@ -1,6 +1,9 @@
 <template>
 
   <div class="card-container">
+    <div class="ms-opt-btn">
+      {{ $t('project.version.name') }}:  {{ apiData.versionName }}
+    </div>
     <el-card class="card-content">
       <!-- 操作按钮 -->
       <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
