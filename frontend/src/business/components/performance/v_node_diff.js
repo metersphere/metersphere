@@ -70,24 +70,32 @@ function changeStyle(diffNode){
   console.log(diffNode.oldNodeArray);
   console.log(diffNode.nodeArray);
   for (let i = 0; i < diffNode.oldNodeArray.length; i++) {
-    if(diffNode.oldNodeArray[i]==='comment'||isUndef(diffNode.oldNodeArray[i].style)){
+    if(diffNode.oldNodeArray[i]==='comment'||diffNode.oldNodeArray[i].nodeName==="#comment"){
       continue
     }
     if(diffNode.oldNodeArray[i].className==='cell'){
       let rowVnodeElm = findRowVnodeElm(diffNode.oldNodeArray[i]);
-      rowVnodeElm.style.setProperty("background-color","rgb(241,200,196)",'important')
+      if(isDef(rowVnodeElm.style)){
+        rowVnodeElm.style.setProperty("background-color","rgb(241,200,196)",'important')
+      }else if(isDef(rowVnodeElm.parentNode.style)&&rowVnodeElm!=='comment'){
+        rowVnodeElm.parentNode.style.setProperty("background-color","rgb(241,200,196)",'important')
+      }
     }else{
       changeStyleBySubset(diffNode.oldNodeArray[i],"rgb(241,200,196)");
     }
   }
 
   for (let i = 0; i < diffNode.nodeArray.length; i++) {
-    if(diffNode.nodeArray[i]==='comment'||isUndef(diffNode.nodeArray[i].style)){
+    if(diffNode.nodeArray[i]==='comment'||diffNode.nodeArray[i].nodeName==="#comment"){
       continue
     }
     if(diffNode.nodeArray[i].className==='cell'){
       let rowVnodeElm = findRowVnodeElm(diffNode.nodeArray[i]);
-      rowVnodeElm.style.setProperty("background-color","rgb(215, 243, 215)",'important')
+      if(isDef(rowVnodeElm.style)){
+        rowVnodeElm.style.setProperty("background-color","rgb(215, 243, 215)",'important')
+      }else if(isDef(rowVnodeElm.parentNode.style)&&rowVnodeElm!=='comment'){
+        rowVnodeElm.parentNode.style.setProperty("background-color","rgb(215, 243, 215)",'important')
+      }
     }else{
       changeStyleBySubset(diffNode.nodeArray[i],"rgb(215, 243, 215)");
     }
@@ -98,6 +106,8 @@ function changeStyleBySubset(vnodeElm,color){
   if(isDef(vnodeElm.children)&&vnodeElm.children.length>0){
     if(isDef(vnodeElm.style)){
       vnodeElm.style.setProperty("background-color",color,'important')
+    }else if(isDef(vnodeElm.parentNode.style)&&vnodeElm!=='comment'){
+      vnodeElm.parentNode.style.setProperty("background-color",color,'important')
     }
     for (let i = 0; i < vnodeElm.children.length; i++) {
       changeStyleBySubset(vnodeElm.children[i],color);
@@ -105,7 +115,7 @@ function changeStyleBySubset(vnodeElm,color){
   }else {
     if(isDef(vnodeElm.style)){
       vnodeElm.style.setProperty("background-color",color,'important')
-    }else {
+    }else if(isDef(vnodeElm.parentNode.style)&&vnodeElm!=='comment'){
       vnodeElm.parentNode.style.setProperty("background-color",color,'important')
     }
   }
@@ -164,12 +174,12 @@ function diffChildren(oldChildren,newChildren,diffNode,isCompareChildren){
       let newVnode = newChildren[i]
       diffDetail(oldVnode,newVnode,diffNode)
     }
-    for (let i = childrenLength; i <= (oldLength - childrenLength); i++) {
+    for (let i = childrenLength; i < oldLength; i++) {
       if(oldChildren[i]){
         diffNode.oldNodeArray.push(oldChildren[i].elm);
       }
     }
-    for (let i = childrenLength; i <= (newLength - childrenLength); i++) {
+    for (let i = childrenLength; i < newLength; i++) {
       if(newChildren[i]){
         diffNode.nodeArray.push(newChildren[i].elm);
       }
@@ -236,7 +246,6 @@ function sameDetail(oldVnode,newVnode,sameNode){
 
 }
 
-
 function diffDetail(oldVnode,newVnode,diffNode){
   if(isDef(oldVnode.child)&&isUndef(newVnode.child)){
     diffNode.oldNodeArray.push(oldVnode.child._vnode.elm);
@@ -268,21 +277,15 @@ function diffDetail(oldVnode,newVnode,diffNode){
     }
     diffChildren(oldVnode.children,newVnode.children,diffNode,isCompareChildren)
   }
-  //剩最后的子节点的时候，分类型做判断
+  //剩最后的子节点的时候，分类型做判断(注意，最后的子节点的真实dom里可能还有dom节点)
   if(isUndef(oldVnode.child)&&isUndef(newVnode.child)&&isUndef(oldVnode.children)&&isUndef(newVnode.children)){
+    //比较真实的dom
+    diffRealNode(oldVnode.elm,newVnode.elm,diffNode);
 
     if(isDef(oldVnode.text)&&isDef(newVnode.text)){
         if(oldVnode.text!==newVnode.text){
-          if(isDef(oldVnode.elm.style)){
-            diffNode.oldNodeArray.push(oldVnode.elm);
-          }else {
-            diffNode.oldNodeArray.push(oldVnode.elm.parentNode);
-          }
-          if(isDef(newVnode.elm.style)){
-            diffNode.nodeArray.push(newVnode.elm);
-          }else {
-            diffNode.nodeArray.push(newVnode.elm.parentNode);
-          }
+          diffNode.oldNodeArray.push(oldVnode.elm);
+          diffNode.nodeArray.push(newVnode.elm);
         }
     }else if(isDef(oldVnode.tag)&&isDef(newVnode.tag)){
       if(oldVnode.tag==='input'&&newVnode.tag==='input'){
@@ -309,6 +312,86 @@ function diffDetail(oldVnode,newVnode,diffNode){
 
 }
 
+function diffRealNode(oldNode,newNode,diffNode){
+  let oldNodeLength = oldNode.childNodes.length;
+  let newNodeLength = newNode.childNodes.length;
+  let childrenLength = Math.min(oldNodeLength, newNodeLength);
+  for (let i = 0; i < childrenLength; i++) {
+    let oldnode = oldNode.childNodes[i]
+    let newnode = newNode.childNodes[i]
+    if(oldnode.childNodes.length>0&&newnode.childNodes.length>0){
+      diffRealNode(oldnode,newnode,diffNode)
+    }else {
+      diffRealNodeDetail(oldnode,newnode,diffNode);
+    }
+  }
+  for (let i = childrenLength; i < oldNodeLength; i++) {
+    if(oldNode.childNodes[i]){
+      if(isDef(oldNode.childNodes[i].data)){
+        if(oldNode.childNodes[i].data!=="\n"){
+          diffNode.oldNodeArray.push(oldNode.childNodes[i]);
+        }
+      }else {
+        diffNode.oldNodeArray.push(oldNode.childNodes[i]);
+      }
+    }
+  }
+  for (let i = childrenLength; i < newNodeLength; i++) {
+    if(newNode.childNodes[i]){
+      if(isDef(newNode.childNodes[i].data)){
+        if(newNode.childNodes[i].data!=="\n"){
+          diffNode.nodeArray.push(newNode.childNodes[i]);
+        }
+      }else {
+        diffNode.nodeArray.push(newNode.childNodes[i]);
+      }
+    }
+  }
+}
+
+function diffRealNodeDetail(oldNode,newNode,diffNode){
+  if(!sameNode(oldNode,newNode)){
+    if(isDef(oldNode.data)){
+      if(oldNode.data!=="\n"){
+        diffNode.oldNodeArray.push(oldNode);
+      }
+    }else {
+      diffNode.oldNodeArray.push(oldNode);
+    }
+    if(isDef(newNode.data)){
+      if(newNode.data!=="\n"){
+        diffNode.nodeArray.push(newNode);
+      }
+    }else {
+      diffNode.nodeArray.push(newNode);
+    }
+  }else{
+    //如果是相同的，但是这时候新旧节点有一个的length一定为0，所以要处理剩下的
+    if(oldNode.childNodes.length>0){
+      for (let i = 0; i < oldNode.childNodes.length; i++){
+        if(isDef(oldNode.childNodes[i].data)){
+          if(oldNode.childNodes[i].data!=="\n"){
+            diffNode.oldNodeArray.push(oldNode.childNodes[i]);
+          }
+        }else {
+          diffNode.oldNodeArray.push(oldNode.childNodes[i]);
+        }
+      }
+    }
+    if(newNode.childNodes.length>0){
+      for (let i = 0; i < newNode.childNodes.length; i++){
+        if(isDef(newNode.childNodes[i].data)){
+          if(newNode.childNodes[i].data!=="\n"){
+            diffNode.nodeArray.push(newNode.childNodes[i]);
+          }
+        }else {
+          diffNode.nodeArray.push(newNode.childNodes[i]);
+        }
+      }
+    }
+  }
+}
+
 function sameVnode (a, b) {
   return (
     a.key === b.key &&
@@ -322,6 +405,15 @@ function sameVnode (a, b) {
         isTrue(a.isAsyncPlaceholder) &&
         isUndef(b.asyncFactory.error)
       )
+    )
+  )
+}
+
+function sameNode (a, b) {
+  return (
+    (isDef(a.data) === isDef(b.data) &&a.data===b.data&&isDef(a.nodeValue) === isDef(b.nodeValue) &&a.nodeValue===b.nodeValue)||(
+      isUndef(a.data)&&isUndef(b.data)&&isUndef(a.nodeValue)&&isUndef(b.nodeValue)&&
+      isDef(a.textContent) === isDef(b.textContent)&&a.textContent===b.textContent
     )
   )
 }
