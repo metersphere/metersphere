@@ -9,7 +9,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
-import io.metersphere.api.exec.api.TestPlanApiExecuteService;
+import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
@@ -60,7 +60,7 @@ public class TestPlanApiCaseService {
     @Resource
     ApiTestCaseMapper apiTestCaseMapper;
     @Resource
-    private TestPlanApiExecuteService testPlanApiCaseExecuteService;
+    private ApiCaseExecuteService testPlanApiCaseExecuteService;
     @Resource
     SqlSessionFactory sqlSessionFactory;
     @Resource

@@ -26,9 +26,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,7 +48,7 @@ public class ApiExecutionQueueService {
     @Resource
     private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
 
-    public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode) {
+    public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, Map<String, String> envMap) {
         ApiExecutionQueue executionQueue = new ApiExecutionQueue();
         executionQueue.setId(UUID.randomUUID().toString());
         executionQueue.setCreateTime(System.currentTimeMillis());
@@ -61,19 +59,25 @@ public class ApiExecutionQueueService {
         queueMapper.insert(executionQueue);
         DBTestQueue resQueue = new DBTestQueue();
         BeanUtils.copyBean(resQueue, executionQueue);
+        Map<String, String> detailMap = new HashMap<>();
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiExecutionQueueDetailMapper batchMapper = sqlSession.getMapper(ApiExecutionQueueDetailMapper.class);
-        if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
+        if (StringUtils.equalsAny(type, ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
             final int[] sort = {0};
-            Map<TestPlanApiCase, ApiDefinitionExecResult> runMap = (Map<TestPlanApiCase, ApiDefinitionExecResult>) runObj;
+            Map<String, ApiDefinitionExecResult> runMap = (Map<String, ApiDefinitionExecResult>) runObj;
+            if (envMap == null) {
+                envMap = new LinkedHashMap<>();
+            }
+            String envStr = JSON.toJSONString(envMap);
             runMap.forEach((k, v) -> {
-                ApiExecutionQueueDetail queue = detail(v.getId(), k.getId(), type, sort[0], executionQueue.getId(), null);
+                ApiExecutionQueueDetail queue = detail(v.getId(), k, type, sort[0], executionQueue.getId(), envStr);
                 if (sort[0] == 0) {
                     resQueue.setQueue(queue);
                 }
                 sort[0]++;
                 batchMapper.insert(queue);
+                detailMap.put(k, queue.getId());
             });
         } else {
             Map<String, RunModeDataDTO> runMap = (Map<String, RunModeDataDTO>) runObj;
@@ -86,12 +90,14 @@ public class ApiExecutionQueueService {
                 }
                 sort[0]++;
                 batchMapper.insert(queue);
+                detailMap.put(k, queue.getId());
             });
         }
         sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+        resQueue.setDetailMap(detailMap);
         return resQueue;
     }
 
@@ -117,7 +123,7 @@ public class ApiExecutionQueueService {
                 ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
                 example.setOrderByClause("sort asc");
                 example.createCriteria().andQueueIdEqualTo(id);
-                List<ApiExecutionQueueDetail> queues = executionQueueDetailMapper.selectByExample(example);
+                List<ApiExecutionQueueDetail> queues = executionQueueDetailMapper.selectByExampleWithBLOBs(example);
                 if (CollectionUtils.isNotEmpty(queues)) {
                     List<ApiExecutionQueueDetail> list = queues.stream().filter(item -> StringUtils.equals(item.getTestId(), testId)).collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(list)) {

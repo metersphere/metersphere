@@ -47,8 +47,9 @@ public class ApiJmeterFileController {
     }
 
     @GetMapping("download")
-    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("testId") String testId, @RequestParam("reportId") String reportId, @RequestParam("runMode") String runMode, @RequestParam("reportType") String reportType) {
-        byte[] bytes = apiJmeterFileService.downloadJmeterFiles(runMode, testId, reportId, reportType);
+    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("testId") String testId, @RequestParam("reportId") String reportId,
+                                                      @RequestParam("runMode") String runMode, @RequestParam("reportType") String reportType, @RequestParam("queueId") String queueId) {
+        byte[] bytes = apiJmeterFileService.downloadJmeterFiles(runMode, testId, reportId, reportType, queueId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + reportId + "_" + testId + ".zip\"")

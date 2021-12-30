@@ -107,11 +107,15 @@ public class JMeterService {
         if (baseInfo != null) {
             platformUrl = baseInfo.getUrl();
         }
+        // 临时存放
+        String queueDetailId = request.getPlatformUrl();
+
         platformUrl += "/api/jmeter/download?testId="
                 + request.getTestId()
                 + "&reportId=" + request.getReportId()
                 + "&runMode=" + request.getRunMode()
-                + "&reportType=" + request.getReportType();
+                + "&reportType=" + request.getReportType()
+                + "&queueId=" + queueDetailId;
 
         request.setPlatformUrl(platformUrl);
         request.setKafkaConfig(KafkaConfig.getKafka());
