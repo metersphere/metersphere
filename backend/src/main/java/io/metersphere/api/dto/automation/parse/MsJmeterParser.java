@@ -170,7 +170,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         String path = source.getPath();
         // Request Defaults
         if (StringUtils.isEmpty(source.getDomain())) {
-            return null;
+            return path;
         }
         if (!path.startsWith("http://") && !path.startsWith("https://")) {
             String domain = source.getDomain();
