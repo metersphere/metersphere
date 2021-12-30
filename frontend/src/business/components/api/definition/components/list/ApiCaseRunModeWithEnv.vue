@@ -25,17 +25,14 @@
         <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
       </el-radio-group>
     </div>
-    <div class="ms-mode-div">
+    <div class="ms-mode-div" v-if="runConfig.mode === 'serial'">
       <el-row>
         <el-col :span="6">
           <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
         </el-col>
         <el-col :span="18">
           <div>
-            <el-radio-group v-model="runConfig.reportType">
-              <el-radio label="iddReport">{{ $t("run_mode.idd_report") }}</el-radio>
-              <el-radio label="setReport">{{ $t("run_mode.set_report") }}</el-radio>
-            </el-radio-group>
+            <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
           </div>
           <div style="padding-top: 10px">
             <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
@@ -46,7 +43,6 @@
                 v-for="item in resourcePools"
                 :key="item.id"
                 :label="item.name"
-                :disabled="!item.api"
                 :value="item.id">
               </el-option>
             </el-select>
@@ -54,14 +50,26 @@
         </el-col>
       </el-row>
     </div>
-
-    <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport'">
-      <span class="ms-mode-span">{{ $t("run_mode.report_name") }}：</span>
-      <el-input
-        v-model="runConfig.reportName"
-        :placeholder="$t('commons.input_content')"
-        size="small"
-        style="width: 300px"/>
+    <div class="ms-mode-div" v-if="runConfig.mode === 'parallel'">
+      <el-row>
+        <el-col :span="6">
+          <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
+        </el-col>
+        <el-col :span="18">
+          <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
+            {{ $t('run_mode.run_with_resource_pool') }}
+          </el-checkbox>
+          <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
+            <el-option
+              v-for="item in resourcePools"
+              :key="item.id"
+              :label="item.name"
+              :disabled="!item.api"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-col>
+      </el-row>
     </div>
     <template v-slot:footer>
       <ms-dialog-footer @cancel="close" @confirm="handleRunBatch"/>
@@ -71,20 +79,19 @@
 
 <script>
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
-import {ENV_TYPE} from "@/common/js/constants";
-import {strMapToObj} from "@/common/js/utils";
 import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+import {strMapToObj} from "@/common/js/utils";
+import {ENV_TYPE} from "@/common/js/constants";
+import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
 
 export default {
-  name: "RunMode",
-  components: {MsDialogFooter, EnvPopover},
+  name: "MsApiCaseRunModeWithEnv",
+  components: {EnvPopover, MsDialogFooter},
   data() {
     return {
       runModeVisible: false,
-      testType: null,
       resourcePools: [],
       runConfig: {
-        reportName: "",
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
@@ -99,21 +106,7 @@ export default {
       projectIds: new Set(),
     };
   },
-  props: ['request'],
-
-  watch: {
-    'runConfig.runWithinResourcePool'() {
-      if (!this.runConfig.runWithinResourcePool) {
-        this.runConfig = {
-          mode: this.runConfig.mode,
-          reportType: "iddReport",
-          reportName: "",
-          runWithinResourcePool: false,
-          resourcePoolId: null,
-        };
-      }
-    }
-  },
+  props: ['projectId'],
   methods: {
     open() {
       this.runModeVisible = true;
@@ -121,31 +114,24 @@ export default {
       this.getWsProjects();
     },
     changeMode() {
+      this.runConfig.onSampleError = false;
       this.runConfig.runWithinResourcePool = false;
       this.runConfig.resourcePoolId = null;
-      this.runConfig.reportType = "iddReport";
-      this.runConfig.reportName = "";
     },
     close() {
       this.runConfig = {
         mode: "serial",
         reportType: "iddReport",
-        reportName: "",
+        onSampleError: false,
         runWithinResourcePool: false,
         resourcePoolId: null,
+        envMap: new Map(),
+        environmentGroupId: "",
+        environmentType: ENV_TYPE.JSON
       };
       this.runModeVisible = false;
     },
-    getWsProjects() {
-      this.$get("/project/listAll", res => {
-        this.projectList = res.data;
-      })
-    },
     handleRunBatch() {
-      if (this.runConfig.mode === 'serial' && this.runConfig.reportType === 'setReport' && this.runConfig.reportName.trim() === "") {
-        this.$warning(this.$t('commons.input_name'));
-        return;
-      }
       this.$emit("handleRunBatch", this.runConfig);
       this.close();
     },
@@ -154,24 +140,34 @@ export default {
         this.resourcePools = response.data;
       });
     },
-    setEnvGroup(id) {
-      this.runConfig.environmentGroupId = id;
-    },
     setProjectEnvMap(projectEnvMap) {
       this.runConfig.envMap = strMapToObj(projectEnvMap);
     },
+    setEnvGroup(id) {
+      this.runConfig.environmentGroupId = id;
+    },
+    getWsProjects() {
+      this.$get("/project/listAll", res => {
+        this.projectList = res.data;
+      })
+    },
+    getEnvironments() {
+      return new Promise((resolve) => {
+        if (this.projectId) {
+          this.$get('/api/environment/list/' + this.projectId, response => {
+            this.environments = response.data;
+            this.environments.forEach(environment => {
+              parseEnvironment(environment);
+            });
+            resolve();
+          });
+        }
+      })
+    },
     showPopover() {
       this.projectIds.clear();
-      let url = "/api/automation/env";
-      this.$post(url, this.request, res => {
-        let data = res.data;
-        if (data) {
-          for (let d in data) {
-            this.projectIds.add(data[d]);
-          }
-        }
-        this.$refs.envPopover.openEnvSelect();
-      });
+      this.projectIds.add(this.projectId);
+      this.$refs.envPopover.openEnvSelect();
     },
   },
 };
@@ -185,4 +181,5 @@ export default {
 .ms-mode-div {
   margin-top: 20px;
 }
+
 </style>

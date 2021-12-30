@@ -10,13 +10,14 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.RunModeConfigDTO;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 import java.util.UUID;
 
 public class ApiDefinitionExecResultUtil {
-    public static ApiDefinitionExecResult initBase(String resourceId, String status, String reportId) {
+    public static ApiDefinitionExecResult initBase(String resourceId, String status, String reportId, RunModeConfigDTO config) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         if (StringUtils.isEmpty(reportId)) {
             apiResult.setId(UUID.randomUUID().toString());
@@ -28,6 +29,9 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setEndTime(System.currentTimeMillis());
         apiResult.setTriggerMode(TriggerMode.BATCH.name());
         apiResult.setActuator("LOCAL");
+        if (config != null && GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()).isPool()) {
+            apiResult.setActuator(config.getResourcePoolId());
+        }
         apiResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         apiResult.setResourceId(resourceId);
         apiResult.setStartTime(System.currentTimeMillis());

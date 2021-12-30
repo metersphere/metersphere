@@ -6,10 +6,8 @@ import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.JarConfig;
-import io.metersphere.base.domain.Plugin;
-import io.metersphere.base.domain.TestPlanApiScenario;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -44,6 +42,9 @@ public class ApiJmeterFileService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
+    private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
+
+    @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
 
     public byte[] downloadJmeterFiles(List<BodyFile> bodyFileList) {
@@ -58,7 +59,7 @@ public class ApiJmeterFileService {
         return listBytesToZip(files);
     }
 
-    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType) {
+    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType, String queueId) {
         Map<String, String> planEnvMap = new HashMap<>();
         ApiScenarioWithBLOBs scenario = null;
         if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
@@ -76,9 +77,14 @@ public class ApiJmeterFileService {
                 scenario = apiScenarioMapper.selectByPrimaryKey(planApiScenario.getApiScenarioId());
             }
         }
+        ApiExecutionQueueDetail detail = executionQueueDetailMapper.selectByPrimaryKey(queueId);
+        Map<String, String> envMap = new LinkedHashMap<>();
+        if (detail != null && StringUtils.isNotEmpty(detail.getEvnMap())) {
+            envMap = JSON.parseObject(detail.getEvnMap(), Map.class);
+        }
         HashTree hashTree;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId);
+            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId, runMode, envMap);
         } else {
             if (scenario == null) {
                 scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
@@ -86,7 +92,9 @@ public class ApiJmeterFileService {
             if (scenario == null) {
                 MSException.throwException("未找到执行场景。");
             }
-            if (!StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+            if (envMap != null && !envMap.isEmpty()) {
+                planEnvMap = envMap;
+            } else if (!StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
                 String envType = scenario.getEnvironmentType();
                 String envJson = scenario.getEnvironmentJson();
                 String envGroupId = scenario.getEnvironmentGroupId();

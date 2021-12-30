@@ -5,8 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.metersphere.api.dto.ApiCaseRunRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.RunCaseRequest;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.ElementUtil;
@@ -30,19 +28,14 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
-import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,10 +49,6 @@ public class ApiExecuteService {
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
-    private SqlSessionFactory sqlSessionFactory;
-    @Resource
-    private ExtApiTestCaseMapper extApiTestCaseMapper;
-    @Resource
     private JMeterService jMeterService;
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
@@ -69,68 +58,45 @@ public class ApiExecuteService {
     private ApiTestEnvironmentService environmentService;
     @Resource
     private TcpApiParamService tcpApiParamService;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
-    public List<MsExecResponseDTO> run(ApiCaseRunRequest request) {
-        if (LoggerUtil.getLogger().isDebugEnabled()) {
-            LoggerUtil.debug("进入执行方法，接收到参数：" + JSON.toJSONString(request));
+    public MsExecResponseDTO jenkinsRun(RunCaseRequest request) {
+        ApiTestCaseWithBLOBs caseWithBLOBs = null;
+        if (request.getBloBs() == null) {
+            caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+            if (caseWithBLOBs == null) {
+                return null;
+            }
+            request.setBloBs(caseWithBLOBs);
+        } else {
+            caseWithBLOBs = request.getBloBs();
         }
-
-        ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiTestCaseMapper.selectIdsByQuery((ApiTestCaseRequest) query));
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-
-        ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andIdIn(request.getIds());
-        List<ApiTestCaseWithBLOBs> list = apiTestCaseMapper.selectByExampleWithBLOBs(example);
-
-        LoggerUtil.debug("查询到执行数据：" + list.size());
-
-        ApiTestCaseMapper sqlSessionMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
-        ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
-        List<RunCaseRequest> executeQueue = new LinkedList<>();
-        for (ApiTestCaseWithBLOBs caseWithBLOBs : list) {
-            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null);
-            report.setName(caseWithBLOBs.getName());
-            report.setTriggerMode(request.getTriggerMode());
-            caseWithBLOBs.setLastResultId(report.getId());
-            caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
-            caseWithBLOBs.setStatus(APITestStatus.Running.name());
-            sqlSessionMapper.updateByPrimaryKey(caseWithBLOBs);
-
-            // 执行对象
-            RunCaseRequest runCaseRequest = new RunCaseRequest();
-            runCaseRequest.setRunMode(ApiRunMode.DEFINITION.name());
-            runCaseRequest.setCaseId(caseWithBLOBs.getId());
-            runCaseRequest.setReportId(report.getId());
-            runCaseRequest.setEnvironmentId(request.getEnvironmentId());
-            runCaseRequest.setBloBs(caseWithBLOBs);
-            runCaseRequest.setReport(report);
-
-            batchMapper.insert(report);
-            executeQueue.add(runCaseRequest);
+        if (caseWithBLOBs == null) {
+            return null;
         }
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        if (StringUtils.isBlank(request.getEnvironmentId())) {
+            request.setEnvironmentId(extApiTestCaseMapper.getApiCaseEnvironment(request.getCaseId()));
         }
+        //提前生成报告
+        ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId());
+        report.setName(caseWithBLOBs.getName());
+        report.setTriggerMode(ApiRunMode.JENKINS.name());
+        report.setType(ApiRunMode.JENKINS.name());
+        apiDefinitionExecResultMapper.insert(report);
+        //更新接口案例的最后执行状态等信息
+        caseWithBLOBs.setLastResultId(report.getId());
+        caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        caseWithBLOBs.setStatus(APITestStatus.Running.name());
+        apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
+        request.setReport(report);
 
-        LoggerUtil.info("生成执行队列：" + executeQueue.size());
-        if (LoggerUtil.getLogger().isDebugEnabled()) {
-            LoggerUtil.debug("生成执行队列：" + JSON.toJSONString(executeQueue));
+        if (StringUtils.isEmpty(request.getRunMode())) {
+            request.setRunMode(ApiRunMode.DEFINITION.name());
         }
-        List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
-        for (RunCaseRequest runCaseRequest : executeQueue) {
-            responseDTOS.add(exec(runCaseRequest));
-        }
-        return responseDTOS;
+        return this.exec(request);
     }
 
-    /**
-     * 单条执行
-     *
-     * @param request
-     * @return
-     */
     public MsExecResponseDTO exec(RunCaseRequest request) {
         ApiTestCaseWithBLOBs testCaseWithBLOBs = request.getBloBs();
         if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {

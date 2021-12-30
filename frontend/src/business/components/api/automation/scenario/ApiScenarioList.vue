@@ -282,7 +282,7 @@
     <batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
-    <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+    <ms-run-mode @handleRunBatch="handleRunBatch" :request="runRequest" ref="runMode"/>
     <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
             :environment-type="environmentType" :environment-group-id="envGroupId"
             :run-data="debugData" ref="runTest"/>
@@ -553,7 +553,8 @@ export default {
       graphData: {},
       environmentType: "",
       envGroupId: "",
-      apiscenariofilters:{},
+      apiscenariofilters: {},
+      runRequest: {},
     };
   },
   created() {
@@ -880,6 +881,14 @@ export default {
       param.condition = this.condition;
     },
     handleBatchExecute() {
+      let run = {};
+      run.id = getUUID();
+      //按照列表排序
+      let ids = this.orderBySelectRows();
+      run.ids = ids;
+      run.projectId = this.projectId;
+      run.condition = this.condition;
+      this.runRequest = run;
       this.$refs.runMode.open();
 
     },

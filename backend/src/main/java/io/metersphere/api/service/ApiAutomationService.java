@@ -1948,4 +1948,20 @@ public class ApiAutomationService {
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
         apiScenarioMapper.deleteByExample(example);
     }
+
+    public List<String> getProjects(RunScenarioRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery(query));
+        List<String> ids = request.getIds();
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+        List<String> strings = new LinkedList<>();
+        apiScenarios.forEach(item -> {
+            if (!strings.contains(item.getProjectId())) {
+                strings.add(item.getProjectId());
+            }
+        });
+        return strings;
+    }
 }
