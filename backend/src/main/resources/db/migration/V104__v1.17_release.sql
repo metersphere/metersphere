@@ -1,3 +1,15 @@
+-- permission
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES ('36c05551-5195-4cb8-98d4-737f15ffe0bb', 'project_admin', 'PROJECT_VERSION:READ+DELETE', 'PROJECT_VERSION');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES ('4783870f-c29c-4b00-9797-be618b4464a2', 'project_admin', 'PROJECT_VERSION:READ+ENABLE', 'PROJECT_VERSION');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES ('7396b1f2-2ed4-4582-bbd8-8d721dac96fa', 'project_admin', 'PROJECT_VERSION:READ+CREATE', 'PROJECT_VERSION');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES ('75a35739-832d-4edf-8bba-f19e46d9a8df', 'project_admin', 'PROJECT_VERSION:READ', 'PROJECT_VERSION');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES ('8d0ba6b9-938c-4e94-b60f-df791b36f56c', 'project_admin', 'PROJECT_VERSION:READ+EDIT', 'PROJECT_VERSION');
+
 -- version
 CREATE TABLE IF NOT EXISTS `project_version`
 (
@@ -47,7 +59,7 @@ ALTER TABLE api_definition_exec_result
     ADD version_id VARCHAR(50) NULL;
 
 CREATE INDEX api_definition_exec_result_version_id_index
-    ON api_definition_exec_result(version_id);
+    ON api_definition_exec_result (version_id);
 
 CREATE INDEX api_definition_ref_id_index
     ON api_definition (ref_id);
@@ -76,11 +88,11 @@ SET version_id = project_version.id;
 
 UPDATE api_definition_exec_result
     JOIN api_test_case ON resource_id = api_test_case.id
-set api_definition_exec_result.version_id = api_test_case.version_id;
+SET api_definition_exec_result.version_id = api_test_case.version_id;
 
 UPDATE api_definition_exec_result
     JOIN api_definition ON resource_id = api_definition.id
-set api_definition_exec_result.version_id = api_definition.version_id;
+SET api_definition_exec_result.version_id = api_definition.version_id;
 
 -- load_test
 ALTER TABLE load_test
@@ -93,7 +105,7 @@ ALTER TABLE load_test_report
     ADD version_id VARCHAR(50) NULL;
 
 CREATE INDEX load_test_report_version_id_index
-    ON load_test_report(version_id);
+    ON load_test_report (version_id);
 
 CREATE INDEX load_test_ref_id_index
     ON load_test (ref_id);
@@ -123,7 +135,7 @@ ALTER TABLE api_scenario_report
     ADD version_id VARCHAR(50) NULL;
 
 CREATE INDEX api_scenario_report_version_id_index
-    ON api_scenario_report(version_id);
+    ON api_scenario_report (version_id);
 
 CREATE INDEX api_scenario_ref_id_index
     ON api_scenario (ref_id);
