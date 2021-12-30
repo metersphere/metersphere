@@ -1,6 +1,9 @@
 <template>
 
   <div class="card-container">
+    <div class="ms-opt-btn">
+      {{ $t('project.version.name') }}:  {{ apiData.versionName }}
+    </div>
     <el-card class="card-content">
 
       <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right">

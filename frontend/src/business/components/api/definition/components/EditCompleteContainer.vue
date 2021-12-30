@@ -91,6 +91,7 @@
       <api-case-simple-list
         class="api-case-simple-list"
         :apiDefinitionId="currentApi.id"
+        :current-version="currentApi.versionId"
         :trash-enable="false"
         @changeSelectDataRangeAll="changeSelectDataRangeAll"
         @handleCase="handleCase"
@@ -239,6 +240,7 @@ export default {
         this.$post('/mockConfig/genMockConfig', mockParam, response => {
           let mockConfig = response.data;
           mockConfig.apiName = this.currentApi.name;
+          mockConfig.versionName = this.currentApi.versionName;
           this.baseMockConfigData = mockConfig;
         });
       }
@@ -359,4 +361,13 @@ export default {
   height: calc(100vh - 262px) !important;
 }
 
+/deep/ .ms-opt-btn {
+  position: fixed;
+  right: 50px;
+  z-index: 1;
+  top: 128px;
+  float: right;
+  margin-right: 20px;
+  margin-top: 5px;
+}
 </style>
