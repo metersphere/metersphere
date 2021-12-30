@@ -6,6 +6,8 @@ import io.metersphere.api.dto.ApiCaseEditRequest;
 import io.metersphere.api.dto.ApiCaseRunRequest;
 import io.metersphere.api.dto.DeleteCheckResult;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.exec.api.ApiCaseExecuteService;
+import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
@@ -36,6 +38,10 @@ public class ApiTestCaseController {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private ApiCaseExecuteService apiCaseExecuteService;
+    @Resource
+    private ApiExecuteService apiExecuteService;
 
     @PostMapping("/list")
     public List<ApiTestCaseResult> list(@RequestBody ApiTestCaseRequest request) {
@@ -194,13 +200,13 @@ public class ApiTestCaseController {
     @MsAuditLog(module = "api_definition_case", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
     public void batchRun(@RequestBody ApiCaseRunRequest request) {
         request.setTriggerMode(ReportTriggerMode.BATCH.name());
-        apiTestCaseService.batchRun(request);
+        apiCaseExecuteService.run(request);
     }
 
     @PostMapping(value = "/jenkins/run")
     @MsAuditLog(module = "api_definition_case", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
     public MsExecResponseDTO jenkinsRun(@RequestBody RunCaseRequest request) {
-        return apiTestCaseService.jenkinsRun(request);
+        return apiExecuteService.jenkinsRun(request);
     }
 
     @GetMapping(value = "/jenkins/exec/result/{id}")
