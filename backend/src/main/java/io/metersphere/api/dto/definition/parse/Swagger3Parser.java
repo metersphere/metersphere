@@ -57,7 +57,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             result = new OpenAPIParser().readLocation(request.getSwaggerUrl(), auths, null);
         } else {
-            result = new OpenAPIParser().readContents(sourceStr, auths, null);
+            result = new OpenAPIParser().readContents(sourceStr, null, null);
         }
         if (result == null) {
             MSException.throwException("解析失败，请确认选择的是 swagger 格式！");

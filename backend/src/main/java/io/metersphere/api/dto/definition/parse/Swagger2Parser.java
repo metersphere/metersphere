@@ -37,7 +37,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             swagger = new SwaggerParser().read(request.getSwaggerUrl(), auths, true);
         } else {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
-            swagger = new SwaggerParser().readWithInfo(sourceStr, auths, true).getSwagger();
+            swagger = new SwaggerParser().readWithInfo(sourceStr).getSwagger();
         }
         if (swagger == null || swagger.getSwagger() == null) {  //  不是 2.0 版本，则尝试转换 3.0
             Swagger3Parser swagger3Parser = new Swagger3Parser();
