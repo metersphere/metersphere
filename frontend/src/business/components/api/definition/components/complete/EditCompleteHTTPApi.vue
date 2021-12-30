@@ -134,6 +134,32 @@
 
       <ms-change-history ref="changeHistory"/>
 
+      <el-dialog
+        :fullscreen="true"
+        :visible.sync="dialogVisible"
+        width="100%"
+      >
+        <http-api-version-diff
+          :old-data="httpForm"
+          :show-follow="showFollow"
+          :new-data="newData"
+          :new-show-follow="newShowFollow"
+          :old-mock-url="getUrlPrefix"
+          :new-mock-url="newMockUrl"
+          :rule="rule"
+          :maintainer-options="maintainerOptions"
+          :module-options="moduleOptions"
+          :request="request"
+          :old-request="oldRequest"
+          :response="response"
+          :old-response="oldResponse"
+        ></http-api-version-diff>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible=false">取 消</el-button>
+          <el-button type="primary" >确 定</el-button>
+        </span>
+      </el-dialog>
+
     </el-card>
   </div>
 </template>
@@ -151,6 +177,11 @@ import MsChangeHistory from "../../../../history/ChangeHistory";
 import {getCurrentProjectID, getCurrentUser, getUUID, hasLicense} from "@/common/js/utils";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
+import HttpApiVersionDiff from "./version/HttpApiVersionDiff"
+import {createComponent } from ".././jmeter/components";
+import { TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+
+const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -161,7 +192,8 @@ export default {
     'MsVersionHistory': versionHistory.default,
     ApiOtherInfo,
     MsFormDivider,
-    MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree, MsChangeHistory
+    MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree, MsChangeHistory,
+    HttpApiVersionDiff
   },
   data() {
     let validateURL = (rule, value, callback) => {
@@ -185,8 +217,11 @@ export default {
         status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
       },
       httpForm: {environmentId: "", path: "", tags: []},
+      newData:{environmentId: "", path: "", tags: []},
+      dialogVisible:false,
       isShowEnable: true,
       showFollow: false,
+      newShowFollow:false,
       maintainerOptions: [],
       currentModule: {},
       reqOptions: REQ_METHOD,
@@ -197,8 +232,11 @@ export default {
         label: 'name',
       },
       mockBaseUrl: "",
+      newMockBaseUrl: "",
       count: 0,
       versionData: [],
+      oldRequest:{},
+      oldResponse:{}
     };
   },
   props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
@@ -314,6 +352,39 @@ export default {
         }
         return this.mockBaseUrl + path;
       }
+    },
+    newMockUrl() {
+      if (this.newData.path == null) {
+        return this.newMockBaseUrl;
+      } else {
+        let path = this.newData.path;
+        let protocol = this.newData.method;
+        if (protocol === 'GET' || protocol === 'DELETE') {
+          if (this.newData.request != null && this.newData.request.rest != null) {
+            let pathUrlArr = path.split("/");
+            let newPath = "";
+            pathUrlArr.forEach(item => {
+              if (item !== "") {
+                let pathItem = item;
+                if (item.indexOf("{") === 0 && item.indexOf("}") === (item.length - 1)) {
+                  let paramItem = item.substr(1, item.length - 2);
+                  for (let i = 0; i < this.newData.request.rest.length; i++) {
+                    let param = this.newData.request.rest[i];
+                    if (param.name === paramItem) {
+                      pathItem = param.value;
+                    }
+                  }
+                }
+                newPath += "/" + pathItem;
+              }
+            });
+            if (newPath !== "") {
+              path = newPath;
+            }
+          }
+        }
+        return this.newMockBaseUrl + path;
+      }
     }
   },
   methods: {
@@ -428,6 +499,7 @@ export default {
           conditions.forEach(condition => {
             if (condition.type === httpType) {
               this.mockBaseUrl = condition.protocol + "://" + condition.socket;
+              this.newMockBaseUrl = this.mockBaseUrl;
             }
           });
         }
@@ -466,7 +538,95 @@ export default {
       });
     },
     compare(row) {
-      // console.log(row);
+      this.$get('/api/definition/get/' +  row.id+"/"+this.httpForm.refId, response => {
+        this.$get('/api/definition/get/' + response.data.id, res => {
+          if (res.data) {
+            this.newData = res.data;
+            this.$get('/api/definition/follow/' + response.data.id, resp => {
+              if(resp.data&&resp.data.follows){
+                for (let i = 0; i <resp.data.follows.length; i++) {
+                  if(resp.data.follows[i]===this.currentUser().id){
+                    this.newShowFollow = true;
+                    break;
+                  }
+                }
+              }
+            });
+            this.setRequest(res.data)
+            if (!this.setRequest(res.data)) {
+              this.oldRequest = createComponent("HTTPSamplerProxy");
+            }
+            this.formatApi(res.data)
+          }
+        });
+      });
+      if(this.newData){
+        this.dialogVisible = true;
+      }
+    },
+    setRequest(api) {
+      if (api.request !== undefined) {
+        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          this.oldRequest = api.request;
+        } else {
+          this.oldRequest = JSON.parse(api.request);
+        }
+        if (!this.oldRequest.headers) {
+          this.oldRequest.headers = [];
+        }
+        return true;
+      }
+      return false;
+    },
+    formatApi(api) {
+      if (api.response != null && api.response !== 'null' && api.response !== undefined) {
+        if (Object.prototype.toString.call(api.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          this.oldResponse = api.response;
+        } else {
+          this.oldResponse = JSON.parse(api.response);
+        }
+      } else {
+        this.oldResponse = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
+      }
+      if (!this.oldRequest.hashTree) {
+        this.oldRequest.hashTree = [];
+      }
+      if (this.oldRequest.body && !this.oldRequest.body.binary) {
+        this.oldRequest.body.binary = [];
+      }
+      // 处理导入数据缺失问题
+      if (this.oldResponse.body) {
+        let body = new Body();
+        Object.assign(body, this.oldResponse.body);
+        if (!body.binary) {
+          body.binary = [];
+        }
+        if (!body.kvs) {
+          body.kvs = [];
+        }
+        if (!body.binary) {
+          body.binary = [];
+        }
+        this.oldResponse.body = body;
+      }
+      this.oldRequest.clazzName = TYPE_TO_C.get(this.oldRequest.type);
+
+      this.sort(this.oldRequest.hashTree);
+    },
+    sort(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sort(stepArray[i].hashTree);
+          }
+        }
+      }
     },
     checkout(row) {
       let api = this.versionData.filter(v => v.versionId === row.id)[0];
