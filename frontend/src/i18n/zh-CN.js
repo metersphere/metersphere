@@ -2594,6 +2594,13 @@ export default {
     api_case: '接口用例'
   },
   permission: {
+    project_error_report_library: {
+      name: "误报库",
+      read: "查看误报",
+      create: "创建误报",
+      edit: "修改误报",
+      delete: "刪除误报",
+    },
     system_user: {
       name: "用户",
       read: "查询用户",
@@ -2886,6 +2893,25 @@ export default {
       performance: "性能测试",
       project: "项目设置",
       report: "报表统计"
+    }
+  },
+  env_options: {
+    all_assertions: "全局断言"
+  },
+  error_report_library: {
+    name: "误报库",
+    assertion: "误报断言",
+    use_error_report: "启用误报",
+    use_desc: "失败断言与误报规则冲突时统一处理为误报",
+    option: {
+      name: "误报",
+      error_code: "错误码",
+      match_type: "匹配类型",
+      status: "状态",
+      is_open: "启用状态",
+    },
+    match_type: {
+      text: "文本"
     }
   }
 };

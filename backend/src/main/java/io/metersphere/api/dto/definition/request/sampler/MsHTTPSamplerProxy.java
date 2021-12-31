@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.parse.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
@@ -37,6 +38,7 @@ import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
@@ -280,6 +282,20 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             this.setScript(httpConfig, httpSamplerTree, config, false);
         }
 
+        HashTreeUtil hashTreeUtil = new HashTreeUtil();
+        //增加误报、断言
+        if (httpConfig != null) {
+            if(CollectionUtils.isNotEmpty(httpConfig.getErrorReportAssertions())){
+                for (MsAssertions assertion : httpConfig.getErrorReportAssertions()) {
+                    assertion.toHashTree(httpSamplerTree, assertion.getHashTree(), config);
+                }
+            }
+            if(CollectionUtils.isNotEmpty(httpConfig.getAssertions())){
+                for (MsAssertions assertion : httpConfig.getAssertions()) {
+                    assertion.toHashTree(httpSamplerTree, assertion.getHashTree(), config);
+                }
+            }
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 if (el.getEnvironmentId() == null) {
@@ -288,6 +304,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     } else {
                         el.setEnvironmentId(this.getEnvironmentId());
                     }
+                }
+                if (el instanceof MsAssertions) {
+                    //断言设置需要和全局断言、误报进行去重
+                    el = hashTreeUtil.duplicateRegexInAssertions(httpConfig.getAssertions(), (MsAssertions) el);
                 }
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
@@ -386,6 +406,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 httpConfig.setPreProcessor(environmentConfig.getPreProcessor());
                 httpConfig.setPostProcessor(environmentConfig.getPostProcessor());
                 httpConfig.setGlobalScriptConfig(environmentConfig.getGlobalScriptConfig());
+                httpConfig.setAssertions(environmentConfig.getAssertions());
+                if(environmentConfig.isUseErrorCode()){
+                    httpConfig.setErrorReportAssertions(HashTreeUtil.getErrorReportByProjectId(this.getProjectId()));
+                }
                 return httpConfig;
             }
         }
@@ -725,22 +749,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                    try {
-                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                        if (keyValue.getValue() == null) {
-                            httpArgument.setValue("");
-                        }
-                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                            httpArgument.setContentType(keyValue.getContentType());
-                        }
-                        arguments.addArgument(httpArgument);
-                    } catch (Exception e) {
+                            try {
+                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                                if (keyValue.getValue() == null) {
+                                    httpArgument.setValue("");
+                                }
+                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                                    httpArgument.setContentType(keyValue.getContentType());
+                                }
+                                arguments.addArgument(httpArgument);
+                            } catch (Exception e) {
 
-                    }
-                }
-        );
+                            }
+                        }
+                );
         return arguments;
     }
 

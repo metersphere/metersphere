@@ -2594,6 +2594,13 @@ export default {
     api_case: '接口用例'
   },
   permission: {
+    project_error_report_library: {
+      name: "誤報庫",
+      read: "查看誤報",
+      create: "創建誤報",
+      edit: "修改誤報",
+      delete: "刪除誤報",
+    },
     system_user: {
       name: "用戶",
       read: "查詢用戶",
@@ -2886,6 +2893,25 @@ export default {
       performance: "性能測試",
       project: "項目設置",
       report: "報表統計"
+    }
+  },
+  env_options: {
+    all_assertions: "全局斷言"
+  },
+  error_report_library: {
+    name: "誤報庫",
+    assertion: "誤報斷言",
+    use_error_report: "啟用誤報",
+    use_desc: "失敗斷言與誤報規則衝突時統一處理為誤報",
+    option: {
+      name: "誤報",
+      error_code: "錯誤碼",
+      match_type: "匹配類型",
+      status: "狀態",
+      is_open: "啟用狀態",
+    },
+    match_type: {
+      text: "文本"
     }
   }
 };

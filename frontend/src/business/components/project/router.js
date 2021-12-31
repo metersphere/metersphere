@@ -1,3 +1,5 @@
+import {errorReportLibrary} from "@/business/components/xpack/router";
+
 const ProjectSetting = () => import('@/business/components/project/ProjectSetting')
 const ProjectHome = () => import('@/business/components/project/home/ProjectHome')
 const ProjectMember = () => import('@/business/components/project/menu/Member')
@@ -7,7 +9,7 @@ const ProjectCodeSegment = () => import('@/business/components/project/menu/func
 const ProjectFileManage = () => import('@/business/components/project/menu/file/FileManage')
 const ProjectUserGroup = () => import('@/business/components/project/menu/UserGroup')
 const ProjectAppManage = () => import('@/business/components/project/menu/appmanage/AppManage')
-
+const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 
 export default {
   path: "/project",
@@ -55,5 +57,6 @@ export default {
       path: 'app',
       component: ProjectAppManage
     },
+    ...requireContext.keys().map(key => requireContext(key).errorReportLibrary),
   ]
 };

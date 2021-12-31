@@ -843,6 +843,146 @@ public class ApiDefinitionExecResultExample {
             addCriterion("trigger_mode not between", value1, value2, "triggerMode");
             return (Criteria) this;
         }
+
+        public Criteria andVersionIdIsNull() {
+            addCriterion("version_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdIsNotNull() {
+            addCriterion("version_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdEqualTo(String value) {
+            addCriterion("version_id =", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdNotEqualTo(String value) {
+            addCriterion("version_id <>", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdGreaterThan(String value) {
+            addCriterion("version_id >", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdGreaterThanOrEqualTo(String value) {
+            addCriterion("version_id >=", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdLessThan(String value) {
+            addCriterion("version_id <", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdLessThanOrEqualTo(String value) {
+            addCriterion("version_id <=", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdLike(String value) {
+            addCriterion("version_id like", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdNotLike(String value) {
+            addCriterion("version_id not like", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdIn(List<String> values) {
+            addCriterion("version_id in", values, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdNotIn(List<String> values) {
+            addCriterion("version_id not in", values, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdBetween(String value1, String value2) {
+            addCriterion("version_id between", value1, value2, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdNotBetween(String value1, String value2) {
+            addCriterion("version_id not between", value1, value2, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeIsNull() {
+            addCriterion("error_code is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeIsNotNull() {
+            addCriterion("error_code is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeEqualTo(String value) {
+            addCriterion("error_code =", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeNotEqualTo(String value) {
+            addCriterion("error_code <>", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeGreaterThan(String value) {
+            addCriterion("error_code >", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeGreaterThanOrEqualTo(String value) {
+            addCriterion("error_code >=", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeLessThan(String value) {
+            addCriterion("error_code <", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeLessThanOrEqualTo(String value) {
+            addCriterion("error_code <=", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeLike(String value) {
+            addCriterion("error_code like", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeNotLike(String value) {
+            addCriterion("error_code not like", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeIn(List<String> values) {
+            addCriterion("error_code in", values, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeNotIn(List<String> values) {
+            addCriterion("error_code not in", values, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeBetween(String value1, String value2) {
+            addCriterion("error_code between", value1, value2, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeNotBetween(String value1, String value2) {
+            addCriterion("error_code not between", value1, value2, "errorCode");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

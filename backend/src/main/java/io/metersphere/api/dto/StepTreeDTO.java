@@ -15,6 +15,9 @@ public class StepTreeDTO {
     private String label;
     private RequestResult value;
 
+    //误报库编码
+    private String errorCode;
+
     private List<StepTreeDTO> children;
 
     public StepTreeDTO() {
