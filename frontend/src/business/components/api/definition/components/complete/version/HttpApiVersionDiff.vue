@@ -3,16 +3,16 @@
     <el-card style="width: 50%;" ref="old">
       <el-form :model="oldData" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
-        <div style="float: right;margin-right: 20px" class="ms-opt-btn">
+
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
             <i class="el-icon-star-off"
-               style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+               style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; float: right; cursor: pointer "/>
           </el-tooltip>
           <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
             <i class="el-icon-star-on"
-               style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+               style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; float: right; cursor: pointer "/>
           </el-tooltip>
-        </div>
+
         <br/>
         <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
 
@@ -117,17 +117,15 @@
     <el-card style="width: 50%;" ref="new">
       <el-form :model="newData" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
-        <div style="float: right;margin-right: 20px" class="ms-opt-btn">
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!newShowFollow">
             <i class="el-icon-star-off"
-               style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+               style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; float: right; cursor: pointer "/>
           </el-tooltip>
           <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="newShowFollow">
             <i class="el-icon-star-on"
-               style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+               style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; float: right; cursor: pointer "/>
           </el-tooltip>
 
-        </div>
         <br/>
 
         <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
