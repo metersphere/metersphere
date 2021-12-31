@@ -285,12 +285,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         HashTreeUtil hashTreeUtil = new HashTreeUtil();
         //增加误报、断言
         if (httpConfig != null) {
-            if(CollectionUtils.isNotEmpty(httpConfig.getErrorReportAssertions())){
+            if (CollectionUtils.isNotEmpty(httpConfig.getErrorReportAssertions())) {
                 for (MsAssertions assertion : httpConfig.getErrorReportAssertions()) {
                     assertion.toHashTree(httpSamplerTree, assertion.getHashTree(), config);
                 }
             }
-            if(CollectionUtils.isNotEmpty(httpConfig.getAssertions())){
+            if (CollectionUtils.isNotEmpty(httpConfig.getAssertions())) {
                 for (MsAssertions assertion : httpConfig.getAssertions()) {
                     assertion.toHashTree(httpSamplerTree, assertion.getHashTree(), config);
                 }
@@ -407,7 +407,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 httpConfig.setPostProcessor(environmentConfig.getPostProcessor());
                 httpConfig.setGlobalScriptConfig(environmentConfig.getGlobalScriptConfig());
                 httpConfig.setAssertions(environmentConfig.getAssertions());
-                if(environmentConfig.isUseErrorCode()){
+                if (environmentConfig.isUseErrorCode()) {
                     httpConfig.setErrorReportAssertions(HashTreeUtil.getErrorReportByProjectId(this.getProjectId()));
                 }
                 return httpConfig;
@@ -749,22 +749,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                            try {
-                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                                if (keyValue.getValue() == null) {
-                                    httpArgument.setValue("");
-                                }
-                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                                    httpArgument.setContentType(keyValue.getContentType());
-                                }
-                                arguments.addArgument(httpArgument);
-                            } catch (Exception e) {
-
-                            }
+                    try {
+                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                        if (keyValue.getValue() == null) {
+                            httpArgument.setValue("");
                         }
-                );
+                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                            httpArgument.setContentType(keyValue.getContentType());
+                        }
+                        arguments.addArgument(httpArgument);
+                    } catch (Exception e) {
+
+                    }
+                }
+        );
         return arguments;
     }
 
@@ -836,21 +836,19 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         }
                     } else {
                         apiDefinition = apiDefinitionService.get(this.getId());
-                        if (apiDefinition == null) {
-                            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(this.getId());
-                            if (apiTestCaseWithBLOBs == null) {
-                                apiTestCaseWithBLOBs = apiTestCaseService.get(this.getName());
-                            }
-                            if (apiTestCaseWithBLOBs != null) {
-                                apiDefinition = apiDefinitionService.get(apiTestCaseWithBLOBs.getApiDefinitionId());
-                            } else {
-                                TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
-                                TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
-                                if (testPlanApiCase != null) {
-                                    ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
-                                    if (caseWithBLOBs != null) {
-                                        apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
-                                    }
+                        ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(this.getId());
+                        if (apiTestCaseWithBLOBs == null) {
+                            apiTestCaseWithBLOBs = apiTestCaseService.get(this.getName());
+                        }
+                        if (apiTestCaseWithBLOBs != null) {
+                            apiDefinition = apiDefinitionService.get(apiTestCaseWithBLOBs.getApiDefinitionId());
+                        } else {
+                            TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
+                            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
+                            if (testPlanApiCase != null) {
+                                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
+                                if (caseWithBLOBs != null) {
+                                    apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
                                 }
                             }
                         }
