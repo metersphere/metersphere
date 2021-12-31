@@ -38,7 +38,11 @@
     },
     methods: {
       getDiff(v1, v2) {
-        let delta = jsondiffpatch.diff(v1, v2);
+        if (this.detail.columnName==='request' && v1 && v2){
+          let delta = jsondiffpatch.diff(JSON.parse(v1) , JSON.parse(v2));
+          return formattersHtml.format(delta, JSON.parse(v1));
+        }
+        let delta = jsondiffpatch.diff(v1 , v2);
         return formattersHtml.format(delta, v1);
       },
       handleClose() {

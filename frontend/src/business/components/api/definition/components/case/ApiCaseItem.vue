@@ -8,7 +8,7 @@
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                       class="ms-api-header-select" style="width: 180px"
                       :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
-                      @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
+                      @blur="saveTestCase(apiCase , true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
                 <span>{{ apiCase.id ? apiCase.name : '' | ellipsis }}</span>
@@ -223,6 +223,7 @@ export default {
       showFollow: false,
       beforeRequest: {},
       compare: [],
+      isSave: false
     }
   },
   props: {
@@ -407,6 +408,7 @@ export default {
       }
     },
     saveCase(row, hideAlert) {
+      this.isSave = true;
       let tmp = JSON.parse(JSON.stringify(row));
       this.isShowInput = false;
       tmp.request.body = row.request.body;
@@ -453,6 +455,7 @@ export default {
         if (!row.message) {
           this.$success(this.$t('commons.save_success'));
           this.reload();
+          this.isSave = false;
           // 刷新编辑后用例列表
           if (this.api.source === "editCase") {
             this.$emit('reLoadCase');
@@ -461,6 +464,8 @@ export default {
             this.$emit('refresh');
           }
         }
+      }, (error) => {
+        this.isSave = false;
       });
     },
     saveTestCase(row, hideAlert) {
@@ -474,7 +479,9 @@ export default {
           this.addModule(row);
         } else {
           this.api.source = "editCase";
-          this.saveCase(row, hideAlert);
+          if (!this.isSave){
+            this.saveCase(row, hideAlert);
+          }
         }
       }
     },
