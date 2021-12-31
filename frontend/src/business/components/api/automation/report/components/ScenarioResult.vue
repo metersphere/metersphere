@@ -9,7 +9,7 @@
       </el-card>
     </div>
     <div v-else>
-      <ms-request-result :request="node.value" :indexNumber="node.index"
+      <ms-request-result :request="node.value" :indexNumber="node.index" :error-code="node.errorCode"
                          v-on:requestResult="requestResult"
                          :scenarioName="node.label" :console="console"/>
     </div>

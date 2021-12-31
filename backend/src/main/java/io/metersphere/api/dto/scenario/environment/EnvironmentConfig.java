@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.scenario.environment;
 
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
@@ -30,6 +31,8 @@ public class EnvironmentConfig {
     //全局前后置脚本都配置
     private GlobalScriptConfig globalScriptConfig;
     private JSONObject authManager;
+    private List<MsAssertions> assertions;
+    private boolean useErrorCode;
 
     public EnvironmentConfig() {
         this.commonConfig = new CommonConfig();
