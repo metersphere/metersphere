@@ -889,6 +889,30 @@
       "name": "permission.project_enterprise_report.edit",
       "resourceId": "PROJECT_ENTERPRISE_REPORT",
       "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ",
+      "name": "permission.project_error_report_library.read",
+      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+CREATE",
+      "name": "permission.project_error_report_library.create",
+      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+EDIT",
+      "name": "permission.project_error_report_library.edit",
+      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+DELETE",
+      "name": "permission.project_error_report_library.delete",
+      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
+      "license": true
     }
   ],
   "resource": [
@@ -1036,6 +1060,11 @@
     {
       "id": "SYSTEM_PLUGIN",
       "name": "permission.system_plugin.name"
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY",
+      "name": "permission.project_error_report_library.name",
+      "license": true
     }
   ]
 }

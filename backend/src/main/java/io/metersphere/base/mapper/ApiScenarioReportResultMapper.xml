@@ -10,6 +10,7 @@
     <result column="request_time" jdbcType="BIGINT" property="requestTime" />
     <result column="total_assertions" jdbcType="BIGINT" property="totalAssertions" />
     <result column="pass_assertions" jdbcType="BIGINT" property="passAssertions" />
+    <result column="error_code" jdbcType="VARCHAR" property="errorCode" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioReportResult">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
@@ -74,7 +75,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, resource_id, report_id, create_time, `status`, request_time, total_assertions, 
-    pass_assertions
+    pass_assertions, error_code
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -130,12 +131,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReportResult">
     insert into api_scenario_report_result (id, resource_id, report_id, 
       create_time, `status`, request_time, 
-      total_assertions, pass_assertions, content
-      )
+      total_assertions, pass_assertions, error_code, 
+      content)
     values (#{id,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{requestTime,jdbcType=BIGINT}, 
-      #{totalAssertions,jdbcType=BIGINT}, #{passAssertions,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}
-      )
+      #{totalAssertions,jdbcType=BIGINT}, #{passAssertions,jdbcType=BIGINT}, #{errorCode,jdbcType=VARCHAR}, 
+      #{content,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReportResult">
     insert into api_scenario_report_result
@@ -163,6 +164,9 @@
       </if>
       <if test="passAssertions != null">
         pass_assertions,
+      </if>
+      <if test="errorCode != null">
+        error_code,
       </if>
       <if test="content != null">
         content,
@@ -192,6 +196,9 @@
       </if>
       <if test="passAssertions != null">
         #{passAssertions,jdbcType=BIGINT},
+      </if>
+      <if test="errorCode != null">
+        #{errorCode,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARBINARY},
@@ -231,6 +238,9 @@
       <if test="record.passAssertions != null">
         pass_assertions = #{record.passAssertions,jdbcType=BIGINT},
       </if>
+      <if test="record.errorCode != null">
+        error_code = #{record.errorCode,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARBINARY},
       </if>
@@ -249,6 +259,7 @@
       request_time = #{record.requestTime,jdbcType=BIGINT},
       total_assertions = #{record.totalAssertions,jdbcType=BIGINT},
       pass_assertions = #{record.passAssertions,jdbcType=BIGINT},
+      error_code = #{record.errorCode,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -263,7 +274,8 @@
       `status` = #{record.status,jdbcType=VARCHAR},
       request_time = #{record.requestTime,jdbcType=BIGINT},
       total_assertions = #{record.totalAssertions,jdbcType=BIGINT},
-      pass_assertions = #{record.passAssertions,jdbcType=BIGINT}
+      pass_assertions = #{record.passAssertions,jdbcType=BIGINT},
+      error_code = #{record.errorCode,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -292,6 +304,9 @@
       <if test="passAssertions != null">
         pass_assertions = #{passAssertions,jdbcType=BIGINT},
       </if>
+      <if test="errorCode != null">
+        error_code = #{errorCode,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARBINARY},
       </if>
@@ -307,6 +322,7 @@
       request_time = #{requestTime,jdbcType=BIGINT},
       total_assertions = #{totalAssertions,jdbcType=BIGINT},
       pass_assertions = #{passAssertions,jdbcType=BIGINT},
+      error_code = #{errorCode,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -318,7 +334,8 @@
       `status` = #{status,jdbcType=VARCHAR},
       request_time = #{requestTime,jdbcType=BIGINT},
       total_assertions = #{totalAssertions,jdbcType=BIGINT},
-      pass_assertions = #{passAssertions,jdbcType=BIGINT}
+      pass_assertions = #{passAssertions,jdbcType=BIGINT},
+      error_code = #{errorCode,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

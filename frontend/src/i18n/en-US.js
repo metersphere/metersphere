@@ -2591,6 +2591,13 @@ export default {
     api_case: 'API Case',
   },
   permission: {
+    project_error_report_library: {
+      name: "Error report library",
+      read: "READ",
+      create: "CREATE",
+      edit: "EDIT",
+      delete: "DELETE",
+    },
     system_user: {
       name: "User",
       read: "READ",
@@ -2883,6 +2890,24 @@ export default {
       project: "Project",
       report: "Report Statistics"
     }
+  },
+  env_options: {
+    all_assertions: "Assertions"
+  },
+  error_report_library: {
+    name: "Error report",
+    assertion: "Error code assertion",
+    use_error_report: "Use error code",
+    use_desc: "In case of conflict between error code and error assertions, it is treated as error code",
+    option: {
+      name: "Err code",
+      error_code: "Err code",
+      match_type: "Match",
+      status: "Status",
+      is_open: "Is open",
+    },
+    match_type: {
+      text: "TXT"
+    }
   }
-
 };

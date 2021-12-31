@@ -19,16 +19,30 @@
           </div>
           <ms-chart id="chart" ref="chart" :options="options" :height="220" :autoresize="true" v-else/>
           <el-row type="flex" justify="center" align="middle">
-            <span class="ms-point-success"/>
-            <div class="metric-box">
-              <div class="value">{{ content.success }}</div>
-              <div class="name">{{ $t('api_report.success') }}</div>
+
+            <div>
+              <div class="metric-icon-box" style="height: 26px">
+                <span class="ms-point-success" style="margin: 7px"/>
+                <div class="metric-box">
+                  <div class="value">{{ content.success }} {{ $t('api_report.success') }}</div>
+                </div>
+              </div>
+              <el-divider></el-divider>
+              <div class="metric-icon-box" style="height: 26px">
+                <span class="ms-point-error" style="margin: 7px"/>
+                <div class="metric-box">
+                  <div class="value">{{ content.error }} {{ $t('api_report.fail') }}</div>
+                </div>
+              </div>
+              <el-divider v-if="content.errorCode > 0"></el-divider>
+              <div class="metric-icon-box" style="height: 26px">
+                <span class="ms-point-error-code" v-if="content.errorCode > 0" style="margin: 7px"/>
+                <div class="metric-box" v-if="content.errorCode > 0">
+                  <div class="value">{{ content.errorCode }} {{ $t('error_report_library.option.name') }}</div>
+                </div>
+              </div>
             </div>
-            <span class="ms-point-error"/>
-            <div class="metric-box">
-              <div class="value">{{ content.error }}</div>
-              <div class="name">{{ $t('api_report.fail') }}</div>
-            </div>
+
           </el-row>
         </el-row>
       </div>
@@ -36,23 +50,24 @@
       <!-- 场景统计 -->
       <div style="width: 50%">
           <el-row type="flex" justify="center" align="middle">
-<!--            <div class="metric-box" style="margin-right: 50px">-->
             <div class="metric-box">
               <div class="value">{{ content.scenarioTotal ? content.scenarioTotal : 0}}</div>
               <div class="name">{{ $t('api_test.scenario.scenario') }}</div>
             </div>
-<!--            <i class="circle success" style="margin-left: 20px;margin-right: 20px"/>-->
             <span class="ms-point-success"/>
             <div class="metric-box">
               <div class="value">{{ content.scenarioSuccess ? content.scenarioSuccess: 0 }}</div>
               <div class="name">{{ $t('api_report.success') }}</div>
             </div>
-<!--            <div style="width: 40px"></div>-->
-<!--            <i class="circle fail" style="margin-left: 20px;margin-right: 20px"/>-->
             <span class="ms-point-error"/>
             <div class="metric-box">
               <div class="value">{{ content.scenarioError ? content.scenarioError : 0 }}</div>
               <div class="name">{{ $t('api_report.fail') }}</div>
+            </div>
+            <span class="ms-point-error-code" v-if="content.scenarioErrorReport > 0 || content.scenarioStepErrorReport > 0 "/>
+            <div class="metric-box"  v-if="content.scenarioErrorReport > 0 || content.scenarioStepErrorReport > 0 ">
+              <div class="value">{{ content.scenarioErrorReport ? content.scenarioErrorReport : 0 }}</div>
+              <div class="name">{{ $t('error_report_library.option.name') }}</div>
             </div>
           </el-row>
           <el-divider></el-divider>
@@ -63,17 +78,19 @@
                 <div class="name">{{ $t('test_track.plan_view.step') }}</div>
               </div>
               <span class="ms-point-success"/>
-<!--              <i class="circle success" style="margin-left: 20px;margin-right: 20px"/>-->
               <div class="metric-box">
                 <div class="value">{{ content.scenarioStepSuccess ? content.scenarioStepSuccess: 0 }}</div>
                 <div class="name">{{ $t('api_report.success') }}</div>
               </div>
-              <!--            <div style="width: 40px"></div>-->
-<!--              <i class="circle fail" style="margin-left: 20px;margin-right: 20px"/>-->
               <span class="ms-point-error"/>
               <div class="metric-box">
                 <div class="value">{{ content.scenarioStepError ? content.scenarioStepError : 0 }}</div>
                 <div class="name">{{ $t('api_report.fail') }}</div>
+              </div>
+              <span class="ms-point-error-code" v-if="content.scenarioErrorReport > 0 || content.scenarioStepErrorReport > 0 "/>
+              <div class="metric-box"  v-if="content.scenarioErrorReport > 0 || content.scenarioStepErrorReport > 0 ">
+                <div class="value">{{ content.scenarioStepErrorReport ? content.scenarioStepErrorReport : 0 }}</div>
+                <div class="name">{{ $t('error_report_library.option.name') }}</div>
               </div>
             </el-row>
           </el-row>
@@ -91,6 +108,11 @@
             <i class="el-icon-document-checked assertions"></i>
             <div class="value">{{ assertions }}</div>
             <div class="name">{{ $t('api_report.assertions_pass') }}</div>
+          </div>
+          <div class="metric-icon-box"  v-if="content.errorCode > 0">
+            <i class="el-icon-document-checked assertions"></i>
+            <div class="value">{{ errorCodeAssertions }}</div>
+            <div class="name">{{ $t('error_report_library.assertion') }}</div>
           </div>
           <div class="metric-icon-box">
             <i class="el-icon-document-copy total"></i>
@@ -160,7 +182,7 @@
     computed: {
       options() {
         return {
-          color: ['#67C23A', '#F56C6C'],
+          color: ['#67C23A', '#F56C6C' ,'#F6972A'],
           tooltip: {
             trigger: 'item',
             formatter: '{b}: {c} ({d}%)'
@@ -203,6 +225,7 @@
               data: [
                 {value: this.content.success},
                 {value: this.content.error},
+                {value: this.content.errorCode},
               ]
             }
           ]
@@ -214,6 +237,9 @@
       },
       assertions() {
         return this.content.passAssertions + " / " + this.content.totalAssertions;
+      },
+      errorCodeAssertions() {
+        return this.content.errorCode + " / " + this.content.totalAssertions;
       }
     },
   }
@@ -354,5 +380,16 @@
     margin-left: 20px;
     margin-right: 20px;
     background-color : #F56C6C;
+  }
+
+  .ms-point-error-code {
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 20px;
+    margin-right: 20px;
+    background-color : #F6972A;
   }
 </style>
