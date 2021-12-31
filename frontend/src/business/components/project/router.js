@@ -1,3 +1,5 @@
+import {errorReportLibrary} from "@/business/components/xpack/router";
+
 const ProjectSetting = () => import('@/business/components/project/ProjectSetting')
 const ProjectHome = () => import('@/business/components/project/home/ProjectHome')
 const ProjectMember = () => import('@/business/components/project/menu/Member')
@@ -57,5 +59,6 @@ export default {
       component: ProjectAppManage
     },
     ...ProjectVersion,
+    ...requireContext.keys().map(key => requireContext(key).errorReportLibrary),
   ]
 };

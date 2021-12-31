@@ -29,6 +29,8 @@ public class ApiDefinitionExecResult implements Serializable {
 
     private String versionId;
 
+    private String errorCode;
+
     private String content;
 
     private static final long serialVersionUID = 1L;

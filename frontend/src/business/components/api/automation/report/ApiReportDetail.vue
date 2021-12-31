@@ -3,25 +3,30 @@
     <ms-main-container>
       <el-card>
         <section class="report-container" v-if="this.report.testId">
-          <ms-api-report-view-header :show-cancel-button="showCancelButton" :is-plan="isPlan" :is-template="isTemplate" :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
+          <ms-api-report-view-header :show-cancel-button="showCancelButton" :is-plan="isPlan" :is-template="isTemplate"
+                                     :debug="debug" :report="report" @reportExport="handleExport"
+                                     @reportSave="handleSave"/>
           <main v-if="isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
-                  <ms-scenario-results :treeData="fullTreeNodes" :console="content.console" v-on:requestResult="requestResult" ref="resultsTree"/>
+                  <ms-scenario-results :treeData="fullTreeNodes" :console="content.console"
+                                       v-on:requestResult="requestResult" ref="resultsTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label">
                     <span class="fail">{{ $t('api_report.fail') }}</span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console" :treeData="fullTreeNodes" ref="failsTree"/>
+                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
+                                       :treeData="fullTreeNodes" ref="failsTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="console">
                   <template slot="label">
                     <span class="console">{{ $t('api_test.definition.request.console') }}</span>
                   </template>
-                  <ms-code-edit :mode="'text'" :read-only="true" :data.sync="content.console" height="calc(100vh - 500px)"/>
+                  <ms-code-edit :mode="'text'" :read-only="true" :data.sync="content.console"
+                                height="calc(100vh - 500px)"/>
                 </el-tab-pane>
 
               </el-tabs>
@@ -334,7 +339,7 @@ export default {
               this.fullTreeNodes = report.steps;
               this.content.console = report.console;
               this.content.error = report.error;
-              this.content.success = (report.total - report.error);
+              this.content.success = (report.total - report.error - report.errorCode);
               this.totalTime = report.totalTime;
             }
             this.loading = false;
@@ -418,7 +423,7 @@ export default {
             requestTime = requestTime + resTime;
           })
         })
-          this.totalTime = requestTime
+        this.totalTime = requestTime
       }
     },
     requestResult(requestResult) {

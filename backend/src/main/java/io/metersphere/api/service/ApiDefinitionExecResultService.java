@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
+import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
@@ -12,6 +13,7 @@ import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.ErrorReportLibraryUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.RequestResult;
@@ -64,7 +66,6 @@ public class ApiDefinitionExecResultService {
     private TestPlanTestCaseService testPlanTestCaseService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
-
     public void saveApiResult(List<RequestResult> requestResults, ResultDTO dto) {
         boolean isFirst = true;
         int count = requestResults.stream()
@@ -321,6 +322,7 @@ public class ApiDefinitionExecResultService {
 
     private ApiDefinitionExecResult save(RequestResult item, String reportId, String console, int expectProcessResultCount, String type, String testId, boolean isFirst) {
         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
+            ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(item);
             ApiDefinitionExecResult saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
             if (saveResult == null) {
                 saveResult = new ApiDefinitionExecResult();
@@ -331,7 +333,11 @@ public class ApiDefinitionExecResultService {
             saveResult.setName(item.getName());
             saveResult.setType(type);
             saveResult.setCreateTime(item.getStartTime());
-            String status = item.isSuccess() ? "success" : "error";
+            String status = item.isSuccess() ? ExecuteResult.success.name() : ExecuteResult.error.name();
+            if(errorCodeDTO.getErrorCodeList() != null){
+                status = ExecuteResult.errorCode.name();
+                saveResult.setErrorCode(errorCodeDTO.getErrorCodeStr());
+            }
             saveResult.setName(editStatus(type, status, saveResult.getCreateTime(), saveResult.getId(), testId));
             saveResult.setStatus(status);
             saveResult.setResourceId(item.getName());
