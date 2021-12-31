@@ -2,7 +2,7 @@
   <span>
     <span>
       <div class="ms-opt-btn" v-if="apiDefinitionId">
-          {{ $t('project.version.name') }}:  {{ versionName }}
+          {{ $t('project.version.name') }}:  {{ apiDefinition.versionName }}
       </div>
       <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" @keyup.enter.native="search"
                 class="search-input" size="small"
@@ -415,6 +415,7 @@ export default {
     currentProtocol: String,
     currentVersion: String,
     apiDefinitionId: String,
+    apiDefinition: Object,
     selectNodeIds: Array,
     activeDom: String,
     visible: {
@@ -1169,7 +1170,6 @@ export default {
     getVersionOptions() {
       if (hasLicense()) {
         this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionName = response.data.filter(v => v.id === this.currentVersion)[0].name;
           this.versionFilters = response.data.map(u => {
             return {text: u.name, value: u.id};
           });

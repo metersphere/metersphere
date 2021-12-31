@@ -73,6 +73,7 @@
               <api-case-simple-list
                 v-if="trashActiveDom==='right'"
                 :current-protocol="currentProtocol"
+                :current-version="currentVersion"
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
