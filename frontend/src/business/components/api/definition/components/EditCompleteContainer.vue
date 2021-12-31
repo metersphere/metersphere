@@ -91,6 +91,7 @@
       <api-case-simple-list
         class="api-case-simple-list"
         :apiDefinitionId="currentApi.id"
+        :apiDefinition="currentApi"
         :current-version="currentApi.versionId"
         :trash-enable="false"
         @changeSelectDataRangeAll="changeSelectDataRangeAll"
