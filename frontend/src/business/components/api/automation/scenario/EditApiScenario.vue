@@ -1189,11 +1189,11 @@ export default {
             type: "scenario",
             variables: scenario ? scenario.variables : this.currentScenario.variables,
             referenced: 'Created',
-            enableCookieShare: scenario ? scenario.enableCookieShare : this.enableCookieShare,
+            enableCookieShare: this.enableCookieShare,
             headers: scenario ? scenario.headers : this.currentScenario.headers,
             environmentMap: scenario && scenario.environmentEnable ? scenario.environmentMap : this.projectEnvMap,
             hashTree: scenario ? scenario.hashTree : this.scenarioDefinition,
-            onSampleError: scenario ? scenario.onSampleError : this.onSampleError,
+            onSampleError: this.onSampleError,
           };
           if (scenario && scenario.environmentEnable) {
             this.debugData.environmentEnable = scenario.environmentEnable;
