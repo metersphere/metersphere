@@ -1,8 +1,12 @@
 package io.metersphere.websocket;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.APIReportResult;
+import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.commons.utils.LogUtil;
+import lombok.SneakyThrows;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -87,6 +91,7 @@ public class ApiReportWebSocket {
             this.runMode = runMode;
         }
 
+        @SneakyThrows
         @Override
         public void run() {
             try {
@@ -95,10 +100,15 @@ public class ApiReportWebSocket {
                     return;
                 }
                 if (report != null) {
-                    session.getBasicRemote().sendText(report.getContent());
+                    if (StringUtils.isNotEmpty(report.getContent())) {
+                        session.getBasicRemote().sendText(report.getContent());
+                    } else {
+                        session.getBasicRemote().sendText(JSON.toJSONString(new TestResult()));
+                    }
                     session.close();
                 }
             } catch (Exception e) {
+                session.close();
                 LogUtil.error(e.getMessage(), e);
             }
         }
