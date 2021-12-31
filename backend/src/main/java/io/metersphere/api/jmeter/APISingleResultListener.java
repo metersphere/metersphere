@@ -38,8 +38,11 @@ public class APISingleResultListener extends MsExecListener {
             dto.setConsole(CommonBeanFactory.getBean(MsResultService.class).getJmeterLogger(dto.getReportId()));
             // 整体执行结束更新资源状态
             CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
+
             LoggerUtil.info("执行队列处理：" + dto.getQueueId());
-            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+            if (StringUtils.isNotEmpty(dto.getQueueId())) {
+                CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+            }
         } catch (Exception e) {
             LoggerUtil.error(e);
         }
