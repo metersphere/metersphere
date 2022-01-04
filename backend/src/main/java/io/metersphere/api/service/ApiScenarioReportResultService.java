@@ -1,11 +1,8 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
 import io.metersphere.base.domain.ApiScenarioReportResult;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
-import io.metersphere.commons.constants.ExecuteResult;
-import io.metersphere.commons.utils.ErrorReportLibraryUtil;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,8 +36,6 @@ public class ApiScenarioReportResultService {
 
     private ApiScenarioReportResult newApiScenarioReportResult(String reportId, RequestResult result) {
         ApiScenarioReportResult report = new ApiScenarioReportResult();
-        //解析误报内容
-        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(result);
         report.setId(UUID.randomUUID().toString());
         result.setEndTime(System.currentTimeMillis());
         if (result.getResponseResult() != null) {
@@ -60,12 +55,7 @@ public class ApiScenarioReportResultService {
         report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + ""));
         report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
         report.setCreateTime(System.currentTimeMillis());
-        String status = result.getError() == 0 ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
-        if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
-            status = ExecuteResult.errorCode.name();
-            report.setErrorCode(errorCodeDTO.getErrorCodeStr());
-        }
-        report.setStatus(status);
+        report.setStatus(result.getError() == 0 ? "Success" : "Error");
         report.setRequestTime(result.getEndTime() - result.getStartTime());
         report.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
         return report;

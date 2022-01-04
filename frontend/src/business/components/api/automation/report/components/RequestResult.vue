@@ -1,7 +1,7 @@
 <template>
   <el-card class="ms-cards" v-if="request && request.responseResult">
     <div class="request-result">
-      <div @click="active">
+      <div @click="active" >
         <el-row :gutter="10" type="flex" align="middle" class="info">
           <el-col :span="10" v-if="indexNumber!=undefined">
             <el-tooltip :content="getName(request.name)" placement="top">
@@ -14,19 +14,8 @@
               </div>
             </el-tooltip>
           </el-col>
-          <el-col :span="3">
-            <el-tooltip effect="dark" v-if="errorCode" :content="errorCode"
-                        style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                        :open-delay="800">
-              <div style="color: #F6972A">
-                {{ errorCode }}
-              </div>
-            </el-tooltip>
-          </el-col>
-          <el-col :span="6">
-            <el-tooltip effect="dark" :content="request.responseResult.responseCode"
-                        style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                        :open-delay="800">
+          <el-col :span="9">
+            <el-tooltip effect="dark" :content="request.responseResult.responseCode" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom" :open-delay="800">
               <div style="color: #5daf34" v-if="request.success">
                 {{ request.responseResult.responseCode }}
               </div>
@@ -49,13 +38,7 @@
                 <i class="el-icon-loading" style="font-size: 16px"/>
                 {{ $t('commons.testing') }}
               </el-tag>
-              <el-tag v-if="errorCode" class="ms-test-running" size="mini">
-                {{ $t('error_report_library.option.name') }}
-              </el-tag>
-              <el-tag size="mini" v-else-if="request.unexecute">{{
-                  $t('api_test.home_page.detail_card.unexecute')
-                }}
-              </el-tag>
+              <el-tag size="mini" v-else-if="request.unexecute">{{ $t('api_test.home_page.detail_card.unexecute') }}</el-tag>
               <el-tag size="mini" type="success" v-else-if="request.success"> {{ $t('api_report.success') }}</el-tag>
               <el-tag size="mini" type="danger" v-else> {{ $t('api_report.fail') }}</el-tag>
             </div>
@@ -66,11 +49,11 @@
       <el-collapse-transition>
         <div v-show="isActive && !request.unexecute" style="width: 99%">
           <ms-request-result-tail
-              :scenario-name="scenarioName"
-              :request-type="requestType"
-              :request="request"
-              :console="console"
-              v-if="isActive"/>
+            :scenario-name="scenarioName"
+            :request-type="requestType"
+            :request="request"
+            :console="console"
+            v-if="isActive"/>
         </div>
       </el-collapse-transition>
     </div>
@@ -98,7 +81,6 @@ export default {
     scenarioName: String,
     indexNumber: Number,
     console: String,
-    errorCode: String,
   },
   data() {
     return {
@@ -117,8 +99,6 @@ export default {
         }
       },
     }
-  },
-  created() {
   },
   methods: {
     active() {
