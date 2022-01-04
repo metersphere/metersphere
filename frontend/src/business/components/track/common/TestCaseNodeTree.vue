@@ -148,10 +148,12 @@ export default {
     enableTrash() {
       this.condition.trashEnable = true;
       this.$emit('enableTrash', this.condition.trashEnable);
+      this.$emit('toPublic', 'trash');
     },
     enablePublic() {
       this.condition.publicEnable = true;
       this.$emit('enablePublic', this.condition.publicEnable);
+      this.$emit('toPublic', 'public');
     },
     list() {
       if (this.projectId) {

@@ -13,6 +13,7 @@
         @refreshAll="refreshAll"
         @enableTrash="enableTrash"
         @enablePublic="enablePublic"
+        @toPublic="toPublic"
         :type="'edit'"
         :total='total'
         :public-total="publicTotal"
@@ -182,6 +183,7 @@ import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMi
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
 import TestCaseEditShow from "@/business/components/track/case/components/TestCaseEditShow";
+
 export default {
   name: "TestCase",
   components: {
@@ -219,9 +221,9 @@ export default {
   mounted() {
     this.getProject();
     let routeTestCase = this.$route.params.testCase;
-    if(routeTestCase && routeTestCase.add===true){
+    if (routeTestCase && routeTestCase.add === true) {
       this.addTab({name: 'add'});
-    }else {
+    } else {
       this.init(this.$route);
     }
   },
@@ -451,9 +453,9 @@ export default {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
-        if(routeTestCase){
+        if (routeTestCase) {
           this.editTestCase(routeTestCase);
-        }else if (caseId) {
+        } else if (caseId) {
           this.$get('test/case/get/' + caseId, response => {
             let testCase = response.data;
             this.editTestCase(testCase);
@@ -608,6 +610,14 @@ export default {
       this.initApiTableOpretion = "publicEnable";
       this.publicEnable = data;
     },
+    toPublic(data) {
+      if (data === 'public') {
+        this.activeName = "public"
+      } else {
+        this.activeName = "trash"
+      }
+
+    }
   }
 };
 </script>
