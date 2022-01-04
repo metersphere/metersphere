@@ -2512,6 +2512,7 @@ export default {
   },
   variables: {
     cvs_info: "只能上传CSV文件",
+    csv_message: "默认展示2000条，完整的内容可点击下载查看。",
     end: "结束",
     start: "开始",
     increment: "增量",

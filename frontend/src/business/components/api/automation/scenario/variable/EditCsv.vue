@@ -59,6 +59,7 @@
         </el-row>
       </el-tab-pane>
       <el-tab-pane :label="$t('schema.preview')" name="preview">
+        <div v-if="showMessage">{{ $t('variables.csv_message') }}</div>
         <el-table
           :data="previewData"
           style="width: 100%"
@@ -97,6 +98,7 @@
         previewData: [],
         columns: [],
         allData: [],
+        showMessage: false,
         rules: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
@@ -123,7 +125,11 @@
         this.loading = false;
       },
       step(results, parser) {
-        this.allData.push(results.data);
+        if(this.allData.length < 2000) {
+          this.allData.push(results.data);
+        }else{
+          this.showMessage = true;
+        }
       },
 
       handleClick() {
