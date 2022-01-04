@@ -338,6 +338,27 @@
       <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
     </div>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
+
+    <el-dialog
+      :fullscreen="true"
+      :visible.sync="dialogVisible"
+      width="100%"
+    >
+      <scenario-diff
+        :old-data="currentScenario"
+        :new-data="newData"
+        :custom-num = "customNum"
+        :module-options="moduleOptions"
+        :old-scenario-definition="scenarioDefinition"
+        :new-scenario-definition="newScenarioDefinition"
+        :type ="type"
+      ></scenario-diff>
+      <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible=false">取 消</el-button>
+          <el-button type="primary" >确 定</el-button>
+        </span>
+    </el-dialog>
+
   </el-card>
 </template>
 
@@ -382,6 +403,7 @@ export default {
   components: {
     'MsVersionHistory': versionHistory.default,
     MsComponentConfig,
+    ScenarioDiff: () => import("@/business/components/api/automation/version/ScenarioDiff"),
     MsVariableList: () => import("./variable/VariableList"),
     ScenarioRelevance: () => import("./api/ScenarioRelevance"),
     ScenarioApiRelevance: () => import("./api/ApiRelevance"),
@@ -450,7 +472,6 @@ export default {
       debugData: {},
       reportId: "",
       enableCookieShare: false,
-
       globalOptions: {
         spacing: 30
       },
@@ -487,8 +508,11 @@ export default {
       showFollow: false,
       envGroupId: "",
       environmentType: ENV_TYPE.JSON,
+      versionData: [],
+      newData:[],
+      dialogVisible:false,
+      newScenarioDefinition:[],
       currentItem: {},
-      versionData: []
     }
   },
   watch: {
@@ -1672,7 +1696,20 @@ export default {
       });
     },
     compare(row) {
-      // console.log(row);
+      this.$get('/api/automation/get/' +  row.id+"/"+this.currentScenario.refId, response => {
+          this.$get("/api/automation/getApiScenario/" +  response.data.id, res => {
+            if (res.data) {
+              if(res.data.scenarioDefinition != null){
+                let obj = JSON.parse(res.data.scenarioDefinition);
+                if(obj){
+                  this.newScenarioDefinition = obj.hashTree;
+                }
+              }
+              this.newData = res.data;
+              this.dialogVisible = true;
+            }
+          });
+      })
     },
     checkout(row) {
       let api = this.versionData.filter(v => v.versionId === row.id)[0];
