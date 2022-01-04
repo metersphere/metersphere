@@ -47,9 +47,6 @@ public class ApiScenarioReportResultService {
             }
         }
         String resourceId = result.getResourceId();
-        if (StringUtils.isNotEmpty(resourceId) && resourceId.contains("_")) {
-            resourceId = StringUtils.substringBefore(result.getResourceId(), "_");
-        }
         report.setResourceId(resourceId);
         report.setReportId(reportId);
         report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + ""));
