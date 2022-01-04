@@ -70,6 +70,7 @@ public class ApiTestCaseController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiTestCaseDTO>> listSimple(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setSelectEnvironment(true);
         return PageUtils.setPageInfo(page, apiTestCaseService.listSimple(request));
     }
 
