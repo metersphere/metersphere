@@ -295,8 +295,14 @@ export default {
           value:'order',
         },
         {
-          label:this.$t('api_test.environment.environment'),
-          value:'environment',
+          label: this.$t('api_test.environment.environment_type'),
+          value: 'environmentType',
+        }, {
+          label: this.$t('api_test.environment.environment_json'),
+          value: 'environmentJson',
+        }, {
+          label: this.$t('api_test.environment.environment_group_id'),
+          value: 'environmentGroupId',
         },
       ]
     };
