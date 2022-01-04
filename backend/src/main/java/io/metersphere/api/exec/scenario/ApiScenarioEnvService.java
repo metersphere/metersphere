@@ -216,7 +216,7 @@ public class ApiScenarioEnvService {
      *
      * @param apiScenarioWithBLOBs
      */
-    public void setScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs) {
+    public void setScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, RunScenarioRequest request) {
         String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
         String environmentJson = apiScenarioWithBLOBs.getEnvironmentJson();
         String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
@@ -231,6 +231,9 @@ public class ApiScenarioEnvService {
         } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.toString())) {
             Map<String, String> map = environmentGroupProjectService.getEnvMap(environmentGroupId);
             scenario.setEnvironmentMap(map);
+        }
+        if (request != null && request.getConfig() != null && request.getConfig().getEnvMap() != null && !request.getConfig().getEnvMap().isEmpty()) {
+            scenario.setEnvironmentMap(request.getConfig().getEnvMap());
         }
         apiScenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(scenario));
     }
@@ -336,7 +339,7 @@ public class ApiScenarioEnvService {
             StringBuilder builder = new StringBuilder();
             for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : apiScenarios) {
                 try {
-                    this.setScenarioEnv(apiScenarioWithBLOBs);
+                    this.setScenarioEnv(apiScenarioWithBLOBs, request);
                     boolean haveEnv = this.checkScenarioEnv(apiScenarioWithBLOBs, null);
                     if (!haveEnv) {
                         builder.append(apiScenarioWithBLOBs.getName()).append("; ");
@@ -351,7 +354,7 @@ public class ApiScenarioEnvService {
         } else if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
             for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : apiScenarios) {
                 try {
-                    this.setScenarioEnv(apiScenarioWithBLOBs);
+                    this.setScenarioEnv(apiScenarioWithBLOBs, request);
                 } catch (Exception e) {
                     MSException.throwException("定时任务设置场景环境失败，场景ID： " + apiScenarioWithBLOBs.getId());
                 }
