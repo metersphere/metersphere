@@ -327,7 +327,9 @@ public class ApiDefinitionExecResultService {
             }
             item.getResponseResult().setConsole(console);
             saveResult.setId(reportId);
-            saveResult.setActuator("LOCAL");
+            if (StringUtils.isEmpty(saveResult.getActuator())) {
+                saveResult.setActuator("LOCAL");
+            }
             saveResult.setName(item.getName());
             saveResult.setType(type);
             saveResult.setCreateTime(item.getStartTime());
