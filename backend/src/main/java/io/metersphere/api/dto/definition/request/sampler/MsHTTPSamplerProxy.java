@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.parse.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
@@ -38,7 +37,6 @@ import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
@@ -282,20 +280,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             this.setScript(httpConfig, httpSamplerTree, config, false);
         }
 
-        HashTreeUtil hashTreeUtil = new HashTreeUtil();
-        //增加误报、断言
-        if (httpConfig != null) {
-            if (CollectionUtils.isNotEmpty(httpConfig.getErrorReportAssertions())) {
-                for (MsAssertions assertion : httpConfig.getErrorReportAssertions()) {
-                    assertion.toHashTree(httpSamplerTree, assertion.getHashTree(), config);
-                }
-            }
-            if (CollectionUtils.isNotEmpty(httpConfig.getAssertions())) {
-                for (MsAssertions assertion : httpConfig.getAssertions()) {
-                    assertion.toHashTree(httpSamplerTree, assertion.getHashTree(), config);
-                }
-            }
-        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 if (el.getEnvironmentId() == null) {
@@ -304,10 +288,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     } else {
                         el.setEnvironmentId(this.getEnvironmentId());
                     }
-                }
-                if (el instanceof MsAssertions) {
-                    //断言设置需要和全局断言、误报进行去重
-                    el = hashTreeUtil.duplicateRegexInAssertions(httpConfig.getAssertions(), (MsAssertions) el);
                 }
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
@@ -406,10 +386,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 httpConfig.setPreProcessor(environmentConfig.getPreProcessor());
                 httpConfig.setPostProcessor(environmentConfig.getPostProcessor());
                 httpConfig.setGlobalScriptConfig(environmentConfig.getGlobalScriptConfig());
-                httpConfig.setAssertions(environmentConfig.getAssertions());
-                if (environmentConfig.isUseErrorCode()) {
-                    httpConfig.setErrorReportAssertions(HashTreeUtil.getErrorReportByProjectId(this.getProjectId()));
-                }
                 return httpConfig;
             }
         }
@@ -429,13 +405,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     this.useEnvironment = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
-                // 补充如果是完整URL 则用自身URL
-
-                if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
-                    url = this.getUrl();
-                }
 
                 if (isUrl()) {
+                    // 补充如果是完整URL 则用自身URL
+                    if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
+                        url = this.getUrl();
+                    }
                     if (this.isCustomizeReq()) {
                         url = this.getUrl();
                         sampler.setProperty("HTTPSampler.path", url);
@@ -657,9 +632,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
             return true;
         }
-        if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
-            return true;
-        }
         return false;
     }
 
@@ -836,19 +808,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         }
                     } else {
                         apiDefinition = apiDefinitionService.get(this.getId());
-                        ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(this.getId());
-                        if (apiTestCaseWithBLOBs == null) {
-                            apiTestCaseWithBLOBs = apiTestCaseService.get(this.getName());
-                        }
-                        if (apiTestCaseWithBLOBs != null) {
-                            apiDefinition = apiDefinitionService.get(apiTestCaseWithBLOBs.getApiDefinitionId());
-                        } else {
-                            TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
-                            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
-                            if (testPlanApiCase != null) {
-                                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
-                                if (caseWithBLOBs != null) {
-                                    apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                        apiDefinition = apiDefinition == null ? apiDefinitionService.get(this.getName()) : apiDefinition;
+                        if (apiDefinition == null) {
+                            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(this.getId());
+                            if (apiTestCaseWithBLOBs == null) {
+                                apiTestCaseWithBLOBs = apiTestCaseService.get(this.getName());
+                            }
+                            if (apiTestCaseWithBLOBs != null) {
+                                apiDefinition = apiDefinitionService.get(apiTestCaseWithBLOBs.getApiDefinitionId());
+                            } else {
+                                TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
+                                TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
+                                if (testPlanApiCase != null) {
+                                    ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
+                                    if (caseWithBLOBs != null) {
+                                        apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                                    }
                                 }
                             }
                         }
