@@ -163,6 +163,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 } else {
                     this.setHashTree(proxy.getHashTree());
                 }
+                this.setPath(proxy.getPath());
                 this.setMethod(proxy.getMethod());
                 this.setBody(proxy.getBody());
                 this.setRest(proxy.getRest());
