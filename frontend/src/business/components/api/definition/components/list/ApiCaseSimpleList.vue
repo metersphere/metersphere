@@ -142,7 +142,7 @@
             prop="environment"
             :field="item"
             :fields-width="fieldsWidth"
-            :label="'运行环境'"
+            :label="$t('commons.environment')"
           >
           </ms-table-column>
 
@@ -150,7 +150,7 @@
             prop="createUser"
             :field="item"
             :fields-width="fieldsWidth"
-            :label="'创建人'"/>
+            :label="$t('commons.create_user')"/>
 
           <ms-table-column
             sortable="updateTime"
@@ -610,10 +610,6 @@ export default {
             if (item.status === 'Running') {
               isNext = true;
             }
-            this.$get('/api/testcase/get/env/' + item.id, res => {
-              let environment = res.data ? res.data.name : '-';
-              this.$set(item, 'environment', environment);
-            })
           });
           this.$nextTick(() => {
             if (this.$refs.caseTable) {

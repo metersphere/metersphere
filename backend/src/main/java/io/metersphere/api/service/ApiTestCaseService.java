@@ -36,6 +36,7 @@ import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -129,8 +130,20 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
+        if (BooleanUtils.isTrue(request.isSelectEnvironment())) {
+            setCaseEnvironment(apiTestCases);
+        }
         buildUserInfo(apiTestCases);
         return apiTestCases;
+    }
+
+    public void setCaseEnvironment(List<ApiTestCaseDTO> apiTestCases) {
+        for (ApiTestCaseDTO apiCase : apiTestCases) {
+            ApiTestEnvironment environment = getApiCaseEnvironment(apiCase.getId());
+            if (environment != null) {
+                apiCase.setEnvironment(environment.getName());
+            }
+        }
     }
 
     public List<String> idSimple(ApiTestCaseRequest request) {

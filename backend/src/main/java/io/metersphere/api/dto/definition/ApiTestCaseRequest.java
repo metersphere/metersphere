@@ -37,4 +37,8 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
      * 检查待更新的（近三天有更新的或者状态为error的）
      */
     private boolean toUpdate;
+    /**
+     * 是否需要查询环境字段
+     */
+    private boolean selectEnvironment = false;
 }
