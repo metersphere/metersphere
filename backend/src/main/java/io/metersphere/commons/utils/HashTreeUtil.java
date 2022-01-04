@@ -6,8 +6,8 @@ import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.service.ApiTestEnvironmentService;
-import io.metersphere.api.service.ExtErrorReportLibraryService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.xpack.errorreportlibrary.service.ErrorReportLibraryService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Argument;
@@ -224,7 +224,7 @@ public class HashTreeUtil {
                         break;
                     }
                 }
-                if (!isExit) {
+                if(!isExit){
                     duplicatedList.add(regex);
                 }
             }
@@ -234,7 +234,7 @@ public class HashTreeUtil {
     }
 
     public static List<MsAssertions> getErrorReportByProjectId(String projectId) {
-        ExtErrorReportLibraryService service = CommonBeanFactory.getBean(ExtErrorReportLibraryService.class);
+        ErrorReportLibraryService service = CommonBeanFactory.getBean(ErrorReportLibraryService.class);
         return service.getAssertionByProjectIdAndStatusIsOpen(projectId);
     }
 }
