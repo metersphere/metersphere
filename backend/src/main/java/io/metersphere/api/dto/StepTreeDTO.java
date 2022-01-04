@@ -14,6 +14,7 @@ public class StepTreeDTO {
     private String resourceId;
     private String label;
     private RequestResult value;
+    private String allIndex;
 
     //误报库编码
     private String errorCode;

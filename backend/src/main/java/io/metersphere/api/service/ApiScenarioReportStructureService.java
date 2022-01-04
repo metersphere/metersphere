@@ -6,8 +6,11 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiScenarioReportDTO;
 import io.metersphere.api.dto.StepTreeDTO;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
 import io.metersphere.base.mapper.ApiScenarioReportStructureMapper;
+import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.utils.LoggerUtil;
@@ -75,13 +78,23 @@ public class ApiScenarioReportStructureService {
         JSONObject element = JSON.parseObject(apiScenario.getScenarioDefinition());
         StepTreeDTO dto = null;
         if (element != null && element.getBoolean("enable")) {
+            String referenced = element.getString("referenced");
+            if (StringUtils.equals(referenced, MsTestElementConstants.REF.name())) {
+                if (StringUtils.equals(element.getString("type"), "scenario")) {
+                    ApiScenarioWithBLOBs scenarioWithBLOBs = CommonBeanFactory.getBean(ApiScenarioMapper.class).selectByPrimaryKey(element.getString("id"));
+                    if (scenarioWithBLOBs != null) {
+                        element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                    }
+                }
+            }
             String resourceId = element.getString("resourceId");
             if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
                 if (StringUtils.isNotEmpty(resourceId) && StringUtils.isNotEmpty(apiScenario.getId()) && !resourceId.contains(apiScenario.getId())) {
                     resourceId = apiScenario.getId() + "=" + element.getString("resourceId");
                 }
             }
-            dto = new StepTreeDTO(apiScenario.getName(), resourceId, element.getString("type"), element.getIntValue("index"));
+            dto = new StepTreeDTO(apiScenario.getName(), resourceId, element.getString("type"), 1);
+            dto.setAllIndex(null);
             if (element.containsKey("hashTree") && !requests.contains(dto.getType())) {
                 JSONArray elementJSONArray = element.getJSONArray("hashTree");
                 dataFormatting(elementJSONArray, dto, apiScenario.getId(), reportType);
@@ -94,6 +107,15 @@ public class ApiScenarioReportStructureService {
         for (int i = 0; i < hashTree.size(); i++) {
             JSONObject element = hashTree.getJSONObject(i);
             if (element != null && element.getBoolean("enable")) {
+                String referenced = element.getString("referenced");
+                if (StringUtils.equals(referenced, MsTestElementConstants.REF.name())) {
+                    if (StringUtils.equals(element.getString("type"), "scenario")) {
+                        ApiScenarioWithBLOBs scenarioWithBLOBs = CommonBeanFactory.getBean(ApiScenarioMapper.class).selectByPrimaryKey(element.getString("id"));
+                        if (scenarioWithBLOBs != null) {
+                            element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                        }
+                    }
+                }
                 String resourceId = element.getString("resourceId");
                 if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
                     if (StringUtils.isNotEmpty(resourceId) && StringUtils.isNotEmpty(id) && !resourceId.contains(id)) {
@@ -101,6 +123,13 @@ public class ApiScenarioReportStructureService {
                     }
                 }
                 StepTreeDTO children = new StepTreeDTO(element.getString("name"), resourceId, element.getString("type"), element.getIntValue("index"));
+                if (StringUtils.isNotEmpty(dto.getAllIndex())) {
+                    children.setAllIndex(dto.getAllIndex() + "_" + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
+                    children.setResourceId(resourceId + "_" + children.getAllIndex());
+                } else {
+                    children.setAllIndex("" + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
+                    children.setResourceId(resourceId + "_" + children.getAllIndex());
+                }
                 dto.getChildren().add(children);
                 if (element.containsKey("hashTree") && !requests.contains(children.getType())) {
                     JSONArray elementJSONArray = element.getJSONArray("hashTree");
