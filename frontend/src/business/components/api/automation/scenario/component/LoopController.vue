@@ -262,6 +262,9 @@ export default {
         environmentId: this.currentEnvironmentId,
         hashTree: [this.controller],
       };
+      if (this.node && this.node.data) {
+        this.node.data.debug = true;
+      }
       this.reportId = getUUID().substring(0, 8);
     },
 

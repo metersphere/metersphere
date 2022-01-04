@@ -1,93 +1,93 @@
 <template>
-  <api-base-component
-    @copy="copyRow"
-    @remove="remove"
-    @active="active"
-    :data="request"
-    :draggable="draggable"
-    :color="defColor"
-    :is-max="isMax"
-    :show-btn="showBtn"
-    :background-color="defBackgroundColor"
-    :title="pluginName">
+  <div>
+    <api-base-component
+      @copy="copyRow"
+      @remove="remove"
+      @active="active"
+      :data="request"
+      :draggable="draggable"
+      :color="defColor"
+      :is-max="isMax"
+      :show-btn="showBtn"
+      :background-color="defBackgroundColor"
+      :title="pluginName">
 
-    <template v-slot:request>
-      <legend style="width: 100%">
-        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <div class="ms-form">
-          <div class="ms-form-create" v-loading="loading">
-            <formCreate
-              v-model="pluginForm"
-              :rule="rules"
-              :option="option"
-              :value.sync="data"
-              @prefix-change="change"
-              @prefix-click="change"
-              @prefix-visible-change="visibleChange"
-            />
+      <template v-slot:request>
+        <legend style="width: 100%">
+          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+          <div class="ms-form">
+            <div class="ms-form-create" v-loading="loading">
+              <formCreate
+                v-model="pluginForm"
+                :rule="rules"
+                :option="option"
+                :value.sync="data"
+                @prefix-change="change"
+                @prefix-click="change"
+                @prefix-visible-change="visibleChange"
+              />
+            </div>
           </div>
-        </div>
-      </legend>
-    </template>
+        </legend>
+      </template>
 
-    <template v-slot:debugStepCode>
+      <template v-slot:debugStepCode>
        <span v-if="request.testing" class="ms-test-running">
          <i class="el-icon-loading" style="font-size: 16px"/>
          {{ $t('commons.testing') }}
        </span>
-      <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
-    </template>
+      </template>
 
-    <template v-slot:button v-if="allSampler.indexOf(request.type) !==-1">
-      <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-        <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
-      </el-tooltip>
-      <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-        <el-button :disabled="!request.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
-          <div style="transform: scale(0.66)">
-            <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
+      <template v-slot:button v-if="allSampler.indexOf(request.type) !==-1">
+        <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+        </el-tooltip>
+        <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
+          <el-button :disabled="!request.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+            <div style="transform: scale(0.66)">
+              <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
+            </div>
+          </el-button>
+        </el-tooltip>
+      </template>
+
+      <template v-slot:result>
+        <div v-if="allSampler.indexOf(request.type) !==-1">
+          <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+          <div v-if="request.result">
+            <div v-for="(scenario,h) in request.result.scenarios" :key="h">
+              <el-tabs v-model="request.activeName" closable class="ms-tabs">
+                <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                  <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
           </div>
-        </el-button>
-      </el-tooltip>
-    </template>
-
-    <template v-slot:result>
-      <div v-if="allSampler.indexOf(request.type) !==-1">
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <div v-if="request.result">
-          <div v-for="(scenario,h) in request.result.scenarios" :key="h">
-            <el-tabs v-model="request.activeName" closable class="ms-tabs">
-              <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
-                <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+          <div v-else>
+            <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
+              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                <api-response-component
+                  :currentProtocol="request.protocol"
+                  :apiActive="true"
+                  :result="item"
+                />
               </el-tab-pane>
             </el-tabs>
+            <api-response-component
+              :currentProtocol="request.protocol"
+              :apiActive="true"
+              :result="request.requestResult[0]"
+              v-else/>
           </div>
         </div>
-        <div v-else>
-          <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
-            <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
-              <api-response-component
-                :currentProtocol="request.protocol"
-                :apiActive="true"
-                :result="item"
-              />
-            </el-tab-pane>
-          </el-tabs>
-          <api-response-component
-            :currentProtocol="request.protocol"
-            :apiActive="true"
-            :result="request.requestResult[0]"
-            v-else/>
-        </div>
-      </div>
-    </template>
-
+      </template>
+    </api-base-component>
     <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
             @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
-
-  </api-base-component>
+  </div>
 </template>
 
 <script>
@@ -217,6 +217,7 @@ export default {
           }
         }
       }
+      this.request.debug = true;
       this.request.active = true;
       this.loading = true;
       this.runData = [];
