@@ -121,6 +121,31 @@ public class ApiScenarioReportStructureService {
         }
     }
 
+    private void stepErrorCalculate(List<StepTreeDTO> dtoList, AtomicLong isError) {
+        for (StepTreeDTO step : dtoList) {
+            if (step.getValue() != null && step.getValue().getError() > 0) {
+                isError.set(isError.longValue() + 1);
+            } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
+                AtomicLong isChildrenError = new AtomicLong();
+                stepChildrenErrorCalculate(step.getChildren(), isChildrenError);
+                if (isChildrenError.longValue() > 0) {
+                    isError.set(isError.longValue() + 1);
+                }
+            }
+        }
+    }
+
+    private void stepChildrenErrorCalculate(List<StepTreeDTO> dtoList, AtomicLong isError) {
+        for (StepTreeDTO step : dtoList) {
+            if (step.getValue() != null && step.getValue().getError() > 0) {
+                isError.set(isError.longValue() + 1);
+                break;
+            } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
+                stepChildrenErrorCalculate(step.getChildren(), isError);
+            }
+        }
+    }
+
     private void calculate(List<StepTreeDTO> dtoList, AtomicLong totalScenario, AtomicLong scenarioError, AtomicLong totalTime) {
         for (StepTreeDTO step : dtoList) {
             if (StringUtils.equals(step.getType(), "scenario")) {
@@ -147,11 +172,7 @@ public class ApiScenarioReportStructureService {
     private void calculateStep(List<StepTreeDTO> dtoList, AtomicLong stepError, AtomicLong stepTotal) {
         for (StepTreeDTO step : dtoList) {
             // 失败结果数量
-            AtomicLong error = new AtomicLong();
-            scenarioCalculate(step.getChildren(), error);
-            if (error.longValue() > 0) {
-                stepError.set((stepError.longValue() + 1));
-            }
+            stepErrorCalculate(step.getChildren(), stepError);
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
                 stepTotal.set((stepTotal.longValue() + step.getChildren().size()));
             }
@@ -235,7 +256,7 @@ public class ApiScenarioReportStructureService {
             calculateStep(stepList, stepError, stepTotal);
             reportDTO.setScenarioStepTotal(stepTotal.longValue());
             reportDTO.setScenarioStepError(stepError.longValue());
-            reportDTO.setScenarioStepSuccess((stepList.size() - stepError.longValue()));
+            reportDTO.setScenarioStepSuccess((stepTotal.longValue() - stepError.longValue()));
 
             reportDTO.setConsole(scenarioReportStructure.getConsole());
             reportDTO.setSteps(stepList);
