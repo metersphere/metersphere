@@ -119,6 +119,7 @@ export default {
       this.runModeVisible = true;
       this.getResourcePools();
       this.getWsProjects();
+      this.runConfig.environmentType = ENV_TYPE.JSON;
     },
     changeMode() {
       this.runConfig.runWithinResourcePool = false;
@@ -131,6 +132,7 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         reportName: "",
+        environmentType: ENV_TYPE.JSON,
         runWithinResourcePool: false,
         resourcePoolId: null,
       };
