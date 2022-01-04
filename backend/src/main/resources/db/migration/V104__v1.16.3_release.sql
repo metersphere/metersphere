@@ -15,8 +15,6 @@ CREATE TABLE IF NOT EXISTS `error_report_library` (
     INDEX `project_id_status` (`project_id`,`status`) USING BTREE
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
-ALTER TABLE `api_definition_exec_result` ADD `error_code` varchar(255);
-ALTER TABLE `api_scenario_report_result` ADD `error_code` varchar(255);
 
 -- 赋予admin默认的权限
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
