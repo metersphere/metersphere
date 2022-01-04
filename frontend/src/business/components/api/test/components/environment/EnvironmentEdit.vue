@@ -61,22 +61,6 @@
           </el-tooltip>
           <ms-api-auth-config :is-read-only="isReadOnly" :request="environment.config.authManager"/>
         </el-tab-pane>
-        <!--        全局断言-->
-        <el-tab-pane :label="$t('env_options.all_assertions')" name="assertions">
-          <el-row type="flex" :gutter="20">
-            <el-col :span="12">
-              <el-form-item
-                :label="$t('error_report_library.use_error_report')"
-                prop="status">
-                <el-switch v-model="environment.config.useErrorCode" style="margin-right: 10px"/>
-                {{$t('error_report_library.use_desc')}}
-              </el-form-item>
-            </el-col>
-
-          </el-row>
-          <global-assertions
-            :assertions="environment.config.assertions"/>
-        </el-tab-pane>
       </el-tabs>
       <div class="environment-footer">
         <ms-dialog-footer

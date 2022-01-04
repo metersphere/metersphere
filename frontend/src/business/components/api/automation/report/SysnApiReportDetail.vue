@@ -277,11 +277,10 @@ export default {
             this.content = {scenarios: []};
           }
           this.content.error = this.content.error;
-          this.content.success = (this.content.total - this.content.error - this.content.errorCode);
+          this.content.success = (this.content.total - this.content.error);
           this.totalTime = this.content.totalTime;
-          this.fullTreeNodes = this.content.steps;
+          this.fullTreeNodes = JSON.parse(JSON.stringify(this.fullTreeNodes));
           this.recursiveSorting(this.fullTreeNodes);
-          console.info(this.fullTreeNodes);
           this.reload();
         }
       });
