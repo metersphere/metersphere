@@ -37,12 +37,12 @@
           <el-table-column prop="scenarioName" :label="$t('api_test.automation.scenario_name')" width="150"
                            show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
-          <el-table-column prop="createTime" width="250" :label="$t('commons.create_time')" sortable>
+          <el-table-column prop="createTime" min-width="120" :label="$t('commons.create_time')" sortable>
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="endTime" width="250" :label="$t('report.test_end_time')" sortable>
+          <el-table-column prop="endTime" min-width="120" :label="$t('report.test_end_time')" sortable>
             <template v-slot:default="scope">
               <span>{{ scope.row.endTime | timestampFormatDate }}</span>
             </template>
