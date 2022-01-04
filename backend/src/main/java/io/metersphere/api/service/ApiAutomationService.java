@@ -1895,7 +1895,7 @@ public class ApiAutomationService {
 
     public boolean checkScenarioEnv(String scenarioId) {
         ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(scenarioId);
-        apiScenarioEnvService.setScenarioEnv(apiScenarioWithBLOBs);
+        apiScenarioEnvService.setScenarioEnv(apiScenarioWithBLOBs, null);
         return apiScenarioEnvService.checkScenarioEnv(apiScenarioWithBLOBs, null);
     }
 

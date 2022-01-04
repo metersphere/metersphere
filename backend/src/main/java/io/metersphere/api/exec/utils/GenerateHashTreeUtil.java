@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
@@ -20,6 +21,7 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JvmInfoDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -31,7 +33,7 @@ import java.util.Map;
 public class GenerateHashTreeUtil {
 
     public static MsScenario parseScenarioDefinition(String scenarioDefinition) {
-        if(StringUtils.isNotEmpty(scenarioDefinition)) {
+        if (StringUtils.isNotEmpty(scenarioDefinition)) {
             MsScenario scenario = JSONObject.parseObject(scenarioDefinition, MsScenario.class);
             parse(scenarioDefinition, scenario, scenario.getId(), null);
             return scenario;
@@ -102,6 +104,21 @@ public class GenerateHashTreeUtil {
         return null;
     }
 
+    public static void setScenarioEnv(MsScenario scenario, ApiScenarioWithBLOBs apiScenarioWithBLOBs) {
+        String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
+        String environmentJson = apiScenarioWithBLOBs.getEnvironmentJson();
+        String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
+        if (StringUtils.isBlank(environmentType)) {
+            environmentType = EnvironmentType.JSON.toString();
+        }
+        if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString())) {
+            scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class));
+        } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.toString())) {
+            Map<String, String> map = CommonBeanFactory.getBean(EnvironmentGroupProjectService.class).getEnvMap(environmentGroupId);
+            scenario.setEnvironmentMap(map);
+        }
+    }
+
     public static HashTree generateHashTree(ApiScenarioWithBLOBs item, String reportId, Map<String, String> planEnvMap, String reportType) {
         HashTree jmeterHashTree = new HashTree();
         MsTestPlan testPlan = new MsTestPlan();
@@ -114,6 +131,8 @@ public class GenerateHashTreeUtil {
             group.setOnSampleError(scenario.getOnSampleError());
             if (planEnvMap != null && planEnvMap.size() > 0) {
                 scenario.setEnvironmentMap(planEnvMap);
+            } else {
+                setScenarioEnv(scenario, item);
             }
             GenerateHashTreeUtil.parse(item.getScenarioDefinition(), scenario, item.getId(), reportType);
 
