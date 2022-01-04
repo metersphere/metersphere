@@ -52,6 +52,10 @@ public class ParameterConfig extends MsParameter {
      */
     private String projectId;
 
+    private String scenarioId;
+
+    private String reportType;
+
     private List<String> csvFilePaths = new ArrayList<>();
 
 
