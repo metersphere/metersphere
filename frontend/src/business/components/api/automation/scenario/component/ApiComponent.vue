@@ -604,6 +604,7 @@ export default {
           }
         }
       }
+      this.request.debug = true;
       this.request.active = true;
       this.loading = true;
       this.runData = [];
