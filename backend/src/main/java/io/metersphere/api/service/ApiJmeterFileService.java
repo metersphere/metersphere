@@ -47,18 +47,6 @@ public class ApiJmeterFileService {
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
 
-    public byte[] downloadJmeterFiles(List<BodyFile> bodyFileList) {
-        Map<String, byte[]> files = new LinkedHashMap<>();
-        Map<String, byte[]> multipartFiles = this.getMultipartFiles(bodyFileList);
-        if (!com.alibaba.excel.util.CollectionUtils.isEmpty(multipartFiles)) {
-            for (String k : multipartFiles.keySet()) {
-                byte[] v = multipartFiles.get(k);
-                files.put(k, v);
-            }
-        }
-        return listBytesToZip(files);
-    }
-
     public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType, String queueId) {
         Map<String, String> planEnvMap = new HashMap<>();
         ApiScenarioWithBLOBs scenario = null;
@@ -193,24 +181,7 @@ public class ApiJmeterFileService {
         if (CollectionUtils.isNotEmpty(files)) {
             for (BodyFile bodyFile : files) {
                 File file = new File(bodyFile.getName());
-                if (file != null && !file.exists()) {
-                    byte[] fileByte = FileUtils.fileToByte(file);
-                    if (fileByte != null) {
-                        multipartFiles.put(file.getName(), fileByte);
-                    }
-                }
-            }
-        }
-        return multipartFiles;
-    }
-
-    private Map<String, byte[]> getMultipartFiles(List<BodyFile> files) {
-        Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
-        // 获取附件
-        if (CollectionUtils.isNotEmpty(files)) {
-            for (BodyFile bodyFile : files) {
-                File file = new File(bodyFile.getName());
-                if (file != null && !file.exists()) {
+                if (file != null && file.exists()) {
                     byte[] fileByte = FileUtils.fileToByte(file);
                     if (fileByte != null) {
                         multipartFiles.put(file.getName(), fileByte);
@@ -229,7 +200,7 @@ public class ApiJmeterFileService {
         files.put(fileName, jmx.getBytes(StandardCharsets.UTF_8));
         // 获取JMX使用到的附件
         Map<String, byte[]> multipartFiles = this.getMultipartFiles(hashTree);
-        if (!com.alibaba.excel.util.CollectionUtils.isEmpty(multipartFiles)) {
+        if (multipartFiles != null && !multipartFiles.isEmpty()) {
             for (String k : multipartFiles.keySet()) {
                 byte[] v = multipartFiles.get(k);
                 files.put(k, v);

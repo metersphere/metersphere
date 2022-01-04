@@ -359,41 +359,6 @@ public class ElementUtil {
         }
     }
 
-    public static void dataFormatting(JSONArray hashTree, String id, String reportType) {
-        for (int i = 0; i < hashTree.size(); i++) {
-            JSONObject element = hashTree.getJSONObject(i);
-            formatSampler(element);
-            if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
-                element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
-            }
-            if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
-                if (element != null && requests.contains(element.getString("type")) && !element.getString("resourceId").contains(id)) {
-                    element.fluentPut("resourceId", id + "=" + element.getString("resourceId"));
-                }
-            }
-            if (element.containsKey("hashTree")) {
-                JSONArray elementJSONArray = element.getJSONArray("hashTree");
-                dataFormatting(elementJSONArray, id, reportType);
-            }
-        }
-    }
-
-    public static void dataFormatting(JSONObject element, String id, String reportType) {
-        if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
-            element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
-        }
-        if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
-            if (element != null && requests.contains(element.getString("type")) && !element.getString("resourceId").contains(id)) {
-                element.fluentPut("resourceId", id + "=" + element.getString("resourceId"));
-            }
-        }
-        formatSampler(element);
-        if (element != null && element.containsKey("hashTree")) {
-            JSONArray elementJSONArray = element.getJSONArray("hashTree");
-            dataFormatting(elementJSONArray, id, reportType);
-        }
-    }
-
     public static void dataSetDomain(JSONArray hashTree, MsParameter msParameter) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -539,5 +504,12 @@ public class ElementUtil {
             io.metersphere.plugin.core.utils.LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
         }
         return null;
+    }
+
+    public static String getResourceId(String resourceId, ParameterConfig config, MsTestElement parent, String indexPath) {
+        if (StringUtils.isNotEmpty(config.getScenarioId()) && StringUtils.equals(config.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+            resourceId = config.getScenarioId() + "=" + resourceId;
+        }
+        return resourceId + "_" + ElementUtil.getFullIndexPath(parent, indexPath);
     }
 }
