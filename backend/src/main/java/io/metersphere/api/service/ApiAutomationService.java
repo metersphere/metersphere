@@ -721,7 +721,7 @@ public class ApiAutomationService {
             if (scenario == null) {
                 return null;
             }
-            GenerateHashTreeUtil.parse(apiScenario.getScenarioDefinition(), scenario, apiScenario.getId(), null);
+            GenerateHashTreeUtil.parse(apiScenario.getScenarioDefinition(), scenario);
             String environmentType = apiScenario.getEnvironmentType();
             String environmentJson = apiScenario.getEnvironmentJson();
             String environmentGroupId = apiScenario.getEnvironmentGroupId();

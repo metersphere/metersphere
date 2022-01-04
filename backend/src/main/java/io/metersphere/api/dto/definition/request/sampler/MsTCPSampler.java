@@ -20,7 +20,6 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -245,7 +244,7 @@ public class MsTCPSampler extends MsTestElement {
         tcpSampler.setName(this.getName());
         tcpSampler.setProperty("MS-ID", this.getId());
         String indexPath = this.getIndex();
-        tcpSampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
+        tcpSampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(this.getResourceId(), config, this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
         ElementUtil.getScenarioSet(this, id_names);
         tcpSampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
