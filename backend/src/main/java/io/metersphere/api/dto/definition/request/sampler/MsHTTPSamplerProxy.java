@@ -820,6 +820,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             } else {
                                 TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
                                 TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
+                                testPlanApiCase = testPlanApiCase == null ? testPlanApiCaseService.getById(this.getName()) : testPlanApiCase;
                                 if (testPlanApiCase != null) {
                                     ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
                                     if (caseWithBLOBs != null) {
