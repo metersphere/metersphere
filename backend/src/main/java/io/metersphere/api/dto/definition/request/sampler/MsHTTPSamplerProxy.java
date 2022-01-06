@@ -410,13 +410,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     this.useEnvironment = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
-                // 补充如果是完整URL 则用自身URL
-
-                if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
-                    url = this.getUrl();
-                }
-
                 if (isUrl()) {
+                    // 补充如果是完整URL 则用自身URL
+                    if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
+                        url = this.getUrl();
+                    }
                     if (this.isCustomizeReq()) {
                         url = this.getUrl();
                         sampler.setProperty("HTTPSampler.path", url);
@@ -633,9 +631,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
             return true;
         }
-        if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
-            return true;
-        }
         return false;
     }
 
@@ -811,6 +806,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             } else {
                                 TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
                                 TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
+                                testPlanApiCase = testPlanApiCase == null ? testPlanApiCaseService.getById(this.getName()) : testPlanApiCase;
                                 if (testPlanApiCase != null) {
                                     ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
                                     if (caseWithBLOBs != null) {
