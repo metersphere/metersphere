@@ -21,6 +21,7 @@ public class TestPlanCaseDTO extends TestCaseWithBLOBs {
     private String model;
     private String projectName;
     private String actualResult;
+    private String executeRemark;
     private String maintainerName;
     private Boolean isCustomNum;
     private int issuesCount;

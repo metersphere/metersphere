@@ -229,7 +229,7 @@
         test_case.custom_fields,
         test_case.node_path, test_case.method, if(project.custom_num = 0, cast(test_case.num as char),
         test_case.custom_num) as customNum, test_plan_test_case.executor, test_plan_test_case.status,
-        test_plan_test_case.actual_result,
+        test_plan_test_case.actual_result, test_plan_test_case.execute_remark,
         test_plan_test_case.update_time, test_plan_test_case.create_time,test_case_node.name as model, project.name as
         projectName,test_plan_test_case.issues as issues,test_plan_test_case.issues_count as issuesCount,
         test_plan_test_case.plan_id as planId
@@ -468,7 +468,7 @@
     </select>
     <select id="getCases" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select tptc.id, tc.id as caseId, tc.name, tc.priority, tc.num, tc.custom_num, tc.project_id,
-               tc.node_id, tc.tags, tptc.actual_result,
+               tc.node_id, tc.tags, tptc.actual_result, tptc.execute_remark,
                tptc.update_time, tptc.create_time,
                tptc.issues_count, tptc.status,
                tptc.plan_id, tptc.executor
