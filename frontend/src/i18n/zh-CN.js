@@ -1877,6 +1877,7 @@ export default {
       minder: "脑图",
       step_info: "步骤信息",
       other_info: "其他信息",
+      execute_remark: "执行备注信息",
       step_describe: "步骤描述",
       step_describe_tip: "适用于需要每一个步骤进行测试的场景，有明确的测试步骤、预期结果",
       text_describe: "文本描述",

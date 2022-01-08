@@ -1877,6 +1877,7 @@ export default {
       minder: "Minder",
       step_info: "Step Info",
       other_info: "Other Info",
+      execute_remark: "Execute Remark",
       step_describe: "Step Describe",
       step_describe_tip: "Applicable to every step of the test scenario, there are clear test steps, expected results",
       text_describe: "Text Describe",
