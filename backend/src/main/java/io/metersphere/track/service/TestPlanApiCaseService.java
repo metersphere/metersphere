@@ -355,12 +355,20 @@ public class TestPlanApiCaseService {
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanApiCaseMapper.selectForPlanReport(planId);
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
 
+    public void calculatePlanReport(List<String> apiReportIds, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = apiDefinitionExecResultService.selectForPlanReport(apiReportIds);
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
+    private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanApiResultReportDTO apiResult = report.getApiResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
 
-        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, "success");
+        TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, "success");
 
         TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
 

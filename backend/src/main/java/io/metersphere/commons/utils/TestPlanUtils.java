@@ -11,8 +11,7 @@ import java.util.Map;
 
 public class TestPlanUtils {
 
-
-    public static void getStatusResultMap(Map<String, TestCaseReportStatusResultDTO> reportStatusResultMap, String result) {
+    public static void buildStatusResultMap(Map<String, TestCaseReportStatusResultDTO> reportStatusResultMap, String result) {
         if (StringUtils.isBlank(result)) {
             result = TestPlanTestCaseStatus.Prepare.name();
         }
@@ -35,6 +34,11 @@ public class TestPlanUtils {
         }
     }
 
+    /**
+     * 将map转成前端需要的数组数据
+     * @param resultMap
+     * @param statusResult
+     */
     public static void addToReportCommonStatusResultList(Map<String, TestCaseReportStatusResultDTO> resultMap,
                                      List<TestCaseReportStatusResultDTO> statusResult) {
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Pass.name());
@@ -48,7 +52,10 @@ public class TestPlanUtils {
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Prepare.name());
     }
 
-    public static void calculatePlanReport(List<PlanReportCaseDTO> planReportCaseDTOS,
+    /**
+     * 将当前用例状态对应的统计数据存储在map中
+     */
+    public static void buildStatusResultMap(List<PlanReportCaseDTO> planReportCaseDTOS,
                                                    Map<String, TestCaseReportStatusResultDTO> statusResultMap,
                                                    TestPlanSimpleReportDTO report, String successStatus) {
         planReportCaseDTOS.forEach(item -> {
@@ -56,12 +63,14 @@ public class TestPlanUtils {
             String status = item.getStatus();
             if (StringUtils.isNotBlank(status)
                     && !StringUtils.equalsAny(status, TestPlanTestCaseStatus.Underway.name(), TestPlanTestCaseStatus.Prepare.name())) {
+                // 计算执行过的数量
                 report.setExecuteCount(report.getExecuteCount() + 1);
                 if (StringUtils.equals(successStatus, status)) {
+                    // 计算执行成功的数量
                     report.setPassCount(report.getPassCount() + 1);
                 }
             }
-            TestPlanUtils.getStatusResultMap(statusResultMap, status);
+            buildStatusResultMap(statusResultMap, status);
         });
     }
 }
