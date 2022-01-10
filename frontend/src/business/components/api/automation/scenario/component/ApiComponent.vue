@@ -466,6 +466,7 @@ export default {
               this.mergeHashTree(req.hashTree);
             }
             this.initDataSource();
+            this.forStatus();
             this.sort();
             this.reload();
           }
