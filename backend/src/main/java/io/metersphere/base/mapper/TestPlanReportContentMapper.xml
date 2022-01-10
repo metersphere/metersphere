@@ -26,6 +26,9 @@
     <result column="scenario_failure_cases" jdbcType="LONGVARCHAR" property="scenarioFailureCases" />
     <result column="load_all_Cases" jdbcType="LONGVARCHAR" property="loadAllCases" />
     <result column="load_failure_cases" jdbcType="LONGVARCHAR" property="loadFailureCases" />
+    <result column="scenario_report_id" jdbcType="LONGVARCHAR" property="scenarioReportId" />
+    <result column="api_case_report_id" jdbcType="LONGVARCHAR" property="apiCaseReportId" />
+    <result column="load_case_report_id" jdbcType="LONGVARCHAR" property="loadCaseReportId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -92,7 +95,7 @@
   <sql id="Blob_Column_List">
     config, summary, function_result, api_result, load_result, function_all_cases, function_failure_cases, 
     issue_list, api_all_cases, api_failure_cases, scenario_all_cases, scenario_failure_cases, 
-    load_all_Cases, load_failure_cases
+    load_all_Cases, load_failure_cases, scenario_report_id, api_case_report_id, load_case_report_id
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanReportContentExample" resultMap="ResultMapWithBLOBs">
     select
@@ -150,7 +153,9 @@
       load_result, function_all_cases, function_failure_cases, 
       issue_list, api_all_cases, api_failure_cases, 
       scenario_all_cases, scenario_failure_cases, 
-      load_all_Cases, load_failure_cases)
+      load_all_Cases, load_failure_cases, 
+      scenario_report_id, api_case_report_id, 
+      load_case_report_id)
     values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{caseCount,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{executeRate,jdbcType=DOUBLE}, 
       #{passRate,jdbcType=DOUBLE}, #{isThirdPartIssue,jdbcType=BIT}, #{config,jdbcType=LONGVARCHAR}, 
@@ -158,7 +163,9 @@
       #{loadResult,jdbcType=LONGVARCHAR}, #{functionAllCases,jdbcType=LONGVARCHAR}, #{functionFailureCases,jdbcType=LONGVARCHAR}, 
       #{issueList,jdbcType=LONGVARCHAR}, #{apiAllCases,jdbcType=LONGVARCHAR}, #{apiFailureCases,jdbcType=LONGVARCHAR}, 
       #{scenarioAllCases,jdbcType=LONGVARCHAR}, #{scenarioFailureCases,jdbcType=LONGVARCHAR}, 
-      #{loadAllCases,jdbcType=LONGVARCHAR}, #{loadFailureCases,jdbcType=LONGVARCHAR})
+      #{loadAllCases,jdbcType=LONGVARCHAR}, #{loadFailureCases,jdbcType=LONGVARCHAR}, 
+      #{scenarioReportId,jdbcType=LONGVARCHAR}, #{apiCaseReportId,jdbcType=LONGVARCHAR}, 
+      #{loadCaseReportId,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanReportContentWithBLOBs">
     insert into test_plan_report_content
@@ -229,6 +236,15 @@
       <if test="loadFailureCases != null">
         load_failure_cases,
       </if>
+      <if test="scenarioReportId != null">
+        scenario_report_id,
+      </if>
+      <if test="apiCaseReportId != null">
+        api_case_report_id,
+      </if>
+      <if test="loadCaseReportId != null">
+        load_case_report_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -296,6 +312,15 @@
       </if>
       <if test="loadFailureCases != null">
         #{loadFailureCases,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="scenarioReportId != null">
+        #{scenarioReportId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="apiCaseReportId != null">
+        #{apiCaseReportId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="loadCaseReportId != null">
+        #{loadCaseReportId,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -374,6 +399,15 @@
       <if test="record.loadFailureCases != null">
         load_failure_cases = #{record.loadFailureCases,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.scenarioReportId != null">
+        scenario_report_id = #{record.scenarioReportId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.apiCaseReportId != null">
+        api_case_report_id = #{record.apiCaseReportId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.loadCaseReportId != null">
+        load_case_report_id = #{record.loadCaseReportId,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -402,7 +436,10 @@
       scenario_all_cases = #{record.scenarioAllCases,jdbcType=LONGVARCHAR},
       scenario_failure_cases = #{record.scenarioFailureCases,jdbcType=LONGVARCHAR},
       load_all_Cases = #{record.loadAllCases,jdbcType=LONGVARCHAR},
-      load_failure_cases = #{record.loadFailureCases,jdbcType=LONGVARCHAR}
+      load_failure_cases = #{record.loadFailureCases,jdbcType=LONGVARCHAR},
+      scenario_report_id = #{record.scenarioReportId,jdbcType=LONGVARCHAR},
+      api_case_report_id = #{record.apiCaseReportId,jdbcType=LONGVARCHAR},
+      load_case_report_id = #{record.loadCaseReportId,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -487,6 +524,15 @@
       <if test="loadFailureCases != null">
         load_failure_cases = #{loadFailureCases,jdbcType=LONGVARCHAR},
       </if>
+      <if test="scenarioReportId != null">
+        scenario_report_id = #{scenarioReportId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="apiCaseReportId != null">
+        api_case_report_id = #{apiCaseReportId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="loadCaseReportId != null">
+        load_case_report_id = #{loadCaseReportId,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -512,7 +558,10 @@
       scenario_all_cases = #{scenarioAllCases,jdbcType=LONGVARCHAR},
       scenario_failure_cases = #{scenarioFailureCases,jdbcType=LONGVARCHAR},
       load_all_Cases = #{loadAllCases,jdbcType=LONGVARCHAR},
-      load_failure_cases = #{loadFailureCases,jdbcType=LONGVARCHAR}
+      load_failure_cases = #{loadFailureCases,jdbcType=LONGVARCHAR},
+      scenario_report_id = #{scenarioReportId,jdbcType=LONGVARCHAR},
+      api_case_report_id = #{apiCaseReportId,jdbcType=LONGVARCHAR},
+      load_case_report_id = #{loadCaseReportId,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlanReportContent">
