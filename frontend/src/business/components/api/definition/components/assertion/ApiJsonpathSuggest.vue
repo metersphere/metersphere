@@ -67,9 +67,9 @@ export default {
         this.data = {};
         try {
           // 解决精度丢失问题
-          // let stringedJSON = objStr.replace(/:\s*([-+Ee0-9.]+)/g, ': "$1"');
+          let stringedJSON = objStr.replace(/:\s*([-+Ee0-9.]+)/g, ': "$1"');
           // 一些情况会解析失败，先注释掉
-          let param = JSON.parse(objStr);
+          let param = JSON.parse(stringedJSON);
           if (param instanceof Array) {
             this.$warning('不支持解析JSON数组');
             return;
