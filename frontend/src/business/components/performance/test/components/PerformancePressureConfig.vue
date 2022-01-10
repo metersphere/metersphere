@@ -410,21 +410,7 @@ export default {
         if (response.data) {
           let data = JSON.parse(response.data);
           for (let i = 0; i < this.threadGroups.length; i++) {
-            let handler = this.threadGroups[i].handler;
-
-            let j = 0;
-            for (; j < data.length; j++) {
-              let res = data[j].filter(v => v.key === HANDLER && v.value === handler);
-              if (res.length > 0) {
-                break;
-              }
-            }
-            // 这里是报告查询
-            if (this.reportId) {
-              j = i;
-            }
-
-            data[j].forEach(item => {
+            data[i].forEach(item => {
               switch (item.key) {
                 case TARGET_LEVEL:
                   this.threadGroups[i].threadNumber = item.value;
