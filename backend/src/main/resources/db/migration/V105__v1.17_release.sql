@@ -153,3 +153,22 @@ SET version_id = project_version.id;
 UPDATE api_scenario_report
     INNER JOIN project_version ON project_version.project_id = api_scenario_report.project_id
 SET version_id = project_version.id;
+
+
+alter table project
+    add clean_track_report tinyint(1) default 0 null;
+
+alter table project
+    add clean_track_report_expr varchar(50) null;
+
+alter table project
+    add clean_api_report tinyint(1) default 0 null;
+
+alter table project
+    add clean_api_report_expr varchar(50) null;
+
+alter table project
+    add clean_load_report tinyint(1) default 0 null;
+
+alter table project
+    add clean_load_report_expr varchar(50) null;

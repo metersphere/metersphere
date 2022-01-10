@@ -35,18 +35,20 @@ public class GenerateHashTreeUtil {
     public static MsScenario parseScenarioDefinition(String scenarioDefinition) {
         if (StringUtils.isNotEmpty(scenarioDefinition)) {
             MsScenario scenario = JSONObject.parseObject(scenarioDefinition, MsScenario.class);
-            parse(scenarioDefinition, scenario, scenario.getId(), null);
+            if (scenario != null) {
+                parse(scenarioDefinition, scenario);
+            }
             return scenario;
         }
         return null;
     }
 
-    public static void parse(String scenarioDefinition, MsScenario scenario, String id, String reportType) {
+    public static void parse(String scenarioDefinition, MsScenario scenario) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             JSONObject element = JSON.parseObject(scenarioDefinition);
-            ElementUtil.dataFormatting(element, id, reportType);
+            ElementUtil.dataFormatting(element);
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
             if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                 LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
@@ -134,7 +136,7 @@ public class GenerateHashTreeUtil {
             } else {
                 setScenarioEnv(scenario, item);
             }
-            GenerateHashTreeUtil.parse(item.getScenarioDefinition(), scenario, item.getId(), reportType);
+            GenerateHashTreeUtil.parse(item.getScenarioDefinition(), scenario);
 
             group.setEnableCookieShare(scenario.isEnableCookieShare());
             LinkedList<MsTestElement> scenarios = new LinkedList<>();
@@ -145,8 +147,10 @@ public class GenerateHashTreeUtil {
         } catch (Exception ex) {
             MSException.throwException(ex.getMessage());
         }
-
-        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+        ParameterConfig config = new ParameterConfig();
+        config.setScenarioId(item.getId());
+        config.setReportType(reportType);
+        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
         return jmeterHashTree;
     }
 

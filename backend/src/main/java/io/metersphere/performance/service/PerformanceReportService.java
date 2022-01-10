@@ -447,4 +447,14 @@ public class PerformanceReportService {
         }
         return loadTestReportWithBLOBs.getAdvancedConfiguration();
     }
+
+    public void cleanUpReport(long time, String projectId) {
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andCreateTimeLessThan(time).andProjectIdEqualTo(projectId);
+        List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(example);
+        List<String> ids = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
+        DeleteReportRequest request = new DeleteReportRequest();
+        request.setIds(ids);
+        deleteReportBatch(request);
+    }
 }

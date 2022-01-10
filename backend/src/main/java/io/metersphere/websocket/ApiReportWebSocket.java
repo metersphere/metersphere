@@ -1,8 +1,6 @@
 package io.metersphere.websocket;
 
-import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.APIReportResult;
-import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.SneakyThrows;
@@ -99,12 +97,8 @@ public class ApiReportWebSocket {
                 if (!session.isOpen()) {
                     return;
                 }
-                if (report != null) {
-                    if (StringUtils.isNotEmpty(report.getContent())) {
-                        session.getBasicRemote().sendText(report.getContent());
-                    } else {
-                        session.getBasicRemote().sendText(JSON.toJSONString(new TestResult()));
-                    }
+                if (report != null && StringUtils.isNotEmpty(report.getContent())) {
+                    session.getBasicRemote().sendText(report.getContent());
                     session.close();
                 }
             } catch (Exception e) {

@@ -363,7 +363,7 @@ public class ApiScenarioReportService {
     public String getEnvironment(ApiScenarioWithBLOBs apiScenario) {
         String environment = "未配置";
         String environmentType = apiScenario.getEnvironmentType();
-        if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+        if (StringUtils.equals(environmentType, EnvironmentType.JSON.name()) && StringUtils.isNotEmpty(apiScenario.getEnvironmentJson())) {
             String environmentJson = apiScenario.getEnvironmentJson();
             JSONObject jsonObject = JSON.parseObject(environmentJson);
             ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
@@ -698,4 +698,13 @@ public class ApiScenarioReportService {
         return extApiScenarioReportMapper.selectForPlanReport(reportIds);
     }
 
+    public void cleanUpReport(long time, String projectId) {
+        ApiScenarioReportExample example = new ApiScenarioReportExample();
+        example.createCriteria().andCreateTimeLessThan(time).andProjectIdEqualTo(projectId);
+        List<ApiScenarioReport> apiScenarioReports = apiScenarioReportMapper.selectByExample(example);
+        List<String> ids = apiScenarioReports.stream().map(ApiScenarioReport::getId).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            deleteByIds(ids);
+        }
+    }
 }
