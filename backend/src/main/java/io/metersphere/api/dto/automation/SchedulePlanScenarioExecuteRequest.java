@@ -33,9 +33,11 @@ public class SchedulePlanScenarioExecuteRequest {
     private String reportUserID;
 
     //key: test_plan.id, value: test_plan_api_scenario <->scenarioValue
-    private Map<String,Map<String,String>> testPlanScenarioIDMap;
+    private Map<String, Map<String, String>> testPlanScenarioIDMap;
 
     private String testPlanReportId;
+
+    private String planReportContentId;
 
     private RunModeConfigDTO config;
 }

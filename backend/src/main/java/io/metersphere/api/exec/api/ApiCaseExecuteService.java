@@ -1,7 +1,6 @@
 package io.metersphere.api.exec.api;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.ApiCaseRunRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
@@ -17,11 +16,13 @@ import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.service.EnvironmentGroupProjectService;
+import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -88,13 +89,12 @@ public class ApiCaseExecuteService {
 
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         Map<String, ApiDefinitionExecResult> executeQueue = new HashMap<>();
-        //记录案例线程结果以及执行失败的案例ID
-        Map<String, String> executeThreadIdMap = new HashMap<>();
+        Map<String, String> testPlanCaseIdAndReportIdMap = new HashMap<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
         planApiCases.forEach(testPlanApiCase -> {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, batchMapper);
             executeQueue.put(testPlanApiCase.getId(), report);
-            executeThreadIdMap.put(testPlanApiCase.getId(), report.getId());
+            testPlanCaseIdAndReportIdMap.put(testPlanApiCase.getId(), report.getId());
             responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
         });
         sqlSession.flushStatements();
@@ -109,10 +109,9 @@ public class ApiCaseExecuteService {
         DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getConfig().getEnvMap());
 
         //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
-        if (TestPlanReportExecuteCatch.containsReport(request.getPlanReportId())) {
-            if (!executeThreadIdMap.isEmpty()) {
-                TestPlanReportExecuteCatch.updateTestPlanThreadInfo(request.getPlanReportId(), executeThreadIdMap, null, null);
-            }
+        if (StringUtils.isNotEmpty(request.getPlanReportContentId())) {
+            TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
+            testPlanReportService.updateTestPlanReportContentReportIds(request.getPlanReportContentId(),testPlanCaseIdAndReportIdMap,null,null);
         }
         // 开始选择执行模式
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
