@@ -679,7 +679,7 @@ export default {
     },
     resultEvaluationChild(arr, resourceId, status) {
       arr.forEach(item => {
-        if (item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
+        if (item.data.id + "_" + item.data.parentIndex === resourceId) {
           item.data.testing = false;
           this.evaluationParent(item.parent, status);
         }
@@ -691,7 +691,7 @@ export default {
     resultEvaluation(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
-          if (item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
+          if (item.data.id + "_" + item.data.parentIndex === resourceId) {
             item.data.testing = false;
           }
           if (item.childNodes && item.childNodes.length > 0) {
@@ -723,7 +723,7 @@ export default {
           let data = JSON.parse(resultData.substring(7));
           if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
             data.subRequestResults.forEach(subItem => {
-              if (item.data && item.data.resourceId + "_" + item.data.parentIndex === subItem.resourceId) {
+              if (item.data && item.data.id + "_" + item.data.parentIndex === subItem.resourceId) {
                 subItem.requestResult.console = data.responseResult.console;
                 item.data.requestResult.push(subItem);
                 // 更新父节点状态
@@ -732,14 +732,15 @@ export default {
                 item.data.debug = true;
               }
             })
-          } else if (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId) {
+          } else if ((item.data && item.data.id + "_" + item.data.parentIndex === data.resourceId)
+            || (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId)) {
             item.data.requestResult.push(data);
             // 更新父节点状态
             this.resultEvaluation(data.resourceId, data.success);
             item.data.testing = false;
             item.data.debug = true;
           }
-        } else if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resultData) {
+        } else if (item.data && item.data.id + "_" + item.data.parentIndex === resultData) {
           item.data.testing = true;
           this.runningEditParent(item.parent);
         }
@@ -751,13 +752,13 @@ export default {
     runningEvaluation(resultData) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
-          if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resultData) {
+          if (item.data && item.data.id + "_" + item.data.parentIndex === resultData) {
             item.data.testing = true;
           } else if (resultData && resultData.startsWith("result_")) {
             let data = JSON.parse(resultData.substring(7));
             if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
               data.subRequestResults.forEach(subItem => {
-                if (item.data && item.data.resourceId + "_" + item.data.parentIndex === subItem.resourceId) {
+                if (item.data && item.data.id + "_" + item.data.parentIndex === subItem.resourceId) {
                   item.data.requestResult.push(subItem);
                   // 更新父节点状态
                   this.resultEvaluation(subItem.resourceId, subItem.success);
@@ -765,7 +766,8 @@ export default {
                   item.data.debug = true;
                 }
               })
-            } else if (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId) {
+            } else if (item.data && item.data.id + "_" + item.data.parentIndex === data.resourceId
+              || (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId)) {
               item.data.requestResult.push(data);
               // 更新父节点状态
               this.resultEvaluation(data.resourceId, data.success);

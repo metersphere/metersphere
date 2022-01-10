@@ -162,7 +162,10 @@ export default {
           if (item.enable) {
             item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
             let name = item.name ? item.name : this.getType(item.type);
-            let obj = {pid: pid, resId: item.resourceId + "_" + item.parentIndex, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
+            let obj = {
+              pid: pid, resId: (item.type === 'JSR223Processor' ? item.resourceId : item.id) + "_" + item.parentIndex, index: Number(item.index), label: name,
+              value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true
+            };
             tree.children.push(obj);
             if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
               obj.unsolicited = false;

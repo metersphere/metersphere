@@ -79,6 +79,7 @@ public class ApiScenarioReportStructureService {
         StepTreeDTO dto = null;
         if (element != null && element.getBoolean("enable")) {
             String referenced = element.getString("referenced");
+            String type = element.getString("type");
             if (StringUtils.equals(referenced, MsTestElementConstants.REF.name())) {
                 if (StringUtils.equals(element.getString("type"), "scenario")) {
                     ApiScenarioWithBLOBs scenarioWithBLOBs = CommonBeanFactory.getBean(ApiScenarioMapper.class).selectByPrimaryKey(element.getString("id"));
@@ -87,10 +88,10 @@ public class ApiScenarioReportStructureService {
                     }
                 }
             }
-            String resourceId = element.getString("resourceId");
+            String resourceId = "JSR223Processor".equals(type) ? element.getString("resourceId") : element.getString("id");
             if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
                 if (StringUtils.isNotEmpty(resourceId) && StringUtils.isNotEmpty(apiScenario.getId()) && !resourceId.contains(apiScenario.getId())) {
-                    resourceId = apiScenario.getId() + "=" + element.getString("resourceId");
+                    resourceId = apiScenario.getId() + "=" + resourceId;
                 }
             }
             dto = new StepTreeDTO(apiScenario.getName(), resourceId, element.getString("type"), 1);
@@ -116,10 +117,11 @@ public class ApiScenarioReportStructureService {
                         }
                     }
                 }
-                String resourceId = element.getString("resourceId");
+                String type = element.getString("type");
+                String resourceId = "JSR223Processor".equals(type) ? element.getString("resourceId") : element.getString("id");
                 if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
                     if (StringUtils.isNotEmpty(resourceId) && StringUtils.isNotEmpty(id) && !resourceId.contains(id)) {
-                        resourceId = id + "=" + element.getString("resourceId");
+                        resourceId = id + "=" + resourceId;
                     }
                 }
                 StepTreeDTO children = new StepTreeDTO(element.getString("name"), resourceId, element.getString("type"), element.getIntValue("index"));
