@@ -46,5 +46,7 @@ public class RunScenarioRequest {
     //生成测试报告：当isTestPlanScheduleJob为ture时使用
     private String testPlanReportId;
 
+    private String testPlanReportContentId;
+
     private String requestOriginator;
 }

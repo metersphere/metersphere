@@ -509,14 +509,11 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String,String> idMap, boolean isFinish) {
+    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String,String> idMap) {
         List<TestPlanFailureScenarioDTO> apiTestCases =
                 extTestPlanScenarioCaseMapper.getFailureListByIds(idMap.keySet(), null);
 
-        String defaultStatus = "Running";
-        if(isFinish){
-            defaultStatus = "Fail";
-        }
+        String defaultStatus = "Fail";
         Map<String,String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
         for (TestPlanFailureScenarioDTO dto: apiTestCases) {
             String reportId = idMap.get(dto.getId());

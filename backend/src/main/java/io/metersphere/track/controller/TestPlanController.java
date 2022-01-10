@@ -128,8 +128,8 @@ public class TestPlanController {
 
     @PostMapping("/edit/follows/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
-    public void editTestFollows(@PathVariable String planId,@RequestBody List<String> follows) {
-        testPlanService.editTestFollows(planId,follows);
+    public void editTestFollows(@PathVariable String planId, @RequestBody List<String> follows) {
+        testPlanService.editTestFollows(planId, follows);
     }
 
     @PostMapping("/delete/{testPlanId}")
@@ -232,7 +232,7 @@ public class TestPlanController {
 
     @GetMapping("/report/{planId}")
     public TestPlanSimpleReportDTO getReport(@PathVariable String planId) {
-        return testPlanService.getReport(planId);
+        return testPlanService.getReport(planId, null);
     }
 
     @GetMapping("/report/functional/result")
