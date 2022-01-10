@@ -130,6 +130,7 @@ export default {
       this.fullTreeNodes = [];
       this.failsTreeNodes = [];
       this.isRequestResult = false;
+      this.activeName = "total";
     },
     handleClick(tab, event) {
       this.isRequestResult = false;
