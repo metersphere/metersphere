@@ -560,7 +560,7 @@ public class IssuesService {
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
 
         planReportIssueDTOS.forEach(item -> {
-            String status = null;
+            String status;
             // 本地缺陷
             if (StringUtils.equalsIgnoreCase(item.getPlatform(), IssuesManagePlatform.Local.name())
                     || StringUtils.isBlank(item.getPlatform())) {
@@ -571,7 +571,7 @@ public class IssuesService {
             if (StringUtils.isBlank(status)) {
                 status = IssuesStatus.NEW.toString();
             }
-            TestPlanUtils.getStatusResultMap(statusResultMap, status);
+            TestPlanUtils.buildStatusResultMap(statusResultMap, status);
         });
         Set<String> status = statusResultMap.keySet();
         status.forEach(item -> {

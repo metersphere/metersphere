@@ -18,6 +18,7 @@ import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.track.dto.PlanReportCaseDTO;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testcase.TrackCount;
@@ -373,5 +374,11 @@ public class ApiDefinitionExecResultService {
 
     public ApiDefinitionExecResult getInfo(String id) {
         return apiDefinitionExecResultMapper.selectByPrimaryKey(id);
+    }
+
+    public List<PlanReportCaseDTO> selectForPlanReport(List<String> apiReportIds) {
+        if (CollectionUtils.isEmpty(apiReportIds))
+            return new ArrayList<>();
+        return extApiDefinitionExecResultMapper.selectForPlanReport(apiReportIds);
     }
 }

@@ -32,6 +32,7 @@ import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.UserService;
+import io.metersphere.track.dto.PlanReportCaseDTO;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
@@ -691,6 +692,10 @@ public class ApiScenarioReportService {
             status = ScenarioStatus.Timeout.name();
         }
         return status;
+    }
+
+    public List<PlanReportCaseDTO> selectForPlanReport(List<String> reportIds) {
+        return extApiScenarioReportMapper.selectForPlanReport(reportIds);
     }
 
     public void cleanUpReport(long time, String projectId) {

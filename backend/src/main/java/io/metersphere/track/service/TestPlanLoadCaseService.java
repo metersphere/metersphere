@@ -9,7 +9,10 @@ import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
+import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -58,6 +61,8 @@ public class TestPlanLoadCaseService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
+    @Resource
+    private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
@@ -184,7 +189,7 @@ public class TestPlanLoadCaseService {
                 TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
                 example.createCriteria().andLoadReportIdEqualTo(report.getId());
                 List<TestPlanLoadCase> cases = testPlanLoadCaseMapper.selectByExample(example);
-                if (CollectionUtils.isEmpty(cases) || !cases.get(0).getStatus().equals("success")) {
+                if (CollectionUtils.isEmpty(cases) || !cases.get(0).getStatus().equals(TestPlanLoadCaseStatus.success.name())) {
                     break;
                 }
             }
@@ -352,7 +357,7 @@ public class TestPlanLoadCaseService {
         example.createCriteria()
                 .andTestPlanIdEqualTo(planId)
                 .andLoadCaseIdIn(performanceIds)
-                .andStatusEqualTo("error");
+                .andStatusEqualTo(TestPlanLoadCaseStatus.error.name());
         return testPlanLoadCaseMapper.countByExample(example) > 0 ? true : false;
     }
 
@@ -367,12 +372,31 @@ public class TestPlanLoadCaseService {
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanLoadCaseMapper.selectForPlanReport(planId);
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
+    public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = extLoadTestReportMapper.selectForPlanReport(reportIds);
+        // 性能测试的报告状态跟用例的执行状态不一样
+        planReportCaseDTOS.forEach(item -> {
+            if (item.getStatus().equals(PerformanceTestStatus.Completed.name())) {
+                item.setStatus(TestPlanLoadCaseStatus.success.name());
+            } else if (item.getStatus().equals(PerformanceTestStatus.Error.name())) {
+                item.setStatus(TestPlanLoadCaseStatus.error.name());
+            } else {
+                item.setStatus(TestPlanLoadCaseStatus.run.name());
+            }
+        });
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
+    private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanLoadResultReportDTO loadResult = new TestPlanLoadResultReportDTO();
         report.setLoadResult(loadResult);
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
 
-        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, "success");
+        TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, TestPlanLoadCaseStatus.success.name());
         TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
 
         loadResult.setCaseData(statusResult);
@@ -389,7 +413,7 @@ public class TestPlanLoadCaseService {
     }
 
     public List<TestPlanLoadCaseDTO> getFailureCases(String planId) {
-        List<TestPlanLoadCaseDTO> failureCases = extTestPlanLoadCaseMapper.getCases(planId, "error");
+        List<TestPlanLoadCaseDTO> failureCases = extTestPlanLoadCaseMapper.getCases(planId, TestPlanLoadCaseStatus.error.name());
         return buildCases(failureCases);
     }
 
