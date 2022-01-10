@@ -980,7 +980,7 @@ public class TestPlanReportService {
     public void delete(QueryTestPlanReportRequest request) {
         List<String> deleteReportIds = request.getDataIds();
         if (request.isSelectAllDate()) {
-            deleteReportIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getProjectId(), request.getUnSelectIds());
+            deleteReportIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getProjectId(), request.getUnSelectIds(), request.getCombine());
         }
         if (CollectionUtils.isNotEmpty(deleteReportIds)) {
             TestPlanReportExample deleteReportExample = new TestPlanReportExample();
@@ -998,12 +998,15 @@ public class TestPlanReportService {
         }
     }
 
-    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, String projectId, List<String> unSelectIds) {
+    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, String projectId, List<String> unSelectIds, Map<String, Object> combine) {
         QueryTestPlanReportRequest request = new QueryTestPlanReportRequest();
         request.setFilters(filters);
         request.setName(name);
         request.setProjectId(projectId);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        if (combine != null) {
+            request.setCombine(combine);
+        }
         List<TestPlanReportDTO> resList = extTestPlanReportMapper.list(request);
         List<String> ids = new ArrayList<>(0);
         if (!resList.isEmpty()) {
