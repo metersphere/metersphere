@@ -11,7 +11,7 @@
           <el-row type="flex" justify="space-between" :gutter="10">
             <el-col :span="6">
               <el-select v-model="item.projectId" filterable clearable style="width: 100%" @change="projectChange(item)"
-                         :size="itemSize"
+                         :size="itemSize" @clear="clearProjectSelect"
                          :placeholder="$t('workspace.env_group.please_select_project')" :disabled="rowReadOnly">
                 <el-option v-for="(project, projectIndex) in projectList" :key="projectIndex" :label="project.name"
                            :disabled="project.disabled"
@@ -168,6 +168,14 @@ export default {
       }
       this.$set(item, 'environmentId', "");
       this.$set(item, 'domainName', '');
+    },
+    clearProjectSelect() {
+      let usedProjectId = this.envGroupProject.map(egp => egp.projectId);
+      if (usedProjectId) {
+        this.projectList.forEach(p => {
+          p.disabled = !!usedProjectId.find(id => id === p.id);
+        })
+      }
     },
     environmentChange(item) {
       // todo 优化
