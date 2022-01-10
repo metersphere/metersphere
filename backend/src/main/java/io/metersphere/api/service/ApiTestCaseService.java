@@ -98,6 +98,8 @@ public class ApiTestCaseService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private ApiTestCaseFollowMapper apiTestCaseFollowMapper;
+    @Resource
+    private ExtProjectVersionMapper extProjectVersionMapper;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -232,6 +234,9 @@ public class ApiTestCaseService {
     }
 
     public ApiTestCase create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
+        if (StringUtils.isBlank(request.getVersionId())) {
+            request.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
+        }
         ApiTestCase test = createTest(request, bodyFiles);
         return test;
     }
