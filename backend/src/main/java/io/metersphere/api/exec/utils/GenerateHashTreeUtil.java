@@ -35,7 +35,9 @@ public class GenerateHashTreeUtil {
     public static MsScenario parseScenarioDefinition(String scenarioDefinition) {
         if (StringUtils.isNotEmpty(scenarioDefinition)) {
             MsScenario scenario = JSONObject.parseObject(scenarioDefinition, MsScenario.class);
-            parse(scenarioDefinition, scenario);
+            if (scenario != null) {
+                parse(scenarioDefinition, scenario);
+            }
             return scenario;
         }
         return null;
