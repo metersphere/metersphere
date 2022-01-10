@@ -384,7 +384,7 @@ public class TestPlanTestCaseService {
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
 
-        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, TestPlanTestCaseStatus.Pass.name());
+        TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, TestPlanTestCaseStatus.Pass.name());
         TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
 
         TestPlanUtils.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Blocking.name());

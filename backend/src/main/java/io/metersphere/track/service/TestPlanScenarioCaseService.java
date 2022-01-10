@@ -430,11 +430,20 @@ public class TestPlanScenarioCaseService {
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanScenarioCaseMapper.selectForPlanReport(planId);
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
+    public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = apiScenarioReportService.selectForPlanReport(reportIds);
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
+    private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanApiResultReportDTO apiResult = report.getApiResult();
 
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
-        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, "Success");
+        TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, "Success");
         TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
         TestPlanScenarioStepCountDTO stepCount = new TestPlanScenarioStepCountDTO();
         for (PlanReportCaseDTO item : planReportCaseDTOS) {
