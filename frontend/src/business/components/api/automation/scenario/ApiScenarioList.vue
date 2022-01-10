@@ -46,7 +46,7 @@
           :label="$t('commons.delete_user')"
           min-width="120"/>
 
-        <span v-for="(item) in fields" :key="item.key">
+        <span v-for="(item, index) in fields" :key="index">
 
           <ms-table-column v-if="item.id == 'num' && !customNum"
                            prop="num"
