@@ -170,6 +170,13 @@
           and t.status = 'running'
 
     </select>
+    <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
+        select status from load_test_report
+        WHERE id IN
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </select>
 
     <update id="updateJmxContentIfAbsent">
         update load_test_report
