@@ -74,7 +74,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'tags', key: '5', label: 'commons.tag'},
     {id: 'versionId', key: 'f', label: 'project.version.name', xpack: true},
     {id: 'userName', key: '6', label: 'api_test.automation.creator'},
-    {id: 'creator', key: '6', label: 'api_test.automation.creator'},
+    {id: 'creator', key: 'd', label: 'api_test.automation.creator'},
     {id: 'principalName', key: '7', label: 'api_test.definition.api_principal'},
     {id: 'environmentMap', key: 'e', label: 'commons.environment'},
     {id: 'updateTime', key: '8', label: 'api_test.definition.api_last_time'},
