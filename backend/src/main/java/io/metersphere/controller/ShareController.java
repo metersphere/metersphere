@@ -74,7 +74,7 @@ public class ShareController {
     @GetMapping("/test/plan/report/{shareId}/{planId}")
     public TestPlanSimpleReportDTO getReport(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
-        return testPlanService.getReport(planId);
+        return testPlanService.getReport(planId, null);
     }
 
     @GetMapping("/report/export/{shareId}/{planId}")

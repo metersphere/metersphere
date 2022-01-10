@@ -71,7 +71,7 @@
         <!--<table tableName="test_plan"/>-->
         <!--<table tableName="api_scenario_report"/>-->
         <!--<table tableName="test_case_review"/>-->
-        <table tableName="test_case"/>
+        <table tableName="test_plan_report_content"/>
         <!--<table tableName="enterprise_test_report_send_record"/>-->
         <!--<table tableName="test_case_review_api_case"/>
         <table tableName="test_case_review_load"/>

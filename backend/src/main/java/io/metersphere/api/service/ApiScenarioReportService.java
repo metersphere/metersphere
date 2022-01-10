@@ -3,7 +3,6 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.APIReportBatchRequest;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.EnvironmentType;
@@ -103,7 +102,6 @@ public class ApiScenarioReportService {
                 this.put(dto.getReportId(), status);
             }};
             testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(dto.getReportId()) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(reportMap));
-            TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(dto.getTestPlanReportId(), null, reportMap, null);
         }
 
         ApiScenarioReport scenarioReport;
