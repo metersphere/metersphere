@@ -183,6 +183,7 @@ export default {
       this.scenario.run = true;
       let runScenario = JSON.parse(JSON.stringify(this.scenario));
       runScenario.hashTree = [this.scenario];
+      runScenario.stepScenario = true;
       this.$emit('runScenario', runScenario);
     },
     formatResult(map, scenarios) {

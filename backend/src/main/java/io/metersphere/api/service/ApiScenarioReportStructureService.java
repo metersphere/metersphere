@@ -78,16 +78,8 @@ public class ApiScenarioReportStructureService {
         JSONObject element = JSON.parseObject(apiScenario.getScenarioDefinition());
         StepTreeDTO dto = null;
         if (element != null && element.getBoolean("enable")) {
-            String referenced = element.getString("referenced");
+            element = getRefElement(element);
             String type = element.getString("type");
-            if (StringUtils.equals(referenced, MsTestElementConstants.REF.name())) {
-                if (StringUtils.equals(element.getString("type"), "scenario")) {
-                    ApiScenarioWithBLOBs scenarioWithBLOBs = CommonBeanFactory.getBean(ApiScenarioMapper.class).selectByPrimaryKey(element.getString("id"));
-                    if (scenarioWithBLOBs != null) {
-                        element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
-                    }
-                }
-            }
             String resourceId = "JSR223Processor".equals(type) ? element.getString("resourceId") : element.getString("id");
             if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
                 if (StringUtils.isNotEmpty(resourceId) && StringUtils.isNotEmpty(apiScenario.getId()) && !resourceId.contains(apiScenario.getId())) {
@@ -104,19 +96,24 @@ public class ApiScenarioReportStructureService {
         return dto;
     }
 
+    private static JSONObject getRefElement(JSONObject element) {
+        String referenced = element.getString("referenced");
+        if (StringUtils.equals(referenced, MsTestElementConstants.REF.name())) {
+            if (StringUtils.equals(element.getString("type"), "scenario")) {
+                ApiScenarioWithBLOBs scenarioWithBLOBs = CommonBeanFactory.getBean(ApiScenarioMapper.class).selectByPrimaryKey(element.getString("id"));
+                if (scenarioWithBLOBs != null) {
+                    return JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                }
+            }
+        }
+        return element;
+    }
+
     public static void dataFormatting(JSONArray hashTree, StepTreeDTO dto, String id, String reportType) {
         for (int i = 0; i < hashTree.size(); i++) {
             JSONObject element = hashTree.getJSONObject(i);
             if (element != null && element.getBoolean("enable")) {
-                String referenced = element.getString("referenced");
-                if (StringUtils.equals(referenced, MsTestElementConstants.REF.name())) {
-                    if (StringUtils.equals(element.getString("type"), "scenario")) {
-                        ApiScenarioWithBLOBs scenarioWithBLOBs = CommonBeanFactory.getBean(ApiScenarioMapper.class).selectByPrimaryKey(element.getString("id"));
-                        if (scenarioWithBLOBs != null) {
-                            element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
-                        }
-                    }
-                }
+                element = getRefElement(element);
                 String type = element.getString("type");
                 String resourceId = "JSR223Processor".equals(type) ? element.getString("resourceId") : element.getString("id");
                 if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
@@ -230,6 +227,11 @@ public class ApiScenarioReportStructureService {
                     String content = new String(reportResults.get(0).getContent(), StandardCharsets.UTF_8);
                     dto.setValue(JSON.parseObject(content, RequestResult.class));
                 }
+            }
+            if (StringUtils.isNotEmpty(dto.getType()) && requests.contains(dto.getType()) && dto.getValue() == null) {
+                RequestResult requestResult = new RequestResult();
+                requestResult.setName(dto.getLabel());
+                dto.setValue(requestResult);
             }
             if (CollectionUtils.isNotEmpty(dto.getChildren())) {
                 reportFormatting(dto.getChildren(), maps);

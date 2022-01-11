@@ -267,7 +267,7 @@
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-run-mode @handleRunBatch="handleRunBatch" :request="runRequest" ref="runMode"/>
-    <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
+    <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true" :executeType="'Saved'"
             :environment-type="environmentType" :environment-group-id="envGroupId"
             :run-data="debugData" ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>

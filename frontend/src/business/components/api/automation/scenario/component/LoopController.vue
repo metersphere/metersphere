@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ms-run :debug="true" :environment="envMap" :reportId="reportId" :runMode="'DEFINITION'" :run-data="debugData" @runRefresh="runRefresh" ref="runTest"/>
+    <ms-run :debug="true" :environment="envMap" :saved="false" :reportId="reportId" :runMode="'DEFINITION'" :run-data="debugData" @runRefresh="runRefresh" ref="runTest"/>
     <api-base-component @copy="copyRow" @active="active(controller)" @remove="remove" :data="controller" :draggable="draggable" :is-max="isMax" :show-btn="showBtn" color="#02A7F0" background-color="#F4F4F5" :title="$t('api_test.automation.loop_controller')" v-loading="loading">
 
       <template v-slot:headerLeft>
@@ -301,7 +301,7 @@ export default {
           if (item.type === "HTTPSamplerProxy" || item.type === "DubboSampler" || item.type === "JDBCSampler" || item.type === "TCPSampler") {
             item.activeName = "0";
             item.active = true;
-            item.requestResult = this.requestResult.get(item.resourceId);
+            item.requestResult = this.requestResult.get(item.id);
           }
           if (item.hashTree && item.hashTree.length > 0) {
             this.setResult(item.hashTree);
