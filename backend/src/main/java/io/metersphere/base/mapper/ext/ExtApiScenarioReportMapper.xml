@@ -99,13 +99,10 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap">
-        SELECT r.name AS test_name,r.end_time,
-        r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,IfNULL(s.name,r.scenario_name) as scenario_name,
-        project.name AS project_name, user.name AS user_name
+        SELECT r.name AS test_name,r.end_time, r.user_id,
+        r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,IfNULL(s.name,r.scenario_name) as scenario_name
         FROM api_scenario_report r
         LEFT JOIN api_scenario s on r.scenario_id = s.id
-        LEFT JOIN project ON project.id = r.project_id
-        LEFT JOIN user ON user.id = r.user_id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -121,10 +118,7 @@
                 AND r.user_id = #{request.userId,jdbcType=VARCHAR}
             </if>
             <if test="request.projectId != null">
-                AND project.id = #{request.projectId}
-            </if>
-            <if test="request.workspaceId != null">
-                AND project.workspace_id = #{request.workspaceId,jdbcType=VARCHAR}
+                AND r.project_id = #{request.projectId}
             </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">

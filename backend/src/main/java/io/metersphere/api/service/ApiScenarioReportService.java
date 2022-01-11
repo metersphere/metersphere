@@ -133,7 +133,16 @@ public class ApiScenarioReportService {
 
     public List<APIScenarioReportResult> list(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return extApiScenarioReportMapper.list(request);
+        List<APIScenarioReportResult> list = extApiScenarioReportMapper.list(request);
+        List<String> userIds = list.stream().map(APIScenarioReportResult::getUserId)
+                .collect(Collectors.toList());
+        Map<String, User> userMap = ServiceUtils.getUserMap(userIds);
+        list.forEach(item -> {
+            User user = userMap.get(item.getUserId());
+            if (user != null)
+                item.setUserName(user.getName());
+        });
+        return list;
     }
 
     public List<String> idList(QueryAPIReportRequest request) {
