@@ -233,6 +233,7 @@
           return false;
         }
       },
+      variables: Array,
       scenarioDefinition: Array,
     },
     components: {
@@ -288,7 +289,6 @@
         // 自定义变量相关
         defineVariable: "",
         searchType: "",
-        variables: [],
         selection: [],
         loading: false,
         types: new Map([
@@ -336,9 +336,6 @@
         this.operatingElements = this.stepFilter.get("ALL");
       },
       open() {
-        if(this.$store.state.scenarioMap.get != undefined && this.$store.state.scenarioMap.get("currentScenarioVariables") != undefined){
-          this.variables = this.$store.state.scenarioMap.get("currentScenarioVariables");
-        }
         if(this.scenarioDefinition != undefined){
           // 标识为场景编辑入口进入
           this.ifFromVariableAdvance = true;

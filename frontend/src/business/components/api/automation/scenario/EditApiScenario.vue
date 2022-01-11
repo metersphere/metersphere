@@ -250,6 +250,7 @@
       <ms-api-variable-advance ref="scenarioVariableAdvance"
                                :append-to-body="true"
                                :current-item="currentItem"
+                               :variables="currentScenario.variables"
                                :scenario-definition="scenarioDefinition"/>
 
       <!--接口列表-->
@@ -1440,8 +1441,6 @@ export default {
             this.resetResourceId(this.scenarioDefinition);
           }
           this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
-          // 让接口自动化参数设置的地方，可以拿到场景变量
-          this.$store.state.scenarioMap.set("currentScenarioVariables", this.currentScenario.variables);
         })
       }
     },
