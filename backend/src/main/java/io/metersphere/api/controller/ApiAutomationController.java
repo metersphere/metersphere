@@ -202,9 +202,8 @@ public class ApiAutomationController {
     @MsAuditLog(module = "api_automation", type = OperLogConstants.DEBUG, title = "#request.scenarioName", sourceId = "#request.scenarioId", project = "#request.projectId")
     public void runDebug(@RequestPart("request") RunDefinitionRequest request,
                          @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
-        request.setExecuteType(ExecuteType.Debug.name());
-        if (request.isSaved()) {
-            request.setExecuteType(ExecuteType.Saved.name());
+        if (StringUtils.isEmpty(request.getExecuteType())) {
+            request.setExecuteType(ExecuteType.Debug.name());
         }
         apiAutomationService.debugRun(request, bodyFiles, scenarioFiles);
     }

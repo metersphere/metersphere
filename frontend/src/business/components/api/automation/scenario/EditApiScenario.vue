@@ -268,7 +268,7 @@
       <api-environment-config v-if="type!=='detail'" ref="environmentConfig" @close="environmentConfigClose"/>
 
       <!--执行组件-->
-      <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId" :saved="!debug"
+      <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId" :saved="saved"
               :run-data="debugData" :environment-type="environmentType" :environment-group-id="envGroupId"
               @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
       <!-- 调试结果 -->
@@ -488,6 +488,7 @@ export default {
         loading: false
       },
       debug: false,
+      saved: false,
       debugLoading: false,
       reqTotal: 0,
       reqSuccess: 0,
@@ -1201,6 +1202,7 @@ export default {
       this.clearResult(this.scenarioDefinition);
       this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
       this.sort();
+      this.saved = runScenario && runScenario.stepScenario ? false : true;
       /*触发执行操作*/
       this.$refs.currentScenario.validate(async (valid) => {
         if (valid) {
