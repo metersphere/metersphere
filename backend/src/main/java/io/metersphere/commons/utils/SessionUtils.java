@@ -70,6 +70,7 @@ public class SessionUtils {
     public static String getCurrentWorkspaceId() {
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+            LogUtil.info("WORKSPACE_ID: {}", request.getHeader("WORKSPACE_ID"));
             if (request.getHeader("WORKSPACE_ID") != null) {
                 return request.getHeader("WORKSPACE_ID");
             }
@@ -81,6 +82,7 @@ public class SessionUtils {
     public static String getCurrentProjectId() {
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+            LogUtil.info("PROJECT_ID: {}", request.getHeader("PROJECT_ID"));
             if (request.getHeader("PROJECT_ID") != null) {
                 return request.getHeader("PROJECT_ID");
             }
