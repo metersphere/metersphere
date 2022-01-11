@@ -103,6 +103,19 @@ export default {
         this.totalCount = response.data.itemCount;
         this.loading = false;
         if (data) {
+          //过滤接口定义请求参数为空的数据
+          if (modules.length > 0 && modules[0] === '接口定义') {
+            for (let i = 0; i < data.length; i++) {
+              if (data[i].details.columns && data[i].details.columns.length > 0) {
+                let columns = data[i].details.columns;
+                for (let j = 0; j < columns.length; j++) {
+                  if (columns[j].columnName === 'request' && (columns[j].diffValue === null || columns[j].diffValue === '')) {
+                    data[i].details.columns.splice(j, 1);
+                  }
+                }
+              }
+            }
+          }
           // 过滤非全局脚本历史变更数据
           if (modules.length > 0 && modules[0] === '项目-环境设置') {
             // 环境设置不显示变更字段
