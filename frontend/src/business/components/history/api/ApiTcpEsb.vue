@@ -4,39 +4,15 @@
       <el-form class="tcp" :model="request" ref="request" :disabled="isReadOnly" style="margin: 20px">
         <el-tabs v-model="activeName" class="request-tabs">
 
-          <el-tab-pane name="parameters" :label="$t('api_test.definition.request.req_param')" v-if="request.parameters">
-            <ms-api-key-value-detail :items="request.parameters" :show-required="true" :showDesc="true" :format="request.headerId"/>
-          </el-tab-pane>
-          <el-tab-pane :label="$t('api_test.definition.document.request_body')" name="request" v-if="request.body && (request.body.jsonSchema ||request.body.xml || request.body.raw_1 || request.body.raw_2)">
-            <el-radio-group v-model="reportType" size="mini" style="margin: 10px 0px;">
-              <el-radio :disabled="isReadOnly" label="json">
-                json
-              </el-radio>
-              <el-radio :disabled="isReadOnly" label="xml">
-                xml
-              </el-radio>
-              <el-radio :disabled="isReadOnly" label="raw">
-                raw
-              </el-radio>
-            </el-radio-group>
-            <div v-if="reportType === 'xml'">
-              <pre v-html="getDiff(request.body.xml_2,request.body.xml_1)"></pre>
-            </div>
-            <div v-if="reportType === 'json'">
-              <div class="send-request">
-                <ms-json-code-edit :body="request.body" ref="jsonCodeEdit"/>
-              </div>
-            </div>
-            <div v-if="reportType === 'raw'">
-              <div class="send-request">
-                <pre v-html="getDiff(request.body.raw_2,request.body.raw_1)"></pre>
-              </div>
-            </div>
+          <el-tab-pane name="parameters" :label="$t('api_test.definition.request.req_param')"
+                       v-if="request.query1 || request.query2">
+            <pre v-html="getDiff(request.query2,request.query1)"></pre>
           </el-tab-pane>
 
-          <el-tab-pane :label="$t('api_test.definition.request.pre_script')" name="script"
-                       v-if="request.script_1 || request.script_2">
-            <pre v-html="getDiff(request.script_2,request.script_1)"></pre>
+          <!--报文模版-->
+          <el-tab-pane :label="$t('api_test.definition.request.message_template')" name="request"
+                       v-if="request.request1 || request.request2">
+            <pre v-html="getDiff(request.request2,request.request1)"></pre>
           </el-tab-pane>
 
           <!--其他设置-->
@@ -60,6 +36,17 @@
               </el-table-column>
             </el-table>
           </el-tab-pane>
+
+          <el-tab-pane :label="$t('api_test.definition.request.response_template')" name="esbData" class="pane"
+                       v-if="request.backEsbDataStruct1 || request.backEsbDataStruct2">
+            <pre v-html="getDiff(request.backEsbDataStruct2,request.backEsbDataStruct1)"></pre>
+          </el-tab-pane>
+
+          <el-tab-pane :label="$t('api_test.definition.request.post_script')" name="backScript" class="pane"
+                       v-if="request.backScript1 || request.backScript2">
+            <pre v-html="getDiff(request.backScript2 ,request.backScript1)"></pre>
+          </el-tab-pane>
+
         </el-tabs>
       </el-form>
     </div>
@@ -69,13 +56,15 @@
 <script>
 import MsJsonCodeEdit from "./json-view/ComparedEditor";
 import MsApiKeyValueDetail from "./common/ApiKeyValueDetail";
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
+import EsbTable from "@/business/components/xpack/apidefinition/EsbTable";
 
 const jsondiffpatch = require('jsondiffpatch');
 const formattersHtml = jsondiffpatch.formatters.html;
 
 export default {
   name: "MsApiTcpParameters",
-  components: {MsJsonCodeEdit, MsApiKeyValueDetail},
+  components: {MsJsonCodeEdit, MsApiKeyValueDetail , MsCodeEdit , EsbTable},
   props: {
     request: {},
     basisData: {},
@@ -115,12 +104,18 @@ export default {
       if (this.request.body.raw_1 || this.request.body.raw_2) {
         this.reportType = "raw";
       }
-    } else if (this.request.parameters) {
+    } else if (this.request.query1 || this.request.query2) {
       this.activeName = "parameters";
-    } else if (this.request.script_1 || this.request.script_2) {
+    } else if (this.request.request1 || this.request.request2) {
+      this.activeName = "request";
+    } else if (this.request.script1 || this.request.script2) {
       this.activeName = "script";
     } else if (this.request.otherConfig) {
       this.activeName = "other";
+    } else if (this.request.backEsbDataStruct1 || this.request.backEsbDataStruct2) {
+      this.activeName = "esbData";
+    } else if (this.request.backScript1 || this.request.backScript2) {
+      this.activeName = "backScript";
     }
   },
   watch: {
@@ -136,19 +131,25 @@ export default {
         if (this.request.body.raw_1 || this.request.body.raw_2) {
           this.reportType = "raw";
         }
-      } else if (this.request.parameters) {
+      } else if (this.request.query_1 || this.request.query_2) {
         this.activeName = "parameters";
+      } else if (this.request.request_1 || this.request.request_2) {
+        this.activeName = "request";
       } else if (this.request.script_1 || this.request.script_2) {
         this.activeName = "script";
-      } else if (this.request.otherConfig) {
+      } else if (this.request.other_config) {
         this.activeName = "other";
+      } else if (this.request.backEsbDataStruct_1 || this.request.backEsbDataStruct_2) {
+        this.activeName = "esbData";
+      } else if (this.request.backScript_1 || this.request.backScript_2) {
+        this.activeName = "backScript";
       }
     }
   },
   methods: {
     getDiff(v1, v2) {
-      let delta = jsondiffpatch.diff(v1, v2);
-      return formattersHtml.format(delta, v1);
+      let delta = jsondiffpatch.diff(JSON.parse(v1), JSON.parse(v2));
+      return formattersHtml.format(delta, JSON.parse(v1));
     },
   }
 }
@@ -196,12 +197,33 @@ export default {
 }
 
 .request-tabs {
-  margin: 10px;
+  margin: 20px;
   min-height: 200px;
 }
 
 .other-config {
   padding: 15px;
+}
+
+.current-value {
+  display: inline-block;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.ms-tag-del {
+  text-decoration: line-through;
+  text-decoration-color: red;
+  -moz-text-decoration-line: line-through;
+  background: #F3E6E7;
+}
+
+.ms-tag-add {
+  background: #E2ECDC;
 }
 
 @import "~jsondiffpatch/dist/formatters-styles/html.css";

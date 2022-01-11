@@ -13,6 +13,7 @@
         <p class="tip">{{ this.$t('report.test_log_details') }} </p>
         <ms-api-http-request-params :request="detail" v-if="detail.type === 'HTTPSamplerProxy' || detail.type === 'HTTP'"/>
         <ms-api-tcp-parameters :request="detail" v-if="detail.type === 'TCPSampler'"/>
+        <ms-api-tcp-esb :request="detail" v-if="detail.type === 'ESB'"/>
         <ms-api-jdbc-parameters :request="detail" v-if="detail.type === 'JDBCSampler'"/>
         <ms-api-dubbo-parameters :request="detail" v-if="detail.type === 'DubboSampler'"/>
       </div>
@@ -26,13 +27,14 @@ import MsApiHttpRequestParams from "./ApiHttpRequestParams";
 import MsApiTcpParameters from "./ApiTcpParameters";
 import MsApiJdbcParameters from "./ApiJdbcParameters";
 import MsApiDubboParameters from "./ApiDubboParameters";
+import MsApiTcpEsb from "@/business/components/history/api/ApiTcpEsb";
 
 import {getUUID} from "@/common/js/utils";
 import Convert from "@/business/components/common/json-schema/convert/convert";
 
 export default {
   name: "MsApiHistoryDetail",
-  components: {MsApiHttpRequestParams, MsApiTcpParameters, MsApiJdbcParameters, MsApiDubboParameters},
+  components: {MsApiHttpRequestParams, MsApiTcpParameters, MsApiJdbcParameters, MsApiDubboParameters , MsApiTcpEsb},
   props: {
     title: String,
   },
@@ -61,6 +63,8 @@ export default {
           this.formatHttp(diffValue);
         } else if (diffValue.type === 'TCPSampler') {
           this.formatTcp(diffValue);
+        }else if (diffValue.type === 'ESB') {
+            this.formatTcpEsb(diffValue);
         } else if (diffValue.type === 'JDBCSampler') {
           this.formatJdbc(diffValue);
         } else if (diffValue.type === 'DubboSampler') {
@@ -198,6 +202,45 @@ export default {
         this.detail.script_2 = diffValue.script_2;
         this.detail.headerId = getUUID();
       }
+      if (diffValue.other_config) {
+        this.detail.otherConfig = JSON.parse(diffValue.other_config);
+        this.detail.headerId = getUUID();
+      }
+    },
+    formatTcpEsb(diffValue) {
+      if (!this.detail.body) {
+        this.detail.body = {};
+      }
+      if (diffValue.query1 || diffValue.query2) {
+        this.detail.query1 = diffValue.query1;
+        this.detail.query2 = diffValue.query2
+        this.detail.headerId = getUUID();
+      }
+      if (diffValue.request1 || diffValue.request2) {
+        this.detail.request1 = diffValue.request1;
+        this.detail.request2 = diffValue.request2;
+        this.detail.headerId = getUUID();
+      }
+      if (diffValue.script1 || diffValue.script2) {
+        this.detail.script1 = diffValue.script1;
+        this.detail.script2 = diffValue.script2;
+        this.detail.headerId = getUUID();
+      }
+      if (diffValue.otherConfig) {
+        this.detail.otherConfig = JSON.parse(diffValue.otherConfig);
+        this.detail.headerId = getUUID();
+      }
+      if (diffValue.backEsbDataStruct1 || diffValue.backEsbDataStruct2) {
+        this.detail.backEsbDataStruct1 = diffValue.backEsbDataStruct1;
+        this.detail.backEsbDataStruct2 = diffValue.backEsbDataStruct2;
+        this.detail.headerId = getUUID();
+      }
+      if (diffValue.backScript1 || diffValue.backScript2) {
+        this.detail.backScript1 = diffValue.backScript1;
+        this.detail.backScript2 = diffValue.backScript2;
+        this.detail.headerId = getUUID();
+      }
+
     },
     formatJdbc(diffValue) {
       if (diffValue.base) {

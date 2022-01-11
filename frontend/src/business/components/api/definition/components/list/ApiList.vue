@@ -119,10 +119,12 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="80px"
+          :showOverflowTooltip="true"
           :label="$t('commons.tag')">
           <template v-slot:default="scope">
             <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                     :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=100" :content="itemName"
+                    :showTooltip="true"
                     style="margin-left: 0px; margin-right: 2px"/>
             <span/>
           </template>
