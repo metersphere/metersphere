@@ -132,6 +132,7 @@
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
               :read-only="testCaseReadOnly"
+              @checkout="checkoutPublic($event, item)"
               :tree-nodes="treeNodes"
               :select-node="selectNode"
               :select-condition="condition"
@@ -641,6 +642,19 @@ export default {
       this.$refs.testCaseEdit[0].initEdit(item.testCaseInfo, () => {
         this.$nextTick(() => {
           let vh = this.$refs.testCaseEdit[0].$refs.versionHistory;
+          vh.getVersionOptionList(vh.handleVersionOptions);
+          vh.show = false;
+          vh.loading = false;
+        });
+      });
+    },
+    checkoutPublic(testCase, item) {
+      Object.assign(item.testCaseInfo, testCase)
+      //子组件先变更 copy 状态，再执行初始化操作
+      this.$refs.testCaseEditShow[0].changeType("copy");
+      this.$refs.testCaseEditShow[0].initEdit(item.testCaseInfo, () => {
+        this.$nextTick(() => {
+          let vh = this.$refs.testCaseEditShow[0].$refs.versionHistory;
           vh.getVersionOptionList(vh.handleVersionOptions);
           vh.show = false;
           vh.loading = false;

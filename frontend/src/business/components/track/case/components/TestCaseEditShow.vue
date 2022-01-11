@@ -18,13 +18,20 @@
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
+          <!--  版本历史 -->
+          <ms-version-history v-xpack
+                              ref="versionHistory"
+                              :version-data="versionData"
+                              :current-id="currentTestCaseInfo.id"
+                              :current-project-id="currentProjectId"
+                              @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <ms-table-button v-if="this.path!=='/test/case/add'"
                            id="inputDelay"
                            type="primary"
                            :content="$t('commons.copy')"
                            size="small" @click="handleCopyPublic"
                            icon=""
-                           :disabled="readOnly"/>
+                           />
         </div>
         <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading" class="case-form">
           <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
@@ -35,13 +42,13 @@
                 :label="$t('test_track.case.name')"
                 :label-width="formLabelWidth"
                 prop="name">
-                <el-input :disabled="true" v-model="form.name" size="small" class="ms-case-input"></el-input>
+                <el-input :disabled="readOnly" v-model="form.name" size="small" class="ms-case-input"></el-input>
               </el-form-item>
             </el-col>
 
             <el-col :span="8">
               <el-form-item :label="$t('test_track.case.project')" :label-width="formLabelWidth" prop="projectId">
-                <el-select v-model="form.projectId" filterable clearable :disabled="true">
+                <el-select v-model="form.projectId" filterable clearable :disabled="readOnly">
                   <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
               </el-form-item>
@@ -49,7 +56,7 @@
 
             <el-col :span="8">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
-                <ms-input-tag :read-only="true" :currentScenario="form" v-if="showInputTag" ref="tag" :disabled="true"
+                <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag" :disabled="true"
                               class="ms-case-input"/>
               </el-form-item>
             </el-col>
@@ -65,7 +72,7 @@
           <el-row v-if="isCustomNum">
             <el-col :span="7">
               <el-form-item label="ID" :label-width="formLabelWidth" prop="customNum">
-                <el-input :disabled="true" v-model.trim="form.customNum" size="small"
+                <el-input :disabled="readOnly" v-model.trim="form.customNum" size="small"
                           class="ms-case-input"></el-input>
               </el-form-item>
             </el-col>
@@ -74,26 +81,26 @@
 
           <ms-form-divider :title="$t('test_track.case.step_info')"/>
 
-          <form-rich-text-item :disabled="true" :label-width="formLabelWidth"
+          <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth"
                                :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
 
           <step-change-item :label-width="formLabelWidth" :form="form"/>
-          <form-rich-text-item :disabled="true" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
+          <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
                                :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
-          <form-rich-text-item :disabled="true" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
+          <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
                                :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
 
           <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP' || !form.stepModel"
-                               :form="form" :read-only="true"/>
+                               :form="form" :read-only="readOnly"/>
 
           <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
-          <test-case-edit-other-info :read-only="true" :project-id="projectIds" :form="form"
+          <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
                                      :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
           <el-row style="margin-top: 10px" v-if="type!=='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
-              <el-button icon="el-icon-plus" type="mini" @click="openComment" :disabled="true"></el-button>
+              <el-button icon="el-icon-plus" type="mini" @click="openComment" :disabled="readOnly"></el-button>
             </el-col>
           </el-row>
           <el-row v-if="type!=='add'">
@@ -102,7 +109,7 @@
               <review-comment-item v-for="(comment,index) in comments"
                                    :key="index"
                                    :comment="comment"
-                                   @refresh="getComments" :disabled="true" api-url="/test/case"/>
+                                   @refresh="getComments" :disabled="readOnly" api-url="/test/case"/>
               <div v-if="comments.length === 0" style="text-align: center">
                 <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
                       <span style="font-size: 15px; color: #8a8b8d;">
@@ -119,6 +126,20 @@
 
       </div>
       <ms-change-history ref="changeHistory"/>
+
+      <el-dialog
+        :fullscreen="true"
+        :visible.sync="dialogVisible"
+        width="100%"
+      >
+        <test-case-version-diff :old-data="oldData" :new-data="newData"
+                                :tree-nodes="treeNodes" :is-public="publicEnable"></test-case-version-diff>
+
+        <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible=false">{{this.$t('commons.cancel')}}</el-button>
+                <el-button type="primary">{{this.$t('commons.confirm')}}</el-button>
+              </span>
+      </el-dialog>
 
     </div>
     <batch-move ref="testBatchMove" :public-enable="publicEnable"
@@ -166,6 +187,11 @@ import MsChangeHistory from "../../../history/ChangeHistory";
 import {getTestTemplate} from "@/network/custom-field-template";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 import BatchMove from "@/business/components/track/case/components/BatchMove";
+import TestCaseVersionDiff from "@/business/components/track/case/version/TestCaseVersionDiff";
+
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
 
 export default {
   name: "TestCaseEditShow",
@@ -183,7 +209,9 @@ export default {
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment,
     MsTestCaseStepRichText,
     MsChangeHistory,
-    BatchMove
+    BatchMove,
+    'MsVersionHistory': versionHistory.default,
+    TestCaseVersionDiff
   },
   data() {
     return {
@@ -272,7 +300,13 @@ export default {
         id: 'id',
         label: 'name',
       },
-      tabId: getUUID()
+      tabId: getUUID(),
+      versionData: [],
+      currentProjectId: "" ,
+      dialogVisible: false,
+      oldData: null,
+      newData: null,
+      readOnly: true
     };
   },
   props: {
@@ -302,14 +336,6 @@ export default {
     isCustomNum() {
       return this.$store.state.currentProjectIsCustomNum;
     },
-    readOnly() {
-      const {rowClickHasPermission} = this.currentTestCaseInfo;
-      if (rowClickHasPermission !== undefined) {
-        return !rowClickHasPermission;
-      }
-      return !hasPermission('PROJECT_TRACK_CASE:READ+CREATE') &&
-        !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
-    }
   },
 
   beforeDestroy() {
@@ -389,6 +415,9 @@ export default {
       this.isXpack = true;
     } else {
       this.isXpack = false;
+    }
+    if (hasLicense()) {
+      this.getVersionHistory();
     }
   },
   methods: {
@@ -512,7 +541,7 @@ export default {
           initFuc(testCase);
         });
     },
-    initEdit(testCase) {
+    initEdit(testCase , callback) {
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.close);
@@ -552,6 +581,9 @@ export default {
         this.getSelectOptions();
         this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules);
         this.reload();
+      }
+      if (callback) {
+        callback();
       }
     },
     handlePre() {
@@ -706,9 +738,12 @@ export default {
             this.close();
           }
           this.form.id = response.data.id;
-
+          this.currentTestCaseInfo.id = response.data.id;
           if (callback) {
             callback(this);
+          }
+          if (hasLicense()) {
+            this.getVersionHistory();
           }
           // 保存用例后刷新附件
         });
@@ -886,6 +921,73 @@ export default {
           });
         }
       }
+    },
+    getVersionHistory() {
+      this.$get('/test/case/versions/' + this.currentTestCaseInfo.id, response => {
+        for (let i = 0; i < response.data.length ; i++) {
+          this.currentProjectId = response.data[i].projectId
+        }
+        this.versionData = response.data;
+        this.$refs.versionHistory.loading = false;
+      });
+    },
+    setSpecialPropForCompare: function (that) {
+      that.newData.tags = JSON.parse(that.newData.tags || "");
+      that.newData.steps = JSON.parse(that.newData.steps || "");
+      that.oldData.tags = JSON.parse(that.oldData.tags || "");
+      that.oldData.steps = JSON.parse(that.oldData.steps || "");
+      that.newData.readOnly = true;
+      that.oldData.readOnly = true;
+    },
+    compare(row) {
+      this.$get('/test/case/get/' + row.id + "/" + this.currentTestCaseInfo.refId, response => {
+        let p1 = this.$get('/test/case/get/' + response.data.id);
+        let p2 = this.$get('/test/case/get/' + this.currentTestCaseInfo.id);
+        let that = this;
+        Promise.all([p1, p2]).then(data => {
+          if (data[0] && data[1]) {
+            that.newData = data[0].data.data;
+            that.oldData = data[1].data.data;
+            this.setSpecialPropForCompare(that);
+            that.dialogVisible = true;
+          }
+        });
+      });
+    },
+    checkout(row) {
+      this.$refs.versionHistory.loading = true;
+      let testCase = this.versionData.filter(v => v.versionId === row.id)[0];
+      if (testCase) {
+        this.$get('test/case/get/' + testCase.id, response => {
+          let testCase = response.data;
+          this.$emit("checkout", testCase);
+          this.$refs.versionHistory.loading = false;
+        });
+      }
+    },
+    create(row) {
+      // 创建新版本
+      this.form.versionId = row.id;
+      this.saveCase();
+    },
+    del(row) {
+      let that = this;
+      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.$get('/test/case/delete/' + row.id + '/' + this.form.refId, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.getVersionHistory();
+            });
+          } else {
+            that.$refs.versionHistory.loading = false;
+          }
+        }
+      });
+    },
+    changeType(type) {
+      this.type = type;
     }
   }
 }

@@ -16,17 +16,18 @@
           </el-col>
 
           <el-col :span="8">
-            <el-form-item :label="$t('test_track.case.module')" :label-width="oldData.formLabelWidth" prop="module">
+            <el-form-item :label="$t('test_track.case.module')" :label-width="oldData.formLabelWidth" prop="module" v-if="!isPublic">
               <ms-select-tree :disabled="oldData.readOnly" :data="treeNodes" :defaultKey="oldData.module"
                               :obj="moduleObj"
                               @getValue="setModule" clearable checkStrictly size="small"/>
             </el-form-item>
           </el-col>
 
+
           <el-col :span="8">
             <el-form-item :label="$t('test_track.case.project')" :label-width="oldData.formLabelWidth" prop="projectId"
-                          v-if="publicEnable">
-              <el-select v-model="oldData.projectId" filterable clearable>
+                          v-if="isPublic" >
+              <el-select v-model="oldData.projectId" filterable clearable :disabled="oldData.readOnly">
                 <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
@@ -45,7 +46,7 @@
                  ref="oldCustomFieldForm"
                  class="case-form">
           <custom-filed-form-item :form="oldData.customFieldForm" :form-label-width="oldData.formLabelWidth"
-                                  :issue-template="oldData.testCaseTemplate"/>
+                                  :issue-template="oldData.testCaseTemplate" :is-public="isPublic"/>
         </el-form>
 
         <el-row v-if="oldData.isCustomNum">
@@ -91,7 +92,7 @@
                                  :key="index"
                                  :comment="comment"
                                  @refresh="getComments" api-url="/test/case"/>
-            <div v-if="oldData.comments.length === 0" style="text-align: center">
+            <div v-if="oldData.comments && oldData.comments.length === 0" style="text-align: center">
               <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
                       <span style="font-size: 15px; color: #8a8b8d;">
                         {{ $t('test_track.comment.no_comment') }}
@@ -121,7 +122,7 @@
           </el-col>
 
           <el-col :span="8">
-            <el-form-item :label="$t('test_track.case.module')" :label-width="newData.formLabelWidth" prop="module">
+            <el-form-item :label="$t('test_track.case.module')" :label-width="newData.formLabelWidth" prop="module" v-if="!isPublic">
               <ms-select-tree :disabled="newData.readOnly" :data="treeNodes" :defaultKey="newData.module"
                               :obj="moduleObj"
                               @getValue="setModule" clearable checkStrictly size="small"/>
@@ -130,8 +131,8 @@
 
           <el-col :span="8">
             <el-form-item :label="$t('test_track.case.project')" :label-width="newData.formLabelWidth" prop="projectId"
-                          v-if="publicEnable">
-              <el-select v-model="newData.projectId" filterable clearable>
+                          v-if="isPublic" >
+              <el-select v-model="newData.projectId" filterable clearable :disabled="newData.readOnly">
                 <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
@@ -150,7 +151,7 @@
                  ref="newCustomFieldForm"
                  class="case-form">
           <custom-filed-form-item :form="newData.customFieldForm" :form-label-width="newData.formLabelWidth"
-                                  :issue-template="newData.testCaseTemplate"/>
+                                  :issue-template="newData.testCaseTemplate" :is-public="isPublic"/>
         </el-form>
 
         <el-row v-if="newData.isCustomNum">
@@ -196,7 +197,7 @@
                                  :key="index"
                                  :comment="comment"
                                  @refresh="getComments" api-url="/test/case"/>
-            <div v-if="newData.comments.length === 0" style="text-align: center">
+            <div v-if="newData.comments && newData.comments.length === 0" style="text-align: center">
               <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
                       <span style="font-size: 15px; color: #8a8b8d;">
                         {{ $t('test_track.comment.no_comment') }}
@@ -253,6 +254,12 @@ export default {
       type: Object
     },
     treeNodes: [],
+    isPublic: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    }
   },
   computed: {
     projectIds() {
@@ -268,7 +275,6 @@ export default {
   data() {
     return {
       path: "/test/case/add",
-      isPublic: false,
       isXpack: false,
       projectList: [],
       result: {},
@@ -292,7 +298,6 @@ export default {
       },
       versionData: [],
       dialogVisible: false,
-      publicEnable: false,
       maintainerOptions: [],
       oldLoading: null,
       newLoading: null,
