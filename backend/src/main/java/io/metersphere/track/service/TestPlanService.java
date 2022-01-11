@@ -960,7 +960,6 @@ public class TestPlanService {
             request.setConfig(planScenarioExecuteRequest.getConfig());
             request.setTestPlanScheduleJob(true);
             request.setTestPlanReportId(planScenarioExecuteRequest.getTestPlanReportId());
-            request.setTestPlanReportContentId(planScenarioExecuteRequest.getPlanReportContentId());
             request.setId(UUID.randomUUID().toString());
             request.setProjectId(planScenarioExecuteRequest.getProjectId());
             request.setRequestOriginator("TEST_PLAN");
@@ -1070,26 +1069,27 @@ public class TestPlanService {
 
 
         //执行接口案例任务
-        this.executeApiTestCase(triggerMode, planReportId, reportInfoDTO.getTestPlanReportContent().getId(), userId, new ArrayList<>(reportInfoDTO.getApiTestCaseDataMap().keySet()), runModeConfig);
+        Map<String,String> apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId,userId, new ArrayList<>(reportInfoDTO.getApiTestCaseDataMap().keySet()), runModeConfig);
         //执行场景执行任务
-        this.executeScenarioCase(planReportId, reportInfoDTO.getTestPlanReportContent().getId(), testPlanID, projectID, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
+        Map<String,String> scenarioReportMap = this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
         //执行性能测试任务
-        this.executeLoadCaseTask(runModeConfig, triggerMode, reportInfoDTO.getPerformanceIdMap(), reportInfoDTO.getTestPlanReportContent().getId());
+        Map<String,String> loadCaseReportMap = this.executeLoadCaseTask(runModeConfig, triggerMode, reportInfoDTO.getPerformanceIdMap());
+        testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiCaseReportMap,scenarioReportMap,loadCaseReportMap);
         return planReportId;
     }
 
-    private void executeApiTestCase(String triggerMode, String planReportId, String reportContentId, String userId, List<String> planCaseIds, RunModeConfigDTO runModeConfig) {
+    private Map<String,String> executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfigDTO runModeConfig) {
         BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
         request.setTriggerMode(triggerMode);
         request.setPlanIds(planCaseIds);
         request.setPlanReportId(planReportId);
         request.setConfig(runModeConfig);
         request.setUserId(userId);
-        request.setPlanReportContentId(reportContentId);
-        testPlanApiCaseService.run(request);
+        List<MsExecResponseDTO> dtoList = testPlanApiCaseService.run(request);
+        return this.parseMsExecREsponseDTOToTestIdReportMap(dtoList);
     }
 
-    private void executeScenarioCase(String planReportId, String reportContentId, String testPlanID, String projectID, RunModeConfigDTO runModeConfig, String triggerMode, String userId, Map<String, String> planScenarioIdMap) {
+    private Map<String,String>  executeScenarioCase(String planReportId, String testPlanID, String projectID, RunModeConfigDTO runModeConfig, String triggerMode, String userId, Map<String, String> planScenarioIdMap) {
         if (!planScenarioIdMap.isEmpty()) {
             SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
             String senarionReportID = UUID.randomUUID().toString();
@@ -1113,15 +1113,28 @@ public class TestPlanService {
             scenarioRequest.setReportUserID(userId);
             scenarioRequest.setTestPlanID(testPlanID);
             scenarioRequest.setTestPlanReportId(planReportId);
-            scenarioRequest.setPlanReportContentId(reportContentId);
             scenarioRequest.setConfig(runModeConfig);
-            this.scenarioRunModeConfig(scenarioRequest);
+            List<MsExecResponseDTO> dtoList =  this.scenarioRunModeConfig(scenarioRequest);
+            return this.parseMsExecREsponseDTOToTestIdReportMap(dtoList);
+        }else {
+            return new HashMap<>();
         }
     }
 
-    private void executeLoadCaseTask(RunModeConfigDTO runModeConfig, String triggerMode, Map<String, String> performanceIdMap, String reportContentId) {
-        Map<String, String> loadCaseReportMap = new HashMap<>();
+    private Map<String, String> parseMsExecREsponseDTOToTestIdReportMap(List<MsExecResponseDTO> dtoList) {
+        Map<String,String> returnMap = new HashMap<>();
+        if(CollectionUtils.isNotEmpty(dtoList)){
+            dtoList.forEach( item -> {
+                if(StringUtils.isNotEmpty(item.getTestId()) && StringUtils.isNotEmpty(item.getReportId())){
+                    returnMap.put(item.getTestId(),item.getReportId());
+                }
+            });
+        }
+        return returnMap;
+    }
 
+    private Map<String, String> executeLoadCaseTask(RunModeConfigDTO runModeConfig, String triggerMode, Map<String, String> performanceIdMap) {
+        Map<String, String> loadCaseReportMap = new HashMap<>();
         for (Map.Entry<String, String> entry : performanceIdMap.entrySet()) {
             String id = entry.getKey();
             String caseID = entry.getValue();
@@ -1160,7 +1173,7 @@ public class TestPlanService {
             }
 
         }
-        testPlanReportService.updateTestPlanReportContentReportIds(reportContentId, null, null, loadCaseReportMap);
+        return loadCaseReportMap;
     }
 
     public String getLogDetails(String id) {

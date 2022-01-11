@@ -16,7 +16,6 @@ import java.util.Map;
 @Setter
 public class TestPlanScheduleReportInfoDTO {
     private TestPlanReport testPlanReport;
-    private TestPlanReportContent testPlanReportContent;
     private Map<String, String> planScenarioIdMap = new LinkedHashMap<>();
     private Map<String, String> apiTestCaseDataMap = new LinkedHashMap<>();
     private Map<String, String> performanceIdMap = new LinkedHashMap<>();
