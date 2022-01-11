@@ -2153,6 +2153,7 @@ export default {
       not_pass: "UnPass",
       failure: "Failure",
       blocking: "Blocking",
+      stop: "Stop",
       skip: "Skip",
       actual_result: "Actual result",
       step_result: "Step result",
