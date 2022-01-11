@@ -1,5 +1,5 @@
 <template>
-  <app-manage-item :title="title" :append-span="4" :middle-span="10" :prepend-span="10">
+  <app-manage-item :title="title" :append-span="3" :middle-span="12" :prepend-span="9">
     <template #middle>
       <span class="timing_name">{{ $t('project.keep_recent') }}</span>
       <el-select v-model="selfQuantity" placeholder=" " size="mini"
@@ -70,18 +70,11 @@ export default {
       selfUnit: "",
       selfChoose: this.choose,
       selfExpr: this.expr,
-      quantityOptions: [
-        "1", "2", "3", "4", "5", "6", "7", "8", "9",
-        "10", "11", "12", "13", "14",
-        "15", "16", "17", "18", "19",
-        "20", "21", "22", "23", "24",
-        "25", "26", "27", "28", "29",
-        "30", "31",
-      ],
+      quantityOptions: 31,
       unitOptions: [
-        {value: "D", label: "天"},
-        {value: "M", label: "月"},
-        {value: "Y", label: "年"},
+        {value: "D", label: this.$t('commons.date_unit.day')},
+        {value: "M", label: this.$t('commons.date_unit.month')},
+        {value: "Y", label: this.$t('commons.date_unit.year')},
       ]
     }
   },
@@ -114,7 +107,7 @@ export default {
 }
 
 .timing_select {
-  width: 60px;
-  margin-left: 3px;
+  width: 80px;
+  margin-left: 2px;
 }
 </style>

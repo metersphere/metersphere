@@ -155,6 +155,11 @@ export default {
     weeks_4: '周四',
     weeks_5: '周五',
     weeks_6: '周六',
+    date_unit: {
+      day: "天",
+      month: "月",
+      year: "年"
+    },
     test_unit: '測試',
     system_parameter_setting: '系統參數設置',
     connection_successful: '連接成功',
