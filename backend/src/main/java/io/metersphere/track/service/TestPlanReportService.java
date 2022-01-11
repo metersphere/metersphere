@@ -314,9 +314,6 @@ public class TestPlanReportService {
         TestPlanSimpleReportDTO reportDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
         reportDTO.setStartTime(testPlanReport.getStartTime());
         reportContent = parseReportDaoToReportContent(reportDTO, reportContent);
-        testPlanReportContentMapper.updateByPrimaryKeySelective(reportContent);
-        testPlanReportMapper.updateByPrimaryKey(testPlanReport);
-
         return reportContent;
     }
 
@@ -725,7 +722,7 @@ public class TestPlanReportService {
 
     private boolean isDynamicallyGenerateReports(TestPlanReportContentWithBLOBs testPlanReportContent) {
         return testPlanReportContent != null &&
-                (StringUtils.isNotEmpty(testPlanReportContent.getApiCaseReportId()) || StringUtils.isNotEmpty(testPlanReportContent.getApiCaseReportId()) || StringUtils.isNotEmpty(testPlanReportContent.getApiCaseReportId()));
+                (StringUtils.isNotEmpty(testPlanReportContent.getPlanApiCaseReportStruct()) || StringUtils.isNotEmpty(testPlanReportContent.getPlanScenarioReportStruct()) || StringUtils.isNotEmpty(testPlanReportContent.getPlanLoadCaseReportStruct()));
     }
 
     private TestPlanReportContentWithBLOBs dynamicallyGenerateReports(TestPlanReportContentWithBLOBs testPlanReportContent) {
@@ -740,16 +737,16 @@ public class TestPlanReportService {
             content.setId(testPlanReportContentId);
 
             if (MapUtils.isNotEmpty(apiCaseReportMap)) {
-                content.setApiCaseReportId(JSONObject.toJSONString(apiCaseReportMap));
+                content.setPlanApiCaseReportStruct(JSONObject.toJSONString(apiCaseReportMap));
             }
             if (MapUtils.isNotEmpty(scenarioReportIdMap)) {
-                content.setScenarioReportId(JSONObject.toJSONString(scenarioReportIdMap));
+                content.setPlanScenarioReportStruct(JSONObject.toJSONString(scenarioReportIdMap));
             }
             if (MapUtils.isNotEmpty(loadCaseReportIdMap)) {
-                content.setLoadCaseReportId(JSONObject.toJSONString(loadCaseReportIdMap));
+                content.setPlanLoadCaseReportStruct(JSONObject.toJSONString(loadCaseReportIdMap));
             }
 
-            if (StringUtils.isNotEmpty(content.getApiCaseReportId()) || StringUtils.isNotEmpty(content.getScenarioReportId()) || StringUtils.isNotEmpty(content.getLoadCaseReportId())) {
+            if (StringUtils.isNotEmpty(content.getPlanApiCaseReportStruct()) || StringUtils.isNotEmpty(content.getPlanScenarioReportStruct()) || StringUtils.isNotEmpty(content.getPlanLoadCaseReportStruct())) {
                 testPlanReportContentMapper.updateByPrimaryKeySelective(content);
             }
         }
@@ -761,21 +758,21 @@ public class TestPlanReportService {
         Map<String, String> testPlanLoadCaseIdAndReportIdMap = new HashMap<>();
 
         if (testPlanReportContentWithBLOBs != null) {
-            if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getApiCaseReportId())) {
+            if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanApiCaseReportStruct())) {
                 try {
-                    testPlanApiCaseIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getApiCaseReportId(), Map.class);
+                    testPlanApiCaseIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getPlanApiCaseReportStruct(), Map.class);
                 } catch (Exception ignore) {
                 }
             }
-            if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getScenarioReportId())) {
+            if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanScenarioReportStruct())) {
                 try {
-                    testPlanScenarioIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getScenarioReportId(), Map.class);
+                    testPlanScenarioIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getPlanScenarioReportStruct(), Map.class);
                 } catch (Exception ignore) {
                 }
             }
-            if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getLoadCaseReportId())) {
+            if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanLoadCaseReportStruct())) {
                 try {
-                    testPlanLoadCaseIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getLoadCaseReportId(), Map.class);
+                    testPlanLoadCaseIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getPlanLoadCaseReportStruct(), Map.class);
                 } catch (Exception ignore) {
                 }
             }
