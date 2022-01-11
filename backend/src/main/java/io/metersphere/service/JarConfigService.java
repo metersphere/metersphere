@@ -94,6 +94,9 @@ public class JarConfigService {
     }
 
     public String add(JarConfig jarConfig, MultipartFile file) {
+        if (file != null && !file.getOriginalFilename().endsWith(".jar")) {
+            MSException.throwException("上传文件类型错误，请上传正确jar文件");
+        }
         jarConfig.setId(UUID.randomUUID().toString());
         jarConfig.setCreator(SessionUtils.getUser().getId());
         jarConfig.setModifier(SessionUtils.getUser().getId());
@@ -126,6 +129,7 @@ public class JarConfigService {
             }
         }
     }
+
     public String getLogDetails(String id) {
         JarConfig jarConfig = jarConfigMapper.selectByPrimaryKey(id);
         if (jarConfig != null) {
