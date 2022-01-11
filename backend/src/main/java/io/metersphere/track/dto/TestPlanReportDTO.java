@@ -35,4 +35,7 @@ public class TestPlanReportDTO {
     private Long startTime;
     private Long endTime;
     private String projectName;
+
+    private Long runTime;
+    private Double passRate;
 }

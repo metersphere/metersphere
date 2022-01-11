@@ -198,6 +198,19 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
     {id: 'lastExecResult', key: '0', label: 'test_track.plan_view.execute_result'},
   ],
+
+  // 测试报告
+  TRACK_REPORT_TABLE: [
+    {id: 'name', key: '1', label: 'test_track.report.list.name'},
+    {id: 'testPlanName', key: '2', label: 'test_track.report.list.test_plan'},
+    {id: 'creator', key: '3', label: 'test_track.report.list.creator'},
+    {id: 'createTime', key: '4', label: 'test_track.report.list.create_time'},
+    {id: 'triggerMode', key: '5', label: 'test_track.report.list.trigger_mode'},
+    {id: 'status', key: '6', label: 'commons.status'},
+    {id: 'runTime', key: '7', label: 'test_track.report.list.run_time'},
+    {id: 'passRate', key: '8', label: 'test_track.report.list.pass_rate'},
+  ],
+
   //缺陷列表
   ISSUE_LIST: [
     {id: 'num', key: '1', label: 'test_track.issue.id'},
