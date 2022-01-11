@@ -134,6 +134,8 @@ public class ApiDefinitionService {
     private ExtProjectVersionMapper extProjectVersionMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private EsbApiParamsMapper esbApiParamsMapper;
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -1761,6 +1763,25 @@ public class ApiDefinitionService {
     public String getLogDetails(String id) {
         ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
         if (bloBs != null) {
+            if (StringUtils.equals(bloBs.getMethod(), "ESB")) {
+                EsbApiParamsExample example = new EsbApiParamsExample();
+                example.createCriteria().andResourceIdEqualTo(id);
+                List<EsbApiParamsWithBLOBs> list = esbApiParamsMapper.selectByExampleWithBLOBs(example);
+                JSONObject request = JSONObject.parseObject(bloBs.getRequest());
+                Object backEsbDataStruct = request.get("backEsbDataStruct");
+                Map<String, Object> map = new HashMap<>();
+                if (backEsbDataStruct != null) {
+                    map.put("backEsbDataStruct", backEsbDataStruct);
+                    if (CollectionUtils.isNotEmpty(list)) {
+                        map.put("backScript", list.get(0).getBackedScript());
+                    }
+                    map.put("type", "ESB");
+                }
+                request.remove("backEsbDataStruct");
+                bloBs.setRequest(JSONObject.toJSONString(request));
+                String response = JSONObject.toJSONString(map);
+                bloBs.setResponse(response);
+            }
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.definitionColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
