@@ -1329,7 +1329,9 @@ export default {
                   this.projectEnvMap.set(this.projectId, obj.environmentId);
                 }
                 this.envGroupId = response.data.environmentGroupId;
-                this.environmentType = response.data.environmentType;
+                if (response.data.environmentType) {
+                  this.environmentType = response.data.environmentType;
+                }
                 this.currentScenario.variables = [];
                 let index = 1;
                 if (obj.variables) {
