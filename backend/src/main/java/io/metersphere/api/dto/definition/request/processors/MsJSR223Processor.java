@@ -7,6 +7,7 @@ import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -37,6 +38,7 @@ public class MsJSR223Processor extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ScriptFilter.verify(this.getScriptLanguage(), this.getName(), script);
         ParameterConfig config = (ParameterConfig) msParameter;
         //替换Metersphere环境变量
         if (StringUtils.isEmpty(this.getEnvironmentId())) {

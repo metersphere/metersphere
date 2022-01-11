@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.controller.loop.CountController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsWhileController;
+import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
@@ -231,6 +232,9 @@ public class MsLoopController extends MsTestElement {
             jsr223PreProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
             /*jsr223PreProcessor.setProperty("cacheKey", "true");*/
             jsr223PreProcessor.setProperty("scriptLanguage", "beanshell");
+
+            ScriptFilter.verify("beanshell", this.getName(), script());
+
             jsr223PreProcessor.setProperty("script", script());
             hashTree.add(jsr223PreProcessor);
             return hashTree;
