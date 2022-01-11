@@ -2157,6 +2157,7 @@ export default {
       not_pass: "不通過",
       failure: "失敗",
       blocking: "阻塞",
+      stop: "停止",
       skip: "跳過",
       actual_result: "實際結果",
       step_result: "步驟執行結果",
