@@ -954,8 +954,8 @@ export default {
       });
     },
     _handleDeletePublic(testCase) {
-      let testCaseId = testCase.id;
-      this.$post('/test/case/deletePublic/' + testCaseId, {}, () => {
+      let refId = testCase.refId;
+      this.$post('/test/case/deletePublic/' + refId, {}, () => {
         this.$emit('refreshTable');
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
@@ -1082,13 +1082,18 @@ export default {
 
     },
     handleDeleteBatchToPublic() {
-      let param = {};
-      param.ids = this.$refs.table.selectIds;
-      param.casePublic = false;
-      param.condition = this.condition;
-      this.page.result = this.$post('/test/case/batch/edit', param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.refresh();
+      this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let param = buildBatchParam(this, this.$refs.table.selectIds);
+            this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
+              this.$refs.table.clear();
+              this.$emit("refresh");
+              this.$success(this.$t('commons.delete_success'));
+            });
+          }
+        }
       });
     },
     handleBatchMove() {
@@ -1118,6 +1123,7 @@ export default {
     },
     copyPublic(param) {
       param.condition = this.condition;
+      param.projectId = this.projectId;
       this.page.result = this.$post('/test/case/batch/copy/public', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.testBatchMove.close();

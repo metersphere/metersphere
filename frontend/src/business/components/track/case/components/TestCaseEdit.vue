@@ -23,6 +23,7 @@
                               ref="versionHistory"
                               :version-data="versionData"
                               :current-id="currentTestCaseInfo.id"
+                              :current-project-id="currentProjectId"
                               @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
@@ -150,8 +151,8 @@
                                 :tree-nodes="treeNodes"></test-case-version-diff>
 
         <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible=false">取 消</el-button>
-                <el-button type="primary">确 定</el-button>
+                <el-button @click="dialogVisible=false">{{this.$t('commons.cancel')}}</el-button>
+                <el-button type="primary">{{this.$t('commons.confirm')}}</el-button>
               </span>
       </el-dialog>
     </div>
@@ -309,7 +310,8 @@ export default {
       versionData: [],
       dialogVisible: false,
       oldData: null,
-      newData: null
+      newData: null ,
+      currentProjectId: "" ,
     };
   },
   props: {
@@ -944,6 +946,9 @@ export default {
     },
     getVersionHistory() {
       this.$get('/test/case/versions/' + this.currentTestCaseInfo.id, response => {
+        for (let i = 0; i < response.data.length; i++) {
+          this.currentProjectId = response.data[i].projectId;
+          }
         this.versionData = response.data;
         this.$refs.versionHistory.loading = false;
       });

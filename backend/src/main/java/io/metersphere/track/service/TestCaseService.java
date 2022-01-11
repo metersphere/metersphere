@@ -16,6 +16,7 @@ import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
+import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
@@ -155,6 +156,8 @@ public class TestCaseService {
     private MinderExtraNodeService minderExtraNodeService;
     @Resource
     private ProjectVersionService projectVersionService;
+    @Resource
+    private ExtProjectVersionMapper extProjectVersionMapper;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -1371,28 +1374,47 @@ public class TestCaseService {
         TestCaseExample exampleList = new TestCaseExample();
         exampleList.createCriteria().andIdIn(request.getIds());
         List<TestCaseWithBLOBs> list = testCaseMapper.selectByExampleWithBLOBs(exampleList);
-        for (TestCaseWithBLOBs item : list) {
-            TestCaseWithBLOBs batchCopy = new TestCaseWithBLOBs();
-            BeanUtils.copyBean(batchCopy, item);
-            checkTestCaseExist(batchCopy);
-            batchCopy.setId(UUID.randomUUID().toString());
-            batchCopy.setName("copy_" + item.getName());
-            batchCopy.setCreateTime(System.currentTimeMillis());
-            batchCopy.setUpdateTime(System.currentTimeMillis());
-            batchCopy.setNum(getNextNum(SessionUtils.getCurrentProjectId()));
-            batchCopy.setCustomNum(batchCopy.getNum().toString());
-            batchCopy.setCreateUser(SessionUtils.getUserId());
-            batchCopy.setMaintainer(SessionUtils.getUserId());
-            batchCopy.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-            batchCopy.setStatus(TestCaseReviewStatus.Prepare.name());
-            batchCopy.setNodePath(request.getNodePath());
-            batchCopy.setNodeId(request.getNodeId());
-            batchCopy.setProjectId(SessionUtils.getCurrentProjectId());
-            batchCopy.setCasePublic(false);
-            testCaseMapper.insert(batchCopy);
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        Long nextOrder = ServiceUtils.getNextOrder(request.getProjectId(), extTestCaseMapper::getLastOrder);
+        int nextNum = getNextNum(request.getProjectId());
+
+        try {
+            for (int i = 0; i < list.size(); i++) {
+                TestCaseWithBLOBs batchCopy = new TestCaseWithBLOBs();
+                BeanUtils.copyBean(batchCopy, list.get(i));
+                checkTestCaseExist(batchCopy);
+                String id = UUID.randomUUID().toString();
+                batchCopy.setId(id);
+                batchCopy.setName(ServiceUtils.getCopyName(batchCopy.getName()));
+                batchCopy.setCreateTime(System.currentTimeMillis());
+                batchCopy.setUpdateTime(System.currentTimeMillis());
+                batchCopy.setCreateUser(SessionUtils.getUserId());
+                batchCopy.setMaintainer(SessionUtils.getUserId());
+                batchCopy.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                batchCopy.setStatus(TestCaseReviewStatus.Prepare.name());
+                batchCopy.setNodePath(request.getNodePath());
+                batchCopy.setNodeId(request.getNodeId());
+                batchCopy.setCasePublic(false);
+                batchCopy.setRefId(id);
+                if (!(batchCopy.getProjectId()).equals(SessionUtils.getCurrentProjectId())) {
+                    String versionId = extProjectVersionMapper.getDefaultVersion(SessionUtils.getCurrentProjectId());
+                    batchCopy.setVersionId(versionId);
+                }
+                batchCopy.setProjectId(SessionUtils.getCurrentProjectId());
+                batchCopy.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
+                batchCopy.setCustomNum(String.valueOf(nextNum));
+                batchCopy.setNum(nextNum++);
+                mapper.insert(batchCopy);
+                if (i % 50 == 0)
+                    sqlSession.flushStatements();
+            }
+            sqlSession.flushStatements();
+        } finally {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
-
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
         TestCaseExample example = this.getBatchExample(request);
         deleteTestPlanTestCaseBath(request.getIds());
@@ -2013,6 +2035,21 @@ public class TestCaseService {
         }
     }
 
+    public void deleteToGcBatchPublic(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            for (String id : ids) {
+                TestCase testCase = testCaseMapper.selectByPrimaryKey(id);
+                if ((StringUtils.isNotEmpty(testCase.getMaintainer()) && testCase.getMaintainer() == SessionUtils.getUserId()) ||
+                        (StringUtils.isNotEmpty(testCase.getCreateUser()) && testCase.getCreateUser() == SessionUtils.getUserId())) {
+                    this.deleteTestCasePublic(testCase.getRefId());
+                }
+                else {
+                    MSException.throwException(Translator.get("check_owner_case"));
+                }
+            }
+        }
+    }
+
     public String getCaseLogDetails(TestCaseMinderEditRequest request) {
         if (CollectionUtils.isNotEmpty(request.getData())) {
             List<String> ids = request.getData().stream().map(TestCase::getId).collect(Collectors.toList());
@@ -2237,13 +2274,16 @@ public class TestCaseService {
         try {
             for (int i = 0; i < testCases.size(); i++) {
                 TestCaseWithBLOBs testCase = testCases.get(i);
-                testCase.setId(UUID.randomUUID().toString());
+                String id = UUID.randomUUID().toString();
+                testCase.setId(id);
                 testCase.setName(ServiceUtils.getCopyName(testCase.getName()));
                 testCase.setNodeId(request.getNodeId());
                 testCase.setNodePath(request.getNodePath());
                 testCase.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
                 testCase.setCustomNum(String.valueOf(nextNum));
                 testCase.setNum(nextNum++);
+                testCase.setCasePublic(false);
+                testCase.setRefId(id);
                 mapper.insert(testCase);
                 if (i % 50 == 0)
                     sqlSession.flushStatements();
@@ -2284,9 +2324,9 @@ public class TestCaseService {
         }
     }
 
-    public int deleteTestCasePublic(String testCaseId) {
+    public int deleteTestCasePublic(String refId) {
         TestCase testCase = new TestCase();
-        testCase.setId(testCaseId);
+        testCase.setRefId(refId);
         return extTestCaseMapper.deletePublic(testCase);
     }
 }

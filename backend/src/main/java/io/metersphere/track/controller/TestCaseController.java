@@ -250,13 +250,12 @@ public class TestCaseController {
         return testCaseService.deleteTestCaseToGc(testCaseId);
     }
 
-    @PostMapping("/deletePublic/{testCaseId}")
+    @PostMapping("/deletePublic/{refId}")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getTestCase(#testCaseId)", targetClass = TestCaseService.class,
             mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
-    public int deletePublic(@PathVariable String testCaseId) {
-        checkPermissionService.checkTestCaseOwner(testCaseId);
-        return testCaseService.deleteTestCasePublic(testCaseId);
+    public int deletePublic(@PathVariable String refId) {
+        return testCaseService.deleteTestCasePublic(refId);
     }
 
 
@@ -344,6 +343,15 @@ public class TestCaseController {
             event = NoticeConstants.Event.DELETE, mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
     public void deleteToGcBatch(@RequestBody TestCaseBatchRequest request) {
         testCaseService.deleteToGcBatch(request.getIds());
+    }
+
+    @PostMapping("/batch/movePublic/deleteToGc")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
+            event = NoticeConstants.Event.DELETE, mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
+    public void deleteToGcBatchPublic(@RequestBody TestCaseBatchRequest request) {
+        testCaseService.deleteToGcBatchPublic(request.getIds());
     }
 
     @PostMapping("/reduction")
