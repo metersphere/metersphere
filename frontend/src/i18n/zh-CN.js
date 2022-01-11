@@ -2186,6 +2186,7 @@ export default {
       not_pass: "不通过",
       failure: "失败",
       blocking: "阻塞",
+      stop: "停止",
       skip: "跳过",
       actual_result: "实际结果",
       step_result: "步骤执行结果",
