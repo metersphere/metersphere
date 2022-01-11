@@ -319,29 +319,30 @@ public class TestPlanReportService {
 
     public TestPlanReport finishedTestPlanReport(String testPlanReportId) {
         TestPlanReport testPlanReport = this.getTestPlanReport(testPlanReportId);
-        //初始化测试计划包含组件信息
-        int[] componentIndexArr = new int[]{1, 3, 4};
-        testPlanReport.setComponents(JSONArray.toJSONString(componentIndexArr));
-        //计算测试计划状态
-        String testPlanStatus = this.getTestPlanReportStatus(testPlanReport, null);
-        testPlanReport.setStatus(testPlanStatus);
-        //如果测试案例没有未结束的功能用例，则更新最后结束日期。
-        TestPlanTestCaseMapper testPlanTestCaseMapper = CommonBeanFactory.getBean(TestPlanTestCaseMapper.class);
-        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-        testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlanReport.getTestPlanId()).andStatusNotEqualTo("Prepare");
-        long endTime = System.currentTimeMillis();
-        long testCaseCount = testPlanTestCaseMapper.countByExample(testPlanTestCaseExample);
-        boolean updateTestPlanTime = testCaseCount > 0;
-        if (updateTestPlanTime) {
-            testPlanReport.setEndTime(endTime);
-            testPlanReport.setUpdateTime(endTime);
-        }
+        if (testPlanReport != null) {
+            //初始化测试计划包含组件信息
+            int[] componentIndexArr = new int[]{1, 3, 4};
+            testPlanReport.setComponents(JSONArray.toJSONString(componentIndexArr));
+            //计算测试计划状态
+            testPlanReport.setStatus(TestPlanReportStatus.COMPLETED.name());
+            //如果测试案例没有未结束的功能用例，则更新最后结束日期。
+            TestPlanTestCaseMapper testPlanTestCaseMapper = CommonBeanFactory.getBean(TestPlanTestCaseMapper.class);
+            TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+            testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlanReport.getTestPlanId()).andStatusNotEqualTo("Prepare");
+            long endTime = System.currentTimeMillis();
+            long testCaseCount = testPlanTestCaseMapper.countByExample(testPlanTestCaseExample);
+            boolean updateTestPlanTime = testCaseCount > 0;
+            if (updateTestPlanTime) {
+                testPlanReport.setEndTime(endTime);
+                testPlanReport.setUpdateTime(endTime);
+            }
 
-        //更新测试计划并发送通知
-        testPlanReport.setIsApiCaseExecuting(false);
-        testPlanReport.setIsScenarioExecuting(false);
-        testPlanReport.setIsPerformanceExecuting(false);
-        testPlanReport = this.update(testPlanReport);
+            //更新测试计划并发送通知
+            testPlanReport.setIsApiCaseExecuting(false);
+            testPlanReport.setIsScenarioExecuting(false);
+            testPlanReport.setIsPerformanceExecuting(false);
+            testPlanReport = this.update(testPlanReport);
+        }
         return testPlanReport;
     }
 
