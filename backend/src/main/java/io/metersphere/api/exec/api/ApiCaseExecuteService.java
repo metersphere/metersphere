@@ -89,12 +89,10 @@ public class ApiCaseExecuteService {
 
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         Map<String, ApiDefinitionExecResult> executeQueue = new HashMap<>();
-        Map<String, String> testPlanCaseIdAndReportIdMap = new HashMap<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
         planApiCases.forEach(testPlanApiCase -> {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, batchMapper);
             executeQueue.put(testPlanApiCase.getId(), report);
-            testPlanCaseIdAndReportIdMap.put(testPlanApiCase.getId(), report.getId());
             responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
         });
         sqlSession.flushStatements();
@@ -108,11 +106,6 @@ public class ApiCaseExecuteService {
         String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
         DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getConfig().getEnvMap());
 
-        //如果是测试计划生成报告的执行，则更新执行信息、执行线程信息。
-        if (StringUtils.isNotEmpty(request.getPlanReportContentId())) {
-            TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-            testPlanReportService.updateTestPlanReportContentReportIds(request.getPlanReportContentId(),testPlanCaseIdAndReportIdMap,null,null);
-        }
         // 开始选择执行模式
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
             LoggerUtil.debug("开始串行执行");
