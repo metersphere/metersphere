@@ -71,9 +71,9 @@ public class SessionUtils {
     public static String getCurrentWorkspaceId() {
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-            LogUtil.info("WORKSPACE_ID: {}", request.getHeader("WORKSPACE_ID"));
-            if (request.getHeader("WORKSPACE_ID") != null) {
-                return request.getHeader("WORKSPACE_ID");
+            LogUtil.info("WORKSPACE: {}", request.getHeader("WORKSPACE"));
+            if (request.getHeader("WORKSPACE") != null) {
+                return request.getHeader("WORKSPACE");
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -84,9 +84,9 @@ public class SessionUtils {
     public static String getCurrentProjectId() {
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-            LogUtil.info("PROJECT_ID: {}", request.getHeader("PROJECT_ID"));
-            if (request.getHeader("PROJECT_ID") != null) {
-                return request.getHeader("PROJECT_ID");
+            LogUtil.info("PROJECT: {}", request.getHeader("PROJECT"));
+            if (request.getHeader("PROJECT") != null) {
+                return request.getHeader("PROJECT");
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
