@@ -164,15 +164,16 @@ public class UserService {
     public User selectUser(String userId, String email) {
         User user = userMapper.selectByPrimaryKey(userId);
         if (user == null) {
-            UserExample example = new UserExample();
-            example.createCriteria().andEmailEqualTo(email);
-            List<User> users = userMapper.selectByExample(example);
-            if (!CollectionUtils.isEmpty(users)) {
-                return users.get(0);
+            if (StringUtils.isNotBlank(email)) {
+                UserExample example = new UserExample();
+                example.createCriteria().andEmailEqualTo(email);
+                List<User> users = userMapper.selectByExample(example);
+                if (!CollectionUtils.isEmpty(users)) {
+                    return users.get(0);
+                }
             }
         }
         return user;
-
     }
 
     private void checkUserParam(User user) {

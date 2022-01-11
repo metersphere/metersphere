@@ -1,9 +1,12 @@
 <template>
 
-  <div class="card-container">
-
-    <ms-table-header :condition.sync="condition" @search="initTableData"
-                     :tip="$t('commons.search_by_name_or_id')" title="" :show-create="false"/>
+  <span>
+    <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTableData" class="search-input" size="small"
+                 @keyup.enter.native="initTableData"
+                 v-model="condition.name" ref="inputVal"/>
+    <el-link type="primary" @click="open" style="float: right;margin-top: 5px;padding-right: 10px">
+        {{ $t('commons.adv_search.title') }}
+    </el-link>
 
     <ms-table
       v-loading="page.result.loading"
@@ -47,7 +50,7 @@
         :label="$t('commons.delete_user')"
         min-width="120"/>
 
-      <span v-for="item in fields" :key="item.key">
+      <span v-for="(item, index) in fields" :key="index">
         <ms-table-column
           v-if="item.id === 'lastExecResult'"
           prop="lastExecuteResult"
@@ -220,7 +223,7 @@
     <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
 
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
-  </div>
+  </span>
 
 </template>
 
@@ -306,7 +309,7 @@ export default {
       projectName: "",
       type: TEST_CASE_LIST,
       tableHeaderKey: "TRACK_TEST_CASE",
-      screenHeight: 'calc(100vh - 258px)',
+      screenHeight: 'calc(100vh - 228px)',
       tableLabel: [],
       deletePath: "/test/case/delete",
       enableOrderDrag: true,
@@ -1141,6 +1144,11 @@ export default {
 .operate-button > div {
   display: inline-block;
   margin-left: 10px;
+}
+
+.search-input {
+  float: right;
+  width: 300px;
 }
 
 .search {
