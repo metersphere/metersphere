@@ -327,6 +327,7 @@ export default {
   },
   methods: {
     forStatus() {
+      this.reqSuccess = true;
       if (this.request.result && this.request.result.length > 0) {
         this.request.result.forEach(item => {
           item.requestResult.forEach(req => {
