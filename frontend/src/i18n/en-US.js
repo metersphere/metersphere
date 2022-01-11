@@ -2280,6 +2280,8 @@ export default {
         creator: "Creator",
         create_time: "Create Time",
         trigger_mode: "Trigger Mode",
+        run_time: "run time(s)",
+        pass_rate: "pass rate",
         status: "Status",
         operation: "Operation",
       },

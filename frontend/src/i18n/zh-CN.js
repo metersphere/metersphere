@@ -2284,6 +2284,8 @@ export default {
         creator: "创建人",
         create_time: "创建时间",
         trigger_mode: "触发方式",
+        run_time: "运行耗时(s)",
+        pass_rate: "成功率",
         status: "状态",
         operation: "操作",
       },
