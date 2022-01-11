@@ -186,8 +186,13 @@ public class JSONSchemaGenerator {
                     if (object.has("items")) {
                         if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
                             try {
-                                int value = itemsObject.get("mock").getAsJsonObject().get("mock").getAsInt();
-                                array.add(value);
+                                if(itemsObject.has("type") && itemsObject.get("type").getAsString().equals("integer")){
+                                    int value = itemsObject.get("mock").getAsJsonObject().get("mock").getAsInt();
+                                    array.add(value);
+                                }else {
+                                    String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                                    array.add(value);
+                                }
                             } catch (Exception e) {
                                 String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
                                 array.add(value);
