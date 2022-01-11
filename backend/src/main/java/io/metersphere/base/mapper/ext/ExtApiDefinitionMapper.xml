@@ -344,7 +344,7 @@
     </update>
 
     <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
-        SELECT protocol AS groupField,count(id) AS countNumber FROM api_definition  WHERE project_id = #{0} AND `status` != 'Trash' GROUP BY protocol
+        SELECT protocol AS groupField,count(DISTINCT ref_id) AS countNumber FROM api_definition  WHERE project_id = #{0} AND `status` != 'Trash' GROUP BY protocol
     </select>
     <select id="countStateByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT status AS groupField,count(id) AS countNumber FROM api_definition  WHERE project_id = #{0} AND `status` != 'Trash' GROUP BY status
