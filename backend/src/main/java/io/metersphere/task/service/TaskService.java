@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.TaskRequest;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
@@ -57,6 +58,8 @@ public class TaskService {
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
     private ExecThreadPoolExecutor execThreadPoolExecutor;
+    @Resource
+    private ApiExecutionQueueService apiExecutionQueueService;
 
     public List<TaskCenterDTO> getTasks(TaskCenterRequest request) {
         if (StringUtils.isEmpty(request.getProjectId())) {
@@ -112,11 +115,11 @@ public class TaskService {
             // 聚类，同一批资源池的一批发送
             Map<String, List<String>> poolMap = new HashMap<>();
             for (TaskRequest request : reportIds) {
-                // 从队列移除
-                execThreadPoolExecutor.removeQueue(request.getReportId());
-
                 String actuator = null;
                 if (StringUtils.isNotEmpty(request.getReportId())) {
+                    // 从队列移除
+                    execThreadPoolExecutor.removeQueue(request.getReportId());
+                    apiExecutionQueueService.stop(request.getReportId());
                     if (StringUtils.equals(request.getType(), "API")) {
                         ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
                         if (result != null) {
@@ -145,6 +148,9 @@ public class TaskService {
                                 actuator = item.getActuator();
                                 request.setReportId(item.getId());
                                 extracted(poolMap, request, actuator);
+                                // 从队列移除
+                                execThreadPoolExecutor.removeQueue(item.getId());
+                                apiExecutionQueueService.stop(item.getId());
                             }
                         }
                     } else if (StringUtils.equals(request.getType(), "SCENARIO")) {
@@ -156,6 +162,9 @@ public class TaskService {
                                 actuator = report.getActuator();
                                 request.setReportId(report.getId());
                                 extracted(poolMap, request, actuator);
+                                // 从队列移除
+                                execThreadPoolExecutor.removeQueue(report.getId());
+                                apiExecutionQueueService.stop(report.getId());
                             }
                         }
                     } else if (StringUtils.equals(request.getType(), "PERFORMANCE")) {
@@ -165,6 +174,9 @@ public class TaskService {
                                 performanceTestService.stopTest(loadTestReport.getId(), false);
                                 request.setReportId(loadTestReport.getId());
                                 extracted(poolMap, request, actuator);
+                                // 从队列移除
+                                execThreadPoolExecutor.removeQueue(loadTestReport.getId());
+                                apiExecutionQueueService.stop(loadTestReport.getId());
                             }
                         }
                     }

@@ -305,14 +305,17 @@ public class TestPlanReportService {
         return reportContent;
     }
 
-    public TestPlanReport finishedTestPlanReport(String testPlanReportId) {
+    public TestPlanReport finishedTestPlanReport(String testPlanReportId, String status) {
         TestPlanReport testPlanReport = this.getTestPlanReport(testPlanReportId);
+        if (testPlanReport != null && StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), "stopped")) {
+            return testPlanReport;
+        }
         if (testPlanReport != null) {
             //初始化测试计划包含组件信息
             int[] componentIndexArr = new int[]{1, 3, 4};
             testPlanReport.setComponents(JSONArray.toJSONString(componentIndexArr));
             //计算测试计划状态
-            testPlanReport.setStatus(TestPlanReportStatus.COMPLETED.name());
+            testPlanReport.setStatus(status);
             //如果测试案例没有未结束的功能用例，则更新最后结束日期。
             TestPlanTestCaseMapper testPlanTestCaseMapper = CommonBeanFactory.getBean(TestPlanTestCaseMapper.class);
             TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
@@ -332,7 +335,7 @@ public class TestPlanReportService {
             TestPlanReportContentWithBLOBs content = new TestPlanReportContentWithBLOBs();
             content.setStartTime(testPlanReport.getStartTime());
             content.setEndTime(endTime);
-            testPlanReportContentMapper.updateByExampleSelective(content,contentExample);
+            testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
 
 
             //更新测试计划并发送通知
@@ -734,7 +737,7 @@ public class TestPlanReportService {
         TestPlanReportContentExample example = new TestPlanReportContentExample();
         example.createCriteria().andTestPlanReportIdEqualTo(testPlanReportID);
         long dataCount = testPlanReportContentMapper.countByExample(example);
-        if(dataCount == 0){
+        if (dataCount == 0) {
             TestPlanReportContentWithBLOBs content = new TestPlanReportContentWithBLOBs();
             content.setId(UUID.randomUUID().toString());
             content.setTestPlanReportId(testPlanReportID);
