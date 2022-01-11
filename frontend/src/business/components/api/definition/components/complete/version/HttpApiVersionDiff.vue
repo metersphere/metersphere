@@ -111,7 +111,24 @@
       <ms-form-divider :title="$t('api_test.definition.request.res_param')"/>
       <ms-response-text :response="response"/>
 
-      <api-other-info :api="oldData"/>
+      <ms-form-divider :title="$t('test_track.case.other_info')"/>
+      <api-info-container>
+        <el-form :model="oldData" ref="api-form" label-width="100px">
+          <el-collapse-transition>
+            <el-tabs v-model="activeName" style="margin: 20px">
+              <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
+                <form-rich-text-item class="remark-item" :disabled="true" :data="oldData" prop="remark" label-width="0"/>
+              </el-tab-pane>
+              <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
+                <template v-slot:label>
+                  <tab-pane-count :title="$t('commons.relationship.name')" :count="oldRelationshipCount"/>
+                </template>
+                <dependencies-list  @setCount="setOldCount" :read-only="true" :resource-id="oldData.id" resource-type="API" ref="oldDependencies"/>
+              </el-tab-pane>
+            </el-tabs>
+          </el-collapse-transition>
+        </el-form>
+      </api-info-container>
 
     </el-card>
     <el-card style="width: 50%;" ref="new">
@@ -225,9 +242,26 @@
       <ms-form-divider :title="$t('api_test.definition.request.res_param')"/>
       <ms-response-text :response="oldResponse"/>
 
-      <api-other-info :api="newData"/>
+      <!-- 其他信息-->
+      <ms-form-divider :title="$t('test_track.case.other_info')"/>
+      <api-info-container>
+        <el-form :model="newData" ref="api-form" label-width="100px">
+          <el-collapse-transition>
+            <el-tabs v-model="activeName" style="margin: 20px">
+              <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
+                <form-rich-text-item class="remark-item" :disabled="true" :data="newData" prop="remark" label-width="0"/>
+              </el-tab-pane>
+              <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
+                <template v-slot:label>
+                  <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
+                </template>
+                <dependencies-list @setCount="setCount" :read-only="true" :resource-id="newData.id" resource-type="API" ref="newDependencies"/>
+              </el-tab-pane>
+            </el-tabs>
+          </el-collapse-transition>
+        </el-form>
+      </api-info-container>
     </el-card>
-    <button @click="getDiff"></button>
   </div>
 </template>
 <script>
@@ -238,6 +272,12 @@ import MsResponseText from "../../response/ResponseText";
 import MsApiRequestForm from "../../request/http/ApiHttpRequestForm";
 import MsSelectTree from "../../../../../common/select-tree/SelectTree";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+import ApiInfoContainer from "@/business/components/api/definition/components/complete/ApiInfoContainer";
+import DependenciesList from "@/business/components/common/components/graph/DependenciesList";
+import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
+import {hasPermissions} from "@/common/js/utils";
+import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
+import {getRelationshipCountApi} from "@/network/api";
 
 const {diff} = require("@/business/components/performance/v_node_diff");
 
@@ -250,6 +290,10 @@ export default{
     MsApiRequestForm,
     MsInputTag,
     MsSelectTree,
+    TabPaneCount,
+    FormRichTextItem,
+    DependenciesList,
+    ApiInfoContainer
   },
   props:{
     oldData:{
@@ -280,7 +324,29 @@ export default{
     response: {},
     oldResponse:{}
   },
-
+  computed: {
+    hasPermissions() {
+      return hasPermissions('PROJECT_API_DEFINITION:READ+EDIT_API');
+    }
+  },
+  watch: {
+    activeName() {
+      if (this.activeName === 'dependencies') {
+        this.$refs.oldDependencies.open();
+        this.$refs.newDependencies.open();
+      }
+    },
+    relationshipCount(){
+      if(this.relationshipCount>0||this.oldRelationshipCount>0){
+        this.getChildDiff()
+      }
+    },
+    oldRelationshipCount(){
+      if(this.relationshipCount>0||this.oldRelationshipCount>0){
+        this.getChildDiff()
+      }
+    }
+  },
   data(){
     return{
       reqOptions: REQ_METHOD,
@@ -290,19 +356,49 @@ export default{
         label: 'name',
       },
       isShowEnable: true,
+      activeName: 'remark',
+      relationshipCount: 0,
+      oldRelationshipCount: 0,
     }
   },
   methods:{
     getDiff(){
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
-      //oldVnode.style.backgroundColor = "rgb(241,200,196)";
-      console.log(this.$refs.old)
-      console.log(this.$refs.new)
       diff(oldVnode,vnode);
+    },
+    setCount(count) {
+      this.relationshipCount = count;
+      this.$nextTick(function () {
+        setTimeout(this.getChildDiff,1000)
+      })
+    },
+    setOldCount(count) {
+      this.oldRelationshipCount = count;
+
+    },
+    getChildDiff(){
+      let oldVnode = this.$refs.oldDependencies
+      let vnode = this.$refs.newDependencies
+      if(oldVnode._data.postCount>0||oldVnode._data.preCount>0||vnode._data.postCount>0||vnode._data.preCount>0){
+        diff(oldVnode,vnode);
+      }
+
     }
   },
+  mounted() {
+    getRelationshipCountApi(this.newData.id, (data) => {
+      this.relationshipCount = data;
+    });
+    getRelationshipCountApi(this.oldData.id, (data) => {
+      this.oldRelationshipCount = data;
+    });
+    this.$nextTick(function () {
+      setTimeout(this.getDiff,(this.$refs.old.$children.length+1)/2*1000)
+    })
+  },
   created() {
+
   }
 }
 </script>

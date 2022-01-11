@@ -1,6 +1,7 @@
 <template>
-  <div class="compare-class">
-    <el-card style="width: 50%;" ref="old">
+  <div class="compare-class" id="vdiff" ref="all" >
+    <el-card style="width: 50%;" ref="old" id="old">
+      <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
       <el-row>
         <el-col :span="12">
           <el-form :inline="true">
@@ -23,19 +24,22 @@
         </el-col>
       </el-row>
 
-      <el-tabs v-model="active" @tab-click="clickTab">
-        <el-tab-pane :label="$t('load_test.basic_config')" class="advanced-config">
-          <performance-basic-config :is-read-only="true" :test="oldData" @fileChange="fileChange"  ref="basicConfig" />
-        </el-tab-pane>
-        <el-tab-pane :label="$t('load_test.pressure_config')" class="advanced-config">
-          <performance-pressure-config :is-read-only="true" :test="oldData" :test-id="oldData.id" @fileChange="fileChange" ref="pressureConfig"/>
-        </el-tab-pane>
-        <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
-          <performance-advanced-config :read-only="true" :test-id="oldData.id" ref="advancedConfig"/>
-        </el-tab-pane>
-      </el-tabs>
+      <ms-form-divider :title="$t('load_test.basic_config')"/>
+      <el-row>
+        <performance-basic-config :is-read-only="true" :test="oldData" @fileChange="fileChange"  ref="basicConfig" />
+      </el-row>
+      <ms-form-divider :title="$t('load_test.pressure_config')"/>
+      <el-row>
+        <performance-pressure-config :is-read-only="true" :test="oldData" :test-id="oldData.id" @fileChange="fileChange" ref="pressureConfig"/>
+      </el-row>
+      <ms-form-divider :title="$t('load_test.advanced_config')"/>
+      <el-row>
+        <performance-advanced-config :read-only="true" :test-id="oldData.id" ref="advancedConfig"/>
+      </el-row>
+
     </el-card>
-    <el-card style="width: 50%;" ref="new">
+    <el-card style="width: 50%;" ref="new" id="new">
+      <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
       <el-row>
         <el-col :span="12">
           <el-form :inline="true">
@@ -58,30 +62,30 @@
         </el-col>
       </el-row>
 
-      <el-tabs v-model="active" @tab-click="clickTab">
-        <el-tab-pane :label="$t('load_test.basic_config')" class="advanced-config">
-          <performance-basic-config :is-read-only="true" :test="newData" @fileChange="fileNewChange"  ref="newBasicConfig" />
-        </el-tab-pane>
-        <el-tab-pane :label="$t('load_test.pressure_config')" class="advanced-config">
-          <performance-pressure-config :is-read-only="true" :test="newData" :test-id="newData.id"  @fileChange="fileNewChange" ref="newPressureConfig" />
-        </el-tab-pane>
-        <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
-          <performance-advanced-config :read-only="true" :test-id="newData.id" ref="newAdvancedConfig" />
-        </el-tab-pane>
-      </el-tabs>
+      <ms-form-divider :title="$t('load_test.basic_config')"/>
+      <el-row>
+        <performance-basic-config :is-read-only="true" :test="newData" @fileChange="fileNewChange"  ref="newBasicConfig" />
+      </el-row>
+      <ms-form-divider :title="$t('load_test.pressure_config')"/>
+      <el-row>
+        <performance-pressure-config :is-read-only="true" :test="newData" :test-id="newData.id"  @fileChange="fileNewChange" ref="newPressureConfig" />
+      </el-row>
+      <ms-form-divider :title="$t('load_test.advanced_config')"/>
+      <el-row>
+        <performance-advanced-config :read-only="true" :test-id="newData.id" ref="newAdvancedConfig" />
+      </el-row>
+
     </el-card>
-    <button @click="getDiff"></button>
   </div>
 </template>
 
 <script>
 
-
-
 import EditPerformanceTest from "@/business/components/performance/test/EditPerformanceTest";
 import PerformancePressureConfig from "@/business/components/performance/test/components/PerformancePressureConfig";
 import PerformanceBasicConfig from "@/business/components/performance/test/components/PerformanceBasicConfig";
 import PerformanceAdvancedConfig from "@/business/components/performance/test/components/PerformanceAdvancedConfig";
+import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 
 const {diff} = require("@/business/components/performance/v_node_diff");
 
@@ -92,6 +96,7 @@ export default{
     PerformancePressureConfig,
     PerformanceBasicConfig,
     PerformanceAdvancedConfig,
+    MsFormDivider,
   },
   props:{
     oldData:{
@@ -108,6 +113,12 @@ export default{
     }
 
   },
+  watch:{
+    allDtata(){//materielId为需要监听的data
+      console.log("this.allDtata")
+      console.log(this.allDtata)
+    }
+  },
   data(){
     return{
       active: '0',
@@ -117,7 +128,6 @@ export default{
       newDataJson:{
 
       },
-
     }
   },
   methods:{
@@ -204,10 +214,17 @@ export default{
       handler.calculateTotalChart();
     },
   },
-  created() {
+  updated() {
 
+ },
+  mounted() {
+    this.$nextTick(function () {
+      setTimeout(this.getDiff,(this.$refs.old.$children.length+1)*1000)
+    })
   }
+
 }
+
 </script>
 <style scoped>
 .compare-class{

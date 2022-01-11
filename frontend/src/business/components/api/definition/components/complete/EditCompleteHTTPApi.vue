@@ -154,10 +154,6 @@
           :response="response"
           :old-response="oldResponse"
         ></http-api-version-diff>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible=false">取 消</el-button>
-          <el-button type="primary" >确 定</el-button>
-        </span>
       </el-dialog>
 
     </el-card>
@@ -182,6 +178,7 @@ import {createComponent } from ".././jmeter/components";
 import { TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
+const Sampler = require("@/business/components/api/definition/components/jmeter/components/sampler/sampler");
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -235,7 +232,7 @@ export default {
       newMockBaseUrl: "",
       count: 0,
       versionData: [],
-      oldRequest:{},
+      oldRequest:Sampler,
       oldResponse:{}
     };
   },
@@ -441,7 +438,6 @@ export default {
               this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
             }
           }
-
           this.$emit('saveApi', this.httpForm);
           this.count = 0;
           this.$store.state.apiMap.delete(this.httpForm.id);
@@ -555,13 +551,14 @@ export default {
             this.setRequest(res.data)
             if (!this.setRequest(res.data)) {
               this.oldRequest = createComponent("HTTPSamplerProxy");
+              this.dialogVisible = true;
             }
             this.formatApi(res.data)
           }
         });
       });
-      if(this.newData){
-        this.dialogVisible = true;
+      if(this.newData&&this.oldRequest){
+       //
       }
     },
     setRequest(api) {
@@ -574,6 +571,7 @@ export default {
         if (!this.oldRequest.headers) {
           this.oldRequest.headers = [];
         }
+        this.dialogVisible = true;
         return true;
       }
       return false;
