@@ -14,8 +14,10 @@ import io.metersphere.base.mapper.ext.ExtApiExecutionQueueMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
+import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -159,6 +161,10 @@ public class ApiExecutionQueueService {
                 if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
                     apiScenarioReportService.margeReport(dto.getReportId());
                 }
+                // 更新测试计划报告
+                if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
+                    CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId());
+                }
                 queueMapper.deleteByPrimaryKey(executionQueue.getId());
                 LoggerUtil.info("队列：" + dto.getQueueId() + " 执行结束");
             }
@@ -207,6 +213,16 @@ public class ApiExecutionQueueService {
                 if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && report.getUpdateTime() < now) {
                     report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+                }
+            });
+        }
+        // 处理测试计划报告
+        List<ApiExecutionQueue> queues = extApiExecutionQueueMapper.findTestPlanReportQueue();
+        if (CollectionUtils.isNotEmpty(queues)) {
+            queues.forEach(item -> {
+                // 更新测试计划报告
+                if (StringUtils.isNotEmpty(item.getReportId())) {
+                    CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(item.getReportId());
                 }
             });
         }
