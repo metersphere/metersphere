@@ -63,9 +63,6 @@ public class LdapService {
 
         // 检查属性是否存在
         getMappingAttr("name", dirContextOperations);
-        getMappingAttr("email", dirContextOperations);
-
-
         return dirContextOperations;
     }
 
@@ -85,16 +82,11 @@ public class LdapService {
         }
 
         DirContextOperations dirContext = authenticate(request);
-        String email = getMappingAttr("email", dirContext);
+        String email = getNotRequiredMappingAttr("email", dirContext);
         String userId = getMappingAttr("username", dirContext);
 
         SecurityUtils.getSubject().getSession().setAttribute("authenticate", UserSource.LDAP.name());
         SecurityUtils.getSubject().getSession().setAttribute("email", email);
-
-
-        if (StringUtils.isBlank(email)) {
-            MSException.throwException(Translator.get("login_fail_email_null"));
-        }
 
         // userId 或 email 有一个相同即为存在本地用户
         User u = userService.selectUser(userId, email);
@@ -106,6 +98,9 @@ public class LdapService {
             User user = new User();
             user.setId(userId);
             user.setName(name);
+            if (StringUtils.isBlank(email)) {
+                email = userId + "@localhost.localhost";
+            }
             user.setEmail(email);
 
             if (StringUtils.isNotBlank(phone)) {
