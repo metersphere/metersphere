@@ -110,7 +110,7 @@ class Convert {
         }
         let $id = `${name}/properties/${key}`
         // 判断当前 element 的值 是否也是对象，如果是就继续递归，不是就赋值给result
-        if(!result["properties"]){
+        if (!result["properties"]) {
           continue;
         }
         if (isObject(element)) {
@@ -124,13 +124,19 @@ class Convert {
               for (let index = 0; index < element.length; index++) {
                 let elementItem = element[index];
                 // 创建items对象的基本信息
-                let item = this._value2object(elementItem, `${$id}/items`, key + 'items');
-                // 判断第一项是否是对象,且对象属性不为空
-                if (isObject(elementItem) && !isEmpty(elementItem)) {
+                if (isArray(elementItem)) {
+                  let innerItemArr = this._deepTraversal(elementItem, `${$id}/items`, key + 'items');
+                  // let item = this._value2object(element, `${$id}/items`, key + 'items');
+                  // item["items"] = innerItemArr;
+                  itemArr.push(innerItemArr);
+
+                } else if (isObject(elementItem) && !isEmpty(elementItem)) {
+                  let item = this._value2object(elementItem, `${$id}/items`, key + 'items');
+                  // 判断第一项是否是对象,且对象属性不为空
                   // 新增的properties才合并进来
                   item = Object.assign(item, this._json2schema(elementItem, `${$id}/items`));
+                  itemArr.push(item);
                 }
-                itemArr.push(item);
               }
               result["properties"][key]["items"] = itemArr;
             }
@@ -147,6 +153,51 @@ class Convert {
       }
     }
     return result;
+  }
+
+  /**
+   * 深度遍历array中的元素
+   * @private
+   */
+  _deepTraversal(element, name = "", key) {
+    // 处理当前路径$id
+    if (name === "" || name == undefined) {
+      name = "#"
+    }
+    let $id = `${name}/`;
+
+    let innerItemArr = [];
+
+    let innerIsObject = false;
+    let innerIsArray = false;
+    element.forEach(f => {
+      if (isArray(f)) {
+        innerIsArray = true;
+        innerIsObject = true;
+      } else if (isObject(f)) {
+        innerIsObject = true;
+      }
+    });
+    if (innerIsArray) {
+      element.forEach(f => {
+        let innerArr = this._deepTraversal(f);
+        innerItemArr.push(innerArr);
+      });
+    } else if (innerIsObject) {
+      let item = this._value2object(element, `${$id}/items`, key + 'items');
+      // 判断第一项是否是对象,且对象属性不为空
+      // 新增的properties才合并进来
+      item = Object.assign(item, this._json2schema(element, `${$id}/items`));
+      innerItemArr.push(item);
+    } else {
+      element.forEach(f => {
+        let innerItem = this._value2object(f, `${$id}/items`, key + 'items');
+        innerItemArr.push(innerItem);
+      });
+    }
+    let item = this._value2object(element, `${$id}/items`, key + 'items');
+    item["items"] = innerItemArr;
+    return item;
   }
 
   /**

@@ -46,6 +46,7 @@
       if (this.schema.type === 'object') {
         this.$delete(this.schema, 'mock')
       }
+      this.mock.mock = this.mock.mock + "";
     },
     watch: {
       schema: {
