@@ -161,6 +161,11 @@ export default {
     weeks_4: 'Thur',
     weeks_5: 'Fri',
     weeks_6: 'Sat',
+    date_unit: {
+      day: "Day",
+      month: "Month",
+      year: "Year"
+    },
     test_unit: 'tests',
     remove: 'Remove',
     next_level: "Next level",
