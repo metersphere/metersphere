@@ -167,7 +167,8 @@ export default {
         creator: null,
         remark: null,
         tapdUsers:[],
-        zentaoBuilds:[]
+        zentaoBuilds:[],
+        zentaoAssigned: ''
       },
       tapdUsers: [],
       zentaoUsers: [],
