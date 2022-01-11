@@ -303,7 +303,7 @@
         </foreach>
     </select>
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
-        select status from api_scenario_report
+        select status, id as report_id , scenario_id as case_id from api_scenario_report
         WHERE id IN
         <foreach collection="ids" item="value" separator="," open="(" close=")">
             #{value}
