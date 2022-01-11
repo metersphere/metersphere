@@ -37,7 +37,5 @@ public class SchedulePlanScenarioExecuteRequest {
 
     private String testPlanReportId;
 
-    private String planReportContentId;
-
     private RunModeConfigDTO config;
 }

@@ -184,16 +184,6 @@ public class TestPlanReportService {
         testPlanReport.setEndTime(System.currentTimeMillis());
         testPlanReport.setIsNew(true);
 
-        TestPlanReportContentWithBLOBs testPlanReportContent = new TestPlanReportContentWithBLOBs();
-        testPlanReportContent.setId(UUID.randomUUID().toString());
-        testPlanReportContent.setTestPlanReportId(testPlanReportID);
-        if (testPlanReportContent.getStartTime() == null) {
-            testPlanReportContent.setStartTime(System.currentTimeMillis());
-        }
-        if (testPlanReportContent.getEndTime() == null) {
-            testPlanReportContent.setEndTime(System.currentTimeMillis());
-        }
-
         if (saveRequest.isCountResources()) {
             List<TestPlanApiCase> testPlanApiCaseList = extTestPlanApiCaseMapper.selectLegalDataByTestPlanId(saveRequest.getPlanId());
             List<String> apiCaseIdList = testPlanApiCaseList.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
@@ -222,7 +212,6 @@ public class TestPlanReportService {
         }
 
         testPlanReportMapper.insert(testPlanReport);
-        testPlanReportContentMapper.insert(testPlanReportContent);
 
         //更新TestPlan状态，改为进行中
         testPlan.setStatus(TestPlanStatus.Underway.name());
@@ -230,7 +219,6 @@ public class TestPlanReportService {
 
         TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
         returnDTO.setTestPlanReport(testPlanReport);
-        returnDTO.setTestPlanReportContent(testPlanReportContent);
         return returnDTO;
     }
 
@@ -731,10 +719,14 @@ public class TestPlanReportService {
         return testPlanReportContent;
     }
 
-    public synchronized void updateTestPlanReportContentReportIds(String testPlanReportContentId, Map<String, String> apiCaseReportMap, Map<String, String> scenarioReportIdMap, Map<String, String> loadCaseReportIdMap) {
-        if (StringUtils.isNotEmpty(testPlanReportContentId)) {
+    public void createTestPlanReportContentReportIds(String testPlanReportID, Map<String, String> apiCaseReportMap, Map<String, String> scenarioReportIdMap, Map<String, String> loadCaseReportIdMap) {
+        TestPlanReportContentExample example = new TestPlanReportContentExample();
+        example.createCriteria().andTestPlanReportIdEqualTo(testPlanReportID);
+        long dataCount = testPlanReportContentMapper.countByExample(example);
+        if(dataCount == 0){
             TestPlanReportContentWithBLOBs content = new TestPlanReportContentWithBLOBs();
-            content.setId(testPlanReportContentId);
+            content.setId(UUID.randomUUID().toString());
+            content.setTestPlanReportId(testPlanReportID);
 
             if (MapUtils.isNotEmpty(apiCaseReportMap)) {
                 content.setPlanApiCaseReportStruct(JSONObject.toJSONString(apiCaseReportMap));
@@ -745,10 +737,7 @@ public class TestPlanReportService {
             if (MapUtils.isNotEmpty(loadCaseReportIdMap)) {
                 content.setPlanLoadCaseReportStruct(JSONObject.toJSONString(loadCaseReportIdMap));
             }
-
-            if (StringUtils.isNotEmpty(content.getPlanApiCaseReportStruct()) || StringUtils.isNotEmpty(content.getPlanScenarioReportStruct()) || StringUtils.isNotEmpty(content.getPlanLoadCaseReportStruct())) {
-                testPlanReportContentMapper.updateByPrimaryKeySelective(content);
-            }
+            testPlanReportContentMapper.insert(content);
         }
     }
 

@@ -224,7 +224,6 @@ public class ApiScenarioExecuteService {
         }
         String projectId = request.getProjectId();
         Map<String, ApiScenarioWithBLOBs> scenarioMap = apiScenarios.stream().collect(Collectors.toMap(ApiScenarioWithBLOBs::getId, Function.identity(), (t1, t2) -> t1));
-        Map<String, String> scenarioReportIdMap = new HashMap<>();
         for (Map.Entry<String, String> entry : planScenarioIdMap.entrySet()) {
             String testPlanScenarioId = entry.getKey();
             String scenarioId = entry.getValue();
@@ -256,9 +255,6 @@ public class ApiScenarioExecuteService {
             report = apiScenarioReportService.init(reportId, testPlanScenarioId, scenario.getName(), request.getTriggerMode(),
                     request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig(), scenario.getId());
 
-            if (report != null && StringUtils.isNotEmpty(request.getTestPlanReportContentId())) {
-                scenarioReportIdMap.put(testPlanScenarioId, report.getId());
-            }
             scenarioIds.add(scenario.getId());
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 RunModeDataDTO runModeDataDTO = new RunModeDataDTO();
@@ -276,7 +272,7 @@ public class ApiScenarioExecuteService {
                     }
                     executeQueue.put(report.getId(), runModeDataDTO);
                 } catch (Exception ex) {
-                    scenarioIds.remove(scenario.getId());
+                    scenarioIds.remove(testPlanScenarioId);
                     if (StringUtils.equalsAny(request.getTriggerMode(), TriggerMode.BATCH.name(), TriggerMode.SCHEDULE.name())) {
                         remakeReportService.remakeScenario(request.getRunMode(), testPlanScenarioId, scenario, report);
                     } else {
@@ -293,10 +289,6 @@ public class ApiScenarioExecuteService {
             }
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
-        }
-        if(StringUtils.isNotEmpty(request.getTestPlanReportContentId())){
-            TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-            testPlanReportService.updateTestPlanReportContentReportIds(request.getTestPlanReportContentId(),null,scenarioReportIdMap,null);
         }
     }
 
