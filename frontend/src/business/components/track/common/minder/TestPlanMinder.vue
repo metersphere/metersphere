@@ -20,6 +20,8 @@
 </template>
 
 <script>
+const {getCurrentWorkspaceId} = require("@/common/js/utils");
+const {getIssuesListById} = require("@/network/Issue");
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
 import {
   handleExpandToLevel, listenBeforeExecCommand, listenNodeSelected, loadSelectNodes,
@@ -59,6 +61,9 @@ name: "TestPlanMinder",
   computed: {
     selectNode() {
       return this.$store.state.testPlanViewSelectNode;
+    },
+    workspaceId(){
+      return getCurrentWorkspaceId();
     }
   },
   mounted() {
@@ -98,7 +103,7 @@ name: "TestPlanMinder",
       listenDblclick(() => {
         let data = getSelectedNodeData();
         if (data.type === 'issue') {
-          getIssuesById(data.id, (data) => {
+          getIssuesListById(data.id, this.projectId,this.workspaceId,(data) => {
             data.customFields = JSON.parse(data.customFields);
             this.$refs.issueEdit.open(data);
           });
