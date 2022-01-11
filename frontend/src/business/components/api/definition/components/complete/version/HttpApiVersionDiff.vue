@@ -227,7 +227,6 @@
 
       <api-other-info :api="newData"/>
     </el-card>
-    <button @click="getDiff"></button>
   </div>
 </template>
 <script>
@@ -301,6 +300,11 @@ export default{
       console.log(this.$refs.new)
       diff(oldVnode,vnode);
     }
+  },
+  mounted() {
+    this.$nextTick(function () {
+      setTimeout(this.getDiff,(this.$refs.old.$children.length+1)/2*1000)
+    })
   },
   created() {
   }

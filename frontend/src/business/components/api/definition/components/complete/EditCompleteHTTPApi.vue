@@ -154,10 +154,6 @@
           :response="response"
           :old-response="oldResponse"
         ></http-api-version-diff>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible=false">取 消</el-button>
-          <el-button type="primary" >确 定</el-button>
-        </span>
       </el-dialog>
 
     </el-card>
@@ -438,7 +434,9 @@ export default {
 
           if (!this.httpForm.versionId) {
             if (this.$refs.versionHistory) {
+              console.log(this.$refs.versionHistory);
               this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
+              console.log(this.httpForm.versionId);
             }
           }
 
@@ -553,6 +551,7 @@ export default {
               }
             });
             this.setRequest(res.data)
+            console.log("")
             if (!this.setRequest(res.data)) {
               this.oldRequest = createComponent("HTTPSamplerProxy");
             }
