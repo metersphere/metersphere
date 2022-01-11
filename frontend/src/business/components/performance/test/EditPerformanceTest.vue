@@ -82,10 +82,6 @@
         width="100%"
         >
         <diff-version :old-data="oldData" :show-follow="showFollow" :new-data="newData" :new-show-follow="newShowFollow" ></diff-version>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible=false">取 消</el-button>
-          <el-button type="primary" >确 定</el-button>
-        </span>
       </el-dialog>
 
     </ms-main-container>

@@ -103,6 +103,7 @@ function changeStyle(diffNode){
 }
 
 function changeStyleBySubset(vnodeElm,color){
+  //如果当前节点加了颜色，他的子节点也按照diff处理
   if(isDef(vnodeElm.children)&&vnodeElm.children.length>0){
     if(isDef(vnodeElm.style)){
       vnodeElm.style.setProperty("background-color",color,'important')
