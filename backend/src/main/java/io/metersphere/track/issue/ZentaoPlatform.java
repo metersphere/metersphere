@@ -66,13 +66,13 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     public IssuesDao getZentaoAssignedAndBuilds(IssuesDao issue){
         JSONObject zentaoIssue = zentaoClient.getBugById(issue.getPlatformId());
-        String openedBy = zentaoIssue.getString("openedBy");
+        String assignedTo = zentaoIssue.getString("assignedTo");
         String openedBuild = zentaoIssue.getString("openedBuild");
         List<String>zentaoBuilds = new ArrayList<>();
         if(Strings.isNotBlank(openedBuild)){
             zentaoBuilds = Arrays.asList(openedBuild.split(","));
         }
-        issue.setZentaoAssigned(openedBy);
+        issue.setZentaoAssigned(assignedTo);
         issue.setZentaoBuilds(zentaoBuilds);
         return issue;
     }
