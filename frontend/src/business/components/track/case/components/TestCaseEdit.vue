@@ -748,9 +748,6 @@ export default {
           if (callback) {
             callback(this);
           }
-          if (hasLicense()) {
-            this.getVersionHistory();
-          }
           // 保存用例后刷新附件
         });
       }
@@ -953,7 +950,7 @@ export default {
     create(row) {
       // 创建新版本
       this.form.versionId = row.id;
-      this.saveCase();
+      this.saveCase(this.getVersionHistory);
     },
     del(row) {
       let that = this;

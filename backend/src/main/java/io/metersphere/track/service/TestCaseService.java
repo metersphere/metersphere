@@ -262,7 +262,7 @@ public class TestCaseService {
         return testCaseMapper.selectByPrimaryKey(testCaseId);
     }
 
-    public int editTestCase(TestCaseWithBLOBs testCase) {
+    public TestCaseWithBLOBs editTestCase(TestCaseWithBLOBs testCase) {
         checkTestCustomNum(testCase);
         testCase.setUpdateTime(System.currentTimeMillis());
         // 更新数据
@@ -284,7 +284,8 @@ public class TestCaseService {
             testCase.setRefId(oldTestCase.getRefId());
             testCaseMapper.insertSelective(testCase);
         }
-        return testCaseMapper.updateByPrimaryKeySelective(testCase);
+        testCaseMapper.updateByPrimaryKeySelective(testCase);
+        return testCaseMapper.selectByPrimaryKey(testCase.getId());
     }
 
     public TestCaseWithBLOBs checkTestCaseExist(TestCaseWithBLOBs testCase) {
@@ -1545,9 +1546,7 @@ public class TestCaseService {
             });
         }
         this.setNode(request);
-        editTestCase(request);
-        //saveFollows(request.getId(), request.getFollows());
-        return testCaseWithBLOBs;
+        return editTestCase(request);
     }
 
     public String editTestCase(EditTestCaseRequest request, List<MultipartFile> files) {
