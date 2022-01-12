@@ -128,12 +128,13 @@
                      <!-- 步骤组件-->
                      <ms-component-config
                        :isMax="true"
+                       :node="node"
                        :project-list="projectList"
                        :if-from-variable-advance="ifFromVariableAdvance"
                        :type="data.type"
                        :scenario="data"
                        :env-map="projectEnvMap"
-                       :node="node"/>
+                       />
                   </span>
                 </el-tree>
             </div>
@@ -161,8 +162,10 @@
                     :type="item.type"
                     :scenario="item"
                     :env-map="projectEnvMap"
+                    :response="response"
                     :draggable="false"
                     @savePreParams="savePreParams"
+                    @suggestClick="suggestClick"
                     v-if="selectedTreeNode && selectedNode && filterSonNode(item)"/>
                 </div>
               </div>
@@ -315,6 +318,7 @@
         asideHidden: false,
         scenarioRootTree: undefined,
         insideClick: false,
+        response: {},
       }
     },
     computed: {
@@ -654,6 +658,15 @@
       outsideClick(e) {
         // 获取全部前置提取
         this.getAllExtractDataByNode();
+      },
+      // 获取响应结果，后续 jsonpath 引用
+      suggestClick(node) {
+        this.response = {};
+        if (node && node.parent && node.parent.data.requestResult) {
+          this.response = node.parent.data.requestResult[0];
+        } else if (this.selectedNode) {
+          this.response = this.selectedNode.data.requestResult[0];
+        }
       },
     }
   }
