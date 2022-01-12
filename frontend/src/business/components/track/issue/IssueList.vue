@@ -225,15 +225,19 @@ export default {
     },
   },
   activated() {
-    // 解决错位问题
-    window.addEventListener('resize', this.tableDoLayout);
-    getProjectMember((data) => {
-      this.members = data;
+    this.page.result.loading = true;
+    this.$nextTick(() => {
+      // 解决错位问题
+      window.addEventListener('resize', this.tableDoLayout);
+      getProjectMember((data) => {
+        this.members = data;
+      });
+      getIssuePartTemplateWithProject((template) => {
+        this.initFields(template);
+        this.page.result.loading = false;
+      });
+      this.getIssues();
     });
-    getIssuePartTemplateWithProject((template) => {
-      this.initFields(template);
-    });
-    this.getIssues();
   },
   computed: {
     platformFilters() {
