@@ -8,4 +8,6 @@ public interface ExtApiExecutionQueueMapper {
     void delete();
 
     List<ApiExecutionQueue> findTestPlanReportQueue();
+
+    List<String> findTestPlanRunningReport();
 }
