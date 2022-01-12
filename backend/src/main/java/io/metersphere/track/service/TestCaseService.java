@@ -267,7 +267,10 @@ public class TestCaseService {
         testCase.setUpdateTime(System.currentTimeMillis());
         // 更新数据
         TestCaseExample example = new TestCaseExample();
-        example.createCriteria().andIdEqualTo(testCase.getId()).andVersionIdEqualTo(testCase.getVersionId());
+        example.createCriteria().andIdEqualTo(testCase.getId());
+        if (StringUtils.isNotBlank(testCase.getVersionId())) {
+            example.getOredCriteria().get(0).andVersionIdEqualTo(testCase.getVersionId());
+        }
         if (testCaseMapper.updateByExampleSelective(testCase, example) == 0) {
             // 插入新版本的数据
             TestCaseWithBLOBs oldTestCase = testCaseMapper.selectByPrimaryKey(testCase.getId());
