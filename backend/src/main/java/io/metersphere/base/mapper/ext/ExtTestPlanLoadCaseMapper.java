@@ -11,6 +11,7 @@ import java.util.List;
 public interface ExtTestPlanLoadCaseMapper {
 
     List<String> selectIdsNotInPlan(@Param("request") LoadCaseRequest request);
+
     List<TestPlanLoadCaseDTO> selectTestPlanLoadCaseList(@Param("request") LoadCaseRequest request);
 
     List<TestPlanLoadCaseDTO> selectByIdIn(@Param("request") LoadCaseRequest request);
@@ -26,15 +27,16 @@ public interface ExtTestPlanLoadCaseMapper {
     List<PlanReportCaseDTO> selectForPlanReport(String planId);
 
     List<TestPlanLoadCaseDTO> getCases(@Param("planId") String planId, @Param("status") String status);
-    List<TestPlanLoadCaseDTO> getCasesByIds(@Param("ids") Collection<String> ids, @Param("planId") String planId, @Param("status") String status);
+
+    List<TestPlanLoadCaseDTO> getCasesByIds(@Param("ids") Collection<String> ids, @Param("reportIds") Collection<String> reportIds);
 
     List<String> selectPlanIds();
 
     List<String> getIdsOrderByUpdateTime(@Param("planId") String planId);
 
-    Long getPreOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
+    Long getPreOrder(@Param("planId") String planId, @Param("baseOrder") Long baseOrder);
 
-    Long getLastOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
+    Long getLastOrder(@Param("planId") String planId, @Param("baseOrder") Long baseOrder);
 
     List<String> selectIdByLoadCaseReportIdAndStatusIsRun(String reportId);
 

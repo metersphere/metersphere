@@ -407,8 +407,8 @@ public class TestPlanLoadCaseService {
         return buildCases(cases);
     }
 
-    public List<TestPlanLoadCaseDTO> getAllCases(Collection<String> ids, String planId, String status) {
-        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCasesByIds(ids, planId, status);
+    public List<TestPlanLoadCaseDTO> getAllCases(Collection<String> ids, Collection<String> reportIds) {
+        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCasesByIds(ids, reportIds);
         return buildCases(cases);
     }
 
