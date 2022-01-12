@@ -226,6 +226,13 @@ public class ApiExecutionQueueService {
                 }
             });
         }
+        List<String> testPlanReports = extApiExecutionQueueMapper.findTestPlanRunningReport();
+        if (CollectionUtils.isNotEmpty(testPlanReports)) {
+            testPlanReports.forEach(reportId -> {
+                LoggerUtil.info("补偿测试计划报告：【" + reportId + "】");
+                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(reportId, TestPlanReportStatus.COMPLETED.name());
+            });
+        }
         // 清除异常队列/一般是服务突然停止产生
         extApiExecutionQueueMapper.delete();
     }
