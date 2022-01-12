@@ -227,6 +227,7 @@ export function getPageInfo(condition) {
     result: {},
     data: [],
     condition: condition ? condition : {},
+    loading: false
   }
 }
 
