@@ -35,6 +35,7 @@
         @refReload="refReload"
         @openScenario="openScenario"
         @setDomain="setDomain"
+        @reloadResult="reloadResult"
       />
     </keep-alive>
   </div>
@@ -234,6 +235,9 @@ export default {
     },
     setDomain() {
       this.$emit("setDomain");
+    },
+    reloadResult() {
+      this.$emit('reloadResult');
     }
   }
 }
