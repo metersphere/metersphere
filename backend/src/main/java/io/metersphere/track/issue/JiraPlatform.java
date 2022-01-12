@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldItemDTO;
@@ -21,6 +22,7 @@ import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.jira.*;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import io.metersphere.track.service.IssuesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
@@ -297,7 +299,13 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void syncIssues(Project project, List<IssuesDao> issues) {
-        isThirdPartTemplate = isThirdPartTemplate();
+        super.isThirdPartTemplate = isThirdPartTemplate();
+
+        IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
+        if (project.getThirdPartTemplate()) {
+            super.defaultCustomFields =  issuesService.getCustomFieldsValuesString(getThirdPartTemplate().getCustomFields());
+        }
+
         issues.forEach(item -> {
             try {
                 IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
