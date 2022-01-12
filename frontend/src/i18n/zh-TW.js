@@ -1676,6 +1676,10 @@ export default {
       cover_tip_1: "1. 接口路徑不存在則新增",
       cover_tip_2: "2. 接口路徑與原接口一致，內容不一致則覆蓋原接口",
       cover_tip_3: "3. 接口路徑、內容與原接口一致則不做變更",
+      import_version: '導入版本',
+      data_update_version: '數據更新版本',
+      data_new_version: '數據創建版本',
+      data_old_version: '保持當前版本',
     },
     home_page: {
       unit_of_measurement: "個",

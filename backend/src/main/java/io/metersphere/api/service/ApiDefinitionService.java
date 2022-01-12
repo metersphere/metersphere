@@ -680,7 +680,12 @@ public class ApiDefinitionService {
                 String originId = apiDefinition.getId();
                 apiDefinition.setId(UUID.randomUUID().toString());
                 apiDefinition.setRefId(apiDefinition.getId());
-                apiDefinition.setVersionId(extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId()));
+                if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
+                    apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
+                } else {
+                    String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
+                    apiDefinition.setVersionId(defaultVersion);
+                }
                 batchMapper.insert(apiDefinition);
                 String requestStr = setImportHashTree(apiDefinition);
                 reSetImportCasesApiId(cases, originId, apiDefinition.getId());
@@ -721,7 +726,12 @@ public class ApiDefinitionService {
         if (CollectionUtils.isEmpty(sameRequest)) {
             apiDefinition.setId(UUID.randomUUID().toString());
             apiDefinition.setRefId(apiDefinition.getId());
-            apiDefinition.setVersionId(extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId()));
+            if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
+                apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
+            } else {
+                String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
+                apiDefinition.setVersionId(defaultVersion);
+            }
             apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
             reSetImportCasesApiId(cases, originId, apiDefinition.getId());
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
@@ -742,6 +752,9 @@ public class ApiDefinitionService {
             apiDefinition.setOriginalState(sameRequest.get(0).getOriginalState());
             apiDefinition.setCaseStatus(sameRequest.get(0).getCaseStatus());
             apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
+            if (StringUtils.isNotEmpty(apiTestImportRequest.getOldVersionId())) {
+                apiDefinition.setVersionId(apiTestImportRequest.getOldVersionId());
+            }
             if (!StringUtils.equalsIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Metersphere.name())) {
                 apiDefinition.setTags(sameRequest.get(0).getTags()); // 其他格式 tag 不变，MS 格式替换
             }

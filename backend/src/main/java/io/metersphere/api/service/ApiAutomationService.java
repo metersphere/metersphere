@@ -1074,6 +1074,14 @@ public class ApiAutomationService {
             List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
             scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
             scenarioWithBLOBs.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
+            // 导入时设置版本
+            scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
+            if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
+                scenarioWithBLOBs.setVersionId(apiTestImportRequest.getVersionId());
+            } else {
+                String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
+                scenarioWithBLOBs.setVersionId(defaultVersion);
+            }
             batchMapper.insert(scenarioWithBLOBs);
             apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
         } else {
@@ -1082,6 +1090,11 @@ public class ApiAutomationService {
             scenarioWithBLOBs.setNum(sameRequest.get(0).getNum());
             List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
             scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
+            // 导入时设置版本
+            scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
+            if (StringUtils.isNotEmpty(apiTestImportRequest.getOldVersionId())) {
+                scenarioWithBLOBs.setVersionId(apiTestImportRequest.getOldVersionId());
+            }
             batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
             apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
         }
@@ -1143,6 +1156,13 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
                 scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
                 scenarioWithBLOBs.setId(UUID.randomUUID().toString());
+                scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
+                if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
+                    scenarioWithBLOBs.setVersionId(apiTestImportRequest.getVersionId());
+                } else {
+                    String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
+                    scenarioWithBLOBs.setVersionId(defaultVersion);
+                }
                 batchMapper.insert(scenarioWithBLOBs);
 
                 // 存储依赖关系
@@ -1189,9 +1209,6 @@ public class ApiAutomationService {
             if (StringUtils.isBlank(item.getId())) {
                 item.setId(UUID.randomUUID().toString());
             }
-            // 导入时设置版本
-            item.setVersionId(extProjectVersionMapper.getDefaultVersion(project.getId()));
-            item.setRefId(item.getId());
             importCreate(item, batchMapper, request);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();

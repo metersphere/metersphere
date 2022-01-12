@@ -23,6 +23,8 @@ public class ApiTestImportRequest {
     //导入策略
     private String modeId;
     private String userId;
+    private String versionId; // 新导入选择的版本
+    private String oldVersionId; // 覆盖导入已存在的接口选择的版本
     //调用类型
     private String type;
     // 是否开启自定义ID

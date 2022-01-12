@@ -32,6 +32,25 @@
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
           </el-form-item>
+          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'incrementalMerge'"
+                        :label="$t('api_test.api_import.import_version')" prop="versionId">
+            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
+                        :label="$t('api_test.api_import.data_update_version')" prop="versionId">
+            <el-select size="small" v-model="formData.oldVersionId" clearable style="width: 100%"
+                       :placeholder="$t('api_test.api_import.data_old_version')">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
+                        :label="$t('api_test.api_import.data_new_version')" prop="versionId">
+            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+            </el-select>
+          </el-form-item>
           <el-form-item v-if="showTemplate">
             <el-link type="primary" class="download-template"
                      @click="downloadTemplate"
@@ -237,7 +256,9 @@
         queryArguments: [],
         authConfig: {
           hashTree: []
-        }
+        },
+        versionOptions: [],
+        projectVersionEnable: false,
       }
     },
     created() {
@@ -246,6 +267,9 @@
       this.platforms.push(this.harPlanform);
       this.platforms.push(this.jmeterPlatform);
       this.selectedPlatform = this.platforms[0];
+      //
+      this.getVersionOptions();
+      this.checkVersionEnable();
     },
     watch: {
       moduleOptions() {
@@ -259,6 +283,9 @@
             this.selectedPlatform = this.platforms[i];
             break;
           }
+        }
+        if (this.selectedPlatformValue === 'Har' || this.selectedPlatformValue === 'ESB') {
+          this.formData.modeId = 'fullCoverage';
         }
       },
       propotal() {
@@ -403,6 +430,23 @@
         this.fileList = [];
         removeGoBackListener(this.close);
         this.visible = false;
+      },
+      getVersionOptions() {
+        if (hasLicense()) {
+          this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+            this.versionOptions = response.data.filter(v => v.status === 'open');
+          });
+        }
+      },
+      checkVersionEnable() {
+        if (!this.projectId) {
+          return;
+        }
+        if (hasLicense()) {
+          this.$get('/project/version/enable/' + this.projectId, response => {
+            this.projectVersionEnable = response.data;
+          });
+        }
       }
     }
   }
