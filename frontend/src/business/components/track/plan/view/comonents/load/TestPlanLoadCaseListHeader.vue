@@ -1,5 +1,7 @@
 <template>
   <ms-table-header
+    :isShowVersion="isShowVersion"
+    @changeVersion="changeVersion"
     :condition="condition"
     @search="$emit('refresh')"
     :show-create="false"
@@ -19,11 +21,20 @@
 <script>
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "TestPlanLoadCaseListHeader",
-  components: {MsTableButton, MsTableHeader},
-  props: ['condition'],
+  components: {
+    MsTableButton, MsTableHeader, 'VersionSelect': VersionSelect.default,
+  },
+  props: ['condition', 'isShowVersion'],
+  methods: {
+    changeVersion(currentVersion) {
+      this.$emit("changeVersion", currentVersion)
+    }
+  }
 };
 </script>
 

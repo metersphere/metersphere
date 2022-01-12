@@ -25,12 +25,44 @@
         <if test="request.name != null and request.name != ''">
             and (load_test.name like CONCAT('%', #{request.name},'%') OR load_test.num like CONCAT('%', #{request.name},'%'))
         </if>
+        <if test="request.versionId != null">
+            and load_test.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null">
+            and load_test.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId == null and request.refId == null and request.id == null">
+            AND (
+            load_test.version_id = (SELECT project_version.id
+            FROM load_test tmp
+            JOIN project_version
+            ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+            WHERE ref_id = load_test.ref_id
+            LIMIT 1)
+            OR
+            load_test.version_id = (SELECT project_version.id
+            FROM load_test tmp
+            JOIN project_version ON tmp.project_id = project_version.project_id AND
+            tmp.version_id = project_version.id
+            WHERE ref_id = load_test.ref_id
+            GROUP BY ref_id
+            HAVING MAX(latest) = 0
+            ORDER BY MAX(project_version.create_time) DESC
+            LIMIT 1)
+            )
+        </if>
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='status'">
                             and load_test.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='version_id'">
+                            and load_test.version_id in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
@@ -135,11 +167,14 @@
         tplc.status as caseStatus,
         lt.name as caseName,
         tplc.load_report_id,
-        p.name as projectName
+        p.name as projectName,
+        pv.name versionName,
+        lt.version_id versionId
         from test_plan_load_case tplc
         inner join load_test lt on tplc.load_case_id = lt.id
         left join user u on lt.user_id = u.id
         left join project p on lt.project_id = p.id
+        left join project_version pv on lt.project_id = pv.project_id and lt.version_id = pv.id
         <where>
             tplc.test_plan_id = #{request.testPlanId}
             <if test="request.caseIds != null and request.caseIds.size > 0">
@@ -167,11 +202,43 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='version_id'">
+                                and lt.version_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
             </if>
         </where>
+        <if test="request.versionId != null">
+            and lt.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null">
+            and lt.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId == null and request.refId == null and request.id == null">
+            AND (
+            lt.version_id = (SELECT project_version.id
+            FROM load_test tmp
+            JOIN project_version
+            ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+            WHERE ref_id = lt.ref_id
+            LIMIT 1)
+            OR
+            lt.version_id = (SELECT project_version.id
+            FROM load_test tmp
+            JOIN project_version ON tmp.project_id = project_version.project_id AND
+            tmp.version_id = project_version.id
+            WHERE ref_id = lt.ref_id
+            GROUP BY ref_id
+            HAVING MAX(latest) = 0
+            ORDER BY MAX(project_version.create_time) DESC
+            LIMIT 1)
+            )
+        </if>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">

@@ -662,14 +662,16 @@ public class PerformanceTestService {
         }
     }
 
-    public List<LoadTest> getLoadTestListByIds(List<String> ids) {
+    public List<LoadTestDTO> getLoadTestListByIds(List<String> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
-        LoadTestExample loadTestExample = new LoadTestExample();
-        loadTestExample.createCriteria().andIdIn(ids);
-        List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
-        return Optional.ofNullable(loadTests).orElse(new ArrayList<>());
+        QueryTestPlanRequest request = new QueryTestPlanRequest();
+        Map filters = new HashMap();
+        filters.put("id", ids);
+        request.setFilters(filters);
+        List<LoadTestDTO> loadTestDTOS = extLoadTestMapper.list(request);
+        return loadTestDTOS;
     }
 
     private int getNextNum(String projectId) {

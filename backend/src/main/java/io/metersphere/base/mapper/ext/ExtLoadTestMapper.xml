@@ -132,6 +132,12 @@
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
                         <choose>
+                            <when test="key == 'id'">
+                                AND load_test.id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                             <when test="key == 'status'">
                                 AND load_test.status IN
                                 <foreach collection="values" item="value" separator="," open="(" close=")">

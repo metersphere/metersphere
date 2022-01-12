@@ -6,6 +6,7 @@
           :project-id="getProjectId()"
           :condition="condition"
           :plan-id="planId"
+          @changeVersion="changeVersion"
           @refresh="initTable"
           @relevanceCase="$emit('relevanceCase')"
           @setEnvironment="setEnvironment"
@@ -38,6 +39,18 @@
 
           <ms-table-column :field="item" :fields-width="fieldsWidth" prop="name" sortable min-width="120"
                            :label="$t('test_track.case.name')"/>
+
+         <ms-table-column
+           prop="versionId"
+           :field="item"
+           :filters="versionFilters"
+           :fields-width="fieldsWidth"
+           :label="$t('commons.version')"
+           min-width="120px">
+         <template v-slot:default="scope">
+            <span>{{ scope.row.versionName }}</span>
+          </template>
+        </ms-table-column>
 
           <ms-table-column
             :field="item"
@@ -166,7 +179,7 @@ import MsContainer from "../../../../../common/components/MsContainer";
 import MsBottomContainer from "../../../../../api/definition/components/BottomContainer";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/definition/model/JsonData";
-import {getCurrentProjectID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense, strMapToObj} from "@/common/js/utils";
 import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import {getUUID} from "../../../../../../../common/js/utils";
@@ -211,6 +224,9 @@ export default {
     MsContainer,
     MsBottomContainer,
     MsTaskCenter
+  },
+  mounted(){
+    this.getVersionOptions();
   },
   data() {
     return {
@@ -275,7 +291,8 @@ export default {
       rowLoading: "",
       userFilters: [],
       projectIds: [],
-      projectList: []
+      projectList: [],
+      versionFilters: [],
     };
   },
   props: {
@@ -626,6 +643,24 @@ export default {
           this.$refs.apiCaseResult.open();
         }
       });
+    },
+    changeVersion(currentVersion) {
+      if (currentVersion == "") {
+        this.condition.versionId = null;
+      } else {
+        this.condition.versionId = currentVersion;
+      }
+      this.initTable();
+    },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionOptions= response.data;
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
     },
   },
 };

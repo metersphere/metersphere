@@ -1,17 +1,18 @@
 package io.metersphere.track.controller;
+
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.TestCaseReviewLoad;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.TestReviewLoadCaseDTO;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
-import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testreview.TestReviewRequest;
 import io.metersphere.track.service.TestCaseReviewLoadService;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class TestReviewLoadCaseController {
     private TestCaseReviewLoadService testCaseReviewLoadService;
 
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
-    public Pager<List<LoadTest>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TestReviewRequest request) {
+    public Pager<List<LoadTestDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TestReviewRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseReviewLoadService.relevanceList(request));
     }

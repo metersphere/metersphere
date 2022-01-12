@@ -369,8 +369,35 @@
     </select>
     <select id="listRelevance" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
         select
-        <include refid="io.metersphere.base.mapper.ApiDefinitionMapper.Base_Column_List"/>
+        api_definition.version_id versionId,
+        project_version.name versionName,
+        api_definition.id,
+        api_definition.project_id,
+        api_definition.`name`,
+        api_definition.`method`,
+        api_definition.protocol,
+        api_definition.`path`,
+        api_definition.module_path,
+        api_definition.environment_id,
+        api_definition.schedule,
+        api_definition.`status`,
+        api_definition.module_id,
+        api_definition.user_id,
+        api_definition.create_time,
+        api_definition.update_time,
+        api_definition.num,
+        api_definition.tags,
+        api_definition.original_state,
+        api_definition.create_user,
+        api_definition.case_total,
+        api_definition.case_status,
+        api_definition.case_passing_rate,
+        api_definition.delete_time,
+        api_definition.delete_user_id,
+        api_definition.`order`,
+        api_definition.ref_id
         from api_definition
+        left join project_version on api_definition.project_id = project_version.project_id and api_definition.version_id = project_version.id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -425,6 +452,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='version_id'">
+                                and api_definition.version_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
@@ -440,6 +473,32 @@
                 where t.api_case_id = c.id
                 and t.test_plan_id = #{request.planId}
                 )
+                )
+            </if>
+            <if test="request.versionId != null">
+                and api_definition.version_id = #{request.versionId}
+            </if>
+            <if test="request.refId != null">
+                and api_definition.ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND (
+                version_id = (SELECT project_version.id
+                FROM api_definition tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                WHERE ref_id = api_definition.ref_id
+                LIMIT 1)
+                OR
+                version_id = (SELECT project_version.id
+                FROM api_definition tmp
+                JOIN project_version ON tmp.project_id = project_version.project_id AND
+                tmp.version_id = project_version.id
+                WHERE ref_id = api_definition.ref_id
+                GROUP BY ref_id
+                HAVING MAX(latest) = 0
+                ORDER BY MAX(project_version.create_time) DESC
+                LIMIT 1)
                 )
             </if>
         </where>

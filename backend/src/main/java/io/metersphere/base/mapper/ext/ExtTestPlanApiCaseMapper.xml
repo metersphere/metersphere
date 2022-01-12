@@ -28,22 +28,49 @@
   </select>
   <select id="list" resultType="io.metersphere.api.dto.definition.TestPlanApiCaseDTO">
     select
-    t.id, t.environment_id,(select name from api_test_environment where id = t.environment_id) as environment_name, t.create_time, t.update_time,
-    c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id,
-    c.update_user_id, c.num, c.tags, t.create_user,
-    a.module_id, a.path, a.protocol, t.status execResult, a.user_id
+    t.id,
+    t.environment_id,
+    (
+    SELECT
+    NAME
+    FROM
+    api_test_environment
+    WHERE
+    id = t.environment_id
+    ) AS environment_name,
+    t.create_time,
+    t.update_time,
+    c.id AS case_id,
+    c.project_id,
+    c.name,
+    c.api_definition_id,
+    c.priority,
+    c.description,
+    c.create_user_id,
+    c.update_user_id,
+    c.num,
+    c.tags,
+    t.create_user,
+    a.module_id,
+    a.path,
+    a.protocol,
+    t.status execResult,
+    a.user_id,
+    a.version_id versionId,
+    project_version.name versionName
     from
     test_plan_api_case t
     inner join
     api_test_case c
     on t.api_case_id = c.id
     <if test="request.planId != null and request.planId!=''">
-        and t.test_plan_id = #{request.planId}
-      </if>
+      and t.test_plan_id = #{request.planId}
+    </if>
     inner join
-      api_definition a
+    api_definition a
     on
-      c.api_definition_id = a.id
+    c.api_definition_id = a.id
+    left join project_version on a.version_id = project_version.id and a.project_id = project_version.project_id
     <if test="request.protocol != null and request.protocol!=''">
       and a.protocol = #{request.protocol}
     </if>
@@ -112,6 +139,32 @@
         </if>
       </foreach>
     </if>
+    <if test="request.versionId != null">
+      and a.version_id = #{request.versionId}
+    </if>
+    <if test="request.refId != null">
+      and a.ref_id = #{request.refId}
+    </if>
+    <if test="request.versionId == null and request.refId == null and request.id == null">
+      AND (
+      a.version_id = (SELECT project_version.id
+      FROM api_definition tmp
+      JOIN project_version
+      ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+      WHERE ref_id = a.ref_id
+      LIMIT 1)
+      OR
+      a.version_id = (SELECT project_version.id
+      FROM api_definition tmp
+      JOIN project_version ON tmp.project_id = project_version.project_id AND
+      tmp.version_id = project_version.id
+      WHERE ref_id = a.ref_id
+      GROUP BY ref_id
+      HAVING MAX(latest) = 0
+      ORDER BY MAX(project_version.create_time) DESC
+      LIMIT 1)
+      )
+    </if>
     <if test="request.orders != null and request.orders.size() > 0">
       order by
       <foreach collection="request.orders" separator="," item="order">
@@ -128,6 +181,7 @@
         </choose>
       </foreach>
     </if>
+
   </select>
   <select id="selectIds" resultType="java.lang.String">
     select

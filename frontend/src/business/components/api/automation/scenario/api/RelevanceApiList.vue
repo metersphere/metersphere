@@ -120,7 +120,6 @@ export default {
       this.$emit('isApiListEnableChange', data);
     },
     initTable(projectId) {
-      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
         this.condition.filters = {status: ["Trash"]};
