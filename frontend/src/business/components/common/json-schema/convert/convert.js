@@ -126,10 +126,7 @@ class Convert {
                 // 创建items对象的基本信息
                 if (isArray(elementItem)) {
                   let innerItemArr = this._deepTraversal(elementItem, `${$id}/items`, key + 'items');
-                  // let item = this._value2object(element, `${$id}/items`, key + 'items');
-                  // item["items"] = innerItemArr;
                   itemArr.push(innerItemArr);
-
                 } else if (isObject(elementItem) && !isEmpty(elementItem)) {
                   let item = this._value2object(elementItem, `${$id}/items`, key + 'items');
                   // 判断第一项是否是对象,且对象属性不为空
