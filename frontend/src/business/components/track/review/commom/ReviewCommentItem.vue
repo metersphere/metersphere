@@ -168,9 +168,9 @@ export default {
       let returnFlag = false;
       if (param) {
         let message = param + "";
-        let matchIndex = message.indexOf("](/resource/md/get/");
+        let matchIndex = message.indexOf("](/resource/md/get");
         if (matchIndex > 0) {
-          let messageSplitArr = message.split("](/resource/md/get/");
+          let messageSplitArr = message.split("](/resource/md/get");
           for (let itemIndex = 0; itemIndex < messageSplitArr.length; itemIndex++) {
             let itemStr = messageSplitArr[itemIndex];
             let picNameIndex = itemStr.indexOf("![");
@@ -183,7 +183,7 @@ export default {
                   this.imgNameList.push(itemStrArr);
                 }
 
-                let imgUrl = "/resource/md/get/" + itemStrArr;
+                let imgUrl = "/resource/md/get" + itemStrArr;
                 this.src = imgUrl;
                 if (this.srcList.indexOf(itemStrArr) < 0) {
                   this.srcList.push(imgUrl);
