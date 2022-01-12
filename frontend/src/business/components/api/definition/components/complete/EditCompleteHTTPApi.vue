@@ -468,7 +468,7 @@ export default {
       try {
         let url = new URL(urlStr);
         url.searchParams.forEach((value, key) => {
-          if (key && value) {
+          if (key) {
             this.request.arguments.splice(0, 0, new KeyValue({name: key, required: false, value: value}));
           }
         });
