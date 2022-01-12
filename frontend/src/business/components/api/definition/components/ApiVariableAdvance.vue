@@ -179,7 +179,7 @@
                     <el-input v-model="item.name" size="small" :readonly="true" @click.native="savePreParams(item.name)"/>
                   </el-col>
                   <el-col class="item">
-                    <el-input v-model="item.value" size="small" :readonly="true" @click.native="savePreParams(item.name)"/>
+                    <el-input v-model="item.exp" size="small" :readonly="true" @click.native="savePreParams(item.name)"/>
                   </el-col>
                 </el-row>
               </div>
@@ -403,13 +403,13 @@
               if(node.childNodes[i].isLeaf){ //是叶子节点
                 if(node.childNodes[i].data.type === 'Extract'){ //叶子节点的数据的类型是 提取
                   let extractJsonParams = (node.childNodes[i].data.json).map(v => {
-                    return {name: v.variable, value: v.value}
+                    return {name: v.variable, value: v.value, exp: v.expression}
                   });
                   let extractRegexParams = (node.childNodes[i].data.regex).map(v => {
-                    return {name: v.variable, value: v.value}
+                    return {name: v.variable, value: v.value, exp: v.expression}
                   });
                   let extractXpathParams = (node.childNodes[i].data.xpath).map(v => {
-                    return {name: v.variable, value: v.value}
+                    return {name: v.variable, value: v.value, exp: v.expression}
                   });
                   let vs = [...extractJsonParams, ...extractRegexParams, ...extractXpathParams];
                   if (vs.length > 0) {
