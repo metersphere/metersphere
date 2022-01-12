@@ -5,6 +5,7 @@
         v-bind:is="component"
         :isMax="isMax"
         :show-btn="showBtn"
+        :show-version = "showVersion"
         :expandedNode="expandedNode"
         :scenario="scenario"
         :controller="scenario"
@@ -84,6 +85,10 @@ export default {
       default: false,
     },
     showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    showVersion: {
       type: Boolean,
       default: true,
     },

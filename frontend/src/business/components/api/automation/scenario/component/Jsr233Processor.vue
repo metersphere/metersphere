@@ -8,6 +8,7 @@
     :color="color"
     :is-max="isMax"
     :show-btn="showBtn"
+    :show-version="showVersion"
     :background-color="backgroundColor"
     :if-from-variable-advance="ifFromVariableAdvance"
     :title="title" v-loading="loading">
@@ -54,6 +55,10 @@ export default {
       default: false,
     },
     showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    showVersion: {
       type: Boolean,
       default: true,
     },

@@ -1,7 +1,7 @@
 <template>
   <div>
     <ms-run :debug="true" :environment="envMap" :reportId="reportId" :saved="false" :runMode="'DEFINITION'" :run-data="debugData" @runRefresh="runRefresh" ref="runTest"/>
-    <api-base-component :if-from-variable-advance="ifFromVariableAdvance" @copy="copyRow" @active="active(controller)" @remove="remove" :data="controller" :draggable="draggable" :is-max="isMax" :show-btn="showBtn" color="#02A7F0" background-color="#F4F4F5" :title="$t('api_test.automation.loop_controller')" v-loading="loading">
+    <api-base-component :if-from-variable-advance="ifFromVariableAdvance" @copy="copyRow" @active="active(controller)" @remove="remove" :data="controller" :draggable="draggable" :is-max="isMax" :show-btn="showBtn" :show-version="showVersion" color="#02A7F0" background-color="#F4F4F5" :title="$t('api_test.automation.loop_controller')" v-loading="loading">
 
       <template v-slot:headerLeft>
         <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" style="margin-right: 10px" v-if="!isMax"/>
@@ -104,6 +104,10 @@ export default {
       default: false,
     },
     showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    showVersion: {
       type: Boolean,
       default: true,
     },

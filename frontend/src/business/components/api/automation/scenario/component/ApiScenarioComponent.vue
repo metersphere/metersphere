@@ -11,6 +11,7 @@
     :is-disabled="true"
     :is-max="isMax"
     :show-btn="showBtn"
+    :show-version="showVersion"
     color="#606266"
     background-color="#F4F4F5"
     :if-from-variable-advance="ifFromVariableAdvance"
@@ -86,6 +87,10 @@ export default {
       default: false,
     },
     showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    showVersion:{
       type: Boolean,
       default: true,
     },

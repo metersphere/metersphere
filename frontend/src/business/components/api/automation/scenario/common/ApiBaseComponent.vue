@@ -15,7 +15,7 @@
             <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input" @focus="active(data)"
                       @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
           </span>
-          <span :class="isMax?'ms-step-name':'scenario-name'" v-else>
+          <span :class="showVersion?'scenario-name':'scenario-version'" v-else>
             <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
                v-if="data.referenced!='REF' && !data.disabled"/>
             <el-tooltip placement="top" :content="data.name">
@@ -24,23 +24,21 @@
             <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{ getMethod() }}</el-tag>
             <slot name = "afterTitle"/>
           </span>
-
         </slot>
         <slot name="scenarioEnable"/>
-
       </span>
 
       <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop>
         <slot name="message"></slot>
         <slot name="debugStepCode"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
-          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root" style="width: 30px"/>
+          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root&&showVersion" style="width: 30px"/>
         </el-tooltip>
-        <slot name="button"></slot>
-        <el-tooltip content="Copy" placement="top">
+        <slot name="button" v-if="showVersion"></slot>
+        <el-tooltip content="Copy" placement="top" v-if="showVersion">
           <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="data.disabled && !data.root"/>
         </el-tooltip>
-        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn && (!data.disabled || data.root)"/>
+        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn && (!data.disabled || data.root)&&showVersion"/>
       </div>
 
     </div>
@@ -85,6 +83,10 @@ export default {
       default: false,
     },
     showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    showVersion: {
       type: Boolean,
       default: true,
     },
@@ -221,17 +223,81 @@ export default {
   white-space: nowrap;
   width: 140px;
 }
+.scenario-version{
+  display: inline-block;
+  font-size: 13px;
+  margin: 0 5px;
+  /*overflow-x: hidden;*/
+  overflow-x: scroll;
+  overflow-y: hidden;
+  padding-bottom: 0;
+  /*text-overflow: ellipsis;*/
+  vertical-align: middle;
+  white-space: nowrap;
+  width: calc(100% - 20rem);
+  height: auto;
+}
+.scenario-version::-webkit-scrollbar
+{
+  background-color: #fff;
+}
+/*定义滚动条轨道 内阴影+圆角*/
+.scenario-version::-webkit-scrollbar-track
+{
+  -webkit-box-shadow: inset 0 0 6px #fff;
+  border-radius: 1px;
+  background-color: #ffffff;
+}
 
+/*定义滑块 内阴影+圆角*/
+.scenario-version::-webkit-scrollbar-thumb
+{
+  border-radius: 1px;
+  -webkit-box-shadow: inset 0 0 6px #fff;
+  background-color: #7c3030;
+}
+.scenario-version::-webkit-scrollbar {
+  /* width: 0px; */
+  height: 3px;
+  position: fixed;
+}
 .scenario-name {
   display: inline-block;
   font-size: 13px;
   margin: 0 5px;
-  overflow-x: hidden;
+  /*overflow-x: hidden;*/
+  overflow-x: scroll;
+  overflow-y: hidden;
   padding-bottom: 0;
-  text-overflow: ellipsis;
+  /*text-overflow: ellipsis;*/
   vertical-align: middle;
   white-space: nowrap;
-  width: calc(100% - 35rem);
+  width: calc(100% - 25rem);
+  height: auto;
+}
+.scenario-name::-webkit-scrollbar
+{
+  background-color: #fff;
+}
+/*定义滚动条轨道 内阴影+圆角*/
+.scenario-name::-webkit-scrollbar-track
+{
+  -webkit-box-shadow: inset 0 0 6px #fff;
+  border-radius: 1px;
+  background-color: #ffffff;
+}
+
+/*定义滑块 内阴影+圆角*/
+.scenario-name::-webkit-scrollbar-thumb
+{
+  border-radius: 1px;
+  -webkit-box-shadow: inset 0 0 6px #fff;
+  background-color: #7c3030;
+}
+.scenario-name::-webkit-scrollbar {
+  /* width: 0px; */
+  height: 3px;
+  position: fixed;
 }
 
 /deep/ .el-step__icon {

@@ -1,6 +1,6 @@
 <template>
   <div class="compare-class">
-    <el-card style="width: 50%;" ref="old">
+    <el-card ref="old">
       <el-card>
         <div class="card-content">
           <div class="ms-main-div" @click="showAll" >
@@ -149,6 +149,8 @@
                          :type="data.type"
                          :scenario="data"
                          :node="node"
+                         :env-map="projectEnvMap"
+                         :show-version="false"
                        />
                     </span>
                   </el-tree>
@@ -160,7 +162,7 @@
         </div>
       </el-card>
     </el-card>
-    <el-card style="width: 50%;" ref="new">
+    <el-card  ref="new">
       <el-card>
         <div class="card-content">
           <div class="ms-main-div" @click="showAll" v-if="type!=='detail'">
@@ -309,6 +311,8 @@
                          :type="data.type"
                          :scenario="data"
                          :node="node"
+                         :env-map="newProjectEnvMap"
+                         :show-version="false"
                       />
                     </span>
                   </el-tree>
@@ -321,7 +325,6 @@
         </div>
       </el-card>
     </el-card>
-    <button @click="getDiff"></button>
   </div>
 </template>
 <script>
@@ -374,8 +377,8 @@ export default{
     oldEnableCookieShare:{},
     oldOnSampleError:{},
     newOnSampleError:{},
-    oldProjectEnvMap:{},
-    newProjectEnvMap:{},
+    projectEnvMap: {},
+    newProjectEnvMap: {},
     type:{}
   },
   components:{
@@ -409,7 +412,6 @@ export default{
      oldExpandedNode:[],
      newExpandedNode:[],
      stepEnable:true,
-
 
 
    }
@@ -609,6 +611,11 @@ export default{
   },
   created() {
     this.getWsProjects();
+  },
+  mounted() {
+    this.$nextTick(function () {
+      setTimeout(this.getDiff,(this.$refs.old.$children.length+1)*1000)
+    })
   }
 }
 
