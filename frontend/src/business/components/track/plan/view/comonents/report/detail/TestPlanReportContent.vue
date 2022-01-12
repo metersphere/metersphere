@@ -90,24 +90,32 @@ export default {
   },
   computed: {
     overviewEnable() {
-      let disable = this.report.config && this.report.config.overview.enable === false;
+      let disable = this.report.config
+        && this.report.config.overview && this.report.config.overview.enable === false;
       return !disable;
     },
     summaryEnable() {
-      let disable = this.report.config && this.report.config.summary.enable === false;
+      let disable = this.report.config && this.report.config.summary
+        && this.report.config.summary.enable === false;
       return !disable;
     },
     functionalEnable() {
       let disable = this.report.config && this.report.config.functional.enable === false;
-      return !disable && this.report.functionResult && this.report.functionResult.caseData.length > 0 ;
+      return !disable && this.report.functionResult
+        && this.report.functionResult.caseData && this.report.functionResult.caseData.length > 0 ;
     },
     apiEnable() {
       let disable = this.report.config && this.report.config.api.enable === false;
-      return !disable && this.report.apiResult && (this.report.apiResult.apiCaseData.length > 0 || this.report.apiResult.apiScenarioData.length) > 0;
+      return !disable && this.report.apiResult &&
+        (
+          (this.report.apiResult.apiCaseData && this.report.apiResult.apiCaseData.length  > 0)
+          || (this.report.apiResult.apiScenarioData && this.report.apiResult.apiScenarioData.length > 0)
+        );
     },
     loadEnable() {
       let disable = this.report.config && this.report.config.load.enable === false;
-      return !disable && this.report.loadResult && this.report.loadResult.caseData.length > 0;
+      return !disable && this.report.loadResult
+        && this.report.loadResult.caseData && this.report.loadResult.caseData.length > 0;
     }
   },
   methods: {

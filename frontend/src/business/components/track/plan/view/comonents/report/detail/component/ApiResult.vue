@@ -62,19 +62,23 @@ export default {
   methods: {
     getCaseCharData() {
       let caseCharData = [];
-      this.apiResult.apiCaseData.forEach(item => {
-        let data = this.getDataByStatus(item.status);
-        data.value = item.count;
-        caseCharData.push(data);
-      });
+      if (this.apiResult.apiCaseData) {
+        this.apiResult.apiCaseData.forEach(item => {
+          let data = this.getDataByStatus(item.status);
+          data.value = item.count;
+          caseCharData.push(data);
+        });
+      }
       this.caseCharData = caseCharData;
 
       let apiScenarioData = [];
-      this.apiResult.apiScenarioData.forEach(item => {
-        let data = this.getDataByStatus(item.status);
-        data.value = item.count;
-        apiScenarioData.push(data);
-      });
+      if (this.apiResult.apiScenarioData) {
+        this.apiResult.apiScenarioData.forEach(item => {
+          let data = this.getDataByStatus(item.status);
+          data.value = item.count;
+          apiScenarioData.push(data);
+        });
+      }
 
       let stepCharData = [];
       for (let i = 0; i < this.apiResult.apiScenarioStepData.length; i++) {
