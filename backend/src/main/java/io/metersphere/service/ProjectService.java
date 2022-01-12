@@ -441,6 +441,15 @@ public class ProjectService {
         return project;
     }
 
+    public boolean isThirdPartTemplate(String projectId) {
+        Project project = getProjectById(projectId);
+        if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate()
+                && project.getPlatform().equals(IssuesManagePlatform.Jira.name())) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean useCustomNum(String projectId) {
         Project project = this.getProjectById(projectId);
         if (project != null) {

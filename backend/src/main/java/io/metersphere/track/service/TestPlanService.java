@@ -185,6 +185,8 @@ public class TestPlanService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private LoadTestMapper loadTestMapper;
+    @Resource
+    private ProjectService projectService;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1827,7 +1829,6 @@ public class TestPlanService {
         report.setEndTime(testPlan.getActualEndTime());
         report.setSummary(testPlan.getReportSummary());
         report.setConfig(testPlan.getReportConfig());
-        IssueTemplateDao template = issueTemplateService.getTemplate(testPlan.getProjectId());
         testPlanTestCaseService.calculatePlanReport(planId, report);
         issuesService.calculatePlanReport(planId, report);
         if (testPlanExecuteReportDTO == null) {
@@ -1858,7 +1859,8 @@ public class TestPlanService {
         }
 
         report.setName(testPlan.getName());
-        if (template == null || template.getPlatform().equals("metersphere")) {
+        Project project = projectService.getProjectById(testPlan.getProjectId());
+        if (project.getPlatform() != null && project.getPlatform().equals(IssuesManagePlatform.Local.name())) {
             report.setIsThirdPartIssue(false);
         } else {
             report.setIsThirdPartIssue(true);
