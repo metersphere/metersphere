@@ -1071,16 +1071,16 @@ public class TestPlanService {
 
 
         //执行接口案例任务
-        Map<String,String> apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId,userId, new ArrayList<>(reportInfoDTO.getApiTestCaseDataMap().keySet()), runModeConfig);
+        Map<String, String> apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId, userId, new ArrayList<>(reportInfoDTO.getApiTestCaseDataMap().keySet()), runModeConfig);
         //执行场景执行任务
-        Map<String,String> scenarioReportMap = this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
+        Map<String, String> scenarioReportMap = this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
         //执行性能测试任务
-        Map<String,String> loadCaseReportMap = this.executeLoadCaseTask(runModeConfig, triggerMode, reportInfoDTO.getPerformanceIdMap());
-        testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiCaseReportMap,scenarioReportMap,loadCaseReportMap);
+        Map<String, String> loadCaseReportMap = this.executeLoadCaseTask(runModeConfig, triggerMode, reportInfoDTO.getPerformanceIdMap());
+        testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiCaseReportMap, scenarioReportMap, loadCaseReportMap);
         return planReportId;
     }
 
-    private Map<String,String> executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfigDTO runModeConfig) {
+    private Map<String, String> executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfigDTO runModeConfig) {
         BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
         request.setTriggerMode(triggerMode);
         request.setPlanIds(planCaseIds);
@@ -1091,7 +1091,7 @@ public class TestPlanService {
         return this.parseMsExecREsponseDTOToTestIdReportMap(dtoList);
     }
 
-    private Map<String,String>  executeScenarioCase(String planReportId, String testPlanID, String projectID, RunModeConfigDTO runModeConfig, String triggerMode, String userId, Map<String, String> planScenarioIdMap) {
+    private Map<String, String> executeScenarioCase(String planReportId, String testPlanID, String projectID, RunModeConfigDTO runModeConfig, String triggerMode, String userId, Map<String, String> planScenarioIdMap) {
         if (!planScenarioIdMap.isEmpty()) {
             SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
             String senarionReportID = UUID.randomUUID().toString();
@@ -1116,19 +1116,19 @@ public class TestPlanService {
             scenarioRequest.setTestPlanID(testPlanID);
             scenarioRequest.setTestPlanReportId(planReportId);
             scenarioRequest.setConfig(runModeConfig);
-            List<MsExecResponseDTO> dtoList =  this.scenarioRunModeConfig(scenarioRequest);
+            List<MsExecResponseDTO> dtoList = this.scenarioRunModeConfig(scenarioRequest);
             return this.parseMsExecREsponseDTOToTestIdReportMap(dtoList);
-        }else {
+        } else {
             return new HashMap<>();
         }
     }
 
     private Map<String, String> parseMsExecREsponseDTOToTestIdReportMap(List<MsExecResponseDTO> dtoList) {
-        Map<String,String> returnMap = new HashMap<>();
-        if(CollectionUtils.isNotEmpty(dtoList)){
-            dtoList.forEach( item -> {
-                if(StringUtils.isNotEmpty(item.getTestId()) && StringUtils.isNotEmpty(item.getReportId())){
-                    returnMap.put(item.getTestId(),item.getReportId());
+        Map<String, String> returnMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(dtoList)) {
+            dtoList.forEach(item -> {
+                if (StringUtils.isNotEmpty(item.getTestId()) && StringUtils.isNotEmpty(item.getReportId())) {
+                    returnMap.put(item.getTestId(), item.getReportId());
                 }
             });
         }
@@ -1676,18 +1676,14 @@ public class TestPlanService {
         }
     }
 
-    public void buildLoadReport(TestPlanSimpleReportDTO report, JSONObject config, Map<String, String> loadCaseReportMap, String planId, boolean saveResponse) {
+    public void buildLoadReport(TestPlanSimpleReportDTO report, JSONObject config, Map<String, String> loadCaseReportMap, boolean saveResponse) {
         if (MapUtils.isEmpty(loadCaseReportMap)) {
             return;
         }
         if (checkReportConfig(config, "load")) {
             List<TestPlanLoadCaseDTO> allCases = null;
             if (checkReportConfig(config, "load", "all")) {
-                allCases = testPlanLoadCaseService.getAllCases(loadCaseReportMap.keySet(), planId, null);
-                for (TestPlanLoadCaseDTO dto : allCases) {
-                    String reportId = loadCaseReportMap.get(dto.getId());
-                    dto.setReportId(reportId);
-                }
+                allCases = testPlanLoadCaseService.getAllCases(loadCaseReportMap.keySet(), loadCaseReportMap.values());
                 if (saveResponse) {
                     buildLoadResponse(allCases);
                 }
@@ -1718,7 +1714,7 @@ public class TestPlanService {
             TestPlanSimpleReportDTO report = getReport(testPlanReport.getTestPlanId(), testPlanExecuteReportDTO);
             buildFunctionalReport(report, config, testPlanReport.getTestPlanId());
             buildApiReport(report, config, testPlanExecuteReportDTO);
-            buildLoadReport(report, config, testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap(), testPlanReport.getTestPlanId(), false);
+            buildLoadReport(report, config, testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap(), false);
             return report;
         } else {
             return null;
