@@ -161,6 +161,9 @@ export default {
       },
     };
   },
+  created() {
+    this.$emit('reloadResult');
+  },
   watch: {
     message() {
       this.reload();

@@ -213,6 +213,7 @@
                          @runScenario="runDebug"
                          @stopScenario="stop"
                          @setDomain="setDomain"
+                         @reloadResult="reloadResult"
                          @openScenario="openScenario"/>
                     </span>
               </el-tree>
@@ -466,7 +467,8 @@ export default {
       runScenario: undefined,
       showFollow: false,
       envGroupId: "",
-      environmentType: ENV_TYPE.JSON
+      environmentType: ENV_TYPE.JSON,
+      debugResults: [],
     }
   },
   watch: {
@@ -639,6 +641,7 @@ export default {
       this.reqTotalTime = 0;
       this.reqTotal = 0;
       this.reqSuccess = 0;
+      this.debugResults = [];
     },
     clearResult(arr) {
       if (arr) {
@@ -735,7 +738,11 @@ export default {
             })
           } else if ((item.data && item.data.id + "_" + item.data.parentIndex === data.resourceId)
             || (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId)) {
-            item.data.requestResult.push(data);
+            if (item.data.requestResult) {
+              item.data.requestResult.push(data);
+            } else {
+              item.data.requestResult = [data];
+            }
             // 更新父节点状态
             this.resultEvaluation(data.resourceId, data.success);
             item.data.testing = false;
@@ -749,6 +756,23 @@ export default {
           this.runningNodeChild(item.childNodes, resultData);
         }
       })
+    },
+    setParentIndex(stepArray, fullPath) {
+      for (let i in stepArray) {
+        // 添加debug结果
+        stepArray[i].data.parentIndex = fullPath ? fullPath + "_" + stepArray[i].data.index : stepArray[i].data.index;
+        if (stepArray[i].childNodes && stepArray[i].childNodes.length > 0) {
+          this.setParentIndex(stepArray[i].childNodes, stepArray[i].data.parentIndex);
+        }
+      }
+    },
+    reloadResult() {
+      if (this.debugResults && this.debugResults.length > 0) {
+        this.setParentIndex(this.$refs.stepTree.root.childNodes);
+        this.debugResults.forEach(item => {
+          this.runningEvaluation(item);
+        })
+      }
     },
     runningEvaluation(resultData) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
@@ -794,12 +818,16 @@ export default {
         }
       }
       this.runningEvaluation(e.data);
+      if (e.data && e.data.startsWith("result_")) {
+        this.debugResults.push(e.data);
+      }
       this.message = getUUID();
       if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
         this.runScenario = undefined;
         this.debugLoading = false;
         this.message = "stop";
         this.stopDebug = "stop";
+        this.currentScenario.debugResults = this.debugResults;
         this.reload();
       }
     },
