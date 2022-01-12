@@ -223,6 +223,9 @@
     <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
 
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
+
+    <!--高级搜索-->
+    <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
   </span>
 
 </template>
@@ -271,6 +274,7 @@ import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
 import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
+import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -278,6 +282,7 @@ const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComp
 export default {
   name: "TestCaseList",
   components: {
+    MsTableAdvSearchBar,
     TestCasePreview,
     BatchMove,
     MsTableColumn,
@@ -686,6 +691,9 @@ export default {
         }
       }
       this.getData();
+    },
+    open() {
+      this.$refs.searchBar.open();
     },
     getData() {
       this.getSelectDataRange();
