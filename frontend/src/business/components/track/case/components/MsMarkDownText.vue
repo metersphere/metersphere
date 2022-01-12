@@ -154,7 +154,8 @@ export default {
       this.result.loading = true;
       uploadMarkDownImg(file, (response, param) => {
         this.$success(this.$t('commons.save_success'));
-        this.$refs.md.$img2Url(pos, '/resource/md/get/'  + param.id + '_' + param.fileName);
+        let url = '/resource/md/get?fileName='  +  param.id + '_' + encodeURIComponent(param.fileName);
+        this.$refs.md.$img2Url(pos, url);
         this.result.loading = false;
       });
       this.$emit('imgAdd', file);
