@@ -680,7 +680,12 @@ public class ApiDefinitionService {
                 String originId = apiDefinition.getId();
                 apiDefinition.setId(UUID.randomUUID().toString());
                 apiDefinition.setRefId(apiDefinition.getId());
-                apiDefinition.setVersionId(extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId()));
+                if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
+                    apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
+                } else {
+                    String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
+                    apiDefinition.setVersionId(defaultVersion);
+                }
                 batchMapper.insert(apiDefinition);
                 String requestStr = setImportHashTree(apiDefinition);
                 reSetImportCasesApiId(cases, originId, apiDefinition.getId());
@@ -718,10 +723,15 @@ public class ApiDefinitionService {
     private void _importCreate(List<ApiDefinition> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
                                ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases, List<MockConfigImportDTO> mocks) {
         String originId = apiDefinition.getId();
+        String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
         if (CollectionUtils.isEmpty(sameRequest)) {
             apiDefinition.setId(UUID.randomUUID().toString());
             apiDefinition.setRefId(apiDefinition.getId());
-            apiDefinition.setVersionId(extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId()));
+            if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
+                apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
+            } else {
+                apiDefinition.setVersionId(defaultVersion);
+            }
             apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
             reSetImportCasesApiId(cases, originId, apiDefinition.getId());
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
@@ -738,33 +748,54 @@ public class ApiDefinitionService {
             }
 
         } else {
-            apiDefinition.setStatus(sameRequest.get(0).getStatus());
-            apiDefinition.setOriginalState(sameRequest.get(0).getOriginalState());
-            apiDefinition.setCaseStatus(sameRequest.get(0).getCaseStatus());
-            apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
-            if (!StringUtils.equalsIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Metersphere.name())) {
-                apiDefinition.setTags(sameRequest.get(0).getTags()); // 其他格式 tag 不变，MS 格式替换
+            //如果存在则修改
+            if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
+                apiTestImportRequest.setUpdateVersionId(defaultVersion);
             }
-            if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
-                //如果存在则修改
-                apiDefinition.setId(sameRequest.get(0).getId());
-                String request = setImportHashTree(apiDefinition);
-                apiDefinition.setModuleId(sameRequest.get(0).getModuleId());
-                apiDefinition.setModulePath(sameRequest.get(0).getModulePath());
-                apiDefinition.setOrder(sameRequest.get(0).getOrder());
-                apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
-                apiDefinition.setRequest(request);
-                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
-                importApiCase(apiDefinition, apiTestImportRequest);
+            Optional<ApiDefinition> apiOp = sameRequest.stream()
+                    .filter(api -> StringUtils.equals(api.getVersionId(), apiTestImportRequest.getUpdateVersionId()))
+                    .findFirst();
+
+            if (!apiOp.isPresent()) {
+                apiDefinition.setId(UUID.randomUUID().toString());
+                apiDefinition.setRefId(sameRequest.get(0).getRefId());
+                apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
+                apiDefinition.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
+                batchMapper.insert(apiDefinition);
             } else {
-                apiDefinition.setId(sameRequest.get(0).getId());
-                if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
-                    setImportTCPHashTree(apiDefinition);
+                ApiDefinition existApi = apiOp.get();
+                apiDefinition.setStatus(existApi.getStatus());
+                apiDefinition.setOriginalState(existApi.getOriginalState());
+                apiDefinition.setCaseStatus(existApi.getCaseStatus());
+                apiDefinition.setNum(existApi.getNum()); //id 不变
+                apiDefinition.setRefId(existApi.getRefId());
+                apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
+
+                if (!StringUtils.equalsIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Metersphere.name())) {
+                    apiDefinition.setTags(existApi.getTags()); // 其他格式 tag 不变，MS 格式替换
                 }
-                apiDefinition.setOrder(sameRequest.get(0).getOrder());
-                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
-                apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+                if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
+                    //如果存在则修改
+                    apiDefinition.setId(existApi.getId());
+                    String request = setImportHashTree(apiDefinition);
+                    apiDefinition.setModuleId(existApi.getModuleId());
+                    apiDefinition.setModulePath(existApi.getModulePath());
+                    apiDefinition.setOrder(existApi.getOrder());
+                    apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+                    apiDefinition.setRequest(request);
+                    reSetImportCasesApiId(cases, originId, apiDefinition.getId());
+                    importApiCase(apiDefinition, apiTestImportRequest);
+                } else {
+                    apiDefinition.setId(existApi.getId());
+                    if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
+                        setImportTCPHashTree(apiDefinition);
+                    }
+                    apiDefinition.setOrder(existApi.getOrder());
+                    reSetImportCasesApiId(cases, originId, apiDefinition.getId());
+                    apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+                }
             }
+
 
         }
     }

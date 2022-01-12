@@ -1671,6 +1671,10 @@ export default {
       cover_tip_1: "1. Add if the interface path does not exist",
       cover_tip_2: "2. The interface path is consistent with the original interface, if the content is inconsistent, the original interface will be overwritten",
       cover_tip_3: "3. If the interface path and content are consistent with the original interface, no change will be made",
+      import_version: 'Import version',
+      data_update_version: 'Api update version',
+      data_new_version: 'Api creation version',
+      current_version: 'Current version',
     },
     home_page: {
       unit_of_measurement: "",

@@ -1676,6 +1676,10 @@ export default {
       cover_tip_1: "1. 接口路径不存在则新增",
       cover_tip_2: "2. 接口路径与原接口一致，内容不一致则覆盖原接口",
       cover_tip_3: "3. 接口路径、内容与原接口一致则不做变更",
+      import_version: '导入版本',
+      data_update_version: '数据更新版本',
+      data_new_version: '数据创建版本',
+      current_version: '当前版本',
     },
     home_page: {
       unit_of_measurement: "个",
