@@ -8,6 +8,7 @@
     :color="defColor"
     :is-max="isMax"
     :show-btn="showBtn"
+    :show-version="showVersion"
     :background-color="defBackgroundColor"
     :title="request.elementType">
     <div style="height: 300px;width: 100%">
@@ -53,6 +54,10 @@
         default: false,
       },
       showBtn: {
+        type: Boolean,
+        default: true,
+      },
+      showVersion: {
         type: Boolean,
         default: true,
       },

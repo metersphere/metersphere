@@ -11,6 +11,7 @@
       :background-color="displayColor.backgroundColor"
       :is-max="isMax"
       :show-btn="showBtn"
+      :show-version="showVersion"
       :title="displayTitle"
       :if-from-variable-advance="ifFromVariableAdvance">
 
@@ -21,7 +22,7 @@
             <i class="el-icon-warning"/>
           </el-tooltip>
         </span>
-        <span v-xpack v-if="request.versionEnable">{{$t('project.version.name')}}: {{ request.versionName }}</span>
+        <span v-xpack v-if="request.versionEnable&&showVersion">{{$t('project.version.name')}}: {{ request.versionName }}</span>
       </template>
 
       <template v-slot:behindHeaderLeft>
@@ -168,6 +169,10 @@ export default {
       default: false,
     },
     showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    showVersion: {
       type: Boolean,
       default: true,
     },

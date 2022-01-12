@@ -7,6 +7,7 @@
     :draggable="draggable"
     :is-max="isMax"
     :show-btn="showBtn"
+    :show-version="showVersion"
     color="#015478"
     background-color="#E6EEF2"
     :if-from-variable-advance="ifFromVariableAdvance"
@@ -83,6 +84,10 @@
         default: false,
       },
       showBtn: {
+        type: Boolean,
+        default: true,
+      },
+      showVersion: {
         type: Boolean,
         default: true,
       },

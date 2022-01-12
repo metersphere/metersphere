@@ -352,12 +352,10 @@
         :module-options="moduleOptions"
         :old-scenario-definition="scenarioDefinition"
         :new-scenario-definition="newScenarioDefinition"
+        :project-env-map = "projectEnvMap"
+        :new-project-env-map="newProjectEnvMap"
         :type ="type"
       ></scenario-diff>
-      <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible=false">取 消</el-button>
-          <el-button type="primary" >确 定</el-button>
-        </span>
     </el-dialog>
 
   </el-card>
@@ -479,6 +477,7 @@ export default {
       response: {},
       projectIds: new Set,
       projectEnvMap: new Map,
+      newProjectEnvMap: new Map,
       projectList: [],
       debugResult: new Map,
       drawer: false,
@@ -1708,6 +1707,12 @@ export default {
                 let obj = JSON.parse(res.data.scenarioDefinition);
                 if(obj){
                   this.newScenarioDefinition = obj.hashTree;
+                  if (response.data.environmentJson) {
+                    this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                  } else {
+                    // 兼容历史数据
+                    this.newProjectEnvMap.set(this.projectId, obj.environmentId);
+                  }
                 }
               }
               this.newData = res.data;

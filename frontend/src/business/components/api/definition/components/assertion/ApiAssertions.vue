@@ -8,6 +8,7 @@
     :draggable="draggable"
     :is-max="isMax"
     :show-btn="showBtn"
+    :show-version="showVersion"
     color="#A30014"
     background-color="#F7E6E9"
     :title="$t('api_test.definition.request.assertions_rule')">
@@ -140,6 +141,10 @@ export default {
       default: false,
     },
     showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    showVersion: {
       type: Boolean,
       default: true,
     },
