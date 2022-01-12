@@ -47,7 +47,6 @@
 
       <ms-table-column
         prop="versionId"
-        :field="item"
         :filters="versionFilters"
         :label="$t('commons.version')"
         min-width="120px">
