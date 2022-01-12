@@ -10,6 +10,7 @@ import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
+import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
@@ -31,7 +32,7 @@ public class TestPlanLoadCaseController {
     private TestPlanLoadCaseService testPlanLoadCaseService;
 
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
-    public Pager<List<LoadTest>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
+    public Pager<List<LoadTestDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
         return testPlanLoadCaseService.relevanceList(request, goPage, pageSize);
     }
 

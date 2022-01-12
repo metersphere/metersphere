@@ -161,6 +161,7 @@ export let CUSTOM_TABLE_HEADER = {
   TEST_PLAN_LOAD_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
     {id: 'caseName', key: '2', label: 'commons.name'},
+    {id: 'versionId', key: '9', label: 'project.version.name', xpack: true},
     {id: 'projectName', key: '3', label: 'load_test.project_name'},
     {id: 'userName', key: '4', label: 'load_test.user_name'},
     {id: 'createTime', key: '5', label: 'commons.create_time'},

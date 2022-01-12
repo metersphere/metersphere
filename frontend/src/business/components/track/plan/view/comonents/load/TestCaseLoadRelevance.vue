@@ -42,6 +42,18 @@
           :label="$t('commons.name')"
           show-overflow-tooltip>
         </el-table-column>
+
+        <el-table-column
+          prop="versionId"
+          :column-key="'versionId'"
+          :filters="versionFilters"
+          :label="$t('commons.version')"
+          min-width="120px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.versionName }}</span>
+          </template>
+        </el-table-column>
+
         <el-table-column
           prop="status"
           column-key="status"
@@ -88,6 +100,7 @@ import MsPerformanceTestStatus from "@/business/components/performance/test/Perf
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {_filter} from "@/common/js/tableUtils";
 import {TEST_PLAN_RELEVANCE_LOAD_CASE} from "@/business/components/common/components/search/search-components";
+import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestCaseLoadRelevance",
@@ -126,7 +139,8 @@ export default {
         {text: 'Reporting', value: 'Reporting'},
         {text: 'Completed', value: 'Completed'},
         {text: 'Error', value: 'Error'}
-      ]
+      ],
+      versionFilters: []
     };
   },
   props: {
@@ -144,6 +158,9 @@ export default {
     reviewId() {
       this.condition.reviewId = this.reviewId;
     },
+  },
+  mounted(){
+    this.getVersionOptions();
   },
   methods: {
     filter(filters) {
@@ -275,7 +292,17 @@ export default {
       }
       this.treeNodes = [];
       this.selectNodeIds = [];
-    }
+    },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionOptions = response.data;
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
+    },
   }
 }
 </script>

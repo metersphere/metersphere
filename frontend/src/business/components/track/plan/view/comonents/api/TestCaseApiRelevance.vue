@@ -25,6 +25,7 @@
       :project-id="projectId"
       :is-test-plan="true"
       :plan-id="planId"
+      :versionFilters="versionFilters"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiList"/>
 
@@ -49,6 +50,7 @@
   import MsApiModule from "../../../../../api/definition/components/module/ApiModule";
   import RelevanceApiList from "../../../../../api/automation/scenario/api/RelevanceApiList";
   import RelevanceCaseList from "../../../../../api/automation/scenario/api/RelevanceCaseList";
+  import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 
   export default {
     name: "TestCaseApiRelevance",
@@ -69,7 +71,8 @@
         isApiListEnable: true,
         condition: {},
         currentRow: {},
-        projectId: ""
+        projectId: "",
+        versionFilters: [],
       };
     },
     props: {
@@ -81,6 +84,9 @@
       planId() {
         this.condition.planId = this.planId;
       },
+    },
+    mounted() {
+      this.getVersionOptions();
     },
     methods: {
       open() {
@@ -181,6 +187,16 @@
           this.refresh();
           this.$refs.baseRelevance.close();
         });
+      },
+      getVersionOptions() {
+        if (hasLicense()) {
+          this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+            this.versionOptions = response.data;
+            this.versionFilters = response.data.map(u => {
+              return {text: u.name, value: u.id};
+            });
+          });
+        }
       },
     }
   }
