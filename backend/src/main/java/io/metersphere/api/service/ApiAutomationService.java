@@ -352,7 +352,7 @@ public class ApiAutomationService {
         deleteUpdateBodyFile(scenario, beforeScenario);
         List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
-
+        scenario.setCreateUser(null); // 更新时不更新创建人
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdEqualTo(scenario.getId()).andVersionIdEqualTo(request.getVersionId());
         if (apiScenarioMapper.updateByExampleSelective(scenario, example) == 0) {
