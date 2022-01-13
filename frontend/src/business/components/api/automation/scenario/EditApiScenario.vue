@@ -792,6 +792,7 @@ export default {
     },
     handleCommand() {
       this.debug = false;
+      this.saved = true;
       /*触发执行操作*/
       this.$refs['currentScenario'].validate(async (valid) => {
         if (valid) {
