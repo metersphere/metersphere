@@ -587,7 +587,11 @@ public class MockApiUtils {
         if (charEncoding == null) {
             charEncoding = "UTF-8";
         }
-        return new String(buffer, charEncoding);
+        if(buffer == null){
+            return "";
+        }else {
+            return new String(buffer, charEncoding);
+        }
     }
 
     private static String readXml(HttpServletRequest request) {
