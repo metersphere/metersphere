@@ -353,6 +353,7 @@ public class ApiAutomationService {
         deleteUpdateBodyFile(scenario, beforeScenario);
         List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
+        scenario.setCreateUser(null);
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
         apiScenarioReferenceIdService.saveByApiScenario(scenario);
         extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
