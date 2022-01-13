@@ -119,59 +119,12 @@ export default {
   created() {
     if (this.scenario.num) {
       this.isShowNum = true;
+      this.getWorkspaceId(this.scenario.projectId);
+    } else {
+      this.isSameSpace = false;
     }
     if (!this.scenario.projectId) {
       this.scenario.projectId = getCurrentProjectID();
-    }
-    if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded) {
-      let scenarios = JSON.parse(JSON.stringify(this.scenario.hashTree));
-      let map = new Map();
-      this.formatResult(map, scenarios);
-      this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
-        if (response.data) {
-          this.scenario.loaded = true;
-          let obj = {};
-          if (response.data.scenarioDefinition) {
-            obj = JSON.parse(response.data.scenarioDefinition);
-            this.scenario.hashTree = obj.hashTree;
-          }
-          this.scenario.projectId = response.data.projectId;
-          const pro = this.projectList.find(p => p.id === response.data.projectId);
-          if (!pro) {
-            this.scenario.projectId = getCurrentProjectID();
-          }
-          if (this.scenario.hashTree) {
-            this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
-          }
-          if (response.data.num) {
-            this.scenario.num = response.data.num;
-            this.getWorkspaceId(response.data.projectId);
-          }
-          this.scenario.versionName = response.data.versionName;
-          this.scenario.versionEnable = response.data.versionEnable;
-          this.scenario.name = response.data.name;
-          this.scenario.headers = obj.headers;
-          this.scenario.variables = obj.variables;
-          this.scenario.environmentMap = obj.environmentMap;
-          this.setResult(this.scenario.hashTree, map);
-          this.$emit('refReload');
-        }
-      })
-    } else if (this.scenario.id && (this.scenario.referenced === 'Copy' || this.scenario.referenced === 'Created') && !this.scenario.loaded) {
-      this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
-        if (response.data) {
-          if (response.data.num) {
-            this.scenario.num = response.data.num;
-            this.getWorkspaceId(response.data.projectId);
-          } else {
-            this.isSameSpace = false
-          }
-          this.scenario.versionName = response.data.versionName;
-          this.scenario.versionEnable = response.data.versionEnable;
-        } else {
-          this.isSameSpace = false
-        }
-      })
     }
   },
   components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
@@ -196,34 +149,6 @@ export default {
     },
   },
   methods: {
-    formatResult(map, scenarios) {
-      scenarios.forEach(item => {
-        if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1 && item.requestResult) {
-          let key = (item.id ? item.id : item.resourceId) + "_" + item.index;
-          if (map.has(key)) {
-            map.get(key).push(...item.requestResult);
-          } else {
-            map.set(key, item.requestResult);
-          }
-        }
-        if (item.hashTree && item.hashTree.length > 0) {
-          this.formatResult(map, item.hashTree);
-        }
-      })
-    },
-    setResult(array, scenarios) {
-      if (array && scenarios) {
-        array.forEach(item => {
-          let key = (item.id ? item.id : item.resourceId) + "_" + item.index;
-          if (scenarios.has(key)) {
-            item.requestResult = scenarios.get(key);
-          }
-          if (item.hashTree && item.hashTree.length > 0) {
-            this.setResult(item.hashTree, scenarios);
-          }
-        })
-      }
-    },
     run() {
       this.scenario.run = true;
       let runScenario = JSON.parse(JSON.stringify(this.scenario));
