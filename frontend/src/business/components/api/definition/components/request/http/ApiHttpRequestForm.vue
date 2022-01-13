@@ -307,7 +307,7 @@ export default {
           let required = false;
           keyValues.unshift(new KeyValue({
             name: line[0],
-            required: !required,
+            required: required,
             value: line[1],
             description: line[2],
             type: "text",
