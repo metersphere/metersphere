@@ -7,7 +7,7 @@
     <ms-main-container>
         <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare" v-show="showResponse"
                                :plan-report-template="response" :report-id="reportId" ref="loadCaseReportView"/>
-      <div class="empty" v-show="!showResponse">内容为空</div>
+      <div class="empty" v-show="!showResponse">{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </ms-main-container>
   </el-container>
 </template>

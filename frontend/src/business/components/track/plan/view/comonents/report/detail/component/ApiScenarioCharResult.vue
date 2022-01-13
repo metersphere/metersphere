@@ -19,7 +19,7 @@ export default {
       visible: false,
       options:  {
         title: {
-          text: '场景用例数',
+          text: this.$t('test_track.plan.test_plan_api_scenario_count'),
           subtext: '55',
           textAlign:'center',
           y: 'center',

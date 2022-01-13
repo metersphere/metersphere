@@ -24,7 +24,7 @@
               </ms-table-column>
 
               <ms-table-column
-                :label="'创建人'"
+                :label="$t('commons.create_user')"
                 prop="creatorName"/>
 
               <ms-table-column
@@ -38,7 +38,7 @@
 
               <ms-table-column
                 :width="80"
-                :label="'执行结果'"
+                :label="$t('test_track.plan_view.execute_result')"
                 prop="lastResult">
                 <template v-slot:default="scope">
                   <status-table-item v-if="scope.row.execResult === 'success'" :value="'Pass'"/>
@@ -55,7 +55,7 @@
         <el-card v-if="showResponse">
           <ms-request-result-tail :response="response" ref="debugResult"/>
         </el-card>
-        <div class="empty" v-else>内容为空</div>
+        <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
       </ms-main-container>
   </el-container>
 </template>

@@ -3,14 +3,14 @@
     <el-tabs type="card">
       <el-tab-pane>
         <template v-slot:label>
-          <tab-pane-count title="接口用例"  :count="apiSize"/>
+          <tab-pane-count :title="$t('commons.api_case')" :count="apiSize"/>
         </template>
         <api-case-failure-result :is-db="isDb" :is-all="isAll" :share-id="shareId" :is-share="isShare"
                                  :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setApiSize"/>
       </el-tab-pane>
       <el-tab-pane>
         <template v-slot:label>
-          <tab-pane-count title="场景用例" :count="scenarioSize"/>
+          <tab-pane-count :title="$t('commons.scenario_case')" :count="scenarioSize"/>
         </template>
         <api-scenario-failure-result :is-db="isDb" :is-all="isAll" :share-id="shareId" :is-share="isShare"
                                      :report="report" :is-template="isTemplate" :plan-id="planId"  @setSize="setScenarioSize"/>

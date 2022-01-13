@@ -22,7 +22,7 @@
                 prop="name">
               </ms-table-column>
               <ms-table-column
-                :label="'创建人'"
+                :label="$t('test_track.report.list.creator')"
                 prop="creatorName"/>
               <ms-table-column
                 :label="$t('test_track.case.priority')"
@@ -33,12 +33,12 @@
               </ms-table-column>
               <ms-table-column
                 :width="70"
-                :label="'步骤数'"
+                :label="$t('api_test.automation.step')"
                 prop="stepTotal">
               </ms-table-column>
               <ms-table-column
                 :width="80"
-                :label="'执行结果'"
+                :label="$t('test_track.plan_view.execute_result')"
                 prop="lastResult">
                 <template v-slot:default="{row}">
                   <status-table-item v-if="row.lastResult === 'Success'" :value="'Pass'"/>
@@ -56,7 +56,7 @@
     </ms-aside-container>
     <ms-main-container>
       <ms-api-report v-if="showResponse" :is-plan="true" :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
-      <div class="empty" v-else>内容为空</div>
+      <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </ms-main-container>
     </el-container>
 </template>

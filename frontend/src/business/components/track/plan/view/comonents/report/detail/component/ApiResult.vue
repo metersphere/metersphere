@@ -2,11 +2,11 @@
   <div>
     <el-row >
       <el-col :span="12" v-if="caseCharData && caseCharData.length > 0">
-        <ms-doughnut-pie-chart :name="$t('单接口用例')" :data="caseCharData" ref="functionChar"/>
+        <ms-doughnut-pie-chart :name="$t('api_test.home_page.detail_card.single_case')" :data="caseCharData" ref="functionChar"/>
       </el-col>
       <el-col :span="12" v-if="scenarioCharData && scenarioCharData.length > 0">
-        <api-scenario-char-result :name="'场景用例数'" :data="scenarioCharData"/>
-        <api-scenario-char-result style="margin-top: -50px;" :name="'步骤用例数'" :data="stepCharData"/>
+        <api-scenario-char-result :name="$t('test_track.plan.test_plan_api_scenario_count')" :data="scenarioCharData"/>
+        <api-scenario-char-result style="margin-top: -50px;" :name="$t('test_track.plan.test_plan_component_case_count')" :data="stepCharData"/>
       </el-col>
     </el-row>
   </div>

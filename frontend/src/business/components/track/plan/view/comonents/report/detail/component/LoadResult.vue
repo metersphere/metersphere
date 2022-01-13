@@ -2,7 +2,7 @@
   <div>
     <el-row >
       <el-col :span="12">
-        <ms-doughnut-pie-chart :name="$t('性能测试用例数')" :data="caseCharData" ref="functionChar"/>
+        <ms-doughnut-pie-chart :name="$t('test_track.plan_view.performance_case_count')" :data="caseCharData" ref="functionChar"/>
       </el-col>
       <el-col :span="12">
       </el-col>
@@ -25,7 +25,7 @@ export default {
         ["SUCCESS", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
         ["error", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
         ["Error", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
-        ["run", {name: this.$t('运行中'), itemStyle: {color: '#DEDE10'}}],
+        ["run", {name: this.$t('test_track.plan_view.running'), itemStyle: {color: '#DEDE10'}}],
         ["Prepare", {name: this.$t('api_test.home_page.detail_card.unexecute'), itemStyle: {color: '#909399'}}],
       ]),
       caseCharData: [],
