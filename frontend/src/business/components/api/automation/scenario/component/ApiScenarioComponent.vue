@@ -124,6 +124,9 @@ export default {
       this.scenario.projectId = getCurrentProjectID();
     }
     if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded) {
+      let scenarios = JSON.parse(JSON.stringify(this.scenario.hashTree));
+      let map = new Map();
+      this.formatResult(map, scenarios);
       this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
         if (response.data) {
           this.scenario.loaded = true;
@@ -150,7 +153,7 @@ export default {
           this.scenario.headers = obj.headers;
           this.scenario.variables = obj.variables;
           this.scenario.environmentMap = obj.environmentMap;
-          this.$emit('reloadResult');
+          this.setResult(this.scenario.hashTree, map);
           this.$emit('refReload');
         }
       })
@@ -193,6 +196,34 @@ export default {
     },
   },
   methods: {
+    formatResult(map, scenarios) {
+      scenarios.forEach(item => {
+        if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1 && item.requestResult) {
+          let key = (item.id ? item.id : item.resourceId) + "_" + item.index;
+          if (map.has(key)) {
+            map.get(key).push(...item.requestResult);
+          } else {
+            map.set(key, item.requestResult);
+          }
+        }
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.formatResult(map, item.hashTree);
+        }
+      })
+    },
+    setResult(array, scenarios) {
+      if (array && scenarios) {
+        array.forEach(item => {
+          let key = (item.id ? item.id : item.resourceId) + "_" + item.index;
+          if (scenarios.has(key)) {
+            item.requestResult = scenarios.get(key);
+          }
+          if (item.hashTree && item.hashTree.length > 0) {
+            this.setResult(item.hashTree, scenarios);
+          }
+        })
+      }
+    },
     run() {
       this.scenario.run = true;
       let runScenario = JSON.parse(JSON.stringify(this.scenario));

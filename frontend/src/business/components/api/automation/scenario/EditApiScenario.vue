@@ -220,7 +220,6 @@
                          @stopScenario="stop"
                          @setDomain="setDomain"
                          @openScenario="openScenario"
-                         @reloadResult="reloadResult"
                          @editScenarioAdvance="editScenarioAdvance"/>
                     </span>
               </el-tree>
@@ -515,7 +514,6 @@ export default {
       dialogVisible:false,
       newScenarioDefinition:[],
       currentItem: {},
-      debugResults: [],
     }
   },
   watch: {
@@ -692,7 +690,6 @@ export default {
       this.reqTotalTime = 0;
       this.reqTotal = 0;
       this.reqSuccess = 0;
-      this.debugResults = [];
     },
     clearResult(arr) {
       if (arr) {
@@ -808,23 +805,6 @@ export default {
         }
       })
     },
-    setParentIndex(stepArray, fullPath) {
-      for (let i in stepArray) {
-        // 添加debug结果
-        stepArray[i].data.parentIndex = fullPath ? fullPath + "_" + stepArray[i].data.index : stepArray[i].data.index;
-        if (stepArray[i].childNodes && stepArray[i].childNodes.length > 0) {
-          this.setParentIndex(stepArray[i].childNodes, stepArray[i].data.parentIndex);
-        }
-      }
-    },
-    reloadResult() {
-      if (this.debugResults && this.debugResults.length > 0) {
-        this.setParentIndex(this.$refs.stepTree.root.childNodes);
-        this.debugResults.forEach(item => {
-          this.runningEvaluation(item);
-        })
-      }
-    },
     runningEvaluation(resultData) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
@@ -869,9 +849,6 @@ export default {
         }
       }
       this.runningEvaluation(e.data);
-      if (e.data && e.data.startsWith("result_")) {
-        this.debugResults.push(e.data);
-      }
       this.message = getUUID();
       if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
         this.runScenario = undefined;

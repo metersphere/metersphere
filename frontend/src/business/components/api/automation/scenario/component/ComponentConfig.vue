@@ -40,7 +40,6 @@
         @setDomain="setDomain"
         @savePreParams="savePreParams"
         @editScenarioAdvance="editScenarioAdvance"
-        @reloadResult="reloadResult"
       />
     </keep-alive>
   </div>
@@ -256,9 +255,6 @@ export default {
     editScenarioAdvance(data) {
       this.$emit('editScenarioAdvance', data);
     },
-    reloadResult() {
-      this.$emit('reloadResult');
-    }
   }
 }
 </script>

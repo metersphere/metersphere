@@ -116,9 +116,6 @@
         this.reload();
       },
     },
-    created() {
-      this.$emit('reloadResult');
-    },
     methods: {
       reload() {
         this.loading = true
