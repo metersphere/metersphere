@@ -213,7 +213,6 @@
                          @runScenario="runDebug"
                          @stopScenario="stop"
                          @setDomain="setDomain"
-                         @reloadResult="reloadResult"
                          @openScenario="openScenario"/>
                     </span>
               </el-tree>
@@ -468,7 +467,6 @@ export default {
       showFollow: false,
       envGroupId: "",
       environmentType: ENV_TYPE.JSON,
-      debugResults: [],
     }
   },
   watch: {
@@ -641,7 +639,6 @@ export default {
       this.reqTotalTime = 0;
       this.reqTotal = 0;
       this.reqSuccess = 0;
-      this.debugResults = [];
     },
     clearResult(arr) {
       if (arr) {
@@ -723,83 +720,49 @@ export default {
     },
     runningNodeChild(arr, resultData) {
       arr.forEach(item => {
-        if (resultData && resultData.startsWith("result_")) {
-          let data = JSON.parse(resultData.substring(7));
-          if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
-            data.subRequestResults.forEach(subItem => {
-              if (item.data && item.data.id + "_" + item.data.parentIndex === subItem.resourceId) {
-                subItem.requestResult.console = data.responseResult.console;
-                item.data.requestResult.push(subItem);
-                // 更新父节点状态
-                this.resultEvaluation(subItem.resourceId, subItem.success);
-                item.data.testing = false;
-                item.data.debug = true;
-              }
-            })
-          } else if ((item.data && item.data.id + "_" + item.data.parentIndex === data.resourceId)
-            || (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId)) {
-            if (item.data.requestResult) {
-              item.data.requestResult.push(data);
-            } else {
-              item.data.requestResult = [data];
-            }
-            // 更新父节点状态
-            this.resultEvaluation(data.resourceId, data.success);
-            item.data.testing = false;
-            item.data.debug = true;
-          }
-        } else if (item.data && item.data.id + "_" + item.data.parentIndex === resultData) {
-          item.data.testing = true;
-          this.runningEditParent(item.parent);
-        }
+        this.setResults(resultData, item);
         if (item.childNodes && item.childNodes.length > 0) {
           this.runningNodeChild(item.childNodes, resultData);
         }
       })
     },
-    setParentIndex(stepArray, fullPath) {
-      for (let i in stepArray) {
-        // 添加debug结果
-        stepArray[i].data.parentIndex = fullPath ? fullPath + "_" + stepArray[i].data.index : stepArray[i].data.index;
-        if (stepArray[i].childNodes && stepArray[i].childNodes.length > 0) {
-          this.setParentIndex(stepArray[i].childNodes, stepArray[i].data.parentIndex);
+    setResults(resultData, item) {
+      if (resultData && resultData.startsWith("result_")) {
+        let data = JSON.parse(resultData.substring(7));
+        if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
+          data.subRequestResults.forEach(subItem => {
+            if (item.data && item.data.id + "_" + item.data.parentIndex === subItem.resourceId) {
+              subItem.requestResult.console = data.responseResult.console;
+              if (!item.data.requestResult) {
+                item.data.requestResult = [];
+              }
+              item.data.requestResult.push(subItem);
+              // 更新父节点状态
+              this.resultEvaluation(subItem.resourceId, subItem.success);
+              item.data.testing = false;
+              item.data.debug = true;
+            }
+          })
+        } else if ((item.data && item.data.id + "_" + item.data.parentIndex === data.resourceId)
+          || (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId)) {
+          if (!item.data.requestResult) {
+            item.data.requestResult = [];
+          }
+          item.data.requestResult.push(data);
+          // 更新父节点状态
+          this.resultEvaluation(data.resourceId, data.success);
+          item.data.testing = false;
+          item.data.debug = true;
         }
-      }
-    },
-    reloadResult() {
-      if (this.debugResults && this.debugResults.length > 0) {
-        this.setParentIndex(this.$refs.stepTree.root.childNodes);
-        this.debugResults.forEach(item => {
-          this.runningEvaluation(item);
-        })
+      } else if (item.data && item.data.id + "_" + item.data.parentIndex === resultData) {
+        item.data.testing = true;
+        this.runningEditParent(item.parent);
       }
     },
     runningEvaluation(resultData) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
-          if (item.data && item.data.id + "_" + item.data.parentIndex === resultData) {
-            item.data.testing = true;
-          } else if (resultData && resultData.startsWith("result_")) {
-            let data = JSON.parse(resultData.substring(7));
-            if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
-              data.subRequestResults.forEach(subItem => {
-                if (item.data && item.data.id + "_" + item.data.parentIndex === subItem.resourceId) {
-                  item.data.requestResult.push(subItem);
-                  // 更新父节点状态
-                  this.resultEvaluation(subItem.resourceId, subItem.success);
-                  item.data.testing = false;
-                  item.data.debug = true;
-                }
-              })
-            } else if (item.data && item.data.id + "_" + item.data.parentIndex === data.resourceId
-              || (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId)) {
-              item.data.requestResult.push(data);
-              // 更新父节点状态
-              this.resultEvaluation(data.resourceId, data.success);
-              item.data.testing = false;
-              item.data.debug = true;
-            }
-          }
+          this.setResults(resultData, item);
           if (item.childNodes && item.childNodes.length > 0) {
             this.runningNodeChild(item.childNodes, resultData);
           }
@@ -818,16 +781,12 @@ export default {
         }
       }
       this.runningEvaluation(e.data);
-      if (e.data && e.data.startsWith("result_")) {
-        this.debugResults.push(e.data);
-      }
       this.message = getUUID();
       if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
         this.runScenario = undefined;
         this.debugLoading = false;
         this.message = "stop";
         this.stopDebug = "stop";
-        this.currentScenario.debugResults = this.debugResults;
         this.reload();
       }
     },
