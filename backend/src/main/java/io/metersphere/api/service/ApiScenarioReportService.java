@@ -80,6 +80,8 @@ public class ApiScenarioReportService {
     @Resource
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
     @Resource
+    private ApiScenarioReportStructureMapper apiScenarioReportStructureMapper;
+    @Resource
     private MsResultService resultService;
 
     public void saveResult(List<RequestResult> requestResults, ResultDTO dto) {
@@ -459,6 +461,14 @@ public class ApiScenarioReportService {
 
     public void delete(DeleteAPIReportRequest request) {
         apiScenarioReportDetailMapper.deleteByPrimaryKey(request.getId());
+        ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
+        example.createCriteria().andReportIdEqualTo(request.getId());
+        apiScenarioReportResultMapper.deleteByExample(example);
+
+        ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+        structureExample.createCriteria().andReportIdEqualTo(request.getId());
+        apiScenarioReportStructureMapper.deleteByExample(structureExample);
+
         // 补充逻辑，如果是集成报告则把零时报告全部删除
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getId());
         if (report != null && StringUtils.isNotEmpty(report.getScenarioId())) {
@@ -528,6 +538,15 @@ public class ApiScenarioReportService {
             ApiScenarioReportExample apiTestReportExample = new ApiScenarioReportExample();
             apiTestReportExample.createCriteria().andIdIn(handleIdList);
             apiScenarioReportMapper.deleteByExample(apiTestReportExample);
+
+            ApiScenarioReportResultExample reportResultExample = new ApiScenarioReportResultExample();
+            reportResultExample.createCriteria().andReportIdIn(handleIdList);
+            apiScenarioReportResultMapper.deleteByExample(reportResultExample);
+
+            ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+            structureExample.createCriteria().andReportIdIn(handleIdList);
+            apiScenarioReportStructureMapper.deleteByExample(structureExample);
+
             //转存剩余的数据
             ids = otherIdList;
         }
@@ -540,6 +559,15 @@ public class ApiScenarioReportService {
             ApiScenarioReportExample apiTestReportExample = new ApiScenarioReportExample();
             apiTestReportExample.createCriteria().andIdIn(ids);
             apiScenarioReportMapper.deleteByExample(apiTestReportExample);
+
+            ApiScenarioReportResultExample reportResultExample = new ApiScenarioReportResultExample();
+            reportResultExample.createCriteria().andReportIdIn(ids);
+            apiScenarioReportResultMapper.deleteByExample(reportResultExample);
+
+            ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+            structureExample.createCriteria().andReportIdIn(ids);
+            apiScenarioReportStructureMapper.deleteByExample(structureExample);
+
         }
     }
 
