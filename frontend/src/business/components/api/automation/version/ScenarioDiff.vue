@@ -327,6 +327,23 @@
         </div>
       </el-card>
     </el-card>
+    <el-dialog
+      :fullscreen="true"
+      :visible.sync="dialogVisible"
+      append-to-body
+      width="100%"
+    >
+      <scenario-child-diff
+        :old-data="leftChildData"
+        :new-data="rightChildData"
+        :old-node="leftChildNode"
+        :new-node="rightChildNode"
+        :old-project-env-map="projectEnvMap"
+        :new-project-env-map="newProjectEnvMap"
+        :old-v-node="leftChildVnode"
+        :new-v-node="rightChildVnode"
+      ></scenario-child-diff>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -335,6 +352,7 @@ import {API_STATUS, PRIORITY} from "@/business/components/api/definition/model/J
 import {ENV_TYPE} from "@/common/js/constants";
 import {ELEMENT_TYPE, STEP, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import MsComponentConfig from "@/business/components/api/automation/scenario/component/ComponentConfig";
+import ScenarioChildDiff from "@/business/components/api/automation/version/ScenarioChildDiff";
 const {diff} = require("@/business/components/performance/v_node_diff");
 const {KeyValue} = require("@/business/components/api/definition/model/ApiTestModel");
 const {getUUID} = require("@/common/js/utils");
@@ -384,10 +402,25 @@ export default{
     type:{}
   },
   components:{
+    ScenarioChildDiff,
     MsComponentConfig,
     MsSelectTree: () => import("@/business/components/common/select-tree/SelectTree"),
     MsInputTag: () => import("@/business/components/api/automation/scenario/MsInputTag"),
     EnvPopover: () => import("@/business/components/api/automation/scenario/EnvPopover"),
+  },
+  watch:{
+    'dialogVisible'(){
+      if(this.dialogVisible===false){
+        this.leftChildData = {};
+        this.leftChildNode = {};
+        this.leftChildVnode ={};
+        this.rightChildData = {};
+        this.rightChildNode = {};
+        this.rightChildVnode ={};
+        this.currentRightChild = undefined;
+        this.currentLeftChild = undefined;
+      }
+    }
   },
   data(){
    return{
@@ -416,8 +449,13 @@ export default{
      stepEnable:true,
      currentLeftChild:undefined,
      currentRightChild:undefined,
-
-
+     leftChildData:{},
+     rightChildData:{},
+     leftChildNode:{},
+     rightChildNode:{},
+     leftChildVnode:{},
+     rightChildVnode:{},
+     dialogVisible:false
    }
   },
   methods:{
@@ -562,22 +600,23 @@ export default{
     },
     nodeClick(data, node,source) {
       this.$store.state.selectStep = data;
-      console.log(source)
+      this.rightChildData = data;
+      this.rightChildNode = node
+      this.rightChildVnode = source
       this.currentRightChild = source;
+      console.log(this.rightChildVnode)
       if(this.currentLeftChild){
-        diff(this.currentLeftChild,this.currentRightChild);
-        this.currentLeftChild = undefined;
-        this.currentRightChild = undefined;
+        this.dialogVisible = true;
       }
     },
     oldNodeClick(data, node,source) {
       this.$store.state.selectStep = data;
-      console.log(source)
+      this.leftChildData = data;
+      this.leftChildNode = node
+      this.leftChildVnode = source
       this.currentLeftChild = source;
       if(this.currentRightChild){
-        diff(this.currentLeftChild,this.currentRightChild);
-        this.currentLeftChild = undefined;
-        this.currentRightChild = undefined;
+        this.dialogVisible = true;
       }
     },
 
@@ -597,8 +636,5 @@ export default{
 .compare-class{
   display: flex;
   justify-content:space-between;
-}
-.border-config{
-  border: 1px solid red;
 }
 </style>
