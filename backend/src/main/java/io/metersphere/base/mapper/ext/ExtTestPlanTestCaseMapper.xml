@@ -171,7 +171,7 @@
             <if test="request.method != null">
                 and test_case.method = #{request.method}
             </if>
-            and test_case.status != 'Trash'
+            and (test_case.status != 'Trash' or test_case.status is null)
             <include refid="filter"/>
         </where>
     </sql>
