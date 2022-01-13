@@ -293,7 +293,8 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             HashSet<String> refSet = new HashSet<>();
             Model model = getRefModelType(schema, refSet);
             item.setType("object");
-            item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
+            if (model != null)
+                item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
         } else if (schema instanceof ArrayModel) {
             //模型数组
             ArrayModel arrayModel = (ArrayModel) schema;
@@ -301,11 +302,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             handleArrayItemProperties(item, arrayModel.getItems(), refSet);
         } else if (schema instanceof ModelImpl) {
             ModelImpl model = (ModelImpl) schema;
-            Map<String, Property> properties = model.getProperties();
-            if (model != null) {
-                item.setType("object");
-                item.setProperties(parseSchemaProperties(properties, new HashSet<>()));
-            }
+            item.setType("object");
+            if (model != null)
+                item.setProperties(parseSchemaProperties(model.getProperties(), new HashSet<>()));
         }
         if (schema.getExample() != null) {
             item.getMock().put("mock", schema.getExample());
