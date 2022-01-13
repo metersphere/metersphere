@@ -303,7 +303,7 @@ export default {
       this.parameters.push(new KeyValue({
         type: 'text',
         enable: true,
-        required: true,
+        required: false,
         uuid: this.uuid(),
         contentType: 'text/plain'
       }));
