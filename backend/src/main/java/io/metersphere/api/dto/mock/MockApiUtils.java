@@ -432,8 +432,8 @@ public class MockApiUtils {
 
     }
 
-    public static RequestMockParams getParams(String urlParams, String apiPath, JSONObject queryParamsObject, JSON paramJson) {
-        RequestMockParams returnParams = getGetParamMap(urlParams, apiPath, queryParamsObject);
+    public static RequestMockParams getParams(String urlParams, String apiPath, JSONObject queryParamsObject, JSON paramJson, boolean isPostRequest) {
+        RequestMockParams returnParams = getGetParamMap(urlParams, apiPath, queryParamsObject, isPostRequest);
         if (paramJson != null) {
             if (paramJson instanceof JSONObject) {
                 if (!((JSONObject) paramJson).isEmpty()) {
@@ -462,13 +462,19 @@ public class MockApiUtils {
         return queryParamsObject;
     }
 
-    private static RequestMockParams getGetParamMap(String urlParams, String apiPath, JSONObject queryParamsObject) {
+    private static RequestMockParams getGetParamMap(String urlParams, String apiPath, JSONObject queryParamsObject, boolean isPostRequest) {
         RequestMockParams requestMockParams = new RequestMockParams();
 
         JSONObject urlParamsObject = getSendRestParamMapByIdAndUrl(apiPath, urlParams);
 
         requestMockParams.setRestParamsObj(urlParamsObject);
         requestMockParams.setQueryParamsObj(queryParamsObject);
+
+        if(isPostRequest){
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.add(queryParamsObject);
+            requestMockParams.setBodyParams(jsonArray);
+        }
         return requestMockParams;
     }
 

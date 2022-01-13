@@ -365,7 +365,7 @@ public class MockConfigService {
                 if (jsonObject.containsKey("name") && jsonObject.containsKey("value")) {
                     String headerName = jsonObject.getString("name");
                     String headerValue = jsonObject.getString("value");
-                    if(StringUtils.isNotEmpty(headerName)){
+                    if (StringUtils.isNotEmpty(headerName)) {
                         if (!requestHeaderMap.containsKey(headerName) || !StringUtils.equals(requestHeaderMap.get(headerName), headerValue)) {
                             return false;
                         }
@@ -1155,13 +1155,10 @@ public class MockConfigService {
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
             aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix);
-
             JSON paramJson = MockApiUtils.getPostParamMap(request);
             JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
-
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-                RequestMockParams mockParams = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson);
-
+                RequestMockParams mockParams = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, true);
                 MockConfigResponse mockConfigData = this.findByApiId(api.getId());
                 MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
                 if (finalExpectConfig != null) {
@@ -1170,36 +1167,6 @@ public class MockConfigService {
                     break;
                 }
             }
-
-
-//            List<String> apiIdList = aualifiedApiList.stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
-//            MockConfigResponse mockConfigData = this.findByApiIdList(apiIdList);
-
-//            if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
-//                String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-//                aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, null, urlSuffix);
-//                JSON paramJson = MockApiUtils.getParams(request);
-//                if (paramJson instanceof JSONObject) {
-//                    JSONArray paramsArray = new JSONArray();
-//                    paramsArray.add(paramJson);
-//                    RequestMockParams mockParams = new RequestMockParams();
-//                    mockParams.setBodyParams(paramsArray);
-//                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
-//                    if (finalExpectConfig != null) {
-//                        isMatch = true;
-//                        returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
-//                    }
-//                } else if (paramJson instanceof JSONArray) {
-//                    JSONArray paramArray = (JSONArray) paramJson;
-//                    RequestMockParams mockParams = new RequestMockParams();
-//                    mockParams.setBodyParams(paramArray);
-//                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
-//                    if (finalExpectConfig != null) {
-//                        isMatch = true;
-//                        returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
-//                    }
-//                }
-//            }
         }
 
         if (!isMatch) {
@@ -1230,7 +1197,7 @@ public class MockConfigService {
             JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
 
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-                RequestMockParams paramMap = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson);
+                RequestMockParams paramMap = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, false);
 
                 MockConfigResponse mockConfigData = this.findByApiId(api.getId());
                 if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
