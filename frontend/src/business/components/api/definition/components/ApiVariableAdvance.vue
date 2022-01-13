@@ -538,9 +538,9 @@
         if(this.itemValue != null && this.itemValue != undefined
           && this.itemValue.indexOf('@') == -1
           && this.itemValue.indexOf('$') == -1){
-          this.currentItem.value = '@' + this.itemValue;
+          this.$set(this.currentItem, 'value', '@' + this.itemValue);
         } else {
-          this.currentItem.value = this.itemValue;
+          this.$set(this.currentItem, 'value', this.itemValue);
         }
         this.itemValueVisible = false;
         this.mockVariableFuncs = [];
