@@ -513,6 +513,66 @@ public class ApiExecutionQueueExample {
             addCriterion("create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
+
+        public Criteria andFailureIsNull() {
+            addCriterion("failure is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureIsNotNull() {
+            addCriterion("failure is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureEqualTo(Boolean value) {
+            addCriterion("failure =", value, "failure");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureNotEqualTo(Boolean value) {
+            addCriterion("failure <>", value, "failure");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureGreaterThan(Boolean value) {
+            addCriterion("failure >", value, "failure");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("failure >=", value, "failure");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureLessThan(Boolean value) {
+            addCriterion("failure <", value, "failure");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureLessThanOrEqualTo(Boolean value) {
+            addCriterion("failure <=", value, "failure");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureIn(List<Boolean> values) {
+            addCriterion("failure in", values, "failure");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureNotIn(List<Boolean> values) {
+            addCriterion("failure not in", values, "failure");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureBetween(Boolean value1, Boolean value2) {
+            addCriterion("failure between", value1, value2, "failure");
+            return (Criteria) this;
+        }
+
+        public Criteria andFailureNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("failure not between", value1, value2, "failure");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

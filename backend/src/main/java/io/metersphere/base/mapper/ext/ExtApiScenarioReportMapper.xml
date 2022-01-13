@@ -252,18 +252,18 @@
         SELECT id AS id,create_time AS createTime, scenario_id AS scenario_id FROM api_scenario_report
         WHERE execute_type = 'Saved' AND scenario_id in
         <foreach collection="scenarioIdList" item="value" separator="," open="(" close=")">
-                        #{value}
-                    </foreach>
+            #{value}
+        </foreach>
         UNION
         SELECT report.id AS id,report.create_time AS createTime,planScenario.api_scenario_id AS scenario_id FROM
         api_scenario_report report
         INNER JOIN test_plan_api_scenario planScenario ON report.scenario_id = planScenario.id
         WHERE report.execute_type = 'Saved' AND planScenario.api_scenario_id in
         <foreach collection="scenarioIdList" item="value" separator="," open="(" close=")">
-                        #{value}
-                    </foreach>
-                ORDER BY createTime DESC
-            ) a GROUP BY a.scenario_id
+            #{value}
+        </foreach>
+        ORDER BY createTime DESC
+        ) a GROUP BY a.scenario_id
         ) orderData ON orderData.id = report.id;
     </select>
 
@@ -309,4 +309,11 @@
             #{value}
         </foreach>
     </select>
+
+    <update id="update" parameterType="java.util.List">
+        update api_scenario_report set status="STOP" where id in
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </update>
 </mapper>
