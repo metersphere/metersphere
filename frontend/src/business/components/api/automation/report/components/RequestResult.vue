@@ -49,7 +49,7 @@
                 <i class="el-icon-loading" style="font-size: 16px"/>
                 {{ $t('commons.testing') }}
               </el-tag>
-              <el-tag v-if="errorCode" class="ms-test-running" size="mini">
+              <el-tag v-else-if="errorCode" class="ms-test-running" size="mini">
                 {{ $t('error_report_library.option.name') }}
               </el-tag>
               <el-tag size="mini" v-else-if="request.unexecute">{{
@@ -66,11 +66,11 @@
       <el-collapse-transition>
         <div v-show="isActive && !request.unexecute" style="width: 99%">
           <ms-request-result-tail
-              :scenario-name="scenarioName"
-              :request-type="requestType"
-              :request="request"
-              :console="console"
-              v-if="isActive"/>
+            :scenario-name="scenarioName"
+            :request-type="requestType"
+            :request="request"
+            :console="console"
+            v-if="isActive"/>
         </div>
       </el-collapse-transition>
     </div>
@@ -118,7 +118,15 @@ export default {
       },
     }
   },
-  created() {
+  watch:{
+    request:{
+      deep: true,
+      handler(n) {
+        if(this.request.errorCode){
+          this.errorCode = this.request.errorCode;
+        }
+      },
+    }
   },
   methods: {
     active() {

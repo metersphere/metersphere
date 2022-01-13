@@ -284,7 +284,6 @@ export default {
           this.totalTime = this.content.totalTime;
           this.fullTreeNodes = this.content.steps;
           this.recursiveSorting(this.fullTreeNodes);
-          console.info(this.fullTreeNodes);
           this.reload();
         }
       });

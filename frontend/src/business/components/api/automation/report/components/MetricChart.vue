@@ -17,28 +17,27 @@
                 <span class="ms-req-span">  {{content.success? content.success+content.error :0}} 请求</span>
            </span>
           </div>
-          <ms-chart id="chart" ref="chart" :options="options" :height="220" :autoresize="true" v-else/>
-          <el-row type="flex" justify="center" align="middle">
-
+          <ms-chart id="chart" ref="chart" :options="options" :height="220" style="margin-right: 10px" :autoresize="true" v-else/>
+          <el-row type="flex" justify="center" align="middle" style="width: 150px">
             <div>
               <div class="metric-icon-box" style="height: 26px">
                 <span class="ms-point-success" style="margin: 7px"/>
                 <div class="metric-box">
-                  <div class="value">{{ content.success }} {{ $t('api_report.success') }}</div>
+                  <div class="value" style="font-size: 12px">{{ content.success }} {{ $t('api_report.success') }}</div>
                 </div>
               </div>
               <el-divider></el-divider>
               <div class="metric-icon-box" style="height: 26px">
                 <span class="ms-point-error" style="margin: 7px"/>
                 <div class="metric-box">
-                  <div class="value">{{ content.error }} {{ $t('api_report.fail') }}</div>
+                  <div class="value" style="font-size: 12px">{{ content.error }} {{ $t('api_report.fail') }}</div>
                 </div>
               </div>
               <el-divider v-if="content.errorCode > 0"></el-divider>
               <div class="metric-icon-box" style="height: 26px">
                 <span class="ms-point-error-code" v-if="content.errorCode > 0" style="margin: 7px"/>
                 <div class="metric-box" v-if="content.errorCode > 0">
-                  <div class="value">{{ content.errorCode }} {{ $t('error_report_library.option.name') }}</div>
+                  <div class="value" style="font-size: 12px">{{ content.errorCode }} {{ $t('error_report_library.option.name') }}</div>
                 </div>
               </div>
             </div>

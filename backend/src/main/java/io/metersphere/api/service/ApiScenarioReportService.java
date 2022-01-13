@@ -720,8 +720,22 @@ public class ApiScenarioReportService {
     }
 
     private String getStatus(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
-        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
-        String status = errorSize > 0 || requestResults.isEmpty() ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name();
+        long errorSize = 0;
+        long errorReportResultSize = 0;
+        for (ApiScenarioReportResult result : requestResults) {
+            if (StringUtils.equalsIgnoreCase(result.getStatus(), ScenarioStatus.Error.name())) {
+                errorSize++;
+            } else if (StringUtils.equalsIgnoreCase(result.getStatus(), ExecuteResult.errorReportResult.name())) {
+                errorReportResultSize++;
+            }
+        }
+        String status;//增加误报状态判断
+        if(errorReportResultSize > 0){
+            status = ExecuteResult.errorReportResult.name();
+        }else {
+            status =errorSize > 0 || requestResults.isEmpty() ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name();
+        }
+
         if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
             LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
             status = ScenarioStatus.Timeout.name();

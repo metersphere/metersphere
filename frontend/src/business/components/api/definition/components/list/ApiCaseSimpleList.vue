@@ -132,7 +132,8 @@
 
           <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')">
             <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=120"
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                      :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=120"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
               <span/>
             </template>
@@ -320,13 +321,33 @@ export default {
       buttons: [],
       enableOrderDrag: true,
       simpleButtons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch, permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']},
-        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch, permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']},
-        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch, permissions: ['PROJECT_API_DEFINITION:READ+RUN']},
+        {
+          name: this.$t('api_test.definition.request.batch_delete'),
+          handleClick: this.handleDeleteToGcBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
+        },
+        {
+          name: this.$t('api_test.definition.request.batch_edit'),
+          handleClick: this.handleEditBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
+        },
+        {
+          name: this.$t('api_test.automation.batch_execute'),
+          handleClick: this.handleRunBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
       ],
       trashButtons: [
-        {name: this.$t('commons.reduction'), handleClick: this.handleBatchRestore, permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']},
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']},
+        {
+          name: this.$t('commons.reduction'),
+          handleClick: this.handleBatchRestore,
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
+        },
+        {
+          name: this.$t('api_test.definition.request.batch_delete'),
+          handleClick: this.handleDeleteBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
+        },
       ],
       operators: [],
       simpleOperators: [
@@ -548,6 +569,8 @@ export default {
           return "ms-error";
         case "Running":
           return "ms-running";
+        case "errorReportResult":
+          return "ms-error-report-result";
         default:
           return "ms-unexecute";
       }
@@ -560,6 +583,8 @@ export default {
           return this.$t('api_test.automation.fail');
         case "Running":
           return this.$t('commons.testing');
+        case "errorReportResult":
+          return this.$t('error_report_library.option.name');
         default:
           return this.$t('api_test.home_page.detail_card.unexecute');
       }
@@ -1081,7 +1106,10 @@ export default {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
-            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+            stepArray[i].document = {
+              type: "JSON",
+              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+            };
           }
           if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
             stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
@@ -1224,6 +1252,10 @@ export default {
 
 .ms-error {
   color: #F56C6C;
+}
+
+.ms-error-report-result {
+  color: #F6972A;
 }
 
 .ms-running {

@@ -18,10 +18,13 @@
 package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.ErrorReportLibraryUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.jmeter.JMeterBase;
@@ -149,10 +152,12 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         if (isSampleWanted(result.isSuccessful()) && !StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
             RequestResult requestResult = JMeterBase.getRequestResult(result);
             if (requestResult != null) {
+
                 MsgDto dto = new MsgDto();
                 dto.setExecEnd(false);
                 dto.setReportId("send." + this.getName());
                 dto.setToReport(this.getName());
+
                 String console = CommonBeanFactory.getBean(MsResultService.class).getJmeterLogger(this.getName());
                 if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
                     requestResult.getSubRequestResults().forEach(transactionResult -> {
@@ -161,8 +166,15 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                         WebSocketUtils.sendMessageSingle(dto);
                     });
                 } else {
+                    //解析误报内容
+                    JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(requestResult));
+                    ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(requestResult);
+                    if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
+                        requestResultObject.put("errorReportResult",errorCodeDTO.getErrorCodeStr());
+                    }
+
                     requestResult.getResponseResult().setConsole(console);
-                    dto.setContent("result_" + JSON.toJSONString(requestResult));
+                    dto.setContent("result_" + JSON.toJSONString(requestResultObject));
                     WebSocketUtils.sendMessageSingle(dto);
                 }
                 LoggerUtil.debug("send. " + this.getName());

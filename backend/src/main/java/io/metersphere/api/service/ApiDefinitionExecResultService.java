@@ -2,6 +2,8 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
+import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
@@ -10,9 +12,7 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.*;
-import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
@@ -28,6 +28,7 @@ import io.metersphere.track.service.TestPlanTestCaseService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,14 +330,24 @@ public class ApiDefinitionExecResultService {
             if (StringUtils.isEmpty(saveResult.getActuator())) {
                 saveResult.setActuator("LOCAL");
             }
+
+            String status = item.isSuccess() ? ExecuteResult.success.name() : ExecuteResult.error.name();
+
+            //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
+            RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
+            if(MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())){
+                status = expandDTO.getStatus();
+                saveResult.setContent(JSON.toJSONString(expandDTO));
+            }else {
+                saveResult.setContent(JSON.toJSONString(item));
+            }
+
             saveResult.setName(item.getName());
             saveResult.setType(type);
             saveResult.setCreateTime(item.getStartTime());
-            String status = item.isSuccess() ? ExecuteResult.success.name() : ExecuteResult.error.name();
             saveResult.setName(editStatus(type, status, saveResult.getCreateTime(), saveResult.getId(), testId));
             saveResult.setStatus(status);
             saveResult.setResourceId(item.getName());
-            saveResult.setContent(JSON.toJSONString(item));
             saveResult.setStartTime(item.getStartTime());
             saveResult.setEndTime(item.getResponseResult().getResponseTime());
             // 清空上次执行结果的内容，只保留近五条结果
