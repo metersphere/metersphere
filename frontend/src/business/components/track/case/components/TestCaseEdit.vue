@@ -80,7 +80,8 @@
           <!-- 自定义字段 -->
           <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
                    class="case-form">
-            <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth" :issue-template="testCaseTemplate"/>
+            <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth"
+                                    :issue-template="testCaseTemplate"/>
           </el-form>
 
           <el-row v-if="isCustomNum">
@@ -140,7 +141,19 @@
 
       </div>
       <ms-change-history ref="changeHistory"/>
+      <el-dialog
+        :fullscreen="true"
+        :visible.sync="dialogVisible"
+        width="100%"
+      >
+        <test-case-version-diff :old-data="oldData" :new-data="newData"
+                                :tree-nodes="treeNodes"></test-case-version-diff>
 
+        <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible=false">取 消</el-button>
+                <el-button type="primary">确 定</el-button>
+              </span>
+      </el-dialog>
     </div>
   </el-card>
 
@@ -153,8 +166,11 @@ import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {
   getCurrentProjectID,
   getCurrentUser,
-  getNodePath, getUUID,
-  handleCtrlSEvent, hasLicense, hasPermission,
+  getNodePath,
+  getUUID,
+  handleCtrlSEvent,
+  hasLicense,
+  hasPermission,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -170,12 +186,7 @@ import MsTableButton from "@/business/components/common/components/MsTableButton
 import MsSelectTree from "../../../common/select-tree/SelectTree";
 import MsTestCaseStepRichText from "./MsRichText";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
-import {
-  buildCustomFields,
-  buildTestCaseOldFields,
-  getTemplate,
-  parseCustomField
-} from "@/common/js/custom_field";
+import {buildCustomFields, buildTestCaseOldFields, getTemplate, parseCustomField} from "@/common/js/custom_field";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
@@ -184,6 +195,7 @@ import StepChangeItem from "@/business/components/track/case/components/StepChan
 import MsChangeHistory from "../../../history/ChangeHistory";
 import {getTestTemplate} from "@/network/custom-field-template";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
+import TestCaseVersionDiff from "@/business/components/track/case/version/TestCaseVersionDiff";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -205,6 +217,7 @@ export default {
     MsTestCaseStepRichText,
     MsChangeHistory,
     'MsVersionHistory': versionHistory.default,
+    TestCaseVersionDiff
   },
   data() {
     return {
@@ -294,6 +307,9 @@ export default {
       },
       tabId: getUUID(),
       versionData: [],
+      dialogVisible: false,
+      oldData: null,
+      newData: null
     };
   },
   props: {
@@ -438,7 +454,7 @@ export default {
     }
   },
   methods: {
-    alert:alert,
+    alert: alert,
     currentUser: () => {
       return getCurrentUser();
     },
@@ -935,8 +951,28 @@ export default {
         this.$refs.versionHistory.loading = false;
       });
     },
+    setSpecialPropForCompare: function (that) {
+      that.newData.tags = JSON.parse(that.newData.tags || "");
+      that.newData.steps = JSON.parse(that.newData.steps || "");
+      that.oldData.tags = JSON.parse(that.oldData.tags || "");
+      that.oldData.steps = JSON.parse(that.oldData.steps || "");
+      that.newData.readOnly = false;
+      that.oldData.readOnly = false;
+    },
     compare(row) {
-      // console.log(row);
+      this.$get('/test/case/get/' + row.id + "/" + this.currentTestCaseInfo.refId, response => {
+        let p1 = this.$get('/test/case/get/' + response.data.id);
+        let p2 = this.$get('/test/case/get/' + this.currentTestCaseInfo.id);
+        let that = this;
+        Promise.all([p1, p2]).then(data => {
+          if (data[0] && data[1]) {
+            that.newData = data[0].data.data;
+            that.oldData = data[1].data.data;
+            this.setSpecialPropForCompare(that);
+            that.dialogVisible = true;
+          }
+        });
+      });
     },
     checkout(row) {
       this.$refs.versionHistory.loading = true;
