@@ -1040,6 +1040,11 @@
       "license": true
     },
     {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY",
+      "name": "permission.project_error_report_library.name",
+      "license": true
+    },
+    {
       "id": "PROJECT_APP_MANAGER",
       "name": "permission.project_app_manager.name"
     },
@@ -1096,10 +1101,5 @@
       "id": "SYSTEM_PLUGIN",
       "name": "permission.system_plugin.name"
     },
-    {
-      "id": "PROJECT_ERROR_REPORT_LIBRARY",
-      "name": "permission.project_error_report_library.name",
-      "license": true
-    }
   ]
 }
