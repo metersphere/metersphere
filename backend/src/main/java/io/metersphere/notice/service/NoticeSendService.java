@@ -1,6 +1,5 @@
 package io.metersphere.notice.service;
 
-import com.alibaba.nacos.client.utils.StringUtils;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.utils.LogUtil;
@@ -9,6 +8,7 @@ import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.impl.*;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
