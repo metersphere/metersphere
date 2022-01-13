@@ -32,4 +32,7 @@ public interface ExtApiDefinitionExecResultMapper {
     List<ApiDefinitionExecResult> selectApiResultByProjectId(String projectId);
 
     List<PlanReportCaseDTO> selectForPlanReport(@Param("ids") List<String> apiReportIds);
+
+    void update(@Param("ids") List<String> ids);
+
 }

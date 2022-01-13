@@ -24,7 +24,10 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.MsExecResponseDTO;
@@ -32,7 +35,6 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
-import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanComparator;
@@ -163,7 +165,11 @@ public class ApiScenarioExecuteService {
         // 开始执行
         if (executeQueue != null && executeQueue.size() > 0) {
             String reportType = request.getConfig().getReportType();
-            DBTestQueue executionQueue = apiExecutionQueueService.add(executeQueue, request.getConfig().getResourcePoolId(), ApiRunMode.SCENARIO.name(), serialReportId, reportType, request.getRunMode(), request.getConfig().getEnvMap());
+            String planReportId = StringUtils.isNotEmpty(request.getTestPlanReportId()) ? request.getTestPlanReportId() : serialReportId;
+            DBTestQueue executionQueue = apiExecutionQueueService.add(executeQueue, request.getConfig().getResourcePoolId()
+                    , ApiRunMode.SCENARIO.name(), planReportId, reportType, request.getRunMode(), request.getConfig().getEnvMap()
+                    , request.getConfig().isOnSampleError());
+
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
                 if (StringUtils.isNotEmpty(serialReportId)) {
                     apiScenarioReportStructureService.save(apiScenarios, serialReportId, request.getConfig() != null ? request.getConfig().getReportType() : null);
