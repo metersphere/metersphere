@@ -234,10 +234,22 @@ public class ApiExecutionQueueService {
             queueDetails.forEach(item -> {
                 if (StringUtils.equalsAny(item.getType(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                     ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                    if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && report.getUpdateTime() < now) {
+                    if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && (System.currentTimeMillis() - report.getUpdateTime()) < now) {
                         report.setStatus(ScenarioStatus.Timeout.name());
                         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                         executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
+
+                        ResultDTO dto = new ResultDTO();
+                        dto.setQueueId(item.getQueueId());
+                        dto.setTestId(item.getTestId());
+                        ApiExecutionQueue executionQueue = queueMapper.selectByPrimaryKey(item.getQueueId());
+                        if (executionQueue != null) {
+                            dto.setTestPlanReportId(executionQueue.getReportId());
+                            dto.setReportId(executionQueue.getReportId());
+                            dto.setRunMode(executionQueue.getRunMode());
+                            dto.setReportType(executionQueue.getReportType());
+                            queueNext(dto);
+                        }
                     }
                 } else {
                     ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
