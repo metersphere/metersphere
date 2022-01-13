@@ -56,7 +56,7 @@
         <template v-slot:default="scope">
           <span @click.stop="clickt = 'stop'">
               <span class="el-dropdown-link">
-                  <status-table-item :value="scope.row.lastExecuteResult"/>
+                  <status-table-item :value="scope.row.lastExecuteResult ? scope.row.lastExecuteResult : 'Prepare'"/>
               </span>
             </span>
         </template>
