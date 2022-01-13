@@ -73,7 +73,7 @@ public class ApiExecutionQueueService {
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiExecutionQueueDetailMapper batchMapper = sqlSession.getMapper(ApiExecutionQueueDetailMapper.class);
-        if (StringUtils.equalsAny(type, ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
+        if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
             final int[] sort = {0};
             Map<String, ApiDefinitionExecResult> runMap = (Map<String, ApiDefinitionExecResult>) runObj;
             if (envMap == null) {
@@ -163,7 +163,7 @@ public class ApiExecutionQueueService {
             if (executionQueue.getFailure()) {
                 LoggerUtil.info("进入失败停止处理：" + executionQueue.getId());
                 boolean isError = false;
-                if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(),
+                if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO.name(),
                         ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
                         ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                     ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getNowReportId());
@@ -232,12 +232,11 @@ public class ApiExecutionQueueService {
 
         if (CollectionUtils.isNotEmpty(queueDetails)) {
             queueDetails.forEach(item -> {
-                if (StringUtils.equalsAny(item.getType(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                if (StringUtils.equalsAnyIgnoreCase(item.getType(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                     ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                    if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && (System.currentTimeMillis() - report.getUpdateTime()) < now) {
+                    if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && (System.currentTimeMillis() - report.getUpdateTime()) < now) {
                         report.setStatus(ScenarioStatus.Timeout.name());
                         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-                        executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
 
                         ResultDTO dto = new ResultDTO();
                         dto.setQueueId(item.getQueueId());
@@ -247,13 +246,16 @@ public class ApiExecutionQueueService {
                             dto.setTestPlanReportId(executionQueue.getReportId());
                             dto.setReportId(executionQueue.getReportId());
                             dto.setRunMode(executionQueue.getRunMode());
+                            dto.setRunType(RunModeConstants.SERIAL.toString());
                             dto.setReportType(executionQueue.getReportType());
                             queueNext(dto);
+                        }else {
+                            executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                         }
                     }
                 } else {
                     ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
-                    if (result != null && StringUtils.equalsAny(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
+                    if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
                         result.setStatus(ScenarioStatus.Timeout.name());
                         apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
                         executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
@@ -268,7 +270,7 @@ public class ApiExecutionQueueService {
         if (CollectionUtils.isNotEmpty(executionQueues)) {
             executionQueues.forEach(item -> {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && report.getUpdateTime() < now) {
+                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && (System.currentTimeMillis() - report.getUpdateTime()) < now) {
                     report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 }
