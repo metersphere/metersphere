@@ -16,15 +16,15 @@ import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.TriggerMode;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.service.EnvironmentGroupProjectService;
-import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -34,10 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -147,6 +144,16 @@ public class ApiCaseExecuteService {
         List<ApiTestCaseWithBLOBs> list = apiTestCaseMapper.selectByExampleWithBLOBs(example);
         LoggerUtil.debug("查询到执行数据：" + list.size());
 
+        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+            if (request.getCondition() == null || !request.getCondition().isSelectAll()) {
+                // 按照id指定顺序排序
+                FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());
+                fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
+                BeanComparator beanComparator = new BeanComparator("id", fixedOrderComparator);
+                Collections.sort(list, beanComparator);
+            }
+        }
+
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
         if (StringUtils.isEmpty(request.getTriggerMode())) {
@@ -154,11 +161,12 @@ public class ApiCaseExecuteService {
         }
 
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
-        Map<String, ApiDefinitionExecResult> executeQueue = new HashMap<>();
+        Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
         list.forEach(caseWithBLOBs -> {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
             report.setStatus(status);
+            report.setName(caseWithBLOBs.getName());
             batchMapper.insert(report);
             executeQueue.put(caseWithBLOBs.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
