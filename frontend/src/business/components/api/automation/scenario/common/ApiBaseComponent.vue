@@ -266,7 +266,7 @@ export default {
   font-size: 13px;
   margin: 0 5px;
   /*overflow-x: hidden;*/
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
   padding-bottom: 0;
   /*text-overflow: ellipsis;*/
@@ -274,6 +274,10 @@ export default {
   white-space: nowrap;
   width: calc(100% - 25rem);
   height: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  scrollbar-track-color: transparent;
+  -ms-scrollbar-track-color: transparent;
 }
 .scenario-name::-webkit-scrollbar
 {

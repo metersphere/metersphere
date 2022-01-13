@@ -142,6 +142,7 @@
                            highlight-current
                            @node-expand="nodeExpand(oldScenarioDefinition,null,'old')"
                            @node-collapse="nodeCollapse(oldScenarioDefinition,null,'old')"
+                           @node-click="oldNodeClick"
                            draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
@@ -298,13 +299,14 @@
                   <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
                     <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion('new')"/>
                   </el-tooltip>
-                  <el-tree node-key="resourceId" :props="props" :data="newScenarioDefinition" class="ms-tree"
-                           :default-expanded-keys="newExpandedNode"
+                  <el-tree node-key="newResourceId" :props="props" :data="newScenarioDefinition" class="ms-tree"
                            :expand-on-click-node="false"
+                           :default-expanded-keys="newExpandedNode"
                            highlight-current
                            @node-expand="nodeExpand"
                            @node-collapse="nodeCollapse"
-                          draggable ref="stepTree" >
+                           @node-click="nodeClick"
+                           draggable ref="stepTree" >
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -412,6 +414,8 @@ export default{
      oldExpandedNode:[],
      newExpandedNode:[],
      stepEnable:true,
+     currentLeftChild:undefined,
+     currentRightChild:undefined,
 
 
    }
@@ -535,57 +539,6 @@ export default{
       }
       this.stepStatus(scenarioDefinition);
     },
-    sort(stepArray, scenarioProjectId, fullPath,source) {
-      if (!stepArray) {
-        if(source==='new'){
-          stepArray = this.newScenarioDefinition;
-        }else {
-          stepArray = this.oldScenarioDefinition;
-        }
-      }
-      for (let i in stepArray) {
-        stepArray[i].index = Number(i) + 1;
-        if (!stepArray[i].resourceId) {
-          stepArray[i].resourceId = getUUID();
-        }
-        // 历史数据处理
-        if (stepArray[i].type === "HTTPSamplerProxy" && !stepArray[i].headers) {
-          stepArray[i].headers = [new KeyValue()];
-        }
-        if (stepArray[i].type === ELEMENT_TYPE.LoopController
-          && stepArray[i].loopType === "LOOP_COUNT"
-          && stepArray[i].hashTree
-          && stepArray[i].hashTree.length > 1) {
-          stepArray[i].countController.proceed = true;
-        }
-        if (!stepArray[i].clazzName) {
-          stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
-        }
-        if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
-          stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
-        }
-        if (!stepArray[i].projectId) {
-          // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
-          stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-        } else {
-          const project = this.projectList.find(p => p.id === stepArray[i].projectId);
-          if (!project) {
-            stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-          }
-        }
-        // 添加debug结果
-        stepArray[i].parentIndex = fullPath ? fullPath + "_" + stepArray[i].index : stepArray[i].index;
-        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
-          this.stepSize += stepArray[i].hashTree.length;
-          this.sort(stepArray[i].hashTree, stepArray[i].projectId, stepArray[i].parentIndex);
-        }
-      }
-    },
-    allowDrag(draggingNode, dropNode, dropType,source) {
-      if (dropNode && draggingNode && dropType) {
-        this.sort(null,null,null,source);
-      }
-    },
     nodeExpand(data, node,source) {
       if(source==="new"){
         if (data && data.resourceId && this.newExpandedNode.indexOf(data.resourceId) === -1) {
@@ -607,6 +560,26 @@ export default{
         }
       }
     },
+    nodeClick(data, node,source) {
+      this.$store.state.selectStep = data;
+      console.log(source)
+      this.currentRightChild = source;
+      if(this.currentLeftChild){
+        diff(this.currentLeftChild,this.currentRightChild);
+        this.currentLeftChild = undefined;
+        this.currentRightChild = undefined;
+      }
+    },
+    oldNodeClick(data, node,source) {
+      this.$store.state.selectStep = data;
+      console.log(source)
+      this.currentLeftChild = source;
+      if(this.currentRightChild){
+        diff(this.currentLeftChild,this.currentRightChild);
+        this.currentLeftChild = undefined;
+        this.currentRightChild = undefined;
+      }
+    },
 
   },
   created() {
@@ -624,5 +597,8 @@ export default{
 .compare-class{
   display: flex;
   justify-content:space-between;
+}
+.border-config{
+  border: 1px solid red;
 }
 </style>
