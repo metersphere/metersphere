@@ -124,4 +124,10 @@
         </foreach>
     </select>
 
+    <update id="update" parameterType="java.util.List">
+        update api_definition_exec_result set status="STOP" where id in
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </update>
 </mapper>

@@ -16,13 +16,11 @@ import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.TriggerMode;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.service.EnvironmentGroupProjectService;
-import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -104,7 +102,7 @@ public class ApiCaseExecuteService {
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
         String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
-        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getConfig().getEnvMap());
+        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getConfig().getEnvMap(), request.getConfig().isOnSampleError());
 
         // 开始选择执行模式
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
@@ -159,6 +157,7 @@ public class ApiCaseExecuteService {
         list.forEach(caseWithBLOBs -> {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
             report.setStatus(status);
+            report.setName(caseWithBLOBs.getName());
             batchMapper.insert(report);
             executeQueue.put(caseWithBLOBs.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
@@ -170,7 +169,7 @@ public class ApiCaseExecuteService {
 
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
-        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), null, reportType, ApiRunMode.DEFINITION.name(), request.getConfig().getEnvMap());
+        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), null, reportType, ApiRunMode.DEFINITION.name(), request.getConfig().getEnvMap(), request.getConfig().isOnSampleError());
         // 开始选择执行模式
         if (request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
             LoggerUtil.debug("开始串行执行");
