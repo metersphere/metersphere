@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class FixedTask {
     private ApiExecutionQueueService queueService;
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void execute() {
         if (queueService == null) {
             queueService = CommonBeanFactory.getBean(ApiExecutionQueueService.class);

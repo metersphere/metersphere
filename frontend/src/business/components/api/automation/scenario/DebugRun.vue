@@ -40,7 +40,7 @@ export default {
     sort(stepArray) {
       if (stepArray) {
         for (let i in stepArray) {
-          if (!stepArray[i].clazzName) {
+          if (stepArray[i] && TYPE_TO_C.get(stepArray[i].type) && !stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
