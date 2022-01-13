@@ -237,15 +237,16 @@ public class ApiExecutionQueueService {
                     if (report != null && StringUtils.equalsAny(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && report.getUpdateTime() < now) {
                         report.setStatus(ScenarioStatus.Timeout.name());
                         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+                        executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                     }
                 } else {
                     ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
                     if (result != null && StringUtils.equalsAny(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
                         result.setStatus(ScenarioStatus.Timeout.name());
                         apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
+                        executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                     }
                 }
-                executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
             });
         }
 

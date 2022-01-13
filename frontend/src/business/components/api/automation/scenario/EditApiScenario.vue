@@ -762,11 +762,9 @@ export default {
       this.messageWebSocket.onmessage = this.onDebugMessage;
     },
     runningEditParent(node) {
-      if (node) {
+      if (node.parent && node.parent.data && node.parent.data.id) {
         node.data.testing = true;
-        if (node.parent && node.parent.data && node.parent.data.id) {
-          this.runningEditParent(node.parent);
-        }
+        this.runningEditParent(node.parent);
       }
     },
     runningNodeChild(arr, resultData) {
@@ -1466,7 +1464,7 @@ export default {
 
     formatData(hashTree) {
       for (let i in hashTree) {
-        if (!hashTree[i].clazzName) {
+        if (hashTree[i] && TYPE_TO_C.get(hashTree[i].type) && !hashTree[i].clazzName) {
           hashTree[i].clazzName = TYPE_TO_C.get(hashTree[i].type);
         }
         if (hashTree[i] && hashTree[i].authManager && !hashTree[i].authManager.clazzName) {
