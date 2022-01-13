@@ -1,18 +1,18 @@
 <template>
-  <test-plan-report-container id="api" :title="'接口用例统计分析'">
+  <test-plan-report-container id="api" :title="$t('test_track.report.analysis_api')">
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
+      <el-tab-pane v-if="resultEnable" :label="$t('test_track.report.test_result')" name="first">
         <api-result :api-result="report.apiResult"/>
       </el-tab-pane>
       <el-tab-pane v-if="failureEnable" name="second">
         <template v-slot:label>
-          <tab-pane-count title="失败用例"  :count="failureSize"/>
+          <tab-pane-count :title="$t('test_track.report.fail_case')" :count="failureSize"/>
         </template>
         <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setFailureSize"/>
       </el-tab-pane>
       <el-tab-pane style="min-height: 500px" name="third" v-if="allEnable">
         <template v-slot:label>
-          <tab-pane-count title="所有用例" :count="allSize"/>
+          <tab-pane-count :title="$t('test_track.report.all_case')" :count="allSize"/>
         </template>
         <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setAllSize"/>
       </el-tab-pane>

@@ -1720,6 +1720,7 @@ export default {
           success: "Success",
           interface_coverage: "Interface coverage",
         },
+        single_case: "Single Case",
       },
       api_details_card: {
         title: "API",
@@ -2078,6 +2079,8 @@ export default {
       test_plan_api_case_count: "Api case count",
       test_plan_api_scenario_count: "Scenario case count",
       test_plan_load_case_count: "Load case count",
+      test_plan_component_case_count: "Component Case Count",
+      data_name: "Data Name",
       load_case: {
         case: "Load Case",
         execution_status: "Execution status",
@@ -2088,6 +2091,7 @@ export default {
         exec: "Executing....",
         error: "Use case execution error, please debug this use case separately!",
         report_not_found: "Report does not exist",
+        content_empty: "Content empty",
       }
     },
     review: {
@@ -2233,7 +2237,9 @@ export default {
       automatically_update_status: "Auto update status",
       allow_associated_repetitive_cases: "Repetitive Case",
       automatically_update_status_tip: "When the interface or performance use case associated with the functional use case is executed in the test plan, the status of the functional use case is automatically updated",
-      allow_associated_repetitive_cases_tip: "Whether to allow the same use case to be associated multiple times in the same test plan"
+      allow_associated_repetitive_cases_tip: "Whether to allow the same use case to be associated multiple times in the same test plan",
+      performance_case_count: "Performance Case Count",
+      running: "Running",
     },
     issue: {
       issue: "Issue",

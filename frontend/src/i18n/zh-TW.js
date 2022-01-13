@@ -1725,6 +1725,7 @@ export default {
           success: "成功率",
           interface_coverage: "接口覆蓋率",
         },
+        single_case: "單接口用例",
       },
       api_details_card: {
         title: "接口",
@@ -2077,6 +2078,8 @@ export default {
       test_plan_api_case_count: "接口用例數",
       test_plan_api_scenario_count: "場景用例數",
       test_plan_load_case_count: "性能用例數",
+      test_plan_component_case_count: "步驟用例數",
+      data_name: "數據名稱",
       load_case: {
         case: "性能用例",
         execution_status: "執行狀態",
@@ -2087,6 +2090,7 @@ export default {
         exec: "正在執行....",
         error: "用例執行錯誤，請單獨調試該用例！",
         report_not_found: "報告不存在",
+        content_empty: "內容為空",
       }
     },
     demand: {
@@ -2237,7 +2241,9 @@ export default {
       automatically_update_status: "自動更新狀態",
       automatically_update_status_tip: "當功能用例關聯的接口或性能用例在測試計劃執行後，自動更新功能用例的狀態",
       allow_associated_repetitive_cases: "允許關聯重復用例",
-      allow_associated_repetitive_cases_tip: "是否允許同一個測試計劃中多次關聯相同用例"
+      allow_associated_repetitive_cases_tip: "是否允許同一個測試計劃中多次關聯相同用例",
+      performance_case_count: "性能測試用例數",
+      running: "運行中",
     },
     issue: {
       issue: "缺陷",
