@@ -14,6 +14,11 @@
         <div v-else class="node-title" :class="response && response.success ?'ms-req-success':'ms-req-error'">
           {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
         </div>
+        <div v-if="response.attachInfoMap && response.attachInfoMap.errorReportResult">
+          <div class="ms-req-error-report-result">
+            {{ response.attachInfoMap.errorReportResult }}
+          </div>
+        </div>
       </el-col>
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{ $t('api_report.response_time') }} :</div>
@@ -39,8 +44,6 @@ export default {
       }
     }
   },
-
-
   computed: {
     responseResult() {
       return this.response && this.response.responseResult ? this.response.responseResult : {};
@@ -58,7 +61,7 @@ export default {
 }
 
 .node-title {
-  width: 150px;
+  /*width: 150px;*/
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1 1 auto;
@@ -68,11 +71,16 @@ export default {
   color: #61C550;
   margin-top: 2px;
   margin-left: 10px;
+  margin-right: 10px;
   float: left
 }
 
 .ms-req-error {
   color: #F56C6C;
+}
+
+.ms-req-error-report-result {
+  color: #F6972A;
 }
 
 .ms-req-success {

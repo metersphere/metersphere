@@ -109,14 +109,19 @@
                   <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
                 </el-col>
                 <el-col :span="4">
-                  <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'" class="ms-task-error">
+                  <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'"
+                        class="ms-task-error">
                      error
                   </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'" class="ms-task-success">
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'"
+                        class="ms-task-success">
                        success
                   </span>
                   <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'">
                       stopped
+                  </span>
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'errorreportresult'" class="ms-task-error-report-status">
+                      {{ $t('error_report_library.option.name') }}
                   </span>
                   <span v-else>
                       {{ item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus }}
@@ -127,7 +132,8 @@
           </div>
         </div>
         <div class="report-bottom">
-          <ms-table-pagination :change="init" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total" small/>
+          <ms-table-pagination :change="init" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"
+                               small/>
         </div>
       </el-card>
 
@@ -308,7 +314,7 @@ export default {
         if (status === "waiting" || status === 'stop') {
           return 0;
         }
-        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error'|| status === 'errorreportresult') {
           return 100;
         }
       }
@@ -317,7 +323,7 @@ export default {
     showStop(status) {
       if (status) {
         status = status.toLowerCase();
-        if (status === "stop" || status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
+        if (status === "stop" || status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'errorreportresult') {
           return false;
         }
       }
@@ -341,7 +347,7 @@ export default {
       let status = row.executionStatus;
       if (status) {
         status = row.executionStatus.toLowerCase();
-        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'errorreportresult') {
           this.size = 1400;
           this.reportId = row.id;
           this.reportType = row.executionModule;
@@ -527,14 +533,16 @@ export default {
 }
 
 
-
-
 .item {
   margin-right: 10px;
 }
 
 .ms-task-error {
   color: #F56C6C;
+}
+
+.ms-task-error-report-status {
+  color: #F6972A;
 }
 
 .ms-task-stop {

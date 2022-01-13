@@ -118,6 +118,7 @@ export default {
         {text: 'Completed', value: 'Completed'},
         {text: 'Error', value: 'Error'},
         {text: 'Success', value: 'Success'},
+        {text: this.$t('error_report_library.option.name'), value: 'errorReportResult'},
       ],
       triggerFilters: [
         {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},

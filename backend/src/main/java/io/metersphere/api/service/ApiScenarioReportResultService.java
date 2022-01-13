@@ -59,7 +59,7 @@ public class ApiScenarioReportResultService {
         report.setCreateTime(System.currentTimeMillis());
         String status = result.getError() == 0 ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
         if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
-            status = ExecuteResult.errorCode.name();
+            status = ExecuteResult.errorReportResult.name();
             report.setErrorCode(errorCodeDTO.getErrorCodeStr());
         }
         report.setStatus(status);
