@@ -214,6 +214,7 @@ public class TestPlanScenarioCaseService {
     }
 
     public void setScenarioEnv(List<String> planScenarioIds, RunModeConfigDTO runModeConfig) {
+        if (CollectionUtils.isEmpty(planScenarioIds)) return;
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
         testPlanApiScenarioExample.createCriteria().andIdIn(planScenarioIds);
