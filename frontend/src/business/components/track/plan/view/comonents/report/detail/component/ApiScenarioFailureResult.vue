@@ -45,7 +45,7 @@
                   <status-table-item v-else-if="row.lastResult === 'Fail'" :value="'Failure'"/>
                   <status-table-item v-else-if="row.lastResult === 'STOP'" :value="'STOP'"/>
                   <status-table-item v-else-if="row.lastResult === 'Running'" :value="'Underway'"/>
-                  <status-table-item v-else-if="row.lastResult === 'Watting'" :value="'Underway'"/>
+                  <status-table-item v-else-if="row.lastResult === 'Waiting'" :value="'Waiting'"/>
                   <status-table-item v-else :value="'Prepare'"/>
                 </template>
               </ms-table-column>
