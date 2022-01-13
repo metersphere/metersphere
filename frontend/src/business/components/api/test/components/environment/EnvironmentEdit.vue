@@ -68,13 +68,13 @@
               <el-form-item
                 :label="$t('error_report_library.use_error_report')"
                 prop="status">
-                <el-switch v-model="environment.config.useErrorCode" style="margin-right: 10px"/>
+                <el-switch v-model="environment.config.useErrorCode" style="margin-right: 10px" :disabled="isReadOnly"/>
                 {{$t('error_report_library.use_desc')}}
               </el-form-item>
             </el-col>
 
           </el-row>
-          <global-assertions
+          <global-assertions :is-read-only="isReadOnly"
             :assertions="environment.config.assertions"/>
         </el-tab-pane>
       </el-tabs>
