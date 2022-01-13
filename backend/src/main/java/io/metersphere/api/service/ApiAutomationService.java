@@ -647,6 +647,54 @@ public class ApiAutomationService {
         return apiScenarioMapper.selectByPrimaryKey(id);
     }
 
+    public ApiScenarioWithBLOBs getNewApiScenario(String id) {
+        ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
+        if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
+            JSONObject element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+            this.dataFormatting(element);
+            scenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(element));
+        }
+        return scenarioWithBLOBs;
+    }
+
+    public void dataFormatting(JSONArray hashTree) {
+        for (int i = 0; i < hashTree.size(); i++) {
+            JSONObject element = hashTree.getJSONObject(i);
+            if (element != null && StringUtils.equalsIgnoreCase(element.getString("type"), "scenario")) {
+                ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(element.getString("id"));
+                if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
+                    if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
+                        element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                        element.put("referenced", "REF");
+                    }
+                    element.put("num", scenarioWithBLOBs.getNum());
+                    hashTree.set(i, element);
+                }
+            }
+            if (element.containsKey("hashTree")) {
+                JSONArray elementJSONArray = element.getJSONArray("hashTree");
+                dataFormatting(elementJSONArray);
+            }
+        }
+    }
+
+    public void dataFormatting(JSONObject element) {
+        if (element != null && StringUtils.equalsIgnoreCase(element.getString("type"), "scenario")) {
+            ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(element.getString("id"));
+            if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
+                if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
+                    element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                    element.put("referenced", "REF");
+                }
+                element.put("num", scenarioWithBLOBs.getNum());
+            }
+        }
+        if (element != null && element.containsKey("hashTree")) {
+            JSONArray elementJSONArray = element.getJSONArray("hashTree");
+            dataFormatting(elementJSONArray);
+        }
+    }
+
     public String setDomain(ApiScenarioEnvRequest request) {
         Boolean enable = request.getEnvironmentEnable();
         String scenarioDefinition = request.getDefinition();
