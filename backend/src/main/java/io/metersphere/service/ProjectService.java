@@ -306,6 +306,7 @@ public class ProjectService {
         this.checkProjectTcpPort(project);
 
         project.setCreateTime(null);
+        project.setCreateUser(null);
         project.setUpdateTime(System.currentTimeMillis());
         checkProjectExist(project);
         if (BooleanUtils.isTrue(project.getCustomNum())) {
