@@ -215,9 +215,12 @@ public class EngineFactory {
          */
         Map<String, byte[]> testResourceFiles = new HashMap<>();
         byte[] props = getJMeterProperties(loadTestReport, engineContext);
+        byte[] sysProps = getSystemProperties(loadTestReport, engineContext);
         byte[] hosts = getDNSConfig(loadTestReport, engineContext);
         // JMeter Properties
         testResourceFiles.put("ms.properties", props);
+        // System Properties
+        testResourceFiles.put("sys.properties", sysProps);
         // DNS
         testResourceFiles.put("hosts", hosts);
 
@@ -277,6 +280,25 @@ public class EngineFactory {
             if (properties != null) {
                 for (int i = 0; i < properties.size(); i++) {
                     JSONObject prop = properties.getJSONObject(i);
+                    if (!prop.getBoolean("enable")) {
+                        continue;
+                    }
+                    props.append(prop.getString("name")).append("=").append(prop.getString("value")).append("\n");
+                }
+            }
+        }
+        return props.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    private static byte[] getSystemProperties(LoadTestReportWithBLOBs loadTestReportWithBLOBs, EngineContext engineContext) {
+        StringBuilder props = new StringBuilder("# System Properties\n");
+        if (StringUtils.isNotEmpty(loadTestReportWithBLOBs.getAdvancedConfiguration())) {
+            JSONObject advancedConfiguration = JSONObject.parseObject(loadTestReportWithBLOBs.getAdvancedConfiguration());
+            engineContext.addProperties(advancedConfiguration);
+            JSONArray systemProperties = advancedConfiguration.getJSONArray("systemProperties");
+            if (systemProperties != null) {
+                for (int i = 0; i < systemProperties.size(); i++) {
+                    JSONObject prop = systemProperties.getJSONObject(i);
                     if (!prop.getBoolean("enable")) {
                         continue;
                     }
