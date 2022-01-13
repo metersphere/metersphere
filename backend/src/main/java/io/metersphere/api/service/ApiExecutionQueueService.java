@@ -224,17 +224,20 @@ public class ApiExecutionQueueService {
     public void timeOut() {
         final int SECOND_MILLIS = 1000;
         final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
-        // 二十分钟前的超时报告
-        final long now = System.currentTimeMillis() - (20 * MINUTE_MILLIS);
+        // 计算二十分钟前的超时报告
+        final long timeBeforeTimeOutStemp = System.currentTimeMillis() - (20 * MINUTE_MILLIS);
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-        example.createCriteria().andCreateTimeLessThan(now);
+        example.createCriteria().andCreateTimeLessThan(timeBeforeTimeOutStemp);
         List<ApiExecutionQueueDetail> queueDetails = executionQueueDetailMapper.selectByExample(example);
 
         if (CollectionUtils.isNotEmpty(queueDetails)) {
             queueDetails.forEach(item -> {
                 if (StringUtils.equalsAnyIgnoreCase(item.getType(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                     ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                    if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && (System.currentTimeMillis() - report.getUpdateTime()) < now) {
+                    if (report != null
+                            && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name())
+                            && report.getUpdateTime() < timeBeforeTimeOutStemp) {
+                        //场景报告最后一次更新时间于当前时间相比超过了20分钟，也就是20分钟没有步骤执行完成。这种情况下做超时处理
                         report.setStatus(ScenarioStatus.Timeout.name());
                         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
 
@@ -265,12 +268,13 @@ public class ApiExecutionQueueService {
         }
 
         ApiExecutionQueueExample queueDetailExample = new ApiExecutionQueueExample();
-        queueDetailExample.createCriteria().andReportTypeEqualTo(RunModeConstants.SET_REPORT.toString()).andCreateTimeLessThan(now);
+        queueDetailExample.createCriteria().andReportTypeEqualTo(RunModeConstants.SET_REPORT.toString()).andCreateTimeLessThan(timeBeforeTimeOutStemp);
         List<ApiExecutionQueue> executionQueues = queueMapper.selectByExample(queueDetailExample);
         if (CollectionUtils.isNotEmpty(executionQueues)) {
             executionQueues.forEach(item -> {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && (System.currentTimeMillis() - report.getUpdateTime()) < now) {
+                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name())
+                        && (report.getUpdateTime() < timeBeforeTimeOutStemp)) {
                     report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 }
