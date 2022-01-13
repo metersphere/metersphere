@@ -37,4 +37,6 @@ public interface ExtApiScenarioReportMapper {
     List<ApiScenarioReport> selectReportByProjectId(String projectId);
 
     List<PlanReportCaseDTO> selectForPlanReport(@Param("ids") List<String> reportIds);
+
+    void update(@Param("ids") List<String> ids);
 }

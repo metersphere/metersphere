@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class ApiExecutionQueue implements Serializable {
@@ -16,6 +17,8 @@ public class ApiExecutionQueue implements Serializable {
     private String poolId;
 
     private Long createTime;
+
+    private Boolean failure;
 
     private static final long serialVersionUID = 1L;
 }

@@ -10,7 +10,9 @@ import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiExecutionQueueMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiExecutionQueueMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
@@ -48,13 +50,19 @@ public class ApiExecutionQueueService {
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
+    private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
+    @Resource
+    private ExtApiScenarioReportMapper extApiScenarioReportMapper;
+
+    @Resource
     private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
 
-    public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, Map<String, String> envMap) {
+    public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, Map<String, String> envMap, boolean failure) {
         ApiExecutionQueue executionQueue = new ApiExecutionQueue();
         executionQueue.setId(UUID.randomUUID().toString());
         executionQueue.setCreateTime(System.currentTimeMillis());
         executionQueue.setPoolId(poolId);
+        executionQueue.setFailure(failure);
         executionQueue.setReportId(reportId);
         executionQueue.setReportType(StringUtils.isNotEmpty(reportType) ? reportType : RunModeConstants.INDEPENDENCE.toString());
         executionQueue.setRunMode(runMode);
@@ -129,6 +137,7 @@ public class ApiExecutionQueueService {
                 if (CollectionUtils.isNotEmpty(queues)) {
                     List<ApiExecutionQueueDetail> list = queues.stream().filter(item -> StringUtils.equals(item.getTestId(), testId)).collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(list)) {
+                        queue.setNowReportId(list.get(0).getReportId());
                         executionQueueDetailMapper.deleteByPrimaryKey(list.get(0).getId());
                         queues.remove(list.get(0));
                         BeanUtils.copyBean(queue, executionQueue);
@@ -151,6 +160,42 @@ public class ApiExecutionQueueService {
     public void queueNext(ResultDTO dto) {
         DBTestQueue executionQueue = this.edit(dto.getQueueId(), dto.getTestId());
         if (executionQueue != null) {
+            if (executionQueue.getFailure()) {
+                LoggerUtil.info("进入失败停止处理：" + executionQueue.getId());
+                boolean isError = false;
+                if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(),
+                        ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                        ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                    ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getNowReportId());
+                    if (report != null && StringUtils.equalsIgnoreCase(report.getStatus(), "Error")) {
+                        isError = true;
+                    }
+                } else {
+                    ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getNowReportId());
+                    if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), "Error")) {
+                        isError = true;
+                    }
+                }
+                if (isError) {
+                    ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+                    example.createCriteria().andQueueIdEqualTo(dto.getQueueId());
+
+                    if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
+                        CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId(), "Stopped");
+                    }
+                    // 更新未执行的报告状态
+                    List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
+                    List<String> reportIds = details.stream().map(ApiExecutionQueueDetail::getReportId).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(reportIds)) {
+                        extApiDefinitionExecResultMapper.update(reportIds);
+                        extApiScenarioReportMapper.update(reportIds);
+                    }
+                    // 清除队列
+                    executionQueueDetailMapper.deleteByExample(example);
+                    queueMapper.deleteByPrimaryKey(executionQueue.getId());
+                    return;
+                }
+            }
             LoggerUtil.info("开始处理执行队列：" + executionQueue.getId());
             if (executionQueue.getQueue() != null && StringUtils.isNotEmpty(executionQueue.getQueue().getTestId())) {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
