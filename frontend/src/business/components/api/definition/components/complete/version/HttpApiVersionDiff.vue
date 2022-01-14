@@ -267,7 +267,6 @@
 <script>
 import {API_STATUS, REQ_METHOD} from "../../../model/JsonData";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
-import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
 import MsResponseText from "../../response/ResponseText";
 import MsApiRequestForm from "../../request/http/ApiHttpRequestForm";
 import MsSelectTree from "../../../../../common/select-tree/SelectTree";
@@ -284,7 +283,6 @@ const {diff} = require("@/business/components/performance/v_node_diff");
 export default{
   name: "HttpApiVersionDiff",
   components: {
-    ApiOtherInfo,
     MsFormDivider,
     MsResponseText,
     MsApiRequestForm,
@@ -375,7 +373,6 @@ export default{
     },
     setOldCount(count) {
       this.oldRelationshipCount = count;
-
     },
     getChildDiff(){
       let oldVnode = this.$refs.oldDependencies
