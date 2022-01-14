@@ -11,7 +11,6 @@
         border
         :data="tableData"
         class="permission-table"
-        :row-class-name="handleLicenseResource"
         style="width: 100%">
         <el-table-column
           prop="type"
@@ -97,9 +96,28 @@ export default {
         let data = result.data;
         if (data) {
           this.tableData = data.permissions;
+          this.handleNoLicensePermissions();
           this._getUniteMenu();
         }
       })
+    },
+    handleNoLicensePermissions() {
+      let license = hasLicense();
+      for (let i = this.tableData.length - 1; i >= 0; i--) {
+        if (this.tableData[i].resource.license) {
+          if (!license) {
+            this.tableData.splice(i, 1);
+          }
+        } else {
+          if (!license) {
+            for (let j = this.tableData[i].permissions.length - 1; j >= 0; j--) {
+              if (this.tableData[i].permissions[j].license && !license) {
+                this.tableData[i].permissions.splice(j, 1);
+              }
+            }
+          }
+        }
+      }
     },
     _getUniteMenu() {
       let menu = ['TRACK', 'API', 'PERFORMANCE', 'REPORT'];
@@ -158,21 +176,11 @@ export default {
     },
     handleSelectAll(check, permissions) {
       permissions.map(p => p.checked = check);
-    },
-    handleLicenseResource(row) {
-      if (!row.row.resource.license) {
-        return;
-      }
-      if (!hasLicense()) {
-        return 'hidden-row';
-      }
     }
   }
 }
 </script>
 
 <style scoped>
-.permission-table >>> .hidden-row {
-  display: none;
-}
+
 </style>
