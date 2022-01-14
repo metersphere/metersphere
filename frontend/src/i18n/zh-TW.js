@@ -849,6 +849,7 @@ export default {
     operator: '操作人',
     description: '描述',
     set_permission: '設置權限',
+    view_permission: '查看權限',
     delete: '刪除用戶組',
     edit: '編輯用戶組',
     admin_not_allow_edit: '系統管理員不支持編輯!',
