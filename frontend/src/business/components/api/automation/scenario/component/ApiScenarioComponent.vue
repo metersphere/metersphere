@@ -126,6 +126,9 @@ export default {
     if (!this.scenario.projectId) {
       this.scenario.projectId = getCurrentProjectID();
     }
+    if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
+      this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
+    }
   },
   components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
   data() {
