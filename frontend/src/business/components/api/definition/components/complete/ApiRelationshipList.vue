@@ -1,6 +1,6 @@
 <template>
   <div>
-   <ms-table
+    <ms-table
       v-loading="result.loading"
       :show-select-all="false"
       :data="data"
@@ -21,21 +21,32 @@
         min-width="120"/>
 
       <ms-table-column
+        v-xpack
+        v-if="versionEnable"
+        prop="versionName"
+        :label="$t('project.version.name')"
+      >
+        <template v-slot:default="scope">
+          {{ versionOptions[scope.row.versionId] }}
+        </template>
+      </ms-table-column>
+
+      <ms-table-column
         prop="creator"
         :label="$t('commons.create_user')"
         min-width="120">
       </ms-table-column>
 
-     <ms-table-column
-       prop="status"
-       min-width="120px"
-       :label="$t('api_test.definition.api_status')">
-       <template v-slot:default="scope">
+      <ms-table-column
+        prop="status"
+        min-width="120px"
+        :label="$t('api_test.definition.api_status')">
+        <template v-slot:default="scope">
           <span class="el-dropdown-link">
             <api-status :value="scope.row.status"/>
           </span>
-       </template>
-     </ms-table-column>
+        </template>
+      </ms-table-column>
 
     </ms-table>
 
@@ -58,11 +69,14 @@ import {getRelationshipApi} from "@/network/api";
 import ApiRelationshipRelevance
   from "@/business/components/api/definition/components/complete/ApiRelationshipRelevance";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
+import {getCurrentProjectID} from "@/common/js/utils";
+
 export default {
   name: "ApiRelationshipList",
   components: {
     ApiStatus,
-    ApiRelationshipRelevance, RelationshipFunctionalRelevance, MsTableSearchBar, MsTableColumn, MsTable},
+    ApiRelationshipRelevance, RelationshipFunctionalRelevance, MsTableSearchBar, MsTableColumn, MsTable
+  },
   data() {
     return {
       result: {},
@@ -76,13 +90,21 @@ export default {
       ],
       condition: {},
       options: [],
-      value: ''
-    }
+      value: '',
+      versionOptions: {},
+      versionEnable: false,
+    };
   },
   props: {
     apiDefinitionId: String,
     readOnly: Boolean,
     relationshipType: String,
+  },
+  created() {
+    this.getProjectVersions();
+    this.$get('/project/version/enable/' + getCurrentProjectID(), response => {
+      this.versionEnable = response.data;
+    });
   },
   methods: {
     getTableData() {
@@ -97,8 +119,16 @@ export default {
     handleDelete(item) {
       this.$emit('deleteRelationship', item.sourceId, item.targetId);
     },
+    getProjectVersions() {
+      this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+        this.versionOptions = response.data.reduce((result, next) => {
+          result[next.id] = next.name;
+          return result;
+        }, {});
+      });
+    }
   }
-}
+};
 </script>
 
 <style scoped>
