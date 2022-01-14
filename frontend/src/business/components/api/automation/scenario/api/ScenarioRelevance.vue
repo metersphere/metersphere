@@ -101,62 +101,27 @@ export default {
     changeButtonLoadingType() {
       this.buttonIsWorking = false;
     },
-    reference() {
-      this.buttonIsWorking = true;
-      let scenarios = [];
-      let conditions = this.getConditions();
-      if (conditions.selectAll) {
-        let params = {};
-        params.ids = this.currentScenarioIds;
-        params.condition = conditions;
-        let url = "/api/automation/list/all/";
-        this.result = this.$post(url, params, (response) => {
-          this.currentScenario = response.data;
-          if (!this.currentScenario || this.currentScenario.length < 1) {
-            this.$emit('请选择场景');
-            this.buttonIsWorking = false;
-            return;
-          }
-          this.currentScenario.forEach(item => {
-            let obj = {
-              id: item.id,
-              name: item.name,
-              type: "scenario",
-              referenced: 'REF',
-              resourceId: getUUID(),
-              projectId: item.projectId
-            };
-            scenarios.push(obj);
-          });
-          this.$emit('save', scenarios);
-          this.$refs.baseRelevance.close();
-          this.buttonIsWorking = false;
-        }, (error) => {
-          this.buttonIsWorking = false;
-        });
-      } else {
-        if (!this.currentScenario || this.currentScenario.length < 1) {
-          this.$emit('请选择场景');
-          this.buttonIsWorking = false;
-          return;
-        }
-        this.currentScenario.forEach(item => {
+    createScenarioDefinition(scenarios, data, referenced) {
+      data.forEach(item => {
+        let scenarioDefinition = JSON.parse(item.scenarioDefinition);
+        if (scenarioDefinition && scenarioDefinition.hashTree) {
           let obj = {
             id: item.id,
             name: item.name,
             type: "scenario",
-            referenced: 'REF',
+            headers: scenarioDefinition.headers,
+            variables: scenarioDefinition.variables,
+            environmentMap: scenarioDefinition.environmentMap,
+            referenced: referenced,
             resourceId: getUUID(),
+            hashTree: scenarioDefinition.hashTree,
             projectId: item.projectId
           };
           scenarios.push(obj);
-        });
-        this.$emit('save', scenarios);
-        this.$refs.baseRelevance.close();
-        this.buttonIsWorking = false;
-      }
+        }
+      });
     },
-    copy() {
+    getScenarioDefinition(referenced) {
       this.buttonIsWorking = true;
       let scenarios = [];
       let conditions = this.getConditions();
@@ -174,24 +139,7 @@ export default {
           }
           this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
             if (response.data) {
-              response.data.forEach(item => {
-                let scenarioDefinition = JSON.parse(item.scenarioDefinition);
-                if (scenarioDefinition && scenarioDefinition.hashTree) {
-                  let obj = {
-                    id: item.id,
-                    name: item.name,
-                    type: "scenario",
-                    headers: scenarioDefinition.headers,
-                    variables: scenarioDefinition.variables,
-                    environmentMap: scenarioDefinition.environmentMap,
-                    referenced: 'Copy',
-                    resourceId: getUUID(),
-                    hashTree: scenarioDefinition.hashTree,
-                    projectId: item.projectId
-                  };
-                  scenarios.push(obj);
-                }
-              });
+              this.createScenarioDefinition(scenarios, response.data, referenced)
               this.$emit('save', scenarios);
               this.$refs.baseRelevance.close();
               this.buttonIsWorking = false;
@@ -210,24 +158,7 @@ export default {
         }
         this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
           if (response.data) {
-            response.data.forEach(item => {
-              let scenarioDefinition = JSON.parse(item.scenarioDefinition);
-              if (scenarioDefinition && scenarioDefinition.hashTree) {
-                let obj = {
-                  id: item.id,
-                  name: item.name,
-                  type: "scenario",
-                  headers: scenarioDefinition.headers,
-                  variables: scenarioDefinition.variables,
-                  environmentMap: scenarioDefinition.environmentMap,
-                  referenced: 'Copy',
-                  resourceId: getUUID(),
-                  hashTree: scenarioDefinition.hashTree,
-                  projectId: item.projectId
-                };
-                scenarios.push(obj);
-              }
-            });
+            this.createScenarioDefinition(scenarios, response.data, referenced)
             this.$emit('save', scenarios);
             this.$refs.baseRelevance.close();
             this.buttonIsWorking = false;
@@ -236,6 +167,12 @@ export default {
           this.buttonIsWorking = false;
         });
       }
+    },
+    reference() {
+      this.getScenarioDefinition("Copy");
+    },
+    copy() {
+      this.getScenarioDefinition("REF");
     },
     close() {
       this.$emit('close');
