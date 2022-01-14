@@ -1,6 +1,6 @@
 <template>
   <div v-loading="loading">
-    <el-form :model="basicForm" label-position="right" label-width="80px" size="small" :rules="rule" ref="basicForm" style="margin-right: 20px">
+    <el-form :model="basicForm" label-position="right" label-width="80px" size="small" :rules="rule" ref="basicForm" style="margin-right: 20px" :disabled="isReadOnly">
       <!-- 基础信息 -->
       <el-row>
         <el-col :span="8">
@@ -72,6 +72,10 @@
       },
       moduleOptions: Array,
       basisData: {},
+      isReadOnly:{
+        type: Boolean,
+        default: false
+      },
     },
     watch: {
       'basicForm.name': {

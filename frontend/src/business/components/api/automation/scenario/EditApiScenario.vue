@@ -1713,6 +1713,14 @@ export default {
               if(res.data.scenarioDefinition != null){
                 let obj = JSON.parse(res.data.scenarioDefinition);
                 if(obj){
+                  if(obj.hashTree){
+                    for (let i = 0; i < obj.hashTree.length; i++) {
+                      obj.hashTree[i].disabled = true;
+                    }
+                  }
+                  for (let i = 0; i < this.scenarioDefinition.length; i++) {
+                    this.scenarioDefinition[i].disabled = true;
+                  }
                   this.newScenarioDefinition = obj.hashTree;
                   if (response.data.environmentJson) {
                     this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));

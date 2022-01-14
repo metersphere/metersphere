@@ -16,7 +16,7 @@
             </div>
 
             <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
-            <el-form :model="oldData" label-position="right" label-width="80px" size="small" :rules="rules"
+            <el-form :model="oldData" label-position="right" label-width="80px" size="small" :rules="rules"  :disabled="true"
                      ref="currentScenario" style="margin-right: 20px">
               <!-- 基础信息 -->
               <el-row>
@@ -179,7 +179,7 @@
             </div>
 
             <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
-            <el-form :model="newData" label-position="right" label-width="80px" size="small" :rules="rules"
+            <el-form :model="newData" label-position="right" label-width="80px" size="small" :rules="rules" :disabled="true"
                      ref="currentScenario" style="margin-right: 20px">
               <!-- 基础信息 -->
               <el-row>
