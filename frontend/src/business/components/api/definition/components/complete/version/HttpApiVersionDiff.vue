@@ -1,7 +1,7 @@
 <template>
-  <div class="compare-class">
+  <div class="compare-class" v-loading="isReloadData">
     <el-card style="width: 50%;" ref="old">
-      <el-form :model="oldData" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
+      <el-form :model="oldData" :rules="rule" ref="httpForm" label-width="80px" label-position="right" :disabled="true">
         <!-- 操作按钮 -->
 
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
@@ -90,7 +90,7 @@
           <el-row>
             <el-col :span="20">
               Mock地址：
-              <el-link :href="oldMockUrl" target="_blank" style="color: black"
+              <el-link  target="_blank" style="color: black"
                        type="primary">{{ this.oldMockUrl }}
               </el-link>
             </el-col>
@@ -132,7 +132,7 @@
 
     </el-card>
     <el-card style="width: 50%;" ref="new">
-      <el-form :model="newData" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
+      <el-form :model="newData" :rules="rule" ref="httpForm" label-width="80px" label-position="right" :disabled="true">
         <!-- 操作按钮 -->
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!newShowFollow">
             <i class="el-icon-star-off"
@@ -149,9 +149,10 @@
 
         <!-- 基础信息 -->
         <div class="base-info">
+
           <el-row>
             <el-col :span="8">
-              <el-form-item :label="$t('commons.name')" prop="name">
+              <el-form-item :label="$t('commons.name')"  prop="name">
                 <el-input class="ms-http-input" size="small" v-model="newData.name"/>
               </el-form-item>
             </el-col>
@@ -221,7 +222,7 @@
           <el-row>
             <el-col :span="20">
               Mock地址：
-              <el-link :href="newMockUrl" target="_blank" style="color: black"
+              <el-link  target="_blank" style="color: black"
                        type="primary">{{ this.newMockUrl }}
               </el-link>
             </el-col>
@@ -357,6 +358,7 @@ export default{
       activeName: 'remark',
       relationshipCount: 0,
       oldRelationshipCount: 0,
+      isReloadData:true
     }
   },
   methods:{
@@ -364,6 +366,7 @@ export default{
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
       diff(oldVnode,vnode);
+      this.isReloadData = false
     },
     setCount(count) {
       this.relationshipCount = count;
@@ -404,4 +407,5 @@ export default{
   display: flex;
   justify-content:space-between;
 }
+
 </style>

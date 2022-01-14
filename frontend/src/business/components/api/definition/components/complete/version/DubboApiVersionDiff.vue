@@ -1,5 +1,5 @@
 <template>
-  <div class="compare-class">
+  <div class="compare-class" v-loading="isReloadData">
     <el-card style="width: 50%;" ref="old">
       <div style="background-color: white;">
         <el-row>
@@ -21,7 +21,7 @@
         <br/>
         <el-row>
           <el-col>
-            <ms-basis-api  :moduleOptions="moduleOptions"
+            <ms-basis-api  :moduleOptions="moduleOptions" :is-read-only="true"
                           :basisData="oldData" ref="basicForm"
                          />
           </el-col>
@@ -29,7 +29,7 @@
 
         <!-- 请求参数 -->
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-basis-parameters :showScript="false" :request="oldRequest"/>
+        <ms-basis-parameters :showScript="false" :request="oldRequest" :is-read-only="true"/>
 
         <ms-form-divider :title="$t('test_track.case.other_info')"/>
         <api-info-container>
@@ -72,14 +72,14 @@
         <br/>
         <el-row>
           <el-col>
-            <ms-basis-api   :moduleOptions="moduleOptions"
+            <ms-basis-api   :moduleOptions="moduleOptions" :is-read-only="true"
                           :basisData="newData" ref="basicForm"/>
           </el-col>
         </el-row>
 
         <!-- 请求参数 -->
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-basis-parameters :showScript="false" :request="request"/>
+        <ms-basis-parameters :showScript="false" :request="request" :is-read-only="true"/>
 
         <!-- 其他信息-->
         <ms-form-divider :title="$t('test_track.case.other_info')"/>
@@ -150,12 +150,23 @@ export default{
         this.$refs.newDependencies.open();
       }
     },
+    relationshipCount(){
+      if(this.relationshipCount>0||this.oldRelationshipCount>0){
+        this.getChildDiff()
+      }
+    },
+    oldRelationshipCount(){
+      if(this.relationshipCount>0||this.oldRelationshipCount>0){
+        this.getChildDiff()
+      }
+    }
   },
   data(){
     return{
       activeName: 'remark',
       relationshipCount: 0,
       oldRelationshipCount: 0,
+      isReloadData:true
     }
   },
   methods:{
@@ -163,6 +174,7 @@ export default{
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
       diff(oldVnode,vnode);
+      this.isReloadData = false
     },
     setCount(count) {
       this.relationshipCount = count;
