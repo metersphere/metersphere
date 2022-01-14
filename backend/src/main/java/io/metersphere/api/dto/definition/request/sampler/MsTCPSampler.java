@@ -12,6 +12,7 @@ import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.parse.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -22,6 +23,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
@@ -149,6 +151,21 @@ public class MsTCPSampler extends MsTestElement {
             samplerHashTree.add(tcpPreProcessor.getJSR223PreProcessor());
         }
 
+        //增加误报、全局断言
+        if (envConfig != null) {
+            if (envConfig.isUseErrorCode()) {
+                List<MsAssertions> errorReportAssertion =HashTreeUtil.getErrorReportByProjectId(this.getProjectId());
+                for (MsAssertions assertion : errorReportAssertion) {
+                    assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
+                }
+            }
+            if (CollectionUtils.isNotEmpty(envConfig.getAssertions())) {
+                for (MsAssertions assertion : envConfig.getAssertions()) {
+                    assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
+                }
+            }
+        }
+
         //处理全局前后置脚本(步骤内)
         String enviromentId = this.getEnvironmentId();
         if (enviromentId == null) {
@@ -157,8 +174,15 @@ public class MsTCPSampler extends MsTestElement {
         //根据配置将脚本放置在私有脚本之前
         JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), enviromentId, config, false);
 
+        HashTreeUtil hashTreeUtil = new HashTreeUtil();
+
         if (CollectionUtils.isNotEmpty(hashTree)) {
+            EnvironmentConfig finalEnvConfig = envConfig;
             hashTree.forEach(el -> {
+                if (el instanceof MsAssertions) {
+                    //断言设置需要和全局断言、误报进行去重
+                    el = hashTreeUtil.duplicateRegexInAssertions(finalEnvConfig.getAssertions(), (MsAssertions) el);
+                }
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }
