@@ -11,6 +11,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
 import java.util.List;
@@ -110,9 +111,14 @@ public abstract class JiraAbstractClient extends BaseClient {
 
     public void deleteIssue(String id) {
         LogUtil.info("deleteIssue: " + id);
-        restTemplate.exchange(getBaseUrl() + "/issue/" + id, HttpMethod.DELETE, getAuthHttpEntity(), String.class);
+        try {
+            restTemplate.exchange(getBaseUrl() + "/issue/" + id, HttpMethod.DELETE, getAuthHttpEntity(), String.class);
+        } catch (HttpClientErrorException e) {
+            if (e.getRawStatusCode() != 404) {// 404说明jira没有，可以直接删
+                MSException.throwException(e.getMessage());
+            }
+        }
     }
-
 
     public void uploadAttachment(String issueKey, File file) {
         HttpHeaders authHeader = getAuthHeader();
