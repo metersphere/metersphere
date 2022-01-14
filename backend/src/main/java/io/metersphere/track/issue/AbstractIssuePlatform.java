@@ -37,6 +37,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
+import java.net.URLDecoder;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.function.Function;
@@ -314,9 +315,15 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         String result = input;
         while (matcher.find()) {
             String url = matcher.group(2);
-            if (url.contains("/resource/md/get/")) {
+            if (url.contains("/resource/md/get/")) { // 兼容旧数据
                 String path = url.substring(url.indexOf("/resource/md/get/"));
                 String name = path.substring(path.indexOf("/resource/md/get/") + 26);
+                String mdLink = "![" + name + "](" + path + ")";
+                result = matcher.replaceFirst(mdLink);
+                matcher = pattern.matcher(result);
+            } else if(url.contains("/resource/md/get")) { //新数据走这里
+                String path = url.substring(url.indexOf("/resource/md/get"));
+                String name = path.substring(path.indexOf("/resource/md/get") + 35);
                 String mdLink = "![" + name + "](" + path + ")";
                 result = matcher.replaceFirst(mdLink);
                 matcher = pattern.matcher(result);
@@ -336,9 +343,12 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         while (matcher.find()) {
             try {
                 String path = matcher.group(2);
-                if (path.contains("/resource/md/get/")) {
+                if (path.contains("/resource/md/get/")) { // 兼容旧数据
                     String name = path.substring(path.indexOf("/resource/md/get/") + 17);
                     files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + name));
+                } else if (path.contains("/resource/md/get")) { // 新数据走这里
+                    String name = path.substring(path.indexOf("/resource/md/get") + 26);
+                    files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + URLDecoder.decode(name, "UTF-8")));
                 }
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
