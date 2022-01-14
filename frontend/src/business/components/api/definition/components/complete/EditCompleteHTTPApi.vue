@@ -130,7 +130,7 @@
       <ms-form-divider :title="$t('api_test.definition.request.res_param')"/>
       <ms-response-text :response="response"/>
 
-      <api-other-info :api="httpForm"/>
+      <api-other-info :api="httpForm" ref="apiOtherInfo"/>
 
       <ms-change-history ref="changeHistory"/>
 
@@ -157,6 +157,26 @@
       </el-dialog>
 
     </el-card>
+
+    <el-dialog
+      title="同步以下信息到新版本"
+      :visible.sync="createNewVersionVisible"
+      :show-close="false"
+      width="30%"
+    >
+      <div>
+        <el-checkbox v-model="httpForm.newVersionRemark">备注</el-checkbox>
+        <el-checkbox v-model="httpForm.newVersionDeps">依赖关系</el-checkbox>
+      </div>
+
+      <template v-slot:footer>
+        <ms-dialog-footer
+          @cancel="cancelCreateNewVersion"
+          :title="$t('commons.edit_info')"
+          @confirm="saveApi">
+        </ms-dialog-footer>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -176,6 +196,7 @@ import ApiOtherInfo from "@/business/components/api/definition/components/comple
 import HttpApiVersionDiff from "./version/HttpApiVersionDiff"
 import {createComponent } from ".././jmeter/components";
 import { TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 
 const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
 const Sampler = require("@/business/components/api/definition/components/jmeter/components/sampler/sampler");
@@ -186,6 +207,7 @@ const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./
 export default {
   name: "MsAddCompleteHttpApi",
   components: {
+    MsDialogFooter,
     'MsVersionHistory': versionHistory.default,
     ApiOtherInfo,
     MsFormDivider,
@@ -233,7 +255,8 @@ export default {
       count: 0,
       versionData: [],
       oldRequest:Sampler,
-      oldResponse:{}
+      oldResponse:{},
+      createNewVersionVisible: false,
     };
   },
   props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
@@ -623,6 +646,10 @@ export default {
         }
       }
     },
+    cancelCreateNewVersion() {
+      this.createNewVersionVisible = false;
+      this.getVersionHistory();
+    },
     checkout(row) {
       let api = this.versionData.filter(v => v.versionId === row.id)[0];
       if (api.tags && api.tags.length > 0) {
@@ -633,7 +660,14 @@ export default {
     create(row) {
       // 创建新版本
       this.httpForm.versionId = row.id;
-      this.saveApi();
+
+      this.httpForm.newVersionRemark = !!this.httpForm.remark;
+      this.httpForm.newVersionDeps = this.$refs.apiOtherInfo.relationshipCount > 0;
+      if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.httpForm.remark) {
+        this.createNewVersionVisible = true;
+      } else {
+        this.saveApi();
+      }
     },
     del(row) {
       this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {

@@ -32,6 +32,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.json.JSONSchemaToDocumentUtils;
 import io.metersphere.commons.json.JSONToDocumentUtils;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.RelationshipEdgeRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.MsExecResponseDTO;
@@ -554,7 +555,30 @@ public class ApiDefinitionService {
             test.setCreateUser(SessionUtils.getUserId());
             test.setOrder(oldApi.getOrder());
             test.setRefId(oldApi.getRefId());
+            // 创建新版是否关联备注
+            if (!request.isNewVersionRemark()) {
+                test.setRemark(null);
+            }
             apiDefinitionMapper.insertSelective(test);
+
+            // 创建新版是否关联依赖关系
+            if (request.isNewVersionDeps()) {
+                List<RelationshipEdgeDTO> pre = this.getRelationshipApi(oldApi.getId(), "PRE");
+                List<String> targetIds = pre.stream().map(RelationshipEdgeKey::getTargetId).collect(Collectors.toList());
+                RelationshipEdgeRequest req = new RelationshipEdgeRequest();
+                req.setSourceIds(targetIds);
+                req.setType("API");
+                req.setId(test.getId());
+                relationshipEdgeService.saveBatch(req);
+
+                List<RelationshipEdgeDTO> post = this.getRelationshipApi(oldApi.getId(), "POST");
+                List<String> sourceIds = post.stream().map(RelationshipEdgeKey::getSourceId).collect(Collectors.toList());
+                RelationshipEdgeRequest req2 = new RelationshipEdgeRequest();
+                req2.setSourceIds(sourceIds);
+                req2.setType("API");
+                req2.setId(test.getId());
+                relationshipEdgeService.saveBatch(req2);
+            }
         }
 
         // 同步修改用例路径
@@ -1719,6 +1743,7 @@ public class ApiDefinitionService {
                 relationshipEdgeDTO.setCreator(apiDefinition.getUserId());
                 relationshipEdgeDTO.setTargetNum(apiDefinition.getNum());
                 relationshipEdgeDTO.setStatus(apiDefinition.getStatus());
+                relationshipEdgeDTO.setVersionId(apiDefinition.getVersionId());
                 results.add(relationshipEdgeDTO);
             }
             return results;
