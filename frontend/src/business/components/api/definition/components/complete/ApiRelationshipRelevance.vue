@@ -16,8 +16,12 @@
         ref="nodeTree"/>
     </template>
 
+    <version-select v-xpack :project-id="projectId" :default-version="currentVersion"
+                    @changeVersion="currentVersionChange"/>
+
     <api-table-list
       :table-data="tableData"
+      :project-id="projectId"
       :total="total"
       :condition="condition"
       :select-node-ids="selectNodeIds"
@@ -36,9 +40,13 @@
   import TestCaseRelevanceBase from "@/business/components/track/plan/view/comonents/base/TestCaseRelevanceBase";
   import ApiTableList from "@/business/components/api/definition/components/complete/ApiTableList";
 
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
+
   export default {
     name: "ApiRelationshipRelevance",
     components: {
+      'VersionSelect': VersionSelect.default,
       ApiTableList,
       TestCaseRelevanceBase,
       MsApiModule,
@@ -55,7 +63,8 @@
         projectId: "",
         result: {},
         total: 0,
-        tableData: []
+        tableData: [],
+        currentVersion: null,
       };
     },
     watch: {
@@ -88,6 +97,8 @@
         } else {
           this.condition.protocol = "HTTP";
         }
+
+        this.condition.versionId = this.currentVersion;
 
         this.$nextTick(() => {
           if (this.apiDefinitionId) {
@@ -133,6 +144,10 @@
           this.$refs.baseRelevance.close();
           this.$emit('refresh');
         });
+      },
+      currentVersionChange(currentVersion) {
+        this.currentVersion = currentVersion || null;
+        this.initTable();
       },
     }
   }
