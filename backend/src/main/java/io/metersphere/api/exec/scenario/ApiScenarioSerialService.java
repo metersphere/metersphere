@@ -104,7 +104,7 @@ public class ApiScenarioSerialService {
                     if (StringUtils.isNotEmpty(queue.getEvnMap())) {
                         map = JSON.parseObject(queue.getEvnMap(), Map.class);
                     }
-                    hashTree = generateHashTree(queue.getTestId(), queue.getType(), map);
+                    hashTree = generateHashTree(queue.getTestId(), map);
                 }
                 // 更新环境变量
                 this.initEnv(hashTree);
@@ -152,12 +152,10 @@ public class ApiScenarioSerialService {
         hashTreeUtil.mergeParamDataMap(null, envParamsMap);
     }
 
-    public HashTree generateHashTree(String testId, String type, Map<String, String> envMap) {
-        ApiTestCaseWithBLOBs caseWithBLOBs = null;
+    public HashTree generateHashTree(String testId, Map<String, String> envMap) {
+        ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testId);
         String envId = null;
-        if (StringUtils.equals(type, ApiRunMode.DEFINITION.name())) {
-            caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testId);
-        } else {
+        if (caseWithBLOBs == null) {
             TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
             if (apiCase != null) {
                 caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(apiCase.getApiCaseId());

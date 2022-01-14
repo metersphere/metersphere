@@ -19,6 +19,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
@@ -57,12 +58,12 @@ public class ApiExecutionQueueService {
     @Resource
     private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
 
-    public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, Map<String, String> envMap, boolean failure) {
+    public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
         ApiExecutionQueue executionQueue = new ApiExecutionQueue();
         executionQueue.setId(UUID.randomUUID().toString());
         executionQueue.setCreateTime(System.currentTimeMillis());
         executionQueue.setPoolId(poolId);
-        executionQueue.setFailure(failure);
+        executionQueue.setFailure(config.isOnSampleError());
         executionQueue.setReportId(reportId);
         executionQueue.setReportType(StringUtils.isNotEmpty(reportType) ? reportType : RunModeConstants.INDEPENDENCE.toString());
         executionQueue.setRunMode(runMode);
@@ -76,12 +77,12 @@ public class ApiExecutionQueueService {
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
             final int[] sort = {0};
             Map<String, ApiDefinitionExecResult> runMap = (Map<String, ApiDefinitionExecResult>) runObj;
-            if (envMap == null) {
-                envMap = new LinkedHashMap<>();
+            if (config.getEnvMap() == null) {
+                config.setEnvMap(new LinkedHashMap<>());
             }
-            String envStr = JSON.toJSONString(envMap);
+            String envStr = JSON.toJSONString(config.getEnvMap());
             runMap.forEach((k, v) -> {
-                ApiExecutionQueueDetail queue = detail(v.getId(), k, type, sort[0], executionQueue.getId(), envStr);
+                ApiExecutionQueueDetail queue = detail(v.getId(), k, config.getMode(), sort[0], executionQueue.getId(), envStr);
                 if (sort[0] == 0) {
                     resQueue.setQueue(queue);
                 }
@@ -93,7 +94,7 @@ public class ApiExecutionQueueService {
             Map<String, RunModeDataDTO> runMap = (Map<String, RunModeDataDTO>) runObj;
             final int[] sort = {0};
             runMap.forEach((k, v) -> {
-                ApiExecutionQueueDetail queue = detail(k, v.getTestId(), type, sort[0], executionQueue.getId(), JSON.toJSONString(v.getPlanEnvMap()));
+                ApiExecutionQueueDetail queue = detail(k, v.getTestId(), config.getMode(), sort[0], executionQueue.getId(), JSON.toJSONString(v.getPlanEnvMap()));
                 queue.setSort(sort[0]);
                 if (sort[0] == 0) {
                     resQueue.setQueue(queue);
@@ -124,10 +125,48 @@ public class ApiExecutionQueueService {
         return queue;
     }
 
+    private boolean failure(DBTestQueue executionQueue, ResultDTO dto) {
+        LoggerUtil.info("进入失败停止处理：" + executionQueue.getId());
+        boolean isError = false;
+        if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO.name(),
+                ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getNowReportId());
+            if (report != null && StringUtils.equalsIgnoreCase(report.getStatus(), "Error")) {
+                isError = true;
+            }
+        } else {
+            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getNowReportId());
+            if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), "Error")) {
+                isError = true;
+            }
+        }
+        if (isError) {
+            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+            example.createCriteria().andQueueIdEqualTo(dto.getQueueId());
+
+            if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
+                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId(), "Stopped");
+            }
+            // 更新未执行的报告状态
+            List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
+            List<String> reportIds = details.stream().map(ApiExecutionQueueDetail::getReportId).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(reportIds)) {
+                extApiDefinitionExecResultMapper.update(reportIds);
+                extApiScenarioReportMapper.update(reportIds);
+            }
+            // 清除队列
+            executionQueueDetailMapper.deleteByExample(example);
+            queueMapper.deleteByPrimaryKey(executionQueue.getId());
+            return false;
+        }
+        return true;
+    }
+
     public DBTestQueue edit(String id, String testId) {
         ApiExecutionQueue executionQueue = queueMapper.selectByPrimaryKey(id);
+        DBTestQueue queue = new DBTestQueue();
         if (executionQueue != null) {
-            DBTestQueue queue = new DBTestQueue();
             BeanUtils.copyBean(queue, executionQueue);
             if (executionQueue != null) {
                 ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
@@ -152,50 +191,21 @@ public class ApiExecutionQueueService {
                     queueMapper.deleteByPrimaryKey(id);
                 }
             }
-            return queue;
         }
-        return null;
+        return queue;
     }
 
     public void queueNext(ResultDTO dto) {
         DBTestQueue executionQueue = this.edit(dto.getQueueId(), dto.getTestId());
         if (executionQueue != null) {
+            // 串行失败停止
             if (executionQueue.getFailure()) {
-                LoggerUtil.info("进入失败停止处理：" + executionQueue.getId());
-                boolean isError = false;
-                if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO.name(),
-                        ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
-                        ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                    ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getNowReportId());
-                    if (report != null && StringUtils.equalsIgnoreCase(report.getStatus(), "Error")) {
-                        isError = true;
-                    }
-                } else {
-                    ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getNowReportId());
-                    if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), "Error")) {
-                        isError = true;
-                    }
-                }
-                if (isError) {
-                    ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-                    example.createCriteria().andQueueIdEqualTo(dto.getQueueId());
-
-                    if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-                        CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId(), "Stopped");
-                    }
-                    // 更新未执行的报告状态
-                    List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
-                    List<String> reportIds = details.stream().map(ApiExecutionQueueDetail::getReportId).collect(Collectors.toList());
-                    if (CollectionUtils.isNotEmpty(reportIds)) {
-                        extApiDefinitionExecResultMapper.update(reportIds);
-                        extApiScenarioReportMapper.update(reportIds);
-                    }
-                    // 清除队列
-                    executionQueueDetailMapper.deleteByExample(example);
-                    queueMapper.deleteByPrimaryKey(executionQueue.getId());
+                boolean isNext = failure(executionQueue, dto);
+                if (!isNext) {
                     return;
                 }
             }
+
             LoggerUtil.info("开始处理执行队列：" + executionQueue.getId());
             if (executionQueue.getQueue() != null && StringUtils.isNotEmpty(executionQueue.getQueue().getTestId())) {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
@@ -220,61 +230,64 @@ public class ApiExecutionQueueService {
         }
     }
 
-
     public void timeOut() {
         final int SECOND_MILLIS = 1000;
         final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
         // 计算二十分钟前的超时报告
-        final long timeBeforeTimeOutStemp = System.currentTimeMillis() - (20 * MINUTE_MILLIS);
+        final long twentyMinutesAgo = System.currentTimeMillis() - (20 * MINUTE_MILLIS);
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-        example.createCriteria().andCreateTimeLessThan(timeBeforeTimeOutStemp);
+        example.createCriteria().andCreateTimeLessThan(twentyMinutesAgo);
         List<ApiExecutionQueueDetail> queueDetails = executionQueueDetailMapper.selectByExample(example);
 
-        if (CollectionUtils.isNotEmpty(queueDetails)) {
-            queueDetails.forEach(item -> {
-                if (StringUtils.equalsAnyIgnoreCase(item.getType(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                    ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                    if (report != null
-                            && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name())
-                            && report.getUpdateTime() < timeBeforeTimeOutStemp) {
-                        //场景报告最后一次更新时间于当前时间相比超过了20分钟，也就是20分钟没有步骤执行完成。这种情况下做超时处理
-                        report.setStatus(ScenarioStatus.Timeout.name());
-                        apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+        queueDetails.forEach(item -> {
+            ApiExecutionQueue queue = queueMapper.selectByPrimaryKey(item.getQueueId());
+            if (queue != null && StringUtils.equalsAnyIgnoreCase(queue.getRunMode(),
+                    ApiRunMode.SCENARIO.name(),
+                    ApiRunMode.SCENARIO_PLAN.name(),
+                    ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                    ApiRunMode.SCHEDULE_SCENARIO.name(),
+                    ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
+                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name())
+                        && report.getUpdateTime() < twentyMinutesAgo) {
+                    report.setStatus(ScenarioStatus.Timeout.name());
+                    apiScenarioReportMapper.updateByPrimaryKeySelective(report);
 
-                        ResultDTO dto = new ResultDTO();
-                        dto.setQueueId(item.getQueueId());
-                        dto.setTestId(item.getTestId());
-                        ApiExecutionQueue executionQueue = queueMapper.selectByPrimaryKey(item.getQueueId());
-                        if (executionQueue != null) {
-                            dto.setTestPlanReportId(executionQueue.getReportId());
-                            dto.setReportId(executionQueue.getReportId());
-                            dto.setRunMode(executionQueue.getRunMode());
-                            dto.setRunType(RunModeConstants.SERIAL.toString());
-                            dto.setReportType(executionQueue.getReportType());
-                            queueNext(dto);
-                        }else {
-                            executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
-                        }
-                    }
-                } else {
-                    ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
-                    if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
-                        result.setStatus(ScenarioStatus.Timeout.name());
-                        apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
+                    LoggerUtil.info("超时处理报告：" + report.getId());
+                    ResultDTO dto = new ResultDTO();
+                    dto.setQueueId(item.getQueueId());
+                    dto.setTestId(item.getTestId());
+                    ApiExecutionQueue executionQueue = queueMapper.selectByPrimaryKey(item.getQueueId());
+                    if (executionQueue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
+                        LoggerUtil.info("超时处理报告：【" + report.getId() + "】进入下一个执行");
+                        dto.setTestPlanReportId(executionQueue.getReportId());
+                        dto.setReportId(executionQueue.getReportId());
+                        dto.setRunMode(executionQueue.getRunMode());
+                        dto.setRunType(item.getType());
+                        dto.setReportType(executionQueue.getReportType());
+                        queueNext(dto);
+                    } else {
                         executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                     }
                 }
-            });
-        }
+            } else {
+                ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
+                if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
+                    result.setStatus(ScenarioStatus.Timeout.name());
+                    apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
+                    executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
+                }
+            }
+        });
 
         ApiExecutionQueueExample queueDetailExample = new ApiExecutionQueueExample();
-        queueDetailExample.createCriteria().andReportTypeEqualTo(RunModeConstants.SET_REPORT.toString()).andCreateTimeLessThan(timeBeforeTimeOutStemp);
+        queueDetailExample.createCriteria().andReportTypeEqualTo(RunModeConstants.SET_REPORT.toString()).andCreateTimeLessThan(twentyMinutesAgo);
         List<ApiExecutionQueue> executionQueues = queueMapper.selectByExample(queueDetailExample);
         if (CollectionUtils.isNotEmpty(executionQueues)) {
             executionQueues.forEach(item -> {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
                 if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name())
-                        && (report.getUpdateTime() < timeBeforeTimeOutStemp)) {
+                        && (report.getUpdateTime() < twentyMinutesAgo)) {
                     report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 }
