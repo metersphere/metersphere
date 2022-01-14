@@ -134,7 +134,6 @@ public abstract class JiraAbstractClient extends BaseClient {
             response = restTemplate.exchange(getBaseUrl() + "/issue/" + issueKey + "/attachments", HttpMethod.POST, requestEntity, String.class);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            MSException.throwException(e.getMessage());
         }
         System.out.println(response);
     }
