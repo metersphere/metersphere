@@ -214,6 +214,7 @@ export default {
           type: 'text',
           enable: true,
           uuid: this.uuid(),
+          required: false,
           contentType: 'text/plain'
         }));
       }
