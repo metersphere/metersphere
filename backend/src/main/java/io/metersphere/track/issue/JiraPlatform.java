@@ -148,7 +148,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         JiraConfig jiraConfig = setUserConfig();
         JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, jiraConfig.getIssuetype());
-
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
 
@@ -169,6 +168,38 @@ public class JiraPlatform extends AbstractIssuePlatform {
         handleTestCaseIssues(issuesRequest);
 
         return res;
+    }
+
+    /**
+     * sprint 传参数比较特殊，需要要传数值
+     * @param fields
+     */
+    private void setSprintParam(JSONObject fields) {
+        String sprintKey = null;
+        String projectKey = getProjectId(this.projectId);
+        JiraConfig config = getConfig();
+        Map<String, JiraCreateMetadataResponse.Field> createMetadata = new HashMap<>();
+        try {
+            createMetadata = jiraClientV2.getCreateMetadata(projectKey, config.getIssuetype());
+        } catch (Exception e) {}
+
+        for (String name : createMetadata.keySet()) {
+            JiraCreateMetadataResponse.Field item = createMetadata.get(name);
+            JiraCreateMetadataResponse.Schema schema = item.getSchema();
+            if (schema != null && schema.getCustom() != null && schema.getCustom().endsWith("sprint")) {
+                sprintKey = item.getKey();
+                break;
+            }
+        }
+
+        if (StringUtils.isNotBlank(sprintKey)) {
+            JSONObject field = fields.getJSONObject(sprintKey);
+            if (field != null) {
+                try {
+                    fields.put(sprintKey, field.getInteger("id"));
+                } catch (Exception e) {}
+            }
+        }
     }
 
     private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr) {
@@ -201,6 +232,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             fields.put("description", desc);
             parseCustomFiled(issuesRequest, fields);
         }
+        setSprintParam(fields);
 
         return addJiraIssueParam;
     }
