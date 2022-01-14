@@ -724,7 +724,7 @@
         test_case.num, test_case.custom_num, test_case.tags, test_case.create_time, test_case.update_time
         from test_case as test_case
         <include refid="notInQueryWhereCondition"></include>
-        ORDER BY test_case.order DESC
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
     <select id="getTestCaseForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
