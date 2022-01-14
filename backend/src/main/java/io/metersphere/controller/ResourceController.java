@@ -25,6 +25,16 @@ public class ResourceController {
         return resourceService.getMdImage(fileName);
     }
 
+    /**
+     * 兼容旧版本
+     * @param fileName
+     * @return
+     */
+    @GetMapping(value = "/md/get/{fileName}")
+    public ResponseEntity<FileSystemResource> getFileCompatible(@PathVariable("fileName") String fileName) {
+        return resourceService.getMdImage(fileName);
+    }
+
     @GetMapping("/md/delete/{fileName}")
     public void delete(@PathVariable("fileName") String fileName) {
         resourceService.mdDelete(fileName);

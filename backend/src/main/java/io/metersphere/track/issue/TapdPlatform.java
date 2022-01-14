@@ -183,10 +183,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     @Override
     public void syncIssues(Project project, List<IssuesDao> tapdIssues) {
-        int pageNum = 1;
-        int limit = 50;
-        int count = 50;
-
         Map<String, String> idMap = tapdIssues.stream()
                 .collect(Collectors.toMap(IssuesDao::getPlatformId, IssuesDao::getId));
 
@@ -194,17 +190,17 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 .map(IssuesDao::getPlatformId)
                 .collect(Collectors.toList());
 
-        if (CollectionUtils.isEmpty(ids)) {
-            return;
-        }
+        if (CollectionUtils.isEmpty(ids)) return;
 
         Map<String, String> statusMap = tapdClient.getStatusMap(project.getTapdId());
 
-        while (count == limit) {
-            TapdGetIssueResponse result = tapdClient.getIssueForPageByIds(project.getTapdId(), pageNum, limit, ids);
+        int index = 0;
+        int limit = 50;
+
+        while (index < ids.size()) {
+            List<String> subIds = ids.subList(index, (index + limit) > ids.size() ? ids.size() : (index + limit));
+            TapdGetIssueResponse result = tapdClient.getIssueForPageByIds(project.getTapdId(), 1, limit, subIds);
             List<JSONObject> datas = result.getData();
-            count = datas.size();
-            pageNum++;
             datas.forEach(issue -> {
                 JSONObject bug = issue.getJSONObject("Bug");
                 String platformId = bug.getString("id");
@@ -215,6 +211,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 issuesMapper.updateByPrimaryKeySelective(updateIssue);
                 ids.remove(platformId);
             });
+            index += limit;
         }
         // 查不到的设置为删除
         ids.forEach((id) -> {
