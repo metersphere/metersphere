@@ -20,12 +20,7 @@ public class ErrorReportLibraryParseDTO {
     public String getErrorCodeStr(){
         if(CollectionUtils.isNotEmpty(this.errorCodeList)){
             String errorCodeStr = StringUtils.join(this.errorCodeList,";");
-            //控制字符串长度
-            if(errorCodeStr.length() > 10){
-                return errorCodeStr.substring(0,10)+"...";
-            }else {
-                return errorCodeStr;
-            }
+            return errorCodeStr;
         }else {
             return "";
         }
