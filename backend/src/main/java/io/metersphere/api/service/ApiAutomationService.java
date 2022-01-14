@@ -681,11 +681,15 @@ public class ApiAutomationService {
             if (element != null && StringUtils.equalsIgnoreCase(element.getString("type"), "scenario")) {
                 ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString("id"));
                 if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
+                    boolean enable = element.getBoolean("enable");
+                    boolean environmentEnable = element.getBoolean("environmentEnable");
                     if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
                         element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
                         element.put("referenced", "REF");
                     }
                     element.put("num", scenarioWithBLOBs.getNum());
+                    element.put("enable", enable);
+                    element.put("environmentEnable", environmentEnable);
                     element.put("versionName", scenarioWithBLOBs.getVersionName());
                     element.put("versionEnable", scenarioWithBLOBs.getVersionEnable());
                     hashTree.set(i, element);
@@ -702,10 +706,14 @@ public class ApiAutomationService {
         if (element != null && StringUtils.equalsIgnoreCase(element.getString("type"), "scenario")) {
             ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString("id"));
             if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
+                boolean enable = element.getBoolean("enable");
+                boolean environmentEnable = element.getBoolean("environmentEnable");
                 if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
                     element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
                     element.put("referenced", "REF");
                 }
+                element.put("enable", enable);
+                element.put("environmentEnable", environmentEnable);
                 element.put("num", scenarioWithBLOBs.getNum());
                 element.put("versionName", scenarioWithBLOBs.getVersionName());
                 element.put("versionEnable", scenarioWithBLOBs.getVersionEnable());
