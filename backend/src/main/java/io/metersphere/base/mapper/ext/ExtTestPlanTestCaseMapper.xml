@@ -480,6 +480,7 @@
         <where>
             pc.plan_id = #{request.planId}
             and t.node_id = #{request.nodeId}
+            and (t.status != 'Trash' or t.status is null)
         </where>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
