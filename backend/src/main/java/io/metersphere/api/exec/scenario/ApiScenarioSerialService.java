@@ -137,7 +137,7 @@ public class ApiScenarioSerialService {
             } else {
                 ApiDefinitionExecResult apiDefinitionExecResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
                 if (apiDefinitionExecResult != null) {
-                    apiDefinitionExecResult.setStatus("timeout");
+                    apiDefinitionExecResult.setStatus("Error");
                     apiDefinitionExecResultMapper.updateByPrimaryKey(apiDefinitionExecResult);
                 }
             }
