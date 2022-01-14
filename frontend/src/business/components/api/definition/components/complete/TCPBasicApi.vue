@@ -3,7 +3,7 @@
     <el-form :model="basicForm" label-position="right" label-width="80px" size="small" :rules="rule" ref="basicForm" style="margin-right: 20px">
       <!-- 基础信息 -->
       <el-row>
-        <el-col :span="8">
+        <el-col :span="isDiff?16:8">
           <el-form-item :label="$t('commons.name')" prop="name">
             <!--            <el-input class="ms-http-input" size="small" v-model="basicForm.name"/>-->
             <el-input v-model="basicForm.name" class="ms-http-input" size="small">
@@ -81,6 +81,10 @@
       moduleOptions: Array,
       methodTypes: Array,
       basisData: {},
+      isDiff:{
+        type: Boolean,
+        default: false
+      },
     },
     created() {
       this.getMaintainerOptions();

@@ -74,7 +74,26 @@
     <api-other-info :api="basisData"/>
 
     <ms-change-history ref="changeHistory"/>
-
+    <el-dialog
+      :fullscreen="true"
+      :visible.sync="dialogVisible"
+      width="100%"
+    >
+      <t-c-p-api-version-diff
+        :old-data="basisData"
+        :show-follow="showFollow"
+        :new-data="newData"
+        :new-show-follow="newShowFollow"
+        :module-options="moduleOptions"
+        :request="request"
+        :old-request="oldRequest"
+        :mock-info="mockInfo"
+        :api-protocol="apiProtocol"
+        :old-api-protocol="oldApiProtocol"
+        :show-xpack-compnent="showXpackCompnent"
+        :method-types="methodTypes"
+      ></t-c-p-api-version-diff>
+    </el-dialog>
   </div>
 
 </template>
@@ -85,7 +104,11 @@ import MsTcpFormatParameters from "../request/tcp/TcpFormatParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import {getCurrentProjectID, getCurrentUser, hasLicense} from "@/common/js/utils";
 import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
+import TCPApiVersionDiff from "./version/TCPApiVersionDiff"
+import {createComponent } from ".././jmeter/components";
+import { TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
+const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
 const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
@@ -98,6 +121,7 @@ export default {
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default,
     'MsVersionHistory': versionHistory.default,
+    TCPApiVersionDiff,
   },
   props: {
     request: {},
@@ -123,6 +147,13 @@ export default {
       ],
       showXpackCompnent: false,
       versionData: [],
+      dialogVisible:false,
+      newShowFollow:false,
+      newData:{},
+      oldRequest:{},
+      oldResponse:{},
+      oldApiProtocol: "TCP",
+
     };
   },
   created: function () {
@@ -301,7 +332,102 @@ export default {
       });
     },
     compare(row) {
-      // console.log(row);
+      this.$get('/api/definition/get/' +  row.id+"/"+this.basisData.refId, response => {
+        this.$get('/api/definition/get/' + response.data.id, res => {
+          if (res.data) {
+            this.newData = res.data;
+            if (this.newData.method !== 'TCP' && this.newData.method !== 'ESB') {
+              this.newData.method = this.newData.protocol;
+            }
+            this.oldApiProtocol = this.basisData.method;
+            if (this.oldApiProtocol == null || this.oldApiProtocol === "") {
+              this.oldApiProtocol = "TCP";
+            }
+            this.$get('/api/definition/follow/' + response.data.id, resp => {
+              if(resp.data&&resp.data.follows){
+                for (let i = 0; i <resp.data.follows.length; i++) {
+                  if(resp.data.follows[i]===this.currentUser().id){
+                    this.newShowFollow = true;
+                    break;
+                  }
+                }
+              }
+            });
+            this.setRequest(res.data)
+            if (!this.setRequest(res.data)) {
+              this.oldRequest = createComponent("TCPSampler");
+              this.dialogVisible = true;
+            }
+            this.formatApi(res.data)
+          }
+        });
+      });
+
+    },
+    setRequest(api) {
+      if (api.request !== undefined) {
+        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          this.oldRequest = api.request;
+        } else {
+          this.oldRequest = JSON.parse(api.request);
+        }
+        if (!this.oldRequest.headers) {
+          this.oldRequest.headers = [];
+        }
+        this.dialogVisible = true;
+        return true;
+      }
+      return false;
+    },
+    formatApi(api) {
+      if (api.response != null && api.response !== 'null' && api.response !== undefined) {
+        if (Object.prototype.toString.call(api.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          this.oldResponse = api.response;
+        } else {
+          this.oldResponse = JSON.parse(api.response);
+        }
+      } else {
+        this.oldResponse = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
+      }
+      if (!this.oldRequest.hashTree) {
+        this.oldRequest.hashTree = [];
+      }
+      if (this.oldRequest.body && !this.oldRequest.body.binary) {
+        this.oldRequest.body.binary = [];
+      }
+      // 处理导入数据缺失问题
+      if (this.oldResponse.body) {
+        let body = new Body();
+        Object.assign(body, this.oldResponse.body);
+        if (!body.binary) {
+          body.binary = [];
+        }
+        if (!body.kvs) {
+          body.kvs = [];
+        }
+        if (!body.binary) {
+          body.binary = [];
+        }
+        this.oldResponse.body = body;
+      }
+      this.oldRequest.clazzName = TYPE_TO_C.get(this.oldRequest.type);
+
+      this.sort(this.oldRequest.hashTree);
+    },
+    sort(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sort(stepArray[i].hashTree);
+          }
+        }
+      }
     },
     checkout(row) {
       let api = this.versionData.filter(v => v.versionId === row.id)[0];
