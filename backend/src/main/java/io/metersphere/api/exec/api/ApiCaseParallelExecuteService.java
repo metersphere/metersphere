@@ -34,7 +34,7 @@ public class ApiCaseParallelExecuteService {
                         String reportId = result.getId();
                         HashTree hashTree = null;
                         if (!GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()).isPool()) {
-                            hashTree = apiScenarioSerialService.generateHashTree(testId, executionQueue.getRunMode(), config.getEnvMap());
+                            hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap());
                         }
                         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, hashTree);
                         runRequest.setPool(GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()));

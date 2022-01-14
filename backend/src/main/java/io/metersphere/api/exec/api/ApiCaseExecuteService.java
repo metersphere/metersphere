@@ -101,7 +101,7 @@ public class ApiCaseExecuteService {
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
         String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
-        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getConfig().getEnvMap(), request.getConfig().isOnSampleError());
+        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getConfig());
 
         // 开始选择执行模式
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
@@ -178,7 +178,7 @@ public class ApiCaseExecuteService {
 
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
-        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), null, reportType, ApiRunMode.DEFINITION.name(), request.getConfig().getEnvMap(), request.getConfig().isOnSampleError());
+        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), null, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
         // 开始选择执行模式
         if (request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
             LoggerUtil.debug("开始串行执行");
