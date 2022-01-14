@@ -1044,7 +1044,6 @@ public class TestPlanService {
         RunModeConfigDTO runModeConfig = null;
         try {
             runModeConfig = JSONObject.parseObject(apiRunConfig, RunModeConfigDTO.class);
-            runModeConfig.setOnSampleError(false);
         } catch (Exception e) {
             LogUtil.error(e);
         }
