@@ -1,6 +1,11 @@
 <template>
-  <div class="compare-class" id="vdiff" ref="all" >
-    <el-card style="width: 50%;" ref="old" id="old">
+
+<div v-loading="isReloadData">
+  <div class="caall">
+
+  </div>
+  <div  class="compare-class" id="vdiff" ref="all" >
+    <el-card style="width: 50%;" ref="old" id="old" >
       <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
       <el-row>
         <el-col :span="12">
@@ -38,7 +43,7 @@
       </el-row>
 
     </el-card>
-    <el-card style="width: 50%;" ref="new" id="new">
+    <el-card style="width: 50%;" ref="new" id="new" >
       <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
       <el-row>
         <el-col :span="12">
@@ -77,6 +82,10 @@
 
     </el-card>
   </div>
+
+</div>
+
+
 </template>
 
 <script>
@@ -118,12 +127,7 @@ export default{
   data(){
     return{
       active: '0',
-      oldDataJson:{
-
-      },
-      newDataJson:{
-
-      },
+      isReloadData:true,
     }
   },
   methods:{
@@ -131,7 +135,7 @@ export default{
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
       diff(oldVnode,vnode);
-
+      this.isReloadData = false;
     },
     clickTab(tab) {
       if (tab.index === '1') {
@@ -223,5 +227,15 @@ export default{
 .compare-class{
   display: flex;
   justify-content:space-between;
+
 }
+.caall{
+  position: absolute;
+  width: 100%;
+  height: 400%;
+  z-index: 10;
+  background: rgba(0,0,0,0);
+}
+
+
 </style>

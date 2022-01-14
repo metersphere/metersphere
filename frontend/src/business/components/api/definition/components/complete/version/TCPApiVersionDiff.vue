@@ -1,5 +1,5 @@
 <template>
-  <div class="compare-class">
+  <div class="compare-class" v-loading="isReloadData">
     <el-card style="width: 50%;" ref="old">
       <div style="background-color: white;">
         <el-row>
@@ -46,13 +46,13 @@
         <div v-if="oldApiProtocol==='TCP'">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 
-          <ms-tcp-format-parameters :show-script="false" :request="oldRequest" ref="tcpFormatParameter"/>
+          <ms-tcp-format-parameters :show-script="false" :request="oldRequest" :is-read-only="true" ref="tcpFormatParameter"/>
         </div>
         <div v-else-if="oldApiProtocol==='ESB'">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :request="oldRequest" ref="esbDefinition"/>
+          <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :is-read-only="true" :request="oldRequest" ref="esbDefinition"/>
           <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-          <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true"
+          <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :is-read-only="true"
                                    :request="oldRequest"/>
           <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
         </div>
@@ -123,13 +123,13 @@
         <!-- 请求参数 -->
         <div v-if="apiProtocol=='TCP'">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-tcp-format-parameters :show-script="false" :request="request" ref="tcpFormatParameter"/>
+          <ms-tcp-format-parameters :show-script="false" :request="request" :is-read-only="true" ref="tcpFormatParameter"/>
         </div>
         <div v-else-if="apiProtocol=='ESB'">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :request="request" ref="esbDefinition"/>
+          <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false"  :is-read-only="true"  :request="request" ref="esbDefinition"/>
           <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-          <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true"
+          <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true"  :is-read-only="true"
                                    :request="request"/>
           <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
         </div>
@@ -214,11 +214,30 @@ export default{
     },
     methodTypes:Array,
   },
+  watch: {
+    activeName() {
+      if (this.activeName === 'dependencies') {
+        this.$refs.oldDependencies.open();
+        this.$refs.newDependencies.open();
+      }
+    },
+    relationshipCount(){
+      if(this.relationshipCount>0||this.oldRelationshipCount>0){
+        this.getChildDiff()
+      }
+    },
+    oldRelationshipCount(){
+      if(this.relationshipCount>0||this.oldRelationshipCount>0){
+        this.getChildDiff()
+      }
+    }
+  },
   data(){
     return{
       activeName: 'remark',
       relationshipCount: 0,
       oldRelationshipCount: 0,
+      isReloadData:true
     }
   },
   methods:{
@@ -226,6 +245,7 @@ export default{
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
       diff(oldVnode,vnode);
+      this.isReloadData = false
     },
     setCount(count) {
       this.relationshipCount = count;
