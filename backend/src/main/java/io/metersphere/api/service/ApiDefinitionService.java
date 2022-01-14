@@ -1712,6 +1712,9 @@ public class ApiDefinitionService {
                 } else {
                     apiDefinition = apiMap.get(relationshipEdge.getSourceId());
                 }
+                if (apiDefinition == null) {
+                    continue;
+                }
                 relationshipEdgeDTO.setTargetName(apiDefinition.getName());
                 relationshipEdgeDTO.setCreator(apiDefinition.getUserId());
                 relationshipEdgeDTO.setTargetNum(apiDefinition.getNum());
