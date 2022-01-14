@@ -58,7 +58,7 @@
                 </el-col>
                 <el-col :span="18">
                   <div>
-                    <el-checkbox v-model="runConfig.onSampleError">失败停止</el-checkbox>
+                    <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
                   </div>
                   <div v-if="scheduleTaskType === 'TEST_PLAN_TEST'" style="padding-top: 10px">
                     <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
@@ -431,7 +431,7 @@ export default {
 
 .ms-mode-span {
   margin-right: 10px;
-  margin-left: 20px;
+  margin-left: 10px;
 }
 
 .ms-mode-div {
