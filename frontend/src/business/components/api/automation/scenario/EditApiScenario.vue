@@ -256,7 +256,7 @@
 
       <!--执行组件-->
       <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId" :saved="saved"
-              :run-data="debugData" :environment-type="environmentType" :environment-group-id="envGroupId"
+              :run-data="debugData" :environment-type="environmentType" :environment-group-id="envGroupId" :executeType="executeType"
               @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
@@ -467,6 +467,7 @@ export default {
       showFollow: false,
       envGroupId: "",
       environmentType: ENV_TYPE.JSON,
+      executeType: "",
     }
   },
   watch: {
@@ -639,6 +640,7 @@ export default {
       this.reqTotalTime = 0;
       this.reqTotal = 0;
       this.reqSuccess = 0;
+      this.executeType = "";
     },
     clearResult(arr) {
       if (arr) {
@@ -791,6 +793,7 @@ export default {
     handleCommand() {
       this.debug = false;
       this.saved = true;
+      this.executeType = "Saved";
       /*触发执行操作*/
       this.$refs['currentScenario'].validate(async (valid) => {
         if (valid) {
