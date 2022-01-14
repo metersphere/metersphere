@@ -850,6 +850,7 @@ export default {
     admin_not_allow_edit: 'admin not allow edit!',
     admin_not_allow_delete: 'admin not allow delete!',
     select_type: 'please select type',
+    view_permission: 'view permission',
     system: 'System',
     organization: 'Organization',
     workspace: 'Workspace',
