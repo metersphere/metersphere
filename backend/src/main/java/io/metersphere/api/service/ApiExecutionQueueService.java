@@ -185,9 +185,11 @@ public class ApiExecutionQueueService {
                         }
                     }
                     if (CollectionUtils.isEmpty(queues)) {
+                        LoggerUtil.info("execution complete,clear queue：【" + id + "】");
                         queueMapper.deleteByPrimaryKey(id);
                     }
                 } else {
+                    LoggerUtil.info("execution complete,clear queue：【" + id + "】");
                     queueMapper.deleteByPrimaryKey(id);
                 }
             }
@@ -299,10 +301,12 @@ public class ApiExecutionQueueService {
             queues.forEach(item -> {
                 // 更新测试计划报告
                 if (StringUtils.isNotEmpty(item.getReportId())) {
+                    LoggerUtil.info("处理不在执行队列中的测试计划报告：【" + item.getReportId() + "】");
                     CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(item.getReportId(), TestPlanReportStatus.COMPLETED.name());
                 }
             });
         }
+
         List<String> testPlanReports = extApiExecutionQueueMapper.findTestPlanRunningReport();
         if (CollectionUtils.isNotEmpty(testPlanReports)) {
             testPlanReports.forEach(reportId -> {
