@@ -167,8 +167,7 @@ public class ApiScenarioExecuteService {
             String reportType = request.getConfig().getReportType();
             String planReportId = StringUtils.isNotEmpty(request.getTestPlanReportId()) ? request.getTestPlanReportId() : serialReportId;
             DBTestQueue executionQueue = apiExecutionQueueService.add(executeQueue, request.getConfig().getResourcePoolId()
-                    , ApiRunMode.SCENARIO.name(), planReportId, reportType, request.getRunMode(), request.getConfig().getEnvMap()
-                    , request.getConfig().isOnSampleError());
+                    , ApiRunMode.SCENARIO.name(), planReportId, reportType, request.getRunMode(), request.getConfig());
 
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
                 if (StringUtils.isNotEmpty(serialReportId)) {
