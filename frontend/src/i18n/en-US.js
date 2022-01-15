@@ -2324,7 +2324,8 @@ export default {
       all_case: "All Case",
     },
     reporter: 'Reporter',
-    lastmodify: 'Last Modify'
+    lastmodify: 'Last Modify',
+    sync_to_new_version: "Sync to latest version",
   },
   test_resource_pool: {
     id: 'Resource Pool ID',

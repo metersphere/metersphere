@@ -23,6 +23,8 @@
                               ref="versionHistory"
                               :version-data="versionData"
                               :current-id="currentTestCaseInfo.id"
+                              :is-test-case-version="true"
+                              @confirmOtherInfo="confirmOtherInfo"
                               :current-project-id="currentProjectId"
                               @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
@@ -139,7 +141,6 @@
                              @getComments="getComments" ref="testCaseComment"/>
 
         </el-form>
-
       </div>
       <ms-change-history ref="changeHistory"/>
       <el-dialog
@@ -197,6 +198,7 @@ import MsChangeHistory from "../../../history/ChangeHistory";
 import {getTestTemplate} from "@/network/custom-field-template";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 import TestCaseVersionDiff from "@/business/components/track/case/version/TestCaseVersionDiff";
+import VersionCreateOtherInfoSelect from "@/business/components/track/case/components/VersionCreateOtherInfoSelect";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -218,7 +220,8 @@ export default {
     MsTestCaseStepRichText,
     MsChangeHistory,
     'MsVersionHistory': versionHistory.default,
-    TestCaseVersionDiff
+    TestCaseVersionDiff,
+    VersionCreateOtherInfoSelect,
   },
   data() {
     return {
@@ -310,7 +313,8 @@ export default {
       versionData: [],
       dialogVisible: false,
       oldData: null,
-      newData: null ,
+      newData: null,
+      selectedOtherInfo: null,
       currentProjectId: "" ,
     };
   },
@@ -767,6 +771,11 @@ export default {
             callback(this);
           }
           // 保存用例后刷新附件
+
+          //更新版本
+          if (hasLicense()) {
+            this.getVersionHistory();
+          }
         });
       }
     },
@@ -790,6 +799,10 @@ export default {
       param.type = 'functional';
       buildCustomFields(this.form, param, this.testCaseTemplate);
       this.parseOldFields(param);
+      //配置多版本复制的时候是否要连带复制其他信息
+      if (this.selectedOtherInfo) {
+        param.otherInfoConfig = this.selectedOtherInfo;
+      }
       return param;
     },
     parseOldFields(param) {
@@ -944,12 +957,13 @@ export default {
         }
       }
     },
-    getVersionHistory() {
+    getVersionHistory(param) {
       this.$get('/test/case/versions/' + this.currentTestCaseInfo.id, response => {
         for (let i = 0; i < response.data.length; i++) {
           this.currentProjectId = response.data[i].projectId;
           }
         this.versionData = response.data;
+        this.$refs.versionHistory.cancelOtherInfo();
         this.$refs.versionHistory.loading = false;
       });
     },
@@ -988,10 +1002,16 @@ export default {
         });
       }
     },
-    create(row) {
+    async create(row) {
       // 创建新版本
       this.form.versionId = row.id;
-      this.saveCase(this.getVersionHistory);
+      let hasOtherInfo = await this.hasOtherInfo();
+      if (hasOtherInfo) {
+        this.$refs.versionHistory.loading = false;
+        this.$refs.versionHistory.showOtherInfo();
+      } else {
+        this.saveCase();
+      }
     },
     del(row) {
       let that = this;
@@ -1011,7 +1031,19 @@ export default {
     },
     changeType(type) {
       this.type = type;
-    }
+    },
+    hasOtherInfo() {
+      return new Promise((resolve) => {
+          this.$get("test/case/hasOtherInfo/" + this.form.id, (res) => {
+            resolve(res.data);
+          })
+        }
+      );
+    },
+    confirmOtherInfo(selectedOtherInfo) {
+      this.selectedOtherInfo = selectedOtherInfo;
+      this.saveCase();
+    },
   }
 }
 </script>
