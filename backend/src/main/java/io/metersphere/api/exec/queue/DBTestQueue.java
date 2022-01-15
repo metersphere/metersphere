@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Data
 public class DBTestQueue extends ApiExecutionQueue {
-    private String nowReportId;
+    private String completedReportId;
     private ApiExecutionQueueDetail queue;
     private Map<String, String> detailMap = new HashMap<>();
 }
