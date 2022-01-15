@@ -624,7 +624,9 @@ export default {
       if (callback) {
         callback();
       }
-      this.getComments(this.currentTestCaseInfo);
+      if (this.type !== 'copy') {
+        this.getComments(this.currentTestCaseInfo);
+      }
     },
     handlePre() {
       this.index--;

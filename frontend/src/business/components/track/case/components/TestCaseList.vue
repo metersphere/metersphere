@@ -275,6 +275,7 @@ import TestCasePreview from "@/business/components/track/case/components/TestCas
 import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+import {getUUID} from "@/common/js/utils";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -856,6 +857,10 @@ export default {
       this.$get('test/case/get/' + testCase.id, response => {
         let testCase = response.data;
         testCase.name = 'copy_' + testCase.name;
+        //复制的时候只复制当前版本
+        testCase.id = getUUID();
+        testCase.refId = null;
+        testCase.versionId = null;
         this.$emit('testCaseCopy', testCase);
       });
     },
