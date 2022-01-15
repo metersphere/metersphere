@@ -383,8 +383,7 @@ export default {
   mounted() {
     this.getSelectOptions();
     if (this.type === 'edit' || this.type === 'copy') {
-      this.open(this.currentTestCaseInfo)
-      this.getComments(this.currentTestCaseInfo)
+      this.open(this.currentTestCaseInfo);
     }
     // Cascader 级联选择器: 点击文本就让它自动点击前面的input就可以触发选择。
     setInterval(function () {
@@ -625,6 +624,7 @@ export default {
       if (callback) {
         callback();
       }
+      this.getComments(this.currentTestCaseInfo);
     },
     handlePre() {
       this.index--;
