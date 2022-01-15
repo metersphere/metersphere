@@ -419,7 +419,8 @@ export default {
     version: 'Version',
     is_new: "Is new",
     form_config: "Form config",
-    form_content: "Form content"
+    form_content: "Form content",
+    sync_other_info: "Sync other config",
   },
   login: {
     normal_Login: "Normal Login",
