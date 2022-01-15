@@ -46,7 +46,10 @@ import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.service.*;
+import io.metersphere.service.FileService;
+import io.metersphere.service.QuotaService;
+import io.metersphere.service.RelationshipEdgeService;
+import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestPlanService;
@@ -1768,8 +1771,15 @@ public class ApiDefinitionService {
 
     public Pager<List<ApiDefinitionResult>> getRelationshipRelateList(ApiDefinitionRequest request, int goPage, @PathVariable int pageSize) {
         request = this.initRequest(request, true, true);
+        // 排除同一个api的不同版本
+        ApiDefinitionWithBLOBs currentApi = apiDefinitionMapper.selectByPrimaryKey(request.getId());
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andRefIdEqualTo(currentApi.getRefId());
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+        List<String> sameApiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
         List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
-        request.setNotInIds(relationshipIds);
+        sameApiIds.addAll(relationshipIds);
+        request.setNotInIds(sameApiIds);
         request.setId(null); // 去掉id的查询条件
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, extApiDefinitionMapper.list(request));
