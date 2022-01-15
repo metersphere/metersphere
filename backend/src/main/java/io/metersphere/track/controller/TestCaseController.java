@@ -423,4 +423,15 @@ public class TestCaseController {
     public void deleteApiDefinition(@PathVariable String version, @PathVariable String refId) {
         testCaseService.deleteTestCaseByVersion(refId, version);
     }
+
+    /**
+     * 判断是否有其他信息
+     *
+     * @param caseId 用例 ID
+     * @return
+     */
+    @GetMapping("hasOtherInfo/{caseId}")
+    public Boolean hasOtherInfo(@PathVariable String caseId) {
+        return testCaseService.hasOtherInfo(caseId);
+    }
 }

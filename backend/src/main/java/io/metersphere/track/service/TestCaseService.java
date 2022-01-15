@@ -62,6 +62,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -156,6 +157,9 @@ public class TestCaseService {
     private MinderExtraNodeService minderExtraNodeService;
     @Resource
     private ProjectVersionService projectVersionService;
+    @Resource
+    @Lazy
+    private IssuesService issuesService;
     @Resource
     private ExtProjectVersionMapper extProjectVersionMapper;
 
@@ -265,7 +269,7 @@ public class TestCaseService {
         return testCaseMapper.selectByPrimaryKey(testCaseId);
     }
 
-    public TestCaseWithBLOBs editTestCase(TestCaseWithBLOBs testCase) {
+    public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase) {
         checkTestCustomNum(testCase);
         testCase.setUpdateTime(System.currentTimeMillis());
         // 更新数据
@@ -274,6 +278,18 @@ public class TestCaseService {
         if (StringUtils.isNotBlank(testCase.getVersionId())) {
             example.getOredCriteria().get(0).andVersionIdEqualTo(testCase.getVersionId());
         }
+        createNewVersionOrNot(testCase, example);
+        testCaseMapper.updateByPrimaryKeySelective(testCase);
+        return testCaseMapper.selectByPrimaryKey(testCase.getId());
+    }
+
+    /**
+     * 根据前后端 verionId 判定是编辑旧数据还是创建新版本
+     *
+     * @param testCase
+     * @param example
+     */
+    private void createNewVersionOrNot(EditTestCaseRequest testCase, TestCaseExample example) {
         if (testCaseMapper.updateByExampleSelective(testCase, example) == 0) {
             // 插入新版本的数据
             TestCaseWithBLOBs oldTestCase = testCaseMapper.selectByPrimaryKey(testCase.getId());
@@ -285,10 +301,70 @@ public class TestCaseService {
             testCase.setCreateUser(SessionUtils.getUserId());
             testCase.setOrder(oldTestCase.getOrder());
             testCase.setRefId(oldTestCase.getRefId());
+            DealWithOtherInfo(testCase, oldTestCase);
             testCaseMapper.insertSelective(testCase);
         }
-        testCaseMapper.updateByPrimaryKeySelective(testCase);
-        return testCaseMapper.selectByPrimaryKey(testCase.getId());
+    }
+
+    /**
+     * 处理其他信息的复制问题
+     *
+     * @param testCase
+     * @param oldTestCase
+     */
+    private void DealWithOtherInfo(EditTestCaseRequest testCase, TestCaseWithBLOBs oldTestCase) {
+        EditTestCaseRequest.OtherInfoConfig otherInfoConfig = testCase.getOtherInfoConfig();
+        if (otherInfoConfig != null) {
+            if (!otherInfoConfig.isRemark()) {
+                testCase.setRemark(null);
+            }
+            if (!otherInfoConfig.isRelateDemand()) {
+                testCase.setDemandId(null);
+                testCase.setDemandName(null);
+            }
+            if (otherInfoConfig.isRelateIssue()) {
+                List<IssuesDao> issuesDaos = issuesService.getIssues(oldTestCase.getId());
+                if (CollectionUtils.isNotEmpty(issuesDaos)) {
+                    issuesDaos.forEach(issue -> {
+                        TestCaseIssues t = new TestCaseIssues();
+                        t.setId(UUID.randomUUID().toString());
+                        t.setTestCaseId(testCase.getId());
+                        t.setIssuesId(issue.getId());
+                        testCaseIssuesMapper.insertSelective(t);
+                    });
+                }
+            }
+            if (otherInfoConfig.isRelateTest()) {
+                List<TestCaseTestDao> testCaseTestDaos = getRelateTest(oldTestCase.getId());
+                if (CollectionUtils.isNotEmpty(testCaseTestDaos)) {
+                    testCaseTestDaos.forEach(test -> {
+                        test.setTestCaseId(testCase.getId());
+                        testCaseTestMapper.insertSelective(test);
+                    });
+                }
+            }
+            if (otherInfoConfig.isArchive()) {
+                List<FileMetadata> files = fileService.getFileMetadataByCaseId(oldTestCase.getId());
+                if (CollectionUtils.isNotEmpty(files)) {
+                    files.forEach(file -> {
+                        TestCaseFile testCaseFile = new TestCaseFile();
+                        testCaseFile.setCaseId(testCase.getId());
+                        testCaseFile.setFileId(file.getId());
+                        testCaseFileMapper.insertSelective(testCaseFile);
+                    });
+                }
+            }
+            if (otherInfoConfig.isDependency()) {
+                List<RelationshipEdgeDTO> preRelations = getRelationshipCase(testCase.getId(), "PRE");
+                List<RelationshipEdgeDTO> postRelations = getRelationshipCase(testCase.getId(), "POST");
+                if (CollectionUtils.isNotEmpty(preRelations)) {
+                    preRelations.forEach(relation -> {
+
+                    });
+                }
+            }
+
+        }
     }
 
     public TestCaseWithBLOBs checkTestCaseExist(TestCaseWithBLOBs testCase) {
@@ -712,7 +788,7 @@ public class TestCaseService {
                 AtomicInteger sort = new AtomicInteger();
                 AtomicInteger num = new AtomicInteger();
                 num.set(getNextNum(projectId) + testCases.size());
-                for (TestCaseWithBLOBs testcase: testCases) {
+                for (TestCaseWithBLOBs testcase : testCases) {
                     testcase.setId(UUID.randomUUID().toString());
                     testcase.setCreateUser(SessionUtils.getUserId());
                     testcase.setCreateTime(System.currentTimeMillis());
@@ -748,7 +824,7 @@ public class TestCaseService {
                 num.set(getNextNum(projectId) + testCases.size());
                 testCases.forEach(testcase -> {
                     TestCaseWithBLOBs oldCase = testCaseMapper.selectByPrimaryKey(testcase.getId());
-                    String customFieldStr = this.updateCustomField(oldCase.getCustomFields(),testcase.getPriority());
+                    String customFieldStr = this.updateCustomField(oldCase.getCustomFields(), testcase.getPriority());
                     testcase.setUpdateTime(System.currentTimeMillis());
                     testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                     testcase.setSort(sort.getAndIncrement());
@@ -847,7 +923,7 @@ public class TestCaseService {
                 .andProjectIdEqualTo(projectId);
         List<TestCase> testCasesList = testCaseMapper.selectByExample(example);
         Map<String, String> customIdMap = testCasesList.stream()
-                .collect(Collectors.toMap(TestCase::getCustomNum, TestCase::getId, (k1,k2) -> k1));
+                .collect(Collectors.toMap(TestCase::getCustomNum, TestCase::getId, (k1, k2) -> k1));
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
@@ -1649,7 +1725,9 @@ public class TestCaseService {
                     if (editCustomFieldsPriority(dbCase, item.getPriority())) {
                         item.setCustomFields(dbCase.getCustomFields());
                     }
-                    editTestCase(item);
+                    EditTestCaseRequest editRequest = new EditTestCaseRequest();
+                    BeanUtils.copyBean(editRequest, item);
+                    editTestCase(editRequest);
                     changeOrder(item, request.getProjectId());
                 } else {
                     item.setMaintainer(SessionUtils.getUserId());
@@ -2328,5 +2406,17 @@ public class TestCaseService {
         TestCase testCase = new TestCase();
         testCase.setRefId(refId);
         return extTestCaseMapper.deletePublic(testCase);
+    }
+
+    public Boolean hasOtherInfo(String caseId) {
+        TestCaseWithBLOBs tc = getTestCase(caseId);
+        if (tc != null) {
+            if (StringUtils.isNotBlank(tc.getRemark()) || StringUtils.isNotBlank(tc.getDemandId()) || CollectionUtils.isNotEmpty(getRelateTest(caseId))
+                    || CollectionUtils.isNotEmpty(issuesService.getIssues(caseId)) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "PRE")) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "POST"))
+                    || CollectionUtils.isNotEmpty(fileService.getFileMetadataByCaseId(caseId))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

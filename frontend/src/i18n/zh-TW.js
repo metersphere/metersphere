@@ -2030,8 +2030,8 @@ export default {
         export_tip: "請切換成接口列表勾選用例導出！"
       },
       case_desc: "用例描述",
-      passing_rate: '用例通過率'
-
+      passing_rate: '用例通過率',
+      sync_to_new_version: "同步以下信息到新版本",
     },
     plan: {
       test_plan: "測試計劃",
@@ -2328,7 +2328,7 @@ export default {
       all_case: "所有用例",
     },
     reporter: '報告人',
-    lastmodify: '最後更改'
+    lastmodify: '最後更改',
   },
   test_resource_pool: {
     id: "測試資源池ID",
