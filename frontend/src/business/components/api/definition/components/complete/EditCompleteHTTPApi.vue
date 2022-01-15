@@ -159,14 +159,14 @@
     </el-card>
 
     <el-dialog
-      title="同步以下信息到新版本"
+      :title="$t('commons.sync_other_info')"
       :visible.sync="createNewVersionVisible"
       :show-close="false"
       width="30%"
     >
       <div>
-        <el-checkbox v-model="httpForm.newVersionRemark">备注</el-checkbox>
-        <el-checkbox v-model="httpForm.newVersionDeps">依赖关系</el-checkbox>
+        <el-checkbox v-model="httpForm.newVersionRemark">{{ $t('commons.remark') }}</el-checkbox>
+        <el-checkbox v-model="httpForm.newVersionDeps">{{ $t('commons.relationship.name') }}</el-checkbox>
       </div>
 
       <template v-slot:footer>
@@ -193,9 +193,9 @@ import MsChangeHistory from "../../../../history/ChangeHistory";
 import {getCurrentProjectID, getCurrentUser, getUUID, hasLicense} from "@/common/js/utils";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
-import HttpApiVersionDiff from "./version/HttpApiVersionDiff"
-import {createComponent } from ".././jmeter/components";
-import { TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import HttpApiVersionDiff from "./version/HttpApiVersionDiff";
+import {createComponent} from ".././jmeter/components";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 
 const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
