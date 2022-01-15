@@ -161,6 +161,8 @@ public class TestCaseService {
     @Lazy
     private IssuesService issuesService;
     @Resource
+    private RelationshipEdgeMapper relationshipEdgeMapper;
+    @Resource
     private ExtProjectVersionMapper extProjectVersionMapper;
 
     private void setNode(TestCaseWithBLOBs testCase) {
