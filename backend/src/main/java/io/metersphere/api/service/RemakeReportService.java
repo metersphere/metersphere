@@ -1,7 +1,6 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.dto.automation.ScenarioStatus;
-import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.APITestStatus;
@@ -39,7 +38,7 @@ public class RemakeReportService {
                 example.createCriteria().andQueueIdEqualTo(request.getQueueId()).andTestIdEqualTo(request.getTestId());
                 CommonBeanFactory.getBean(ApiExecutionQueueDetailMapper.class).deleteByExample(example);
 
-                CommonBeanFactory.getBean(ApiExecutionQueueService.class).edit(request.getQueueId(), request.getTestId());
+                CommonBeanFactory.getBean(ApiExecutionQueueService.class).handleQueue(request.getQueueId(), request.getTestId());
             }
             // 清理零时报告
             if (StringUtils.equalsAnyIgnoreCase(request.getRunMode(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {

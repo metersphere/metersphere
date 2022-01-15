@@ -131,12 +131,12 @@ public class ApiExecutionQueueService {
         if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO.name(),
                 ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
                 ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getNowReportId());
+            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
             if (report != null && StringUtils.equalsIgnoreCase(report.getStatus(), "Error")) {
                 isError = true;
             }
         } else {
-            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getNowReportId());
+            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
             if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), "Error")) {
                 isError = true;
             }
@@ -163,52 +163,56 @@ public class ApiExecutionQueueService {
         return true;
     }
 
-    public DBTestQueue edit(String id, String testId) {
+    public DBTestQueue handleQueue(String id, String testId) {
         ApiExecutionQueue executionQueue = queueMapper.selectByPrimaryKey(id);
         DBTestQueue queue = new DBTestQueue();
         if (executionQueue != null) {
             BeanUtils.copyBean(queue, executionQueue);
-            if (executionQueue != null) {
-                ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-                example.setOrderByClause("sort asc");
-                example.createCriteria().andQueueIdEqualTo(id);
-                List<ApiExecutionQueueDetail> queues = executionQueueDetailMapper.selectByExampleWithBLOBs(example);
+            LoggerUtil.info("Get the next execution point：【" + id + "】");
+
+            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+            example.setOrderByClause("sort asc");
+            example.createCriteria().andQueueIdEqualTo(id);
+            List<ApiExecutionQueueDetail> queues = executionQueueDetailMapper.selectByExampleWithBLOBs(example);
+
+            if (CollectionUtils.isNotEmpty(queues)) {
+                // 处理掉当前已经执行完成的资源
+                List<ApiExecutionQueueDetail> completedQueues = queues.stream().filter(item -> StringUtils.equals(item.getTestId(), testId)).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(completedQueues)) {
+                    ApiExecutionQueueDetail completed = completedQueues.get(0);
+                    queue.setCompletedReportId(completed.getReportId());
+                    executionQueueDetailMapper.deleteByPrimaryKey(completed.getId());
+                    queues.remove(completed);
+                }
+                // 取出下一个要执行的节点
                 if (CollectionUtils.isNotEmpty(queues)) {
-                    List<ApiExecutionQueueDetail> list = queues.stream().filter(item -> StringUtils.equals(item.getTestId(), testId)).collect(Collectors.toList());
-                    if (CollectionUtils.isNotEmpty(list)) {
-                        queue.setNowReportId(list.get(0).getReportId());
-                        executionQueueDetailMapper.deleteByPrimaryKey(list.get(0).getId());
-                        queues.remove(list.get(0));
-                        BeanUtils.copyBean(queue, executionQueue);
-                        if (CollectionUtils.isNotEmpty(queues)) {
-                            queue.setQueue(queues.get(0));
-                        }
-                    }
-                    if (CollectionUtils.isEmpty(queues)) {
-                        LoggerUtil.info("execution complete,clear queue：【" + id + "】");
-                        queueMapper.deleteByPrimaryKey(id);
-                    }
+                    queue.setQueue(queues.get(0));
                 } else {
                     LoggerUtil.info("execution complete,clear queue：【" + id + "】");
                     queueMapper.deleteByPrimaryKey(id);
                 }
+            } else {
+                LoggerUtil.info("execution complete,clear queue：【" + id + "】");
+                queueMapper.deleteByPrimaryKey(id);
             }
+        } else {
+            LoggerUtil.info("The queue was accidentally deleted：【" + id + "】");
         }
         return queue;
     }
 
     public void queueNext(ResultDTO dto) {
-        DBTestQueue executionQueue = this.edit(dto.getQueueId(), dto.getTestId());
+        DBTestQueue executionQueue = this.handleQueue(dto.getQueueId(), dto.getTestId());
         if (executionQueue != null) {
             // 串行失败停止
-            if (executionQueue.getFailure()) {
+            if (executionQueue.getFailure() && StringUtils.isNotEmpty(executionQueue.getCompletedReportId())) {
                 boolean isNext = failure(executionQueue, dto);
                 if (!isNext) {
                     return;
                 }
             }
 
-            LoggerUtil.info("开始处理执行队列：" + executionQueue.getId());
+            LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId());
             if (executionQueue.getQueue() != null && StringUtils.isNotEmpty(executionQueue.getQueue().getTestId())) {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
                     LoggerUtil.info("当前执行队列是：" + JSON.toJSONString(executionQueue.getQueue()));
@@ -220,10 +224,16 @@ public class ApiExecutionQueueService {
                 }
                 // 更新测试计划报告
                 if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-                    CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId(), TestPlanReportStatus.COMPLETED.name());
+                    ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+                    example.createCriteria().andQueueIdEqualTo(dto.getQueueId());
+                    long count = executionQueueDetailMapper.countByExample(example);
+                    if (count == 0) {
+                        LoggerUtil.info("Normal execution completes, update test plan report status：" + dto.getTestPlanReportId());
+                        CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId(), TestPlanReportStatus.COMPLETED.name());
+                    }
                 }
-                queueMapper.deleteByPrimaryKey(executionQueue.getId());
-                LoggerUtil.info("队列：" + dto.getQueueId() + " 执行结束");
+                queueMapper.deleteByPrimaryKey(dto.getQueueId());
+                LoggerUtil.info("Queue execution ends：" + dto.getQueueId());
             }
 
             ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
@@ -301,7 +311,7 @@ public class ApiExecutionQueueService {
             queues.forEach(item -> {
                 // 更新测试计划报告
                 if (StringUtils.isNotEmpty(item.getReportId())) {
-                    LoggerUtil.info("处理不在执行队列中的测试计划报告：【" + item.getReportId() + "】");
+                    LoggerUtil.info("Handling test plan reports that are not in the execution queue：【" + item.getReportId() + "】");
                     CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(item.getReportId(), TestPlanReportStatus.COMPLETED.name());
                 }
             });
@@ -310,7 +320,7 @@ public class ApiExecutionQueueService {
         List<String> testPlanReports = extApiExecutionQueueMapper.findTestPlanRunningReport();
         if (CollectionUtils.isNotEmpty(testPlanReports)) {
             testPlanReports.forEach(reportId -> {
-                LoggerUtil.info("补偿测试计划报告：【" + reportId + "】");
+                LoggerUtil.info("Compensation Test Plan Report：【" + reportId + "】");
                 CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(reportId, TestPlanReportStatus.COMPLETED.name());
             });
         }
