@@ -79,7 +79,7 @@
         <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
         <test-case-edit-other-info :read-only="oldData.readOnly" :project-id="projectIds" :form="oldData"
-                                   :label-width="oldData.formLabelWidth" :case-id="oldData.id" ref="otherInfo"/>
+                                   :label-width="oldData.formLabelWidth" :case-id="oldData.id" ref="oldOtherInfo"/>
 
         <el-row style="margin-top: 10px">
           <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
@@ -184,7 +184,7 @@
         <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
         <test-case-edit-other-info :read-only="newData.readOnly" :project-id="projectIds" :form="newData"
-                                   :label-width="newData.formLabelWidth" :case-id="newData.id" ref="otherInfo"/>
+                                   :label-width="newData.formLabelWidth" :case-id="newData.id" ref="newOtherInfo"/>
 
         <el-row style="margin-top: 10px">
           <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
@@ -426,42 +426,6 @@ export default {
       //移除监听，防止监听其他页面
       removeGoBackListener(this.close);
       this.dialogFormVisible = false;
-    }
-    ,
-    getOption(param) {
-      let formData = new FormData();
-      if (this.$refs.otherInfo && this.$refs.otherInfo.uploadList) {
-        this.$refs.otherInfo.uploadList.forEach(f => {
-          formData.append("file", f);
-        });
-      }
-
-      if (this.$refs.otherInfo && this.$refs.otherInfo.fileList) {
-        if (param.isCopy) {
-          // 如果是copy，则把文件的ID传到后台进行文件复制
-          param.fileIds = this.$refs.otherInfo.fileList.map(f => f.id);
-        }
-        param.updatedFileList = this.$refs.otherInfo.fileList;
-      } else {
-        param.fileIds = [];
-        param.updatedFileList = [];
-      }
-
-      let requestJson = JSON.stringify(param, function (key, value) {
-        return key === "file" ? undefined : value
-      });
-
-      formData.append('request', new Blob([requestJson], {
-        type: "application/json"
-      }));
-      return {
-        method: 'POST',
-        url: this.path,
-        data: formData,
-        headers: {
-          'Content-Type': undefined
-        }
-      };
     }
     ,
     getMaintainerOptions() {

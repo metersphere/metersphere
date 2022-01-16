@@ -6,7 +6,7 @@
       </el-row>
     </el-tab-pane>
     <el-tab-pane :label="$t('test_track.case.relate_test')" name="relateTest">
-      <test-case-test-relate :read-only="readOnly" :case-id="caseId"/>
+      <test-case-test-relate :read-only="readOnly" :case-id="caseId" ref="relateTest"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('test_track.related_requirements')" name="demand">
@@ -126,6 +126,10 @@ export default {
         this.$refs.relationship.open();
       } else if (this.tabActiveName === 'attachment') {
         this.getFileMetaData();
+      } else if (this.tabActiveName === 'relateTest') {
+        this.$nextTick(() => {
+          this.getRelatedTest();
+        });
       }
     },
     caseId() {
@@ -255,6 +259,9 @@ export default {
           });
         });
       }
+    },
+    getRelatedTest() {
+      this.$refs.relateTest.initTable();
     },
     visibleChange(flag) {
       if (flag) {
