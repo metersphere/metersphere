@@ -569,7 +569,7 @@ public class ApiDefinitionService {
                 List<RelationshipEdgeDTO> pre = this.getRelationshipApi(oldApi.getId(), "PRE");
                 List<String> targetIds = pre.stream().map(RelationshipEdgeKey::getTargetId).collect(Collectors.toList());
                 RelationshipEdgeRequest req = new RelationshipEdgeRequest();
-                req.setSourceIds(targetIds);
+                req.setTargetIds(targetIds);
                 req.setType("API");
                 req.setId(test.getId());
                 relationshipEdgeService.saveBatch(req);
