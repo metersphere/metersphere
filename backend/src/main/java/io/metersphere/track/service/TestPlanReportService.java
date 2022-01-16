@@ -418,6 +418,9 @@ public class TestPlanReportService {
     public TestPlanReportContentWithBLOBs parseReportDaoToReportContent(TestPlanSimpleReportDTO reportDTO, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
         String id = testPlanReportContentWithBLOBs.getId();
         String testPlanReportId = testPlanReportContentWithBLOBs.getTestPlanReportId();
+        if(testPlanReportContentWithBLOBs.getEndTime() != null){
+            reportDTO.setEndTime(testPlanReportContentWithBLOBs.getEndTime());
+        }
         BeanUtils.copyBean(testPlanReportContentWithBLOBs, reportDTO);
         testPlanReportContentWithBLOBs.setId(id);
         testPlanReportContentWithBLOBs.setTestPlanReportId(testPlanReportId);
