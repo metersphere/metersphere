@@ -974,8 +974,8 @@ export default {
       that.newData.steps = JSON.parse(that.newData.steps || "");
       that.oldData.tags = JSON.parse(that.oldData.tags || "");
       that.oldData.steps = JSON.parse(that.oldData.steps || "");
-      that.newData.readOnly = false;
-      that.oldData.readOnly = false;
+      that.newData.readOnly = true;
+      that.oldData.readOnly = true;
     },
     compare(row) {
       this.$get('/test/case/get/' + row.id + "/" + this.currentTestCaseInfo.refId, response => {
