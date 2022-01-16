@@ -357,11 +357,20 @@ public class TestCaseService {
                 }
             }
             if (otherInfoConfig.isDependency()) {
-                List<RelationshipEdgeDTO> preRelations = getRelationshipCase(testCase.getId(), "PRE");
-                List<RelationshipEdgeDTO> postRelations = getRelationshipCase(testCase.getId(), "POST");
+                List<RelationshipEdge> preRelations = relationshipEdgeService.getRelationshipEdgeByType(testCase.getId(), "PRE");
+                List<RelationshipEdge> postRelations = relationshipEdgeService.getRelationshipEdgeByType(testCase.getId(), "POST");
                 if (CollectionUtils.isNotEmpty(preRelations)) {
                     preRelations.forEach(relation -> {
-
+                        relation.setSourceId(testCase.getId());
+                        relation.setCreateTime(System.currentTimeMillis());
+                        relationshipEdgeMapper.insertSelective(relation);
+                    });
+                }
+                if (CollectionUtils.isNotEmpty(postRelations)) {
+                    postRelations.forEach(relation -> {
+                        relation.setTargetId(testCase.getId());
+                        relation.setCreateTime(System.currentTimeMillis());
+                        relationshipEdgeMapper.insertSelective(relation);
                     });
                 }
             }
@@ -1493,6 +1502,7 @@ public class TestCaseService {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
+
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
         TestCaseExample example = this.getBatchExample(request);
         deleteTestPlanTestCaseBath(request.getIds());
@@ -2122,8 +2132,7 @@ public class TestCaseService {
                 if ((StringUtils.isNotEmpty(testCase.getMaintainer()) && testCase.getMaintainer() == SessionUtils.getUserId()) ||
                         (StringUtils.isNotEmpty(testCase.getCreateUser()) && testCase.getCreateUser() == SessionUtils.getUserId())) {
                     this.deleteTestCasePublic(testCase.getRefId());
-                }
-                else {
+                } else {
                     MSException.throwException(Translator.get("check_owner_case"));
                 }
             }
