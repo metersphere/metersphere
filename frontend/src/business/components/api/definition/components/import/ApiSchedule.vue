@@ -32,7 +32,7 @@
           </el-col>
 
           <el-col :span="12" style="margin-left: 50px">
-            <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')"></el-switch>
+            <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')" @change="changeAuthEnable"></el-switch>
           </el-col>
 
           <el-col :span="19" v-show="authEnable" style="margin-top: 10px; margin-left: 50px" class="request-tabs">
@@ -239,6 +239,11 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
+    changeAuthEnable() {
+      if(!this.authEnable){
+        this.clearAuthInfo();
+      }
+    },
     clear() {
       this.formData.id = null;
       this.formData.moduleId = null;
@@ -279,13 +284,19 @@ export default {
       this.formData.projectId = getCurrentProjectID();
       this.formData.workspaceId = getCurrentWorkspaceId();
       this.formData.value = this.formData.rule;
-      // 设置请求头或 query 参数
-      this.formData.headers = this.headers;
-      this.formData.arguments = this.queryArguments;
-      // 设置 BaseAuth 参数
-      if(this.authConfig.authManager != undefined){
-        this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
-        this.formData.authManager = this.authConfig.authManager;
+      if(this.authEnable){
+        // 设置请求头或 query 参数
+        this.formData.headers = this.headers;
+        this.formData.arguments = this.queryArguments;
+        // 设置 BaseAuth 参数
+        if(this.authConfig.authManager != undefined){
+          this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
+          this.formData.authManager = this.authConfig.authManager;
+        }
+      }else {
+        this.formData.headers = undefined;
+        this.formData.arguments = undefined;
+        this.formData.authManager = undefined;
       }
       let url = '';
       if (this.formData.id) {
@@ -300,7 +311,6 @@ export default {
         this.clear();
       });
     },
-
     intervalShortValidate() {
       if (this.getIntervalTime() < 3 * 60 * 1000) {
         this.$info(this.$t('schedule.cron_expression_interval_short_error'));
@@ -348,7 +358,6 @@ export default {
       this.authConfig = {hashTree: [], authManager: {}};
       this.authEnable = false;
     }
-
   },
   computed: {
     isTesterPermission() {

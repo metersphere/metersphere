@@ -64,7 +64,7 @@ public class ScheduleService {
     }
 
     public void updateSwaggerUrlSchedule(SwaggerUrlProject swaggerUrlProject) {
-        swaggerUrlProjectMapper.updateByPrimaryKeySelective(swaggerUrlProject);
+        swaggerUrlProjectMapper.updateByPrimaryKeyWithBLOBs(swaggerUrlProject);
     }
 
     public ApiSwaggerUrlDTO selectApiSwaggerUrlDTO(String id) {
