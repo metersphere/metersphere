@@ -71,7 +71,7 @@
                                :request="request"/>
       <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
     </div>
-    <api-other-info :api="basisData"/>
+    <api-other-info :api="basisData" ref="apiOtherInfo"/>
 
     <ms-change-history ref="changeHistory"/>
     <el-dialog
@@ -94,6 +94,26 @@
         :method-types="methodTypes"
       ></t-c-p-api-version-diff>
     </el-dialog>
+
+    <el-dialog
+      :title="$t('commons.sync_other_info')"
+      :visible.sync="createNewVersionVisible"
+      :show-close="false"
+      width="30%"
+    >
+      <div>
+        <el-checkbox v-model="basisData.newVersionRemark">{{ $t('commons.remark') }}</el-checkbox>
+        <el-checkbox v-model="basisData.newVersionDeps">{{ $t('commons.relationship.name') }}</el-checkbox>
+      </div>
+
+      <template v-slot:footer>
+        <ms-dialog-footer
+          @cancel="cancelCreateNewVersion"
+          :title="$t('commons.edit_info')"
+          @confirm="saveApi">
+        </ms-dialog-footer>
+      </template>
+    </el-dialog>
   </div>
 
 </template>
@@ -104,9 +124,10 @@ import MsTcpFormatParameters from "../request/tcp/TcpFormatParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import {getCurrentProjectID, getCurrentUser, hasLicense} from "@/common/js/utils";
 import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
-import TCPApiVersionDiff from "./version/TCPApiVersionDiff"
-import {createComponent } from ".././jmeter/components";
-import { TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import TCPApiVersionDiff from "./version/TCPApiVersionDiff";
+import {createComponent} from ".././jmeter/components";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 
 const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -117,6 +138,7 @@ const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./
 export default {
   name: "MsAddCompleteTcpApi",
   components: {
+    MsDialogFooter,
     ApiOtherInfo, MsTcpBasicApi, MsTcpFormatParameters, MsChangeHistory,
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default,
@@ -147,13 +169,13 @@ export default {
       ],
       showXpackCompnent: false,
       versionData: [],
-      dialogVisible:false,
-      newShowFollow:false,
-      newData:{},
-      oldRequest:{},
-      oldResponse:{},
+      dialogVisible: false,
+      newShowFollow: false,
+      newData: {},
+      oldRequest: {},
+      oldResponse: {},
       oldApiProtocol: "TCP",
-
+      createNewVersionVisible: false,
     };
   },
   created: function () {
@@ -421,13 +443,20 @@ export default {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
-            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+            stepArray[i].document = {
+              type: "JSON",
+              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+            };
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sort(stepArray[i].hashTree);
           }
         }
       }
+    },
+    cancelCreateNewVersion() {
+      this.createNewVersionVisible = false;
+      this.getVersionHistory();
     },
     checkout(row) {
       let api = this.versionData.filter(v => v.versionId === row.id)[0];
@@ -439,7 +468,13 @@ export default {
     create(row) {
       // 创建新版本
       this.basisData.versionId = row.id;
-      this.saveApi();
+      this.basisData.newVersionRemark = !!this.basisData.remark;
+      this.basisData.newVersionDeps = this.$refs.apiOtherInfo.relationshipCount > 0;
+      if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.basisData.remark) {
+        this.createNewVersionVisible = true;
+      } else {
+        this.saveApi();
+      }
     },
     del(row) {
       this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
