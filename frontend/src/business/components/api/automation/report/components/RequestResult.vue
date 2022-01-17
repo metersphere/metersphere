@@ -3,7 +3,7 @@
     <div class="request-result">
       <div @click="active" >
         <el-row :gutter="10" type="flex" align="middle" class="info">
-          <el-col :span="10" v-if="indexNumber!=undefined">
+          <el-col class="ms-req-name-col" :span="10" v-if="indexNumber!=undefined">
             <el-tooltip :content="getName(request.name)" placement="top">
               <div class="method ms-req-name">
                 <div class="el-step__icon is-text ms-api-col-create">
@@ -230,11 +230,14 @@ export default {
 .ms-req-name {
   display: inline-block;
   margin: 0 5px;
-  overflow-x: hidden;
   padding-bottom: 0;
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
   width: 350px;
+}
+
+.ms-req-name-col {
+  overflow-x: hidden;
 }
 </style>
