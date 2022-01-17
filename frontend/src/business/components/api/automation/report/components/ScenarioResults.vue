@@ -43,7 +43,15 @@ export default {
       }
       if (!value) return true;
       if (data.value) {
-        return data.value.error > 0;
+        if (value === 'errorReport') {
+          if (data.errorCode && data.errorCode !== "") {
+            return true;
+          }
+        } else {
+          if (!data.errorCode || data.errorCode === "") {
+            return data.value.error > 0;
+          }
+        }
       }
       return false;
     },
