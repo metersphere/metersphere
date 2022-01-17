@@ -40,6 +40,11 @@ public class TestPlanScenarioCaseController {
         return testPlanScenarioCaseService.getFailureCases(planId);
     }
 
+    @GetMapping("/list/errorReport/{planId}")
+    public List<TestPlanFailureScenarioDTO> getErrorReportList(@PathVariable String planId) {
+        return testPlanScenarioCaseService.getErrorReportCases(planId);
+    }
+
     @GetMapping("/list/all/{planId}")
     public List<TestPlanFailureScenarioDTO> getAllList(@PathVariable String planId) {
         return testPlanScenarioCaseService.getAllCases(planId);

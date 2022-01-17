@@ -204,8 +204,16 @@ public class ApiDefinitionExecResultService {
 
             for (RequestResult item : requestResults) {
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                    this.save(item, dto.getReportId(), dto.getConsole(), countExpectProcessResultCount, dto.getRunMode(), dto.getTestId(), isFirst);
+                    ApiDefinitionExecResult reportResult = this.save(item, dto.getReportId(), dto.getConsole(), countExpectProcessResultCount, dto.getRunMode(), dto.getTestId(), isFirst);
                     String status = item.isSuccess() ? "success" : "error";
+                    if(reportResult != null){
+                        status = reportResult.getStatus();
+                    }
+                    //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
+                    RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
+                    if(MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())){
+                        status = expandDTO.getStatus();
+                    }
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseService.getById(dto.getTestId());
                         if (apiCase != null) {

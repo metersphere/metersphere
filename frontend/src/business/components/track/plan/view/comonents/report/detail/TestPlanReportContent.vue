@@ -205,6 +205,10 @@ export default {
               enable: true,
               name: this.$t('test_track.report.fail_case'),
             },
+            errorReport: {
+              enable: true,
+              name: this.$t('error_report_library.option.name'),
+            },
             all: {
               enable: true,
               name: this.$t('test_track.report.all_case'),

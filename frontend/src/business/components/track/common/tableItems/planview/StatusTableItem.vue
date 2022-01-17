@@ -9,6 +9,7 @@
       <ms-tag v-else-if="value == 'Failure'" type="danger" :content="$t('test_track.plan_view.failure')"/>
       <ms-tag v-else-if="value == 'Blocking'" type="warning" :content="$t('test_track.plan_view.blocking')"/>
       <ms-tag v-else-if="value == 'Skip'" type="info" :content="$t('test_track.plan_view.skip')"/>
+      <ms-tag v-else-if="value == 'ErrorReportResult'" type="warning" style="background-color: #F6972A; border-color: #F6972A" :content="$t('error_report_library.option.name')"/>
       <ms-tag v-else type="info" :content="value"/>
     </span>
 </template>
