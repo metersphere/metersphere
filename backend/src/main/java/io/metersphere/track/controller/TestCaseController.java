@@ -34,6 +34,7 @@ import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.service.TestCaseService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -210,6 +211,12 @@ public class TestCaseController {
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, targetClass = TestCaseMapper.class,
             event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestCaseCreate", subject = "测试用例通知")
     public TestCase addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+        if(StringUtils.isBlank(request.getId())){
+            //新增 后端生成 id
+            request.setId(UUID.randomUUID().toString());
+        }else{
+            //复制，前端生成 id
+        }
         return testCaseService.save(request, files);
     }
 

@@ -14,6 +14,7 @@ public class EditTestCaseRequest extends TestCaseWithBLOBs {
     private List<FileMetadata> updatedFileList;
     private List<String> follows;
     private OtherInfoConfig otherInfoConfig;
+    private String oldDataId;
     /**
      * 复制测试用例后，要进行复制的文件Id list
      */
@@ -38,5 +39,16 @@ public class EditTestCaseRequest extends TestCaseWithBLOBs {
         private boolean archive;
         //是否复制依赖
         private boolean dependency;
+
+        public static OtherInfoConfig createDefault() {
+            OtherInfoConfig o = new OtherInfoConfig();
+            o.setArchive(true);
+            o.setRemark(true);
+            o.setRelateTest(true);
+            o.setDependency(true);
+            o.setRelateDemand(true);
+            o.setRelateIssue(true);
+            return o;
+        }
     }
 }

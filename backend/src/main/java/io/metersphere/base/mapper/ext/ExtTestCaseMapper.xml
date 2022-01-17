@@ -94,7 +94,7 @@
         project_version.id as versionId
         from test_case
         left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
-        left join project_version on test_case.version_id = project_version.id and test_casel.project_id = project_version.project_id
+        left join project_version on test_case.version_id = project_version.id and test_case.project_id = project_version.project_id
         <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
