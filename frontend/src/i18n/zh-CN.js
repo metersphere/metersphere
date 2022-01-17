@@ -781,7 +781,7 @@ export default {
       enable: '启用版本管理',
       latest: '最新版',
       set_latest: '设置为最新版本',
-      delete_tip: '此版本已经关联系统资源，删除会导致无法查询到版本信息',
+      delete_tip: '此版本已经关联系统资源，此操作会将所关联的资源一并删除',
       checkout: '切换',
       compare: '对比',
     },

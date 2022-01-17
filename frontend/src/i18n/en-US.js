@@ -777,7 +777,7 @@ export default {
       enable: 'Enable version management',
       latest: 'Latest',
       set_latest: 'Latest',
-      delete_tip: 'This version has been associated with system resources. Deleting it will cause the version information lost',
+      delete_tip: 'This version has associated system resources, this operation will delete the associated resources',
       checkout: 'Checkout',
       compare: 'Compare',
     },
