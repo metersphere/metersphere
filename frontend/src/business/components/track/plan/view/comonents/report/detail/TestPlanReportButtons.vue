@@ -41,6 +41,7 @@ import TestPlanApiReport from "@/business/components/track/plan/view/comonents/r
 import {generateShareInfoWithExpired} from "@/network/share";
 import TestPlanReportEdit
   from "@/business/components/track/plan/view/comonents/report/detail/component/TestPlanReportEdit";
+import {editPlanReport, saveTestPlanReport} from "@/network/test-plan";
 export default {
   name: "TestPlanReportButtons",
   components: {
@@ -80,8 +81,8 @@ export default {
     handleSave() {
       let param = {};
       this.buildParam(param);
-      this.$get('/test/plan/report/saveTestPlanReport/'+this.planId+'/MANUAL', () => {
-        this.result = this.$post('/case/report/edit', param, () => {
+      editPlanReport({id: this.planId, reportSummary: this.report.summary}, () => {
+        saveTestPlanReport(this.planId, () => {
           this.$success(this.$t('commons.save_success'));
         });
       });

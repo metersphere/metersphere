@@ -24,9 +24,13 @@ export function getShareTestPlanReport(shareId, planId, callback) {
   }
 }
 
-export function editPlanReport(param) {
+export function editPlanReport(param, callback) {
   return post('/test/plan/edit/report', param, () => {
-    success(i18n.t('commons.save_success'));
+    if (callback) {
+      callback();
+    } else {
+      success(i18n.t('commons.save_success'));
+    }
   });
 }
 
@@ -144,4 +148,9 @@ export function editTestPlanLoadCaseOrder(request, callback) {
 export function getPlanStageOption(callback) {
   let wId = getCurrentWorkspaceId();
   return wId ? baseGet('/test/plan/get/stage/option/' + wId, callback) : {};
+}
+
+
+export function saveTestPlanReport(planId, callback) {
+  return planId ? baseGet('/test/plan/report/saveTestPlanReport/' + planId + '/MANUAL', callback) : {};
 }
