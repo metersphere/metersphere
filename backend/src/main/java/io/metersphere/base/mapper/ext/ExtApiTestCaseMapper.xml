@@ -416,6 +416,26 @@
         <if test="request.versionId != null">
             AND t1.version_id = #{request.versionId}
         </if>
+        <if test="request.versionId == null and request.refId == null and request.id == null">
+            AND (
+            t1.version_id = (SELECT project_version.id
+            FROM api_definition tmp
+            JOIN project_version
+            ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+            WHERE ref_id = a.ref_id
+            LIMIT 1)
+            OR
+            t1.version_id = (SELECT project_version.id
+            FROM api_definition tmp
+            JOIN project_version ON tmp.project_id = project_version.project_id AND
+            tmp.version_id = project_version.id
+            WHERE ref_id = a.ref_id
+            GROUP BY ref_id
+            HAVING MAX(latest) = 0
+            ORDER BY MAX(project_version.create_time) DESC
+            LIMIT 1)
+            )
+        </if>
         GROUP BY  t1.id,
         t1.project_id,
         t1.name,
