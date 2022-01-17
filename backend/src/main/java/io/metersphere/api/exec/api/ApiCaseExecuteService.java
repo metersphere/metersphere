@@ -74,6 +74,7 @@ public class ApiCaseExecuteService {
             request.getConfig().setEnvMap(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));
         }
         LoggerUtil.debug("开始查询测试计划用例");
+
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andIdIn(ids);
         example.setOrderByClause("`order` DESC");
@@ -84,8 +85,8 @@ public class ApiCaseExecuteService {
             request.setTriggerMode(ApiRunMode.API_PLAN.name());
         }
 
+        Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
-        Map<String, ApiDefinitionExecResult> executeQueue = new HashMap<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
         planApiCases.forEach(testPlanApiCase -> {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, batchMapper);
