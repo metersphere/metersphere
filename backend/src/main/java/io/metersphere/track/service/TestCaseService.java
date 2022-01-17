@@ -194,18 +194,11 @@ public class TestCaseService {
         request.setCreateUser(SessionUtils.getUserId());
         this.setNode(request);
         request.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extTestCaseMapper::getLastOrder));
-        //直接点保存
+        //直接点保存 || 复制走的逻辑
         if (StringUtils.isAllBlank(request.getRefId(), request.getVersionId())) {
             //新创建测试用例，默认使用最新版本
             request.setRefId(request.getId());
-            ProjectVersionRequest pvr = new ProjectVersionRequest();
-            pvr.setProjectId(request.getProjectId());
-            pvr.setLatest(true);
-            List<ProjectVersionDTO> pvs = projectVersionService.getVersionList(pvr);
-            if (pvs.size() == 0) {
-                MSException.throwException(Translator.get("no_version_exists"));
-            }
-            request.setVersionId(pvs.get(0).getId());
+            request.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
         } else if (StringUtils.isBlank(request.getRefId()) && StringUtils.isNotBlank(request.getVersionId())) {
             //从版本选择直接创建
             request.setRefId(request.getId());
@@ -214,6 +207,14 @@ public class TestCaseService {
         testCaseMapper.insert(request);
         saveFollows(request.getId(), request.getFollows());
         return request;
+    }
+
+    private void dealWithCopyOtherInfo(TestCaseWithBLOBs testCase, String oldTestCaseId) {
+        EditTestCaseRequest request = new EditTestCaseRequest();
+        BeanUtils.copyBean(request, testCase);
+        EditTestCaseRequest.OtherInfoConfig otherInfoConfig = EditTestCaseRequest.OtherInfoConfig.createDefault();
+        request.setOtherInfoConfig(otherInfoConfig);
+        DealWithOtherInfo(request, oldTestCaseId);
     }
 
     public void saveFollows(String caseId, List<String> follows) {
@@ -302,7 +303,7 @@ public class TestCaseService {
             testCase.setCreateUser(SessionUtils.getUserId());
             testCase.setOrder(oldTestCase.getOrder());
             testCase.setRefId(oldTestCase.getRefId());
-            DealWithOtherInfo(testCase, oldTestCase);
+            DealWithOtherInfo(testCase, oldTestCase.getId());
             testCaseMapper.insertSelective(testCase);
         }
     }
@@ -311,9 +312,9 @@ public class TestCaseService {
      * 处理其他信息的复制问题
      *
      * @param testCase
-     * @param oldTestCase
+     * @param oldTestCaseId
      */
-    private void DealWithOtherInfo(EditTestCaseRequest testCase, TestCaseWithBLOBs oldTestCase) {
+    private void DealWithOtherInfo(EditTestCaseRequest testCase, String oldTestCaseId) {
         EditTestCaseRequest.OtherInfoConfig otherInfoConfig = testCase.getOtherInfoConfig();
         if (otherInfoConfig != null) {
             if (!otherInfoConfig.isRemark()) {
@@ -324,7 +325,7 @@ public class TestCaseService {
                 testCase.setDemandName(null);
             }
             if (otherInfoConfig.isRelateIssue()) {
-                List<IssuesDao> issuesDaos = issuesService.getIssues(oldTestCase.getId());
+                List<IssuesDao> issuesDaos = issuesService.getIssues(oldTestCaseId);
                 if (CollectionUtils.isNotEmpty(issuesDaos)) {
                     issuesDaos.forEach(issue -> {
                         TestCaseIssues t = new TestCaseIssues();
@@ -336,7 +337,7 @@ public class TestCaseService {
                 }
             }
             if (otherInfoConfig.isRelateTest()) {
-                List<TestCaseTestDao> testCaseTestDaos = getRelateTest(oldTestCase.getId());
+                List<TestCaseTestDao> testCaseTestDaos = getRelateTest(oldTestCaseId);
                 if (CollectionUtils.isNotEmpty(testCaseTestDaos)) {
                     testCaseTestDaos.forEach(test -> {
                         test.setTestCaseId(testCase.getId());
@@ -345,7 +346,7 @@ public class TestCaseService {
                 }
             }
             if (otherInfoConfig.isArchive()) {
-                List<FileMetadata> files = fileService.getFileMetadataByCaseId(oldTestCase.getId());
+                List<FileMetadata> files = fileService.getFileMetadataByCaseId(oldTestCaseId);
                 if (CollectionUtils.isNotEmpty(files)) {
                     files.forEach(file -> {
                         TestCaseFile testCaseFile = new TestCaseFile();
@@ -356,8 +357,8 @@ public class TestCaseService {
                 }
             }
             if (otherInfoConfig.isDependency()) {
-                List<RelationshipEdge> preRelations = relationshipEdgeService.getRelationshipEdgeByType(testCase.getId(), "PRE");
-                List<RelationshipEdge> postRelations = relationshipEdgeService.getRelationshipEdgeByType(testCase.getId(), "POST");
+                List<RelationshipEdge> preRelations = relationshipEdgeService.getRelationshipEdgeByType(oldTestCaseId, "PRE");
+                List<RelationshipEdge> postRelations = relationshipEdgeService.getRelationshipEdgeByType(oldTestCaseId, "POST");
                 if (CollectionUtils.isNotEmpty(preRelations)) {
                     preRelations.forEach(relation -> {
                         relation.setSourceId(testCase.getId());
@@ -2351,6 +2352,7 @@ public class TestCaseService {
             for (int i = 0; i < testCases.size(); i++) {
                 TestCaseWithBLOBs testCase = testCases.get(i);
                 String id = UUID.randomUUID().toString();
+                String oldTestCaseId = testCase.getId();
                 testCase.setId(id);
                 testCase.setName(ServiceUtils.getCopyName(testCase.getName()));
                 testCase.setNodeId(request.getNodeId());
@@ -2361,6 +2363,8 @@ public class TestCaseService {
                 testCase.setCasePublic(false);
                 testCase.setRefId(id);
                 mapper.insert(testCase);
+
+                dealWithCopyOtherInfo(testCase, oldTestCaseId);
                 if (i % 50 == 0)
                     sqlSession.flushStatements();
             }
