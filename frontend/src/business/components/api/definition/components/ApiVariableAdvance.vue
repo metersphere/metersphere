@@ -24,7 +24,7 @@
               <el-row>
                 <el-col :span="12">
                   <el-radio size="mini" v-model="itemFunc.name" :label="func.name"
-                            @change="methodChange(itemFunc, func)"/>
+                            @change="methodChange(itemFunc, func)" @click.native.prevent="radioClick(itemFunc, func)"/>
                 </el-col>
                 <el-col :span="12" v-if="itemFunc.name === func.name">
                   <div v-for="(p, pIndex) in itemFunc.params" :key="`${itemIndex}-${funcIndex}-${pIndex}`">
@@ -324,6 +324,17 @@
         // 这里要用 deep copy
         this.mockVariableFuncs.push(JSON.parse(JSON.stringify(func)));
         this.showPreview();
+      },
+      radioClick(itemFunc, func) {
+        if (itemFunc.name === func.name) {
+          let index = this.mockVariableFuncs.indexOf(itemFunc);
+          this.mockVariableFuncs = this.mockVariableFuncs.slice(0, index);
+          this.mockVariableFuncs.push({name: '', params: []});
+          let valindex = this.itemValue.indexOf('|'+func.name);
+          this.itemValue = this.itemValue.slice(0,valindex);
+        }else {
+          this.methodChange(itemFunc, func);
+        }
       },
       addFunc() {
         if(this.itemValue.indexOf('@') == -1){
