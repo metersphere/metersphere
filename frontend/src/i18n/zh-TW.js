@@ -781,7 +781,7 @@ export default {
       enable: '啟用版本管理',
       latest: '最新版',
       set_latest: '設置為最新版本',
-      delete_tip: '此版本已經關聯繫統資源，刪除會導致無法查詢到版本信息',
+      delete_tip: '此版本已經關聯繫統資源，此操作會將所關聯的資源一併刪除',
       checkout: '切換',
       compare: '對比',
     },

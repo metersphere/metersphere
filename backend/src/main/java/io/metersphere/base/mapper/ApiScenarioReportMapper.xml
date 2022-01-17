@@ -17,6 +17,7 @@
     <result column="actuator" jdbcType="VARCHAR" property="actuator" />
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
     <result column="report_version" jdbcType="INTEGER" property="reportVersion" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioReport">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -81,7 +82,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, create_time, update_time, `status`, user_id, trigger_mode, 
-    execute_type, scenario_name, scenario_id, create_user, actuator, end_time, report_version
+    execute_type, scenario_name, scenario_id, create_user, actuator, end_time, report_version, 
+    version_id
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -135,18 +137,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReport">
-    insert into api_scenario_report (id, project_id, `name`, 
+    INSERT INTO api_scenario_report (id, project_id, `name`,
       create_time, update_time, `status`, 
       user_id, trigger_mode, execute_type, 
       scenario_name, scenario_id, create_user, 
       actuator, end_time, report_version, 
-      description)
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      version_id, description)
+    VALUES (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{executeType,jdbcType=VARCHAR}, 
       #{scenarioName,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{actuator,jdbcType=VARCHAR}, #{endTime,jdbcType=BIGINT}, #{reportVersion,jdbcType=INTEGER}, 
-      #{description,jdbcType=LONGVARCHAR})
+      #{versionId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     insert into api_scenario_report
@@ -195,6 +197,9 @@
       </if>
       <if test="reportVersion != null">
         report_version,
+      </if>
+      <if test="versionId != null">
+        version_id,
       </if>
       <if test="description != null">
         description,
@@ -245,6 +250,9 @@
       </if>
       <if test="reportVersion != null">
         #{reportVersion,jdbcType=INTEGER},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -305,6 +313,9 @@
       <if test="record.reportVersion != null">
         report_version = #{record.reportVersion,jdbcType=INTEGER},
       </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -330,6 +341,7 @@
       actuator = #{record.actuator,jdbcType=VARCHAR},
       end_time = #{record.endTime,jdbcType=BIGINT},
       report_version = #{record.reportVersion,jdbcType=INTEGER},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -351,7 +363,8 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       actuator = #{record.actuator,jdbcType=VARCHAR},
       end_time = #{record.endTime,jdbcType=BIGINT},
-      report_version = #{record.reportVersion,jdbcType=INTEGER}
+      report_version = #{record.reportVersion,jdbcType=INTEGER},
+      version_id = #{record.versionId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -401,6 +414,9 @@
       <if test="reportVersion != null">
         report_version = #{reportVersion,jdbcType=INTEGER},
       </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -423,6 +439,7 @@
       actuator = #{actuator,jdbcType=VARCHAR},
       end_time = #{endTime,jdbcType=BIGINT},
       report_version = #{reportVersion,jdbcType=INTEGER},
+      version_id = #{versionId,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -441,7 +458,8 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       actuator = #{actuator,jdbcType=VARCHAR},
       end_time = #{endTime,jdbcType=BIGINT},
-      report_version = #{reportVersion,jdbcType=INTEGER}
+      report_version = #{reportVersion,jdbcType=INTEGER},
+      version_id = #{versionId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
