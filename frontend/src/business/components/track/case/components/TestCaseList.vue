@@ -147,7 +147,7 @@
           :label="$t('project.version.name')"
           :field="item"
           :fields-width="fieldsWidth"
-          :filters="versionFilters"
+          :filters="!publicEnable ? versionFilters : null"
           min-width="100px"
           prop="versionId">
            <template v-slot:default="scope">

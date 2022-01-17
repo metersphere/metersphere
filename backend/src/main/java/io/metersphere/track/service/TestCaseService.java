@@ -1460,6 +1460,7 @@ public class TestCaseService {
                 TestCaseWithBLOBs batchCopy = new TestCaseWithBLOBs();
                 BeanUtils.copyBean(batchCopy, list.get(i));
                 checkTestCaseExist(batchCopy);
+                String oldTestCaseId = batchCopy.getId();
                 String id = UUID.randomUUID().toString();
                 batchCopy.setId(id);
                 batchCopy.setName(ServiceUtils.getCopyName(batchCopy.getName()));
@@ -1482,6 +1483,7 @@ public class TestCaseService {
                 batchCopy.setCustomNum(String.valueOf(nextNum));
                 batchCopy.setNum(nextNum++);
                 mapper.insert(batchCopy);
+                dealWithCopyOtherInfo(batchCopy, oldTestCaseId);
                 if (i % 50 == 0)
                     sqlSession.flushStatements();
             }
