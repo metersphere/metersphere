@@ -778,6 +778,8 @@ export default {
       latest: 'Latest',
       set_latest: 'Latest',
       delete_tip: 'This version has been associated with system resources. Deleting it will cause the version information lost',
+      checkout: 'Checkout',
+      compare: 'Compare',
     },
     timing_clean_plan_report: "Regularly clean up test report",
     timing_clean_api_report: "Regularly clean up api report",
