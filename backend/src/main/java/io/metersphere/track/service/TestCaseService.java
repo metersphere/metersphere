@@ -967,12 +967,7 @@ public class TestCaseService {
             boolean importFileNeedNum = true;
             TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
             TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(request.getProjectId());
-            List<CustomFieldDao> customFields = null;
-            if (testCaseTemplate == null) {
-                customFields = new ArrayList<>();
-            } else {
-                customFields = testCaseTemplate.getCustomFields();
-            }
+            List<CustomFieldDao> customFields = Optional.ofNullable(testCaseTemplate.getCustomFields()).orElse(new ArrayList<>());
 
             List<List<String>> headList = testCaseExcelData.getHead(importFileNeedNum, customFields);
             List<List<Object>> testCaseDataByExcelList = this.generateTestCaseExcel(headList,datas);
@@ -1048,18 +1043,16 @@ public class TestCaseService {
 
         for(TestCaseExcelData model : datas){
             List<Object> list = new ArrayList<>();
-            Map<String,String> customDataMaps = model.getCustomDatas();
-            if(customDataMaps == null){
-                customDataMaps = new HashMap<>();
-            }
+            Map<String,String> customDataMaps = Optional.ofNullable(model.getCustomDatas()).orElse(new HashMap<>());
+
             for(String head : headList){
                 if(StringUtils.equalsAnyIgnoreCase(head,"ID")){
                     list.add(model.getCustomNum());
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Name","用例名稱","用例名称")){
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Name","用例名稱","用例名称")){
                     list.add(model.getName());
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Module","所屬模塊","所属模块")){
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Module","所屬模塊","所属模块")){
                     list.add(model.getNodePath());
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Tag","標簽","标签")){
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Tag","標簽","标签")){
                     String tags = "";
                     try {
                         if(model.getTags()!=null){
@@ -1070,29 +1063,24 @@ public class TestCaseService {
                         }
                     }catch (Exception e){}
                     list.add(tags);
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Prerequisite","前置條件","前置条件")){
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Prerequisite","前置條件","前置条件")){
                     list.add(model.getPrerequisite());
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Remark","備註","备注")){
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Remark","備註","备注")){
                     list.add(model.getRemark());
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Step description","步驟描述","步骤描述")){
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Step description","步驟描述","步骤描述")){
                     list.add(model.getStepDesc());
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Step result","預期結果","预期结果")){
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Step result","預期結果","预期结果")){
                     list.add(model.getStepResult());
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Edit Model","編輯模式","编辑模式")){
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Edit Model","編輯模式","编辑模式")){
                     list.add(model.getStepModel());
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"Priority","用例等級","用例等级")){
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Priority","用例等級","用例等级")){
                     list.add(model.getPriority());
-//                }else if(StringUtils.equalsAnyIgnoreCase(head,"Case status","用例状态","用例狀態")){
-//                    list.add(model.getStatus());
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Case status","用例状态","用例狀態")){
+                    list.add(model.getStatus());
                 } else if (StringUtils.equalsAnyIgnoreCase(head, "Maintainer(ID)", "责任人(ID)", "維護人(ID)")) {
-                    String value = customDataMaps.get("责任人");
-                    value = value == null ? "" : value;
-                    list.add(value);
+                    list.add(model.getMaintainer());
                 } else {
-                    String value = customDataMaps.get(head);
-                    if (value == null) {
-                        value = "";
-                    }
+                    String value = Optional.ofNullable(customDataMaps.get(head)).orElse("");
                     list.add(value);
                 }
             }
