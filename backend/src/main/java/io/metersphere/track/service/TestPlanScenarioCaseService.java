@@ -15,6 +15,7 @@ import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
@@ -450,15 +451,13 @@ public class TestPlanScenarioCaseService {
         for (PlanReportCaseDTO item : planReportCaseDTOS) {
             calculateScenarioResultDTO(item, stepCount);
         }
-
         int underwayStepsCounts = getUnderwayStepsCounts(stepCount.getUnderwayIds());
-
         List<TestCaseReportStatusResultDTO> stepResult = new ArrayList<>();
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Failure.name(), stepCount.getScenarioStepError(), stepResult);
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Pass.name(), stepCount.getScenarioStepSuccess(), stepResult);
+        getScenarioCaseReportStatusResultDTO(ExecuteResult.errorReportResult.name(), stepCount.getScenarioStepErrorReport(), stepResult);
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Underway.name(),
-                stepCount.getScenarioStepTotal() - stepCount.getScenarioStepSuccess() - stepCount.getScenarioStepError() + underwayStepsCounts, stepResult);
-
+                stepCount.getScenarioStepTotal() - stepCount.getScenarioStepSuccess() - stepCount.getScenarioStepError() -stepCount.getScenarioStepErrorReport() + underwayStepsCounts, stepResult);
         apiResult.setApiScenarioData(statusResult);
         apiResult.setApiScenarioStepData(stepResult);
     }
@@ -488,6 +487,7 @@ public class TestPlanScenarioCaseService {
                     stepCount.setScenarioStepTotal(stepCount.getScenarioStepTotal() + jsonObject.getIntValue("scenarioStepTotal"));
                     stepCount.setScenarioStepSuccess(stepCount.getScenarioStepSuccess() + jsonObject.getIntValue("scenarioStepSuccess"));
                     stepCount.setScenarioStepError(stepCount.getScenarioStepError() + jsonObject.getIntValue("scenarioStepError"));
+                    stepCount.setScenarioStepErrorReport(stepCount.getScenarioStepErrorReport() + jsonObject.getIntValue("scenarioStepErrorReport"));
                 }
             }
         } else {
@@ -583,4 +583,9 @@ public class TestPlanScenarioCaseService {
                 testPlanApiScenarioMapper::updateByPrimaryKeySelective);
     }
 
+    public List<TestPlanFailureScenarioDTO> getErrorReportCases(String planId) {
+        List<TestPlanFailureScenarioDTO> apiTestCases =
+                extTestPlanScenarioCaseMapper.getFailureList(planId, ExecuteResult.errorReportResult.name());
+        return buildCases(apiTestCases);
+    }
 }

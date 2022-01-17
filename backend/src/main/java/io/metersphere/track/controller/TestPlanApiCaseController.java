@@ -40,6 +40,11 @@ public class TestPlanApiCaseController {
         return testPlanApiCaseService.getFailureCases(planId);
     }
 
+    @GetMapping("/list/errorReport/{planId}")
+    public List<TestPlanFailureApiDTO> getErrorReportList(@PathVariable String planId) {
+        return testPlanApiCaseService.getErrorReportCases(planId);
+    }
+
     @GetMapping("/list/all/{planId}")
     public List<TestPlanFailureApiDTO> getAllList(@PathVariable String planId) {
         return testPlanApiCaseService.getAllCases(planId);

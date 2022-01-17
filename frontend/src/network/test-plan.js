@@ -72,9 +72,12 @@ export function getSharePlanFunctionAllCase(shareId, planId, callback) {
   return planId ? baseGet('/share/test/plan/case/list/all/' + shareId + '/' + planId, callback) : {};
 }
 
-
 export function getPlanScenarioFailureCase(planId, callback) {
   return planId ? baseGet('/test/plan/scenario/case/list/failure/' + planId, callback) : {};
+}
+
+export function getPlanScenarioErrorReportCase(planId, callback) {
+  return planId ? baseGet('/test/plan/scenario/case/list/errorReport/' + planId, callback) : {};
 }
 
 export function getPlanScenarioAllCase(planId, callback) {
@@ -89,16 +92,27 @@ export function getSharePlanScenarioAllCase(shareId, planId, callback) {
   return planId ? baseGet('/share/test/plan/scenario/case/list/all/' + shareId + '/' + planId, callback) : {};
 }
 
+export function getSharePlanScenarioErrorReportCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/scenario/case/list/errorReport/' + shareId + '/' + planId, callback) : {};
+}
+
 export function getPlanApiFailureCase(planId, callback) {
   return planId ? baseGet('/test/plan/api/case/list/failure/' + planId, callback) : {};
 }
 
+export function getPlanApiErrorReportCase(planId, callback) {
+  return planId ? baseGet('/test/plan/api/case/list/errorReport/' + planId, callback) : {};
+}
 export function getPlanApiAllCase(planId, callback) {
   return planId ? baseGet('/test/plan/api/case/list/all/' + planId, callback) : {};
 }
 
 export function getSharePlanApiFailureCase(shareId, planId, callback) {
   return planId ? baseGet('/share/test/plan/api/case/list/failure/' + shareId + '/' + planId, callback) : {};
+}
+
+export function getSharePlanApiErrorReportCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/api/case/list/errorReport/' + shareId + '/' + planId, callback) : {};
 }
 
 export function getSharePlanApiAllCase(shareId, planId, callback) {
