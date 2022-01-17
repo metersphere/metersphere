@@ -961,9 +961,13 @@ export default {
     },
     getVersionHistory(param) {
       this.$get('/test/case/versions/' + this.currentTestCaseInfo.id, response => {
-        for (let i = 0; i < response.data.length; i++) {
-          this.currentProjectId = response.data[i].projectId;
+        if (response.data.length > 0) {
+          for (let i = 0; i < response.data.length; i++) {
+              this.currentProjectId = response.data[i].projectId;
           }
+        } else {
+          this.currentProjectId = getCurrentProjectID();
+        }
         this.versionData = response.data;
         this.$refs.versionHistory.cancelOtherInfo();
         this.$refs.versionHistory.loading = false;
