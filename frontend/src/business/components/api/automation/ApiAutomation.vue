@@ -500,9 +500,11 @@ export default {
     changeVersion(currentVersion) {
       if (this.$refs.apiScenarioList) {
         this.$refs.apiScenarioList.condition.versionId = currentVersion || null;
+        this.$refs.apiScenarioList.getVersionOptions(currentVersion);
       }
       if (this.$refs.apiTrashScenarioList) {
         this.$refs.apiTrashScenarioList.condition.versionId = currentVersion || null;
+        this.$refs.apiTrashScenarioList.getVersionOptions(currentVersion);
       }
       this.refresh();
     }
