@@ -43,7 +43,7 @@
     <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
     <ms-basis-parameters :showScript="false" :request="request"/>
 
-    <api-other-info :api="basisData"/>
+    <api-other-info :api="basisData" ref="apiOtherInfo"/>
 
     <ms-change-history ref="changeHistory"/>
 
@@ -63,6 +63,25 @@
       ></s-q-l-api-version-diff>
     </el-dialog>
 
+    <el-dialog
+      :title="$t('commons.sync_other_info')"
+      :visible.sync="createNewVersionVisible"
+      :show-close="false"
+      width="30%"
+    >
+      <div>
+        <el-checkbox v-model="basisData.newVersionRemark">{{ $t('commons.remark') }}</el-checkbox>
+        <el-checkbox v-model="basisData.newVersionDeps">{{ $t('commons.relationship.name') }}</el-checkbox>
+      </div>
+
+      <template v-slot:footer>
+        <ms-dialog-footer
+          @cancel="cancelCreateNewVersion"
+          :title="$t('commons.edit_info')"
+          @confirm="saveApi">
+        </ms-dialog-footer>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -72,9 +91,10 @@ import MsBasisParameters from "../request/database/BasisParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
 import {getCurrentUser, hasLicense} from "@/common/js/utils";
-import SQLApiVersionDiff from "./version/SQLApiVersionDiff"
-import {createComponent } from ".././jmeter/components";
-import { TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import SQLApiVersionDiff from "./version/SQLApiVersionDiff";
+import {createComponent} from ".././jmeter/components";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -84,6 +104,7 @@ const {Body} = require("@/business/components/api/definition/model/ApiTestModel"
 export default {
   name: "MsApiSqlRequestForm",
   components: {
+    MsDialogFooter,
     ApiOtherInfo,
     MsBasisApi, MsBasisParameters, MsChangeHistory,
     'MsVersionHistory': versionHistory.default,
@@ -123,12 +144,13 @@ export default {
     return {
       validated: false,
       showFollow: false,
-      dialogVisible:false,
-      newShowFollow:false,
+      dialogVisible: false,
+      newShowFollow: false,
       versionData: [],
-      newData:{},
-      oldRequest:{},
-      oldResponse:{}
+      newData: {},
+      oldRequest: {},
+      oldResponse: {},
+      createNewVersionVisible: false,
     };
   },
   created() {
@@ -299,13 +321,20 @@ export default {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
-            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+            stepArray[i].document = {
+              type: "JSON",
+              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+            };
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sort(stepArray[i].hashTree);
           }
         }
       }
+    },
+    cancelCreateNewVersion() {
+      this.createNewVersionVisible = false;
+      this.getVersionHistory();
     },
     checkout(row) {
       let api = this.versionData.filter(v => v.versionId === row.id)[0];
@@ -316,9 +345,14 @@ export default {
     },
     create(row) {
       // 创建新版本
-
       this.basisData.versionId = row.id;
-      this.saveApi();
+      this.basisData.newVersionRemark = !!this.basisData.remark;
+      this.basisData.newVersionDeps = this.$refs.apiOtherInfo.relationshipCount > 0;
+      if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.basisData.remark) {
+        this.createNewVersionVisible = true;
+      } else {
+        this.saveApi();
+      }
     },
     del(row) {
       this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
