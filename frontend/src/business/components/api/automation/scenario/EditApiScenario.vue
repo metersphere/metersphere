@@ -773,7 +773,8 @@ export default {
       if (e.data && e.data.startsWith("result_")) {
         let data = JSON.parse(e.data.substring(7));
         this.reqTotal += 1;
-        this.reqTotalTime += (data.endTime - data.startTime);
+        let time = data.endTime - data.startTime;
+        this.reqTotalTime += time > 0 ? time : 0;
         if (data.error === 0) {
           this.reqSuccess += 1;
         } else {
