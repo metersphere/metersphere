@@ -249,7 +249,7 @@ import MsApiCaseRunModeWithEnv from "./ApiCaseRunModeWithEnv";
 
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
-import {getBodyUploadFiles, getCurrentProjectID, getUUID, hasLicense, strMapToObj} from "@/common/js/utils";
+import {getBodyUploadFiles, getCurrentProjectID, getUUID, hasLicense} from "@/common/js/utils";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -500,6 +500,8 @@ export default {
     currentVersion() {
       this.condition.versionId = this.currentVersion;
       this.initTable();
+      // 选择了版本过滤，版本列上的checkbox也进行过滤
+      this.getVersionOptions(this.currentVersion);
     },
     trashEnable() {
       if (this.trashEnable) {
@@ -1191,12 +1193,18 @@ export default {
         this.$emit('runRefresh', {});
       });
     },
-    getVersionOptions() {
+    getVersionOptions(currentVersion) {
       if (hasLicense()) {
         this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
+          if (currentVersion) {
+            this.versionFilters = response.data.filter(u => u.id === currentVersion).map(u => {
+              return {text: u.name, value: u.id};
+            });
+          } else {
+            this.versionFilters = response.data.map(u => {
+              return {text: u.name, value: u.id};
+            });
+          }
         });
       }
     },
