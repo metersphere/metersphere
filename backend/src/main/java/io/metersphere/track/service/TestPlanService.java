@@ -166,8 +166,6 @@ public class TestPlanService {
     @Resource
     private ApiDefinitionService apiDefinitionService;
     @Resource
-    private IssueTemplateService issueTemplateService;
-    @Resource
     private PerformanceReportService performanceReportService;
     @Resource
     private MetricQueryService metricQueryService;
@@ -1461,37 +1459,9 @@ public class TestPlanService {
                 }
                 report.setScenarioAllCases(scenarioAllCases);
             }
-            if (checkReportConfig(config, "api", "failure")) {
-                // 接口
-                List<TestPlanFailureApiDTO> apiFailureCases = null;
-                if (!CollectionUtils.isEmpty(apiAllCases)) {
-                    apiFailureCases = apiAllCases.stream()
-                            .filter(i -> StringUtils.isNotBlank(i.getExecResult())
-                                    && i.getExecResult().equals("error"))
-                            .collect(Collectors.toList());
-                } else {
-                    apiFailureCases = testPlanApiCaseService.getFailureCases(planId);
-                }
-                if (saveResponse) {
-                    buildApiResponse(apiFailureCases);
-                }
-                report.setApiFailureCases(apiFailureCases);
-
-                // 场景
-                List<TestPlanFailureScenarioDTO> scenarioFailureCases = null;
-                if (!CollectionUtils.isEmpty(scenarioAllCases)) {
-                    scenarioFailureCases = scenarioAllCases.stream()
-                            .filter(i -> StringUtils.isNotBlank(i.getLastResult())
-                                    && i.getLastResult().equals("Fail"))
-                            .collect(Collectors.toList());
-                } else {
-                    scenarioFailureCases = testPlanScenarioCaseService.getFailureCases(planId);
-                }
-                if (saveResponse) {
-                    buildScenarioResponse(scenarioFailureCases);
-                }
-                report.setScenarioFailureCases(scenarioFailureCases);
-            }
+            //筛选符合配置需要的执行结果的用例和场景
+            this.screenApiCaseByStatusAndReportConfig(report, apiAllCases, config);
+            this.screenScenariosByStatusAndReportConfig(report, scenarioAllCases, config);
         }
     }
 
@@ -1651,26 +1621,51 @@ public class TestPlanService {
                     report.setScenarioAllCases(scenarioAllCases);
                 }
             }
-            if (checkReportConfig(config, "api", "failure")) {
-                // 接口
-                List<TestPlanFailureApiDTO> apiFailureCases = null;
-                if (!CollectionUtils.isEmpty(apiAllCases)) {
-                    apiFailureCases = apiAllCases.stream()
-                            .filter(i -> StringUtils.isNotBlank(i.getExecResult())
-                                    && i.getExecResult().equals("error"))
-                            .collect(Collectors.toList());
-                }
-                report.setApiFailureCases(apiFailureCases);
 
-                // 场景
-                List<TestPlanFailureScenarioDTO> scenarioFailureCases = null;
-                if (!CollectionUtils.isEmpty(scenarioAllCases)) {
-                    scenarioFailureCases = scenarioAllCases.stream()
-                            .filter(i -> StringUtils.isNotBlank(i.getLastResult())
-                                    && i.getLastResult().equals("Fail"))
-                            .collect(Collectors.toList());
+            //筛选符合配置需要的执行结果的用例和场景
+            this.screenApiCaseByStatusAndReportConfig(report, apiAllCases, config);
+            this.screenScenariosByStatusAndReportConfig(report, scenarioAllCases, config);
+        }
+    }
+
+    private void screenScenariosByStatusAndReportConfig(TestPlanSimpleReportDTO report, List<TestPlanFailureScenarioDTO> scenarios, JSONObject reportConfig) {
+
+        if (!CollectionUtils.isEmpty(scenarios)) {
+            List<TestPlanFailureScenarioDTO> failureScenarios = new ArrayList<>();
+            List<TestPlanFailureScenarioDTO> errorReportScenarios = new ArrayList<>();
+            for (TestPlanFailureScenarioDTO scenario : scenarios) {
+                if (StringUtils.equalsIgnoreCase(scenario.getLastResult(), "Fail")) {
+                    failureScenarios.add(scenario);
+                } else if (StringUtils.equalsIgnoreCase(scenario.getLastResult(), ExecuteResult.errorReportResult.name())) {
+                    errorReportScenarios.add(scenario);
                 }
-                report.setScenarioFailureCases(scenarioFailureCases);
+            }
+            if (checkReportConfig(reportConfig, "api", "failure")) {
+                report.setScenarioFailureCases(failureScenarios);
+            }
+            if (checkReportConfig(reportConfig, "api", "errorReport")) {
+                report.setErrorReportScenarios(errorReportScenarios);
+            }
+        }
+    }
+
+    private void screenApiCaseByStatusAndReportConfig(TestPlanSimpleReportDTO report, List<TestPlanFailureApiDTO> apiAllCases, JSONObject reportConfig) {
+        if (!CollectionUtils.isEmpty(apiAllCases)) {
+            List<TestPlanFailureApiDTO> apiFailureCases = new ArrayList<>();
+            List<TestPlanFailureApiDTO> apiErrorReportCases = new ArrayList<>();
+            for (TestPlanFailureApiDTO apiDTO : apiAllCases) {
+                if (StringUtils.equalsIgnoreCase(apiDTO.getExecResult(), "error")) {
+                    apiFailureCases.add(apiDTO);
+                } else if (StringUtils.equalsIgnoreCase(apiDTO.getExecResult(), ExecuteResult.errorReportResult.name())) {
+                    apiErrorReportCases.add(apiDTO);
+                }
+            }
+
+            if (checkReportConfig(reportConfig, "api", "failure")) {
+                report.setApiFailureCases(apiFailureCases);
+            }
+            if (checkReportConfig(reportConfig, "api", "errorReport")) {
+                report.setErrorReportCases(apiErrorReportCases);
             }
         }
     }

@@ -190,3 +190,6 @@ SET ref_id = id;
 UPDATE test_case
     INNER JOIN project_version ON project_version.project_id = test_case.project_id
     SET version_id = project_version.id;
+
+ALTER TABLE `test_plan_report_content` ADD COLUMN `error_report_cases` LONGTEXT COMMENT '误报状态接口用例';
+ALTER TABLE `test_plan_report_content` ADD COLUMN `error_report_scenarios` LONGTEXT COMMENT '误报状态场景用例';
