@@ -162,8 +162,9 @@ export default {
           if (item.enable) {
             item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
             let name = item.name ? item.name : this.getType(item.type);
+            let id = item.type === 'JSR223Processor' || !item.id ? item.resourceId : item.id
             let obj = {
-              pid: pid, resId: (item.type === 'JSR223Processor' ? item.resourceId : item.id) + "_" + item.parentIndex, index: Number(item.index), label: name,
+              pid: pid, resId: id + "_" + item.parentIndex, index: Number(item.index), label: name,
               value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true
             };
             tree.children.push(obj);
