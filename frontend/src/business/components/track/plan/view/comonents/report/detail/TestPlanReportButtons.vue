@@ -81,7 +81,7 @@ export default {
     handleSave() {
       let param = {};
       this.buildParam(param);
-      editPlanReport({id: this.planId, reportSummary: this.report.summary}, () => {
+      editPlanReport({id: this.planId, reportSummary: this.report.summary ? this.report.summary : ''}, () => {
         saveTestPlanReport(this.planId, () => {
           this.$success(this.$t('commons.save_success'));
         });
