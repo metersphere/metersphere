@@ -782,6 +782,8 @@ export default {
       latest: '最新版',
       set_latest: '设置为最新版本',
       delete_tip: '此版本已经关联系统资源，删除会导致无法查询到版本信息',
+      checkout: '切换',
+      compare: '对比',
     },
     timing_clean_plan_report: "定时清理测试计划报告",
     timing_clean_api_report: "定时清理接口测试报告",
