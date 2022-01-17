@@ -27,13 +27,16 @@
                         v-permission="['PROJECT_CUSTOM_CODE:READ']">
             {{ $t('project.code_segment.code_segment') }}
           </el-menu-item>
-          <el-menu-item :index="'/project/errorreportlibrary'" v-xpack >
+          <el-menu-item :index="'/project/errorreportlibrary'" v-xpack>
             {{ $t("error_report_library.name") }}
           </el-menu-item>
           <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
             {{ $t('project.log') }}
           </el-menu-item>
-          <el-menu-item v-xpack :index="'/project/version'" v-permission="['PROJECT_VERSION:READ']">
+          <el-menu-item v-if="hasLicense()" :index="'/project/version'" v-permission="['PROJECT_VERSION:READ']">
+            {{ $t('project.version_manage') }}
+          </el-menu-item>
+          <el-menu-item v-else v-permission="['PROJECT_VERSION:READ']" @click="clickPlanMenu">
             {{ $t('project.version_manage') }}
           </el-menu-item>
           <el-menu-item :index="'/project/app'" popper-class="submenu"
@@ -52,7 +55,7 @@ import MsShowAll from "@/business/components/common/head/ShowAll";
 import MsRecentList from "@/business/components/common/head/RecentList";
 import MsCreateButton from "@/business/components/common/head/CreateButton";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
-import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import {hasLicense} from "@/common/js/utils";
 
 export default {
   name: "ProjectHeaderMenus",
@@ -73,8 +76,13 @@ export default {
     }
   },
   methods: {
+    hasLicense,
     clickPlanMenu() {
-      this.$info(this.$t('commons.function_planning'));
+      this.$message({
+        dangerouslyUseHTMLString: true,
+        showClose: true,
+        message: this.$t('commons.enterprise_edition_tips'),
+      });
       return false;
     },
   }
