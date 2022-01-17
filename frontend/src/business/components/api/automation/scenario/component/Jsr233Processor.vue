@@ -28,6 +28,26 @@
           {{ jsr223Processor.requestResult[0].success && reqSuccess ? 'success' : 'error' }}
         </span>
     </template>
+
+    <!-- 执行结果内容 -->
+    <template v-slot:result>
+      <div v-loading="loading" v-if="jsr223Processor && jsr223Processor.requestResult && jsr223Processor.requestResult.length > 0">
+        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+        <el-tabs v-model="jsr223Processor.activeName" closable class="ms-tabs" v-if="jsr223Processor.requestResult && jsr223Processor.requestResult.length > 1">
+          <el-tab-pane v-for="(item,i) in jsr223Processor.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+            <api-response-component
+              :currentProtocol="jsr223Processor.protocol"
+              :apiActive="true"
+              :result="item"/>
+          </el-tab-pane>
+        </el-tabs>
+        <api-response-component
+          :currentProtocol="'HTTP'"
+          :apiActive="true"
+          :result="jsr223Processor.requestResult[0]"
+          v-else/>
+      </div>
+    </template>
   </api-base-component>
 </template>
 
@@ -37,10 +57,11 @@ import MsInstructionsIcon from "../../../../common/components/MsInstructionsIcon
 import MsDropdown from "../../../../common/components/MsDropdown";
 import ApiBaseComponent from "../common/ApiBaseComponent";
 import Jsr233ProcessorContent from "../common/Jsr233ProcessorContent";
+import ApiResponseComponent from "./ApiResponseComponent";
 
 export default {
   name: "MsJsr233Processor",
-  components: {Jsr233ProcessorContent, ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit},
+  components: {Jsr233ProcessorContent, ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit, ApiResponseComponent},
   props: {
     request: {},
     message: String,
