@@ -850,7 +850,7 @@
             status         = 'Trash',
             delete_time    = #{request.deleteTime},
             delete_user_id = #{request.deleteUserId}
-        where id = #{request.id}
+        where ref_id = (select a.ref_id from (select ref_id from test_case where id = #{request.id}) a )
     </update>
 
     <update id="deletePublic">
