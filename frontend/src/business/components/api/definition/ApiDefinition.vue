@@ -54,6 +54,7 @@
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
                 :current-protocol="currentProtocol"
+                :current-version="currentVersion"
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
@@ -251,14 +252,7 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentUserId,
-  getUUID,
-  hasLicense,
-  hasPermission
-} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getUUID, hasPermission} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 

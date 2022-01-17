@@ -288,13 +288,19 @@ export default {
       }
       this.$router.push('/performance/test/create');
     },
-    getVersionOptions() {
+    getVersionOptions(currentVersion) {
       if (hasLicense()) {
         this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
           this.versionOptions = response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
+          if (currentVersion) {
+            this.versionFilters = response.data.filter(u => u.id === currentVersion).map(u => {
+              return {text: u.name, value: u.id};
+            });
+          } else {
+            this.versionFilters = response.data.map(u => {
+              return {text: u.name, value: u.id};
+            });
+          }
         });
       }
     },
@@ -302,6 +308,7 @@ export default {
       this.currentVersion = value || null;
       this.condition.versionId = value || null;
       this.refresh();
+      this.getVersionOptions(value);
     },
     checkVersionEnable() {
       if (!this.projectId) {

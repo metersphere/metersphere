@@ -527,6 +527,8 @@ export default {
     currentVersion() {
       this.condition.versionId = this.currentVersion;
       this.initTable();
+      // 选择了版本过滤，版本列上的checkbox也进行过滤
+      this.getVersionOptions(this.currentVersion);
     },
     trashEnable() {
       if (this.trashEnable) {
@@ -641,12 +643,18 @@ export default {
         });
       });
     },
-    getVersionOptions() {
+    getVersionOptions(currentVersion) {
       if (hasLicense()) {
         this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
+          if (currentVersion) {
+            this.versionFilters = response.data.filter(u => u.id === currentVersion).map(u => {
+              return {text: u.name, value: u.id};
+            });
+          } else {
+            this.versionFilters = response.data.map(u => {
+              return {text: u.name, value: u.id};
+            });
+          }
         });
       }
     },
