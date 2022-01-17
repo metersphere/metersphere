@@ -62,7 +62,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -1092,12 +1091,7 @@ public class TestCaseService {
             boolean importFileNeedNum = true;
             TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
             TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(request.getProjectId());
-            List<CustomFieldDao> customFields = null;
-            if (testCaseTemplate == null) {
-                customFields = new ArrayList<>();
-            } else {
-                customFields = testCaseTemplate.getCustomFields();
-            }
+            List<CustomFieldDao> customFields = Optional.ofNullable(testCaseTemplate.getCustomFields()).orElse(new ArrayList<>());
 
             List<List<String>> headList = testCaseExcelData.getHead(importFileNeedNum, customFields);
             List<List<Object>> testCaseDataByExcelList = this.generateTestCaseExcel(headList, datas);
@@ -1173,10 +1167,8 @@ public class TestCaseService {
 
         for (TestCaseExcelData model : datas) {
             List<Object> list = new ArrayList<>();
-            Map<String, String> customDataMaps = model.getCustomDatas();
-            if (customDataMaps == null) {
-                customDataMaps = new HashMap<>();
-            }
+            Map<String,String> customDataMaps = Optional.ofNullable(model.getCustomDatas()).orElse(new HashMap<>());
+
             for (String head : headList) {
                 if (StringUtils.equalsAnyIgnoreCase(head, "ID")) {
                     list.add(model.getCustomNum());
@@ -1208,17 +1200,12 @@ public class TestCaseService {
                     list.add(model.getStepModel());
                 } else if (StringUtils.equalsAnyIgnoreCase(head, "Priority", "用例等級", "用例等级")) {
                     list.add(model.getPriority());
-//                }else if(StringUtils.equalsAnyIgnoreCase(head,"Case status","用例状态","用例狀態")){
-//                    list.add(model.getStatus());
+                } else if(StringUtils.equalsAnyIgnoreCase(head,"Case status","用例状态","用例狀態")){
+                    list.add(model.getStatus());
                 } else if (StringUtils.equalsAnyIgnoreCase(head, "Maintainer(ID)", "责任人(ID)", "維護人(ID)")) {
-                    String value = customDataMaps.get("责任人");
-                    value = value == null ? "" : value;
-                    list.add(value);
+                    list.add(model.getMaintainer());
                 } else {
-                    String value = customDataMaps.get(head);
-                    if (value == null) {
-                        value = "";
-                    }
+                    String value = Optional.ofNullable(customDataMaps.get(head)).orElse("");
                     list.add(value);
                 }
             }
