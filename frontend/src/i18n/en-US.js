@@ -400,6 +400,7 @@ export default {
     enterprise_edition: "ENTERPRISE",
     open_source_version: "OPEN-SOURCE",
     function_planning: "The function is being planned...",
+    enterprise_edition_tips: "This is an enterprise edition feature, <a href='https://metersphere.io/enterprise.html' target='_blank'>please consult for details</a>",
     system_data: "System Data",
     system_user: "User",
     system_workspace: "Workspace",

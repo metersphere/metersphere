@@ -8,7 +8,10 @@
            @select="handleSelect"
            :key="menuKey"
            router>
-    <el-menu-item index="/workstation" v-xpack onselectstart="return false">
+    <el-menu-item index="/workstation" v-if="hasLicense()">
+      {{ $t('commons.my_workstation') }}
+    </el-menu-item>
+    <el-menu-item v-else @click="clickPlanMenu">
       {{ $t('commons.my_workstation') }}
     </el-menu-item>
     <el-menu-item index="/track" v-if="check('testTrack')" onselectstart="return false"
@@ -100,8 +103,11 @@ export default {
     this.registerEvents();
   },
   methods: {
+    hasLicense,
     handleSelect(index) {
-      this.activeIndex = index;
+      if (index) {
+        this.activeIndex = index;
+      }
     },
     active() {
       if (this.activeIndex === '/api') {
@@ -122,7 +128,15 @@ export default {
           });
         }
       });
-    }
+    },
+    clickPlanMenu() {
+      this.$message({
+        dangerouslyUseHTMLString: true,
+        showClose: true,
+        message: this.$t('commons.enterprise_edition_tips'),
+      });
+      return false;
+    },
   }
 };
 </script>

@@ -401,6 +401,7 @@ export default {
     enterprise_edition: "企业版",
     open_source_version: "开源版",
     function_planning: "功能正在规划中...",
+    enterprise_edition_tips: "此功能为企业版功能，<a href='https://metersphere.io/enterprise.html' target='_blank'>详情请咨询</a>",
     system_data: "系统数据",
     system_user: "系统用户",
     system_workspace: "工作空间",
