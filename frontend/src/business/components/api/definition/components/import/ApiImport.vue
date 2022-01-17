@@ -72,7 +72,7 @@
           <el-form-item :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
             <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
           </el-form-item>
-          <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')"></el-switch>
+          <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')" @change="changeAuthEnable"></el-switch>
         </el-col>
 
         <el-col :span="14" v-show="isSwagger2 && authEnable && swaggerUrlEnable">
@@ -90,7 +90,7 @@
             <div style="margin-top: 10px">
               <span>{{$t('api_test.definition.request.auth_config')}}{{$t('api_test.api_import.optional')}}：</span>
             </div>
-            <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false"/>
+            <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false" ref="importAuth"/>
         </el-col>
 
         <el-col :span="12"
@@ -142,6 +142,7 @@
   import MsApiAuthConfig from "../auth/ApiAuthConfig";
   import {REQUEST_HEADERS} from "@/common/js/constants";
   import {ELEMENT_TYPE, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+  import {KeyValue} from "../../model/ApiTestModel";
 
   export default {
     name: "ApiImport",
@@ -394,6 +395,19 @@
         this.formData.moduleId = id;
         this.formData.modulePath = data.path;
       },
+      clearAuthInfo(){
+        this.headers = [];
+        this.queryArguments = [];
+        this.headers.push(new KeyValue({enable: true}));
+        this.queryArguments.push(new KeyValue({enable: true}));
+        this.authConfig = {hashTree: [], authManager: {}};
+        this.$refs.importAuth.initData();
+      },
+      changeAuthEnable() {
+        if(!this.authEnable){
+          this.clearAuthInfo();
+        }
+      },
       buildParam() {
         let param = {};
         Object.assign(param, this.formData);
@@ -407,7 +421,8 @@
         param.projectId = this.projectId;
         if (!this.swaggerUrlEnable) {
           param.swaggerUrl = undefined;
-        }else{
+        }
+        if(this.authEnable){
           // 设置请求头
           param.headers = this.headers;
           // 设置 query 参数
