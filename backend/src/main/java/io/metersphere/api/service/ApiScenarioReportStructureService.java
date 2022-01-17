@@ -146,7 +146,6 @@ public class ApiScenarioReportStructureService {
                 } else if (step.getValue().getError() > 0) {
                     isError.set(isError.longValue() + 1);
                 }
-                break;
             } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
                 scenarioCalculate(step.getChildren(), isError, isErrorReport);
             }

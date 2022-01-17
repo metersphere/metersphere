@@ -234,12 +234,18 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport updatePlanCase(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
         long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
+        String status = getStatus(requestResults, dto);
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (testPlanApiScenario != null) {
-            if (errorSize > 0) {
-                testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
-            } else {
-                testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
+            if(report != null){
+                testPlanApiScenario.setLastResult(report.getStatus());
+            }else {
+                if (errorSize > 0) {
+                    testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
+                } else {
+                    testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
+                }
             }
             long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
 
@@ -263,8 +269,7 @@ public class ApiScenarioReportService {
                 apiScenarioMapper.updateByPrimaryKey(scenario);
             }
         }
-        String status = getStatus(requestResults, dto);
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
+
         return report;
     }
 
@@ -284,11 +289,7 @@ public class ApiScenarioReportService {
                 report.setScenarioId(testPlanApiScenario.getApiScenarioId());
                 report.setEndTime(System.currentTimeMillis());
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-                if (errorSize > 0) {
-                    testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
-                } else {
-                    testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
-                }
+                testPlanApiScenario.setLastResult(report.getStatus());
                 long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
                 String passRate = new DecimalFormat("0%").format((float) successSize / requestResults.size());
                 testPlanApiScenario.setPassRate(passRate);

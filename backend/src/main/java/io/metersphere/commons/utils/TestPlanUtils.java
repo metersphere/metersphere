@@ -1,5 +1,6 @@
 package io.metersphere.commons.utils;
 
+import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.track.dto.PlanReportCaseDTO;
 import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
@@ -51,6 +52,7 @@ public class TestPlanUtils {
         addToReportStatusResultList(resultMap, statusResult, "Success");
         addToReportStatusResultList(resultMap, statusResult, "SUCCESS");
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Prepare.name());
+        addToReportStatusResultList(resultMap, statusResult, ExecuteResult.errorReportResult.name());
     }
 
     /**

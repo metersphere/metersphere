@@ -460,6 +460,12 @@ public class TestPlanReportService {
         if (reportDTO.getLoadFailureCases() != null) {
             testPlanReportContentWithBLOBs.setLoadFailureCases(JSONObject.toJSONString(reportDTO.getLoadFailureCases()));
         }
+        if (reportDTO.getErrorReportCases() != null) {
+            testPlanReportContentWithBLOBs.setErrorReportCases(JSONObject.toJSONString(reportDTO.getErrorReportCases()));
+        }
+        if (reportDTO.getErrorReportScenarios() != null) {
+            testPlanReportContentWithBLOBs.setErrorReportScenarios(JSONObject.toJSONString(reportDTO.getErrorReportScenarios()));
+        }
         return testPlanReportContentWithBLOBs;
     }
 
@@ -731,6 +737,12 @@ public class TestPlanReportService {
         }
         if (StringUtils.isNotBlank(testPlanReportContent.getLoadFailureCases())) {
             testPlanReportDTO.setLoadFailureCases(JSONObject.parseArray(testPlanReportContent.getLoadFailureCases(), TestPlanLoadCaseDTO.class));
+        }
+        if (StringUtils.isNotBlank(testPlanReportContent.getErrorReportCases())) {
+            testPlanReportDTO.setErrorReportCases(JSONObject.parseArray(testPlanReportContent.getErrorReportCases(), TestPlanFailureApiDTO.class));
+        }
+        if (StringUtils.isNotBlank(testPlanReportContent.getErrorReportScenarios())) {
+            testPlanReportDTO.setErrorReportScenarios(JSONObject.parseArray(testPlanReportContent.getErrorReportScenarios(), TestPlanFailureScenarioDTO.class));
         }
         testPlanReportDTO.setId(reportId);
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());

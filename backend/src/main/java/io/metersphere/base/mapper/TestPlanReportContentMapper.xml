@@ -29,6 +29,8 @@
     <result column="plan_scenario_report_struct" jdbcType="LONGVARCHAR" property="planScenarioReportStruct" />
     <result column="plan_api_case_report_struct" jdbcType="LONGVARCHAR" property="planApiCaseReportStruct" />
     <result column="plan_load_case_report_struct" jdbcType="LONGVARCHAR" property="planLoadCaseReportStruct" />
+    <result column="error_report_cases" jdbcType="LONGVARCHAR" property="errorReportCases" />
+    <result column="error_report_scenarios" jdbcType="LONGVARCHAR" property="errorReportScenarios" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -96,7 +98,7 @@
     config, summary, function_result, api_result, load_result, function_all_cases, function_failure_cases, 
     issue_list, api_all_cases, api_failure_cases, scenario_all_cases, scenario_failure_cases, 
     load_all_Cases, load_failure_cases, plan_scenario_report_struct, plan_api_case_report_struct, 
-    plan_load_case_report_struct
+    plan_load_case_report_struct, error_report_cases, error_report_scenarios
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanReportContentExample" resultMap="ResultMapWithBLOBs">
     select
@@ -156,7 +158,8 @@
       scenario_all_cases, scenario_failure_cases, 
       load_all_Cases, load_failure_cases, 
       plan_scenario_report_struct, plan_api_case_report_struct, 
-      plan_load_case_report_struct)
+      plan_load_case_report_struct, error_report_cases, 
+      error_report_scenarios)
     values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{caseCount,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{executeRate,jdbcType=DOUBLE}, 
       #{passRate,jdbcType=DOUBLE}, #{isThirdPartIssue,jdbcType=BIT}, #{config,jdbcType=LONGVARCHAR}, 
@@ -166,7 +169,8 @@
       #{scenarioAllCases,jdbcType=LONGVARCHAR}, #{scenarioFailureCases,jdbcType=LONGVARCHAR}, 
       #{loadAllCases,jdbcType=LONGVARCHAR}, #{loadFailureCases,jdbcType=LONGVARCHAR}, 
       #{planScenarioReportStruct,jdbcType=LONGVARCHAR}, #{planApiCaseReportStruct,jdbcType=LONGVARCHAR}, 
-      #{planLoadCaseReportStruct,jdbcType=LONGVARCHAR})
+      #{planLoadCaseReportStruct,jdbcType=LONGVARCHAR}, #{errorReportCases,jdbcType=LONGVARCHAR}, 
+      #{errorReportScenarios,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanReportContentWithBLOBs">
     insert into test_plan_report_content
@@ -246,6 +250,12 @@
       <if test="planLoadCaseReportStruct != null">
         plan_load_case_report_struct,
       </if>
+      <if test="errorReportCases != null">
+        error_report_cases,
+      </if>
+      <if test="errorReportScenarios != null">
+        error_report_scenarios,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -322,6 +332,12 @@
       </if>
       <if test="planLoadCaseReportStruct != null">
         #{planLoadCaseReportStruct,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="errorReportCases != null">
+        #{errorReportCases,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="errorReportScenarios != null">
+        #{errorReportScenarios,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -409,6 +425,12 @@
       <if test="record.planLoadCaseReportStruct != null">
         plan_load_case_report_struct = #{record.planLoadCaseReportStruct,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.errorReportCases != null">
+        error_report_cases = #{record.errorReportCases,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.errorReportScenarios != null">
+        error_report_scenarios = #{record.errorReportScenarios,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -440,7 +462,9 @@
       load_failure_cases = #{record.loadFailureCases,jdbcType=LONGVARCHAR},
       plan_scenario_report_struct = #{record.planScenarioReportStruct,jdbcType=LONGVARCHAR},
       plan_api_case_report_struct = #{record.planApiCaseReportStruct,jdbcType=LONGVARCHAR},
-      plan_load_case_report_struct = #{record.planLoadCaseReportStruct,jdbcType=LONGVARCHAR}
+      plan_load_case_report_struct = #{record.planLoadCaseReportStruct,jdbcType=LONGVARCHAR},
+      error_report_cases = #{record.errorReportCases,jdbcType=LONGVARCHAR},
+      error_report_scenarios = #{record.errorReportScenarios,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -534,6 +558,12 @@
       <if test="planLoadCaseReportStruct != null">
         plan_load_case_report_struct = #{planLoadCaseReportStruct,jdbcType=LONGVARCHAR},
       </if>
+      <if test="errorReportCases != null">
+        error_report_cases = #{errorReportCases,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="errorReportScenarios != null">
+        error_report_scenarios = #{errorReportScenarios,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -562,7 +592,9 @@
       load_failure_cases = #{loadFailureCases,jdbcType=LONGVARCHAR},
       plan_scenario_report_struct = #{planScenarioReportStruct,jdbcType=LONGVARCHAR},
       plan_api_case_report_struct = #{planApiCaseReportStruct,jdbcType=LONGVARCHAR},
-      plan_load_case_report_struct = #{planLoadCaseReportStruct,jdbcType=LONGVARCHAR}
+      plan_load_case_report_struct = #{planLoadCaseReportStruct,jdbcType=LONGVARCHAR},
+      error_report_cases = #{errorReportCases,jdbcType=LONGVARCHAR},
+      error_report_scenarios = #{errorReportScenarios,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlanReportContent">

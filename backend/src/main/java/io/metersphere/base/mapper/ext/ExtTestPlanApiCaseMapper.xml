@@ -321,7 +321,7 @@
         on t.api_case_id = c.id
       and t.test_plan_id = #{planId}
        <if test="status != null">
-         and t.status = 'error'
+         and t.status = #{status}
        </if>
       and (c.status != 'Trash' or c.status is null)
       where t.test_plan_id = #{planId};
