@@ -1408,13 +1408,15 @@ public class ApiDefinitionService {
 
     /*swagger定时导入*/
     public void createSchedule(ScheduleRequest request) {
-        String config = setAuthParams(request);
         /*保存swaggerUrl*/
         SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         BeanUtils.copyBean(swaggerUrlProject, request);
         swaggerUrlProject.setId(UUID.randomUUID().toString());
         // 设置鉴权信息
-        swaggerUrlProject.setConfig(config);
+        if(request.getHeaders() !=null || request.getArguments() !=null || request.getAuthManager() != null){
+            String config = setAuthParams(request);
+            swaggerUrlProject.setConfig(config);
+        }
         scheduleService.addSwaggerUrlSchedule(swaggerUrlProject);
 
         request.setResourceId(swaggerUrlProject.getId());
@@ -1435,11 +1437,15 @@ public class ApiDefinitionService {
     }
 
     public void updateSchedule(ScheduleRequest request) {
-        String config = setAuthParams(request);
         SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         BeanUtils.copyBean(swaggerUrlProject, request);
         // 设置鉴权信息
-        swaggerUrlProject.setConfig(config);
+        if(request.getHeaders() !=null || request.getArguments() !=null || request.getAuthManager() != null){
+            String config = setAuthParams(request);
+            swaggerUrlProject.setConfig(config);
+        }else{
+            swaggerUrlProject.setConfig(null);
+        }
         scheduleService.updateSwaggerUrlSchedule(swaggerUrlProject);
         // 只修改表达式和名称
         Schedule schedule = new Schedule();
