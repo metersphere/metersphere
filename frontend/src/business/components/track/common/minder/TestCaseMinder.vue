@@ -211,7 +211,8 @@ name: "TestCaseMinder",
         }
 
         if (data.type !== 'tmp' && data.changed) {
-          if (data.contextChanged && data.resource && data.resource.indexOf(this.$t('test_track.module.module')) > -1) {
+          if (data.contextChanged && data.resource &&
+            (data.resource.indexOf(this.$t('test_track.module.module')) > -1 || data.resource.indexOf("模块") > -1)) {
             this.buildSaveModules(root, data, parent);
             root.children && root.children.forEach(i => {
               if (isModuleNode(i)) {
