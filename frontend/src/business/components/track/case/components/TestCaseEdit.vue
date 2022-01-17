@@ -316,6 +316,7 @@ export default {
       newData: null,
       selectedOtherInfo: null,
       currentProjectId: "" ,
+      casePublic: false
     };
   },
   props: {
@@ -529,7 +530,7 @@ export default {
           }
         })
       } else if (e === 'ADD_AND_PUBLIC') {
-        this.form.casePublic = true;
+        this.casePublic = true;
         this.saveCase();
       } else {
         this.saveCase();
@@ -798,6 +799,7 @@ export default {
       }
       param.testId = JSON.stringify(this.form.selected);
       param.tags = this.form.tags;
+      param.casePublic = this.casePublic;
       param.type = 'functional';
       buildCustomFields(this.form, param, this.testCaseTemplate);
       this.parseOldFields(param);
