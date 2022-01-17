@@ -1170,7 +1170,7 @@ public class ApiAutomationService {
 
         if (CollectionUtils.isNotEmpty(list)) {
             LogUtil.error("import scenario fail, custom num is exist: " + scenarioWithBLOBs.getCustomNum());
-            return scenarioWithBLOBs;
+            MSException.throwException(Translator.get("import_fail_custom_num_exists") + ": " + scenarioWithBLOBs.getCustomNum());
         }
 
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
