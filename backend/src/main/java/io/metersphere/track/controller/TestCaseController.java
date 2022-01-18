@@ -244,7 +244,7 @@ public class TestCaseController {
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     public int deleteTestCase(@PathVariable String testCaseId) {
         checkPermissionService.checkTestCaseOwner(testCaseId);
-        return testCaseService.deleteTestCase(testCaseId);
+        return testCaseService.deleteTestCaseBySameVersion(testCaseId);
     }
 
     @PostMapping("/deleteToGc/{testCaseId}")

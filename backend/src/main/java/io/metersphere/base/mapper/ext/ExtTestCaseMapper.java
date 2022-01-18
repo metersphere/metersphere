@@ -134,4 +134,6 @@ public interface ExtTestCaseMapper {
     String getLastExecStatusById(String id);
 
     int countByWorkSpaceId(String workSpaceId);
+
+    long trashCount(@Param("projectId") String projectId);
 }
