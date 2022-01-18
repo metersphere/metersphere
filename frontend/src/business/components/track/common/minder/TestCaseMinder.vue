@@ -248,9 +248,7 @@ name: "TestCaseMinder",
       let pId = parent ? (parent.newId ? parent.newId : parent.id) : null;
 
       if (!isModuleNodeData(parent)) {
-        let tip = data.text + '不能创建非模块节点下';
-        this.$error(tip)
-        throw new Error(tip);
+        this.throwError(this.$t('test_track.case.minder_not_module_tip', [data.text]));
       }
 
       let module = {
@@ -303,16 +301,16 @@ name: "TestCaseMinder",
         return;
       }
 
+      if (parent.id === 'root') {
+        this.throwError(this.$t('test_track.case.minder_all_module_tip'));
+      }
+
       if (parent.isExtraNode) {
-        let tip = '无法在临时节点"' + parent.text + '"下创建用例';
-        this.$error(tip)
-        throw new Error(tip);
+        this.throwError(this.$t('test_track.case.minder_tem_node_tip', [parent.text]));
       }
 
       if (data.type === 'node') {
-        let tip = data.text + '是模块，不能修改为用例';
-        this.$error(tip)
-        throw new Error(tip);
+        this.throwError(this.$t('test_track.case.minder_is_module_tip', [data.text]));
       }
 
       let isChange = false;
@@ -405,9 +403,7 @@ name: "TestCaseMinder",
         this.saveCases.push(testCase);
       }
       if (testCase.nodeId !== 'root' && testCase.nodeId.length < 15) {
-        let tip = this.$t('test_track.case.create_case') + "'" + testCase.name + "'" + this.$t('test_track.case.minder_create_tip');
-        this.$error(tip)
-        throw new Error(tip);
+        this.throwError(this.$t('test_track.case.create_case') + "'" + testCase.name + "'" + this.$t('test_track.case.minder_create_tip'));
       }
     },
     pushDeleteNode(data) {
@@ -445,6 +441,10 @@ name: "TestCaseMinder",
       }
       data.isExtraNode = true;
       return nodeData;
+    },
+    throwError(tip) {
+      this.$error(tip)
+      throw new Error(tip);
     },
     tagEditCheck() {
       return tagEditCheck;
