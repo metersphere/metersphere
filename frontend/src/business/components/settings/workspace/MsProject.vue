@@ -309,9 +309,6 @@ export default {
           this.$router.push('/track/home').then(() => {
             this.reload();
             this.reloadTopMenus();
-            if (!getCurrentUser().lastProjectId) {
-              window.location.reload();
-            }
           });
         } else {
           this.$warning(this.$t("commons.project_permission"));
