@@ -7,14 +7,7 @@
     </div>
     <el-container>
       <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
-        <div class="main-number-show" style="margin: 0px auto;">
-          <span class="count-number">
-            {{scheduleTaskCountData.allApiDataCountNumber}}
-          </span>
-          <span style="color: #6C317C;">
-            {{$t('api_test.home_page.unit_of_measurement')}}
-          </span>
-        </div>
+        <ms-count-ring-chart :content="scheduleTaskCountData.allApiDataCountNumber"/>
       </el-main>
     </el-container>
 
@@ -93,13 +86,14 @@
 
 <script>
 import 'element-ui/lib/theme-chalk/display.css';
+import MsCountRingChart from "@/business/components/common/chart/MsCountRingChart";
 
 
 export default {
 
   name: "MsScheduleTaskInfoCard",
 
-  components: {},
+  components: {MsCountRingChart},
 
   data() {
     return {
@@ -133,13 +127,7 @@ export default {
 }
 
 .main-number-show {
-  width: 100px;
-  height: 100px;
-  border-style: solid;
-  border-width: 7px;
-  border-color: var(--count_number_shallow);
-  border-radius:50%;
-
+  margin: 0px auto;
 }
 
 .count-number-show{
