@@ -1,7 +1,7 @@
 <template>
   <span>
     <span>
-      <div class="ms-opt-btn" v-if="apiDefinitionId">
+      <div class="ms-opt-btn" v-if="apiDefinitionId && versionEnable">
           {{ $t('project.version.name') }}:  {{ apiDefinition.versionName }}
       </div>
       <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" @keyup.enter.native="search"
@@ -429,7 +429,8 @@ export default {
       timeoutIndex: 0,
       versionFilters: [],
       versionName: '',
-      runCaseIds: []
+      runCaseIds: [],
+      versionEnable: false,
     };
   },
   props: {
@@ -1214,6 +1215,7 @@ export default {
       }
       if (hasLicense()) {
         this.$get('/project/version/enable/' + this.projectId, response => {
+          this.versionEnable = response.data;
           if (!response.data) {
             this.fields = this.fields.filter(f => f.id !== 'versionId');
           }
