@@ -304,6 +304,7 @@ export default {
             }
           } else {
             this.request.enable = false;
+            this.request.plugin_del = true;
           }
         });
       }
