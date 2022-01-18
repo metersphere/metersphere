@@ -348,13 +348,13 @@
       <scenario-diff
         :old-data="currentScenario"
         :new-data="newData"
-        :custom-num = "customNum"
+        :custom-num="customNum"
         :module-options="moduleOptions"
         :old-scenario-definition="scenarioDefinition"
         :new-scenario-definition="newScenarioDefinition"
-        :project-env-map = "projectEnvMap"
+        :project-env-map="projectEnvMap"
         :new-project-env-map="newProjectEnvMap"
-        :type ="type"
+        :type="type"
       ></scenario-diff>
     </el-dialog>
 
@@ -511,10 +511,11 @@ export default {
       environmentType: ENV_TYPE.JSON,
       executeType: "",
       versionData: [],
-      newData:[],
-      dialogVisible:false,
-      newScenarioDefinition:[],
+      newData: [],
+      dialogVisible: false,
+      newScenarioDefinition: [],
       currentItem: {},
+      pluginDelStep: false
     }
   },
   watch: {
@@ -692,6 +693,7 @@ export default {
       this.reqTotal = 0;
       this.reqSuccess = 0;
       this.executeType = "";
+      this.pluginDelStep = false;
     },
     clearResult(arr) {
       if (arr) {
@@ -863,6 +865,11 @@ export default {
       this.debug = false;
       this.saved = true;
       this.executeType = "Saved";
+      this.validatePluginData(this.scenarioDefinition);
+      if (this.pluginDelStep) {
+        this.$error("场景包含插件步骤，对应场景已经删除不能执行！");
+        return;
+      }
       /*触发执行操作*/
       this.$refs['currentScenario'].validate(async (valid) => {
         if (valid) {
@@ -891,9 +898,20 @@ export default {
             };
             this.reportId = getUUID().substring(0, 8);
             this.debugLoading = false;
+            this.pluginDelStep = false;
           })
         }
       })
+    },
+    validatePluginData(steps) {
+      steps.forEach(step => {
+        if (step.plugin_del) {
+          this.pluginDelStep = true;
+        }
+        if (step.hashTree && step.hashTree.length > 0) {
+          this.validatePluginData(step.hashTree);
+        }
+      });
     },
     openHis() {
       this.$refs.changeHistory.open(this.currentScenario.id, ["接口自动化", "Api automation", "接口自動化"]);
@@ -1206,6 +1224,11 @@ export default {
       }
       this.stopDebug = "";
       this.clearDebug();
+      this.validatePluginData(this.scenarioDefinition);
+      if (this.pluginDelStep) {
+        this.$error("场景包含插件步骤，对应场景已经删除不能调试！");
+        return;
+      }
       this.clearResult(this.scenarioDefinition);
       this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
       this.sort();
@@ -1249,6 +1272,7 @@ export default {
           }
           this.reportId = getUUID().substring(0, 8);
           this.debug = true;
+          this.pluginDelStep = false;
         } else {
           this.clearMessage = getUUID().substring(0, 8);
         }
@@ -1328,6 +1352,11 @@ export default {
       if (!document.getElementById("inputDelay")) {
         return;
       }
+      this.validatePluginData(this.scenarioDefinition);
+      if (this.pluginDelStep) {
+        this.$error("场景包含插件步骤，对应场景已经删除不能编辑！");
+        return;
+      }
       return new Promise((resolve) => {
         document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
         this.$refs['currentScenario'].validate(async (valid) => {
@@ -1352,6 +1381,7 @@ export default {
                 this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
               }
               this.$emit('refresh', this.currentScenario);
+              this.pluginDelStep = false;
               resolve();
             });
           }
@@ -1710,33 +1740,33 @@ export default {
       });
     },
     compare(row) {
-      this.$get('/api/automation/get/' +  row.id+"/"+this.currentScenario.refId, response => {
-          this.$get("/api/automation/getApiScenario/" +  response.data.id, res => {
-            if (res.data) {
-              if(res.data.scenarioDefinition != null){
-                let obj = JSON.parse(res.data.scenarioDefinition);
-                if(obj){
-                  if(obj.hashTree){
-                    for (let i = 0; i < obj.hashTree.length; i++) {
-                      obj.hashTree[i].disabled = true;
-                    }
-                  }
-                  for (let i = 0; i < this.scenarioDefinition.length; i++) {
-                    this.scenarioDefinition[i].disabled = true;
-                  }
-                  this.newScenarioDefinition = obj.hashTree;
-                  if (response.data.environmentJson) {
-                    this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
-                  } else {
-                    // 兼容历史数据
-                    this.newProjectEnvMap.set(this.projectId, obj.environmentId);
+      this.$get('/api/automation/get/' + row.id + "/" + this.currentScenario.refId, response => {
+        this.$get("/api/automation/getApiScenario/" + response.data.id, res => {
+          if (res.data) {
+            if (res.data.scenarioDefinition != null) {
+              let obj = JSON.parse(res.data.scenarioDefinition);
+              if (obj) {
+                if (obj.hashTree) {
+                  for (let i = 0; i < obj.hashTree.length; i++) {
+                    obj.hashTree[i].disabled = true;
                   }
                 }
+                for (let i = 0; i < this.scenarioDefinition.length; i++) {
+                  this.scenarioDefinition[i].disabled = true;
+                }
+                this.newScenarioDefinition = obj.hashTree;
+                if (response.data.environmentJson) {
+                  this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                } else {
+                  // 兼容历史数据
+                  this.newProjectEnvMap.set(this.projectId, obj.environmentId);
+                }
               }
-              this.newData = res.data;
-              this.dialogVisible = true;
             }
-          });
+            this.newData = res.data;
+            this.dialogVisible = true;
+          }
+        });
       })
     },
     checkout(row) {
