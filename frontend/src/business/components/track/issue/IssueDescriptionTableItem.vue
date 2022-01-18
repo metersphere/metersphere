@@ -10,8 +10,7 @@
         placement="right"
         width="500"
         trigger="hover"
-        popper-class="issues-popover"
-      >
+        popper-class="issues-popover">
         <ms-mark-down-text prop="description" :data="scope.row" :disabled="true"/>
         <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
       </el-popover>
