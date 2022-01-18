@@ -1,8 +1,8 @@
 <template>
 
   <div class="card-container">
-    <div class="ms-opt-btn">
-      {{ $t('project.version.name') }}:  {{ apiData.versionName }}
+    <div class="ms-opt-btn" v-if="versionEnable">
+      {{ $t('project.version.name') }}: {{ apiData.versionName }}
     </div>
     <el-card class="card-content">
 
@@ -79,7 +79,7 @@
 
 <script>
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import {getUUID} from "@/common/js/utils";
+import {getUUID, hasLicense} from "@/common/js/utils";
 import MsApiCaseList from "../case/ApiCaseList";
 import MsContainer from "../../../../common/components/MsContainer";
 import MsRequestResultTail from "../response/RequestResultTail";
@@ -121,6 +121,7 @@ export default {
       envMap: new Map,
       runLoading: false,
       versionName: '',
+      versionEnable: false,
     }
   },
   props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
@@ -292,6 +293,16 @@ export default {
         this.$success(this.$t('report.test_stop_success'));
       });
     },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + this.projectId, response => {
+          this.versionEnable = response.data;
+        });
+      }
+    }
   },
   created() {
     // 深度复制
@@ -303,6 +314,7 @@ export default {
     }
     this.runLoading = false;
     //this.getResult();
+    this.checkVersionEnable();
   }
 }
 </script>
