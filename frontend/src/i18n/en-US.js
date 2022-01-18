@@ -397,6 +397,7 @@ export default {
         end_time_cannot_over_than_start_time: "End time cannot before than start time",
       },
     },
+    no_operation_permission: "No operation permission!",
     enterprise_edition: "ENTERPRISE",
     open_source_version: "OPEN-SOURCE",
     function_planning: "The function is being planned...",
