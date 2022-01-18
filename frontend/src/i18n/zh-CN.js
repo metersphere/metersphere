@@ -2958,10 +2958,12 @@ export default {
     use_desc: "失败断言与误报规则冲突时统一处理为误报",
     option: {
       name: "误报",
-      error_code: "错误码",
+      error_code: "误报名称",
       match_type: "匹配类型",
       status: "状态",
       is_open: "启用状态",
+      create: "创建误报",
+      match_rule: "匹配规则",
     },
     match_type: {
       text: "文本"
