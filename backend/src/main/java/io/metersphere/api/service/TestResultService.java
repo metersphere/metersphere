@@ -28,14 +28,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestResultService {
+
+    private static final String PRE_PROCESS_SCRIPT = "PRE_PROCESSOR_ENV_";
+    private static final String POST_PROCESS_SCRIPT = "POST_PROCESSOR_ENV_";
+
     @Resource
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
     @Resource
@@ -52,6 +53,9 @@ public class TestResultService {
     private ApiScenarioReportMapper apiScenarioReportMapper;
 
     public void saveResults(ResultDTO dto) {
+        //筛选后置脚本步骤
+        this.filterScriptStem(dto);
+
         // 处理环境
         List<String> environmentList = new LinkedList<>();
         if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("ENV")) {
@@ -71,6 +75,24 @@ public class TestResultService {
             apiScenarioReportService.saveResult(requestResults, dto);
         }
         updateTestCaseStates(requestResults, dto.getRunMode());
+    }
+
+    private void filterScriptStem(ResultDTO dto) {
+        if(CollectionUtils.isNotEmpty(dto.getRequestResults())){
+            List<RequestResult> filterList = new ArrayList<>();
+            for (RequestResult requestResult : dto.getRequestResults()) {
+                boolean isConnect = true;
+                if(StringUtils.startsWithAny(requestResult.getName(),PRE_PROCESS_SCRIPT)){
+                    isConnect = Boolean.parseBoolean(StringUtils.substring(requestResult.getName(),PRE_PROCESS_SCRIPT.length()));
+                }else if(StringUtils.startsWithAny(requestResult.getName(),POST_PROCESS_SCRIPT)){
+                    isConnect = Boolean.parseBoolean(StringUtils.substring(requestResult.getName(),POST_PROCESS_SCRIPT.length()));
+                }
+                if(isConnect){
+                    filterList.add(requestResult);
+                }
+            }
+            dto.setRequestResults(filterList);
+        }
     }
 
     public void editReportTime(ResultDTO dto) {
