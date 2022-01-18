@@ -380,6 +380,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key == 'version_id'">
+                            and t1.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
                         <when test="key=='status'">
                             and t1.status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
