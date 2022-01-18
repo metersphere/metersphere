@@ -7,21 +7,17 @@
     </div>
     <el-container>
       <el-aside width="150px">
-        <div class="main-number-show">
-          <span class="count-number">
-            {{ bugTotalSize }}
-          </span>
-          <span style="color: #6C317C;">
-            {{ $t('api_test.home_page.unit_of_measurement') }}
-          </span>
-          <div>
-            {{ $t('test_track.home.percentage') }}
-            <span class="rage">
+
+        <ms-count-ring-chart :content="bugTotalSize"/>
+
+        <div>
+          {{ $t('test_track.home.percentage') }}
+          <span class="rage">
               {{rage}}
             </span>
-          </div>
         </div>
       </el-aside>
+
       <el-table border :data="tableData" class="adjust-table table-content" height="300">
         <el-table-column prop="index" :label="$t('test_track.home.serial_number')"
                          width="60" show-overflow-tooltip/>
@@ -57,10 +53,12 @@
 <script>
 import {getCurrentProjectID} from "@/common/js/utils";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
+import MsCountRingChart from "@/business/components/common/chart/MsCountRingChart";
 
 export default {
   name: "BugCountCard",
   components: {
+    MsCountRingChart,
     PlanStatusTableItem
   },
   data() {
