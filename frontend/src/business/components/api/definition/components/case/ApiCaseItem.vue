@@ -8,7 +8,7 @@
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                       class="ms-api-header-select" style="width: 180px"
                       :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
-                      @blur="saveTestCase(apiCase , true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
+                       :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
                 <span>{{ apiCase.id ? apiCase.name : '' | ellipsis }}</span>
