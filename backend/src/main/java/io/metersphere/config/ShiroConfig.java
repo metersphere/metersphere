@@ -1,13 +1,16 @@
 package io.metersphere.config;
 
+
 import io.metersphere.commons.utils.ShiroUtils;
 import io.metersphere.security.ApiKeyFilter;
 import io.metersphere.security.CsrfFilter;
 import io.metersphere.security.UserModularRealmAuthenticator;
 import io.metersphere.security.realm.LdapRealm;
 import io.metersphere.security.realm.LocalRealm;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.pam.FirstSuccessfulStrategy;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
+import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -15,8 +18,8 @@ import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.session.mgt.ServletContainerSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.EnvironmentAware;
@@ -32,8 +35,8 @@ import javax.servlet.Filter;
 import java.util.*;
 
 @Configuration
-@ConditionalOnProperty(prefix = "sso", name = "mode", havingValue = "local", matchIfMissing = true)
 public class ShiroConfig implements EnvironmentAware {
+
     private Environment env;
 
     @Bean
@@ -69,16 +72,26 @@ public class ShiroConfig implements EnvironmentAware {
         return new MemoryConstrainedCacheManager();
     }
 
+    @Bean
+    public SessionManager sessionManager() {
+        Long timeout = env.getProperty("spring.session.timeout", Long.class);
+        String storeType = env.getProperty("spring.session.store-type");
+        if (StringUtils.equals(storeType, "none")) {
+            return ShiroUtils.getSessionManager(timeout, memoryConstrainedCacheManager());
+        }
+        return new ServletContainerSessionManager();
+    }
+
     /**
      * securityManager 不用直接注入 Realm，可能会导致事务失效
      * 解决方法见 handleContextRefresh
      * http://www.debugrun.com/a/NKS9EJQ.html
      */
     @Bean(name = "securityManager")
-    public DefaultWebSecurityManager securityManager(SessionManager sessionManager, MemoryConstrainedCacheManager memoryConstrainedCacheManager) {
+    public DefaultWebSecurityManager securityManager(SessionManager sessionManager, CacheManager cacheManager) {
         DefaultWebSecurityManager dwsm = new DefaultWebSecurityManager();
         dwsm.setSessionManager(sessionManager);
-        dwsm.setCacheManager(memoryConstrainedCacheManager);
+        dwsm.setCacheManager(cacheManager);
         dwsm.setAuthenticator(modularRealmAuthenticator());
         return dwsm;
     }
@@ -121,12 +134,6 @@ public class ShiroConfig implements EnvironmentAware {
         AuthorizationAttributeSourceAdvisor aasa = new AuthorizationAttributeSourceAdvisor();
         aasa.setSecurityManager(sessionManager);
         return aasa;
-    }
-
-    @Bean
-    public SessionManager sessionManager(MemoryConstrainedCacheManager memoryConstrainedCacheManager) {
-        Long sessionTimeout = env.getProperty("session.timeout", Long.class, 43200L); // 默认43200s, 12个小时
-        return ShiroUtils.getSessionManager(sessionTimeout, memoryConstrainedCacheManager);
     }
 
     /**

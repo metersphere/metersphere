@@ -29,6 +29,10 @@ public class CsrfFilter extends AnonymousFilter {
             ((HttpServletResponse) response).setHeader(SessionConstants.AUTHENTICATION_STATUS, SessionConstants.AUTHENTICATION_INVALID);
             return true;
         }
+        // 错误页面不需要 csrf
+        if (WebUtils.toHttp(request).getRequestURI().equals("/error")) {
+            return true;
+        }
         // api 过来的请求
         if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request))) {
             return true;

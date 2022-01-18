@@ -6,10 +6,14 @@ import io.metersphere.base.mapper.FileMetadataMapper;
 import io.metersphere.base.mapper.TestCaseFileMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.RsaKey;
+import io.metersphere.commons.utils.RsaUtil;
 import io.metersphere.performance.request.QueryProjectFileRequest;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -124,11 +128,11 @@ public class FileService {
     public FileMetadata insertFileByFileName(File file, byte[] fileByte, String projectId) {
         if (StringUtils.isEmpty(file.getName())) {
             return null;
-        }else {
+        } else {
             FileMetadataExample example = new FileMetadataExample();
             example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(file.getName());
             List<FileMetadata> fileMetadatasInDataBase = fileMetadataMapper.selectByExample(example);
-            if(CollectionUtils.isEmpty(fileMetadatasInDataBase)){
+            if (CollectionUtils.isEmpty(fileMetadatasInDataBase)) {
                 final FileMetadata fileMetadata = new FileMetadata();
                 fileMetadata.setId(UUID.randomUUID().toString());
                 fileMetadata.setName(file.getName());
@@ -145,7 +149,7 @@ public class FileService {
                 fileContent.setFile(fileByte);
                 fileContentMapper.insert(fileContent);
                 return fileMetadata;
-            }else {
+            } else {
                 FileMetadata fileMetadata = fileMetadatasInDataBase.get(0);
                 fileMetadata.setName(file.getName());
                 fileMetadata.setSize(file.length());
@@ -281,5 +285,33 @@ public class FileService {
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andIdIn(fileIds);
         return fileMetadataMapper.selectByExample(example);
+    }
+
+    public RsaKey checkRsaKey() {
+        String key = "ms.login.rsa.key";
+        FileContent value = getFileContent(key);
+        if (value == null) {
+            try {
+                RsaKey rsaKey = RsaUtil.getRsaKey();
+                byte[] bytes = SerializationUtils.serialize(rsaKey);
+                final FileMetadata fileMetadata = new FileMetadata();
+                fileMetadata.setId(key);
+                fileMetadata.setName(key);
+                fileMetadata.setSize((long) bytes.length);
+                fileMetadata.setCreateTime(System.currentTimeMillis());
+                fileMetadata.setUpdateTime(System.currentTimeMillis());
+                fileMetadata.setType("RSA_KEY");
+                fileMetadataMapper.insert(fileMetadata);
+
+                FileContent fileContent = new FileContent();
+                fileContent.setFileId(fileMetadata.getId());
+                fileContent.setFile(bytes);
+                fileContentMapper.insert(fileContent);
+                return rsaKey;
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+        }
+        return SerializationUtils.deserialize(value.getFile());
     }
 }
