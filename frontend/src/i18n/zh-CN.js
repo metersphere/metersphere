@@ -398,6 +398,7 @@ export default {
         end_time_cannot_over_than_start_time: "结束时间不能超过当前时间",
       },
     },
+    no_operation_permission: "无操作权限!",
     enterprise_edition: "企业版",
     open_source_version: "开源版",
     function_planning: "功能正在规划中...",
