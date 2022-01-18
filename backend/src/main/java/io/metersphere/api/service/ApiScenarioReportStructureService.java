@@ -147,7 +147,15 @@ public class ApiScenarioReportStructureService {
                     isError.set(isError.longValue() + 1);
                 }
             } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                scenarioCalculate(step.getChildren(), isError, isErrorReport);
+                AtomicLong isChildrenError = new AtomicLong();
+                AtomicLong isChildrenErrorReport = new AtomicLong();
+                stepChildrenErrorCalculate(step.getChildren(), isChildrenError,isChildrenErrorReport);
+                if (isChildrenError.longValue() > 0) {
+                    isError.set(isError.longValue() + 1);
+                }
+                if(isChildrenErrorReport.longValue() > 0){
+                    isErrorReport.set(isErrorReport.longValue() + 1);
+                }
             }
         }
     }
@@ -182,7 +190,6 @@ public class ApiScenarioReportStructureService {
     private void calculateStep(List<StepTreeDTO> dtoList, AtomicLong stepError, AtomicLong stepTotal, AtomicLong stepErrorCode) {
         for (StepTreeDTO step : dtoList) {
             // 失败结果数量
-//            stepErrorCalculate(step.getChildren(), stepError);
             scenarioCalculate(step.getChildren(), stepError, stepErrorCode);
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
                 stepTotal.set((stepTotal.longValue() + step.getChildren().size()));
@@ -296,27 +303,17 @@ public class ApiScenarioReportStructureService {
         return reportDTO;
     }
 
-    private void stepErrorCalculate(List<StepTreeDTO> dtoList, AtomicLong isError) {
+    private void stepChildrenErrorCalculate(List<StepTreeDTO> dtoList, AtomicLong isError, AtomicLong isErrorReport) {
         for (StepTreeDTO step : dtoList) {
             if (step.getValue() != null && step.getValue().getError() > 0) {
-                isError.set(isError.longValue() + 1);
-            } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                AtomicLong isChildrenError = new AtomicLong();
-                stepChildrenErrorCalculate(step.getChildren(), isChildrenError);
-                if (isChildrenError.longValue() > 0) {
+                if (StringUtils.isNotEmpty(step.getErrorCode())) {
+                    isErrorReport.set(isErrorReport.longValue() + 1);
+                } else if (step.getValue().getError() > 0) {
                     isError.set(isError.longValue() + 1);
                 }
-            }
-        }
-    }
-
-    private void stepChildrenErrorCalculate(List<StepTreeDTO> dtoList, AtomicLong isError) {
-        for (StepTreeDTO step : dtoList) {
-            if (step.getValue() != null && step.getValue().getError() > 0) {
-                isError.set(isError.longValue() + 1);
                 break;
             } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                stepChildrenErrorCalculate(step.getChildren(), isError);
+                stepChildrenErrorCalculate(step.getChildren(), isError, isErrorReport);
             }
         }
     }
