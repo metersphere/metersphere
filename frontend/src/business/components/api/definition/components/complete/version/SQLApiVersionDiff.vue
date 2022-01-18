@@ -1,106 +1,116 @@
 <template>
-  <div class="compare-class" v-loading="isReloadData">
-    <el-card style="width: 50%;" ref="old">
-      <div style="background-color: white;">
-        <el-row>
-          <el-col>
-            <!--操作按钮-->
-            <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-              <i class="el-icon-star-off"
-                 style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
-            </el-tooltip>
-            <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-              <i class="el-icon-star-on"
-                 style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
-            </el-tooltip>
-          </el-col>
-        </el-row>
-        <!-- 基础信息 -->
-        <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
-        <br/>
-        <el-row>
-          <el-col>
-            <ms-basis-api  :moduleOptions="moduleOptions" :is-read-only="true"
-                          :basisData="oldData" ref="basicForm"
-                          />
-          </el-col>
-        </el-row>
-        <!-- 请求参数 -->
-        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-basis-parameters :showScript="false" :request="oldRequest" :is-read-only="true"/>
+  <div>
+    <el-row>
+      <el-col :span="12">
+        <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.updateTime | timestampFormatDate }}</span>
+      </el-col>
+      <el-col :span="12">
+        <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.updateTime | timestampFormatDate }}</span>
+      </el-col>
+    </el-row>
+    <div class="compare-class" v-loading="isReloadData">
+      <el-card style="width: 50%;" ref="old">
+        <div style="background-color: white;">
+          <el-row>
+            <el-col>
+              <!--操作按钮-->
+              <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+                <i class="el-icon-star-off"
+                   style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+              </el-tooltip>
+              <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+                <i class="el-icon-star-on"
+                   style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+              </el-tooltip>
+            </el-col>
+          </el-row>
+          <!-- 基础信息 -->
+          <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
+          <br/>
+          <el-row>
+            <el-col>
+              <ms-basis-api  :moduleOptions="moduleOptions" :is-read-only="true"
+                             :basisData="oldData" ref="basicForm"
+              />
+            </el-col>
+          </el-row>
+          <!-- 请求参数 -->
+          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+          <ms-basis-parameters :showScript="false" :request="oldRequest" :is-read-only="true"/>
 
-        <ms-form-divider :title="$t('test_track.case.other_info')"/>
-        <api-info-container>
-          <el-form :model="oldData" ref="api-form" label-width="100px">
-            <el-collapse-transition>
-              <el-tabs v-model="activeName" style="margin: 20px">
-                <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
-                  <form-rich-text-item class="remark-item" :disabled="true" :data="oldData" prop="remark" label-width="0"/>
-                </el-tab-pane>
-                <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
-                  <template v-slot:label>
-                    <tab-pane-count :title="$t('commons.relationship.name')" :count="oldRelationshipCount"/>
-                  </template>
-                  <dependencies-list  @setCount="setOldCount" :read-only="true" :resource-id="oldData.id" resource-type="API" ref="oldDependencies"/>
-                </el-tab-pane>
-              </el-tabs>
-            </el-collapse-transition>
-          </el-form>
-        </api-info-container>
+          <ms-form-divider :title="$t('test_track.case.other_info')"/>
+          <api-info-container>
+            <el-form :model="oldData" ref="api-form" label-width="100px">
+              <el-collapse-transition>
+                <el-tabs v-model="activeName" style="margin: 20px">
+                  <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
+                    <form-rich-text-item class="remark-item" :disabled="true" :data="oldData" prop="remark" label-width="0"/>
+                  </el-tab-pane>
+                  <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
+                    <template v-slot:label>
+                      <tab-pane-count :title="$t('commons.relationship.name')" :count="oldRelationshipCount"/>
+                    </template>
+                    <dependencies-list  @setCount="setOldCount" :read-only="true" :resource-id="oldData.id" resource-type="API" ref="oldDependencies"/>
+                  </el-tab-pane>
+                </el-tabs>
+              </el-collapse-transition>
+            </el-form>
+          </api-info-container>
 
-      </div>
-    </el-card>
-    <el-card style="width: 50%;" ref="new">
-      <div style="background-color: white;">
-        <el-row>
-          <el-col>
-            <!--操作按钮-->
-            <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!newShowFollow">
-              <i class="el-icon-star-off"
-                 style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
-            </el-tooltip>
-            <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="newShowFollow">
-              <i class="el-icon-star-on"
-                 style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
-            </el-tooltip>
-          </el-col>
-        </el-row>
-        <!-- 基础信息 -->
-        <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
-        <br/>
-        <el-row>
-          <el-col>
-            <ms-basis-api  :moduleOptions="moduleOptions" :is-read-only="true"
-                           :basisData="newData" ref="basicForm"
-            />
-          </el-col>
-        </el-row>
-        <!-- 请求参数 -->
-        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-basis-parameters :showScript="false" :request="request" :is-read-only="true"/>
+        </div>
+      </el-card>
+      <el-card style="width: 50%;" ref="new">
+        <div style="background-color: white;">
+          <el-row>
+            <el-col>
+              <!--操作按钮-->
+              <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!newShowFollow">
+                <i class="el-icon-star-off"
+                   style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+              </el-tooltip>
+              <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="newShowFollow">
+                <i class="el-icon-star-on"
+                   style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+              </el-tooltip>
+            </el-col>
+          </el-row>
+          <!-- 基础信息 -->
+          <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
+          <br/>
+          <el-row>
+            <el-col>
+              <ms-basis-api  :moduleOptions="moduleOptions" :is-read-only="true"
+                             :basisData="newData" ref="basicForm"
+              />
+            </el-col>
+          </el-row>
+          <!-- 请求参数 -->
+          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+          <ms-basis-parameters :showScript="false" :request="request" :is-read-only="true"/>
 
-        <!-- 其他信息-->
-        <ms-form-divider :title="$t('test_track.case.other_info')"/>
-        <api-info-container>
-          <el-form :model="newData" ref="api-form" label-width="100px">
-            <el-collapse-transition>
-              <el-tabs v-model="activeName" style="margin: 20px">
-                <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
-                  <form-rich-text-item class="remark-item" :disabled="true" :data="newData" prop="remark" label-width="0"/>
-                </el-tab-pane>
-                <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
-                  <template v-slot:label>
-                    <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
-                  </template>
-                  <dependencies-list @setCount="setCount" :read-only="true" :resource-id="newData.id" resource-type="API" ref="newDependencies"/>
-                </el-tab-pane>
-              </el-tabs>
-            </el-collapse-transition>
-          </el-form>
-        </api-info-container>
+          <!-- 其他信息-->
+          <ms-form-divider :title="$t('test_track.case.other_info')"/>
+          <api-info-container>
+            <el-form :model="newData" ref="api-form" label-width="100px">
+              <el-collapse-transition>
+                <el-tabs v-model="activeName" style="margin: 20px">
+                  <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
+                    <form-rich-text-item class="remark-item" :disabled="true" :data="newData" prop="remark" label-width="0"/>
+                  </el-tab-pane>
+                  <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
+                    <template v-slot:label>
+                      <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
+                    </template>
+                    <dependencies-list @setCount="setCount" :read-only="true" :resource-id="newData.id" resource-type="API" ref="newDependencies"/>
+                  </el-tab-pane>
+                </el-tabs>
+              </el-collapse-transition>
+            </el-form>
+          </api-info-container>
 
-      </div>
-    </el-card>
+        </div>
+      </el-card>
+    </div>
   </div>
 </template>
 <script>
