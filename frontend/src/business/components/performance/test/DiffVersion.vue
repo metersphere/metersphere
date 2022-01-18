@@ -1,9 +1,15 @@
 <template>
 
 <div v-loading="isReloadData">
-  <div class="caall">
-
-  </div>
+  <div class="caall"></div>
+  <el-row>
+    <el-col :span="12">
+      <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.updateTime | timestampFormatDate }}</span>
+    </el-col>
+    <el-col :span="12">
+      <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.updateTime | timestampFormatDate }}</span>
+    </el-col>
+  </el-row>
   <div  class="compare-class" id="vdiff" ref="all" >
     <el-card style="width: 50%;" ref="old" id="old" >
       <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
