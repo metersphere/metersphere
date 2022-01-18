@@ -132,6 +132,7 @@ export default {
       if (selectTableData) {
         this.tableData = selectTableData;
       }
+      this.$refs.analysisChart.setPieOptionAndBarOption(this.loadOption,this.pieOption);
       this.loading = false;
       this.$refs.analysisChart.generateOption(this.chartType);
     },
