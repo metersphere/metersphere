@@ -1,149 +1,158 @@
 <template>
-  <div class="compare-class">
-    <el-card ref="old">
-      <el-card>
-        <div class="card-content">
-          <div class="ms-main-div" @click="showAll" >
+  <div>
+    <el-row>
+      <el-col :span="12">
+        <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.updateTime | timestampFormatDate }}</span>
+      </el-col>
+      <el-col :span="12">
+        <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.updateTime | timestampFormatDate }}</span>
+      </el-col>
+    </el-row>
+    <div class="compare-class" v-loading="isReloadData">
+      <el-card ref="old" style="width: 50%">
+        <el-card>
+          <div class="card-content">
+            <div class="ms-main-div" @click="showAll" >
 
-            <!--操作按钮-->
-            <div class="ms-opt-btn">
-              <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-                <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
-              </el-tooltip>
-              <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-                <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
-              </el-tooltip>
+              <!--操作按钮-->
+              <div class="ms-opt-btn">
+                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+                  <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
+                </el-tooltip>
+                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+                  <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
+                </el-tooltip>
+              </div>
+
+              <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
+              <el-form :model="oldData" label-position="right" label-width="80px" size="small" :rules="rules"  :disabled="true"
+                       ref="currentScenario" style="margin-right: 20px">
+                <!-- 基础信息 -->
+                <el-row>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('commons.name')" prop="name">
+                      <el-input class="ms-scenario-input" size="small" v-model="oldData.name"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
+                      <ms-select-tree size="small" :data="moduleOptions" :defaultKey="oldData.apiScenarioModuleId" :obj="moduleObj" clearable checkStrictly/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('commons.status')" prop="status">
+                      <el-select class="ms-scenario-input" size="small" v-model="oldData.status">
+                        <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
+                      <el-select v-model="oldData.principal"
+                                 :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
+                                 class="ms-scenario-input">
+                        <el-option
+                          v-for="item in maintainerOptions"
+                          :key="item.id"
+                          :label="item.name + ' (' + item.id + ')'"
+                          :value="item.id">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('test_track.case.priority')" prop="level">
+                      <el-select class="ms-scenario-input" size="small" v-model="oldData.level">
+                        <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
+                      <ms-input-tag :currentScenario="oldData" ref="tag"/>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('commons.description')" prop="description">
+                      <el-input class="ms-http-textarea"
+                                v-model="oldData.description"
+                                type="textarea"
+                                :autosize="{ minRows: 1, maxRows: 10}"
+                                :rows="1" size="small"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7" v-if="customNum">
+                    <el-form-item label="ID" prop="customNum">
+                      <el-input v-model.trim="oldData.customNum" size="small"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+
+              </el-form>
             </div>
-
-            <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
-            <el-form :model="oldData" label-position="right" label-width="80px" size="small" :rules="rules"  :disabled="true"
-                     ref="currentScenario" style="margin-right: 20px">
-              <!-- 基础信息 -->
+            <!-- 场景步骤-->
+            <div v-loading="loading">
+              <div @click="showAll">
+                <p class="tip">{{ $t('api_test.automation.scenario_step') }} </p>
+              </div>
               <el-row>
-                <el-col :span="7">
-                  <el-form-item :label="$t('commons.name')" prop="name">
-                    <el-input class="ms-scenario-input" size="small" v-model="oldData.name"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7">
-                  <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
-                    <ms-select-tree size="small" :data="moduleOptions" :defaultKey="oldData.apiScenarioModuleId" :obj="moduleObj" clearable checkStrictly/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7">
-                  <el-form-item :label="$t('commons.status')" prop="status">
-                    <el-select class="ms-scenario-input" size="small" v-model="oldData.status">
-                      <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="7">
-                  <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
-                    <el-select v-model="oldData.principal"
-                               :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
-                               class="ms-scenario-input">
-                      <el-option
-                        v-for="item in maintainerOptions"
-                        :key="item.id"
-                        :label="item.name + ' (' + item.id + ')'"
-                        :value="item.id">
-                      </el-option>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7">
-                  <el-form-item :label="$t('test_track.case.priority')" prop="level">
-                    <el-select class="ms-scenario-input" size="small" v-model="oldData.level">
-                      <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7">
-                  <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
-                    <ms-input-tag :currentScenario="oldData" ref="tag"/>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="7">
-                  <el-form-item :label="$t('commons.description')" prop="description">
-                    <el-input class="ms-http-textarea"
-                              v-model="oldData.description"
-                              type="textarea"
-                              :autosize="{ minRows: 1, maxRows: 10}"
-                              :rows="1" size="small"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7" v-if="customNum">
-                  <el-form-item label="ID" prop="customNum">
-                    <el-input v-model.trim="oldData.customNum" size="small"></el-input>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-
-            </el-form>
-          </div>
-          <!-- 场景步骤-->
-          <div v-loading="loading">
-            <div @click="showAll">
-              <p class="tip">{{ $t('api_test.automation.scenario_step') }} </p>
-            </div>
-            <el-row>
-              <el-col :span="21">
-                <!-- 调试部分 -->
-                <div class="ms-debug-div" @click="showAll" :class="{'is-top' : isTop}" ref="debugHeader">
-                  <el-row style="margin: 5px">
-                    <el-col :span="4" class="ms-col-one ms-font">
-                      <el-tooltip placement="top" effect="light">
-                        <template v-slot:content>
-                          <div>{{
+                <el-col :span="21">
+                  <!-- 调试部分 -->
+                  <div class="ms-debug-div" @click="showAll" :class="{'is-top' : isTop}" ref="debugHeader">
+                    <el-row style="margin: 5px">
+                      <el-col :span="4" class="ms-col-one ms-font">
+                        <el-tooltip placement="top" effect="light">
+                          <template v-slot:content>
+                            <div>{{
+                                oldData.name === undefined || '' ? $t('api_test.scenario.name') : oldData.name
+                              }}
+                            </div>
+                          </template>
+                          <span class="scenario-name">
+                        {{
                               oldData.name === undefined || '' ? $t('api_test.scenario.name') : oldData.name
                             }}
-                          </div>
-                        </template>
-                        <span class="scenario-name">
-                        {{
-                            oldData.name === undefined || '' ? $t('api_test.scenario.name') : oldData.name
-                          }}
                     </span>
-                      </el-tooltip>
-                    </el-col>
-                    <el-col :span="3" class="ms-col-one ms-font">
-                      {{ $t('api_test.automation.step_total') }}：{{ 0}}
-                    </el-col>
-                    <el-col :span="3" class="ms-col-one ms-font">
-                      <el-link class="head">{{ $t('api_test.automation.scenario_total') }}
-                      </el-link>
-                      ：{{ oldVariableSize }}
-                    </el-col>
-                    <el-col :span="3" class="ms-col-one ms-font">
-                      <el-checkbox v-model="oldEnableCookieShare"><span style="font-size: 13px;">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox>
-                    </el-col>
-                    <el-col :span="3" class="ms-col-one ms-font">
-                      <el-checkbox v-model="oldOnSampleError"><span style="font-size: 13px;">{{ $t('commons.failure_continues') }}</span></el-checkbox>
-                    </el-col>
+                        </el-tooltip>
+                      </el-col>
+                      <el-col :span="3" class="ms-col-one ms-font">
+                        {{ $t('api_test.automation.step_total') }}：{{ 0}}
+                      </el-col>
+                      <el-col :span="3" class="ms-col-one ms-font">
+                        <el-link class="head">{{ $t('api_test.automation.scenario_total') }}
+                        </el-link>
+                        ：{{ oldVariableSize }}
+                      </el-col>
+                      <el-col :span="3" class="ms-col-one ms-font">
+                        <el-checkbox v-model="oldEnableCookieShare"><span style="font-size: 13px;">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox>
+                      </el-col>
+                      <el-col :span="3" class="ms-col-one ms-font">
+                        <el-checkbox v-model="oldOnSampleError"><span style="font-size: 13px;">{{ $t('commons.failure_continues') }}</span></el-checkbox>
+                      </el-col>
 
-                  </el-row>
-                </div>
+                    </el-row>
+                  </div>
 
-                <!-- 场景步骤内容 -->
-                <div ref="stepInfo">
-                  <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
-                    <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"  @click="openExpansion('old')"/>
-                  </el-tooltip>
-                  <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
-                    <i class="el-icon-remove-outline ms-open-btn" size="mini"  @click="closeExpansion('old')"/>
-                  </el-tooltip>
-                  <el-tree node-key="resourceId" :props="props" :data="oldScenarioDefinition" class="ms-tree"
-                           :default-expanded-keys="oldExpandedNode"
-                           :expand-on-click-node="false"
-                           highlight-current
-                           @node-expand="nodeExpand(oldScenarioDefinition,null,'old')"
-                           @node-collapse="nodeCollapse(oldScenarioDefinition,null,'old')"
-                           @node-click="oldNodeClick"
-                           draggable ref="stepTree">
+                  <!-- 场景步骤内容 -->
+                  <div ref="stepInfo">
+                    <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
+                      <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"  @click="openExpansion('old')"/>
+                    </el-tooltip>
+                    <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
+                      <i class="el-icon-remove-outline ms-open-btn" size="mini"  @click="closeExpansion('old')"/>
+                    </el-tooltip>
+                    <el-tree node-key="resourceId" :props="props" :data="oldScenarioDefinition" class="ms-tree"
+                             :default-expanded-keys="oldExpandedNode"
+                             :expand-on-click-node="false"
+                             highlight-current
+                             @node-expand="nodeExpand(oldScenarioDefinition,null,'old')"
+                             @node-collapse="nodeCollapse(oldScenarioDefinition,null,'old')"
+                             @node-click="oldNodeClick"
+                             draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -151,162 +160,163 @@
                          :scenario="data"
                          :node="node"
                          :env-map="projectEnvMap"
+                         :project-list="projectList"
                          :show-version="false"
                        />
                     </span>
-                  </el-tree>
-                </div>
-              </el-col>
-            </el-row>
+                    </el-tree>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
+            <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
           </div>
-          <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
-        </div>
+        </el-card>
       </el-card>
-    </el-card>
-    <el-card  ref="new">
-      <el-card>
-        <div class="card-content">
-          <div class="ms-main-div" @click="showAll" v-if="type!=='detail'">
+      <el-card  ref="new" style="width: 50%">
+        <el-card>
+          <div class="card-content">
+            <div class="ms-main-div" @click="showAll" v-if="type!=='detail'">
 
-            <!--操作按钮-->
-            <div class="ms-opt-btn">
-              <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!newShowFollow">
-                <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
-              </el-tooltip>
-              <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="newShowFollow">
-                <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
-              </el-tooltip>
+              <!--操作按钮-->
+              <div class="ms-opt-btn">
+                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!newShowFollow">
+                  <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
+                </el-tooltip>
+                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="newShowFollow">
+                  <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
+                </el-tooltip>
+              </div>
+
+              <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
+              <el-form :model="newData" label-position="right" label-width="80px" size="small" :rules="rules" :disabled="true"
+                       ref="currentScenario" style="margin-right: 20px">
+                <!-- 基础信息 -->
+                <el-row>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('commons.name')" prop="name">
+                      <el-input class="ms-scenario-input" size="small" v-model="newData.name"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
+                      <ms-select-tree size="small" :data="moduleOptions" :defaultKey="newData.apiScenarioModuleId" :obj="moduleObj" clearable checkStrictly/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('commons.status')" prop="status">
+                      <el-select class="ms-scenario-input" size="small" v-model="newData.status">
+                        <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
+                      <el-select v-model="newData.principal"
+                                 :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
+                                 class="ms-scenario-input">
+                        <el-option
+                          v-for="item in maintainerOptions"
+                          :key="item.id"
+                          :label="item.name + ' (' + item.id + ')'"
+                          :value="item.id">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('test_track.case.priority')" prop="level">
+                      <el-select class="ms-scenario-input" size="small" v-model="newData.level">
+                        <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
+                      <ms-input-tag :currentScenario="newData" ref="tag"/>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="7">
+                    <el-form-item :label="$t('commons.description')" prop="description">
+                      <el-input class="ms-http-textarea"
+                                v-model="newData.description"
+                                type="textarea"
+                                :autosize="{ minRows: 1, maxRows: 10}"
+                                :rows="1" size="small"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7" v-if="customNum">
+                    <el-form-item label="ID" prop="customNum">
+                      <el-input v-model.trim="newData.customNum" size="small"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+
+              </el-form>
             </div>
-
-            <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
-            <el-form :model="newData" label-position="right" label-width="80px" size="small" :rules="rules" :disabled="true"
-                     ref="currentScenario" style="margin-right: 20px">
-              <!-- 基础信息 -->
+            <!-- 场景步骤-->
+            <div v-loading="loading">
+              <div @click="showAll">
+                <p class="tip">{{ $t('api_test.automation.scenario_step') }} </p>
+              </div>
               <el-row>
-                <el-col :span="7">
-                  <el-form-item :label="$t('commons.name')" prop="name">
-                    <el-input class="ms-scenario-input" size="small" v-model="newData.name"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7">
-                  <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
-                    <ms-select-tree size="small" :data="moduleOptions" :defaultKey="newData.apiScenarioModuleId" :obj="moduleObj" clearable checkStrictly/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7">
-                  <el-form-item :label="$t('commons.status')" prop="status">
-                    <el-select class="ms-scenario-input" size="small" v-model="newData.status">
-                      <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="7">
-                  <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
-                    <el-select v-model="newData.principal"
-                               :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
-                               class="ms-scenario-input">
-                      <el-option
-                        v-for="item in maintainerOptions"
-                        :key="item.id"
-                        :label="item.name + ' (' + item.id + ')'"
-                        :value="item.id">
-                      </el-option>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7">
-                  <el-form-item :label="$t('test_track.case.priority')" prop="level">
-                    <el-select class="ms-scenario-input" size="small" v-model="newData.level">
-                      <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7">
-                  <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
-                    <ms-input-tag :currentScenario="newData" ref="tag"/>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="7">
-                  <el-form-item :label="$t('commons.description')" prop="description">
-                    <el-input class="ms-http-textarea"
-                              v-model="newData.description"
-                              type="textarea"
-                              :autosize="{ minRows: 1, maxRows: 10}"
-                              :rows="1" size="small"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="7" v-if="customNum">
-                  <el-form-item label="ID" prop="customNum">
-                    <el-input v-model.trim="newData.customNum" size="small"></el-input>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-
-            </el-form>
-          </div>
-          <!-- 场景步骤-->
-          <div v-loading="loading">
-            <div @click="showAll">
-              <p class="tip">{{ $t('api_test.automation.scenario_step') }} </p>
-            </div>
-            <el-row>
-              <el-col :span="21">
-                <!-- 调试部分 -->
-                <div class="ms-debug-div" @click="showAll" :class="{'is-top' : isTop}" ref="debugHeader">
-                  <el-row style="margin: 5px">
-                    <el-col :span="4" class="ms-col-one ms-font">
-                      <el-tooltip placement="top" effect="light">
-                        <template v-slot:content>
-                          <div>{{
+                <el-col :span="21">
+                  <!-- 调试部分 -->
+                  <div class="ms-debug-div" @click="showAll" :class="{'is-top' : isTop}" ref="debugHeader">
+                    <el-row style="margin: 5px">
+                      <el-col :span="4" class="ms-col-one ms-font">
+                        <el-tooltip placement="top" effect="light">
+                          <template v-slot:content>
+                            <div>{{
+                                newData.name === undefined || '' ? $t('api_test.scenario.name') : newData.name
+                              }}
+                            </div>
+                          </template>
+                          <span class="scenario-name">
+                        {{
                               newData.name === undefined || '' ? $t('api_test.scenario.name') : newData.name
                             }}
-                          </div>
-                        </template>
-                        <span class="scenario-name">
-                        {{
-                            newData.name === undefined || '' ? $t('api_test.scenario.name') : newData.name
-                          }}
                     </span>
-                      </el-tooltip>
-                    </el-col>
-                    <el-col :span="3" class="ms-col-one ms-font">
-                      {{ $t('api_test.automation.step_total') }}：{{ 0 }}
-                    </el-col>
-                    <el-col :span="3" class="ms-col-one ms-font">
-                      <el-link class="head" >{{ $t('api_test.automation.scenario_total') }}
-                      </el-link>
-                      ：{{ newVariableSize }}
-                    </el-col>
-                    <el-col :span="3" class="ms-col-one ms-font">
-                      <el-checkbox v-model="newEnableCookieShare"><span style="font-size: 13px;">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox>
-                    </el-col>
-                    <el-col :span="3" class="ms-col-one ms-font">
-                      <el-checkbox v-model="newOnSampleError"><span style="font-size: 13px;">{{ $t('commons.failure_continues') }}</span></el-checkbox>
-                    </el-col>
+                        </el-tooltip>
+                      </el-col>
+                      <el-col :span="3" class="ms-col-one ms-font">
+                        {{ $t('api_test.automation.step_total') }}：{{ 0 }}
+                      </el-col>
+                      <el-col :span="3" class="ms-col-one ms-font">
+                        <el-link class="head" >{{ $t('api_test.automation.scenario_total') }}
+                        </el-link>
+                        ：{{ newVariableSize }}
+                      </el-col>
+                      <el-col :span="3" class="ms-col-one ms-font">
+                        <el-checkbox v-model="newEnableCookieShare"><span style="font-size: 13px;">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox>
+                      </el-col>
+                      <el-col :span="3" class="ms-col-one ms-font">
+                        <el-checkbox v-model="newOnSampleError"><span style="font-size: 13px;">{{ $t('commons.failure_continues') }}</span></el-checkbox>
+                      </el-col>
 
-                  </el-row>
-                </div>
+                    </el-row>
+                  </div>
 
-                <!-- 场景步骤内容 -->
-                <div ref="stepInfo">
-                  <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
-                    <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"  @click="openExpansion('new')"/>
-                  </el-tooltip>
-                  <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
-                    <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion('new')"/>
-                  </el-tooltip>
-                  <el-tree node-key="newResourceId" :props="props" :data="newScenarioDefinition" class="ms-tree"
-                           :expand-on-click-node="false"
-                           :default-expanded-keys="newExpandedNode"
-                           highlight-current
-                           @node-expand="nodeExpand"
-                           @node-collapse="nodeCollapse"
-                           @node-click="nodeClick"
-                           draggable ref="stepTree" >
+                  <!-- 场景步骤内容 -->
+                  <div ref="stepInfo">
+                    <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
+                      <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"  @click="openExpansion('new')"/>
+                    </el-tooltip>
+                    <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
+                      <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion('new')"/>
+                    </el-tooltip>
+                    <el-tree node-key="newResourceId" :props="props" :data="newScenarioDefinition" class="ms-tree"
+                             :expand-on-click-node="false"
+                             :default-expanded-keys="newExpandedNode"
+                             highlight-current
+                             @node-expand="nodeExpand"
+                             @node-collapse="nodeCollapse"
+                             @node-click="nodeClick"
+                             draggable ref="stepTree" >
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -314,36 +324,38 @@
                          :scenario="data"
                          :node="node"
                          :env-map="newProjectEnvMap"
+                         :project-list="projectList"
                          :show-version="false"
-                      />
+                       />
                     </span>
-                  </el-tree>
-                </div>
-              </el-col>
-            </el-row>
-          </div>
+                    </el-tree>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
 
-          <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
-        </div>
+            <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
+          </div>
+        </el-card>
       </el-card>
-    </el-card>
-    <el-dialog
-      :fullscreen="true"
-      :visible.sync="dialogVisible"
-      append-to-body
-      width="100%"
-    >
-      <scenario-child-diff
-        :old-data="leftChildData"
-        :new-data="rightChildData"
-        :old-node="leftChildNode"
-        :new-node="rightChildNode"
-        :old-project-env-map="projectEnvMap"
-        :new-project-env-map="newProjectEnvMap"
-        :old-v-node="leftChildVnode"
-        :new-v-node="rightChildVnode"
-      ></scenario-child-diff>
-    </el-dialog>
+      <el-dialog
+        :fullscreen="true"
+        :visible.sync="dialogVisible"
+        append-to-body
+        width="100%"
+      >
+        <scenario-child-diff
+          :old-data="leftChildData"
+          :new-data="rightChildData"
+          :old-node="leftChildNode"
+          :new-node="rightChildNode"
+          :old-project-env-map="projectEnvMap"
+          :new-project-env-map="newProjectEnvMap"
+          :old-v-node="leftChildVnode"
+          :new-v-node="rightChildVnode"
+        ></scenario-child-diff>
+      </el-dialog>
+    </div>
   </div>
 </template>
 <script>
@@ -399,7 +411,10 @@ export default{
     newOnSampleError:{},
     projectEnvMap: {},
     newProjectEnvMap: {},
-    type:{}
+    type:{},
+    projectList:{
+      type: Array,
+    },
   },
   components:{
     ScenarioChildDiff,
@@ -427,6 +442,7 @@ export default{
      options: API_STATUS,
      levels: PRIORITY,
      loading: false,
+     isReloadData:true,
      moduleObj: {
        id: 'id',
        label: 'name',
@@ -439,7 +455,6 @@ export default{
      },
      showHideTree: true,
      environmentType: ENV_TYPE.JSON,
-     projectList:[],
      props: {
        label: "label",
        children: "hashTree"
@@ -455,7 +470,7 @@ export default{
      rightChildNode:{},
      leftChildVnode:{},
      rightChildVnode:{},
-     dialogVisible:false
+     dialogVisible:false,
    }
   },
   methods:{
@@ -466,6 +481,7 @@ export default{
       console.log(this.$refs.old)
       console.log(this.$refs.new)
       diff(oldVnode,vnode);
+      this.isReloadData = false
     },
     showAll() {
       // 控制当有弹出页面操作时禁止刷新按钮列表
@@ -491,11 +507,6 @@ export default{
       this.getEnv(JSON.stringify(definition)).then(() => {
         this.$refs.envPopover.openEnvSelect();
         this.newEnvResult.loading = false;
-      })
-    },
-    getWsProjects() {
-      this.$get("/project/listAll", res => {
-        this.projectList = res.data;
       })
     },
     changeNodeStatus(nodes,source) {
@@ -622,7 +633,7 @@ export default{
 
   },
   created() {
-    this.getWsProjects();
+
   },
   mounted() {
     this.$nextTick(function () {

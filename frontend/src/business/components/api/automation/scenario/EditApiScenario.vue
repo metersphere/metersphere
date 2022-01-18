@@ -354,7 +354,8 @@
         :new-scenario-definition="newScenarioDefinition"
         :project-env-map="projectEnvMap"
         :new-project-env-map="newProjectEnvMap"
-        :type="type"
+        :project-list="projectList"
+        :type ="type"
       ></scenario-diff>
     </el-dialog>
 
@@ -1740,33 +1741,38 @@ export default {
       });
     },
     compare(row) {
-      this.$get('/api/automation/get/' + row.id + "/" + this.currentScenario.refId, response => {
-        this.$get("/api/automation/getApiScenario/" + response.data.id, res => {
-          if (res.data) {
-            if (res.data.scenarioDefinition != null) {
-              let obj = JSON.parse(res.data.scenarioDefinition);
-              if (obj) {
-                if (obj.hashTree) {
-                  for (let i = 0; i < obj.hashTree.length; i++) {
-                    obj.hashTree[i].disabled = true;
+      this.$get('/api/automation/get/' +  row.id+"/"+this.currentScenario.refId, response => {
+          this.$get("/api/automation/getApiScenario/" +  response.data.id, res => {
+            if (res.data) {
+              if(res.data.scenarioDefinition != null){
+                let obj = JSON.parse(res.data.scenarioDefinition);
+                if(obj){
+                  if(obj.hashTree){
+                    for (let i = 0; i < obj.hashTree.length; i++) {
+                      obj.hashTree[i].disabled = true;
+                      if (!obj.hashTree[i].requestResult) {
+                        obj.hashTree[i].requestResult = [{responseResult: {}}];
+                      }
+                    }
+                  }
+                  for (let i = 0; i < this.scenarioDefinition.length; i++) {
+                    this.scenarioDefinition[i].disabled = true;
+                  }
+                  this.newScenarioDefinition = obj.hashTree;
+
+                  if (response.data.environmentJson) {
+                    this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                  } else {
+                    // 兼容历史数据
+                    this.newProjectEnvMap.set(this.projectId, obj.environmentId);
                   }
                 }
-                for (let i = 0; i < this.scenarioDefinition.length; i++) {
-                  this.scenarioDefinition[i].disabled = true;
-                }
-                this.newScenarioDefinition = obj.hashTree;
-                if (response.data.environmentJson) {
-                  this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
-                } else {
-                  // 兼容历史数据
-                  this.newProjectEnvMap.set(this.projectId, obj.environmentId);
-                }
               }
+              res.data.userName = response.data.userName
+              this.newData = res.data;
+              this.dialogVisible = true;
             }
-            this.newData = res.data;
-            this.dialogVisible = true;
-          }
-        });
+          });
       })
     },
     checkout(row) {
