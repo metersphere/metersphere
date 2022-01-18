@@ -2957,10 +2957,12 @@ export default {
     use_desc: "失敗斷言與誤報規則衝突時統一處理為誤報",
     option: {
       name: "誤報",
-      error_code: "錯誤碼",
+      error_code: "誤報名稱",
       match_type: "匹配類型",
       status: "狀態",
       is_open: "啟用狀態",
+      create: "創建誤報",
+      match_rule: "匹配規則",
     },
     match_type: {
       text: "文本"
