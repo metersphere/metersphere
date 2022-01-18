@@ -1,8 +1,8 @@
 <template>
 
   <div class="card-container">
-    <div class="ms-opt-btn">
-      {{ $t('project.version.name') }}:  {{ apiData.versionName }}
+    <div class="ms-opt-btn" v-if="versionEnable">
+      {{ $t('project.version.name') }}: {{ apiData.versionName }}
     </div>
     <el-card class="card-content">
 
@@ -73,7 +73,7 @@
 
 <script>
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import {getUUID} from "@/common/js/utils";
+import {getUUID, hasLicense} from "@/common/js/utils";
 import MsApiCaseList from "../case/ApiCaseList";
 import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
@@ -84,6 +84,7 @@ import {REQ_METHOD} from "../../model/JsonData";
 import EnvironmentSelect from "../environment/EnvironmentSelect";
 import MsJmxStep from "../step/JmxStep";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
 const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
@@ -119,8 +120,9 @@ export default {
       },
       runData: [],
       reportId: "",
-      showXpackCompnent:false,
-      runLoading: false
+      showXpackCompnent: false,
+      runLoading: false,
+      versionEnable: false,
     }
   },
   props: {apiData: {}, currentProtocol: String,syncTabs: Array, projectId: String},
@@ -274,6 +276,16 @@ export default {
         this.$success(this.$t('report.test_stop_success'));
       });
     },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + this.projectId, response => {
+          this.versionEnable = response.data;
+        });
+      }
+    }
   },
   created() {
     // 深度复制
@@ -285,6 +297,7 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) !== '{}') {
       this.showXpackCompnent = true;
     }
+    this.checkVersionEnable();
   }
 }
 </script>
