@@ -162,18 +162,23 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                 if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
                     requestResult.getSubRequestResults().forEach(transactionResult -> {
                         transactionResult.getResponseResult().setConsole(console);
-                        dto.setContent("result_" + JSON.toJSONString(transactionResult));
+                        //解析误报内容
+                        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(transactionResult);
+                        JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(transactionResult));
+                        if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
+                            requestResultObject.put("errorReportResult",errorCodeDTO.getErrorCodeStr());
+                        }
+                        dto.setContent("result_" + JSON.toJSONString(requestResultObject));
                         WebSocketUtils.sendMessageSingle(dto);
                     });
                 } else {
+                    requestResult.getResponseResult().setConsole(console);
                     //解析误报内容
-                    JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(requestResult));
                     ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(requestResult);
+                    JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(requestResult));
                     if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
                         requestResultObject.put("errorReportResult",errorCodeDTO.getErrorCodeStr());
                     }
-
-                    requestResult.getResponseResult().setConsole(console);
                     dto.setContent("result_" + JSON.toJSONString(requestResultObject));
                     WebSocketUtils.sendMessageSingle(dto);
                 }
