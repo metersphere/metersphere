@@ -1231,7 +1231,10 @@ export default {
         if (draggingNode.data.disabled && draggingNode.parent && draggingNode.parent.data && draggingNode.parent.data.disabled) {
           return false;
         }
-        return true;
+        if (draggingNode && dropNode && draggingNode.level >= dropNode.level) {
+          return true;
+        }
+        return false;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
         && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)) {
         return true;
