@@ -2954,10 +2954,12 @@ export default {
     use_desc: "In case of conflict between error code and error assertions, it is treated as error code",
     option: {
       name: "Err code",
-      error_code: "Err code",
+      error_code: "Name",
       match_type: "Match",
       status: "Status",
       is_open: "Is open",
+      create: "Create",
+      match_rule: "Rule",
     },
     match_type: {
       text: "TXT"
