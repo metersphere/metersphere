@@ -20,6 +20,7 @@ package io.metersphere.api.jmeter;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
+import io.metersphere.api.exec.utils.ResultParseUtil;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -148,7 +149,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         this.setVars(result);
         if (isSampleWanted(result.isSuccessful()) && !StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
             RequestResult requestResult = JMeterBase.getRequestResult(result);
-            if (requestResult != null) {
+            if (requestResult != null && ResultParseUtil.isNotAutoGenerateSampler(requestResult)) {
                 MsgDto dto = new MsgDto();
                 dto.setExecEnd(false);
                 dto.setReportId("send." + this.getName());
