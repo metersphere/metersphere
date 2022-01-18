@@ -2,7 +2,6 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.*;
@@ -12,7 +11,10 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.*;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ResponseUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
@@ -135,7 +137,9 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    private String editStatus(String type, String status, Long time, String reportId, String testId) {
+    private void editStatus(ApiDefinitionExecResult saveResult, String type, String status, Long time, String reportId, String testId) {
+        String name = testId;
+        String version = "";
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(testId);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
@@ -162,12 +166,13 @@ public class ApiDefinitionExecResultService {
                 }
             }
             if (caseWithBLOBs != null) {
-                return caseWithBLOBs.getName();
+                name = caseWithBLOBs.getName();
+                version = caseWithBLOBs.getVersionId();
             }
         } else {
             ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(testId);
             if (apiDefinition != null) {
-                return apiDefinition.getName();
+                name = apiDefinition.getName();
             } else {
                 ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testId);
                 if (caseWithBLOBs != null) {
@@ -180,11 +185,13 @@ public class ApiDefinitionExecResultService {
                     if (LoggerUtil.getLogger().isDebugEnabled()) {
                         LoggerUtil.debug("更新用例【 " + caseWithBLOBs.getId() + " 】");
                     }
-                    return caseWithBLOBs.getName();
+                    name = caseWithBLOBs.getName();
+                    version = caseWithBLOBs.getVersionId();
                 }
             }
         }
-        return testId;
+        saveResult.setVersionId(version);
+        saveResult.setName(name);
     }
 
     /**
@@ -206,12 +213,12 @@ public class ApiDefinitionExecResultService {
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                     ApiDefinitionExecResult reportResult = this.save(item, dto.getReportId(), dto.getConsole(), countExpectProcessResultCount, dto.getRunMode(), dto.getTestId(), isFirst);
                     String status = item.isSuccess() ? "success" : "error";
-                    if(reportResult != null){
+                    if (reportResult != null) {
                         status = reportResult.getStatus();
                     }
                     //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
-                    if(MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())){
+                    if (MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())) {
                         status = expandDTO.getStatus();
                     }
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
@@ -343,17 +350,17 @@ public class ApiDefinitionExecResultService {
 
             //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
             RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
-            if(MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())){
+            if (MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())) {
                 status = expandDTO.getStatus();
                 saveResult.setContent(JSON.toJSONString(expandDTO));
-            }else {
+            } else {
                 saveResult.setContent(JSON.toJSONString(item));
             }
 
             saveResult.setName(item.getName());
             saveResult.setType(type);
             saveResult.setCreateTime(item.getStartTime());
-            saveResult.setName(editStatus(type, status, saveResult.getCreateTime(), saveResult.getId(), testId));
+            editStatus(saveResult, type, status, saveResult.getCreateTime(), saveResult.getId(), testId);
             saveResult.setStatus(status);
             saveResult.setResourceId(item.getName());
             saveResult.setStartTime(item.getStartTime());

@@ -151,7 +151,7 @@ public class ApiScenarioExecuteService {
                     JSON.toJSONString(CollectionUtils.isNotEmpty(scenarioIds) && scenarioIds.size() > 50 ? scenarioIds.subList(0, 50) : scenarioIds),
                     scenarioNames.length() >= 3000 ? scenarioNames.substring(0, 2000) : scenarioNames.deleteCharAt(scenarioNames.length() - 1).toString(),
                     ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig(), JSON.toJSONString(scenarioIds));
-
+            report.setVersionId(apiScenarios.get(0).getVersionId());
             report.setName(request.getConfig().getReportName());
             report.setId(serialReportId);
             request.getConfig().setAmassReport(serialReportId);
@@ -259,7 +259,7 @@ public class ApiScenarioExecuteService {
             }
             report = apiScenarioReportService.init(reportId, testPlanScenarioId, scenario.getName(), request.getTriggerMode(),
                     request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig(), scenario.getId());
-
+            report.setVersionId(scenario.getVersionId());
             scenarioIds.add(scenario.getId());
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 RunModeDataDTO runModeDataDTO = new RunModeDataDTO();
@@ -310,6 +310,7 @@ public class ApiScenarioExecuteService {
             APIScenarioReportResult report = apiScenarioReportService.init(reportId, item.getId(), item.getName(), request.getTriggerMode(),
                     request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
             scenarioIds.add(item.getId());
+            report.setVersionId(item.getVersionId());
             scenarioNames.append(item.getName()).append(",");
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 RunModeDataDTO runModeDataDTO = new RunModeDataDTO();
@@ -377,14 +378,15 @@ public class ApiScenarioExecuteService {
         if (request.isSaved()) {
             APIScenarioReportResult report = apiScenarioReportService.init(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                     SessionUtils.getUserId(), request.getConfig(), request.getId());
-            apiScenarioReportMapper.insert(report);
             ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(request.getScenarioId());
             if (scenarioWithBLOBs != null) {
+                report.setVersionId(scenarioWithBLOBs.getVersionId());
                 apiScenarioReportStructureService.save(scenarioWithBLOBs, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
             } else {
                 if (request.getTestElement() != null && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree())) {
                     ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
                     scenario.setId(request.getScenarioId());
+                    report.setVersionId(scenarioWithBLOBs.getVersionId());
                     MsTestElement testElement = request.getTestElement().getHashTree().get(0).getHashTree().get(0);
                     if (testElement != null) {
                         scenario.setName(testElement.getName());
@@ -393,6 +395,7 @@ public class ApiScenarioExecuteService {
                     }
                 }
             }
+            apiScenarioReportMapper.insert(report);
         }
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
