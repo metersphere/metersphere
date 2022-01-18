@@ -7,16 +7,11 @@
     </div>
 
     <el-container>
+
       <el-aside width="120px">
-        <div class="main-number-show">
-          <span class="count-number">
-            {{trackCountData.allCaseCountNumber}}
-          </span>
-          <span style="color: #6C317C;">
-            {{$t('api_test.home_page.unit_of_measurement')}}
-          </span>
-        </div>
+        <ms-count-ring-chart :content="trackCountData.allCaseCountNumber"/>
       </el-aside>
+
       <el-main style="padding-left: 0px;padding-right: 0px;">
         <div style="width: 200px;margin:0 auto">
 
@@ -123,8 +118,11 @@
 </template>
 
 <script>
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
+import MsCountRingChart from "@/business/components/common/chart/MsCountRingChart";
 export default {
   name: "CaseCountCard",
+  components: {MsCountRingChart, MsInstructionsIcon},
   props:{
     trackCountData: {},
   },
@@ -153,16 +151,6 @@ export default {
   font-size:33px;
   color: var(--count_number);
   position: relative;
-}
-
-.main-number-show {
-  width: 100px;
-  height: 100px;
-  border-style: solid;
-  border-width: 7px;
-  border-color: var(--count_number_shallow);
-  border-radius:50%;
-
 }
 
 .count-number-show{

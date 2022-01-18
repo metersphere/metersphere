@@ -7,15 +7,9 @@
     </div>
     <el-container>
       <el-aside width="120px">
-        <div class="main-number-show">
-          <span class="count-number">
-            {{ apiCountData.allApiDataCountNumber }}
-          </span>
-          <span style="color: #6C317C;">
-            {{ $t('api_test.home_page.unit_of_measurement') }}
-          </span>
-        </div>
+        <ms-count-ring-chart :content="apiCountData.allApiDataCountNumber"/>
       </el-aside>
+
       <el-main style="padding-left: 0px;padding-right: 0px;">
         <div style="width: 200px;margin:0 auto">
 
@@ -162,10 +156,11 @@
 
 <script>
 
+import MsCountRingChart from "@/business/components/common/chart/MsCountRingChart";
 export default {
   name: "MsApiInfoCard",
 
-  components: {},
+  components: {MsCountRingChart},
 
   data() {
     return {
@@ -203,16 +198,6 @@ export default {
   color: var(--count_number);
   margin:20px auto;
   position: relative;
-}
-
-.main-number-show {
-  width: 100px;
-  height: 100px;
-  border-style: solid;
-  border-width: 7px;
-  border-color: var(--count_number_shallow);
-  border-radius: 50%;
-
 }
 
 .count-number-show {
