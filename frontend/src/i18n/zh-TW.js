@@ -423,6 +423,7 @@ export default {
     is_new: "是否新建",
     form_config: "表單配置",
     form_content: "表單內容",
+    no_operation_permission: "無操作權限!",
     sync_other_info: "同步以下信息到新版本",
   },
   login: {

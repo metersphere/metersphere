@@ -421,6 +421,7 @@ export default {
     is_new: "Is new",
     form_config: "Form config",
     form_content: "Form content",
+    no_operation_permission: "No operation permission!",
     sync_other_info: "Sync other config",
   },
   login: {
