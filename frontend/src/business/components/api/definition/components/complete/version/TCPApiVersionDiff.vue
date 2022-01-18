@@ -1,162 +1,172 @@
 <template>
-  <div class="compare-class" v-loading="isReloadData">
-    <el-card style="width: 50%;" ref="old">
-      <div style="background-color: white;">
-        <el-row>
-          <el-col>
-            <!--操作按钮-->
-            <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-              <i class="el-icon-star-off"
-                 style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
-            </el-tooltip>
-            <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-              <i class="el-icon-star-on"
-                 style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
-            </el-tooltip>
-          </el-col>
-        </el-row>
-        <!-- 基础信息 -->
-        <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
-        <br/>
-        <el-row>
-          <el-col>
-            <ms-tcp-basic-api
-              :is-diff = true
-              :method-types="methodTypes"
-              :moduleOptions="moduleOptions"
-              :basisData="oldData" ref="basicForm"/>
-          </el-col>
-        </el-row>
-        <!-- MOCK信息 -->
-        <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
-        <div class="mock-info">
+  <div>
+    <el-row>
+      <el-col :span="12">
+        <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.updateTime | timestampFormatDate }}</span>
+      </el-col>
+      <el-col :span="12">
+        <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.updateTime | timestampFormatDate }}</span>
+      </el-col>
+    </el-row>
+    <div class="compare-class" v-loading="isReloadData">
+      <el-card style="width: 50%;" ref="old">
+        <div style="background-color: white;">
           <el-row>
-            <el-col :span="20">
-              Mock地址：
-              <el-link v-if="this.mockInfo !== '' " target="_blank" style="color: black"
-                       type="primary">{{ this.mockInfo }}
-              </el-link>
-              <el-link v-else target="_blank" style="color: darkred"
-                       type="primary">当前项目未开启Mock服务
-              </el-link>
+            <el-col>
+              <!--操作按钮-->
+              <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+                <i class="el-icon-star-off"
+                   style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+              </el-tooltip>
+              <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+                <i class="el-icon-star-on"
+                   style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+              </el-tooltip>
             </el-col>
           </el-row>
-        </div>
-        <!-- 请求参数 -->
-        <div v-if="oldApiProtocol==='TCP'">
-          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-
-          <ms-tcp-format-parameters :show-script="false" :request="oldRequest" :is-read-only="true" ref="tcpFormatParameter"/>
-        </div>
-        <div v-else-if="oldApiProtocol==='ESB'">
-          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :is-read-only="true" :request="oldRequest" ref="esbDefinition"/>
-          <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-          <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :is-read-only="true"
-                                   :request="oldRequest"/>
-          <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
-        </div>
-
-        <ms-form-divider :title="$t('test_track.case.other_info')"/>
-        <api-info-container>
-          <el-form :model="oldData" ref="api-form" label-width="100px">
-            <el-collapse-transition>
-              <el-tabs v-model="activeName" style="margin: 20px">
-                <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
-                  <form-rich-text-item class="remark-item" :disabled="true" :data="oldData" prop="remark" label-width="0"/>
-                </el-tab-pane>
-                <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
-                  <template v-slot:label>
-                    <tab-pane-count :title="$t('commons.relationship.name')" :count="oldRelationshipCount"/>
-                  </template>
-                  <dependencies-list  @setCount="setOldCount" :read-only="true" :resource-id="oldData.id" resource-type="API" ref="oldDependencies"/>
-                </el-tab-pane>
-              </el-tabs>
-            </el-collapse-transition>
-          </el-form>
-        </api-info-container>
-
-      </div>
-    </el-card>
-    <el-card style="width: 50%;" ref="new">
-      <div style="background-color: white;">
-        <el-row>
-          <el-col>
-            <!--操作按钮-->
-            <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!newShowFollow">
-              <i class="el-icon-star-off"
-                 style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
-            </el-tooltip>
-            <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="newShowFollow">
-              <i class="el-icon-star-on"
-                 style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
-            </el-tooltip>
-          </el-col>
-        </el-row>
-        <!-- 基础信息 -->
-        <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
-        <br/>
-        <el-row>
-          <el-col>
-            <ms-tcp-basic-api
-              :is-diff = true
-              :method-types="methodTypes"
-              :moduleOptions="moduleOptions"
-              :basisData="newData" ref="basicForm"/>
-          </el-col>
-        </el-row>
-        <!-- MOCK信息 -->
-        <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
-        <div class="mock-info">
+          <!-- 基础信息 -->
+          <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
+          <br/>
           <el-row>
-            <el-col :span="20">
-              Mock地址：
-              <el-link v-if="this.mockInfo !== '' " target="_blank" style="color: black"
-                       type="primary">{{ this.mockInfo }}
-              </el-link>
-              <el-link v-else target="_blank" style="color: darkred"
-                       type="primary">当前项目未开启Mock服务
-              </el-link>
+            <el-col>
+              <ms-tcp-basic-api
+                :is-diff = true
+                :method-types="methodTypes"
+                :moduleOptions="moduleOptions"
+                :basisData="oldData" ref="basicForm"/>
             </el-col>
           </el-row>
-        </div>
-        <!-- 请求参数 -->
-        <div v-if="apiProtocol=='TCP'">
-          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-tcp-format-parameters :show-script="false" :request="request" :is-read-only="true" ref="tcpFormatParameter"/>
-        </div>
-        <div v-else-if="apiProtocol=='ESB'">
-          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false"  :is-read-only="true"  :request="request" ref="esbDefinition"/>
-          <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-          <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true"  :is-read-only="true"
-                                   :request="request"/>
-          <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
-        </div>
+          <!-- MOCK信息 -->
+          <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
+          <div class="mock-info">
+            <el-row>
+              <el-col :span="20">
+                Mock地址：
+                <el-link v-if="this.mockInfo !== '' " target="_blank" style="color: black"
+                         type="primary">{{ this.mockInfo }}
+                </el-link>
+                <el-link v-else target="_blank" style="color: darkred"
+                         type="primary">当前项目未开启Mock服务
+                </el-link>
+              </el-col>
+            </el-row>
+          </div>
+          <!-- 请求参数 -->
+          <div v-if="oldApiProtocol==='TCP'">
+            <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 
-        <!-- 其他信息-->
-        <ms-form-divider :title="$t('test_track.case.other_info')"/>
-        <api-info-container>
-          <el-form :model="newData" ref="api-form" label-width="100px">
-            <el-collapse-transition>
-              <el-tabs v-model="activeName" style="margin: 20px">
-                <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
-                  <form-rich-text-item class="remark-item" :disabled="true" :data="newData" prop="remark" label-width="0"/>
-                </el-tab-pane>
-                <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
-                  <template v-slot:label>
-                    <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
-                  </template>
-                  <dependencies-list @setCount="setCount" :read-only="true" :resource-id="newData.id" resource-type="API" ref="newDependencies"/>
-                </el-tab-pane>
-              </el-tabs>
-            </el-collapse-transition>
-          </el-form>
-        </api-info-container>
+            <ms-tcp-format-parameters :show-script="false" :request="oldRequest" :is-read-only="true" ref="tcpFormatParameter"/>
+          </div>
+          <div v-else-if="oldApiProtocol==='ESB'">
+            <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+            <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :is-read-only="true" :request="oldRequest" ref="esbDefinition"/>
+            <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
+            <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :is-read-only="true"
+                                     :request="oldRequest"/>
+            <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
+          </div>
+
+          <ms-form-divider :title="$t('test_track.case.other_info')"/>
+          <api-info-container>
+            <el-form :model="oldData" ref="api-form" label-width="100px">
+              <el-collapse-transition>
+                <el-tabs v-model="activeName" style="margin: 20px">
+                  <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
+                    <form-rich-text-item class="remark-item" :disabled="true" :data="oldData" prop="remark" label-width="0"/>
+                  </el-tab-pane>
+                  <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
+                    <template v-slot:label>
+                      <tab-pane-count :title="$t('commons.relationship.name')" :count="oldRelationshipCount"/>
+                    </template>
+                    <dependencies-list  @setCount="setOldCount" :read-only="true" :resource-id="oldData.id" resource-type="API" ref="oldDependencies"/>
+                  </el-tab-pane>
+                </el-tabs>
+              </el-collapse-transition>
+            </el-form>
+          </api-info-container>
+
+        </div>
+      </el-card>
+      <el-card style="width: 50%;" ref="new">
+        <div style="background-color: white;">
+          <el-row>
+            <el-col>
+              <!--操作按钮-->
+              <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!newShowFollow">
+                <i class="el-icon-star-off"
+                   style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+              </el-tooltip>
+              <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="newShowFollow">
+                <i class="el-icon-star-on"
+                   style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "/>
+              </el-tooltip>
+            </el-col>
+          </el-row>
+          <!-- 基础信息 -->
+          <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
+          <br/>
+          <el-row>
+            <el-col>
+              <ms-tcp-basic-api
+                :is-diff = true
+                :method-types="methodTypes"
+                :moduleOptions="moduleOptions"
+                :basisData="newData" ref="basicForm"/>
+            </el-col>
+          </el-row>
+          <!-- MOCK信息 -->
+          <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
+          <div class="mock-info">
+            <el-row>
+              <el-col :span="20">
+                Mock地址：
+                <el-link v-if="this.mockInfo !== '' " target="_blank" style="color: black"
+                         type="primary">{{ this.mockInfo }}
+                </el-link>
+                <el-link v-else target="_blank" style="color: darkred"
+                         type="primary">当前项目未开启Mock服务
+                </el-link>
+              </el-col>
+            </el-row>
+          </div>
+          <!-- 请求参数 -->
+          <div v-if="apiProtocol=='TCP'">
+            <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+            <ms-tcp-format-parameters :show-script="false" :request="request" :is-read-only="true" ref="tcpFormatParameter"/>
+          </div>
+          <div v-else-if="apiProtocol=='ESB'">
+            <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+            <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false"  :is-read-only="true"  :request="request" ref="esbDefinition"/>
+            <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
+            <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true"  :is-read-only="true"
+                                     :request="request"/>
+            <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
+          </div>
+
+          <!-- 其他信息-->
+          <ms-form-divider :title="$t('test_track.case.other_info')"/>
+          <api-info-container>
+            <el-form :model="newData" ref="api-form" label-width="100px">
+              <el-collapse-transition>
+                <el-tabs v-model="activeName" style="margin: 20px">
+                  <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
+                    <form-rich-text-item class="remark-item" :disabled="true" :data="newData" prop="remark" label-width="0"/>
+                  </el-tab-pane>
+                  <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
+                    <template v-slot:label>
+                      <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
+                    </template>
+                    <dependencies-list @setCount="setCount" :read-only="true" :resource-id="newData.id" resource-type="API" ref="newDependencies"/>
+                  </el-tab-pane>
+                </el-tabs>
+              </el-collapse-transition>
+            </el-form>
+          </api-info-container>
 
 
-      </div>
-    </el-card>
+        </div>
+      </el-card>
+    </div>
   </div>
 </template>
 <script>
