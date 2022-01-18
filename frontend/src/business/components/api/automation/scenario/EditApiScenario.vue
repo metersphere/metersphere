@@ -468,6 +468,7 @@ export default {
       envGroupId: "",
       environmentType: ENV_TYPE.JSON,
       executeType: "",
+      pluginDelStep: false
     }
   },
   watch: {
@@ -641,6 +642,7 @@ export default {
       this.reqTotal = 0;
       this.reqSuccess = 0;
       this.executeType = "";
+      this.pluginDelStep = false;
     },
     clearResult(arr) {
       if (arr) {
@@ -795,6 +797,11 @@ export default {
       this.debug = false;
       this.saved = true;
       this.executeType = "Saved";
+      this.validatePluginData(this.scenarioDefinition);
+      if (this.pluginDelStep) {
+        this.$error("场景包含插件步骤，对应场景已经删除不能执行！");
+        return;
+      }
       /*触发执行操作*/
       this.$refs['currentScenario'].validate(async (valid) => {
         if (valid) {
@@ -823,6 +830,7 @@ export default {
             };
             this.reportId = getUUID().substring(0, 8);
             this.debugLoading = false;
+            this.pluginDelStep = false;
           })
         }
       })
@@ -1138,6 +1146,11 @@ export default {
       }
       this.stopDebug = "";
       this.clearDebug();
+      this.validatePluginData(this.scenarioDefinition);
+      if (this.pluginDelStep) {
+        this.$error("场景包含插件步骤，对应场景已经删除不能调试！");
+        return;
+      }
       this.clearResult(this.scenarioDefinition);
       this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
       this.sort();
@@ -1256,8 +1269,23 @@ export default {
         this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
       }
     },
+    validatePluginData(steps) {
+      steps.forEach(step => {
+        if (step.plugin_del) {
+          this.pluginDelStep = true;
+        }
+        if (step.hashTree && step.hashTree.length > 0) {
+          this.validatePluginData(step.hashTree);
+        }
+      });
+    },
     editScenario() {
       if (!document.getElementById("inputDelay")) {
+        return;
+      }
+      this.validatePluginData(this.scenarioDefinition);
+      if (this.pluginDelStep) {
+        this.$error("场景包含插件步骤，对应场景已经删除不能编辑！");
         return;
       }
       return new Promise((resolve) => {
@@ -1277,6 +1305,7 @@ export default {
                 this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
               }
               this.$emit('refresh', this.currentScenario);
+              this.pluginDelStep = false;
               resolve();
             });
           }
