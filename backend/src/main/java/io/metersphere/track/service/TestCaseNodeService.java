@@ -774,9 +774,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public long trashCount(String projectId) {
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo("Trash");
-        return testCaseMapper.countByExample(testCaseExample);
+        return extTestCaseMapper.trashCount(projectId);
     }
 
     public void minderEdit(TestCaseMinderEditRequest request) {

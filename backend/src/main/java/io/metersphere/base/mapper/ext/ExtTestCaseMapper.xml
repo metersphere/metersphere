@@ -865,7 +865,7 @@
         status = original_status,
         delete_user_id = null,
         delete_time = null
-        where id in
+        where ref_id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
@@ -896,6 +896,16 @@
             where workspace_id = #{workSpaceId})
           and case_public = true
           and status != 'Trash'
+    </select>
+
+    <select id="trashCount" resultType="java.lang.Long">
+        SELECT
+            count(DISTINCT ref_id)
+        FROM
+            test_case
+        WHERE
+            project_id = #{projectId}
+          AND STATUS = 'Trash'
     </select>
 
 </mapper>

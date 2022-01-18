@@ -9,6 +9,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.service.ApiAutomationService;
@@ -489,6 +490,24 @@ public class TestCaseService {
         relationshipEdgeService.delete(testCaseId); // 删除关系图
         deleteFollows(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
+    }
+
+    public int deleteTestCaseBySameVersion(String testCaseId) {
+        TestCase testCase = testCaseMapper.selectByPrimaryKey(testCaseId);
+        if (testCase == null) {
+            return 0;
+        }
+        if (StringUtils.isNotBlank(testCase.getRefId())) {
+            TestCaseExample testCaseExample = new TestCaseExample();
+            testCaseExample.createCriteria().andRefIdEqualTo(testCase.getRefId());
+            // 因为删除
+            List<String> sameVersionIds = testCaseMapper.selectByExample(testCaseExample).stream().map(TestCase::getId).collect(Collectors.toList());
+            AtomicInteger integer = new AtomicInteger(0);
+            sameVersionIds.forEach(id -> integer.getAndAdd(deleteTestCase(id)));
+            return integer.get();
+        } else {
+            return deleteTestCase(testCaseId);
+        }
     }
 
     private void deleteFollows(String testCaseId) {
@@ -2082,8 +2101,14 @@ public class TestCaseService {
 
             //检查原来模块是否还在
             example = new TestCaseExample();
+            // 关联版本之后，必须查询每一个数据的所有版本，依次还原
             example.createCriteria().andIdIn(request.getIds());
             List<TestCase> reductionCaseList = testCaseMapper.selectByExample(example);
+            List<String> refIds = reductionCaseList.stream().map(TestCase::getRefId).collect(Collectors.toList());
+            example.clear();
+            example.createCriteria().andRefIdIn(refIds);
+            reductionCaseList = testCaseMapper.selectByExample(example);
+            request.setIds(reductionCaseList.stream().map(TestCase::getId).collect(Collectors.toList()));
             Map<String, List<TestCase>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(TestCase::getNodeId));
             for (Map.Entry<String, List<TestCase>> entry : nodeMap.entrySet()) {
                 String nodeId = entry.getKey();
@@ -2383,6 +2408,13 @@ public class TestCaseService {
         }
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setRefId(testCase.getRefId());
+        if (ScenarioStatus.Trash.name().equalsIgnoreCase(testCase.getStatus())) {
+            request.setFilters(new HashMap<String, List<String>>() {{
+                put("status", new ArrayList() {{
+                    add(ScenarioStatus.Trash.name());
+                }});
+            }});
+        }
         return this.listTestCase(request);
     }
 
