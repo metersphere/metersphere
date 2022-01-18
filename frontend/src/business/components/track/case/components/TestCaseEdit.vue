@@ -28,7 +28,7 @@
                               :current-project-id="currentProjectId"
                               @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                       @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+                       @command="handleCommand" size="small" style="float: right;margin-right: 20px" :disabled="readOnly">
             {{ $t('commons.save') }}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="ADD_AND_CREATE" v-if="this.path =='/test/case/add'">{{
@@ -923,8 +923,13 @@ export default {
     },
     createCtrlSHandle(event) {
       let curTabId = this.$store.state.curTabId;
-      if (curTabId === this.tabId)
+      if (curTabId === this.tabId) {
+        if (event.keyCode === 83 && event.ctrlKey && this.readOnly) {
+          this.$warning(this.$t("commons.no_operation_permission"));
+          return false;
+        }
         handleCtrlSEvent(event, this.saveCase);
+      }
     },
     saveFollow() {
       if (this.showFollow) {

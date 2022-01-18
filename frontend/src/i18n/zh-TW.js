@@ -424,6 +424,7 @@ export default {
     form_config: "表單配置",
     form_content: "表單內容",
     sync_other_info: "同步以下信息到新版本",
+    no_operation_permission: "無操作權限!",
   },
   login: {
     normal_Login: "普通登錄",

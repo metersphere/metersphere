@@ -422,6 +422,7 @@ export default {
     form_config: "Form config",
     form_content: "Form content",
     sync_other_info: "Sync other config",
+    no_operation_permission: "No operation permission!",
   },
   login: {
     normal_Login: "Normal Login",
