@@ -4,6 +4,7 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.RsaKey;
+import io.metersphere.commons.utils.RsaUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.dto.UserDTO;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequestMapping
@@ -28,13 +30,15 @@ public class LoginController {
     private UserService userService;
     @Resource
     private BaseDisplayService baseDisplayService;
-    @Resource
-    private RsaKey rsaKey;
 
     @GetMapping(value = "/isLogin")
-    public ResultHolder isLogin() {
+    public ResultHolder isLogin() throws NoSuchAlgorithmException {
+        RsaKey rsaKey = RsaUtil.getRsaKey();
         if (SecurityUtils.getSubject().isAuthenticated()) {
             UserDTO user = userService.getUserDTO(SessionUtils.getUserId());
+            if (user == null) {
+                return ResultHolder.error(rsaKey.getPublicKey());
+            }
             if (StringUtils.isBlank(user.getLanguage())) {
                 user.setLanguage(LocaleContextHolder.getLocale().toString());
             }
@@ -64,7 +68,7 @@ public class LoginController {
     }
 
     @GetMapping(value = "/signout")
-    @MsAuditLog(module = "auth_title", beforeEvent = "#msClass.getUserId(id)",type = OperLogConstants.LOGIN, title = "登出",msClass = SessionUtils.class)
+    @MsAuditLog(module = "auth_title", beforeEvent = "#msClass.getUserId(id)", type = OperLogConstants.LOGIN, title = "登出", msClass = SessionUtils.class)
     public ResultHolder logout() throws Exception {
         userService.logout();
         SecurityUtils.getSubject().logout();
