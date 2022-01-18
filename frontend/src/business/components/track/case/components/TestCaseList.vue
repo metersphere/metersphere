@@ -540,6 +540,7 @@ export default {
         this.$emit('testCaseEdit', testCase);
       });
     }
+    this.getVersionOptions();
   },
   activated() {
     this.getTemplateField();
@@ -728,7 +729,12 @@ export default {
       this.condition.filters.priority = this.condition.filters['用例等级'];
       this.condition.filters.status = this.condition.filters['用例状态'];
       if (this.trashEnable) {
+        //支持回收站查询版本
+        let versionIds = this.condition.filters.version_id;
         this.condition.filters = {status: ["Trash"]};
+        if (versionIds) {
+          this.condition.filters.version_id = versionIds;
+        }
       }
       if (this.projectId) {
         this.condition.projectId = this.projectId;

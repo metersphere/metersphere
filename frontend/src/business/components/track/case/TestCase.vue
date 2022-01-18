@@ -24,22 +24,29 @@
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
         <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')">
-          <test-case-list
-            :checkRedirectID="checkRedirectID"
-            :isRedirectEdit="isRedirectEdit"
-            :tree-nodes="treeNodes"
-            :trash-enable="true"
-            @refreshTable="refresh"
-            @testCaseEdit="editTestCase"
-            @testCaseCopy="copyTestCase"
-            @testCaseDetail="showTestCaseDetail"
-            @getTrashList="getTrashList"
-            @getPublicList="getPublicList"
-            @refresh="refresh"
-            @refreshAll="refreshAll"
-            @setCondition="setCondition"
-            ref="testCaseTrashList">
-          </test-case-list>
+          <ms-tab-button
+            :isShowChangeButton="false">
+            <template v-slot:version>
+              <version-select v-xpack :project-id="projectId" @changeVersion="changeTrashVersion" margin-left="-10"/>
+            </template>
+            <test-case-list
+              :checkRedirectID="checkRedirectID"
+              :isRedirectEdit="isRedirectEdit"
+              :tree-nodes="treeNodes"
+              :trash-enable="true"
+              :current-version="currentTrashVersion"
+              @refreshTable="refresh"
+              @testCaseEdit="editTestCase"
+              @testCaseCopy="copyTestCase"
+              @testCaseDetail="showTestCaseDetail"
+              @getTrashList="getTrashList"
+              @getPublicList="getPublicList"
+              @refresh="refresh"
+              @refreshAll="refreshAll"
+              @setCondition="setCondition"
+              ref="testCaseTrashList">
+            </test-case-list>
+          </ms-tab-button>
         </el-tab-pane>
         <el-tab-pane name="public" v-if="publicEnable" :label="$t('project.case_public')">
           <test-case-list
@@ -230,6 +237,7 @@ export default {
       publicTotal: 0,
       tmpPath: null,
       currentVersion: null,
+      currentTrashVersion: null,
     };
   },
   mounted() {
@@ -634,6 +642,9 @@ export default {
     },
     changeVersion(currentVersion) {
       this.currentVersion = currentVersion || null;
+    },
+    changeTrashVersion(currentVersion) {
+      this.currentTrashVersion = currentVersion || null;
     },
     checkout(testCase, item) {
       Object.assign(item.testCaseInfo, testCase)
