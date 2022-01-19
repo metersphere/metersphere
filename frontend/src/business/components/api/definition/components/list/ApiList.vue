@@ -679,7 +679,6 @@ export default {
     handleCopy(row) {
       let obj = JSON.parse(JSON.stringify(row));
       obj.isCopy = true;
-      obj.id = getUUID();
       this.$emit('editApi', obj);
     },
     runApi(row) {
