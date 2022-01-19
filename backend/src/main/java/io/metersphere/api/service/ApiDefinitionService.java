@@ -46,10 +46,7 @@ import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.service.FileService;
-import io.metersphere.service.QuotaService;
-import io.metersphere.service.RelationshipEdgeService;
-import io.metersphere.service.ScheduleService;
+import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestPlanService;
@@ -1870,6 +1867,9 @@ public class ApiDefinitionService {
     }
 
     public void batchCopy(ApiBatchRequest request) {
+        //检查测试项目是否开启了url可重复
+        ProjectService projectService = CommonBeanFactory.getBean(ProjectService.class);
+        projectService.checkProjectIsRepeatable(request.getProjectId());
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
         List<String> ids = request.getIds();
