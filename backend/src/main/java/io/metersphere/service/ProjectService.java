@@ -860,4 +860,15 @@ public class ProjectService {
         }
         performanceReportService.cleanUpReport(time, projectId);
     }
+
+    public void checkProjectIsRepeatable(String projectId) {
+        Project project = this.getProjectById(projectId);
+        if(project == null){
+            MSException.throwException(Translator.get("cannot_find_project"));
+        }else {
+            if(!project.getRepeatable()){
+                MSException.throwException(Translator.get("project_repeatable_is_false"));
+            }
+        }
+    }
 }
