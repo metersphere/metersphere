@@ -1381,7 +1381,7 @@ public class MockConfigService {
         if (CollectionUtils.isNotEmpty(apiImport.getMocks())) {
             Map<String, List<MockExpectConfigWithBLOBs>> saveMap = new HashMap<>();
             for (MockConfigImportDTO dto : apiImport.getMocks()) {
-                String apiId = dto.getApiId();//de33108c-26e2-4d4f-826a-a5f8e017d2f4
+                String apiId = dto.getApiId();
                 if (saveMap.containsKey(apiId)) {
                     saveMap.get(apiId).add(dto);
                 } else {
@@ -1393,34 +1393,88 @@ public class MockConfigService {
 
             for (Map.Entry<String, List<MockExpectConfigWithBLOBs>> entry : saveMap.entrySet()) {
                 String apiId = entry.getKey();
-                this.deleteMockConfigByApiId(apiId);
-
                 List<MockExpectConfigWithBLOBs> list = entry.getValue();
 
-                String mockId = UUID.randomUUID().toString();
-                MockConfig config = new MockConfig();
-                config.setProjectId(request.getProjectId());
-                config.setId(mockId);
-                config.setCreateUserId(SessionUtils.getUserId());
-                config.setCreateTime(System.currentTimeMillis());
-                config.setUpdateTime(System.currentTimeMillis());
-                config.setApiId(apiId);
-                mockConfigMapper.insert(config);
-
-                int batchCount = 0;
-                for (MockExpectConfigWithBLOBs mockExpect : list) {
-                    mockExpect.setId(UUID.randomUUID().toString());
-                    mockExpect.setMockConfigId(mockId);
-                    mockExpect.setCreateTime(System.currentTimeMillis());
-                    mockExpect.setUpdateTime(System.currentTimeMillis());
-                    mockExpect.setCreateUserId(SessionUtils.getUserId());
-                    mockExpectConfigMapper.insert(mockExpect);
-                }
-                if (batchCount % 300 == 0) {
-                    sqlSession.flushStatements();
+                MockConfig mockConfig = this.selectMockConfigByApiId(apiId);
+                if (mockConfig == null) {
+                    this.insertMockExpectConfigs(apiId, request.getProjectId(), list, sqlSession);
+                } else {
+                    this.updateMockExpectConfigs(mockConfig, list ,sqlSession);
                 }
             }
 
+        }
+    }
+
+    private void updateMockExpectConfigs(MockConfig mockConfig, List<MockExpectConfigWithBLOBs> list, SqlSession sqlSession) {
+        int batchCount = 0;
+        for (MockExpectConfigWithBLOBs mockExpect : list) {
+            MockExpectConfig expectInDb = this.findMockExpectConfigByMockConfigIdAndExpectNum(mockConfig.getId(),mockExpect.getExpectNum());
+            if(expectInDb == null){
+                mockExpect.setId(UUID.randomUUID().toString());
+                mockExpect.setMockConfigId(mockConfig.getId());
+                mockExpect.setCreateTime(System.currentTimeMillis());
+                mockExpect.setUpdateTime(System.currentTimeMillis());
+                mockExpect.setCreateUserId(SessionUtils.getUserId());
+                mockExpectConfigMapper.insert(mockExpect);
+            }else {
+                mockExpect.setMockConfigId(mockConfig.getId());
+                mockExpect.setId(expectInDb.getId());
+                mockExpect.setUpdateTime(System.currentTimeMillis());
+                mockExpectConfigMapper.updateByPrimaryKey(mockExpect);
+            }
+
+        }
+        if (batchCount % 300 == 0) {
+            sqlSession.flushStatements();
+        }
+    }
+
+    private MockExpectConfig findMockExpectConfigByMockConfigIdAndExpectNum(String mockConfigId, String expectNum) {
+        MockExpectConfigExample example = new MockExpectConfigExample();
+        example.createCriteria().andMockConfigIdEqualTo(mockConfigId).andExpectNumEqualTo(expectNum);
+        List<MockExpectConfig> bloBs = this.mockExpectConfigMapper.selectByExample(example);
+        if(CollectionUtils.isNotEmpty(bloBs)){
+            return bloBs.get(0);
+        }else {
+            return null;
+        }
+    }
+
+    private void insertMockExpectConfigs(String apiId, String projectId, List<MockExpectConfigWithBLOBs> list, SqlSession sqlSession) {
+        String mockId = UUID.randomUUID().toString();
+        MockConfig config = new MockConfig();
+        config.setProjectId(projectId);
+        config.setId(mockId);
+        config.setCreateUserId(SessionUtils.getUserId());
+        config.setCreateTime(System.currentTimeMillis());
+        config.setUpdateTime(System.currentTimeMillis());
+        config.setApiId(apiId);
+        mockConfigMapper.insert(config);
+
+        int batchCount = 0;
+        for (MockExpectConfigWithBLOBs mockExpect : list) {
+            mockExpect.setId(UUID.randomUUID().toString());
+            mockExpect.setMockConfigId(mockId);
+            mockExpect.setCreateTime(System.currentTimeMillis());
+            mockExpect.setUpdateTime(System.currentTimeMillis());
+            mockExpect.setCreateUserId(SessionUtils.getUserId());
+            mockExpectConfigMapper.insert(mockExpect);
+        }
+        if (batchCount % 300 == 0) {
+            sqlSession.flushStatements();
+        }
+    }
+
+
+    private MockConfig selectMockConfigByApiId(String apiId) {
+        MockConfigExample example = new MockConfigExample();
+        example.createCriteria().andApiIdEqualTo(apiId);
+        List<MockConfig> mockConfigList = this.mockConfigMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(mockConfigList)) {
+            return mockConfigList.get(0);
+        } else {
+            return null;
         }
     }
 
