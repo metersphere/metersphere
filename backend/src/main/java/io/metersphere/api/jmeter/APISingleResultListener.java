@@ -43,6 +43,11 @@ public class APISingleResultListener extends MsExecListener {
             if (StringUtils.isNotEmpty(dto.getQueueId())) {
                 CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
             }
+            // 更新测试计划报告
+            if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
+                LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId());
+                CommonBeanFactory.getBean(ApiExecutionQueueService.class).testPlanReportTestEnded(dto.getTestPlanReportId());
+            }
         } catch (Exception e) {
             LoggerUtil.error(e);
         }
