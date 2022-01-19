@@ -34,6 +34,11 @@ public class MsKafkaListener {
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(testResult);
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(testResult.getReportId());
+            // 更新测试计划报告
+            if (StringUtils.isNotEmpty(testResult.getTestPlanReportId())) {
+                LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId());
+                CommonBeanFactory.getBean(ApiExecutionQueueService.class).testPlanReportTestEnded(testResult.getTestPlanReportId());
+            }
         } else {
             // 更新报告最后接收到请求的时间
             if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCENARIO.name(),
@@ -41,7 +46,6 @@ public class MsKafkaListener {
                     ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 CommonBeanFactory.getBean(TestResultService.class).editReportTime(testResult);
             }
-
             testResultService.saveResults(testResult);
         }
         LoggerUtil.info("执行内容存储结束");

@@ -58,6 +58,7 @@ public class ApiScenarioParallelService {
             runRequest.setTestPlanReportId(request.getTestPlanReportId());
             runRequest.setHashTree(executeQueue.get(reportId).getHashTree());
             runRequest.setPlatformUrl(executionQueue.getDetailMap().get(reportId));
+            runRequest.setRunType(RunModeConstants.PARALLEL.toString());
             if (LoggerUtil.getLogger().isDebugEnabled()) {
                 LoggerUtil.debug("Scenario run-开始并发执行：" + JSON.toJSONString(request));
             }
