@@ -328,6 +328,9 @@ public class ApiTestCaseService {
         if (StringUtils.isNotBlank(request.getId())) {
             criteria.andIdNotEqualTo(request.getId());
         }
+        if (StringUtils.isNotBlank(request.getVersionId())) {
+            criteria.andVersionIdEqualTo(request.getVersionId());
+        }
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(apiTestCases)) {
             return apiTestCases.get(0);

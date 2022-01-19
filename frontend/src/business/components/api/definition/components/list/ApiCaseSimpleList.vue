@@ -836,6 +836,7 @@ export default {
         let obj = {
           name: "copy_" + data.name,
           apiDefinitionId: row.apiDefinitionId,
+          versionId: data.versionId,
           priority: data.priority,
           active: true,
           tags: data.tags,
