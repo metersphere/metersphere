@@ -15,6 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Map;
 
 public class APISingleResultListener extends MsExecListener {
+
+    private ApiExecutionQueueService apiExecutionQueueService;
+
     @Override
     public void handleTeardownTest(ResultDTO dto, Map<String, Object> kafkaConfig) {
         LoggerUtil.info("处理单条执行结果报告【" + dto.getReportId() + " 】,资源【 " + dto.getTestId() + " 】");
@@ -39,14 +42,17 @@ public class APISingleResultListener extends MsExecListener {
             // 整体执行结束更新资源状态
             CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
 
+            if (apiExecutionQueueService == null) {
+                apiExecutionQueueService = CommonBeanFactory.getBean(ApiExecutionQueueService.class);
+            }
             LoggerUtil.info("执行队列处理：" + dto.getQueueId());
             if (StringUtils.isNotEmpty(dto.getQueueId())) {
-                CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+                apiExecutionQueueService.queueNext(dto);
             }
             // 更新测试计划报告
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
                 LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId());
-                CommonBeanFactory.getBean(ApiExecutionQueueService.class).testPlanReportTestEnded(dto.getTestPlanReportId());
+                apiExecutionQueueService.testPlanReportTestEnded(dto.getTestPlanReportId());
             }
         } catch (Exception e) {
             LoggerUtil.error(e);

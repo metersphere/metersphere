@@ -22,6 +22,8 @@ import javax.annotation.Resource;
 @Service
 public class MsKafkaListener {
     public static final String CONSUME_ID = "ms-api-exec-consume";
+    @Resource
+    private ApiExecutionQueueService apiExecutionQueueService;
 
     @KafkaListener(id = CONSUME_ID, topics = KafkaConfig.TOPICS, groupId = "${spring.kafka.consumer.group-id}")
     public void consume(ConsumerRecord<?, String> record) {
@@ -30,14 +32,15 @@ public class MsKafkaListener {
         if (testResult != null && testResult.getArbitraryData() != null && testResult.getArbitraryData().containsKey("TEST_END") && (Boolean) testResult.getArbitraryData().get("TEST_END")) {
             LoggerUtil.info("报告 【 " + testResult.getReportId() + " 】资源 " + testResult.getTestId() + " 整体执行完成");
             testResultService.testEnded(testResult);
+
             LoggerUtil.info("执行队列处理：" + testResult.getQueueId());
-            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(testResult);
+            apiExecutionQueueService.queueNext(testResult);
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(testResult.getReportId());
             // 更新测试计划报告
             if (StringUtils.isNotEmpty(testResult.getTestPlanReportId())) {
                 LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId());
-                CommonBeanFactory.getBean(ApiExecutionQueueService.class).testPlanReportTestEnded(testResult.getTestPlanReportId());
+                apiExecutionQueueService.testPlanReportTestEnded(testResult.getTestPlanReportId());
             }
         } else {
             // 更新报告最后接收到请求的时间
