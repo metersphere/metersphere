@@ -206,7 +206,8 @@
     <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove"/>
 
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
-
+    <!--  删除接口提示  -->
+    <api-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </span>
 
 </template>
@@ -246,6 +247,7 @@ import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {editApiDefinitionOrder} from "@/network/api";
 import {getProtocolFilter} from "@/business/components/api/definition/api-definition";
 import {getGraphByCondition} from "@/network/graph";
+import ApiDeleteConfirm from "@/business/components/api/definition/components/list/ApiDeleteConfirm";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -254,6 +256,7 @@ const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComp
 export default {
   name: "ApiList",
   components: {
+    ApiDeleteConfirm,
     HeaderLabelOperate,
     CaseBatchMove,
     ApiStatus,
@@ -812,20 +815,29 @@ export default {
         });
         return;
       }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let ids = [api.id];
-            this.$post('/api/definition/removeToGc/', ids, () => {
-              this.$success(this.$t('commons.delete_success'));
-              // this.initTable();
-              this.$emit("refreshTable");
-              this.$refs.caseList.apiCaseClose();
-            });
-          }
-        }
-      });
+      // 删除提供列表删除和全部版本删除
+      this.$refs.apiDeleteConfirm.open(api, this.$t('api_test.definition.request.delete_confirm'));
+    },
+    _handleDelete(api, deleteCurrentVersion) {
+      // 删除指定版本
+      if (deleteCurrentVersion) {
+        this.$get('/api/definition/delete/' + api.versionId + '/' + api.refId, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.$refs.apiDeleteConfirm.close();
+          this.$emit("refreshTable");
+        });
+      }
+      // 删除全部版本
+      else {
+        let ids = [api.id];
+        this.$post('/api/definition/removeToGc/', ids, () => {
+          this.$success(this.$t('commons.delete_success'));
+          // this.initTable();
+          this.$refs.apiDeleteConfirm.close();
+          this.$emit("refreshTable");
+          this.$refs.caseList.apiCaseClose();
+        });
+      }
     },
 
     getColor(enable, method) {
