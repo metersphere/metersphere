@@ -222,7 +222,7 @@ export default{
  },
   mounted() {
     this.$nextTick(function () {
-      setTimeout(this.getDiff,(this.$refs.old.$children.length+1)*1000)
+      setTimeout(this.getDiff,(this.$refs.old.$children.length-2)*1000)
     })
   }
 
