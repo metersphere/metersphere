@@ -150,6 +150,7 @@ export default {
     },
     copy(apiCase) {
       this.api.id = apiCase.apiDefinitionId;
+      this.api.versionId = apiCase.versionId;
       if (apiCase && apiCase.request) {
         if (apiCase.request.type === "HTTPSamplerProxy") {
           this.api.protocol = "HTTP";
