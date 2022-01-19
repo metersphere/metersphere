@@ -100,6 +100,8 @@ public class ApiTestCaseService {
     private ApiTestCaseFollowMapper apiTestCaseFollowMapper;
     @Resource
     private ExtProjectVersionMapper extProjectVersionMapper;
+    @Resource
+    private TcpApiParamService tcpApiParamService;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -350,7 +352,7 @@ public class ApiTestCaseService {
 
     private ApiTestCase updateTest(SaveApiTestCaseRequest request) {
         checkNameExist(request);
-
+        request.setRequest(tcpApiParamService.parseMsTestElement(request.getRequest()));
         if (StringUtils.isNotEmpty(request.getEsbDataStruct())) {
             request = esbApiParamService.handleEsbRequest(request);
         }
