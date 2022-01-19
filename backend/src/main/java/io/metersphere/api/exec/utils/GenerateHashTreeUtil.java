@@ -64,7 +64,6 @@ public class GenerateHashTreeUtil {
             }
         } catch (Exception e) {
             LogUtil.error(e);
-            LogUtil.error(e);
         }
     }
 
