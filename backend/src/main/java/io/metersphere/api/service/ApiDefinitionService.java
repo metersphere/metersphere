@@ -719,6 +719,9 @@ public class ApiDefinitionService {
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinition.setRequest(requestStr);
                 importApiCase(apiDefinition, apiTestImportRequest);
+            }else {
+                //不覆盖的接口，如果没有sameRequest则不导入。此时清空mock信息
+                mocks.clear();
             }
         } else {
             _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases, mocks);
@@ -811,6 +814,7 @@ public class ApiDefinitionService {
                     apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                     apiDefinition.setRequest(request);
                     reSetImportCasesApiId(cases, originId, apiDefinition.getId());
+                    reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                     importApiCase(apiDefinition, apiTestImportRequest);
                 } else {
                     apiDefinition.setId(existApi.getId());
@@ -819,6 +823,7 @@ public class ApiDefinitionService {
                     }
                     apiDefinition.setOrder(existApi.getOrder());
                     reSetImportCasesApiId(cases, originId, apiDefinition.getId());
+                    reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                     apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 }
             }
