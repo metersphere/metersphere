@@ -340,6 +340,7 @@ export default {
     create(row) {
       // 创建新版本
       this.basisData.versionId = row.id;
+      this.basisData.versionName = row.name;
       this.$set(this.basisData, 'newVersionRemark', !!this.basisData.remark);
       this.$set(this.basisData, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
       if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.basisData.remark) {

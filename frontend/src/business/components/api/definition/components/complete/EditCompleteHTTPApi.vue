@@ -660,6 +660,7 @@ export default {
     create(row) {
       // 创建新版本
       this.httpForm.versionId = row.id;
+      this.httpForm.versionName = row.name;
       this.$set(this.httpForm, 'newVersionRemark', !!this.httpForm.remark);
       this.$set(this.httpForm, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
       if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.httpForm.remark) {
