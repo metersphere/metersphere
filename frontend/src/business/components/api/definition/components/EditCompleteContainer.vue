@@ -12,7 +12,7 @@
       </el-tooltip>
 
       <el-tooltip class="item" effect="dark" content="Mock设置" placement="right" v-if="currentProtocol === 'HTTP' || currentProtocol === 'TCP'">
-        <el-button plain :class="{active: showMock}" @click="changeTab('mock')" size="small"> Mock</el-button>
+        <el-button plain :class="{active: showMock}" @click="changeTab('mock')" size="small"> MOCK</el-button>
       </el-tooltip>
 
     </el-button-group>
