@@ -69,7 +69,10 @@ export default {
   watch: {
     innerTags() {
       this.currentScenario[this.prop] = this.innerTags;
-    }
+    },
+    'currentScenario.tags'() {
+      this.innerTags = this.currentScenario.tags
+    },
   },
   methods: {
     foucusTagInput() {
