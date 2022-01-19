@@ -27,7 +27,7 @@
                         v-permission="['PROJECT_CUSTOM_CODE:READ']">
             {{ $t('project.code_segment.code_segment') }}
           </el-menu-item>
-          <el-menu-item :index="'/project/errorreportlibrary'" v-xpack>
+          <el-menu-item :index="'/project/errorreportlibrary'" v-permission="['PROJECT_ERROR_REPORT_LIBRARY:READ']" v-xpack>
             {{ $t("error_report_library.name") }}
           </el-menu-item>
           <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
