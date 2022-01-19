@@ -79,9 +79,10 @@
       <el-dialog
         :fullscreen="true"
         :visible.sync="dialogVisible"
+        :destroy-on-close="true"
         width="100%"
         >
-        <diff-version :old-data="oldData" :show-follow="showFollow" :new-data="newData" :new-show-follow="newShowFollow" ></diff-version>
+        <diff-version v-if="dialogVisible" :old-data="oldData" :show-follow="showFollow" :new-data="newData" :new-show-follow="newShowFollow" ></diff-version>
       </el-dialog>
 
     </ms-main-container>
