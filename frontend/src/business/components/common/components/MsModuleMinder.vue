@@ -92,7 +92,7 @@ export default {
             id: "root",
             type: 'node',
             level: 0,
-            resource: this.showModuleTag ? ['模块'] : [],
+            resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
             path: "",
             tagEnable: this.tagEnable
           },
@@ -165,7 +165,7 @@ export default {
             disable: this.moduleDisable,
             type: 'node',
             level: item.level,
-            resource: this.showModuleTag ? ['模块'] : [],
+            resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
             caseNum: item.caseNum,
             path: root.data.path + "/" + item.name,
             expandState:"collapse"
@@ -223,7 +223,7 @@ export default {
             tagEnable: this.tagEnable,
             type: 'node',
             level: nodeData.level,
-            resource: this.showModuleTag ? ['模块'] : [],
+            resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
           },
           children: []
         },
