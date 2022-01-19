@@ -28,8 +28,15 @@ import MsModuleMinder from "@/business/components/common/components/MsModuleMind
 import {
   getChildNodeId,
   handleAfterSave,
-  handleExpandToLevel, handleMinderIssueDelete, handleTestCaseAdd, handTestCaeEdit, isModuleNode, isModuleNodeData,
-  listenBeforeExecCommand, listenDblclick,
+  handleExpandToLevel,
+  handleMinderIssueDelete,
+  handleTestCaseAdd,
+  handTestCaeEdit,
+  isCaseNodeData,
+  isModuleNode,
+  isModuleNodeData,
+  listenBeforeExecCommand,
+  listenDblclick,
   listenNodeSelected,
   loadSelectNodes,
   priorityDisableCheck,
@@ -201,24 +208,25 @@ name: "TestCaseMinder",
     },
     buildSaveParam(root, parent, preNode, nextNode) {
       let data = root.data;
-      if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
+      if (isCaseNodeData(data)) {
         this.buildSaveCase(root, parent, preNode, nextNode);
       } else {
         let deleteChild = data.deleteChild;
-        if (deleteChild && deleteChild.length > 0 && data.type === 'node') {
+        if (deleteChild && deleteChild.length > 0 && isModuleNodeData(data)) {
           this.deleteNodes.push(...deleteChild);
         }
 
         if (data.type !== 'tmp' && data.changed) {
-          if (data.contextChanged && data.resource &&
-            (data.resource.indexOf(this.$t('test_track.module.module')) > -1 || data.resource.indexOf("模块") > -1)) {
-            this.buildSaveModules(root, data, parent);
-            root.children && root.children.forEach(i => {
-              if (isModuleNode(i)) {
-                i.data.changed = true;
-                i.data.contextChanged = true; // 如果当前节点有变化，下面的模块节点也需要level也可能需要变化
-              }
-            });
+          if (isModuleNodeData(data)) {
+            if (data.contextChanged) {
+              this.buildSaveModules(root, data, parent);
+              root.children && root.children.forEach(i => {
+                if (isModuleNode(i)) {
+                  i.data.changed = true;
+                  i.data.contextChanged = true; // 如果当前节点有变化，下面的模块节点也需要level也可能需要变化
+                }
+              });
+            }
           } else {
             // 保存临时节点
             this.buildExtraNode(data, parent, root);
@@ -284,8 +292,7 @@ name: "TestCaseMinder",
       this.saveModules.push(module);
     },
     buildExtraNode(data, parent, root) {
-      if (data.type !== 'node' && data.type !== 'tmp'
-        && parent && parent.type === 'node' && data.changed === true) {
+      if (data.type !== 'node' && data.type !== 'tmp' && parent && isModuleNodeData(parent.data) && data.changed === true) {
         // 保存额外信息，只保存模块下的一级子节点
         let nodes = this.saveExtraNode[parent.id];
         if (!nodes) {
