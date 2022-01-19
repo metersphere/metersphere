@@ -338,32 +338,14 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     public List<ZentaoBuild> getBuilds() {
-        String session = zentaoClient.login();;
-        HttpHeaders httpHeaders = new HttpHeaders();
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(httpHeaders);
-        RestTemplate restTemplate = new RestTemplate();
-        String buildGet = zentaoClient.requestUrl.getBuildsGet();
-        ResponseEntity<String> responseEntity = restTemplate.exchange(buildGet + session,
-                HttpMethod.GET, requestEntity, String.class, getProjectId(projectId));
-        String body = responseEntity.getBody();
-        JSONObject obj = JSONObject.parseObject(body);
-
-        LogUtil.info("zentao builds" + obj);
-
-        JSONObject data = obj.getJSONObject("data");
-        Map<String,Object> maps = data.getInnerMap();
-
-        List<ZentaoBuild> list = new ArrayList<>();
-        for (Map.Entry<String, Object> map : maps.entrySet()) {
-            ZentaoBuild build = new ZentaoBuild();
-            String id = map.getKey();
-            if (StringUtils.isNotBlank(id)) {
-                build.setId(map.getKey());
-                build.setName((String) map.getValue());
-                list.add(build);
+        Map<String, String> builds = zentaoClient.getBuilds(getProjectId(projectId));
+        List<ZentaoBuild> res = new ArrayList<>();
+        builds.forEach((k, v) -> {
+            if (StringUtils.isNotBlank(k)) {
+                res.add(new ZentaoBuild(k, v));
             }
-        }
-        return list;
+        });
+        return res;
     }
 
     private String uploadFile(FileSystemResource resource) {

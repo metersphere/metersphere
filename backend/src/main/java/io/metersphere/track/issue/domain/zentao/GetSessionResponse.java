@@ -5,11 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetSessionResponse {
-    private String status;
-    private String data;
-//    private String md5;
-
+public class GetSessionResponse extends ZentaoResponse {
     @Getter
     @Setter
     public static class Session {
