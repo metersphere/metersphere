@@ -27,7 +27,11 @@
       :plan-id="planId"
       :versionFilters="versionFilters"
       @isApiListEnableChange="isApiListEnableChange"
-      ref="apiList"/>
+      ref="apiList">
+      <template v-slot:version>
+        <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion($event,'api')" margin-left="10"/>
+      </template>
+    </relevance-api-list>
 
     <relevance-case-list
       v-if="!isApiListEnable"
@@ -36,9 +40,15 @@
       :is-api-list-enable="isApiListEnable"
       :project-id="projectId"
       :is-test-plan="true"
+      :versionFilters="versionFilters"
       :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
-      ref="apiCaseList"/>
+      ref="apiCaseList">
+      <template v-slot:version>
+        <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion($event, 'case')"
+                        margin-left="10"/>
+      </template>
+    </relevance-case-list>
 
   </test-case-relevance-base>
 
@@ -51,6 +61,8 @@
   import RelevanceApiList from "../../../../../api/automation/scenario/api/RelevanceApiList";
   import RelevanceCaseList from "../../../../../api/automation/scenario/api/RelevanceCaseList";
   import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
   export default {
     name: "TestCaseApiRelevance",
@@ -59,6 +71,7 @@
       RelevanceApiList,
       MsApiModule,
       TestCaseRelevanceBase,
+      'VersionSelect': VersionSelect.default,
     },
     data() {
       return {
@@ -198,6 +211,15 @@
           });
         }
       },
+      changeVersion(currentVersion, type) {
+        if (type == 'api') {
+          this.$refs.apiList.condition.versionId = currentVersion || null;
+          this.$refs.apiList.initTable();
+        } else {
+          this.$refs.apiCaseList.condition.versionId = currentVersion || null;
+          this.$refs.apiCaseList.initTable();
+        }
+      }
     }
   }
 </script>
