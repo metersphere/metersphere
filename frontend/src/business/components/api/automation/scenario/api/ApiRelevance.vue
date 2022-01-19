@@ -67,6 +67,7 @@ import MsMainContainer from "../../../../common/components/MsMainContainer";
 import ScenarioRelevanceApiList from "./RelevanceApiList";
 import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
 import TestCaseRelevanceBase from "@/business/components/track/plan/view/comonents/base/TestCaseRelevanceBase";
+import {hasLicense} from "@/common/js/utils";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -98,6 +99,7 @@ export default {
     projectId() {
       this.refresh();
       this.$refs.nodeTree.list(this.projectId);
+      this.getVersionOptions();
     }
   },
   methods: {
@@ -157,6 +159,7 @@ export default {
     open() {
       this.buttonIsWorking = false;
       this.$refs.baseRelevance.open();
+      this.getVersionOptions();
     },
     isApiListEnableChange(data) {
       this.isApiListEnable = data;
@@ -182,6 +185,24 @@ export default {
     },
     setProject(projectId) {
       this.projectId = projectId;
+    },
+    getVersionOptions(currentVersion) {
+      if (hasLicense()) {
+        if (!this.projectId) {
+          return;
+        }
+        this.$get('/project/version/get-project-versions/' + this.projectId, response => {
+          if (currentVersion) {
+            this.versionFilters = response.data.filter(u => u.id === currentVersion).map(u => {
+              return {text: u.name, value: u.id};
+            });
+          } else {
+            this.versionFilters = response.data.map(u => {
+              return {text: u.name, value: u.id};
+            });
+          }
+        });
+      }
     },
   }
 };
