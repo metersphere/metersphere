@@ -143,7 +143,7 @@ public class ApiScenarioReportStructureService {
             if (step.getValue() != null) {
                 if (StringUtils.isNotEmpty(step.getErrorCode())) {
                     isErrorReport.set(isErrorReport.longValue() + 1);
-                } else if (step.getValue().getError() > 0) {
+                } else if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
                     isError.set(isError.longValue() + 1);
                 }
             } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
@@ -308,7 +308,7 @@ public class ApiScenarioReportStructureService {
             if (step.getValue() != null && step.getValue().getError() > 0) {
                 if (StringUtils.isNotEmpty(step.getErrorCode())) {
                     isErrorReport.set(isErrorReport.longValue() + 1);
-                } else if (step.getValue().getError() > 0) {
+                } else if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
                     isError.set(isError.longValue() + 1);
                 }
                 break;
