@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.util.Map;
+
 public abstract class ZentaoClient extends BaseClient {
 
     protected String ENDPOINT;
@@ -126,6 +128,22 @@ public abstract class ZentaoClient extends BaseClient {
             getIssueResponse.setData(JSON.toJSON(issue).toString());
         }
         return JSONObject.parseObject(getIssueResponse.getData());
+    }
+
+    public GetCreateMetaDataResponse.MetaData getCreateMetaData(String productID) {
+        String sessionId = login();
+        ResponseEntity<String> response = restTemplate.exchange(requestUrl.getCreateMetaData(),
+                HttpMethod.GET, null, String.class, productID, sessionId);
+        GetCreateMetaDataResponse getCreateMetaDataResponse = (GetCreateMetaDataResponse) getResultForObject(GetCreateMetaDataResponse.class, response);
+        return JSONObject.parseObject(getCreateMetaDataResponse.getData(), GetCreateMetaDataResponse.MetaData.class);
+    }
+
+    public JSONObject getCustomFields(String productID) {
+        return getCreateMetaData(productID).getCustomFields();
+    }
+
+    public Map<String, String> getBuilds(String productID) {
+        return getCreateMetaData(productID).getBuilds();
     }
 
     public JSONArray getBugsByProjectId(String projectId, int pageNum, int pageSize) {
