@@ -464,6 +464,14 @@ export default {
         pNodes.push(rootNode.data);
       }
     },
+    setCurrentKey(currentNode) {
+      if (currentNode && currentNode.data) {
+        this.$nextTick(() => {
+          this.handleNodeSelect(currentNode);
+          this.$refs.tree.setCurrentKey(currentNode.data.id);
+        })
+      }
+    }
   }
 };
 </script>
