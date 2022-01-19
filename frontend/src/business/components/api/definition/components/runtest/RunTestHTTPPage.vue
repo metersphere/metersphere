@@ -120,7 +120,6 @@ export default {
       reportId: "",
       envMap: new Map,
       runLoading: false,
-      versionName: '',
       versionEnable: false,
     }
   },
