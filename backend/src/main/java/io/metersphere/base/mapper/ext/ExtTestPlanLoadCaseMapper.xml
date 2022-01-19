@@ -31,26 +31,6 @@
         <if test="request.refId != null">
             and load_test.ref_id = #{request.refId}
         </if>
-        <if test="request.versionId == null and request.refId == null and request.id == null">
-            AND (
-            load_test.version_id = (SELECT project_version.id
-            FROM load_test tmp
-            JOIN project_version
-            ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
-            WHERE ref_id = load_test.ref_id
-            LIMIT 1)
-            OR
-            load_test.version_id = (SELECT project_version.id
-            FROM load_test tmp
-            JOIN project_version ON tmp.project_id = project_version.project_id AND
-            tmp.version_id = project_version.id
-            WHERE ref_id = load_test.ref_id
-            GROUP BY ref_id
-            HAVING MAX(latest) = 0
-            ORDER BY MAX(project_version.create_time) DESC
-            LIMIT 1)
-            )
-        </if>
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
