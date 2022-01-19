@@ -30,6 +30,22 @@ public class TcpApiParamService {
         return request;
     }
 
+    public MsTestElement parseMsTestElement(MsTestElement testElement) {
+        if (testElement == null) {
+            return null;
+        }
+        if (testElement instanceof MsTCPSampler) {
+            MsTCPSampler tcpSampler = this.handleTcpRequest(testElement);
+            if (tcpSampler != null) {
+                return tcpSampler;
+            } else {
+                return testElement;
+            }
+        } else {
+            return testElement;
+        }
+    }
+
     public MsTCPSampler handleTcpRequest(MsTestElement testElement) {
         MsTCPSampler tcpSampler = null;
         try {
