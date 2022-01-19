@@ -283,12 +283,14 @@
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-run-mode @handleRunBatch="handleRunBatch" :request="runRequest" ref="runMode"/>
-    <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true" :executeType="'Saved'"
+    <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
+            :executeType="'Saved'"
             :environment-type="environmentType" :environment-group-id="envGroupId"
             :run-data="debugData" ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
-
+    <!--  删除接口提示  -->
+    <api-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </div>
 </template>
 
@@ -314,6 +316,7 @@ import axios from "axios";
 import {getGraphByCondition} from "@/network/graph";
 import MsTableSearchBar from "@/business/components/common/components/MsTableSearchBar";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+import ApiDeleteConfirm from "@/business/components/api/definition/components/list/ApiDeleteConfirm";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -321,6 +324,7 @@ const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComp
 export default {
   name: "MsApiScenarioList",
   components: {
+    ApiDeleteConfirm,
     MsTableAdvSearchBar,
     MsTableSearchBar,
     MsTable,
@@ -1126,30 +1130,42 @@ export default {
         param.ids = [row.id];
         this.$post('/api/automation/checkBeforeDelete/', param, response => {
           let checkResult = response.data;
-          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
+          let alertMsg = this.$t('load_test.delete_threadgroup_confirm');
           if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
               alertMsg += item;
             });
             if (alertMsg === "") {
-              alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
+              alertMsg = this.$t('load_test.delete_threadgroup_confirm');
             } else {
-              alertMsg += this.$t('api_test.is_continue') + " ？";
+              alertMsg += this.$t('api_test.is_continue');
             }
           }
-          this.$alert(alertMsg, '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this.$post('/api/automation/removeToGcByBatch/', param, () => {
-                  this.$success(this.$t('commons.delete_success'));
-                  this.search();
-                });
-              }
-            }
-          });
+          //
+          // 删除提供列表删除和全部版本删除
+          this.$refs.apiDeleteConfirm.open(row, alertMsg);
+        });
+      }
+    },
+    _handleDelete(api, deleteCurrentVersion) {
+      // 删除指定版本
+      if (deleteCurrentVersion) {
+        this.$get('/api/automation/delete/' + api.versionId + '/' + api.refId, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.$refs.apiDeleteConfirm.close();
+          this.search();
+        });
+      }
+      // 删除全部版本
+      else {
+        let param = {};
+        this.buildBatchParam(param);
+        param.ids = [api.id];
+        this.$post('/api/automation/removeToGcByBatch/', param, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.$refs.apiDeleteConfirm.close();
+          this.search();
         });
       }
     },
