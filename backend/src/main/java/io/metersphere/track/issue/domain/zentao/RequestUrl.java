@@ -11,6 +11,7 @@ public class RequestUrl {
     private String login;
     private String sessionGet;
     private String bugCreate;
+    private String createMetaData;
     private String bugUpdate;
     private String bugList;
     private String bugDelete;
