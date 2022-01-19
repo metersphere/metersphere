@@ -138,7 +138,7 @@
                   </div>
 
                   <!-- 场景步骤内容 -->
-                  <div ref="stepInfo">
+                  <div ref="stepInfo" id="stepInfo">
                     <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
                       <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"  @click="openExpansion('old')"/>
                     </el-tooltip>
@@ -302,21 +302,21 @@
                   </div>
 
                   <!-- 场景步骤内容 -->
-                  <div ref="stepInfo">
+                  <div ref="newStepInfo">
                     <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
                       <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"  @click="openExpansion('new')"/>
                     </el-tooltip>
                     <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
                       <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion('new')"/>
                     </el-tooltip>
-                    <el-tree node-key="newResourceId" :props="props" :data="newScenarioDefinition" class="ms-tree"
+                    <el-tree node-key="resourceId" :props="props" :data="newScenarioDefinition" class="ms-tree"
                              :expand-on-click-node="false"
                              :default-expanded-keys="newExpandedNode"
                              highlight-current
-                             @node-expand="nodeExpand"
-                             @node-collapse="nodeCollapse"
+                             @node-expand="nodeExpand(newScenarioDefinition,null,'new')"
+                             @node-collapse="nodeCollapse(newScenarioDefinition,null,'new')"
                              @node-click="nodeClick"
-                             draggable ref="stepTree" >
+                             draggable ref="newStepTree" >
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -341,10 +341,12 @@
       <el-dialog
         :fullscreen="true"
         :visible.sync="dialogVisible"
+        :destroy-on-close="true"
         append-to-body
         width="100%"
       >
         <scenario-child-diff
+          v-if="dialogVisible"
           :old-data="leftChildData"
           :new-data="rightChildData"
           :old-node="leftChildNode"
@@ -524,32 +526,31 @@ export default{
             nodes[i].active = false;
           }
           if (nodes[i].hashTree !== undefined && nodes[i].hashTree.length > 0) {
-            this.changeNodeStatus(nodes[i].hashTree);
+            this.changeNodeStatus(nodes[i].hashTree,source);
           }
         }
       }
     },
     openExpansion(source) {
-      this.expandedNode = [];
+      this.newExpandedNode = [];
+      this.oldExpandedNode = [];
       this.expandedStatus = true;
-      let scenarioDefinition;
       if(source==="new"){
-        scenarioDefinition = this.newScenarioDefinition;
+        this.changeNodeStatus(this.newScenarioDefinition,source);
       }else {
-        scenarioDefinition = this.oldScenarioDefinition;
+        this.changeNodeStatus(this.oldScenarioDefinition,source);
       }
-      this.changeNodeStatus(scenarioDefinition,source);
+
     },
     closeExpansion(source) {
       this.expandedStatus = false;
-      this.expandedNode = [];
-      let scenarioDefinition;
+      this.newExpandedNode = [];
+      this.oldExpandedNode = [];
       if(source==="new"){
-        scenarioDefinition = this.newScenarioDefinition;
+        this.changeNodeStatus( this.newScenarioDefinition,source);
       }else {
-        scenarioDefinition = this.oldScenarioDefinition;
+        this.changeNodeStatus( this.oldScenarioDefinition,source);
       }
-      this.changeNodeStatus(scenarioDefinition,source);
       this.showHide();
     },
     showHide() {

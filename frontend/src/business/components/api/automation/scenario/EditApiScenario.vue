@@ -1406,8 +1406,12 @@ export default {
     getApiScenario() {
       this.loading = true;
       this.stepEnable = true;
-      if (this.currentScenario.tags != undefined && this.currentScenario.tags && !(this.currentScenario.tags instanceof Array)) {
-        this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+      if (this.currentScenario.tags !== undefined && this.currentScenario.tags ) {
+        if(!(this.currentScenario.tags instanceof Array)){
+          this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+        }
+      }else{
+        this.$set(this.currentScenario,'tags',[])
       }
       if (!this.currentScenario.variables) {
         this.currentScenario.variables = [];
@@ -1771,14 +1775,20 @@ export default {
                 }
               }
               res.data.userName = response.data.userName
+              this.dealWithTag(res.data);
               this.newData = res.data;
-              this.dealWithTag();
+              this.closeExpansion()
               this.dialogVisible = true;
             }
           });
       })
     },
-    dealWithTag(){
+    dealWithTag(newScenario){
+      if(newScenario.tags){
+        if(Object.prototype.toString.call(newScenario.tags)==="[object String]"){
+          newScenario.tags = JSON.parse(newScenario.tags);
+        }
+      }
       if(this.currentScenario.tags){
         if(Object.prototype.toString.call(this.currentScenario.tags)==="[object String]"){
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);

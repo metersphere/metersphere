@@ -288,7 +288,7 @@ function diffDetail(oldVnode,newVnode,diffNode){
           diffNode.nodeArray.push(newVnode.elm);
         }
     }else if(isDef(oldVnode.tag)&&isDef(newVnode.tag)){
-      if(oldVnode.tag==='input'&&newVnode.tag==='input'){
+      if((oldVnode.tag==='input'&&newVnode.tag==='input')||(oldVnode.tag==='textarea'&&newVnode.tag==='textarea')){
         if(oldVnode.elm.value!==newVnode.elm.value){
           diffNode.oldNodeArray.push(oldVnode.elm);
           diffNode.nodeArray.push(newVnode.elm);
