@@ -146,15 +146,12 @@
       <el-dialog
         :fullscreen="true"
         :visible.sync="dialogVisible"
+        :destroy-on-close="true"
         width="100%"
       >
-        <test-case-version-diff :old-data="oldData" :new-data="newData"
+        <test-case-version-diff  v-if="dialogVisible" :old-data="oldData" :new-data="newData"
                                 :tree-nodes="treeNodes"></test-case-version-diff>
 
-        <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible=false">{{this.$t('commons.cancel')}}</el-button>
-                <el-button type="primary">{{this.$t('commons.confirm')}}</el-button>
-              </span>
       </el-dialog>
     </div>
   </el-card>
@@ -997,6 +994,11 @@ export default {
           if (data[0] && data[1]) {
             that.newData = data[0].data.data;
             that.oldData = data[1].data.data;
+            let testCase = this.versionData.filter(v => v.versionId === this.currentTestCaseInfo.versionId)[0];
+            that.newData.versionName = response.data.versionName
+            that.oldData.versionName = testCase.versionName
+            that.newData.userName = response.data.createName
+            that.oldData.userName = testCase.createName
             this.setSpecialPropForCompare(that);
             that.dialogVisible = true;
           }

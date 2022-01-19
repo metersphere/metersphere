@@ -77,9 +77,11 @@
     <el-dialog
       :fullscreen="true"
       :visible.sync="dialogVisible"
+      :destroy-on-close="true"
       width="100%"
     >
       <t-c-p-api-version-diff
+        v-if="dialogVisible"
         :old-data="basisData"
         :show-follow="showFollow"
         :new-data="newData"

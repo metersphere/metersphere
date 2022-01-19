@@ -137,9 +137,11 @@
       <el-dialog
         :fullscreen="true"
         :visible.sync="dialogVisible"
+        :destroy-on-close="true"
         width="100%"
       >
         <http-api-version-diff
+          v-if="dialogVisible"
           :old-data="httpForm"
           :show-follow="showFollow"
           :new-data="newData"
