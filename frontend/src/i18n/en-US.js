@@ -423,6 +423,8 @@ export default {
     form_config: "Form config",
     form_content: "Form content",
     sync_other_info: "Sync other config",
+    delete_current_version: 'Current version',
+    delete_all_version: 'All versions',
   },
   login: {
     normal_Login: "Normal Login",
