@@ -19,6 +19,7 @@
       <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                                v-if="condition.components !== undefined && condition.components.length > 0"
                                @search="getTestCases"/>
+      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20" class="search-input"/>
 
       <el-table
         v-loading="result.loading"
@@ -101,6 +102,8 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {_filter} from "@/common/js/tableUtils";
 import {TEST_PLAN_RELEVANCE_LOAD_CASE} from "@/business/components/common/components/search/search-components";
 import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "TestCaseLoadRelevance",
@@ -113,7 +116,8 @@ export default {
     MsTableAdvSearchBar,
     MsTableHeader,
     MsPerformanceTestStatus,
-    MsTablePagination
+    MsTablePagination,
+    'VersionSelect': VersionSelect.default,
   },
   data() {
     return {
@@ -140,7 +144,7 @@ export default {
         {text: 'Completed', value: 'Completed'},
         {text: 'Error', value: 'Error'}
       ],
-      versionFilters: []
+      versionFilters: [],
     };
   },
   props: {
@@ -303,6 +307,10 @@ export default {
         });
       }
     },
+    changeVersion(currentVersion){
+      this.condition.versionId = currentVersion || null;
+      this.search();
+    }
   }
 }
 </script>

@@ -17,8 +17,11 @@
                  ref="nodeTree"/>
     </template>
 
-    <ms-table-header :condition.sync="page.condition" @search="getTestCases" title="" :show-create="false"/>
-
+    <ms-table-header :condition.sync="page.condition" @search="getTestCases" title="" :show-create="false">
+      <template v-slot:searchBarBefore>
+        <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
+      </template>
+    </ms-table-header>
     <ms-table
       v-loading="page.result.loading"
       :data="page.data"
@@ -112,6 +115,8 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "@/business/components/common/components/MsTag";
 import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "FunctionalRelevance",
@@ -127,6 +132,7 @@ export default {
     MsTableSearchBar,
     MsTableAdvSearchBar,
     MsTableHeader,
+    'VersionSelect': VersionSelect.default,
   },
   mounted(){
     this.getVersionOptions();
@@ -255,6 +261,10 @@ export default {
         });
       }
     },
+    changeVersion(currentVersion) {
+      this.page.condition.versionId = currentVersion || null;
+      this.getTestCases();
+    }
   }
 }
 </script>
