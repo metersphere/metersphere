@@ -343,9 +343,11 @@
     <el-dialog
       :fullscreen="true"
       :visible.sync="dialogVisible"
+      :destroy-on-close="true"
       width="100%"
     >
       <scenario-diff
+        v-if="dialogVisible"
         :old-data="currentScenario"
         :new-data="newData"
         :custom-num="customNum"
@@ -1770,10 +1772,18 @@ export default {
               }
               res.data.userName = response.data.userName
               this.newData = res.data;
+              this.dealWithTag();
               this.dialogVisible = true;
             }
           });
       })
+    },
+    dealWithTag(){
+      if(this.currentScenario.tags){
+        if(Object.prototype.toString.call(this.currentScenario.tags)==="[object String]"){
+          this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+        }
+      }
     },
     checkout(row) {
       let api = this.versionData.filter(v => v.versionId === row.id)[0];
