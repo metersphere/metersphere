@@ -708,6 +708,7 @@ public class ApiDefinitionService {
                 }
                 apiDefinition.setOrder(sameRequest.get(0).getOrder());
                 reSetImportCasesApiId(cases, originId, apiDefinition.getId());
+                reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
             }
 
