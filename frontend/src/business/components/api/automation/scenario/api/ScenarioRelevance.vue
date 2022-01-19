@@ -169,10 +169,10 @@ export default {
       }
     },
     reference() {
-      this.getScenarioDefinition("Copy");
+      this.getScenarioDefinition("REF");
     },
     copy() {
-      this.getScenarioDefinition("REF");
+      this.getScenarioDefinition("Copy");
     },
     close() {
       this.$emit('close');
