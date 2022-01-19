@@ -573,6 +573,7 @@ export default {
                 }
               }
             });
+            this.dealWithTag(res.data);
             this.setRequest(res.data)
             if (!this.setRequest(res.data)) {
               this.oldRequest = createComponent("HTTPSamplerProxy");
@@ -597,6 +598,18 @@ export default {
         return true;
       }
       return false;
+    },
+    dealWithTag(api){
+      if(api.tags){
+        if(Object.prototype.toString.call(api.tags)==="[object String]"){
+          api.tags = JSON.parse(api.tags);
+        }
+      }
+      if(this.httpForm.tags){
+        if(Object.prototype.toString.call(this.httpForm.tags)==="[object String]"){
+          this.httpForm.tags = JSON.parse(this.httpForm.tags);
+        }
+      }
     },
     formatApi(api) {
       if (api.response != null && api.response !== 'null' && api.response !== undefined) {

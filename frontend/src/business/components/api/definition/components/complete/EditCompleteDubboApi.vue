@@ -249,6 +249,7 @@ export default {
                 }
               }
             });
+            this.dealWithTag(res.data);
             this.setRequest(res.data)
             if (!this.setRequest(res.data)) {
               this.oldRequest = createComponent("DubboSampler");
@@ -274,6 +275,18 @@ export default {
         return true;
       }
       return false;
+    },
+    dealWithTag(api){
+      if(api.tags){
+        if(Object.prototype.toString.call(api.tags)==="[object String]"){
+          api.tags = JSON.parse(api.tags);
+        }
+      }
+      if(this.basisData.tags){
+        if(Object.prototype.toString.call(this.basisData.tags)==="[object String]"){
+          this.basisData.tags = JSON.parse(this.basisData.tags);
+        }
+      }
     },
     formatApi(api) {
       if (api.response != null && api.response !== 'null' && api.response !== undefined) {
