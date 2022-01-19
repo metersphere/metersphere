@@ -38,6 +38,7 @@ public class ApiCaseParallelExecuteService {
                         }
                         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, hashTree);
                         runRequest.setPool(GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()));
+                        runRequest.setTestPlanReportId(executionQueue.getReportId());
                         runRequest.setPoolId(config.getResourcePoolId());
                         runRequest.setReportType(executionQueue.getReportType());
                         runRequest.setRunType(RunModeConstants.PARALLEL.toString());
