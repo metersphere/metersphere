@@ -201,7 +201,45 @@ public class ApiExecutionQueueService {
         return queue;
     }
 
+    public void testPlanReportTestEnded(String testPlanReportId) {
+        // 检查测试计划中其他队列是否结束
+        ApiExecutionQueueExample apiExecutionQueueExample = new ApiExecutionQueueExample();
+        apiExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
+        List<ApiExecutionQueue> queues = queueMapper.selectByExample(apiExecutionQueueExample);
+        if (CollectionUtils.isEmpty(queues)) {
+            LoggerUtil.info("Normal execution completes, update test plan report status：" + testPlanReportId);
+            CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(testPlanReportId, TestPlanReportStatus.COMPLETED.name());
+        } else {
+            List<String> ids = queues.stream().map(ApiExecutionQueue::getId).collect(Collectors.toList());
+            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+            example.createCriteria().andQueueIdIn(ids);
+            long count = executionQueueDetailMapper.countByExample(example);
+            if (count == 0) {
+                LoggerUtil.info("Normal execution completes, update test plan report status：" + testPlanReportId);
+                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(testPlanReportId, TestPlanReportStatus.COMPLETED.name());
+
+                LoggerUtil.info("Clear Queue：" + ids);
+                ApiExecutionQueueExample queueExample = new ApiExecutionQueueExample();
+                queueExample.createCriteria().andIdIn(ids);
+                queueMapper.deleteByExample(queueExample);
+            }
+        }
+    }
+
     public void queueNext(ResultDTO dto) {
+        if (StringUtils.equals(dto.getRunType(), RunModeConstants.PARALLEL.toString())) {
+            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+            example.createCriteria().andQueueIdEqualTo(dto.getQueueId()).andTestIdEqualTo(dto.getTestId());
+            executionQueueDetailMapper.deleteByExample(example);
+            // 检查队列是否已空
+            ApiExecutionQueueDetailExample queueDetailExample = new ApiExecutionQueueDetailExample();
+            queueDetailExample.createCriteria().andQueueIdEqualTo(dto.getQueueId());
+            long count = executionQueueDetailMapper.countByExample(queueDetailExample);
+            if (count == 0) {
+                queueMapper.deleteByPrimaryKey(dto.getQueueId());
+            }
+            return;
+        }
         DBTestQueue executionQueue = this.handleQueue(dto.getQueueId(), dto.getTestId());
         if (executionQueue != null) {
             // 串行失败停止
@@ -211,7 +249,6 @@ public class ApiExecutionQueueService {
                     return;
                 }
             }
-
             LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId());
             if (executionQueue.getQueue() != null && StringUtils.isNotEmpty(executionQueue.getQueue().getTestId())) {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
@@ -221,16 +258,6 @@ public class ApiExecutionQueueService {
             } else {
                 if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
                     apiScenarioReportService.margeReport(dto.getReportId());
-                }
-                // 更新测试计划报告
-                if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-                    ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-                    example.createCriteria().andQueueIdEqualTo(dto.getQueueId());
-                    long count = executionQueueDetailMapper.countByExample(example);
-                    if (count == 0) {
-                        LoggerUtil.info("Normal execution completes, update test plan report status：" + dto.getTestPlanReportId());
-                        CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId(), TestPlanReportStatus.COMPLETED.name());
-                    }
                 }
                 queueMapper.deleteByPrimaryKey(dto.getQueueId());
                 LoggerUtil.info("Queue execution ends：" + dto.getQueueId());

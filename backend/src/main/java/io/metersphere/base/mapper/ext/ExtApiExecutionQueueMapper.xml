@@ -9,6 +9,6 @@
     </select>
 
     <select id="findTestPlanRunningReport" resultType="java.lang.String">
-        SELECT t1.id from test_plan_report t1 WHERE  t1.`status` ="Running" and t1.id NOT IN (SELECT t.report_id from api_execution_queue t);
+      SELECT t1.id from test_plan_report t1 WHERE  t1.`status` ="Running" and t1.id NOT IN (SELECT t.report_id from api_execution_queue t where t.report_id is not null);
     </select>
 </mapper>
