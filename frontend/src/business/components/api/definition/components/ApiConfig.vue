@@ -38,12 +38,10 @@ import MsEditCompleteDubboApi from "./complete/EditCompleteDubboApi";
 import MsEditCompleteSqlApi from "./complete/EditCompleteSQLApi";
 
 import {Body} from "../model/ApiTestModel";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, handleCtrlSEvent} from "@/common/js/utils";
 import {createComponent, Request} from "./jmeter/components";
 import Sampler from "./jmeter/components/sampler/sampler";
-import {WORKSPACE_ID} from '@/common/js/constants';
-import {handleCtrlSEvent} from "../../../../../common/js/utils";
-import {ELEMENT_TYPE, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiConfig",
