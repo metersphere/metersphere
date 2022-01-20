@@ -227,7 +227,7 @@
             test_case.other_test_name, test_case.review_status, test_case.tags,
             test_case.demand_id, test_case.demand_name, test_case.`status`,
             test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName,
-            test_case.custom_fields, project.name as projectName
+            test_case.custom_fields, project.name as projectName , test_case.ref_id
         </if>
         from test_case left join user u on test_case.create_user=u.id
         left join user deleteUser on test_case.delete_user_id=deleteUser.id
@@ -870,7 +870,14 @@
     <update id="deletePublic">
         update test_case
         set case_public = false
-        where ref_id = #{request.refId}
+        <where>
+            <if test="request.refId != null">
+                ref_id =#{request.refId}
+            </if>
+            <if test="request.versionId != null">
+              and  version_id =#{request.versionId}
+            </if>
+        </where>
     </update>
 
     <update id="reduction">
