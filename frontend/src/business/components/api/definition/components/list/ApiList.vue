@@ -207,7 +207,7 @@
 
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->
-    <api-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
+    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </span>
 
 </template>
@@ -227,7 +227,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsBottomContainer from "../BottomContainer";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getCurrentProjectID, getUUID, hasLicense} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import {API_LIST} from '@/common/js/constants';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -247,7 +247,7 @@ import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {editApiDefinitionOrder} from "@/network/api";
 import {getProtocolFilter} from "@/business/components/api/definition/api-definition";
 import {getGraphByCondition} from "@/network/graph";
-import ApiDeleteConfirm from "@/business/components/api/definition/components/list/ApiDeleteConfirm";
+import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -256,7 +256,7 @@ const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComp
 export default {
   name: "ApiList",
   components: {
-    ApiDeleteConfirm,
+    ListItemDeleteConfirm,
     HeaderLabelOperate,
     CaseBatchMove,
     ApiStatus,
