@@ -177,37 +177,42 @@ public class JiraPlatform extends AbstractIssuePlatform {
     private void setSpecialParam(JSONObject fields) {
         String projectKey = getProjectId(this.projectId);
         JiraConfig config = getConfig();
-        Map<String, JiraCreateMetadataResponse.Field> createMetadata = new HashMap<>();
         try {
-            createMetadata = jiraClientV2.getCreateMetadata(projectKey, config.getIssuetype());
-        } catch (Exception e) {}
+            Map<String, JiraCreateMetadataResponse.Field> createMetadata = jiraClientV2.getCreateMetadata(projectKey, config.getIssuetype());
+            List<JiraUser> userOptions = jiraClientV2.getAssignableUser(projectKey);
 
-        for (String name : createMetadata.keySet()) {
-            JiraCreateMetadataResponse.Field item = createMetadata.get(name);
-            JiraCreateMetadataResponse.Schema schema = item.getSchema();
-            String key = item.getKey();
-            if (StringUtils.isBlank(key)) {
-                continue;
+            Boolean isUserKey = false;
+            if (CollectionUtils.isNotEmpty(userOptions) && StringUtils.isBlank(userOptions.get(0).getAccountId())) {
+                isUserKey = true;
             }
-            if (schema != null && schema.getCustom() != null && schema.getCustom().endsWith("sprint")) {
-                try {
+
+            for (String name : createMetadata.keySet()) {
+                JiraCreateMetadataResponse.Field item = createMetadata.get(name);
+                JiraCreateMetadataResponse.Schema schema = item.getSchema();
+                String key = item.getKey();
+                if (StringUtils.isBlank(key) || schema == null) {
+                    continue;
+                }
+                if (schema.getCustom() != null && schema.getCustom().endsWith("sprint")) {
+                    try {
+                        JSONObject field = fields.getJSONObject(key);
+                        // sprint 传参数比较特殊，需要要传数值
+                        fields.put(key, field.getInteger("id"));
+                    } catch (Exception e) {}
+                }
+                if (schema.getType() != null && schema.getType().endsWith("user")) {
                     JSONObject field = fields.getJSONObject(key);
-                    // sprint 传参数比较特殊，需要要传数值
-                    fields.put(key, field.getInteger("id"));
-                } catch (Exception e) {}
-            }
-            if (key.equals("reporter")) {
-                JSONObject field = fields.getJSONObject(key);
-                try {
-                    UUID.fromString(field.getString("id"));
-                } catch (Exception e) {
-                    // 如果不是uuid，则是用户的key，参数调整为key
-                    JSONObject newField = new JSONObject();
-                    newField.put("key", field.getString("id"));
-                    fields.put(key, newField);
+                    if (isUserKey) {
+                        LogUtil.info("jira user field: " + field.toString());
+                        // 如果不是用户ID，则是用户的name，参数调整为name
+                        JSONObject newField = new JSONObject();
+                        newField.put("name", field.getString("id"));
+                        fields.put(key, newField);
+                    }
                 }
             }
-
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 
@@ -574,7 +579,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             if (StringUtils.isNotBlank(val.getAccountId())) {
                 jsonObject.put("value", val.getAccountId());
             } else {
-                jsonObject.put("value", val.getKey());
+                jsonObject.put("value", val.getName());
             }
             jsonObject.put("text", val.getDisplayName());
             options.add(jsonObject);
