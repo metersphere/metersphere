@@ -576,6 +576,7 @@ public class PerformanceTestService {
         copy.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         copy.setCreateUser(Objects.requireNonNull(SessionUtils.getUser()).getId());
         copy.setNum(getNextNum(copy.getProjectId()));
+        copy.setRefId(copy.getId());
         loadTestMapper.insert(copy);
         // copy test file
         copyLoadTestFiles(request.getId(), copy.getId());
