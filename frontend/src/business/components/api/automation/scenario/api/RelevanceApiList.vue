@@ -11,6 +11,7 @@
       <api-table-list
         :table-data="tableData"
         :version-filters="versionFilters"
+        :version-enable="versionEnable"
         :project-id="projectId"
         :condition="condition"
         :select-node-ids="selectNodeIds"
@@ -92,6 +93,10 @@ export default {
     projectId: String,
     planId: String,
     isTestPlan: Boolean,
+    versionEnable: {
+      type: Boolean,
+      default: false
+    }
   },
   created() {
     this.condition.versionId = this.currentVersion;

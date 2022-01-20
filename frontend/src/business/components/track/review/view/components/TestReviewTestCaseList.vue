@@ -16,7 +16,6 @@
                    @refresh="initTableData"/>
     <status-edit ref="statusEdit" :plan-id="reviewId"
                  :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
-
     <ms-table
       v-loading="result.loading"
       :field-key="tableHeaderKey"
@@ -55,6 +54,7 @@
           min-width="120px"/>
 
         <ms-table-column
+          v-if="versionEnable"
           prop="versionId"
           :field="item"
           :filters="versionFilters"
@@ -293,6 +293,10 @@ export default {
     },
     currentVersion: {
       type: String
+    },
+    versionEnable: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {

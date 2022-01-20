@@ -46,6 +46,7 @@
             sortable>
           </ms-table-column>
           <ms-table-column
+            v-if="versionEnable"
             prop="versionId"
             :field="item"
             :filters="versionFilters"
@@ -237,6 +238,7 @@ export default {
     planId: String,
     reviewId: String,
     clickType: String,
+    versionEnable: Boolean,
   },
   computed: {
     editTestPlanLoadCaseOrder() {
