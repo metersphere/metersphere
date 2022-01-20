@@ -712,6 +712,11 @@ public class ApiDefinitionService {
                 }
                 batchMapper.insert(apiDefinition);
                 String requestStr = setImportHashTree(apiDefinition);
+
+                // case 设置版本
+                cases.forEach(c -> {
+                    c.setVersionId(apiDefinition.getVersionId());
+                });
                 reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinition.setRequest(requestStr);
@@ -759,6 +764,10 @@ public class ApiDefinitionService {
             } else {
                 apiDefinition.setVersionId(defaultVersion);
             }
+            // case 设置版本
+            cases.forEach(c -> {
+                c.setVersionId(apiDefinition.getVersionId());
+            });
             apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
             reSetImportCasesApiId(cases, originId, apiDefinition.getId());
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
@@ -798,7 +807,10 @@ public class ApiDefinitionService {
                 apiDefinition.setNum(existApi.getNum()); //id 不变
                 apiDefinition.setRefId(existApi.getRefId());
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
-
+                // case 设置版本
+                cases.forEach(c -> {
+                    c.setVersionId(apiDefinition.getVersionId());
+                });
                 if (!StringUtils.equalsIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Metersphere.name())) {
                     apiDefinition.setTags(existApi.getTags()); // 其他格式 tag 不变，MS 格式替换
                 }
