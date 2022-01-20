@@ -1864,6 +1864,13 @@ public class ApiDefinitionService {
     public void deleteApiDefinitionByVersion(String refId, String version) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+        List<String> ids = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+
+        ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
+        apiTestCaseExample.createCriteria().andApiDefinitionIdIn(ids);
+        apiTestCaseMapper.deleteByExample(apiTestCaseExample);
+        //
         apiDefinitionMapper.deleteByExample(example);
     }
 
