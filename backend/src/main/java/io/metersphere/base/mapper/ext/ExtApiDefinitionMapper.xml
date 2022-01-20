@@ -495,12 +495,11 @@
                 OR
                 version_id = (SELECT project_version.id
                 FROM api_definition tmp
-                JOIN project_version ON tmp.project_id = project_version.project_id AND
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND
                 tmp.version_id = project_version.id
-                WHERE ref_id = api_definition.ref_id
-                GROUP BY ref_id
-                HAVING MAX(latest) = 0
-                ORDER BY MAX(tmp.update_time) DESC
+                WHERE tmp.ref_id = api_definition.ref_id
+                ORDER BY tmp.update_time DESC
                 LIMIT 1)
                 )
             </if>
@@ -758,14 +757,13 @@
                 LIMIT 1)
                 OR
                 version_id = (SELECT project_version.id
-                    FROM api_definition tmp
-                    JOIN project_version ON tmp.project_id = project_version.project_id AND
-                    tmp.version_id = project_version.id
-                    WHERE ref_id = api_definition.ref_id
-                    GROUP BY ref_id
-                    HAVING MAX(latest) = 0
-                    ORDER BY MAX(tmp.update_time) DESC
-                    LIMIT 1)
+                FROM api_definition tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND
+                tmp.version_id = project_version.id
+                WHERE tmp.ref_id = api_definition.ref_id
+                ORDER BY tmp.update_time DESC
+                LIMIT 1)
                 )
             </if>
         </where>
