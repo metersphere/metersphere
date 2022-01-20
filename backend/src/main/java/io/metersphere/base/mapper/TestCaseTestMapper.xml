@@ -140,11 +140,22 @@
   </select>
   <select id="relevanceApiList" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
     SELECT
-    atc.id, atc.project_id , atc.name , atc.num , atc.priority , atc.tags
-    from api_test_case atc
-    left join test_case_test tct on atc.id = tct.test_id
-    inner join api_definition ad on ad.id = atc.api_definition_id
-    where tct.test_id is NULL and atc.status != 'Trash'
+    atc.id,
+    atc.project_id,
+    atc. NAME,
+    atc.num,
+    atc.priority,
+    atc.tags,
+    project_version.id versionId,
+    project_version.name versionName
+    FROM
+    api_test_case atc
+    LEFT JOIN test_case_test tct ON atc.id = tct.test_id
+    INNER JOIN api_definition ad ON ad.id = atc.api_definition_id
+    INNER JOIN project_version on atc.project_id = project_version.project_id and atc.version_id = project_version.id
+    WHERE
+    tct.test_id IS NULL
+    AND atc. STATUS != 'Trash'
     <if test="request.protocol != null and request.protocol!=''">
       and ad.protocol = #{request.protocol}
     </if>
@@ -169,6 +180,28 @@
         <property name="objectKey" value="request.combine.tags"/>
       </include>
     </if>
+    <if test="request.versionId != null">
+      and ad.version_id = #{request.versionId}
+    </if>
+    <if test="request.refId != null">
+      and ad.ref_id = #{request.refId}
+    </if>
+    <if test="request.versionId == null and request.refId == null and request.id == null">
+      AND (
+      ad.version_id = (SELECT project_version.id
+      FROM api_definition tmp
+      JOIN project_version
+      ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+      WHERE ref_id = ad.ref_id
+      LIMIT 1)
+      OR
+      ad.version_id = (SELECT tmp.version_id
+      FROM api_definition tmp
+      WHERE ref_id = ad.ref_id
+      ORDER BY tmp.update_time DESC
+      LIMIT 1)
+      )
+    </if>
     <if test="request.filters != null and request.filters.size() > 0">
       <foreach collection="request.filters.entrySet()" index="key" item="values">
         <if test="values != null and values.size() > 0">
@@ -181,6 +214,12 @@
             </when>
             <when test="key=='status'">
               and atc.status in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+            <when test="key=='version_id'">
+              and atc.version_id in
               <foreach collection="values" item="value" separator="," open="(" close=")">
                 #{value}
               </foreach>
@@ -368,10 +407,24 @@
   </sql>
   <select id="relevanceScenarioList" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
     SELECT
-    atc.id, atc.project_id , atc.name , atc.num , atc.`level`, atc.step_total, atc.status, atc.tags
-    from api_scenario atc
-    left join test_case_test tct on atc.id = tct.test_id
-    where tct.test_id is NULL and atc.status != 'Trash'
+    atc.id,
+    atc.project_id,
+    atc. NAME,
+    atc.num,
+    atc.`level`,
+    atc.step_total,
+    atc. STATUS,
+    atc.tags,
+    project_version.id versionId,
+    project_version.name versionName
+    FROM
+    api_scenario atc
+    LEFT JOIN test_case_test tct ON atc.id = tct.test_id
+    LEFT JOIN project_version ON atc.project_id = project_version.project_id
+    AND project_version.id = atc.version_id
+    WHERE
+    tct.test_id IS NULL
+    AND atc. STATUS != 'Trash'
     <if test="request.projectId != null and request.projectId!=''">
       and atc.project_id = #{request.projectId}
     </if>
@@ -386,6 +439,30 @@
         #{nodeId}
       </foreach>
     </if>
+    <if test="request.versionId != null">
+      and atc.version_id = #{request.versionId}
+    </if>
+    <if test="request.refId != null">
+      and atc.ref_id = #{request.refId}
+    </if>
+    <if test="request.versionId == null and request.refId == null and request.id == null">
+      AND (
+      atc.version_id = (SELECT project_version.id
+      FROM api_scenario tmp
+      JOIN project_version
+      ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+      WHERE ref_id = atc.ref_id
+      LIMIT 1)
+      OR
+      atc.version_id = (SELECT tmp.version_id
+      FROM api_scenario tmp
+      WHERE ref_id = atc.ref_id
+      GROUP BY ref_id
+      HAVING max(latest) = 0
+      ORDER BY tmp.update_time DESC
+      LIMIT 1)
+      )
+    </if>
     <if test="request.combine != null">
       <include refid="scenarioCombine">
         <property name="condition" value="request.combine"/>
@@ -393,14 +470,42 @@
         <property name="objectKey" value="request.combine.tags"/>
       </include>
     </if>
+    <if test="request.filters != null and request.filters.size() > 0">
+      <foreach collection="request.filters.entrySet()" index="key" item="values">
+        <if test="values != null and values.size() > 0">
+          <choose>
+            <when test="key=='version_id'">
+              and atc.version_id in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+          </choose>
+        </if>
+      </foreach>
+    </if>
+
     <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
   </select>
   <select id="relevanceLoadList" resultType="io.metersphere.dto.LoadTestDTO">
     SELECT
-    atc.id, atc.project_id , atc.name , atc.num , atc.status, atc.create_time, atc.update_time
-    from load_test atc
-    left join test_case_test tct on atc.id = tct.test_id
-    where tct.test_id is NULL and atc.status != 'Trash'
+    atc.id,
+    atc.project_id,
+    atc. NAME,
+    atc.num,
+    atc. STATUS,
+    atc.create_time,
+    atc.update_time,
+    project_version.name versionName,
+    project_version.id versionId
+    FROM
+    load_test atc
+    LEFT JOIN test_case_test tct ON atc.id = tct.test_id
+    LEFT JOIN project_version ON atc.project_id = project_version.project_id
+    AND atc.version_id = project_version.id
+    WHERE
+    tct.test_id IS NULL
+    AND atc. STATUS != 'Trash'
     <if test="request.projectId != null and request.projectId!=''">
       and atc.project_id = #{request.projectId}
     </if>
@@ -408,12 +513,50 @@
       and (atc.name like CONCAT('%', #{request.name},'%')
       or atc.num like CONCAT('%', #{request.name},'%'))
     </if>
+    <if test="request.versionId != null">
+      and atc.version_id = #{request.versionId}
+    </if>
+    <if test="request.refId != null">
+      and atc.ref_id = #{request.refId}
+    </if>
+    <if test="request.versionId == null and request.refId == null and request.id == null">
+      AND (
+      atc.version_id = (SELECT project_version.id
+      FROM load_test tmp
+      JOIN project_version
+      ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+      WHERE ref_id = atc.ref_id
+      LIMIT 1)
+      OR
+      atc.version_id = (SELECT tmp.version_id
+      FROM load_test tmp
+      WHERE ref_id = atc.ref_id
+      GROUP BY ref_id
+      HAVING max(latest) = 0
+      ORDER BY tmp.update_time DESC
+      LIMIT 1)
+      )
+    </if>
     <if test="request.combine != null">
       <include refid="loadCaseCombine">
         <property name="condition" value="request.combine"/>
         <property name="name" value="request.name"/>
         <property name="objectKey" value="request.combine.tags"/>
       </include>
+    </if>
+    <if test="request.filters != null and request.filters.size() > 0">
+      <foreach collection="request.filters.entrySet()" index="key" item="values">
+        <if test="values != null and values.size() > 0">
+          <choose>
+            <when test="key=='version_id'">
+              and atc.version_id in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+          </choose>
+        </if>
+      </foreach>
     </if>
     <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
   </select>

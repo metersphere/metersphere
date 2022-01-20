@@ -13,7 +13,6 @@
               operator-width="170px"
               @refresh="initTable"
               ref="apitable">
-
       <ms-table-column
         prop="num"
         label="ID"

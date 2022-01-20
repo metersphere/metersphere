@@ -184,7 +184,7 @@ export default {
     },
     projectId: String,
     planId: String,
-    isTestPlan: Boolean
+    isTestPlan: Boolean,
   },
   created() {
     this.condition.versionId = this.currentVersion;

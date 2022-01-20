@@ -12,7 +12,6 @@
           @setEnvironment="setEnvironment"
           v-if="isPlanModel"/>
       </template>
-
       <ms-table
         v-loading="result.loading"
         :data="tableData"
@@ -32,7 +31,6 @@
         row-key="id"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
-
           <ms-table-column :field="item" prop="num"
                            :fields-width="fieldsWidth"
                            sortable label="ID" min-width="80"/>
@@ -41,6 +39,7 @@
                            :label="$t('test_track.case.name')"/>
 
          <ms-table-column
+           v-if="versionEnable"
            prop="versionId"
            :field="item"
            :filters="versionFilters"
@@ -322,7 +321,8 @@ export default {
     },
     planId: String,
     reviewId: String,
-    clickType: String
+    clickType: String,
+    versionEnable: Boolean,
   },
   created: function () {
     this.getMaintainerOptions();

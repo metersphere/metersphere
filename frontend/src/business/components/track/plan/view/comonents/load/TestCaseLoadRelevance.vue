@@ -45,6 +45,7 @@
         </el-table-column>
 
         <el-table-column
+          v-if="versionEnable"
           prop="versionId"
           :column-key="'versionId'"
           :filters="versionFilters"
@@ -153,7 +154,10 @@ export default {
     },
     reviewId: {
       type: String
-    }
+    },
+    versionEnable: {
+      type: Boolean
+    },
   },
   watch: {
     planId() {

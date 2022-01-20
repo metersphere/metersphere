@@ -125,7 +125,7 @@ public interface ExtTestCaseMapper {
 
     Long getPreOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
-    List<TestCase> getTestCase(@Param("request") QueryTestCaseRequest request);
+    List<TestCaseDTO> getTestCase(@Param("request") QueryTestCaseRequest request);
 
     List<RelationshipGraphData.Node> getTestCaseForGraph(@Param("ids") Set<String> ids);
 

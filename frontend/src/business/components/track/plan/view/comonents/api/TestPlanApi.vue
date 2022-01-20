@@ -47,6 +47,7 @@
         :select-node-ids="selectNodeIds"
         :trash-enable="trashEnable"
         :is-case-relevance="true"
+        :version-enable="versionEnable"
         :model="'plan'"
         :plan-id="planId"
         :clickType="clickType"
@@ -58,6 +59,7 @@
         v-if="model === 'scenario'"
         :select-node-ids="selectNodeIds"
         :trash-enable="trashEnable"
+        :version-enable="versionEnable"
         :plan-id="planId"
         :clickType="clickType"
         @refresh="refreshTree"
@@ -70,6 +72,7 @@
       @refresh="refresh"
       :plan-id="planId"
       :model="model"
+      :version-enable="versionEnable"
       ref="apiCaseRelevance"/>
 
     <test-case-scenario-relevance
@@ -122,7 +125,8 @@
       props: [
         'planId',
         'redirectCharType',
-        'clickType'
+        'clickType',
+        'versionEnable',
       ],
       mounted() {
         this.checkRedirectCharType();

@@ -9,4 +9,6 @@ import lombok.Setter;
 public class TestCaseTestDao extends TestCaseTest {
     private String name;
     private String num;
+    private String projectName;
+    private String versionName;
 }

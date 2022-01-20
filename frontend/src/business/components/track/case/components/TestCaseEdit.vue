@@ -114,7 +114,7 @@
           <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
           <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
-                                     :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
+                                     :label-width="formLabelWidth" :case-id="form.id" :version-enable="versionEnable"                                     ref="otherInfo"/>
 
           <el-row style="margin-top: 10px" v-if="type!=='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
@@ -313,7 +313,7 @@ export default {
       newData: null,
       selectedOtherInfo: null,
       currentProjectId: "" ,
-      casePublic: false
+      casePublic: false,
     };
   },
   props: {
@@ -332,7 +332,8 @@ export default {
       type: Boolean,
       default: false,
     },
-    activeName: String
+    activeName: String,
+    versionEnable: Boolean,
   },
   computed: {
     projectIds() {

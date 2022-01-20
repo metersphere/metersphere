@@ -30,6 +30,7 @@
           :plan-id="planId"
           :clickType="clickType"
           :select-node-ids="selectNodeIds"
+          :version-enable="versionEnable"
           ref="testPlanTestCaseList"/>
         <test-plan-minder
           :tree-nodes="treeNodes"
@@ -45,6 +46,7 @@
     <test-plan-functional-relevance
       @refresh="refresh"
       :plan-id="planId"
+      :version-enable="versionEnable"
       ref="testCaseRelevance"/>
 
     <is-change-confirm
@@ -98,7 +100,8 @@ export default {
   props: [
     'planId',
     'redirectCharType',
-    'clickType'
+    'clickType',
+    'versionEnable',
   ],
   mounted() {
     this.initData();
