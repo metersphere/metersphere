@@ -45,6 +45,7 @@ import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.track.service.TestPlanApiCaseService;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -133,7 +134,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 39)
     private boolean customizeReq;
 
-    private void setRefElement() {
+    private boolean setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
@@ -171,11 +172,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 this.setRest(proxy.getRest());
                 this.setArguments(proxy.getArguments());
                 this.setHeaders(proxy.getHeaders());
+                return true;
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
             LogUtil.error(ex);
         }
+        return false;
     }
 
     @Override
@@ -189,7 +191,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.setRefElement();
+            boolean ref = this.setRefElement();
+            if (!ref) {
+                LoggerUtil.debug("引用对象已经被删除：" + this.getId());
+                return;
+            }
             hashTree = this.getHashTree();
         }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
@@ -749,22 +755,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                            try {
-                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                                if (keyValue.getValue() == null) {
-                                    httpArgument.setValue("");
-                                }
-                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                                    httpArgument.setContentType(keyValue.getContentType());
-                                }
-                                arguments.addArgument(httpArgument);
-                            } catch (Exception e) {
-
-                            }
+                    try {
+                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                        if (keyValue.getValue() == null) {
+                            httpArgument.setValue("");
                         }
-                );
+                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                            httpArgument.setContentType(keyValue.getContentType());
+                        }
+                        arguments.addArgument(httpArgument);
+                    } catch (Exception e) {
+
+                    }
+                }
+        );
         return arguments;
     }
 

@@ -495,6 +495,75 @@ public class ElementUtil {
         }
     }
 
+    public static void mergeHashTree(JSONObject element, JSONArray targetHashTree) {
+        try {
+            JSONArray sourceHashTree = element.getJSONArray("hashTree");
+            if (CollectionUtils.isNotEmpty(sourceHashTree) && CollectionUtils.isNotEmpty(targetHashTree) && sourceHashTree.size() < targetHashTree.size()) {
+                element.put("hashTree", targetHashTree);
+                return;
+            }
+            List<String> sourceIds = new ArrayList<>();
+            List<String> delIds = new ArrayList<>();
+            Map<String, JSONObject> updateMap = new HashMap<>();
+            if (CollectionUtils.isEmpty(sourceHashTree)) {
+                if (CollectionUtils.isNotEmpty(targetHashTree)) {
+                    element.put("hashTree", targetHashTree);
+                }
+                return;
+            }
+            if (CollectionUtils.isNotEmpty(targetHashTree)) {
+                for (int i = 0; i < targetHashTree.size(); i++) {
+                    JSONObject item = targetHashTree.getJSONObject(i);
+                    if (StringUtils.isNotEmpty(item.getString("id"))) {
+                        updateMap.put(item.getString("id"), item);
+                    }
+                }
+            }
+            // 找出待更新内容和源已经被删除的内容
+            if (CollectionUtils.isNotEmpty(sourceHashTree)) {
+                for (int i = 0; i < sourceHashTree.size(); i++) {
+                    JSONObject source = sourceHashTree.getJSONObject(i);
+                    if (source != null) {
+                        sourceIds.add(source.getString("id"));
+                        if (!StringUtils.equals(source.getString("label"), "SCENARIO-REF-STEP") && StringUtils.isNotEmpty(source.getString("id"))) {
+                            if (updateMap.containsKey(source.getString("id"))) {
+                                sourceHashTree.set(i, updateMap.get(source.getString("id")));
+                            } else {
+                                delIds.add(source.getString("id"));
+                            }
+                        }
+                        // 历史数据兼容
+                        if (StringUtils.isEmpty(source.getString("id")) && !StringUtils.equals(source.getString("label"), "SCENARIO-REF-STEP") && i < targetHashTree.size()) {
+                            sourceHashTree.set(i, targetHashTree.get(i));
+                        }
+                    }
+                }
+            }
+
+            // 删除多余的步骤
+            for (int i = 0; i < sourceHashTree.size(); i++) {
+                JSONObject source = sourceHashTree.getJSONObject(i);
+                if (delIds.contains(source.getString("id"))) {
+                    sourceHashTree.remove(i);
+                }
+            }
+            // 补充新增的源引用步骤
+            if (CollectionUtils.isNotEmpty(targetHashTree)) {
+                for (int i = 0; i < targetHashTree.size(); i++) {
+                    JSONObject item = sourceHashTree.getJSONObject(i);
+                    if (!sourceIds.contains(item.getString("id"))) {
+                        sourceHashTree.add(item);
+                    }
+                }
+            }
+            if (CollectionUtils.isNotEmpty(sourceHashTree)) {
+                element.put("hashTree", sourceHashTree);
+            }
+        } catch (Exception e) {
+            element.put("hashTree", targetHashTree);
+        }
+    }
+
     public static String hashTreeToString(HashTree hashTree) {
         try (ByteArrayOutputStream bas = new ByteArrayOutputStream()) {
             SaveService.saveTree(hashTree, bas);

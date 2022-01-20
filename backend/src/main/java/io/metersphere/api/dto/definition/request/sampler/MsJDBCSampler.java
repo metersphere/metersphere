@@ -29,6 +29,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -86,7 +87,11 @@ public class MsJDBCSampler extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.setRefElement();
+            boolean ref = this.setRefElement();
+            if (!ref) {
+                LoggerUtil.debug("引用对象已经被删除：" + this.getId());
+                return;
+            }
             hashTree = this.getHashTree();
         }
         if (config != null && config.getConfig() == null) {
@@ -172,12 +177,12 @@ public class MsJDBCSampler extends MsTestElement {
         }
 
         //处理全局前后置脚本(步骤内)
-        String enviromentId = this.getEnvironmentId();
-        if (enviromentId == null) {
-            enviromentId = this.useEnvironment;
+        String environmentId = this.getEnvironmentId();
+        if (environmentId == null) {
+            environmentId = this.useEnvironment;
         }
         //根据配置将脚本放置在私有脚本之前
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), enviromentId, config, false);
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, false);
 
         HashTreeUtil hashTreeUtil = new HashTreeUtil();
 
@@ -192,7 +197,7 @@ public class MsJDBCSampler extends MsTestElement {
             });
         }
         //根据配置将脚本放置在私有脚本之后
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), enviromentId, config, true);
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, true);
 
     }
 
@@ -239,7 +244,7 @@ public class MsJDBCSampler extends MsTestElement {
         return "";
     }
 
-    private void setRefElement() {
+    private boolean setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
@@ -278,11 +283,12 @@ public class MsJDBCSampler extends MsTestElement {
                 this.setVariableNames(proxy.getVariableNames());
                 this.setResultVariable(proxy.getResultVariable());
                 this.setQueryTimeout(proxy.getQueryTimeout());
+                return true;
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
             LogUtil.error(ex);
         }
+        return false;
     }
 
     private EnvironmentConfig initDataSource() {

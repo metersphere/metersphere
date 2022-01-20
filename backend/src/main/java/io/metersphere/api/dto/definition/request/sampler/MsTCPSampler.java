@@ -28,6 +28,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -123,7 +124,11 @@ public class MsTCPSampler extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.setRefElement();
+            boolean ref = this.setRefElement();
+            if (!ref) {
+                LoggerUtil.debug("引用对象已经被删除：" + this.getId());
+                return;
+            }
             hashTree = this.getHashTree();
         }
         if (config.getConfig() == null) {
@@ -154,7 +159,7 @@ public class MsTCPSampler extends MsTestElement {
         //增加误报、全局断言
         if (envConfig != null) {
             if (envConfig.isUseErrorCode()) {
-                List<MsAssertions> errorReportAssertion =HashTreeUtil.getErrorReportByProjectId(this.getProjectId());
+                List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(this.getProjectId());
                 for (MsAssertions assertion : errorReportAssertion) {
                     assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
                 }
@@ -167,12 +172,12 @@ public class MsTCPSampler extends MsTestElement {
         }
 
         //处理全局前后置脚本(步骤内)
-        String enviromentId = this.getEnvironmentId();
-        if (enviromentId == null) {
-            enviromentId = this.useEnvironment;
+        String environmentId = this.getEnvironmentId();
+        if (environmentId == null) {
+            environmentId = this.useEnvironment;
         }
         //根据配置将脚本放置在私有脚本之前
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), enviromentId, config, false);
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), environmentId, config, false);
 
         HashTreeUtil hashTreeUtil = new HashTreeUtil();
 
@@ -187,23 +192,10 @@ public class MsTCPSampler extends MsTestElement {
             });
         }
         //根据配置将脚本放置在私有脚本之后
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), enviromentId, config, true);
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), environmentId, config, true);
     }
 
-    private void addItemHashTree(MsTestElement element, HashTree samplerHashTree, ParameterConfig config) {
-        if (element != null) {
-            if (element.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    element.setEnvironmentId(useEnvironment);
-                } else {
-                    element.setEnvironmentId(this.getEnvironmentId());
-                }
-            }
-            element.toHashTree(samplerHashTree, element.getHashTree(), config);
-        }
-    }
-
-    private void setRefElement() {
+    private boolean setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
@@ -239,11 +231,12 @@ public class MsTCPSampler extends MsTestElement {
                 this.setServer(proxy.getServer());
                 this.setPort(proxy.getPort());
                 this.setRequest(proxy.getRequest());
+                return true;
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
             LogUtil.error(ex);
         }
+        return false;
     }
 
     private void parseEnvironment(EnvironmentConfig config) {

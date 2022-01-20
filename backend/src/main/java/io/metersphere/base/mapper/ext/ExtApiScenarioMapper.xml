@@ -351,8 +351,12 @@
       select * from api_scenario where tags like CONCAT('%', #{id},'%')
     </select>
 
-    <select id="selectIds" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
-        select * from api_scenario where id in
+    <select id="selectIds" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
+        select api_scenario.*, project_version.name as version_name, project.version_enable
+        from api_scenario
+        LEFT JOIN project_version on project_version.project_id = api_scenario.project_id and project_version.id = version_id
+        LEFT JOIN project on api_scenario.project_id = project.id
+        WHERE api_scenario.id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
