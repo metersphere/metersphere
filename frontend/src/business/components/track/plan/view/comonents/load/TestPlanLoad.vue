@@ -15,6 +15,7 @@
           :clickType="clickType"
           :select-project-id="selectProjectId"
           :select-parent-nodes="selectParentNodes"
+          :version-enable="versionEnable"
           @relevanceCase="openTestCaseRelevanceDialog"
           ref="testPlanLoadCaseList"/>
     </template>
@@ -22,6 +23,7 @@
     <test-case-load-relevance
         @refresh="refresh"
         :plan-id="planId"
+        :version-enable="versionEnable"
         ref="testCaseLoadRelevance"/>
   </ms-test-plan-common-component>
 </template>
@@ -54,7 +56,8 @@ export default {
   props: [
     'planId',
     'redirectCharType',
-    'clickType'
+    'clickType',
+    'versionEnable',
   ],
   watch: {
     planId() {

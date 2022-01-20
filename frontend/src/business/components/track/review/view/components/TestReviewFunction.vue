@@ -30,6 +30,7 @@
           :review-id="reviewId"
           :clickType="clickType"
           :current-version="currentVersion"
+          :version-enable="versionEnable"
           ref="testPlanTestCaseList"/>
         <test-review-minder
           :tree-nodes="treeNodes"
@@ -98,6 +99,7 @@ export default {
     'reviewId',
     'redirectCharType',
     'clickType',
+    'versionEnable',
   ],
   mounted() {
     this.getNodeTreeByReviewId()

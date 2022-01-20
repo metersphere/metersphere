@@ -164,6 +164,8 @@ public class TestCaseService {
     private RelationshipEdgeMapper relationshipEdgeMapper;
     @Resource
     private ExtProjectVersionMapper extProjectVersionMapper;
+    @Resource
+    private ProjectVersionMapper projectVersionMapper;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -1187,7 +1189,7 @@ public class TestCaseService {
 
         for (TestCaseExcelData model : datas) {
             List<Object> list = new ArrayList<>();
-            Map<String,String> customDataMaps = Optional.ofNullable(model.getCustomDatas()).orElse(new HashMap<>());
+            Map<String, String> customDataMaps = Optional.ofNullable(model.getCustomDatas()).orElse(new HashMap<>());
 
             for (String head : headList) {
                 if (StringUtils.equalsAnyIgnoreCase(head, "ID")) {
@@ -1220,7 +1222,7 @@ public class TestCaseService {
                     list.add(model.getStepModel());
                 } else if (StringUtils.equalsAnyIgnoreCase(head, "Priority", "用例等級", "用例等级")) {
                     list.add(model.getPriority());
-                } else if(StringUtils.equalsAnyIgnoreCase(head,"Case status","用例状态","用例狀態")){
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "Case status", "用例状态", "用例狀態")) {
                     list.add(model.getStatus());
                 } else if (StringUtils.equalsAnyIgnoreCase(head, "Maintainer(ID)", "责任人(ID)", "維護人(ID)")) {
                     list.add(model.getMaintainer());
@@ -2218,29 +2220,51 @@ public class TestCaseService {
         List<LoadTest> apiLoadTests = performanceTestService.getLoadCaseByIds(
                 getTestIds(testCaseTests, "performance")
         );
+        List<String> projectIds = apiCases.stream().map(c -> c.getProjectId()).collect(Collectors.toList());
+        projectIds.addAll(apiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+        projectIds.addAll(apiLoadTests.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+        projectIds = projectIds.stream().distinct().collect(Collectors.toList());
+
+        List<String> versionIds = apiCases.stream().map(c -> c.getVersionId()).collect(Collectors.toList());
+        versionIds.addAll(apiScenarios.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
+        versionIds.addAll(apiLoadTests.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
+        versionIds = versionIds.stream().distinct().collect(Collectors.toList());
+
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andIdIn(projectIds);
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+        Map<String, String> projectNameMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+
+        ProjectVersionExample versionExample = new ProjectVersionExample();
+        versionExample.createCriteria().andIdIn(versionIds);
+        List<ProjectVersion> projectVersions = projectVersionMapper.selectByExample(versionExample);
+        Map<String, String> verisonNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+
         List<TestCaseTestDao> testCaseTestList = new ArrayList<>();
         apiCases.forEach(item -> {
-            getTestCaseTestDaoList("testcase", item.getNum(), item.getName(), item.getId(),
+            getTestCaseTestDaoList("testcase", item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         apiScenarios.forEach(item -> {
-            getTestCaseTestDaoList("automation", item.getNum(), item.getName(), item.getId(),
+            getTestCaseTestDaoList("automation", item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         apiLoadTests.forEach(item -> {
-            getTestCaseTestDaoList("performance", item.getNum(), item.getName(), item.getId(),
+            getTestCaseTestDaoList("performance", item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         return testCaseTestList;
     }
 
-    public void getTestCaseTestDaoList(String type, Object num, String name, String testId,
+    public void getTestCaseTestDaoList(String type, Object num, String name, String testId, String projectName, String versionName,
                                        List<TestCaseTestDao> testCaseTestList, Map<String, TestCaseTest> testCaseTestsMap) {
         TestCaseTestDao testCaseTestDao = new TestCaseTestDao();
         BeanUtils.copyBean(testCaseTestDao, testCaseTestsMap.get(testId));
         testCaseTestDao.setNum(num.toString());
         testCaseTestDao.setName(name);
         testCaseTestDao.setTestType(type);
+        testCaseTestDao.setProjectName(projectName);
+        testCaseTestDao.setVersionName(versionName);
         testCaseTestList.add(testCaseTestDao);
     }
 
@@ -2283,7 +2307,7 @@ public class TestCaseService {
                 testCaseMapper::updateByPrimaryKeySelective);
     }
 
-    public Pager<List<TestCase>> getRelationshipRelateList(QueryTestCaseRequest request, int goPage, int pageSize) {
+    public Pager<List<TestCaseDTO>> getRelationshipRelateList(QueryTestCaseRequest request, int goPage, int pageSize) {
         setDefaultOrder(request);
         List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
         request.setTestCaseContainIds(relationshipIds);
@@ -2301,6 +2325,15 @@ public class TestCaseService {
             example.createCriteria().andIdIn(ids).andStatusNotEqualTo("Trash");
             List<TestCaseWithBLOBs> testCaseList = testCaseMapper.selectByExampleWithBLOBs(example);
             buildUserInfo(testCaseList);
+
+            Map<String, String> verionNameMap = new HashMap<>();
+            List<String> versionIds = testCaseList.stream().map(TestCase::getVersionId).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(versionIds)) {
+                ProjectVersionRequest pvr = new ProjectVersionRequest();
+                pvr.setProjectId(testCaseList.get(0).getProjectId());
+                List<ProjectVersionDTO> projectVersions = extProjectVersionMapper.selectProjectVersionList(pvr);
+                verionNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersionDTO::getId, ProjectVersionDTO::getName));
+            }
             Map<String, TestCase> caseMap = testCaseList.stream().collect(Collectors.toMap(TestCase::getId, i -> i));
             List<RelationshipEdgeDTO> results = new ArrayList<>();
             for (RelationshipEdge relationshipEdge : relationshipEdges) {
@@ -2320,6 +2353,7 @@ public class TestCaseService {
                 relationshipEdgeDTO.setTargetNum(testCase.getNum());
                 relationshipEdgeDTO.setTargetCustomNum(testCase.getCustomNum());
                 relationshipEdgeDTO.setStatus(testCase.getStatus());
+                relationshipEdgeDTO.setVersionName(verionNameMap.get(testCase.getVersionId()));
                 results.add(relationshipEdgeDTO);
             }
             return results;

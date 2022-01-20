@@ -93,19 +93,16 @@ export default {
       options: [],
       value: '',
       versionOptions: {},
-      versionEnable: false,
     };
   },
   props: {
     apiDefinitionId: String,
     readOnly: Boolean,
     relationshipType: String,
+    versionEnable: Boolean,
   },
   created() {
     this.getProjectVersions();
-    this.$get('/project/version/enable/' + getCurrentProjectID(), response => {
-      this.versionEnable = response.data;
-    });
   },
   methods: {
     getTableData() {

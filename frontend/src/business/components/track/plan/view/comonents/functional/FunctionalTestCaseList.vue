@@ -58,6 +58,7 @@
           min-width="120px"/>
 
         <ms-table-column
+          v-if="versionEnable"
           prop="versionId"
           :field="item"
           :filters="versionFilters"
@@ -408,7 +409,11 @@ export default {
     selectNodeIds: {
       type: Array
     },
-    currentVersion: null
+    currentVersion: null,
+    versionEnable: {
+      type: Boolean,
+      default: false
+    },
   },
   computed: {
     editTestPlanTestCaseOrder() {
