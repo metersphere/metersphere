@@ -1132,6 +1132,10 @@ export default {
       request.active = false;
       request.resourceId = getUUID();
       request.projectId = item.projectId;
+      request.num = item.num;
+      request.versionEnable = item.versionEnable;
+      request.versionId = item.versionId;
+      request.versionName = item.versionName;
       request.requestResult = [];
       if (!request.url) {
         request.url = "";

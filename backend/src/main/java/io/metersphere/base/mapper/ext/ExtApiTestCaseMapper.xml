@@ -600,9 +600,11 @@
         </if>
     </select>
     <select id="getCaseInfo" resultType="io.metersphere.api.dto.definition.ApiTestCaseInfo">
-        select t1.*,a.method AS apiMethod
+        select t1.*,a.method AS apiMethod,project_version.name as version_name, project.version_enable
         from api_test_case t1
         inner join api_definition a on t1.api_definition_id = a.id
+        LEFT JOIN project ON t1.project_id = project.id
+        LEFT JOIN project_version on a.project_id = project_version.project_id AND project_version.id = t1.version_id
         where 1
         <if test="request.id != null and request.id!=''">
             and t1.id = #{request.id}

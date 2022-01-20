@@ -9,6 +9,8 @@ import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.datacount.ApiMethodUrlDTO;
+import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -39,7 +41,10 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.AutomationReference;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.*;
+import io.metersphere.service.EnvironmentGroupProjectService;
+import io.metersphere.service.QuotaService;
+import io.metersphere.service.RelationshipEdgeService;
+import io.metersphere.service.ScheduleService;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
@@ -166,10 +171,10 @@ public class ApiAutomationService {
         return list;
     }
 
-    public List<ApiScenarioWithBLOBs> listAll(ApiScenarioBatchRequest request) {
+    public List<ApiScenarioDTO> listAll(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery(query));
-        List<ApiScenarioWithBLOBs> list = extApiScenarioMapper.selectIds(request.getIds());
+        List<ApiScenarioDTO> list = extApiScenarioMapper.selectIds(request.getIds());
         return list;
     }
 
@@ -675,25 +680,84 @@ public class ApiAutomationService {
         return scenarioWithBLOBs;
     }
 
+    private final static List<String> requests = new ArrayList<String>() {{
+        this.add("HTTPSamplerProxy");
+        this.add("DubboSampler");
+        this.add("JDBCSampler");
+        this.add("TCPSampler");
+    }};
+
+    private void setElement(JSONObject element, Integer num, boolean enable, String versionName, boolean versionEnable) {
+        element.put("num", num);
+        element.put("enable", enable);
+        element.put("versionName", versionName);
+        element.put("versionEnable", versionEnable);
+    }
+
+    private JSONObject setRequest(JSONObject element) {
+        boolean enable = element.getBoolean("enable");
+        boolean isExist = false;
+        if (StringUtils.equalsIgnoreCase(element.getString("refType"), "CASE")) {
+            ApiTestCaseInfo apiTestCase = apiTestCaseService.get(element.getString("id"));
+            if (apiTestCase != null) {
+                JSONObject refElement = JSON.parseObject(apiTestCase.getRequest());
+                ElementUtil.dataFormatting(refElement);
+                if (refElement.get("hashTree") != null && StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
+                    ElementUtil.mergeHashTree(element, refElement.getJSONArray("hashTree"));
+                    element.put("referenced", "REF");
+                    element.put("name", apiTestCase.getName());
+                } else {
+                    element = refElement;
+                }
+                isExist = true;
+                this.setElement(element, apiTestCase.getNum(), enable, apiTestCase.getVersionName(), apiTestCase.getVersionEnable());
+            }
+        } else {
+            ApiDefinitionResult definitionWithBLOBs = apiDefinitionService.getById(element.getString("id"));
+            if (definitionWithBLOBs != null) {
+                this.setElement(element, definitionWithBLOBs.getNum(), enable, definitionWithBLOBs.getVersionName(), definitionWithBLOBs.getVersionEnable());
+                isExist = true;
+            }
+        }
+        if (!isExist) {
+            if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
+                element.put("enable", false);
+            }
+            element.put("num", "");
+        }
+        return element;
+    }
+
+    private JSONObject setRefScenario(JSONObject element) {
+        boolean enable = element.getBoolean("enable");
+        ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString("id"));
+        if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
+            boolean environmentEnable = element.getBoolean("environmentEnable");
+            if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
+                element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                element.put("referenced", "REF");
+                element.put("name", scenarioWithBLOBs.getName());
+            }
+            element.put("environmentEnable", environmentEnable);
+            this.setElement(element, scenarioWithBLOBs.getNum(), enable, scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable());
+        } else {
+            if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
+                element.put("enable", false);
+            }
+            element.put("num", "");
+        }
+        return element;
+    }
+
     public void dataFormatting(JSONArray hashTree) {
         for (int i = 0; i < hashTree.size(); i++) {
             JSONObject element = hashTree.getJSONObject(i);
             if (element != null && StringUtils.equalsIgnoreCase(element.getString("type"), "scenario")) {
-                ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString("id"));
-                if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
-                    boolean enable = element.getBoolean("enable");
-                    boolean environmentEnable = element.getBoolean("environmentEnable");
-                    if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
-                        element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
-                        element.put("referenced", "REF");
-                    }
-                    element.put("num", scenarioWithBLOBs.getNum());
-                    element.put("enable", enable);
-                    element.put("environmentEnable", environmentEnable);
-                    element.put("versionName", scenarioWithBLOBs.getVersionName());
-                    element.put("versionEnable", scenarioWithBLOBs.getVersionEnable());
-                    hashTree.set(i, element);
-                }
+                element = this.setRefScenario(element);
+                hashTree.set(i, element);
+            } else if (element != null && requests.contains(element.getString("type"))) {
+                element = this.setRequest(element);
+                hashTree.set(i, element);
             }
             if (element.containsKey("hashTree")) {
                 JSONArray elementJSONArray = element.getJSONArray("hashTree");
@@ -704,20 +768,9 @@ public class ApiAutomationService {
 
     public void dataFormatting(JSONObject element) {
         if (element != null && StringUtils.equalsIgnoreCase(element.getString("type"), "scenario")) {
-            ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString("id"));
-            if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
-                boolean enable = element.getBoolean("enable");
-                boolean environmentEnable = element.getBoolean("environmentEnable");
-                if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
-                    element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
-                    element.put("referenced", "REF");
-                }
-                element.put("enable", enable);
-                element.put("environmentEnable", environmentEnable);
-                element.put("num", scenarioWithBLOBs.getNum());
-                element.put("versionName", scenarioWithBLOBs.getVersionName());
-                element.put("versionEnable", scenarioWithBLOBs.getVersionEnable());
-            }
+            element = this.setRefScenario(element);
+        } else if (element != null && requests.contains(element.getString("type"))) {
+            element = this.setRequest(element);
         }
         if (element != null && element.containsKey("hashTree")) {
             JSONArray elementJSONArray = element.getJSONArray("hashTree");
@@ -761,7 +814,7 @@ public class ApiAutomationService {
     }
 
 
-    public List<ApiScenarioWithBLOBs> getApiScenarios(List<String> ids) {
+    public List<ApiScenarioDTO> getApiScenarios(List<String> ids) {
         if (CollectionUtils.isNotEmpty(ids)) {
             return extApiScenarioMapper.selectIds(ids);
         }
@@ -1050,9 +1103,8 @@ public class ApiAutomationService {
     }
 
     public JmxInfoDTO genPerformanceTestJmx(GenScenarioRequest request) {
-        List<ApiScenarioWithBLOBs> apiScenarios = null;
         List<String> ids = request.getIds();
-        apiScenarios = extApiScenarioMapper.selectIds(ids);
+        List<ApiScenarioDTO> apiScenarios = extApiScenarioMapper.selectIds(ids);
         String testName = "";
         String id = "";
         if (!apiScenarios.isEmpty()) {
@@ -1821,7 +1873,7 @@ public class ApiAutomationService {
         List<JmxInfoDTO> returnList = new ArrayList<>();
 
         List<String> ids = request.getIds();
-        List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(ids);
+        List<ApiScenarioDTO> apiScenarioList = extApiScenarioMapper.selectIds(ids);
         if (CollectionUtils.isEmpty(apiScenarioList)) {
             return returnList;
         } else {
@@ -1845,7 +1897,7 @@ public class ApiAutomationService {
                 (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         List<String> ids = request.getIds();
         if (CollectionUtils.isEmpty(ids)) return;
-        List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(ids);
+        List<ApiScenarioDTO> apiScenarioList = extApiScenarioMapper.selectIds(ids);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioMapper mapper = sqlSession.getMapper(ApiScenarioMapper.class);
         Long nextOrder = ServiceUtils.getNextOrder(request.getProjectId(), extApiScenarioMapper::getLastOrder);
