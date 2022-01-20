@@ -76,12 +76,12 @@ function changeStyle(diffNode){
     if(diffNode.oldNodeArray[i].className==='cell'){
       let rowVnodeElm = findRowVnodeElm(diffNode.oldNodeArray[i]);
       if(isDef(rowVnodeElm.style)){
-        rowVnodeElm.style.setProperty("background-color","rgb(241,200,196)",'important')
+        rowVnodeElm.style.setProperty("background-color","rgb(241,200,196,0.45)",'important')
       }else if(isDef(rowVnodeElm.parentNode.style)&&rowVnodeElm!=='comment'){
-        rowVnodeElm.parentNode.style.setProperty("background-color","rgb(241,200,196)",'important')
+        rowVnodeElm.parentNode.style.setProperty("background-color","rgb(241,200,196,0.45)",'important')
       }
     }else{
-      changeStyleBySubset(diffNode.oldNodeArray[i],"rgb(241,200,196)");
+      changeStyleBySubset(diffNode.oldNodeArray[i],"rgb(241,200,196,0.45)");
     }
   }
 
@@ -92,12 +92,12 @@ function changeStyle(diffNode){
     if(diffNode.nodeArray[i].className==='cell'){
       let rowVnodeElm = findRowVnodeElm(diffNode.nodeArray[i]);
       if(isDef(rowVnodeElm.style)){
-        rowVnodeElm.style.setProperty("background-color","rgb(215, 243, 215)",'important')
+        rowVnodeElm.style.setProperty("background-color","rgb(121, 225, 153,0.3)",'important')
       }else if(isDef(rowVnodeElm.parentNode.style)&&rowVnodeElm!=='comment'){
-        rowVnodeElm.parentNode.style.setProperty("background-color","rgb(215, 243, 215)",'important')
+        rowVnodeElm.parentNode.style.setProperty("background-color","rgb(121, 225, 153,0.3)",'important')
       }
     }else{
-      changeStyleBySubset(diffNode.nodeArray[i],"rgb(215, 243, 215)");
+      changeStyleBySubset(diffNode.nodeArray[i],"rgb(121, 225, 153,0.3)");
     }
   }
 }
