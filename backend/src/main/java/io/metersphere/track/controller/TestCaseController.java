@@ -256,12 +256,12 @@ public class TestCaseController {
         return testCaseService.deleteTestCaseToGc(testCaseId);
     }
 
-    @PostMapping("/deletePublic/{refId}")
+   @GetMapping("/deletePublic/{versionId}/{refId}")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getTestCase(#testCaseId)", targetClass = TestCaseService.class,
             mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
-    public int deletePublic(@PathVariable String refId) {
-        return testCaseService.deleteTestCasePublic(refId);
+    public void deletePublic(@PathVariable String versionId, @PathVariable String refId) {
+         testCaseService.deleteTestCasePublic(versionId ,refId);
     }
 
 
@@ -356,8 +356,8 @@ public class TestCaseController {
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.DELETE, mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
-    public void deleteToGcBatchPublic(@RequestBody TestCaseBatchRequest request) {
-        testCaseService.deleteToGcBatchPublic(request.getIds());
+    public void deleteToGcBatchPublic(@RequestBody List<String> ids) {
+        testCaseService.deleteToGcBatchPublic(ids);
     }
 
     @PostMapping("/reduction")
