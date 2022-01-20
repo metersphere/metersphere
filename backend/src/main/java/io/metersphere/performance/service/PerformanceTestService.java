@@ -568,6 +568,7 @@ public class PerformanceTestService {
         copy.setUpdateTime(System.currentTimeMillis());
         copy.setStatus(APITestStatus.Saved.name());
         copy.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        copy.setCreateUser(Objects.requireNonNull(SessionUtils.getUser()).getId());
         copy.setNum(getNextNum(copy.getProjectId()));
         loadTestMapper.insert(copy);
         // copy test file
