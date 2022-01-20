@@ -26,6 +26,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -88,7 +89,11 @@ public class MsDubboSampler extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.setRefElement();
+            boolean ref = this.setRefElement();
+            if (!ref) {
+                LoggerUtil.debug("引用对象已经被删除：" + this.getId());
+                return;
+            }
             hashTree = this.getHashTree();
         }
 
@@ -100,7 +105,7 @@ public class MsDubboSampler extends MsTestElement {
         }
     }
 
-    private void setRefElement() {
+    private boolean setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
@@ -139,11 +144,12 @@ public class MsDubboSampler extends MsTestElement {
                 this.setConsumerAndService(proxy.getConsumerAndService());
                 this.setRegistryCenter(proxy.getRegistryCenter());
                 this.setConfigCenter(proxy.getConfigCenter());
+                return true;
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
             LogUtil.error(ex);
         }
+        return false;
     }
 
     private DubboSample dubboSample(ParameterConfig config) {

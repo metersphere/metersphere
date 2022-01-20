@@ -123,6 +123,8 @@ public class MsScenario extends MsTestElement {
                     }
                     this.setHashTree(sourceHashTree);
                     hashTree = sourceHashTree;
+                } else {
+                    return;
                 }
 
             } catch (Exception ex) {
