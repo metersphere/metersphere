@@ -106,6 +106,8 @@
                              :total="total"/>
       </el-card>
     </ms-main-container>
+    <!--  删除接口提示  -->
+    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </ms-container>
 </template>
 
@@ -122,9 +124,11 @@ import {TEST_CONFIGS} from "../../common/components/search/search-components";
 import {getLastTableSortField} from "@/common/js/tableUtils";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {editLoadTestCaseOrder} from "@/network/load-test";
+import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 
 export default {
   components: {
+    ListItemDeleteConfirm,
     MsTable,
     MsTableHeader,
     MsPerformanceTestStatus,
@@ -252,24 +256,24 @@ export default {
       });
     },
     handleDelete(test) {
-      this.$alert(this.$t('load_test.delete_confirm') + test.name + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this._handleDelete(test);
-          }
-        }
-      });
+      // 删除提供列表删除和全部版本删除
+      this.$refs.apiDeleteConfirm.open(test, this.$t('load_test.delete_confirm'));
     },
-    _handleDelete(test) {
-      let data = {
-        id: test.id
-      };
-
-      this.result = this.$post(this.deletePath, data, () => {
-        this.$success(this.$t('commons.delete_success'));
-        this.initTableData();
-      });
+    _handleDelete(test, deleteCurrentVersion) {
+      if (deleteCurrentVersion) {
+        this.$get('performance/delete/' + test.id + '/' + test.refId, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.getVersionHistory();
+        });
+      } else {
+        let data = {
+          id: test.id
+        };
+        this.result = this.$post(this.deletePath, data, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.initTableData();
+        });
+      }
     },
     link(row) {
       this.$router.push({

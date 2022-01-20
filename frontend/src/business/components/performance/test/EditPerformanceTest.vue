@@ -22,7 +22,7 @@
               <i class="el-icon-star-on" style="color: #783987; font-size: 28px;  margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" />
             </el-tooltip>
 
-            <el-link type="primary" size="small" style="margin-right: 20px" @click="openHis" v-if="test.id">
+            <el-link type="primary" size="small" style="margin-right: 5px" @click="openHis" v-if="test.id">
               {{ $t('operating_log.change_history') }}
             </el-link>
             <ms-version-history v-xpack
