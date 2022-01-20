@@ -148,7 +148,7 @@
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>ms-jmeter-core</artifactId>
-            <version>1.0.7</version>
+            <version>1.0.8</version>
         </dependency>
 
         <!--   排除jmeter中的 xstream 解决bug     -->
