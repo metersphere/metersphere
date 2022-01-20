@@ -227,7 +227,7 @@
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
     <!--  删除接口提示  -->
-    <api-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDeleteVersion"/>
+    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDeleteVersion"/>
   </span>
 
 </template>
@@ -259,14 +259,15 @@ import {
   deepClone,
   getCustomFieldBatchEditOption,
   getCustomFieldValue,
-  getCustomTableWidth, getLastTableSortField,
+  getCustomTableWidth,
+  getLastTableSortField,
   getPageInfo,
   getTableHeaderWithCustomFields,
   initCondition,
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
-import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId, getUUID, hasLicense} from "@/common/js/utils";
 import {getTestTemplate} from "@/network/custom-field-template";
 import {getProjectMember} from "@/network/user";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -277,14 +278,15 @@ import TestCasePreview from "@/business/components/track/case/components/TestCas
 import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
-import {getUUID} from "@/common/js/utils";
-import ApiDeleteConfirm from "@/business/components/api/definition/components/list/ApiDeleteConfirm";
+import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
 
 export default {
   name: "TestCaseList",
   components: {
+    ListItemDeleteConfirm,
     MsTableAdvSearchBar,
     TestCasePreview,
     BatchMove,
@@ -310,7 +312,6 @@ export default {
     ReviewStatus,
     MsTag, ApiStatus,
     "relationshipGraphDrawer": relationshipGraphDrawer.default,
-    ApiDeleteConfirm
   },
   data() {
     return {

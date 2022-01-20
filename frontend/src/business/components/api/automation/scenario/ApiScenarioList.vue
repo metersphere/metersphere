@@ -290,7 +290,7 @@
     <ms-task-center ref="taskCenter" :show-menu="false"/>
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->
-    <api-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
+    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </div>
 </template>
 
@@ -316,7 +316,7 @@ import axios from "axios";
 import {getGraphByCondition} from "@/network/graph";
 import MsTableSearchBar from "@/business/components/common/components/MsTableSearchBar";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
-import ApiDeleteConfirm from "@/business/components/api/definition/components/list/ApiDeleteConfirm";
+import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -324,7 +324,7 @@ const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComp
 export default {
   name: "MsApiScenarioList",
   components: {
-    ApiDeleteConfirm,
+    ListItemDeleteConfirm,
     MsTableAdvSearchBar,
     MsTableSearchBar,
     MsTable,
