@@ -171,11 +171,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     /**
-     * sprint 传参数比较特殊，需要要传数值
+     * 参数比较特殊，需要特别处理
      * @param fields
      */
-    private void setSprintParam(JSONObject fields) {
-        String sprintKey = null;
+    private void setSpecialParam(JSONObject fields) {
         String projectKey = getProjectId(this.projectId);
         JiraConfig config = getConfig();
         Map<String, JiraCreateMetadataResponse.Field> createMetadata = new HashMap<>();
@@ -186,19 +185,26 @@ public class JiraPlatform extends AbstractIssuePlatform {
         for (String name : createMetadata.keySet()) {
             JiraCreateMetadataResponse.Field item = createMetadata.get(name);
             JiraCreateMetadataResponse.Schema schema = item.getSchema();
+            String key = item.getKey();
             if (schema != null && schema.getCustom() != null && schema.getCustom().endsWith("sprint")) {
-                sprintKey = item.getKey();
-                break;
-            }
-        }
-
-        if (StringUtils.isNotBlank(sprintKey)) {
-            JSONObject field = fields.getJSONObject(sprintKey);
-            if (field != null) {
+                JSONObject field = fields.getJSONObject(key);
                 try {
-                    fields.put(sprintKey, field.getInteger("id"));
+                    // sprint 传参数比较特殊，需要要传数值
+                    fields.put(key, field.getInteger("id"));
                 } catch (Exception e) {}
             }
+            if (key.equals("reporter")) {
+                JSONObject field = fields.getJSONObject(key);
+                try {
+                    UUID.fromString(field.getString("id"));
+                } catch (Exception e) {
+                    // 如果不是uuid，则是用户的key，参数调整为key
+                    JSONObject newField = new JSONObject();
+                    newField.put("key", field.getString("id"));
+                    fields.put(key, newField);
+                }
+            }
+
         }
     }
 
@@ -232,7 +238,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             fields.put("description", desc);
             parseCustomFiled(issuesRequest, fields);
         }
-        setSprintParam(fields);
+        setSpecialParam(fields);
 
         return addJiraIssueParam;
     }
@@ -405,7 +411,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
         char filedKey = 'A';
         for (String name : createMetadata.keySet()) {
             JiraCreateMetadataResponse.Field item = createMetadata.get(name);
-            if (ignoreSet.contains(name)) continue;  // timetracking, attachment todo
+            if (ignoreSet.contains(name)) {
+                continue;  // timetracking, attachment todo
+            }
             JiraCreateMetadataResponse.Schema schema = item.getSchema();
             CustomFieldDao customFieldDao = new CustomFieldDao();
             customFieldDao.setKey(String.valueOf(filedKey++));
@@ -560,7 +568,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONArray options = new JSONArray();
         userOptions.forEach(val -> {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("value", val.getAccountId());
+            if (StringUtils.isNotBlank(val.getAccountId())) {
+                jsonObject.put("value", val.getAccountId());
+            } else {
+                jsonObject.put("value", val.getKey());
+            }
             jsonObject.put("text", val.getDisplayName());
             options.add(jsonObject);
         });
