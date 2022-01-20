@@ -1024,10 +1024,6 @@ public class PerformanceTestService {
     public void deleteLoadTestByVersion(String version,String refId) {
         LoadTestExample loadTestExample = new LoadTestExample();
         loadTestExample.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
-        List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
-        LoadTest loadTest = loadTests.get(0);
-        DeleteTestPlanRequest request = new DeleteTestPlanRequest();
-        request.setId(loadTest.getId());
-        this.delete(request);
+        loadTestMapper.deleteByExample(loadTestExample);
     }
 }
