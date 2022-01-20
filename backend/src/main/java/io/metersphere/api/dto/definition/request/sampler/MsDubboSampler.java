@@ -156,15 +156,22 @@ public class MsDubboSampler extends MsTestElement {
         DubboSample sampler = new DubboSample();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
-        sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
-        sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
+        if(config.isOperating()){
+            String[] testNameArr = sampler.getName().split("<->");
+            if (testNameArr.length > 0) {
+                String testName = testNameArr[0];
+                sampler.setName(testName);
+            }
+        }else {
+            sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
+            sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
+        }
         sampler.setProperty("MS-ID", this.getId());
         String indexPath = this.getIndex();
         sampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(this.getId(), config, this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
         ElementUtil.getScenarioSet(this, id_names);
         sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
-
         sampler.addTestElement(configCenter(this.getConfigCenter()));
         sampler.addTestElement(registryCenter(this.getRegistryCenter()));
         sampler.addTestElement(consumerAndService(this.getConsumerAndService()));

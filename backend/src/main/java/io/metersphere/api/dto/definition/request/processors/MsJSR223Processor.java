@@ -61,6 +61,12 @@ public class MsJSR223Processor extends MsTestElement {
         }
         script = StringUtils.replace(script, RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + this.getEnvironmentId() + ".\"");
 
+        if(config.isOperating()){
+            if (script.startsWith("io.metersphere.utils.JMeterVars.addVars")) {
+                return;
+            }
+        }
+
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
