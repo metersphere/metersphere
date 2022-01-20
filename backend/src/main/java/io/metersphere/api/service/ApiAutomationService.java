@@ -673,6 +673,11 @@ public class ApiAutomationService {
                     element.put("enable", enable);
                     element.put("environmentEnable", environmentEnable);
                     hashTree.set(i, element);
+                } else {
+                    if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
+                        element.put("enable", false);
+                        element.put("num", "");
+                    }
                 }
             }
             if (element.containsKey("hashTree")) {
@@ -695,6 +700,11 @@ public class ApiAutomationService {
                 element.put("enable", enable);
                 element.put("environmentEnable", environmentEnable);
                 element.put("num", scenarioWithBLOBs.getNum());
+            } else {
+                if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
+                    element.put("enable", false);
+                    element.put("num", "");
+                }
             }
         }
         if (element != null && element.containsKey("hashTree")) {

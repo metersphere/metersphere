@@ -110,7 +110,7 @@ export default {
       this.isShowNum = true;
       this.getWorkspaceId(this.scenario.projectId);
     } else {
-      this.isSameSpace = false;
+      this.isShowNum = false;
     }
     if (!this.scenario.projectId) {
       this.scenario.projectId = getCurrentProjectID();
