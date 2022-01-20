@@ -71,7 +71,11 @@ export default {
       this.currentScenario[this.prop] = this.innerTags;
     },
     'currentScenario.tags'() {
-      this.innerTags = this.currentScenario.tags
+      if(Object.prototype.toString.call(this.currentScenario.tags)==="[object String]"){
+        this.innerTags = JSON.parse(this.currentScenario.tags);
+      }else{
+        this.innerTags = this.currentScenario.tags
+      }
     },
   },
   methods: {
