@@ -23,7 +23,7 @@
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 
 export default {
-  name: "ApiDeleteConfirm",
+  name: "ListItemDeleteConfirm",
   components: {MsDialogFooter},
   data() {
     return {
