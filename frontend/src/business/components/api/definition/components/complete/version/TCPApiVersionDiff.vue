@@ -55,7 +55,7 @@
           <div v-if="oldApiProtocol==='TCP'">
             <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 
-            <ms-tcp-format-parameters :show-script="false" :request="oldRequest" :is-read-only="true" ref="tcpFormatParameter"/>
+            <ms-tcp-format-parameters :show-script="false" :request="oldRequest"  ref="tcpFormatParameter"/>
           </div>
           <div v-else-if="oldApiProtocol==='ESB'">
             <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
@@ -132,7 +132,7 @@
           <!-- 请求参数 -->
           <div v-if="apiProtocol=='TCP'">
             <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-            <ms-tcp-format-parameters :show-script="false" :request="request" :is-read-only="true" ref="tcpFormatParameter"/>
+            <ms-tcp-format-parameters :show-script="false" :request="request"  ref="tcpFormatParameter"/>
           </div>
           <div v-else-if="apiProtocol=='ESB'">
             <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
