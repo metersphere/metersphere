@@ -261,7 +261,7 @@ export default {
     },
     _handleDelete(test, deleteCurrentVersion) {
       if (deleteCurrentVersion) {
-        this.$get('performance/delete/' + test.id + '/' + test.refId, () => {
+        this.$get('performance/delete/' + test.versionId + '/' + test.refId, () => {
           this.$success(this.$t('commons.delete_success'));
           this.initTableData();
           this.$refs.apiDeleteConfirm.close();
