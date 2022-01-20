@@ -29,7 +29,9 @@ import io.metersphere.track.dto.TestPlanFunctionResultReportDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
+import io.metersphere.track.issue.domain.jira.JiraIssueType;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
+import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
@@ -647,12 +649,26 @@ public class IssuesService {
     public IssueTemplateDao getThirdPartTemplate(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
             Project project = projectService.getProjectById(projectId);
-            IssuesRequest issuesRequest = new IssuesRequest();
-            issuesRequest.setProjectId(projectId);
-            issuesRequest.setWorkspaceId(project.getWorkspaceId());
-            return IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), issuesRequest)
+            return IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), getDefaultIssueRequest(projectId, project.getWorkspaceId()))
                     .getThirdPartTemplate();
         }
         return new IssueTemplateDao();
+    }
+
+    public IssuesRequest getDefaultIssueRequest(String projectId, String workspaceId) {
+        IssuesRequest issuesRequest = new IssuesRequest();
+        issuesRequest.setProjectId(projectId);
+        issuesRequest.setWorkspaceId(workspaceId);
+        return issuesRequest;
+    }
+
+    public List<JiraIssueType> getIssueTypes(JiraIssueTypeRequest request) {
+        IssuesRequest issuesRequest = getDefaultIssueRequest(request.getProjectId(), request.getWorkspaceId());
+        JiraPlatform platform = (JiraPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), issuesRequest);
+        if (StringUtils.isNotBlank(request.getJiraKey())) {
+            return platform.getIssueTypes(request.getJiraKey());
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

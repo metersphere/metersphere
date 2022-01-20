@@ -151,3 +151,7 @@ export function isThirdPartEnable(callback) {
       callback(project.platform !== LOCAL);
   });
 }
+
+export function getJiraIssueType(param, callback) {
+  return basePost('/issues/jira/issuetype', param, callback);
+}

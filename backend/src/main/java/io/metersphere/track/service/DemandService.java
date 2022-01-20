@@ -64,6 +64,7 @@ public class DemandService {
         }
 
         issueRequest.setWorkspaceId(workspaceId);
+        issueRequest.setProjectId(projectId);
         List<AbstractIssuePlatform> platformList = IssueFactory.createPlatforms(platforms, issueRequest);
         platformList.forEach(platform -> {
             List<DemandDTO> demand = platform.getDemandList(projectId);
