@@ -43,14 +43,9 @@
         <el-form-item :label-width="labelWidth" :label="$t('project.tapd_id')" v-if="tapd">
           <el-input v-model="form.tapdId" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.jira_key')" v-if="jira">
-          <el-input v-model="form.jiraKey" autocomplete="off"/>
-          <ms-instructions-icon effect="light">
-            <template>
-              <img class="jira-image" src="../../../../assets/jira-key.png"/>
-            </template>
-          </ms-instructions-icon>
-        </el-form-item>
+
+        <project-jira-config v-if="jira" :label-width="labelWidth" :form="form"/>
+
         <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
           <ms-instructions-icon effect="light">
@@ -100,7 +95,7 @@
 import {
   getCurrentProjectID,
   getCurrentUser, getCurrentUserId,
-  getCurrentWorkspaceId, hasLicense,
+  getCurrentWorkspaceId,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -124,10 +119,12 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {ISSUE_PLATFORM_OPTION} from "@/common/js/table-constants";
+import ProjectJiraConfig from "@/business/components/project/menu/components/ProjectJiraConfig";
 
 export default {
   name: "EditProject",
   components: {
+    ProjectJiraConfig,
     MsInstructionsIcon,
     TemplateSelect,
     MsResourceFiles,
@@ -220,9 +217,10 @@ export default {
       this.createVisible = true;
       listenGoBack(this.handleClose);
       if (row) {
+        row.issueConfigObj = row.issueConfig ? JSON.parse(row.issueConfig) : {};
         this.form = Object.assign({}, row);
       } else {
-        this.form = {};
+        this.form = {issueConfigObj: {}};
       }
       this.platformOptions = [];
       this.platformOptions.push(...ISSUE_PLATFORM_OPTION);
@@ -257,6 +255,7 @@ export default {
           this.form.protocal = protocol;
           this.form.workspaceId = getCurrentWorkspaceId();
           this.form.createUser = getCurrentUserId();
+          this.form.issueConfig = JSON.stringify(this.form.issueConfigObj);
           this.result = this.$post("/project/" + saveType, this.form, () => {
             this.createVisible = false;
             this.reload();
