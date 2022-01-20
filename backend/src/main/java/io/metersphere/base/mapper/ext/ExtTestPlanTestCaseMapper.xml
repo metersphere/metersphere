@@ -186,14 +186,17 @@
                 WHERE ref_id = test_case.ref_id
                 LIMIT 1)
                 OR
-                version_id = (SELECT project_version.id
+                version_id = (SELECT tmp.id
+                FROM (SELECT project_version.id, tmp.ref_id, project_version.latest
                 FROM test_case tmp
                 JOIN project_version ON tmp.project_id = project_version.project_id AND
                 tmp.version_id = project_version.id
                 WHERE ref_id = test_case.ref_id
+                ORDER BY tmp.update_time DESC
+                LIMIT 100000
+                ) AS tmp
                 GROUP BY ref_id
                 HAVING MAX(latest) = 0
-                ORDER BY MAX(tmp.update_time) DESC
                 LIMIT 1)
                 )
             </if>
