@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 public class JiraUser {
     private String accountId;
+    private String key;
     private String displayName;
     private String emailAddress;
     private Boolean active;
