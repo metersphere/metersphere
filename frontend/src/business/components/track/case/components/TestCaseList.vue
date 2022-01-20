@@ -144,6 +144,7 @@
         </ms-table-column>
 
         <ms-table-column
+          v-if="versionEnable"
           :label="$t('project.version.name')"
           :field="item"
           :fields-width="fieldsWidth"
@@ -493,6 +494,10 @@ export default {
       default: false,
     },
     currentVersion: String,
+    versionEnable: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     projectId() {

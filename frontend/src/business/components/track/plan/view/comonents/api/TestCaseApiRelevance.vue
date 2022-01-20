@@ -26,6 +26,7 @@
       :is-test-plan="true"
       :plan-id="planId"
       :versionFilters="versionFilters"
+      :version-enable="versionEnable"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiList">
       <template v-slot:version>
@@ -41,6 +42,7 @@
       :project-id="projectId"
       :is-test-plan="true"
       :versionFilters="versionFilters"
+      :version-enable="versionEnable"
       :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiCaseList">
@@ -91,6 +93,10 @@
     props: {
       planId: {
         type: String
+      },
+      versionEnable: {
+        type: Boolean,
+        default: false
       }
     },
     watch: {

@@ -8,6 +8,7 @@
 
     <test-case-relate-load-list
       :project-id="projectId"
+      :versionEnable="versionEnable"
       ref="apiCaseList"/>
 
   </test-case-relevance-base>
@@ -42,6 +43,10 @@ export default {
   props: {
     caseId: {
       type: String
+    },
+    versionEnable: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {

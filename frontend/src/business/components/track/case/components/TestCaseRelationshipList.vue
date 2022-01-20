@@ -39,6 +39,16 @@
         :label="$t('commons.name')"
         min-width="120"/>
 
+     <ms-table-column
+       v-if="versionEnable"
+       prop="versionId"
+       :label="$t('commons.version')"
+       min-width="120px">
+       <template v-slot:default="scope">
+         <span>{{ scope.row.versionName }}</span>
+       </template>
+     </ms-table-column>
+
       <ms-table-column
         prop="creator"
         :label="$t('commons.create_user')"
@@ -69,6 +79,7 @@
 
     <relationship-functional-relevance
       :case-id="caseId"
+      :version-enable="versionEnable"
       @refresh="getTableData"
       :relationship-type="relationshipType"
       ref="testCaseRelevance"/>
@@ -108,6 +119,7 @@ export default {
     caseId: String,
     readOnly: Boolean,
     relationshipType: String,
+    versionEnable: Boolean,
   },
   computed: {
     isCustomNum() {

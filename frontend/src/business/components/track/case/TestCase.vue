@@ -35,6 +35,7 @@
               :tree-nodes="treeNodes"
               :trash-enable="true"
               :current-version="currentTrashVersion"
+              :version-enable="versionEnable"
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
@@ -55,6 +56,7 @@
             :tree-nodes="treeNodes"
             :trash-enable="false"
             :public-enable="true"
+            :version-enable="versionEnable"
             @refreshTable="refresh"
             @testCaseEdit="editTestCase"
             @testCaseEditShow="editTestCaseShow"
@@ -88,6 +90,7 @@
               :trash-enable="false"
               :public-enable="false"
               :current-version="currentVersion"
+              :version-enable="versionEnable"
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
@@ -118,6 +121,7 @@
           <div class="ms-api-scenario-div" v-if="!showPublic">
             <test-case-edit
               :currentTestCaseInfo="item.testCaseInfo"
+              :version-enable="versionEnable"
               @refresh="refreshTable"
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
@@ -135,6 +139,7 @@
           <div class="ms-api-scenario-div" v-if="showPublic">
             <test-case-edit-show
               :currentTestCaseInfo="item.testCaseInfo"
+              :version-enable="versionEnable"
               @refresh="refreshTable"
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
@@ -191,7 +196,14 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasPermission, setCurTabId} from "@/common/js/utils";
+import {
+  hasLicense,
+  getCurrentProjectID,
+  getCurrentWorkspaceId,
+  getUUID,
+  hasPermission,
+  setCurTabId
+} from "@/common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -238,6 +250,7 @@ export default {
       tmpPath: null,
       currentVersion: null,
       currentTrashVersion: null,
+      versionEnable: false
     };
   },
   mounted() {
@@ -248,6 +261,7 @@ export default {
     } else {
       this.init(this.$route);
     }
+    this.checkVersionEnable();
   },
   beforeRouteLeave(to, from, next) {
     if (this.$store.state.isTestCaseMinderChanged) {
@@ -671,7 +685,17 @@ export default {
           vh.loading = false;
         });
       });
-    }
+    },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + this.projectId, response => {
+          this.versionEnable = response.data;
+        });
+      }
+    },
   }
 };
 </script>

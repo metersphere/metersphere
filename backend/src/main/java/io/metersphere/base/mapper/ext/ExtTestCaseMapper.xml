@@ -831,10 +831,23 @@
         </if>
         order by `order` desc limit 1;
     </select>
-    <select id="getTestCase" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,
-        test_case.num, test_case.custom_num, test_case.tags, test_case.create_time, test_case.update_time
-        from test_case as test_case
+    <select id="getTestCase" resultType="io.metersphere.track.dto.TestCaseDTO">
+        SELECT
+        test_case.id,
+        test_case. NAME,
+        test_case.priority,
+        test_case.type,
+        test_case.review_status,
+        test_case.num,
+        test_case.custom_num,
+        test_case.tags,
+        test_case.create_time,
+        test_case.update_time,
+        project_version.name versionName,
+        project_version.id versionId
+        FROM
+        test_case AS test_case
+        left join project_version on project_version.project_id = test_case.project_id and project_version.id = test_case.version_id
         <include refid="notInQueryWhereCondition"></include>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>

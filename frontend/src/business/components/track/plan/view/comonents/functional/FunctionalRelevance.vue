@@ -22,6 +22,7 @@
         <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
       </template>
     </ms-table-header>
+
     <ms-table
       v-loading="page.result.loading"
       :data="page.data"
@@ -49,6 +50,7 @@
       <ms-table-column prop="name" :label="$t('commons.name')"/>
 
       <ms-table-column
+        v-if="versionEnable"
         prop="versionId"
         :filters="versionFilters"
         :label="$t('commons.version')"
@@ -177,7 +179,11 @@ export default {
     multipleProject: {
       type: Boolean,
       default: true
-    }
+    },
+    versionEnable: {
+      type: Boolean,
+      default: false
+    },
   },
   watch: {
     selectNodeIds() {

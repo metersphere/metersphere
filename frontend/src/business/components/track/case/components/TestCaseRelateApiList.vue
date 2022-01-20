@@ -1,59 +1,74 @@
 <template>
   <div>
+    <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
+              @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
 
-      <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
-                @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
-      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
-                               v-if="condition.components !== undefined && condition.components.length > 0"
-                               @search="initTable"/>
-      <ms-table v-loading="result.loading" :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
-                :total="total"
-                :showSelectAll="false"
-                :screenHeight="screenHeight"
-                @refresh="initTable"
-                ref="table">
+    <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                             v-if="condition.components !== undefined && condition.components.length > 0"
+                             @search="initTable"/>
+    <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"
+                    class="search-input"/>
 
-        <ms-table-column
-          prop="num"
-          label="ID"
-          width="100px"
-          sortable=true>
-        </ms-table-column>
+    <ms-table v-loading="result.loading" :data="tableData" :select-node-ids="selectNodeIds" :condition="condition"
+              :page-size="pageSize"
+              :total="total"
+              :showSelectAll="false"
+              :screenHeight="screenHeight"
+              @refresh="initTable"
+              ref="table">
 
-        <ms-table-column
-          prop="name"
-          :label="$t('test_track.case.name')"/>
+      <ms-table-column
+        prop="num"
+        label="ID"
+        width="100px"
+        sortable=true>
+      </ms-table-column>
 
-        <ms-table-column
-          prop="priority"
-          :filters="priorityFilters"
-          column-key="priority"
-          :label="$t('test_track.case.priority')">
-          <template v-slot:default="scope">
-            <priority-table-item :value="scope.row.priority"/>
-          </template>
-        </ms-table-column>
-        <ms-table-column prop="tags" width="120px" :label="$t('commons.tag')">
-          <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :content="itemName" style="margin-left: 0px; margin-right: 2px"></ms-tag>
-          </template>
-        </ms-table-column>
-<!--        <ms-table-column-->
-<!--          prop="path"-->
-<!--          width="180px"-->
-<!--          :label="'API'+ $t('api_test.definition.api_path')"/>-->
+      <ms-table-column
+        prop="name"
+        :label="$t('test_track.case.name')"/>
 
-<!--        <ms-table-column-->
-<!--          sortable="custom"-->
-<!--          prop="casePath"-->
-<!--          width="180px"-->
-<!--          :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>-->
+      <ms-table-column
+        v-if="versionEnable"
+        :label="$t('project.version.name')"
+        :filters="versionFilters"
+        min-width="100px"
+        prop="versionId">
+        <template v-slot:default="scope">
+          <span>{{ scope.row.versionName }}</span>
+        </template>
+      </ms-table-column>
+
+      <ms-table-column
+        prop="priority"
+        :filters="priorityFilters"
+        column-key="priority"
+        :label="$t('test_track.case.priority')">
+        <template v-slot:default="scope">
+          <priority-table-item :value="scope.row.priority"/>
+        </template>
+      </ms-table-column>
+      <ms-table-column prop="tags" width="120px" :label="$t('commons.tag')">
+        <template v-slot:default="scope">
+          <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                  :content="itemName" style="margin-left: 0px; margin-right: 2px"></ms-tag>
+        </template>
+      </ms-table-column>
+      <!--        <ms-table-column-->
+      <!--          prop="path"-->
+      <!--          width="180px"-->
+      <!--          :label="'API'+ $t('api_test.definition.api_path')"/>-->
+
+      <!--        <ms-table-column-->
+      <!--          sortable="custom"-->
+      <!--          prop="casePath"-->
+      <!--          width="180px"-->
+      <!--          :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>-->
 
 
-      </ms-table>
-      <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
+    </ms-table>
+    <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                         :total="total"/>
 
     <table-select-count-bar :count="selectRows.size"/>
 
@@ -72,7 +87,9 @@ import TableSelectCountBar from "@/business/components/api/automation/scenario/a
 import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import MsTag from "@/business/components/common/components/MsTag";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "TestCaseRelateApiList",
@@ -83,7 +100,8 @@ export default {
     MsTable,
     MsTableColumn,
     MsTableAdvSearchBar,
-    MsTag
+    MsTag,
+    'VersionSelect': VersionSelect.default,
   },
   data() {
     return {
@@ -104,15 +122,21 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      versionFilters: []
     }
   },
   props: {
     currentProtocol: String,
     selectNodeIds: Array,
     projectId: String,
+    versionEnable: {
+      type: Boolean,
+      default: false
+    }
   },
   created: function () {
     this.initTable();
+    this.getVersionOptions();
   },
   watch: {
     selectNodeIds() {
@@ -176,6 +200,19 @@ export default {
         this.$refs.table.clearSelectRows();
       }
     },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
+    },
+    changeVersion(currentVersion) {
+        this.condition.versionId = currentVersion || null;
+        this.initTable();
+    }
   },
 }
 </script>

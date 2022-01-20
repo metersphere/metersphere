@@ -5,6 +5,7 @@
       :get-node-tree="getTreeNodes"
       :is-test-plan="true"
       :save="saveCaseRelevance"
+      :version-enable="versionEnable"
       ref="functionalRelevance">
     </functional-relevance>
 </template>
@@ -32,7 +33,11 @@ export default {
   props: {
     planId: {
       type: String
-    }
+    },
+    versionEnable: {
+      type: Boolean,
+      default: false
+    },
   },
   watch: {
     planId() {
