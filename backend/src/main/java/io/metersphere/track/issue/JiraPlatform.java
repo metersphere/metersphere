@@ -186,9 +186,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
             JiraCreateMetadataResponse.Field item = createMetadata.get(name);
             JiraCreateMetadataResponse.Schema schema = item.getSchema();
             String key = item.getKey();
+            if (StringUtils.isBlank(key)) {
+                continue;
+            }
             if (schema != null && schema.getCustom() != null && schema.getCustom().endsWith("sprint")) {
-                JSONObject field = fields.getJSONObject(key);
                 try {
+                    JSONObject field = fields.getJSONObject(key);
                     // sprint 传参数比较特殊，需要要传数值
                     fields.put(key, field.getInteger("id"));
                 } catch (Exception e) {}
