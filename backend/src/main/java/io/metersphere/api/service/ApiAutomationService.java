@@ -1211,6 +1211,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId());
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 scenarioWithBLOBs.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
+                scenarioWithBLOBs.setOrder(sameRequest.get(0).getOrder());
                 batchMapper.insert(scenarioWithBLOBs);
             } else {
                 ApiScenarioWithBLOBs existScenario = scenarioOp.get();
