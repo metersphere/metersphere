@@ -150,12 +150,12 @@ public class MsTCPSampler extends MsTestElement {
         }
 
         //处理全局前后置脚本(步骤内)
-        String enviromentId = this.getEnvironmentId();
-        if (enviromentId == null) {
-            enviromentId = this.useEnvironment;
+        String environmentId = this.getEnvironmentId();
+        if (environmentId == null) {
+            environmentId = this.useEnvironment;
         }
         //根据配置将脚本放置在私有脚本之前
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), enviromentId, config, false);
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), environmentId, config, false);
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
@@ -163,7 +163,7 @@ public class MsTCPSampler extends MsTestElement {
             });
         }
         //根据配置将脚本放置在私有脚本之后
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), enviromentId, config, true);
+        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), environmentId, config, true);
     }
 
     private void addItemHashTree(MsTestElement element, HashTree samplerHashTree, ParameterConfig config) {
