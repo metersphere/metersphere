@@ -23,7 +23,7 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenarioWithBLOBs> selectByTagId(@Param("id") String id);
 
-    List<ApiScenarioWithBLOBs> selectIds(@Param("ids") List<String> ids);
+    List<ApiScenarioDTO> selectIds(@Param("ids") List<String> ids);
 
     int selectTrash(@Param("projectId") String projectId);
 

@@ -22,7 +22,7 @@
             <i class="el-icon-warning"/>
           </el-tooltip>
         </span>
-        <span v-xpack v-if="request.versionEnable&&showVersion">{{$t('project.version.name')}}: {{ request.versionName }}</span>
+        <span v-xpack v-if="request.versionEnable&&showVersion">{{ $t('project.version.name') }}: {{ request.versionName }}</span>
       </template>
 
       <template v-slot:behindHeaderLeft>
@@ -57,39 +57,39 @@
         <legend style="width: 100%">
           <div v-if="!ifFromVariableAdvance">
 
-          <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
-          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-api-request-form
-            v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
-            :scenario-definition="scenarioDefinition"
-            @editScenarioAdvance="editScenarioAdvance"
-            :isShowEnable="true"
-            :referenced="true"
-            :headers="request.headers "
-            :is-read-only="isCompReadOnly"
-            :request="request"/>
-          <esb-definition
-            v-if="showXpackCompnent&&request.esbDataStruct!=null"
-            v-xpack
-            :request="request"
-            :showScript="false"
-            :is-read-only="isCompReadOnly" ref="esbDefinition"/>
-          <ms-tcp-format-parameters
-            v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
-            :is-read-only="isCompReadOnly"
-            :show-script="false" :request="request"/>
+            <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
+            <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+            <ms-api-request-form
+              v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
+              :scenario-definition="scenarioDefinition"
+              @editScenarioAdvance="editScenarioAdvance"
+              :isShowEnable="true"
+              :referenced="true"
+              :headers="request.headers "
+              :is-read-only="isCompReadOnly"
+              :request="request"/>
+            <esb-definition
+              v-if="showXpackCompnent&&request.esbDataStruct!=null"
+              v-xpack
+              :request="request"
+              :showScript="false"
+              :is-read-only="isCompReadOnly" ref="esbDefinition"/>
+            <ms-tcp-format-parameters
+              v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
+              :is-read-only="isCompReadOnly"
+              :show-script="false" :request="request"/>
 
-          <ms-sql-basis-parameters
-            v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
-            :request="request"
-            :is-read-only="isCompReadOnly"
-            :showScript="false"/>
+            <ms-sql-basis-parameters
+              v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
+              :request="request"
+              :is-read-only="isCompReadOnly"
+              :showScript="false"/>
 
-          <ms-dubbo-basis-parameters
-            v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
-            :request="request"
-            :is-read-only="isCompReadOnly"
-            :showScript="false"/>
+            <ms-dubbo-basis-parameters
+              v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+              :request="request"
+              :is-read-only="isCompReadOnly"
+              :showScript="false"/>
 
           </div>
         </legend>
@@ -228,11 +228,13 @@ export default {
       this.request.projectId = getCurrentProjectID();
     }
     this.request.customizeReq = this.isCustomizeReq;
+
     if (this.request.num) {
       this.isShowNum = true;
+      this.getWorkspaceId(this.request.projectId);
+    } else {
+      this.isShowNum = false;
     }
-    // 加载引用对象数据
-    this.getApiInfo();
     if (this.request.protocol === 'HTTP') {
       this.setUrl(this.request.url);
       this.setUrl(this.request.path);

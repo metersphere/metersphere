@@ -70,7 +70,7 @@ public class ApiAutomationController {
 
     @PostMapping("/list/all")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
-    public List<ApiScenarioWithBLOBs> listAll(@RequestBody ApiScenarioBatchRequest request) {
+    public List<ApiScenarioDTO> listAll(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.listAll(request);
     }
 
@@ -194,7 +194,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/getApiScenarios")
-    public List<ApiScenarioWithBLOBs> getApiScenarios(@RequestBody List<String> ids) {
+    public List<ApiScenarioDTO> getApiScenarios(@RequestBody List<String> ids) {
         return apiAutomationService.getApiScenarios(ids);
     }
 

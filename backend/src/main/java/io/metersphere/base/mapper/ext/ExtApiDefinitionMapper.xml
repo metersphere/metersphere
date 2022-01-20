@@ -89,12 +89,12 @@
 
     <select id="selectByIds" resultType="io.metersphere.api.dto.definition.ApiComputeResult">
         SELECT t1.api_definition_id apiDefinitionId,count(t1.id) caseTotal,
-          SUM(case when t2.status ='success' then 1 else 0 end) as success ,SUM(case when t2.status ='error' then 1 else 0 end) as error,
-          CONCAT(FORMAT(SUM(IF (t2.`status`='success',1,0))/COUNT(t1.id)*100,2),'%') passRate
+        SUM(case when t2.status ='success' then 1 else 0 end) as success ,SUM(case when t2.status ='error' then 1 else 0 end) as error,
+        CONCAT(FORMAT(SUM(IF (t2.`status`='success',1,0))/COUNT(t1.id)*100,2),'%') passRate
         FROM api_test_case t1
-          LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id=t2.id
+        LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id=t2.id
         WHERE t1.project_id = #{projectId}
-          group by t1.api_definition_id having t1.api_definition_id in
+        group by t1.api_definition_id having t1.api_definition_id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
@@ -182,9 +182,9 @@
 
         <if test='${condition}.tags != null and ${objectKey}.operator == "not like"'>
             and (api_definition.tags is null or api_definition.tags
-                <include refid="condition">
-                    <property name="object" value="${condition}.tags"/>
-                </include>
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
             )
         </if>
         <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
@@ -297,10 +297,13 @@
         api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time,
         project.name as
-        project_name, user.name as user_name
+        project_name, user.name as user_name,
+        api_definition.version_id versionId,
+        project_version.name versionName,project.version_enable
         from api_definition
         left join project on api_definition.project_id = project.id
         left join user on api_definition.user_id = user.id
+        left join project_version on api_definition.project_id = project_version.project_id and api_definition.version_id = project_version.id
         WHERE api_definition.id IN
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
@@ -320,7 +323,7 @@
         set original_state=status,
         status = 'Trash', delete_user_id = #{operator},delete_time = #{operationTime}
         <if test="_parameter != null">
-            <include refid="Example_Where_Clause" />
+            <include refid="Example_Where_Clause"/>
         </if>
     </update>
 
@@ -409,7 +412,7 @@
 
             <if test="request.name != null">
                 and (api_definition.name like CONCAT('%', #{request.name},'%')
-                    or api_definition.num like CONCAT('%', #{request.name},'%')
+                or api_definition.num like CONCAT('%', #{request.name},'%')
                 )
             </if>
             <if test="request.protocol != null">
@@ -748,11 +751,11 @@
             <if test="request.versionId == null and request.refId == null and request.id == null">
                 AND (
                 version_id = (SELECT project_version.id
-                    FROM api_definition tmp
-                    JOIN project_version
-                    ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
-                    WHERE ref_id = api_definition.ref_id
-                    LIMIT 1)
+                FROM api_definition tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                WHERE ref_id = api_definition.ref_id
+                LIMIT 1)
                 OR
                 version_id = (SELECT project_version.id
                     FROM api_definition tmp
@@ -826,7 +829,7 @@
           and t3.`status`!='Trash'
     </select>
     <select id="countByIds" resultType="java.lang.Integer">
-        select count(id) from  api_definition
+        select count(id) from api_definition
         where id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
@@ -837,7 +840,7 @@
     <select id="countByExample" parameterType="io.metersphere.base.domain.ApiDefinitionExample" resultType="java.lang.Long">
         select count(DISTINCT ref_id) from api_definition
         <if test="_parameter != null">
-            <include refid="io.metersphere.base.mapper.ApiDefinitionMapper.Example_Where_Clause" />
+            <include refid="io.metersphere.base.mapper.ApiDefinitionMapper.Example_Where_Clause"/>
         </if>
     </select>
 </mapper>

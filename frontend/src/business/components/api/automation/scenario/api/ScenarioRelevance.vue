@@ -115,7 +115,10 @@ export default {
             referenced: referenced,
             resourceId: getUUID(),
             hashTree: scenarioDefinition.hashTree,
-            projectId: item.projectId
+            projectId: item.projectId,
+            num: item.num,
+            versionName: item.versionName,
+            versionEnable: item.versionEnable
           };
           scenarios.push(obj);
         }
