@@ -95,9 +95,11 @@ public class MsThreadGroup extends MsTestElement {
                 postProcessor.setClazzName("io.metersphere.api.dto.definition.request.processors.MsJSR223Processor");
                 postProcessor.toHashTree(groupTree, postProcessor.getHashTree(), config);
             }
-            MsDebugSampler el = new MsDebugSampler();
-            el.setName(RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME);
-            el.toHashTree(groupTree, el.getHashTree(), config);
+            if(!config.isOperating()){
+                MsDebugSampler el = new MsDebugSampler();
+                el.setName(RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME);
+                el.toHashTree(groupTree, el.getHashTree(), config);
+            }
         }
     }
 
