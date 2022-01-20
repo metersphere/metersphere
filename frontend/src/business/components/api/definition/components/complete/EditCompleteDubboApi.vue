@@ -231,7 +231,11 @@ export default {
     },
     getVersionHistory() {
       this.$get('/api/definition/versions/' + this.basisData.id, response => {
-        this.versionData = response.data;
+        if (this.httpForm.isCopy) {
+          this.versionData = response.data.filter(v => v.versionId === this.httpForm.versionId);
+        } else {
+          this.versionData = response.data;
+        }
       });
     },
     compare(row) {
