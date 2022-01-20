@@ -16,6 +16,7 @@ import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.*;
+import io.metersphere.track.issue.domain.ProjectIssueConfig;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
@@ -141,6 +142,10 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     public abstract String getProjectId(String projectId);
 
     public String getProjectId(String projectId, Function<Project, String> getProjectKeyFuc) {
+        return getProjectKeyFuc.apply(getProject(projectId, getProjectKeyFuc));
+    }
+
+    public Project getProject(String projectId,  Function<Project, String> getProjectKeyFuc) {
         Project project;
         if (StringUtils.isNotBlank(projectId)) {
             project = projectService.getProjectById(projectId);
@@ -149,8 +154,20 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             project = projectService.getProjectById(testCase.getProjectId());
         }
         String projectKey = getProjectKeyFuc.apply(project);
-        if (StringUtils.isBlank(projectKey)) MSException.throwException("请在项目设置配置 " + key + "项目ID");
-        return projectKey;
+        if (StringUtils.isBlank(projectKey)) {
+            MSException.throwException("请在项目设置配置 " + key + "项目ID");
+        }
+        return project;
+    }
+
+    public ProjectIssueConfig getProjectConfig(String configStr) {
+        ProjectIssueConfig issueConfig;
+        if (StringUtils.isNotBlank(configStr)) {
+            issueConfig = JSONObject.parseObject(configStr, ProjectIssueConfig.class);
+        } else {
+            issueConfig = new ProjectIssueConfig();
+        }
+        return issueConfig;
     }
 
     protected boolean isIntegratedPlatform(String workspaceId, String platform) {
@@ -491,7 +508,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     public <T> T getConfig(String platform, Class<T> clazz) {
         String config = getPlatformConfig(platform);
-        if (StringUtils.isBlank(config)) MSException.throwException("配置为空");
+        if (StringUtils.isBlank(config)) {
+            MSException.throwException("配置为空");
+        }
         return JSONObject.parseObject(config, clazz);
     }
 
