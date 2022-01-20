@@ -422,7 +422,7 @@ export default {
     is_new: "Is new",
     form_config: "Form config",
     form_content: "Form content",
-    sync_other_info: "Sync other config",
+    sync_other_info: "Copy other config",
     delete_current_version: 'Current version',
     delete_all_version: 'All versions',
   },

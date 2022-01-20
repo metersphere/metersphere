@@ -2040,9 +2040,9 @@ export default {
         export_tip: "请切换成用例列表勾选用例导出！"
       },
       case_desc: "用例描述",
-      passing_rate:'用例通过率',
+      passing_rate: '用例通过率',
       version: "版本",
-      sync_to_new_version: "同步以下信息到新版本",
+      sync_to_new_version: "复制以下信息到新版本",
     },
     plan: {
       test_plan: "测试计划",

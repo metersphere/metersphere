@@ -424,7 +424,7 @@ export default {
     is_new: "是否新建",
     form_config: "表單配置",
     form_content: "表單內容",
-    sync_other_info: "同步以下信息到新版本",
+    sync_other_info: "復製以下信息到新版本",
     delete_current_version: '列表版本',
     delete_all_version: '全部版本',
   },
