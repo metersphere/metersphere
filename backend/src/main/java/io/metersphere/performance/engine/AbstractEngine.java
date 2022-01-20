@@ -143,15 +143,25 @@ public abstract class AbstractEngine implements Engine {
             if (next instanceof List) {
                 List<Object> o = (List<Object>) next;
                 for (Object o1 : o) {
-                    if (StringUtils.equals(JSONObject.parseObject(o1.toString()).getString("deleted"), "true")) {
-                        iterator.remove();
-                        continue outer;
+                    JSONObject jsonObject = JSONObject.parseObject(o1.toString());
+                    String key = jsonObject.getString("key");
+                    if (StringUtils.equals(key, "deleted")) {
+                        String value = jsonObject.getString("value");
+                        if (StringUtils.equals(value, "true")) {
+                            iterator.remove();
+                            continue outer;
+                        }
                     }
                 }
                 for (Object o1 : o) {
-                    if (StringUtils.equals(JSONObject.parseObject(o1.toString()).getString("enabled"), "false")) {
-                        iterator.remove();
-                        continue outer;
+                    JSONObject jsonObject = JSONObject.parseObject(o1.toString());
+                    String key = jsonObject.getString("key");
+                    if (StringUtils.equals(key, "enabled")) {
+                        String value = jsonObject.getString("value");
+                        if (StringUtils.equals(value, "false")) {
+                            iterator.remove();
+                            continue outer;
+                        }
                     }
                 }
             }
