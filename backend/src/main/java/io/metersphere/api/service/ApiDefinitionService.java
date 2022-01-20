@@ -788,6 +788,7 @@ public class ApiDefinitionService {
                 apiDefinition.setRefId(sameRequest.get(0).getRefId());
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 apiDefinition.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
+                apiDefinition.setOrder(sameRequest.get(0).getOrder());
                 batchMapper.insert(apiDefinition);
             } else {
                 ApiDefinition existApi = apiOp.get();
