@@ -1743,7 +1743,11 @@ export default {
     },
     getVersionHistory() {
       this.$get('/api/automation/versions/' + this.currentScenario.id, response => {
-        this.versionData = response.data;
+        if (this.currentScenario.copy) {
+          this.versionData = response.data.filter(v => v.versionId === this.currentScenario.versionId);
+        } else {
+          this.versionData = response.data;
+        }
       });
     },
     compare(row) {
