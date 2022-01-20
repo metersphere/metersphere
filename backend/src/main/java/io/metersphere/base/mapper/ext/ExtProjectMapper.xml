@@ -53,7 +53,8 @@
                p.mock_tcp_port    AS mockTcpPort,
                p.is_mock_tcp_open AS isMockTcpOpen,
                p.scenario_custom_num,
-               p.platform, p.third_part_template
+               p.platform, p.third_part_template,
+               p.issue_config
         FROM project p
                      JOIN workspace w ON p.workspace_id = w.id
                      LEFT JOIN user ON user.id = p.create_user

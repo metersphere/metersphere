@@ -193,3 +193,6 @@ UPDATE test_case
 
 ALTER TABLE `test_plan_report_content` ADD COLUMN `error_report_cases` LONGTEXT COMMENT '误报状态接口用例';
 ALTER TABLE `test_plan_report_content` ADD COLUMN `error_report_scenarios` LONGTEXT COMMENT '误报状态场景用例';
+
+-- 缺陷相关配置
+ALTER TABLE project ADD issue_config TEXT NULL;

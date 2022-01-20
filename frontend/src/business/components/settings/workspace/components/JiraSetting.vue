@@ -13,22 +13,6 @@
         <el-form-item :label="$t('organization.integration.jira_url')" prop="url">
           <el-input v-model="form.url" :placeholder="$t('organization.integration.input_jira_url')"/>
         </el-form-item>
-        <el-form-item :label="$t('organization.integration.jira_issuetype')" prop="issuetype">
-          <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_jira_issuetype')"/>
-          <ms-instructions-icon effect="light">
-            <template>
-              <img class="jira-image" src="@/assets/jira-type.png"/>
-            </template>
-          </ms-instructions-icon>
-        </el-form-item>
-        <el-form-item :label="$t('organization.integration.jira_storytype')" prop="storytype">
-          <el-input v-model="form.storytype" :placeholder="$t('organization.integration.input_jira_storytype')"/>
-          <ms-instructions-icon effect="light">
-            <template>
-              <img class="jira-image" src="@/assets/jira-type.png"/>
-            </template>
-          </ms-instructions-icon>
-        </el-form-item>
       </el-form>
     </div>
 

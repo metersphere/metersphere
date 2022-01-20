@@ -19,6 +19,7 @@ import io.metersphere.service.CustomFieldService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.JiraClientV2;
 import io.metersphere.track.issue.domain.PlatformUser;
+import io.metersphere.track.issue.domain.ProjectIssueConfig;
 import io.metersphere.track.issue.domain.jira.*;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
@@ -103,12 +104,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
     @Override
     public List<DemandDTO> getDemandList(String projectId) {
         List<DemandDTO> list = new ArrayList<>();
-        JiraConfig config = getConfig();
+        Project project = getProject();
         int maxResults = 50, startAt = 0;
         JSONArray demands;
-        String key = validateJiraKey(projectId);
         do {
-            demands = jiraClientV2.getDemands(key, config.getStorytype(), startAt, maxResults);
+            demands = jiraClientV2.getDemands(project.getJiraKey(), getStoryType(project.getIssueConfig()), startAt, maxResults);
             for (int i = 0; i < demands.size(); i++) {
                 JSONObject o = demands.getJSONObject(i);
                 String issueKey = o.getString("key");
@@ -130,24 +130,18 @@ public class JiraPlatform extends AbstractIssuePlatform {
         if (config == null) {
             MSException.throwException("jira config is null");
         }
-        if (StringUtils.isBlank(config.getIssuetype())) {
-            MSException.throwException("Jira 问题类型为空");
-        }
     }
 
-    private String validateJiraKey(String projectId) {
-        String jiraKey = getProjectId(projectId);
-        if (StringUtils.isBlank(jiraKey)) {
-            MSException.throwException("未关联Jira 项目Key");
-        }
-        return jiraKey;
+    public List<JiraIssueType> getIssueTypes(String jiraKey) {
+        return jiraClientV2.getIssueType(jiraKey);
     }
 
     @Override
     public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
 
-        JiraConfig jiraConfig = setUserConfig();
-        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, jiraConfig.getIssuetype());
+        setUserConfig();
+        Project project = getProject();
+        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, getIssueType(project.getIssueConfig()), project.getJiraKey());
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
 
@@ -170,53 +164,57 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return res;
     }
 
+    public Project getProject() {
+      return super.getProject(this.projectId, Project::getJiraKey);
+    }
+
     /**
      * 参数比较特殊，需要特别处理
      * @param fields
      */
     private void setSpecialParam(JSONObject fields) {
-        String projectKey = getProjectId(this.projectId);
-        JiraConfig config = getConfig();
-        Map<String, JiraCreateMetadataResponse.Field> createMetadata = new HashMap<>();
+        Project project = getProject();
         try {
-            createMetadata = jiraClientV2.getCreateMetadata(projectKey, config.getIssuetype());
-        } catch (Exception e) {}
+            Map<String, JiraCreateMetadataResponse.Field> createMetadata = jiraClientV2.getCreateMetadata(project.getJiraKey(), getIssueType(project.getIssueConfig()));
+            List<JiraUser> userOptions = jiraClientV2.getAssignableUser(project.getJiraKey());
 
-        for (String name : createMetadata.keySet()) {
-            JiraCreateMetadataResponse.Field item = createMetadata.get(name);
-            JiraCreateMetadataResponse.Schema schema = item.getSchema();
-            String key = item.getKey();
-            if (StringUtils.isBlank(key)) {
-                continue;
+            Boolean isUserKey = false;
+            if (CollectionUtils.isNotEmpty(userOptions) && StringUtils.isBlank(userOptions.get(0).getAccountId())) {
+                isUserKey = true;
             }
-            if (schema != null && schema.getCustom() != null && schema.getCustom().endsWith("sprint")) {
-                try {
+
+            for (String name : createMetadata.keySet()) {
+                JiraCreateMetadataResponse.Field item = createMetadata.get(name);
+                JiraCreateMetadataResponse.Schema schema = item.getSchema();
+                String key = item.getKey();
+                if (StringUtils.isBlank(key) || schema == null) {
+                    continue;
+                }
+                if (schema.getCustom() != null && schema.getCustom().endsWith("sprint")) {
+                    try {
+                        JSONObject field = fields.getJSONObject(key);
+                        // sprint 传参数比较特殊，需要要传数值
+                        fields.put(key, field.getInteger("id"));
+                    } catch (Exception e) {}
+                }
+                if (schema.getType() != null && schema.getType().endsWith("user")) {
                     JSONObject field = fields.getJSONObject(key);
-                    // sprint 传参数比较特殊，需要要传数值
-                    fields.put(key, field.getInteger("id"));
-                } catch (Exception e) {}
-            }
-            if (key.equals("reporter")) {
-                JSONObject field = fields.getJSONObject(key);
-                try {
-                    UUID.fromString(field.getString("id"));
-                } catch (Exception e) {
-                    // 如果不是uuid，则是用户的key，参数调整为key
-                    JSONObject newField = new JSONObject();
-                    newField.put("key", field.getString("id"));
-                    fields.put(key, newField);
+                    if (isUserKey) {
+                        // 如果不是用户ID，则是用户的key，参数调整为key
+                        JSONObject newField = new JSONObject();
+                        newField.put("name", field.getString("id"));
+                        fields.put(key, newField);
+                    }
                 }
             }
-
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 
-    private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr) {
+    private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr, String jiraKey) {
 
         issuesRequest.setPlatform(key);
-
-        String jiraKey = validateJiraKey(issuesRequest.getProjectId());
-
         JSONObject fields = new JSONObject();
         JSONObject project = new JSONObject();
 
@@ -309,8 +307,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void updateIssue(IssuesUpdateRequest request) {
-        JiraConfig jiraConfig = setUserConfig();
-        JSONObject param = buildUpdateParam(request, jiraConfig.getIssuetype());
+        setUserConfig();
+        Project project = getProject();
+        JSONObject param = buildUpdateParam(request, getIssueType(project.getIssueConfig()), project.getJiraKey());
         handleIssueUpdate(request);
         jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
     }
@@ -406,9 +405,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
             add("timetracking");
             add("attachment");
         }};
-        JiraConfig config = getConfig();
         String projectKey = getProjectId(this.projectId);
-        Map<String, JiraCreateMetadataResponse.Field> createMetadata = jiraClientV2.getCreateMetadata(projectKey, config.getIssuetype());
+        Project project = getProject();
+
+        Map<String, JiraCreateMetadataResponse.Field> createMetadata = jiraClientV2.getCreateMetadata(projectKey, getIssueType(project.getIssueConfig()));
+
         String userOptions = getUserOptions(projectKey);
         List<CustomFieldDao> fields = new ArrayList<>();
         char filedKey = 'A';
@@ -449,6 +450,24 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issueTemplateDao.setCustomFields(fields);
         issueTemplateDao.setPlatform(this.key);
         return issueTemplateDao;
+    }
+
+    public String getIssueType(String configStr) {
+        ProjectIssueConfig projectConfig = super.getProjectConfig(configStr);
+        String jiraIssueType = projectConfig.getJiraIssueType();
+        if (StringUtils.isBlank(jiraIssueType)) {
+            MSException.throwException("请在项目中配置 Jira 问题类型！");
+        }
+        return jiraIssueType;
+    }
+
+    public String getStoryType(String configStr) {
+        ProjectIssueConfig projectConfig = super.getProjectConfig(configStr);
+        String jiraStoryType = projectConfig.getJiraStoryType();
+       if (StringUtils.isBlank(jiraStoryType)) {
+            MSException.throwException("请在项目中配置 Jira 需求类型！");
+        }
+        return jiraStoryType;
     }
 
     private void setCustomFiledType(JiraCreateMetadataResponse.Schema schema, CustomFieldDao customFieldDao, String userOptions) {
@@ -574,7 +593,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             if (StringUtils.isNotBlank(val.getAccountId())) {
                 jsonObject.put("value", val.getAccountId());
             } else {
-                jsonObject.put("value", val.getKey());
+                jsonObject.put("value", val.getName());
             }
             jsonObject.put("text", val.getDisplayName());
             options.add(jsonObject);
