@@ -328,6 +328,13 @@ public class MsJDBCSampler extends MsTestElement {
         JDBCSampler sampler = new JDBCSampler();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
+        if(config.isOperating()){
+            String[] testNameArr = sampler.getName().split("<->");
+            if (testNameArr.length > 0) {
+                String testName = testNameArr[0];
+                sampler.setName(testName);
+            }
+        }
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         sampler.setProperty("MS-ID", this.getId());
