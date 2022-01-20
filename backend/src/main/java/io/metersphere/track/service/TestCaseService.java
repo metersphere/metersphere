@@ -2144,9 +2144,9 @@ public class TestCaseService {
         if (CollectionUtils.isNotEmpty(ids)) {
             for (String id : ids) {
                 TestCase testCase = testCaseMapper.selectByPrimaryKey(id);
-                if ((StringUtils.isNotEmpty(testCase.getMaintainer()) && testCase.getMaintainer() == SessionUtils.getUserId()) ||
-                        (StringUtils.isNotEmpty(testCase.getCreateUser()) && testCase.getCreateUser() == SessionUtils.getUserId())) {
-                    this.deleteTestCasePublic(testCase.getRefId());
+                if ((StringUtils.isNotEmpty(testCase.getMaintainer()) && testCase.getMaintainer().equals(SessionUtils.getUserId())) ||
+                        (StringUtils.isNotEmpty(testCase.getCreateUser()) && testCase.getCreateUser().equals(SessionUtils.getUserId()))) {
+                    this.deleteTestCasePublic(null , testCase.getRefId());
                 } else {
                     MSException.throwException(Translator.get("check_owner_case"));
                 }
@@ -2438,10 +2438,11 @@ public class TestCaseService {
         }
     }
 
-    public int deleteTestCasePublic(String refId) {
+    public void deleteTestCasePublic(String versionId , String refId) {
         TestCase testCase = new TestCase();
         testCase.setRefId(refId);
-        return extTestCaseMapper.deletePublic(testCase);
+        testCase.setVersionId(versionId);
+         extTestCaseMapper.deletePublic(testCase);
     }
 
     public Boolean hasOtherInfo(String caseId) {

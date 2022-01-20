@@ -226,6 +226,8 @@
 
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
+    <!--  删除接口提示  -->
+    <api-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDeleteVersion"/>
   </span>
 
 </template>
@@ -276,7 +278,7 @@ import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {getUUID} from "@/common/js/utils";
-
+import ApiDeleteConfirm from "@/business/components/api/definition/components/list/ApiDeleteConfirm";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
 
@@ -308,6 +310,7 @@ export default {
     ReviewStatus,
     MsTag, ApiStatus,
     "relationshipGraphDrawer": relationshipGraphDrawer.default,
+    ApiDeleteConfirm
   },
   data() {
     return {
@@ -891,18 +894,8 @@ export default {
       });
     },
     handleDeleteToGc(testCase) {
-      this.$alert(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'' + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            if (this.publicEnable) {
-              this._handleDeletePublic(testCase);
-            } else {
-              this._handleDeleteToGc(testCase);
-            }
-          }
-        }
-      });
+        // 删除提供列表删除和全部版本删除
+        this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
     },
     batchReduction() {
       let param = buildBatchParam(this, this.$refs.table.selectIds);
@@ -959,14 +952,6 @@ export default {
     _handleDeleteToGc(testCase) {
       let testCaseId = testCase.id;
       this.$post('/test/case/deleteToGc/' + testCaseId, {}, () => {
-        this.$emit('refreshTable');
-        this.initTableData();
-        this.$success(this.$t('commons.delete_success'));
-      });
-    },
-    _handleDeletePublic(testCase) {
-      let refId = testCase.refId;
-      this.$post('/test/case/deletePublic/' + refId, {}, () => {
         this.$emit('refreshTable');
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
@@ -1097,8 +1082,8 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            let param = buildBatchParam(this, this.$refs.table.selectIds);
-            this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
+            let ids = this.$refs.table.selectIds;
+            this.$post('/test/case/batch/movePublic/deleteToGc', ids, () => {
               this.$refs.table.clear();
               this.$emit("refresh");
               this.$success(this.$t('commons.delete_success'));
@@ -1114,6 +1099,42 @@ export default {
     handleBatchCopy() {
       this.isMoveBatch = false;
       this.$refs.testBatchMove.open(this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
+    },
+    _handleDeleteVersion(testCase, deleteCurrentVersion) {
+      // 删除指定版本
+      if (deleteCurrentVersion) {
+        if (this.publicEnable) {
+          this.$get('/test/case/deletePublic/' + testCase.versionId + '/' + testCase.refId, () => {
+            this.$success(this.$t('commons.delete_success'));
+            this.$refs.apiDeleteConfirm.close();
+            this.$emit("refreshTable");
+          });
+        }
+        else {
+          this.$get('/test/case/delete/' + testCase.versionId + '/' + testCase.refId, () => {
+            this.$success(this.$t('commons.delete_success'));
+            this.$refs.apiDeleteConfirm.close();
+            this.$emit("refreshTable");
+          });
+        }
+      }
+      // 删除全部版本
+      else {
+        if (this.publicEnable) {
+          let ids = [testCase.id];
+          this.$post('/test/case/batch/movePublic/deleteToGc', ids, () => {
+            this.$success(this.$t('commons.delete_success'));
+            // this.initTable();
+            this.$refs.apiDeleteConfirm.close();
+            this.$emit("refreshTable");
+
+          });
+        } else {
+          this._handleDeleteToGc(testCase);
+          this.$refs.apiDeleteConfirm.close();
+        }
+
+      }
     },
     getMaintainerOptions() {
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
