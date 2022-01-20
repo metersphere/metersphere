@@ -263,7 +263,8 @@ export default {
       if (deleteCurrentVersion) {
         this.$get('performance/delete/' + test.id + '/' + test.refId, () => {
           this.$success(this.$t('commons.delete_success'));
-          this.getVersionHistory();
+          this.initTableData();
+          this.$refs.apiDeleteConfirm.close();
         });
       } else {
         let data = {
@@ -272,6 +273,7 @@ export default {
         this.result = this.$post(this.deletePath, data, () => {
           this.$success(this.$t('commons.delete_success'));
           this.initTableData();
+          this.$refs.apiDeleteConfirm.close();
         });
       }
     },
