@@ -42,7 +42,6 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -162,19 +161,7 @@ public class MsJDBCSampler extends MsTestElement {
         }
 
         //增加误报、全局断言
-        if (envConfig != null) {
-            if (envConfig.isUseErrorCode()) {
-                List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(this.getProjectId());
-                for (MsAssertions assertion : errorReportAssertion) {
-                    assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
-                }
-            }
-            if (CollectionUtils.isNotEmpty(envConfig.getAssertions())) {
-                for (MsAssertions assertion : envConfig.getAssertions()) {
-                    assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
-                }
-            }
-        }
+        HashTreeUtil.addPositive(envConfig, samplerHashTree, config, this.getProjectId());
 
         //处理全局前后置脚本(步骤内)
         String environmentId = this.getEnvironmentId();
@@ -184,15 +171,8 @@ public class MsJDBCSampler extends MsTestElement {
         //根据配置将脚本放置在私有脚本之前
         JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, false);
 
-        HashTreeUtil hashTreeUtil = new HashTreeUtil();
-
         if (CollectionUtils.isNotEmpty(hashTree)) {
-            EnvironmentConfig finalEnvConfig = envConfig;
             hashTree.forEach(el -> {
-                if (el instanceof MsAssertions) {
-                    //断言设置需要和全局断言、误报进行去重
-                    el = hashTreeUtil.duplicateRegexInAssertions(finalEnvConfig.getAssertions(), (MsAssertions) el);
-                }
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }
@@ -328,7 +308,7 @@ public class MsJDBCSampler extends MsTestElement {
         JDBCSampler sampler = new JDBCSampler();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
-        if(config.isOperating()){
+        if (config.isOperating()) {
             String[] testNameArr = sampler.getName().split("<->");
             if (testNameArr.length > 0) {
                 String testName = testNameArr[0];
@@ -337,14 +317,7 @@ public class MsJDBCSampler extends MsTestElement {
         }
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        sampler.setProperty("MS-ID", this.getId());
-        String indexPath = this.getIndex();
-        sampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(this.getId(), config, this.getParent(), indexPath));
-        List<String> id_names = new LinkedList<>();
-        ElementUtil.getScenarioSet(this, id_names);
-        sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
-
-        // request.getDataSource() 是ID，需要转换为Name
+        ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
         sampler.setProperty("dataSource", this.dataSource.getName());
         sampler.setProperty("query", this.getQuery());
         sampler.setProperty("queryTimeout", String.valueOf(this.getQueryTimeout()));

@@ -46,7 +46,6 @@ import org.apache.jorphan.collections.ListedHashTree;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -157,19 +156,7 @@ public class MsTCPSampler extends MsTestElement {
         }
 
         //增加误报、全局断言
-        if (envConfig != null) {
-            if (envConfig.isUseErrorCode()) {
-                List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(this.getProjectId());
-                for (MsAssertions assertion : errorReportAssertion) {
-                    assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
-                }
-            }
-            if (CollectionUtils.isNotEmpty(envConfig.getAssertions())) {
-                for (MsAssertions assertion : envConfig.getAssertions()) {
-                    assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
-                }
-            }
-        }
+        HashTreeUtil.addPositive(envConfig, samplerHashTree, config, this.getProjectId());
 
         //处理全局前后置脚本(步骤内)
         String environmentId = this.getEnvironmentId();
@@ -259,20 +246,14 @@ public class MsTCPSampler extends MsTestElement {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setEnabled(this.isEnable());
         tcpSampler.setName(this.getName());
-        if(config.isOperating()){
+        if (config.isOperating()) {
             String[] testNameArr = tcpSampler.getName().split("<->");
             if (testNameArr.length > 0) {
                 String testName = testNameArr[0];
                 tcpSampler.setName(testName);
             }
         }
-        tcpSampler.setProperty("MS-ID", this.getId());
-        String indexPath = this.getIndex();
-        tcpSampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(this.getId(), config, this.getParent(), indexPath));
-        List<String> id_names = new LinkedList<>();
-        ElementUtil.getScenarioSet(this, id_names);
-        tcpSampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
-
+        ElementUtil.setBaseParams(tcpSampler, this.getParent(), config, this.getId(), this.getIndex());
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
         tcpSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPSamplerGui"));
         tcpSampler.setClassname(this.getClassname());
