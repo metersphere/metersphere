@@ -154,6 +154,8 @@
                                 :tree-nodes="treeNodes"></test-case-version-diff>
 
       </el-dialog>
+
+      <version-create-other-info-select @confirmOtherInfo="confirmOtherInfo" ref="selectPropDialog"></version-create-other-info-select>
     </div>
   </el-card>
 
@@ -723,21 +725,11 @@ export default {
       this.dialogFormVisible = false;
     },
     saveCase(callback) {
-      let isValidate = true;
-      this.$refs['caseFrom'].validate((valid) => {
-        if (!valid) {
-          isValidate = false;
-          return false;
-        }
-      });
-      this.$refs['customFieldForm'].validate((valid) => {
-        if (!valid) {
-          isValidate = false;
-          return false;
-        }
-      });
-      if (isValidate) {
+      if (this.validateForm()) {
         this._saveCase(callback);
+      }else{
+        this.$refs.versionHistory.loading = false;
+        this.$refs.selectPropDialog.close();
       }
     },
     _saveCase(callback) {
@@ -968,7 +960,6 @@ export default {
           this.currentProjectId = getCurrentProjectID();
         }
         this.versionData = response.data;
-        this.$refs.versionHistory.cancelOtherInfo();
         this.$refs.versionHistory.loading = false;
       });
     },
@@ -1012,15 +1003,35 @@ export default {
         });
       }
     },
+    validateForm() {
+      let isValidate = true;
+      this.$refs['caseFrom'].validate((valid) => {
+        if (!valid) {
+          isValidate = false;
+          return false;
+        }
+      });
+      this.$refs['customFieldForm'].validate((valid) => {
+        if (!valid) {
+          isValidate = false;
+          return false;
+        }
+      });
+      return isValidate;
+    },
     async create(row) {
-      // 创建新版本
-      this.form.versionId = row.id;
-      let hasOtherInfo = await this.hasOtherInfo();
-      if (hasOtherInfo) {
-        this.$refs.versionHistory.loading = false;
-        this.$refs.versionHistory.showOtherInfo();
+      if (this.validateForm()) {
+        // 创建新版本
+        this.form.versionId = row.id;
+        let hasOtherInfo = await this.hasOtherInfo();
+        if (hasOtherInfo) {
+          this.$refs.versionHistory.loading = false;
+          this.$refs.selectPropDialog.open();
+        } else {
+          this.saveCase();
+        }
       } else {
-        this.saveCase();
+        this.$refs.versionHistory.loading = false;
       }
     },
     del(row) {
