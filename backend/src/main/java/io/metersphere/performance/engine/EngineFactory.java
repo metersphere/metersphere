@@ -25,25 +25,15 @@ import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.Element;
 import org.reflections8.Reflections;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import javax.annotation.Resource;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -239,7 +229,7 @@ public class EngineFactory {
         engineContext.setTestResourceFiles(testResourceFiles);
 
         try (ByteArrayInputStream source = new ByteArrayInputStream(jmxBytes)) {
-            String content = engineSourceParser.parse(engineContext, source);
+            byte[] content = engineSourceParser.parse(engineContext, source);
             engineContext.setContent(content);
         } catch (MSException e) {
             LogUtil.error(e.getMessage(), e);
@@ -309,80 +299,75 @@ public class EngineFactory {
         return props.toString().getBytes(StandardCharsets.UTF_8);
     }
 
+
     public static byte[] mergeJmx(List<FileMetadata> jmxFiles) {
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = factory.newDocumentBuilder();
             Element hashTree = null;
             Document rootDocument = null;
             for (FileMetadata fileMetadata : jmxFiles) {
                 FileContent fileContent = fileService.getFileContent(fileMetadata.getId());
-                final InputSource inputSource = new InputSource(new ByteArrayInputStream(fileContent.getFile()));
+                InputStream inputSource = new ByteArrayInputStream(fileContent.getFile());
                 if (hashTree == null) {
-                    rootDocument = docBuilder.parse(inputSource);
-                    Element jmeterTestPlan = rootDocument.getDocumentElement();
-                    NodeList childNodes = jmeterTestPlan.getChildNodes();
+                    rootDocument = EngineSourceParserFactory.getDocument(inputSource);
+                    Element jmeterTestPlan = rootDocument.getRootElement();
+                    List<Element> childNodes = jmeterTestPlan.elements();
 
                     outer:
-                    for (int i = 0; i < childNodes.getLength(); i++) {
-                        Node node = childNodes.item(i);
-                        if (node instanceof Element) {
-                            // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
-                            NodeList childNodes1 = node.getChildNodes();
-                            for (int j = 0; j < childNodes1.getLength(); j++) {
-                                Node item = childNodes1.item(j);
-                                if (StringUtils.equalsIgnoreCase("hashTree", item.getNodeName())) {
-                                    hashTree = (Element) node;
-                                    break outer;
-                                }
+                    for (Element node : childNodes) {
+                        // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
+                        List<Element> childNodes1 = node.elements();
+                        for (Element item : childNodes1) {
+                            if (StringUtils.equalsIgnoreCase("TestPlan", item.getName())) {
+                                hashTree = getNextSibling(item);
+                                break outer;
                             }
                         }
                     }
                 } else {
-                    Document document = docBuilder.parse(inputSource);
-                    Element jmeterTestPlan = document.getDocumentElement();
-                    NodeList childNodes = jmeterTestPlan.getChildNodes();
-                    for (int i = 0; i < childNodes.getLength(); i++) {
-                        Node node = childNodes.item(i);
-                        if (node instanceof Element) {
-                            // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
-                            Element secondHashTree = (Element) node;
-                            NodeList secondChildNodes = secondHashTree.getChildNodes();
-                            for (int j = 0; j < secondChildNodes.getLength(); j++) {
-                                Node item = secondChildNodes.item(j);
-                                if (StringUtils.equalsIgnoreCase("TestPlan", item.getNodeName())) {
-                                    continue;
-                                }
-                                if (StringUtils.equalsIgnoreCase("hashTree", item.getNodeName())) {
-                                    NodeList itemChildNodes = item.getChildNodes();
-                                    for (int k = 0; k < itemChildNodes.getLength(); k++) {
-                                        Node item1 = itemChildNodes.item(k);
-                                        Node newNode = item1.cloneNode(true);
-                                        rootDocument.adoptNode(newNode);
-                                        hashTree.appendChild(newNode);
-                                    }
-                                }
-
+                    Document document = EngineSourceParserFactory.getDocument(inputSource);
+                    Element jmeterTestPlan = document.getRootElement();
+                    List<Element> childNodes = jmeterTestPlan.elements();
+                    for (Element node : childNodes) {
+                        // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
+                        Element secondHashTree = node;
+                        List<Element> secondChildNodes = secondHashTree.elements();
+                        for (Element item : secondChildNodes) {
+                            if (StringUtils.equalsIgnoreCase("TestPlan", item.getName())) {
+                                secondHashTree = getNextSibling(item);
+                                break;
                             }
                         }
+                        if (StringUtils.equalsIgnoreCase("hashTree", secondHashTree.getName())) {
+                            List<Element> itemChildNodes = secondHashTree.elements();
+                            for (Element item1 : itemChildNodes) {
+                                hashTree.add((Element) item1.clone());
+                            }
+                        }
+
                     }
                 }
+                //
+                inputSource.close();
             }
-            return documentToBytes(rootDocument);
+            return EngineSourceParserFactory.formatXml(rootDocument);
         } catch (Exception e) {
             MSException.throwException(e);
         }
         return new byte[0];
     }
 
-    private static byte[] documentToBytes(Document document) throws TransformerException {
-        DOMSource domSource = new DOMSource(document);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        StreamResult result = new StreamResult(out);
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer transformer = tf.newTransformer();
-        transformer.transform(domSource, result);
-        return out.toByteArray();
+    private static Element getNextSibling(Element ele) {
+        Element parent = ele.getParent();
+        if (parent != null) {
+            Iterator<Element> iterator = parent.elementIterator();
+            while (iterator.hasNext()) {
+                Element next = iterator.next();
+                if (ele.equals(next)) {
+                    return iterator.next();
+                }
+            }
+        }
+        return null;
     }
 
     @Resource

@@ -8,7 +8,7 @@ public class EngineContext {
     private String testName;
     private String namespace;
     private String fileType;
-    private String content;
+    private byte[] content;
     private String resourcePoolId;
     private String reportId;
     private Integer resourceIndex;
@@ -52,11 +52,11 @@ public class EngineContext {
         return this.properties.get(key);
     }
 
-    public String getContent() {
+    public byte[] getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(byte[] content) {
         this.content = content;
     }
 
