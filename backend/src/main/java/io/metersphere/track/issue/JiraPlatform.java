@@ -186,11 +186,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 isUserKey = true;
             }
 
-            for (String name : createMetadata.keySet()) {
-                JiraCreateMetadataResponse.Field item = createMetadata.get(name);
+            for (String key : createMetadata.keySet()) {
+                JiraCreateMetadataResponse.Field item = createMetadata.get(key);
                 JiraCreateMetadataResponse.Schema schema = item.getSchema();
-                String key = item.getKey();
-                if (StringUtils.isBlank(key) || schema == null) {
+                if (schema == null) {
                     continue;
                 }
                 if (schema.getCustom() != null && schema.getCustom().endsWith("sprint")) {
