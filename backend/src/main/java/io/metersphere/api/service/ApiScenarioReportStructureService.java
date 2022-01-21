@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiScenarioReportDTO;
+import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.StepTreeDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
 import io.metersphere.base.mapper.ApiScenarioReportStructureMapper;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
@@ -222,14 +224,15 @@ public class ApiScenarioReportStructureService {
                 }
             }
             if (StringUtils.isNotEmpty(dto.getType()) && requests.contains(dto.getType()) && dto.getValue() == null) {
-                RequestResult requestResult = new RequestResult();
-                requestResult.setName(dto.getLabel());
-                dto.setValue(requestResult);
+                RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO();
+                requestResultExpandDTO.setStatus("unexecute");
+                requestResultExpandDTO.setName(dto.getLabel());
+                dto.setValue(requestResultExpandDTO);
             }
             if (CollectionUtils.isNotEmpty(dto.getChildren())) {
                 reportFormatting(dto.getChildren(), maps);
                 if (StringUtils.isEmpty(dto.getErrorCode())) {
-                    //统计child的errorCode
+                    //统计child的errorCode，合并到parent中
                     List<String> childErrorCodeList = new ArrayList<>();
                     for (StepTreeDTO child : dto.getChildren()) {
                         if (StringUtils.isNotEmpty(child.getErrorCode()) && !childErrorCodeList.contains(child.getErrorCode())) {
