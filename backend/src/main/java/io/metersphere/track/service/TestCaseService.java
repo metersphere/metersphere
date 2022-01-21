@@ -532,9 +532,11 @@ public class TestCaseService {
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
             request.getFilters().put("status", new ArrayList<>(0));
         }
-        List<TestCaseDTO> returnList = extTestCaseMapper.list(request);
-        returnList = this.parseStatus(returnList);
-        return returnList;
+        List<TestCaseDTO> list = extTestCaseMapper.list(request);
+        buildUserInfo(list);
+        buildProjectInfo(request.getProjectId(), list);
+        list = this.parseStatus(list);
+        return list;
     }
 
     public List<TestCaseDTO> publicListTestCase(QueryTestCaseRequest request) {
@@ -2332,7 +2334,8 @@ public class TestCaseService {
             TestCaseExample example = new TestCaseExample();
             example.createCriteria().andIdIn(ids).andStatusNotEqualTo("Trash");
             List<TestCaseWithBLOBs> testCaseList = testCaseMapper.selectByExampleWithBLOBs(example);
-            buildUserInfo(testCaseList);
+
+            Map<String, String> userNameMap = ServiceUtils.getUserNameMap(testCaseList.stream().map(TestCaseWithBLOBs::getCreateUser).collect(Collectors.toList()));
 
             Map<String, String> verionNameMap = new HashMap<>();
             List<String> versionIds = testCaseList.stream().map(TestCase::getVersionId).collect(Collectors.toList());
@@ -2357,7 +2360,7 @@ public class TestCaseService {
                     continue; // 用例可能在回收站
                 }
                 relationshipEdgeDTO.setTargetName(testCase.getName());
-                relationshipEdgeDTO.setCreator(testCase.getCreateUser());
+                relationshipEdgeDTO.setCreator(userNameMap.get(testCase.getCreateUser()));
                 relationshipEdgeDTO.setTargetNum(testCase.getNum());
                 relationshipEdgeDTO.setTargetCustomNum(testCase.getCustomNum());
                 relationshipEdgeDTO.setStatus(testCase.getStatus());
@@ -2369,7 +2372,14 @@ public class TestCaseService {
         return new ArrayList<>();
     }
 
-    public void buildUserInfo(List<? extends TestCase> testCases) {
+    public void buildProjectInfo(String projectId, List<TestCaseDTO> list) {
+        Project project = projectService.getProjectById(projectId);
+        list.forEach(item -> {
+            item.setProjectName(project.getName());
+        });
+    }
+
+    public void buildUserInfo(List<TestCaseDTO> testCases) {
         List<String> userIds = new ArrayList();
         userIds.addAll(testCases.stream().map(TestCase::getCreateUser).collect(Collectors.toList()));
         userIds.addAll(testCases.stream().map(TestCase::getDeleteUserId).collect(Collectors.toList()));
@@ -2377,9 +2387,9 @@ public class TestCaseService {
         if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
             Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
             testCases.forEach(caseResult -> {
-                caseResult.setCreateUser(userMap.get(caseResult.getCreateUser()));
+                caseResult.setCreateName(userMap.get(caseResult.getCreateUser()));
                 caseResult.setDeleteUserId(userMap.get(caseResult.getDeleteUserId()));
-                caseResult.setMaintainer(userMap.get(caseResult.getMaintainer()));
+                caseResult.setMaintainerName(userMap.get(caseResult.getMaintainer()));
             });
         }
     }
