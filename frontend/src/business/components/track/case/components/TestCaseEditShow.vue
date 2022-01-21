@@ -24,6 +24,7 @@
                               :version-data="versionData"
                               :current-id="currentTestCaseInfo.id"
                               :current-project-id="currentProjectId"
+                              :is-read="true"
                               @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <ms-table-button v-if="this.path!=='/test/case/add'"
                            id="inputDelay"
