@@ -98,15 +98,11 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="createUser"
+          prop="createName"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.create_user')"
-          min-width="120">
-          <template v-slot:default="scope">
-            {{ memberMap.get(scope.row.createUser) }}
-          </template>
-        </ms-table-column>
+          min-width="120"/>
 
         <ms-table-column
           prop="reviewStatus"
