@@ -1288,6 +1288,7 @@ export default {
     automation: {
       open_expansion: "一键展开",
       close_expansion: "一键收起",
+      all: "全部",
       constant: "常量",
       counter: "计数器",
       random: "随机数",

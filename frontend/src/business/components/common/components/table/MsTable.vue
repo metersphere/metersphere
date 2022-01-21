@@ -15,6 +15,7 @@
       :height="screenHeight"
       v-loading="tableIsLoading"
       :row-key="rowKey"
+      :row-class-name="tableRowClassName"
       :cell-class-name="addPaddingColClass"
       :highlight-current-row="highlightCurrentRow"
       ref="table" @row-click="handleRowClick">
@@ -400,6 +401,9 @@ export default {
     handlePageChange() {
       this.$emit('pageChange');
     },
+    cancelCurrentRow() {
+      this.$refs.table.setCurrentRow(-1);
+    },
     clear() {
       this.clearSelectRows();
     },
@@ -446,7 +450,13 @@ export default {
         || column.columnKey ==='batchBtnCol') {
         return 'padding-col';
       }
-    }
+    },
+    tableRowClassName(row) {
+      if (row.row.hidden) {
+        return 'ms-variable-hidden-row';
+      }
+      return '';
+    },
   }
 };
 </script>
