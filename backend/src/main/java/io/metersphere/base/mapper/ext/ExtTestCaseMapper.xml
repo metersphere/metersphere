@@ -212,7 +212,7 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
-        deleteUser.name AS delete_user_id,test_case.delete_time,
+        test_case.delete_user_id ,test_case.delete_time,
         project_version.name as versionName,
         project_version.id as versionId,
         <if test="request.selectFields != null and request.selectFields.size() > 0">
@@ -230,7 +230,7 @@
             test_case.custom_fields, test_case.ref_id
         </if>
         from test_case
-        left join project_version on project_version.id = test_case.version_id and project_version.project_id = #{request.project_id}
+        left join project_version on project_version.id = test_case.version_id and project_version.project_id = #{request.projectId}
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
