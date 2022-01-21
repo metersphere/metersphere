@@ -663,7 +663,6 @@ export default {
     checkout(testCase, item) {
       Object.assign(item.testCaseInfo, testCase)
       //子组件先变更 copy 状态，再执行初始化操作
-      this.$refs.testCaseEdit[0].changeType("copy");
       this.$refs.testCaseEdit[0].initEdit(item.testCaseInfo, () => {
         this.$nextTick(() => {
           let vh = this.$refs.testCaseEdit[0].$refs.versionHistory;
@@ -676,7 +675,6 @@ export default {
     checkoutPublic(testCase, item) {
       Object.assign(item.testCaseInfo, testCase)
       //子组件先变更 copy 状态，再执行初始化操作
-      this.$refs.testCaseEditShow[0].changeType("copy");
       this.$refs.testCaseEditShow[0].initEdit(item.testCaseInfo, () => {
         this.$nextTick(() => {
           let vh = this.$refs.testCaseEditShow[0].$refs.versionHistory;

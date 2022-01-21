@@ -594,27 +594,20 @@ export default {
     },
     initTestCases(testCase) {
       if (this.publicEnable) {
-        this.result = this.$post('/test/case/list/ids/public', this.selectCondition, response => {
-          this.testCases = response.data;
-          for (let i = 0; i < this.testCases.length; i++) {
-            if (this.testCases[i].id === testCase.id) {
-              this.index = i;
-              this.getTestCase(i);
-            }
-          }
-        });
+        this.selectCondition.projectId = null;
       } else {
         this.selectCondition.workspaceId = null;
-        this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
-          this.testCases = response.data;
-          for (let i = 0; i < this.testCases.length; i++) {
-            if (this.testCases[i].id === testCase.id) {
-              this.index = i;
-              this.getTestCase(i);
-            }
-          }
-        });
       }
+      this.selectCondition.versionId = testCase.versionId
+      this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
+        this.testCases = response.data;
+        for (let i = 0; i < this.testCases.length; i++) {
+          if (this.testCases[i].id === testCase.id) {
+            this.index = i;
+            this.getTestCase(i);
+          }
+        }
+      });
     },
     getTestCase(index) {
       let id = "";
