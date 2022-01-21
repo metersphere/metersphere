@@ -1283,6 +1283,7 @@ export default {
     automation: {
       open_expansion: "One-click expansion",
       close_expansion: "One-click storage",
+      all: "all",
       constant: "constant",
       counter: "counter",
       random: "random",

@@ -213,6 +213,14 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'passRate', key: '8', label: 'test_track.report.list.pass_rate'},
   ],
 
+  // 场景变量
+  VARIABLE_LIST_TABLE: [
+    {id: 'num', key: '1', label: "ID"},
+    {id: 'name', key: '2', label: 'api_test.variable_name'},
+    {id: 'type', key: '3', label: 'test_track.case.type'},
+    {id: 'value', key: '4', label: 'api_test.value'},
+  ],
+
   //缺陷列表
   ISSUE_LIST: [
     {id: 'num', key: '1', label: 'test_track.issue.id'},
