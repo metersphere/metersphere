@@ -2,10 +2,10 @@
   <div>
     <el-row>
       <el-col :span="12">
-        <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.updateTime | timestampFormatDate }}</span>
+        <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.createTime | timestampFormatDate }}</span>
       </el-col>
       <el-col :span="12">
-        <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.updateTime | timestampFormatDate }}</span>
+        <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.createTime | timestampFormatDate }}</span>
       </el-col>
     </el-row>
     <div class="compare-class" v-loading="isReloadData">
@@ -329,7 +329,16 @@ export default {
     getDiff() {
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
-      diff(oldVnode, vnode);
+      let oldColor = "";
+      let newColor = "";
+      if(this.oldData.createTime>this.newData.createTime){
+        oldColor = "rgb(121, 225, 153,0.3)";
+        newColor = "rgb(241,200,196,0.45)"
+      }else{
+        oldColor = "rgb(241,200,196,0.45)"
+        newColor = "rgb(121, 225, 153,0.3)";
+      }
+      diff(oldVnode,vnode,oldColor,newColor);
       this.isReloadData = false
     },
     alert: alert,
