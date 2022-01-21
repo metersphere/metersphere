@@ -147,8 +147,16 @@ public class MsThreadGroup extends MsTestElement {
                                 if (StringUtils.isNotEmpty(projectId)) {
                                     break;
                                 }
+                            }else {
+                                projectId = itemEl.getProjectId();
+                                if (StringUtils.isNotEmpty(projectId)) {
+                                    break;
+                                }
                             }
                         }
+                    }
+                    if(StringUtils.isEmpty(projectId)){
+                        projectId = el.getProjectId();
                     }
                 }
             }
