@@ -28,6 +28,7 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -36,6 +37,7 @@ import org.apache.jmeter.config.RandomVariableConfig;
 import org.apache.jmeter.modifiers.CounterConfig;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
@@ -179,16 +181,6 @@ public class ElementUtil {
             path = StringUtils.isEmpty(element.getName()) ? element.getType() : element.getName() + DelimiterConstants.STEP_DELIMITER.toString() + path;
         }
         return getFullPath(element.getParent(), path);
-    }
-
-    public static void getScenarioSet(MsTestElement element, List<String> id_names) {
-        if (StringUtils.equals(element.getType(), "scenario")) {
-            id_names.add(element.getResourceId() + "_" + element.getName());
-        }
-        if (element.getParent() == null) {
-            return;
-        }
-        getScenarioSet(element.getParent(), id_names);
     }
 
     public static String getParentName(MsTestElement parent) {
@@ -580,5 +572,11 @@ public class ElementUtil {
             resourceId = config.getScenarioId() + "=" + resourceId;
         }
         return resourceId + "_" + ElementUtil.getFullIndexPath(parent, indexPath);
+    }
+
+    public static void setBaseParams(AbstractTestElement sampler, MsTestElement parent, ParameterConfig config, String id, String indexPath) {
+        sampler.setProperty("MS-ID", id);
+        sampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(id, config, parent, indexPath));
+        LoggerUtil.debug("mqtt sampler resourceId :" + sampler.getPropertyAsString("MS-RESOURCE-ID"));
     }
 }
