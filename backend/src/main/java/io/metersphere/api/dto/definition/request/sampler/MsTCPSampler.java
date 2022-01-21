@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
 public class MsTCPSampler extends MsTestElement {
     @JSONField(ordinal = 20)
     private String type = "TCPSampler";
-    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsTCPSampler";
+    private String clazzName = MsTCPSampler.class.getCanonicalName();
 
     @JSONField(ordinal = 21)
     private String classname = "";

@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 public class MsScenario extends MsTestElement {
 
     private String type = "scenario";
-    private String clazzName = "io.metersphere.api.dto.definition.request.MsScenario";
+    private String clazzName = MsScenario.class.getCanonicalName();
 
     @JSONField(ordinal = 21)
     private String referenced;

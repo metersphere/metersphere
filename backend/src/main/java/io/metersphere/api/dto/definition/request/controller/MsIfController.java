@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 @JSONType(typeName = "IfController")
 public class MsIfController extends MsTestElement {
     private String type = "IfController";
-    private String clazzName = "io.metersphere.api.dto.definition.request.controller.MsIfController";
+    private String clazzName = MsIfController.class.getCanonicalName();
 
     private String id;
     private String variable;

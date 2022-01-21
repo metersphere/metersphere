@@ -25,7 +25,7 @@ import java.util.List;
 @JSONType(typeName = "JSR223PostProcessor")
 public class MsJSR223PostProcessor extends MsTestElement {
     private String type = "JSR223PostProcessor";
-    private String clazzName = "io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor";
+    private String clazzName = MsJSR223PostProcessor.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private String script;

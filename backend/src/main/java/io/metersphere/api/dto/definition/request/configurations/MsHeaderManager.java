@@ -24,7 +24,7 @@ import java.util.List;
 public class MsHeaderManager extends MsTestElement {
 
     private String type = "HeaderManager";
-    private String clazzName = "io.metersphere.api.dto.definition.request.configurations.MsHeaderManager";
+    private String clazzName = MsHeaderManager.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private List<KeyValue> headers;
