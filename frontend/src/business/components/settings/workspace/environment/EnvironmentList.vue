@@ -262,6 +262,7 @@ export default {
       if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
         this.$get("/project/listAll", (response) => {
           this.projectList = response.data;  //获取当前工作空间所拥有的项目,
+          this.projectFilters = [];
           this.projectList.forEach(project => {
             this.idNameMap.set(project.id, project.name);
             this.projectIds.push(project.id);
