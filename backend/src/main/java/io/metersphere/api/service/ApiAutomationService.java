@@ -669,6 +669,7 @@ public class ApiAutomationService {
                         element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
                         element.put("referenced", "REF");
                     }
+                    element.put("id", scenarioWithBLOBs.getId());
                     element.put("num", scenarioWithBLOBs.getNum());
                     element.put("enable", enable);
                     element.put("environmentEnable", environmentEnable);
@@ -697,6 +698,7 @@ public class ApiAutomationService {
                     element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
                     element.put("referenced", "REF");
                 }
+                element.put("id", scenarioWithBLOBs.getId());
                 element.put("enable", enable);
                 element.put("environmentEnable", environmentEnable);
                 element.put("num", scenarioWithBLOBs.getNum());
