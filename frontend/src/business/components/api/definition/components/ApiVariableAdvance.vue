@@ -82,32 +82,6 @@
         </div>
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_test.variable')">
-        <el-row>
-          <el-col :span="6" class="col-height">
-            <div v-if="environment">
-              <p>{{ $t('api_test.environment.environment') }}</p>
-              <el-tree :data="environmentParams" :props="treeProps" @node-click="selectVariable"></el-tree>
-            </div>
-            <div v-if="scenario">
-              <p>{{ $t('api_test.scenario.scenario') }}</p>
-              <el-tree :data="scenarioParams" :props="treeProps" @node-click="selectVariable"></el-tree>
-            </div>
-          </el-col>
-          <el-col :span="18" class="col-height">
-            <div>
-              <h1>{{ $t('api_test.request.jmeter_func') }}</h1>
-              <el-table border :data="jmeterFuncs" class="adjust-table table-content" height="400">
-                <el-table-column prop="type" label="Type" width="150"/>
-                <el-table-column prop="name" label="Functions" width="250"/>
-                <el-table-column prop="description" label="Description"/>
-              </el-table>
-            </div>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-
-
       <!--前置返回-->
       <el-tab-pane :label="$t('api_test.definition.request.pre_return')" v-if="scenarioDefinition != undefined">
         <ms-container :class="{'maximize-container': !asideHidden}" v-outside-click="outsideClick">
@@ -140,7 +114,6 @@
             </div>
           </ms-aside-container>
 
-
           <!--右边元素-->
           <ms-main-container>
             <div>
@@ -170,7 +143,6 @@
                 </div>
               </div>
             </div>
-
             <div v-if="scenarioPreRequestParams.length > 0" style="margin-bottom: 10px">
               <p>{{ $t('api_test.definition.request.extract_params') }}</p>
               <div v-for="(item, index) in scenarioPreRequestParams" :key="index" class="kv-row item">
@@ -187,25 +159,45 @@
           </ms-main-container>
         </ms-container>
       </el-tab-pane>
+
+      <el-tab-pane :label="$t('api_test.variable')">
+        <el-row>
+          <el-col :span="18" class="col-height">
+            <div>
+              <h1>{{ $t('api_test.request.jmeter_func') }}</h1>
+              <el-table border :data="jmeterFuncs"
+                        class="adjust-table table-content"
+                        height="400"
+                        @row-click="handleRowClick">
+                <el-table-column prop="type" label="Type" width="150"/>
+                <el-table-column prop="name" label="Functions" width="250"/>
+                <el-table-column prop="description" label="Description"/>
+              </el-table>
+            </div>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
     </el-tabs>
     <div style="padding-top: 10px;">
       <el-row type="flex" align="bottom">
         <el-col :span="16">
-          <div style="position: fixed; bottom: 10px;">
-            <el-form>
+          <div style="position: fixed; bottom: 0px; z-index: 5;">
+            <el-form :inline="true" class="demo-form-inline">
               <el-form-item>
                 <el-input :placeholder="valueText" size="small" v-model="itemValue"/>
               </el-form-item>
+              <el-form-item>
+                <el-button size="small" type="primary" plain @click="saveAdvanced()">
+                  {{ $t('commons.save') }}
+                </el-button>
+                <el-button size="small" type="info" plain @click="addFunc()" v-if="currentTab === 0">
+                  {{ $t('api_test.request.parameters_advance_add_func') }}
+                </el-button>
+                <el-button size="small" type="success" plain @click="showPreview()" v-if="currentTab === 0">
+                  {{ $t('api_test.request.parameters_preview') }}
+                </el-button>
+              </el-form-item>
             </el-form>
-            <el-button size="small" type="primary" plain @click="saveAdvanced()">
-              {{ $t('commons.save') }}
-            </el-button>
-            <el-button size="small" type="info" plain @click="addFunc()" v-if="currentTab === 0">
-              {{ $t('api_test.request.parameters_advance_add_func') }}
-            </el-button>
-            <el-button size="small" type="success" plain @click="showPreview()" v-if="currentTab === 0">
-              {{ $t('api_test.request.parameters_preview') }}
-            </el-button>
           </div>
         </el-col>
       </el-row>
@@ -602,8 +594,11 @@
       savePreParams(data) {
         this.itemValue = '${' + data + '}';
       },
-
-
+      handleRowClick(row) {
+        if(row && row.name){
+          this.itemValue = row.name;
+        }
+      },
 
       // 前置返回
       nodeExpand(data) {
