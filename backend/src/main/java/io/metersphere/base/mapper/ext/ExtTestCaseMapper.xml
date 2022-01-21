@@ -435,7 +435,7 @@
         <if test="request.selectFields == null or request.selectFields.size() == 0">
             <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
         </if>
-        from test_case
+        from test_case left join project on test_case.project_id = project.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>

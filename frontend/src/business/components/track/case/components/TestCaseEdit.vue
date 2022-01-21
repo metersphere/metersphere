@@ -114,7 +114,8 @@
           <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
           <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
-                                     :label-width="formLabelWidth" :case-id="form.id" :version-enable="versionEnable"                                     ref="otherInfo"/>
+                                     :label-width="formLabelWidth" :case-id="form.id" :version-enable="versionEnable"
+                                     ref="otherInfo"/>
 
           <el-row style="margin-top: 10px" v-if="type!=='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
@@ -637,17 +638,11 @@ export default {
     },
     initTestCases(testCase) {
       if (this.publicEnable) {
-        this.result = this.$post('/test/case/list/ids/public', this.selectCondition, response => {
-          this.testCases = response.data;
-          for (let i = 0; i < this.testCases.length; i++) {
-            if (this.testCases[i].id === testCase.id) {
-              this.index = i;
-              this.getTestCase(i);
-            }
-          }
-        });
+        this.selectCondition.projectId = null;
       } else {
         this.selectCondition.workspaceId = null;
+      }
+      this.selectCondition.versionId = testCase.versionId
         this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
           this.testCases = response.data;
           for (let i = 0; i < this.testCases.length; i++) {
@@ -657,7 +652,6 @@ export default {
             }
           }
         });
-      }
     },
     getTestCase(index) {
       let id = "";
