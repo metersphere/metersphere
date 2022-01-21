@@ -131,8 +131,36 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
+        buildUserInfo(resList);
+        buildProjectInfo(resList, request.getProjectId());
         calculateResult(resList, request.getProjectId());
         return resList;
+    }
+
+    public void buildUserInfo(List<ApiDefinitionResult> apis) {
+        if (CollectionUtils.isEmpty(apis)) { return; }
+        Set<String> userIds = new HashSet<>();
+        apis.forEach(i -> {
+            userIds.add(i.getUserId());
+            userIds.add(i.getDeleteUserId());
+            userIds.add(i.getCreateUser());
+        });
+        if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
+            Map<String, String> userMap = ServiceUtils.getUserNameMap(new ArrayList<>(userIds));
+            apis.forEach(caseResult -> {
+                caseResult.setCreateUser(userMap.get(caseResult.getCreateUser()));
+                caseResult.setDeleteUser(userMap.get(caseResult.getDeleteUserId()));
+                caseResult.setUserName(userMap.get(caseResult.getUserId()));
+            });
+        }
+    }
+
+    public void buildProjectInfo(List<ApiDefinitionResult> apis, String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        apis.forEach(i -> {
+            i.setProjectName(project.getName());
+            i.setVersionEnable(project.getVersionEnable());
+        });
     }
 
     public List<ApiDefinitionResult> weekList(ApiDefinitionRequest request) {
@@ -1744,7 +1772,7 @@ public class ApiDefinitionService {
             List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
             Map<String, ApiDefinition> apiMap = apiDefinitions.stream().collect(Collectors.toMap(ApiDefinition::getId, i -> i));
             List<RelationshipEdgeDTO> results = new ArrayList<>();
-            buildUserInfo(apiDefinitions);
+            Map<String, String> userNameMap = ServiceUtils.getUserNameMap(apiDefinitions.stream().map(ApiDefinition::getUserId).collect(Collectors.toList()));
             for (RelationshipEdge relationshipEdge : relationshipEdges) {
                 RelationshipEdgeDTO relationshipEdgeDTO = new RelationshipEdgeDTO();
                 BeanUtils.copyBean(relationshipEdgeDTO, relationshipEdge);
@@ -1758,7 +1786,7 @@ public class ApiDefinitionService {
                     continue;
                 }
                 relationshipEdgeDTO.setTargetName(apiDefinition.getName());
-                relationshipEdgeDTO.setCreator(apiDefinition.getUserId());
+                relationshipEdgeDTO.setCreator(userNameMap.get(apiDefinition.getUserId()));
                 relationshipEdgeDTO.setTargetNum(apiDefinition.getNum());
                 relationshipEdgeDTO.setStatus(apiDefinition.getStatus());
                 relationshipEdgeDTO.setVersionId(apiDefinition.getVersionId());
@@ -1767,21 +1795,6 @@ public class ApiDefinitionService {
             return results;
         }
         return new ArrayList<>();
-    }
-
-    public void buildUserInfo(List<? extends ApiDefinition> apis) {
-        List<String> userIds = new ArrayList();
-        userIds.addAll(apis.stream().map(ApiDefinition::getCreateUser).collect(Collectors.toList()));
-        userIds.addAll(apis.stream().map(ApiDefinition::getDeleteUserId).collect(Collectors.toList()));
-        userIds.addAll(apis.stream().map(ApiDefinition::getUserId).collect(Collectors.toList()));
-        if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
-            Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
-            apis.forEach(caseResult -> {
-                caseResult.setCreateUser(userMap.get(caseResult.getCreateUser()));
-                caseResult.setDeleteUserId(userMap.get(caseResult.getDeleteUserId()));
-                caseResult.setUserId(userMap.get(caseResult.getUserId()));
-            });
-        }
     }
 
     public Pager<List<ApiDefinitionResult>> getRelationshipRelateList(ApiDefinitionRequest request, int goPage, @PathVariable int pageSize) {

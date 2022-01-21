@@ -245,14 +245,11 @@
         select api_definition.id, api_definition.project_id, api_definition.num, api_definition.tags,api_definition.original_state,
         api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
         api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
-        api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, project.name as
-        project_name, user.name as user_name,deleteUser.name AS delete_user,api_definition.delete_time, api_definition.remark, api_definition.version_id,
-        project_version.name as version_name, api_definition.ref_id, project.version_enable
+        api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, api_definition.delete_user_id, api_definition.create_user,api_definition.delete_time, api_definition.remark, api_definition.version_id,
+        project_version.name as version_name, api_definition.ref_id, user.name as user_name,
         from api_definition
-        left join project on api_definition.project_id = project.id
         left join user on api_definition.user_id = user.id
-        left join user deleteUser on api_definition.delete_user_id = deleteUser.id
-        LEFT JOIN project_version on project.id = project_version.project_id AND project_version.id = api_definition.version_id
+        LEFT JOIN project_version ON project_version.id = api_definition.version_id AND project_version.project_id = #{request.projectId}
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
