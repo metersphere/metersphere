@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 public class MsJDBCSampler extends MsTestElement {
     // type 必须放最前面，以便能够转换正确的类
     private String type = "JDBCSampler";
-    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler";
+    private String clazzName = MsJDBCSampler.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private DatabaseConfig dataSource;

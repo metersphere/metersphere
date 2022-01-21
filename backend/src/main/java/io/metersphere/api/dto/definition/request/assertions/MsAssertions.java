@@ -22,7 +22,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "Assertions")
 public class MsAssertions extends MsTestElement {
-    private String clazzName = "io.metersphere.api.dto.definition.request.assertions.MsAssertions";
+    private String clazzName = MsAssertions.class.getCanonicalName();
 
     private List<MsAssertionRegex> regex;
     private List<MsAssertionJsonPath> jsonPath;

@@ -709,12 +709,14 @@ public class ApiAutomationService {
                 } else {
                     element = refElement;
                 }
+                element.put("id", apiTestCase.getId());
                 isExist = true;
                 this.setElement(element, apiTestCase.getNum(), enable, apiTestCase.getVersionName(), apiTestCase.getVersionEnable());
             }
         } else {
             ApiDefinitionResult definitionWithBLOBs = apiDefinitionService.getById(element.getString("id"));
             if (definitionWithBLOBs != null) {
+                element.put("id", definitionWithBLOBs.getId());
                 this.setElement(element, definitionWithBLOBs.getNum(), enable, definitionWithBLOBs.getVersionName(), definitionWithBLOBs.getVersionEnable());
                 isExist = true;
             }
@@ -738,6 +740,7 @@ public class ApiAutomationService {
                 element.put("referenced", "REF");
                 element.put("name", scenarioWithBLOBs.getName());
             }
+            element.put("id", scenarioWithBLOBs.getId());
             element.put("environmentEnable", environmentEnable);
             this.setElement(element, scenarioWithBLOBs.getNum(), enable, scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable());
         } else {

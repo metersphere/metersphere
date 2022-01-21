@@ -24,7 +24,7 @@ import java.util.StringJoiner;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "Extract")
 public class MsExtract extends MsTestElement {
-    private String clazzName = "io.metersphere.api.dto.definition.request.extract.MsExtract";
+    private String clazzName = MsExtract.class.getCanonicalName();
 
     private List<MsExtractRegex> regex;
     private List<MsExtractJSONPath> json;

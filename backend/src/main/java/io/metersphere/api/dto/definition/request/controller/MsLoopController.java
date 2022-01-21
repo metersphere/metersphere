@@ -33,7 +33,7 @@ import java.util.UUID;
 @JSONType(typeName = "LoopController")
 public class MsLoopController extends MsTestElement {
     private String type = "LoopController";
-    private String clazzName = "io.metersphere.api.dto.definition.request.controller.MsLoopController";
+    private String clazzName = MsLoopController.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private String loopType;

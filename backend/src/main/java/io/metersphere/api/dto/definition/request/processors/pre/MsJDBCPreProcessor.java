@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 public class MsJDBCPreProcessor extends MsTestElement {
     // type 必须放最前面，以便能够转换正确的类
     private String type = "JDBCPreProcessor";
-    private String clazzName = "io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor";
+    private String clazzName = MsJDBCPreProcessor.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private DatabaseConfig dataSource;
