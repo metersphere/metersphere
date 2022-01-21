@@ -46,7 +46,9 @@ export default{
     },
     oldVNode:{
     },
-    newVNode:{}
+    newVNode:{},
+    oldColor:String,
+    newColor:String
   },
   components:{
     MsComponentConfig,
@@ -61,7 +63,7 @@ export default{
     getDiff(){
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
-      diff(oldVnode,vnode)
+      diff(oldVnode,vnode,this.oldColor,this.newColor);
     },
     getVnode(){
       let oldVnode = this.$refs.old

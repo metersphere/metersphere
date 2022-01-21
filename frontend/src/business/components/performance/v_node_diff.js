@@ -29,7 +29,7 @@ const isTextInputType = makeMap('text,number,password,search,email,tel,url')
  * @param  oldDom 被比较的节点
  * @param  newDom 比较的节点
  */
-export function diff (oldDom, newDom) {
+export function diff (oldDom, newDom,oldColor,newColor) {
   let diffNode = {
     oldNodeArray:[],
     nodeArray:[],
@@ -62,13 +62,13 @@ export function diff (oldDom, newDom) {
     diffNode.nodeArray.push(newVnode.elm)
   }
 
-  changeStyle(diffNode);
+  changeStyle(diffNode,oldColor,newColor);
 }
 
-function changeStyle(diffNode){
-  console.log("查看结果");
+function changeStyle(diffNode,oldColor,newColor){
+  /*console.log("查看结果");
   console.log(diffNode.oldNodeArray);
-  console.log(diffNode.nodeArray);
+  console.log(diffNode.nodeArray);*/
   for (let i = 0; i < diffNode.oldNodeArray.length; i++) {
     if(diffNode.oldNodeArray[i]==='comment'||diffNode.oldNodeArray[i].nodeName==="#comment"){
       continue
@@ -76,12 +76,12 @@ function changeStyle(diffNode){
     if(diffNode.oldNodeArray[i].className==='cell'){
       let rowVnodeElm = findRowVnodeElm(diffNode.oldNodeArray[i]);
       if(isDef(rowVnodeElm.style)){
-        rowVnodeElm.style.setProperty("background-color","rgb(241,200,196,0.45)",'important')
+        rowVnodeElm.style.setProperty("background-color",oldColor,'important')
       }else if(isDef(rowVnodeElm.parentNode.style)&&rowVnodeElm!=='comment'){
-        rowVnodeElm.parentNode.style.setProperty("background-color","rgb(241,200,196,0.45)",'important')
+        rowVnodeElm.parentNode.style.setProperty("background-color",oldColor,'important')
       }
     }else{
-      changeStyleBySubset(diffNode.oldNodeArray[i],"rgb(241,200,196,0.45)");
+      changeStyleBySubset(diffNode.oldNodeArray[i],oldColor);
     }
   }
 
@@ -92,12 +92,12 @@ function changeStyle(diffNode){
     if(diffNode.nodeArray[i].className==='cell'){
       let rowVnodeElm = findRowVnodeElm(diffNode.nodeArray[i]);
       if(isDef(rowVnodeElm.style)){
-        rowVnodeElm.style.setProperty("background-color","rgb(121, 225, 153,0.3)",'important')
+        rowVnodeElm.style.setProperty("background-color",newColor,'important')
       }else if(isDef(rowVnodeElm.parentNode.style)&&rowVnodeElm!=='comment'){
-        rowVnodeElm.parentNode.style.setProperty("background-color","rgb(121, 225, 153,0.3)",'important')
+        rowVnodeElm.parentNode.style.setProperty("background-color",newColor,'important')
       }
     }else{
-      changeStyleBySubset(diffNode.nodeArray[i],"rgb(121, 225, 153,0.3)");
+      changeStyleBySubset(diffNode.nodeArray[i],newColor);
     }
   }
 }

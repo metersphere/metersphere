@@ -4,10 +4,10 @@
   <div class="caall"></div>
   <el-row>
     <el-col :span="12">
-      <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.updateTime | timestampFormatDate }}</span>
+      <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.createTime | timestampFormatDate }}</span>
     </el-col>
     <el-col :span="12">
-      <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.updateTime | timestampFormatDate }}</span>
+      <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.createTime | timestampFormatDate }}</span>
     </el-col>
   </el-row>
   <div  class="compare-class" id="vdiff" ref="all" >
@@ -23,15 +23,6 @@
                         maxlength="30" show-word-limit/>
             </el-form-item>
           </el-form>
-        </el-col>
-        <el-col :span="12">
-          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
-            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " />
-          </el-tooltip>
-          <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow">
-            <i class="el-icon-star-on" style="color: #783987; font-size: 28px;  margin-right: 15px;cursor: pointer;position: relative; top: 5px; "/>
-          </el-tooltip>
-
         </el-col>
       </el-row>
 
@@ -61,15 +52,6 @@
                         maxlength="30" show-word-limit/>
             </el-form-item>
           </el-form>
-        </el-col>
-        <el-col :span="12">
-          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!newShowFollow">
-            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " />
-          </el-tooltip>
-          <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="newShowFollow">
-            <i class="el-icon-star-on" style="color: #783987; font-size: 28px;  margin-right: 15px;cursor: pointer;position: relative; top: 5px; "/>
-          </el-tooltip>
-
         </el-col>
       </el-row>
 
@@ -140,7 +122,16 @@ export default{
     getDiff(){
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
-      diff(oldVnode,vnode);
+      let oldColor = "";
+      let newColor = "";
+      if(this.oldData.createTime>this.newData.createTime){
+        oldColor = "rgb(121, 225, 153,0.3)";
+        newColor = "rgb(241,200,196,0.45)"
+      }else{
+        oldColor = "rgb(241,200,196,0.45)"
+        newColor = "rgb(121, 225, 153,0.3)";
+      }
+      diff(oldVnode,vnode,oldColor,newColor);
       this.isReloadData = false;
     },
     clickTab(tab) {
