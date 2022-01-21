@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "DubboSampler")
 public class MsDubboSampler extends MsTestElement {
-    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsDubboSampler";
+    private String clazzName = MsDubboSampler.class.getCanonicalName();
 
     /**
      * type 必须放最前面，以便能够转换正确的类

@@ -75,7 +75,7 @@ import java.util.stream.Collectors;
 @JSONType(typeName = "HTTPSamplerProxy")
 public class MsHTTPSamplerProxy extends MsTestElement {
     private String type = "HTTPSamplerProxy";
-    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy";
+    private String clazzName = MsHTTPSamplerProxy.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private String protocol;

@@ -36,7 +36,7 @@ import java.util.Map;
 @JSONType(typeName = "ThreadGroup")
 public class MsThreadGroup extends MsTestElement {
     private String type = "ThreadGroup";
-    private String clazzName = "io.metersphere.api.dto.definition.request.MsThreadGroup";
+    private String clazzName = MsThreadGroup.class.getCanonicalName();
 
     private boolean enableCookieShare;
     private Boolean onSampleError;
