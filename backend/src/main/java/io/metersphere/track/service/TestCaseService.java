@@ -2148,7 +2148,7 @@ public class TestCaseService {
                 TestCase testCase = testCaseMapper.selectByPrimaryKey(id);
                 if ((StringUtils.isNotEmpty(testCase.getMaintainer()) && testCase.getMaintainer().equals(SessionUtils.getUserId())) ||
                         (StringUtils.isNotEmpty(testCase.getCreateUser()) && testCase.getCreateUser().equals(SessionUtils.getUserId()))) {
-                    this.deleteTestCasePublic(null , testCase.getRefId());
+                    this.deleteTestCasePublic(null, testCase.getRefId());
                 } else {
                     MSException.throwException(Translator.get("check_owner_case"));
                 }
@@ -2232,12 +2232,20 @@ public class TestCaseService {
 
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andIdIn(projectIds);
-        List<Project> projects = projectMapper.selectByExample(projectExample);
+        List<Project> projects = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            projects = projectMapper.selectByExample(projectExample);
+        }
+
         Map<String, String> projectNameMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getName));
 
         ProjectVersionExample versionExample = new ProjectVersionExample();
         versionExample.createCriteria().andIdIn(versionIds);
-        List<ProjectVersion> projectVersions = projectVersionMapper.selectByExample(versionExample);
+        List<ProjectVersion> projectVersions = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(versionIds)) {
+            projectVersions = projectVersionMapper.selectByExample(versionExample);
+        }
+
         Map<String, String> verisonNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
 
         List<TestCaseTestDao> testCaseTestList = new ArrayList<>();
@@ -2472,11 +2480,11 @@ public class TestCaseService {
         }
     }
 
-    public void deleteTestCasePublic(String versionId , String refId) {
+    public void deleteTestCasePublic(String versionId, String refId) {
         TestCase testCase = new TestCase();
         testCase.setRefId(refId);
         testCase.setVersionId(versionId);
-         extTestCaseMapper.deletePublic(testCase);
+        extTestCaseMapper.deletePublic(testCase);
     }
 
     public Boolean hasOtherInfo(String caseId) {
