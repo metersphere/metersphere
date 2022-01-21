@@ -3,8 +3,10 @@ package io.metersphere.commons.utils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.RunningParamKeys;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.ExtErrorReportLibraryService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
@@ -236,5 +238,22 @@ public class HashTreeUtil {
     public static List<MsAssertions> getErrorReportByProjectId(String projectId) {
         ExtErrorReportLibraryService service = CommonBeanFactory.getBean(ExtErrorReportLibraryService.class);
         return service.getAssertionByProjectIdAndStatusIsOpen(projectId);
+    }
+
+    public static void addPositive(EnvironmentConfig envConfig, HashTree samplerHashTree, ParameterConfig config, String projectId) {
+        if (envConfig != null) {
+            return;
+        }
+        if (envConfig.isUseErrorCode()) {
+            List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(projectId);
+            for (MsAssertions assertion : errorReportAssertion) {
+                assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(envConfig.getAssertions())) {
+            for (MsAssertions assertion : envConfig.getAssertions()) {
+                assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
+            }
+        }
     }
 }
