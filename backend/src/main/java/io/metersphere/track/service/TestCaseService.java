@@ -1712,8 +1712,8 @@ public class TestCaseService {
     public List<TestCaseDTO> listTestCaseIds(QueryTestCaseRequest request) {
         setDefaultOrder(request);
         List<String> selectFields = new ArrayList<>();
-        selectFields.add("id");
-        selectFields.add("name");
+        selectFields.add("test_case.id");
+        selectFields.add("test_case.name");
         request.setSelectFields(selectFields);
         return extTestCaseMapper.listIds(request);
     }
