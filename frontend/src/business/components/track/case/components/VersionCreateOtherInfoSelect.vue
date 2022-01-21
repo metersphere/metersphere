@@ -1,13 +1,12 @@
 <template>
-  <div>
+  <!--创建新版本选择其他信息对话框-->
+  <el-dialog
+    :title="$t('commons.sync_other_info')"
+    :visible.sync="visible"
+    :show-close="false"
+    width="30%"
+  >
     <el-form ref="form" :model="form" label-width="10px" label-position="left">
-      <el-row>
-        <el-col :span="24">
-          <el-form-item>
-            <span>{{ $t('test_track.case.sync_to_new_version') }}</span>
-          </el-form-item>
-        </el-col>
-      </el-row>
       <el-row>
         <el-col :span="6">
           <el-form-item>
@@ -42,14 +41,12 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row>
-        <el-form-item style="float:right">
-          <el-button size="small" @click="$emit('cancelOtherInfo')">{{ $t('commons.cancel') }}</el-button>
-          <el-button type="primary" size="small" @click="confirmOtherInfo">{{ $t('commons.confirm') }}</el-button>
-        </el-form-item>
-      </el-row>
     </el-form>
-  </div>
+    <span slot="footer" class="dialog-footer">
+        <el-button @click="visible = false;">{{ $t('commons.cancel') }}</el-button>
+        <el-button type="primary" @click="confirmOtherInfo">{{ $t('commons.confirm') }}</el-button>
+    </span>
+  </el-dialog>
 </template>
 
 <script>
@@ -58,6 +55,7 @@ export default {
   name: "VersionCreateOtherInfoSelect",
   data() {
     return {
+      visible: false,
       form: {
         remark: false,
         relateTest: false,
@@ -66,11 +64,17 @@ export default {
         archive: false,
         dependency: false,
       }
-
     };
   },
   methods: {
+    open() {
+      this.visible = true;
+    },
+    close() {
+      this.visible = false;
+    },
     confirmOtherInfo() {
+      this.visible = false;
       this.$emit("confirmOtherInfo", this.form);
     }
   }
