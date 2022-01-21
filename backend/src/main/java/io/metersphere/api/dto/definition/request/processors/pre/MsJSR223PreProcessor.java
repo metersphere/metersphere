@@ -25,7 +25,7 @@ import java.util.List;
 @JSONType(typeName = "JSR223PreProcessor")
 public class MsJSR223PreProcessor extends MsTestElement {
     private String type = "JSR223PreProcessor";
-    private String clazzName = "io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor";
+    private String clazzName = MsJSR223PreProcessor.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private String script;

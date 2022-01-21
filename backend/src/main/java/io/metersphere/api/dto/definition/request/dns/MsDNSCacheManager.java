@@ -25,7 +25,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "DNSCacheManager")
 public class MsDNSCacheManager extends MsTestElement {
-    private String clazzName = "io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager";
+    private String clazzName = MsDNSCacheManager.class.getCanonicalName();
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {

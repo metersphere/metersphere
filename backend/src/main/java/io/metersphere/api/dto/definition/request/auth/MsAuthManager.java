@@ -23,7 +23,7 @@ import java.util.List;
 @JSONType(typeName = "AuthManager")
 public class MsAuthManager extends MsTestElement {
     private String type = "AuthManager";
-    private String clazzName = "io.metersphere.api.dto.definition.request.auth.MsAuthManager";
+    private String clazzName = MsAuthManager.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private String username;
