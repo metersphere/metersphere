@@ -121,6 +121,26 @@ public class FileService {
         return fileMetadata;
     }
 
+    public FileMetadata saveFile(File file, byte[] fileByte, String projectId) {
+        final FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setId(UUID.randomUUID().toString());
+        fileMetadata.setName(file.getName());
+        fileMetadata.setSize(file.length());
+        fileMetadata.setProjectId(projectId);
+        fileMetadata.setCreateTime(System.currentTimeMillis());
+        fileMetadata.setUpdateTime(System.currentTimeMillis());
+        FileType fileType = getFileType(fileMetadata.getName());
+        fileMetadata.setType(fileType.name());
+        fileMetadataMapper.insert(fileMetadata);
+
+        FileContent fileContent = new FileContent();
+        fileContent.setFileId(fileMetadata.getId());
+        fileContent.setFile(fileByte);
+        fileContentMapper.insert(fileContent);
+
+        return fileMetadata;
+    }
+
     public FileMetadata saveFile(byte[] fileByte, String fileName, Long fileSize) {
         final FileMetadata fileMetadata = new FileMetadata();
         fileMetadata.setId(UUID.randomUUID().toString());

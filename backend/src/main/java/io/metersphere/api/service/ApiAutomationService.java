@@ -1119,7 +1119,8 @@ public class ApiAutomationService {
         }
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
-        JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(apiScenarios.get(0)));
+        ApiScenarioDTO scenario = apiScenarios.get(0);
+        JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(scenario), scenario.getProjectId());
 
         String name = request.getName() + ".jmx";
         dto.setName(name);
@@ -1468,8 +1469,8 @@ public class ApiAutomationService {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                 String jmx = generateJmx(item);
                 if (StringUtils.isNotEmpty(jmx)) {
-                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx).getXml());
-                    JmxInfoDTO dto = apiTestService.updateJmxString(jmx);
+                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx,item.getProjectId()).getXml());
+                    JmxInfoDTO dto = apiTestService.updateJmxString(jmx, item.getProjectId());
                     scenrioExportJmx.setId(item.getId());
                     scenrioExportJmx.setVersion(item.getVersion());
                     //扫描需要哪些文件
@@ -1495,7 +1496,7 @@ public class ApiAutomationService {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                 String jmx = generateJmx(item);
                 if (StringUtils.isNotEmpty(jmx)) {
-                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx).getXml());
+                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, item.getProjectId()).getXml());
                     String fileName = item.getName() + ".jmx";
                     String jmxStr = scenrioExportJmx.getJmx();
                     files.put(fileName, jmxStr.getBytes(StandardCharsets.UTF_8));
@@ -1885,7 +1886,7 @@ public class ApiAutomationService {
                 String testName = item.getName();
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
-                JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(item));
+                JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(item),item.getProjectId());
                 String name = item.getName() + ".jmx";
                 dto.setId(item.getId());
                 dto.setName(name);
