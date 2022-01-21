@@ -148,23 +148,23 @@ export default{
       activeName: 'remark',
       relationshipCount: 0,
       oldRelationshipCount: 0,
-      isReloadData:true
+      isReloadData:true,
+      oldColor:"",
+      newColor:""
     }
   },
   methods:{
     getDiff(){
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
-      let oldColor = "";
-      let newColor = "";
       if(this.oldData.createTime>this.newData.createTime){
-        oldColor = "rgb(121, 225, 153,0.3)";
-        newColor = "rgb(241,200,196,0.45)"
+        this.oldColor = "rgb(121, 225, 153,0.3)";
+        this.newColor = "rgb(241,200,196,0.45)"
       }else{
-        oldColor = "rgb(241,200,196,0.45)"
-        newColor = "rgb(121, 225, 153,0.3)";
+        this.oldColor = "rgb(241,200,196,0.45)"
+        this.newColor = "rgb(121, 225, 153,0.3)";
       }
-      diff(oldVnode,vnode,oldColor,newColor);
+      diff(oldVnode,vnode,this.oldColor,this.newColor);
       this.isReloadData = false
     },
     setCount(count) {
@@ -180,7 +180,7 @@ export default{
       let oldVnode = this.$refs.oldDependencies
       let vnode = this.$refs.newDependencies
       if(oldVnode._data.postCount>0||oldVnode._data.preCount>0||vnode._data.postCount>0||vnode._data.preCount>0){
-        diff(oldVnode,vnode);
+        diff(oldVnode,vnode,this.oldColor,this.newColor);
       }
     }
   },
