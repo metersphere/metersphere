@@ -1,6 +1,5 @@
 package io.metersphere.api.dto.definition.request.processors;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.RunningParamKeys;
@@ -20,7 +19,6 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 @Data
@@ -78,13 +76,7 @@ public class MsJSR223Processor extends MsTestElement {
         } else {
             processor.setName("JSR223Processor");
         }
-        processor.setProperty("MS-ID", this.getId());
-        String indexPath = this.getIndex();
-        processor.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(this.getResourceId(), config, this.getParent(), indexPath));
-        List<String> id_names = new LinkedList<>();
-        ElementUtil.getScenarioSet(this, id_names);
-        processor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
-
+        ElementUtil.setBaseParams(processor, this.getParent(), config, this.getId(), this.getIndex());
         processor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         processor.setProperty("scriptLanguage", this.getScriptLanguage());
