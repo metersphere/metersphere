@@ -2,10 +2,10 @@
   <div>
     <el-row>
       <el-col :span="12">
-        <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.updateTime | timestampFormatDate }}</span>
+        <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.createTime | timestampFormatDate }}</span>
       </el-col>
       <el-col :span="12">
-        <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.updateTime | timestampFormatDate }}</span>
+        <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.createTime | timestampFormatDate }}</span>
       </el-col>
     </el-row>
     <div class="compare-class" v-loading="isReloadData">
@@ -13,16 +13,6 @@
         <el-card>
           <div class="card-content">
             <div class="ms-main-div" @click="showAll" >
-
-              <!--操作按钮-->
-              <div class="ms-opt-btn">
-                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-                  <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
-                </el-tooltip>
-                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-                  <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
-                </el-tooltip>
-              </div>
 
               <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
               <el-form :model="oldData" label-position="right" label-width="80px" size="small" :rules="rules"  :disabled="true"
@@ -177,16 +167,6 @@
         <el-card>
           <div class="card-content">
             <div class="ms-main-div" @click="showAll" v-if="type!=='detail'">
-
-              <!--操作按钮-->
-              <div class="ms-opt-btn">
-                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!newShowFollow">
-                  <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
-                </el-tooltip>
-                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="newShowFollow">
-                  <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " />
-                </el-tooltip>
-              </div>
 
               <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
               <el-form :model="newData" label-position="right" label-width="80px" size="small" :rules="rules" :disabled="true"
@@ -355,6 +335,8 @@
           :new-project-env-map="newProjectEnvMap"
           :old-v-node="leftChildVnode"
           :new-v-node="rightChildVnode"
+          :old-color="oldColor"
+          :new-color="newColor"
         ></scenario-child-diff>
       </el-dialog>
     </div>
@@ -473,6 +455,8 @@ export default{
      leftChildVnode:{},
      rightChildVnode:{},
      dialogVisible:false,
+     oldColor:"",
+     newColor:""
    }
   },
   methods:{
@@ -480,9 +464,14 @@ export default{
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
       //oldVnode.style.backgroundColor = "rgb(241,200,196)";
-      console.log(this.$refs.old)
-      console.log(this.$refs.new)
-      diff(oldVnode,vnode);
+      if(this.oldData.createTime>this.newData.createTime){
+        this.oldColor = "rgb(121, 225, 153,0.3)";
+        this.newColor = "rgb(241,200,196,0.45)"
+      }else{
+        this.oldColor = "rgb(241,200,196,0.45)"
+        this.newColor = "rgb(121, 225, 153,0.3)";
+      }
+      diff(oldVnode,vnode,this.oldColor,this.newColor);
       this.isReloadData = false
     },
     showAll() {
