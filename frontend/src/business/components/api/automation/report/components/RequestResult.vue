@@ -49,12 +49,16 @@
                 <i class="el-icon-loading" style="font-size: 16px"/>
                 {{ $t('commons.testing') }}
               </el-tag>
-              <el-tag v-else-if="errorCode" class="ms-test-running" size="mini">
-                {{ $t('error_report_library.option.name') }}
-              </el-tag>
               <el-tag size="mini" v-else-if="request.unexecute">{{
                   $t('api_test.home_page.detail_card.unexecute')
                 }}
+              </el-tag>
+              <el-tag size="mini" v-else-if="request.status && request.status==='unexecute'">{{
+                  $t('api_test.home_page.detail_card.unexecute')
+                }}
+              </el-tag>
+              <el-tag v-else-if="errorCode" class="ms-test-error_code" size="mini">
+                {{ $t('error_report_library.option.name') }}
               </el-tag>
               <el-tag size="mini" type="success" v-else-if="request.success"> {{ $t('api_report.success') }}</el-tag>
               <el-tag size="mini" type="danger" v-else> {{ $t('api_report.fail') }}</el-tag>
@@ -221,6 +225,12 @@ export default {
 
 .ms-test-running {
   color: #6D317C;
+}
+
+.ms-test-error_code {
+  color: #F6972A;
+  background-color: #FDF5EA;
+  border-color: #FDF5EA;
 }
 
 .ms-api-col {
