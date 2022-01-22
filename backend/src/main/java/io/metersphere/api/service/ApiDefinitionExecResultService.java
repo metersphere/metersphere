@@ -137,7 +137,7 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    private void editStatus(ApiDefinitionExecResult saveResult, String type, String status, Long time, String reportId, String testId) {
+    public void editStatus(ApiDefinitionExecResult saveResult, String type, String status, Long time, String reportId, String testId) {
         String name = testId;
         String version = "";
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {

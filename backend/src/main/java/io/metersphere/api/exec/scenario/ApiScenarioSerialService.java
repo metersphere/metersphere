@@ -15,6 +15,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.TestResultService;
@@ -104,7 +105,7 @@ public class ApiScenarioSerialService {
                     if (StringUtils.isNotEmpty(queue.getEvnMap())) {
                         map = JSON.parseObject(queue.getEvnMap(), Map.class);
                     }
-                    hashTree = generateHashTree(queue.getTestId(), map);
+                    hashTree = generateHashTree(queue.getTestId(), queue.getReportId(), executionQueue.getRunMode(), map);
                 }
                 // 更新环境变量
                 this.initEnv(hashTree);
@@ -139,6 +140,9 @@ public class ApiScenarioSerialService {
                 if (apiDefinitionExecResult != null) {
                     apiDefinitionExecResult.setStatus("Error");
                     apiDefinitionExecResultMapper.updateByPrimaryKey(apiDefinitionExecResult);
+                    CommonBeanFactory.getBean(ApiDefinitionExecResultService.class)
+                            .editStatus(apiDefinitionExecResult, executionQueue.getRunMode(), "Error"
+                                    , System.currentTimeMillis(), apiDefinitionExecResult.getId(), queue.getTestId());
                 }
             }
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
@@ -152,7 +156,7 @@ public class ApiScenarioSerialService {
         hashTreeUtil.mergeParamDataMap(null, envParamsMap);
     }
 
-    public HashTree generateHashTree(String testId, Map<String, String> envMap) {
+    public HashTree generateHashTree(String testId, String reportId, String runMode, Map<String, String> envMap) {
         ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testId);
         String envId = null;
         if (caseWithBLOBs == null) {
@@ -179,11 +183,20 @@ public class ApiScenarioSerialService {
                 group.setHashTree(new LinkedList<>());
                 group.getHashTree().add(testElement);
                 testPlan.getHashTree().add(group);
+                testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+                return jmeterHashTree;
             } catch (Exception ex) {
+                ApiDefinitionExecResult apiDefinitionExecResult = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
+
+                if (apiDefinitionExecResult != null) {
+                    apiDefinitionExecResult.setStatus("Error");
+                    apiDefinitionExecResultMapper.updateByPrimaryKey(apiDefinitionExecResult);
+                    CommonBeanFactory.getBean(ApiDefinitionExecResultService.class)
+                            .editStatus(apiDefinitionExecResult, runMode, "error"
+                                    , System.currentTimeMillis(), apiDefinitionExecResult.getId(), testId);
+                }
                 MSException.throwException(ex.getMessage());
             }
-            testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
-            return jmeterHashTree;
         }
         return null;
     }
