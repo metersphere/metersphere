@@ -88,11 +88,12 @@
 
 <script>
 import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
-import VersionSelect from "@/business/components/xpack/version/VersionSelect";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "TestCaseCommonImport",
-  components: {VersionSelect},
+  components: {'VersionSelect': VersionSelect.default},
   props: ['tabName', 'name'],
   data() {
     return {
