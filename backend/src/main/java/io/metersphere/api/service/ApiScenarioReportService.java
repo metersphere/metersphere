@@ -731,10 +731,12 @@ public class ApiScenarioReportService {
             }
         }
         String status;//增加误报状态判断
-        if(errorReportResultSize > 0){
+        if(errorSize > 0){
+            status = ScenarioStatus.Error.name();
+        }else if(errorReportResultSize > 0){
             status = ExecuteResult.errorReportResult.name();
         }else {
-            status =errorSize > 0 || requestResults.isEmpty() ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name();
+            status = ScenarioStatus.Success.name();
         }
 
         if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
