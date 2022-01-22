@@ -53,7 +53,7 @@
                   $t('api_test.home_page.detail_card.unexecute')
                 }}
               </el-tag>
-              <el-tag size="mini" v-else-if="request.status && request.status==='unexecute'">{{
+              <el-tag size="mini" v-else-if="!request.success && request.status && request.status==='unexecute'">{{
                   $t('api_test.home_page.detail_card.unexecute')
                 }}
               </el-tag>
