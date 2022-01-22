@@ -101,7 +101,6 @@
         prop="passRate"
         :field="item"
         :fields-width="fieldsWidth"
-        sortable="custom"
         :label="$t('test_track.report.list.pass_rate')">
         <template v-slot:default="scope">
           <span>{{ (scope.row.passRate ? (scope.row.passRate  * 100 ).toFixed(1) : 0) + '%'}}</span>
