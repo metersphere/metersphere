@@ -35,6 +35,7 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.config.RandomVariableConfig;
 import org.apache.jmeter.modifiers.CounterConfig;
+import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.AbstractTestElement;
@@ -572,6 +573,23 @@ public class ElementUtil {
             resourceId = config.getScenarioId() + "=" + resourceId;
         }
         return resourceId + "_" + ElementUtil.getFullIndexPath(parent, indexPath);
+    }
+
+    public static JSR223PreProcessor argumentsToProcessor(Arguments arguments) {
+        JSR223PreProcessor processor = new JSR223PreProcessor();
+        processor.setEnabled(true);
+        processor.setName("scene variable");
+        processor.setProperty(TestElement.TEST_CLASS, JSR223PreProcessor.class.getName());
+        processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+        StringBuffer script = new StringBuffer();
+        if (arguments != null) {
+            for (int i = 0; i < arguments.getArguments().size(); ++i) {
+                String argValue = arguments.getArgument(i).getValue();
+                script.append("vars.put(\"" + arguments.getArgument(i).getName() + "\",\"" + argValue + "\");").append("\n");
+            }
+            processor.setProperty("script", script.toString());
+        }
+        return processor;
     }
 
     public static void setBaseParams(AbstractTestElement sampler, MsTestElement parent, ParameterConfig config, String id, String indexPath) {

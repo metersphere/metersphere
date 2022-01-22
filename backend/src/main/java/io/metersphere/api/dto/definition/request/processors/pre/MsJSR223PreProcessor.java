@@ -8,6 +8,7 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.utils.JMeterVars;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,8 +36,12 @@ public class MsJSR223PreProcessor extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
-        ScriptFilter.verify(this.getScriptLanguage(), this.getName(), script);
         ParameterConfig config = (ParameterConfig) msParameter;
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
+        ScriptFilter.verify(this.getScriptLanguage(), this.getName(), script);
         if (StringUtils.isEmpty(this.getEnvironmentId())) {
             if (config.getConfig() != null) {
                 if (config.getProjectId() != null) {
@@ -54,19 +59,16 @@ public class MsJSR223PreProcessor extends MsTestElement {
                 }
             }
         }
-        //替换Metersphere环境变量
-        script = StringUtils.replace(script, RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + this.getEnvironmentId() + ".\"");
-
-        if(config.isOperating()){
-            if (script.startsWith("io.metersphere.utils.JMeterVars.addVars")) {
+        //替换环境变量
+        if (StringUtils.isNotEmpty(script)) {
+            script = StringUtils.replace(script, RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + this.getEnvironmentId() + ".\"");
+        }
+        if (config.isOperating()) {
+            if (script.startsWith(JMeterVars.class.getCanonicalName())) {
                 return;
             }
         }
 
-        // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
-            return;
-        }
         final HashTree jsr223PreTree = tree.add(getJSR223PreProcessor());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
