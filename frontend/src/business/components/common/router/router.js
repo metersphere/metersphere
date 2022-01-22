@@ -9,9 +9,6 @@ import ReportStatistics from "@/business/components/reportstatistics/router";
 import Project from "@/business/components/project/router";
 import {getCurrentUserId, hasPermissions} from "@/common/js/utils";
 
-// const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
-// const Report = requireContext.keys().map(key => requireContext(key).report);
-// const ReportObj = Report && Report != null && Report.length > 0 && Report[0] != undefined ? Report : [{path: "/sidebar"}];
 Vue.use(VueRouter);
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 const router = new VueRouter({
@@ -30,7 +27,6 @@ const router = new VueRouter({
     Track,
     ReportStatistics,
     Project
-    // ...ReportStatistics
   ]
 });
 
