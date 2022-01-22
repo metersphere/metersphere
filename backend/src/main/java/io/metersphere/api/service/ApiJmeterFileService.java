@@ -72,7 +72,7 @@ public class ApiJmeterFileService {
         }
         HashTree hashTree;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId, envMap);
+            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId, reportId, runMode, envMap);
         } else {
             if (scenario == null) {
                 scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
