@@ -176,6 +176,7 @@
       from
       test_plan_api_scenario
       where test_plan_id = #{planId}
+    AND api_scenario_id in (SELECT id FROM api_test_case WHERE (`status` is null or `status` != 'Trash'))
     </select>
     <select id="getIdsByPlanId" resultType="java.lang.String">
       select id
