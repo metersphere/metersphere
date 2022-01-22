@@ -272,6 +272,7 @@ export default {
         this.currentApi.isCopy = false;
         // 创建了新版本的api，之后id变了，ref_id 保存了原始id
         data.id = response.data.id;
+        data.remark = response.data.remark;
         this.$emit('saveApi', data);
       });
       this.$store.state.apiMap.delete(this.currentApi.id);
