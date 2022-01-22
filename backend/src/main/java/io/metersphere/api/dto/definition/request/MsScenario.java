@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.EnvironmentType;
+import io.metersphere.api.dto.definition.request.controller.MsCriticalSectionController;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -158,14 +159,16 @@ public class MsScenario extends MsTestElement {
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
             config.setVariables(this.variables);
         }
+        final HashTree scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName());
         // 场景变量和环境变量
         Arguments arguments = arguments(config);
         if (arguments != null) {
-            tree.add(ParameterConfig.valueSupposeMock(arguments));
+            Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
+            scenarioTree.add(ElementUtil.argumentsToProcessor(valueSupposeMock));
         }
-        ElementUtil.addCsvDataSet(tree, variables, config, "shareMode.group");
-        ElementUtil.addCounter(tree, variables, false);
-        ElementUtil.addRandom(tree, variables);
+        ElementUtil.addCsvDataSet(scenarioTree, variables, config, "shareMode.group");
+        ElementUtil.addCounter(scenarioTree, variables, false);
+        ElementUtil.addRandom(scenarioTree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
             config.setHeaders(this.headers);
         }
@@ -205,9 +208,9 @@ public class MsScenario extends MsTestElement {
                 el.setParent(this);
                 el.setMockEnvironment(this.isMockEnvironment());
                 if (this.isEnvironmentEnable()) {
-                    el.toHashTree(tree, el.getHashTree(), newConfig);
+                    el.toHashTree(scenarioTree, el.getHashTree(), newConfig);
                 } else {
-                    el.toHashTree(tree, el.getHashTree(), config);
+                    el.toHashTree(scenarioTree, el.getHashTree(), config);
                 }
             }
         }
