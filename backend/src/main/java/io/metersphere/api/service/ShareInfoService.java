@@ -50,9 +50,9 @@ public class ShareInfoService {
             if (request.getProjectId() == null) {
                 List<String> shareIdList = this.selectShareIdByShareInfoId(request.getShareId());
                 request.setApiIdList(shareIdList);
-                if(shareIdList.isEmpty()){
+                if (shareIdList.isEmpty()) {
                     return new ArrayList<>();
-                }else {
+                } else {
                     return extShareInfoMapper.findApiDocumentSimpleInfoByRequest(request);
                 }
             } else {
@@ -100,14 +100,14 @@ public class ShareInfoService {
 
             if (apiModel.getRequest() != null) {
                 JSONObject requestObj = this.genJSONObject(apiModel.getRequest());
-                if(requestObj!=null){
+                if (requestObj != null) {
                     if (requestObj.containsKey("headers")) {
                         JSONArray requestHeadDataArr = new JSONArray();
                         //head赋值
                         JSONArray headArr = requestObj.getJSONArray("headers");
                         for (int index = 0; index < headArr.size(); index++) {
                             JSONObject headObj = headArr.getJSONObject(index);
-                            if (headObj.containsKey("name") && headObj.containsKey("value")) {
+                            if (headObj != null && headObj.containsKey("name") && headObj.containsKey("value")) {
                                 requestHeadDataArr.add(headObj);
                             }
                         }
@@ -116,20 +116,20 @@ public class ShareInfoService {
                     //url参数赋值
                     JSONArray urlParamArr = new JSONArray();
                     if (requestObj.containsKey("arguments")) {
-                        try{
+                        try {
                             JSONArray headArr = requestObj.getJSONArray("arguments");
                             for (int index = 0; index < headArr.size(); index++) {
 
-                                    JSONObject headObj = headArr.getJSONObject(index);
-                                    if (headObj.containsKey("name") && headObj.containsKey("value")) {
-                                        urlParamArr.add(headObj);
-                                    }
+                                JSONObject headObj = headArr.getJSONObject(index);
+                                if (headObj.containsKey("name") && headObj.containsKey("value")) {
+                                    urlParamArr.add(headObj);
+                                }
                             }
-                        }catch (Exception e){
+                        } catch (Exception e) {
                         }
                     }
                     if (requestObj.containsKey("rest")) {
-                        try{
+                        try {
                             //urlParam -- rest赋值
                             JSONArray headArr = requestObj.getJSONArray("rest");
                             for (int index = 0; index < headArr.size(); index++) {
@@ -138,13 +138,13 @@ public class ShareInfoService {
                                     urlParamArr.add(headObj);
                                 }
                             }
-                        }catch (Exception e){
+                        } catch (Exception e) {
                         }
                     }
                     apiInfoDTO.setUrlParams(urlParamArr.toJSONString());
                     //请求体参数类型
                     if (requestObj.containsKey("body")) {
-                        try{
+                        try {
                             JSONObject bodyObj = requestObj.getJSONObject("body");
                             if (bodyObj.containsKey("type")) {
                                 String type = bodyObj.getString("type");
@@ -168,7 +168,7 @@ public class ShareInfoService {
                                     if (isJsonSchema) {
                                         apiInfoDTO.setRequestBodyParamType("JSON-SCHEMA");
                                         apiInfoDTO.setJsonSchemaBody(bodyObj);
-                                        if(bodyObj.containsKey("jsonSchema")){
+                                        if (bodyObj.containsKey("jsonSchema")) {
                                             JSONObject jsonSchemaObj = bodyObj.getJSONObject("jsonSchema");
                                             apiInfoDTO.setRequestPreviewData(JSON.parse(JSONSchemaGenerator.getJson(jsonSchemaObj.toJSONString())));
                                         }
@@ -195,7 +195,7 @@ public class ShareInfoService {
                                             JSONObject kv = kvsArr.getJSONObject(i);
                                             if (kv.containsKey("name")) {
                                                 String value = "";
-                                                if(kv.containsKey("value")){
+                                                if (kv.containsKey("value")) {
                                                     value = String.valueOf(kv.get("value"));
                                                 }
                                                 bodyParamArr.add(kv);
@@ -238,7 +238,7 @@ public class ShareInfoService {
                                     }
                                 }
                             }
-                        }catch (Exception e){
+                        } catch (Exception e) {
 
                         }
 
@@ -249,8 +249,8 @@ public class ShareInfoService {
             //赋值响应头
             if (apiModel.getResponse() != null) {
                 JSONObject responseJsonObj = this.genJSONObject(apiModel.getResponse());
-                if (responseJsonObj!=null && responseJsonObj.containsKey("headers")) {
-                    try{
+                if (responseJsonObj != null && responseJsonObj.containsKey("headers")) {
+                    try {
                         JSONArray responseHeadDataArr = new JSONArray();
                         JSONArray headArr = responseJsonObj.getJSONArray("headers");
                         for (int index = 0; index < headArr.size(); index++) {
@@ -260,12 +260,12 @@ public class ShareInfoService {
                             }
                         }
                         apiInfoDTO.setResponseHead(responseHeadDataArr.toJSONString());
-                    }catch (Exception e){
+                    } catch (Exception e) {
 
                     }
                 }
                 // 赋值响应体
-                if (responseJsonObj!=null && responseJsonObj.containsKey("body")) {
+                if (responseJsonObj != null && responseJsonObj.containsKey("body")) {
                     try {
                         JSONObject bodyObj = responseJsonObj.getJSONObject("body");
                         if (bodyObj.containsKey("type")) {
@@ -343,13 +343,13 @@ public class ShareInfoService {
                                 }
                             }
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
 
                     }
 
                 }
                 // 赋值响应码
-                if (responseJsonObj!=null && responseJsonObj.containsKey("statusCode")) {
+                if (responseJsonObj != null && responseJsonObj.containsKey("statusCode")) {
                     try {
                         JSONArray responseStatusDataArr = new JSONArray();
                         JSONArray statusArr = responseJsonObj.getJSONArray("statusCode");
@@ -360,13 +360,13 @@ public class ShareInfoService {
                             }
                         }
                         apiInfoDTO.setResponseCode(responseStatusDataArr.toJSONString());
-                    }catch (Exception e){
+                    } catch (Exception e) {
 
                     }
                 }
             }
         }
-        if(!previewJsonArray.isEmpty()){
+        if (!previewJsonArray.isEmpty()) {
             apiInfoDTO.setRequestPreviewData(previewJsonArray);
         }
         apiInfoDTO.setSelectedFlag(true);
@@ -375,9 +375,9 @@ public class ShareInfoService {
 
     private JSONObject genJSONObject(String request) {
         JSONObject returnObj = null;
-        try{
+        try {
             returnObj = JSONObject.parseObject(request);
-        }catch (Exception e){
+        } catch (Exception e) {
         }
         return returnObj;
     }
@@ -417,6 +417,7 @@ public class ShareInfoService {
     /**
      * 生成分享连接
      * 如果该数据有连接则，返回已有的连接，不做有效期判断
+     *
      * @param request
      * @return
      */
@@ -504,12 +505,13 @@ public class ShareInfoService {
      * 若在当前类中调用请使用如下方式调用，否则该方法的事务注解不生效
      * ShareInfoService shareInfoService = CommonBeanFactory.getBean(ShareInfoService.class);
      * shareInfoService.validateExpired(shareInfo);
+     *
      * @param shareInfo
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void validateExpired(ShareInfo shareInfo) {
         // 有效期24小时
-        if (shareInfo == null || System.currentTimeMillis() - shareInfo.getUpdateTime() > 1000*60*60*24) {
+        if (shareInfo == null || System.currentTimeMillis() - shareInfo.getUpdateTime() > 1000 * 60 * 60 * 24) {
             shareInfoMapper.deleteByPrimaryKey(shareInfo.getId());
             MSException.throwException("连接已失效，请重新获取!");
         }
