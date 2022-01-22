@@ -1421,7 +1421,7 @@ public class MockConfigService {
                 mockExpect.setMockConfigId(mockConfig.getId());
                 mockExpect.setId(expectInDb.getId());
                 mockExpect.setUpdateTime(System.currentTimeMillis());
-                mockExpectConfigMapper.updateByPrimaryKey(mockExpect);
+                mockExpectConfigMapper.updateByPrimaryKeyWithBLOBs(mockExpect);
             }
 
         }
