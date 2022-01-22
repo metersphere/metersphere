@@ -23,7 +23,6 @@
                               ref="versionHistory"
                               :version-data="versionData"
                               :current-id="currentTestCaseInfo.id"
-                              :is-test-case-version="true"
                               @confirmOtherInfo="confirmOtherInfo"
                               :current-project-id="currentProjectId"
                               @compare="compare" @checkout="checkout" @create="create" @del="del"/>

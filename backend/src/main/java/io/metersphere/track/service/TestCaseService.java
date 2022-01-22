@@ -22,6 +22,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.constants.UserGroupType;
+import io.metersphere.commons.constants.VersionConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -206,7 +207,8 @@ public class TestCaseService {
             //从版本选择直接创建
             request.setRefId(request.getId());
         }
-
+        //完全新增一条记录直接就是最新
+        request.setLatest(VersionConstants.LATEST);
         testCaseMapper.insert(request);
         saveFollows(request.getId(), request.getFollows());
         return request;
@@ -306,9 +308,11 @@ public class TestCaseService {
             testCase.setCreateUser(SessionUtils.getUserId());
             testCase.setOrder(oldTestCase.getOrder());
             testCase.setRefId(oldTestCase.getRefId());
+            testCase.setLatest(null);
             DealWithOtherInfo(testCase, oldTestCase.getId());
             testCaseMapper.insertSelective(testCase);
         }
+        checkAndSetLatestVersion(testCase.getRefId(), testCase.getVersionId(), testCase.getProjectId());
     }
 
     /**
@@ -2489,6 +2493,30 @@ public class TestCaseService {
         List<TestCaseWithBLOBs> testCaseList = testCaseMapper.selectByExampleWithBLOBs(e);
         if (CollectionUtils.isNotEmpty(testCaseList)) {
             testCaseMapper.deleteByExample(e);
+        }
+        //检查最新版本
+        checkAndSetLatestVersion(refId, version, testCaseList.get(0).getProjectId());
+    }
+
+    /**
+     * 检查设置最新版本
+     *
+     * @param refId
+     * @param versionId
+     */
+    private void checkAndSetLatestVersion(String refId, String versionId, String projectId) {
+        TestCaseExample e = new TestCaseExample();
+        e.createCriteria().andRefIdEqualTo(refId).andLatestEqualTo(VersionConstants.LATEST);
+        //如果因为删除导致没有了最新的版本，则按照版本创建顺序选择一个版本为最新版本
+        if (testCaseMapper.countByExample(e) == 0) {
+            extTestCaseMapper.addLatestVersion(refId);
+        } else {
+            //已经存在了最新版本 但是要判断这个所谓的最新版本是否是版本管理里面最新版本
+            String latestVersion = extProjectVersionMapper.getDefaultVersion(projectId);
+            if (StringUtils.equals(versionId, latestVersion)) {
+                extTestCaseMapper.clearLatestVersion(refId);
+                extTestCaseMapper.setLatestVersion(refId, versionId);
+            }
         }
     }
 
