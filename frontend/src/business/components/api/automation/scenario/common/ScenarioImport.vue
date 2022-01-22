@@ -92,21 +92,21 @@
 </template>
 
 <script>
-  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {getCurrentProjectID, hasLicense, listenGoBack, removeGoBackListener} from "@/common/js/utils";
-  import MsSelectTree from "../../../../common/select-tree/SelectTree";
+import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+import {getCurrentProjectID, hasLicense, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import MsSelectTree from "../../../../common/select-tree/SelectTree";
 
-  export default {
-    name: "ScenarioImport",
-    components: {MsDialogFooter, MsSelectTree},
-    props: {
-      saved: {
-        type: Boolean,
-        default: true,
-      },
-      moduleOptions: Array,
+export default {
+  name: "ScenarioImport",
+  components: {MsDialogFooter, MsSelectTree},
+  props: {
+    saved: {
+      type: Boolean,
+      default: true,
     },
-    data() {
+    moduleOptions: Array,
+  },
+  data() {
       return {
         visible: false,
         swaggerUrlEable: false,
@@ -189,7 +189,10 @@
             break;
           }
         }
-      },
+        if (this.selectedPlatformValue === 'Har') {
+          this.formData.modeId = 'fullCoverage';
+        }
+      }
     },
     computed: {
       isHar() {
