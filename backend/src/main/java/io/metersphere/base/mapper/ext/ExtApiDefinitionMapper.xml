@@ -274,7 +274,7 @@
         left join project on api_definition.project_id = project.id
         left join user on api_definition.user_id = user.id
         left join user deleteUser on api_definition.delete_user_id = deleteUser.id
-        <include refid="queryWhereCondition"/>
+        <include refid="queryWhereConditionWidthProject"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
@@ -733,6 +733,103 @@
                 <when test="request.projectId != null">
                     AND api_definition.project_id = #{request.projectId}
                 </when>
+            </choose>
+            <include refid="filter"/>
+            <if test="request.apiCaseCoverage == 'uncoverage' ">
+                and api_definition.id not in
+                (SELECT api_definition_id FROM api_test_case)
+            </if>
+            <if test="request.apiCaseCoverage == 'coverage' ">
+                and api_definition.id in
+                (SELECT api_definition_id FROM api_test_case)
+            </if>
+            <if test="request.refId != null">
+                AND ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId != null">
+                AND version_id = #{request.versionId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND (
+                version_id = (SELECT project_version.id
+                FROM api_definition tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                WHERE ref_id = api_definition.ref_id
+                LIMIT 1)
+                OR
+                version_id = (SELECT project_version.id
+                FROM api_definition tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND
+                tmp.version_id = project_version.id AND NOT EXISTS(SELECT ref_id
+                FROM api_definition tmp2
+                JOIN project_version
+                ON tmp2.project_id =
+                project_version.project_id AND
+                version_id =
+                project_version.id AND
+                latest = TRUE
+                WHERE tmp.ref_id = tmp2.ref_id)
+                WHERE tmp.ref_id = api_definition.ref_id
+                ORDER BY tmp.update_time DESC
+                LIMIT 1)
+                )
+            </if>
+        </where>
+    </sql>
+
+    <sql id="queryWhereConditionWidthProject">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and (api_definition.name like CONCAT('%', #{request.name},'%')
+                or api_definition.tags like CONCAT('%', #{request.name},'%')
+                or api_definition.num like CONCAT('%', #{request.name},'%')
+                or api_definition.path like CONCAT('%', #{request.name},'%'))
+            </if>
+            <if test="request.protocol != null">
+                AND api_definition.protocol = #{request.protocol}
+            </if>
+
+            <if test="request.notEqStatus != null">
+                and (api_definition.status is null or api_definition.status != #{request.notEqStatus})
+            </if>
+
+            <if test="request.id != null">
+                AND api_definition.id = #{request.id}
+            </if>
+            <if test="request.userId != null">
+                AND api_definition.user_id = #{request.userId}
+            </if>
+            <if test="request.createTime >0">
+                AND api_definition.create_time >= #{request.createTime}
+            </if>
+            <if test="request.moduleId != null">
+                AND api_definition.module_id = #{request.moduleId}
+            </if>
+            <if test="request.notInIds != null and request.notInIds.size() > 0">
+                and api_definition.id not in
+                <foreach collection="request.notInIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <choose>
+                <when test="request.moduleIds != null and request.moduleIds.size() > 0">
+                    AND api_definition.module_id in
+                    <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                </when>
+                <when test="request.projectId != null">
+                    AND api_definition.project_id = #{request.projectId}
+                </when>
                 <when test="request.workspaceId != null">
                     AND project.workspace_id = #{request.workspaceId}
                 </when>
@@ -781,7 +878,6 @@
             </if>
         </where>
     </sql>
-
 
     <select id="selectProjectIds" resultType="java.lang.String">
         select DISTINCT project_id from api_definition;
