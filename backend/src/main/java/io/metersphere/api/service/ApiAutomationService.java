@@ -687,11 +687,11 @@ public class ApiAutomationService {
         this.add("TCPSampler");
     }};
 
-    private void setElement(JSONObject element, Integer num, boolean enable, String versionName, boolean versionEnable) {
+    private void setElement(JSONObject element, Integer num, Boolean enable, String versionName, Boolean versionEnable) {
         element.put("num", num);
-        element.put("enable", enable);
+        element.put("enable", enable == null ? false : enable);
         element.put("versionName", versionName);
-        element.put("versionEnable", versionEnable);
+        element.put("versionEnable", versionEnable == null ? false : versionEnable);
     }
 
     private JSONObject setRequest(JSONObject element) {
@@ -1470,7 +1470,7 @@ public class ApiAutomationService {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                 String jmx = generateJmx(item);
                 if (StringUtils.isNotEmpty(jmx)) {
-                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx,item.getProjectId()).getXml());
+                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, item.getProjectId()).getXml());
                     JmxInfoDTO dto = apiTestService.updateJmxString(jmx, item.getProjectId());
                     scenrioExportJmx.setId(item.getId());
                     scenrioExportJmx.setVersion(item.getVersion());
@@ -1887,7 +1887,7 @@ public class ApiAutomationService {
                 String testName = item.getName();
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
-                JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(item),item.getProjectId());
+                JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(item), item.getProjectId());
                 String name = item.getName() + ".jmx";
                 dto.setId(item.getId());
                 dto.setName(name);
