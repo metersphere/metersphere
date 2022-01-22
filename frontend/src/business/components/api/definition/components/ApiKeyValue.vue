@@ -28,7 +28,8 @@
         </el-col>
 
         <el-col class="item" v-if="unShowSelect===true">
-          <el-input v-if="suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200" :placeholder="keyText"  show-word-limit/>
+          <el-input v-if="suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
+                    :placeholder="keyText" show-word-limit/>
         </el-col>
 
         <el-col class="item">
@@ -63,7 +64,8 @@
         </el-col>
       </el-row>
     </div>
-    <ms-api-variable-advance :scenario-definition="scenarioDefinition" :append-to-body="appendToBody" :current-item="currentItem" :parameters="keyValues" ref="variableAdvance"/>
+    <ms-api-variable-advance :scenario-definition="scenarioDefinition" :append-to-body="appendToBody"
+                             :current-item="currentItem" :parameters="keyValues" ref="variableAdvance"/>
 
   </div>
 </template>
@@ -84,7 +86,7 @@
       isShowEnable: {
         type: Boolean,
       },
-      unShowSelect:{
+      unShowSelect: {
         type: Boolean,
         default: false
       },
@@ -137,9 +139,9 @@
       advanced(item) {
         this.currentItem = item;
         // 冒泡到父组件，调用父组件的参数设置打开方法
-        if(this.scenarioDefinition != undefined){
+        if (this.scenarioDefinition != undefined) {
           this.$emit('editScenarioAdvance', this.currentItem);
-        }else{
+        } else {
           this.$refs.variableAdvance.open();
         }
       },
@@ -158,6 +160,7 @@
         if (this.items.length < 2 || index === this.items.length - 2) {
           return;
         }
+        this.change();
         let thisRow = this.items[index];
         let nextRow = this.items[index + 1];
         Vue.set(this.items, index + 1, thisRow);
@@ -167,11 +170,11 @@
         if (index === 0) {
           return;
         }
+        this.change();
         let thisRow = this.items[index];
         let lastRow = this.items[index - 1];
         Vue.set(this.items, index - 1, thisRow);
         Vue.set(this.items, index, lastRow)
-
       },
       reload() {
         this.loading = true
@@ -228,6 +231,13 @@
       },
     },
     created() {
+      if (this.items) {
+        for (let i = 0; i < this.items.length; i++) {
+          if (!this.items[i]) {
+            this.items.splice(i, 1);
+          }
+        }
+      }
       if (this.items.length === 0 || this.items[this.items.length - 1].name) {
         this.items.push(new KeyValue({enable: true, name: '', value: ''}));
       }
