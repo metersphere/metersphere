@@ -52,7 +52,7 @@
         :on-remove="handleRemove"
         :file-list="fileList">
         <template v-slot:trigger>
-          <el-button size="mini" type="success" plain>{{$t('test_track.case.import.click_upload')}}</el-button>
+          <el-button size="mini" type="success" plain>{{$t('commons.please_select')}}</el-button>
         </template>
         <template v-slot:tip>
           <div v-if="isExcel" class="el-upload__tip">{{$t('test_track.case.import.upload_limit')}}</div>
@@ -62,7 +62,8 @@
     </el-row>
 
     <el-row class="import-row">
-      <el-button :disabled="!lastFile" size="small" @click="upload">{{$t('test_track.case.import.click_upload')}}</el-button>
+      <el-button :disabled="!lastFile" size="small" @click="upload(false)">{{$t('test_track.case.import.click_upload')}}</el-button>
+      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
     </el-row>
 
     <el-row>
@@ -75,9 +76,9 @@
 
     <el-row style="text-align: right" v-if="showContinueBtn">
       <div style="margin-right: 20px;margin-bottom: 10px;">
-        <el-checkbox v-model="uploadIgnoreError">{{ $t('test_track.case.import.ignore_error') }}</el-checkbox>
+        <el-checkbox :value="true" :disabled="true">{{ $t('test_track.case.import.ignore_error') }}</el-checkbox>
       </div>
-      <el-button type="primary" @click="uploadContinue">{{ $t('test_track.case.import.continue_upload') }}
+      <el-button type="primary" @click="upload(true)">{{ $t('test_track.case.import.continue_upload') }}
       </el-button>
       <el-button @click="$emit('close')">{{ $t('commons.cancel') }}</el-button>
     </el-row>
@@ -86,12 +87,13 @@
 </template>
 
 <script>
-import {TokenKey} from "@/common/js/constants";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
+import VersionSelect from "@/business/components/xpack/version/VersionSelect";
 
 export default {
   name: "TestCaseCommonImport",
-  props: ['isUpdated', 'tabName', 'name'],
+  components: {VersionSelect},
+  props: ['tabName', 'name'],
   data() {
     return {
       result: {},
@@ -100,7 +102,8 @@ export default {
       importType: 'Create',
       showContinueBtn: false,
       uploadIgnoreError: false,
-      lastFile: null
+      lastFile: null,
+      version: null
     }
   },
   created() {
@@ -116,6 +119,9 @@ export default {
     isXmind() {
       return this.name === 'xmind';
     },
+    projectId() {
+      return getCurrentProjectID();
+    }
   },
   methods: {
     init() {
@@ -164,38 +170,34 @@ export default {
     handleRemove(file, fileList) {
       this.lastFile = null;
     },
-    upload() {
+    upload(isIgnore) {
       this.isLoading = false;
-      let user = JSON.parse(localStorage.getItem(TokenKey));
-      this.result = this.$fileUpload('/test/case/import/' + getCurrentProjectID() + '/' + user.id + '/' + this.importType,
-        this.lastFile, null, {}, response => {
+      let param = {
+        projectId: getCurrentProjectID(),
+        userId: getCurrentUserId(),
+        importType: this.importType,
+        version: this.version,
+        ignore: isIgnore
+      };
+      this.result = this.$fileUpload('/test/case/import',
+        this.lastFile, null, param, response => {
         let res = response.data;
-        if (res.success) {
+        if (isIgnore) {
           this.$success(this.$t('test_track.case.import.success'));
-          this.dialogVisible = false;
-          this.$emit("fresh");
+          this.$emit("close", res.isUpdated);
         } else {
-          this.errList = res.errList;
-          this.isUpdated = res.isUpdated;
-          this.showContinueBtn = true;
+          if (res.success) {
+            this.$success(this.$t('test_track.case.import.success'));
+            this.$emit("close", res.isUpdated);
+          } else {
+            this.errList = res.errList;
+            this.showContinueBtn = true;
+          }
         }
-      }, erro => {
-        this.fileList = [];
-        this.lastFile = null;
       });
     },
-    uploadContinue() {
-      this.isLoading = false;
-      let user = JSON.parse(localStorage.getItem(TokenKey));
-      let url = '/test/case/importIgnoreError/' + getCurrentProjectID() + '/' + user.id + '/' + this.importType;
-      this.result = this.$fileUpload(url, this.lastFile, null, {}, response => {
-        this.$success(this.$t('test_track.case.import.success'));
-        this.dialogVisible = false;
-        this.$emit("fresh");
-      }, erro => {
-        this.fileList = [];
-        this.lastFile = null;
-      });
+    changeVersion(data) {
+      this.version = data;
     }
   }
 }
