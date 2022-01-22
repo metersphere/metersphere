@@ -28,13 +28,13 @@
           <el-date-picker
             size="small"
             v-model="option.times"
+            align="right"
             type="datetimerange"
             value-format="timestamp"
             :range-separator="$t('api_monitor.to')"
             :start-placeholder="$t('commons.date.start_date')"
             :end-placeholder="$t('commons.date.end_date')"
-            :picker-options="datePickerOptions"
-            style="margin-left: 10px;width: 100%">
+            style="margin-right: 10px;width: 100%">
           </el-date-picker>
         </div>
         <div v-if="option.timeType === 'dynamicTime'" style="width: 70%;margin-left: 20px;float: left">
@@ -218,14 +218,6 @@ export default {
       moreOptionsSelectorValues: {
         id: 'id',
         label: 'label',
-      },
-      datePickerOptions: {
-        disabledDate: (time) => {
-          let nowDate = new Date();
-          let oneDay = 1000 * 60 * 60 * 24;
-          let oneYearLater = new Date(nowDate.getTime() + (oneDay * 365));
-          return time.getTime() > nowDate || time.getTime() > oneYearLater;//注意是||不是&&
-        }
       },
     };
   },
