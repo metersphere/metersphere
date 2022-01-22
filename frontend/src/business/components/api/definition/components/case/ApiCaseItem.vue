@@ -203,6 +203,7 @@ export default {
       resultMap: new Map([
         ['success', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('test_track.plan_view.pass')],
         ['error', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('api_test.home_page.detail_card.execution_failed')],
+        ['errorReportResult', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('error_report_library.option.name')],
         ['default', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('api_test.home_page.detail_card.unexecute')]
       ]),
       isXpack: false,
