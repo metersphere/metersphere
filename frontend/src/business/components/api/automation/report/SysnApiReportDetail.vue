@@ -40,6 +40,13 @@
                     ref="failsTree"
                   />
                 </el-tab-pane>
+                <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
+                  <template slot="label">
+                    <span class="fail">{{ $t('error_report_library.option.name') }}</span>
+                  </template>
+                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
+                                       :treeData="fullTreeNodes" ref="errorReportTree"/>
+                </el-tab-pane>
                 <el-tab-pane name="console">
                   <template slot="label">
                     <span class="console">{{ $t('api_test.definition.request.console') }}</span>
@@ -192,6 +199,8 @@ export default {
     filter(index) {
       if (index === "1") {
         this.$refs.failsTree.filter(index);
+      } else if (this.activeName === "errorReport") {
+        this.$refs.errorReportTree.filter("errorReport");
       }
     },
     handleClick(tab, event) {
