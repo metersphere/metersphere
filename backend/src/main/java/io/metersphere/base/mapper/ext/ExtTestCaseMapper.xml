@@ -230,7 +230,7 @@
             test_case.custom_fields, test_case.ref_id
         </if>
         from test_case
-        left join project_version on project_version.id = test_case.version_id and project_version.project_id = #{request.projectId}
+        left join project_version on project_version.id = test_case.version_id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>

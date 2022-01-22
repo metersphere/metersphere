@@ -371,16 +371,6 @@ export default {
             if (this.oldApiProtocol == null || this.oldApiProtocol === "") {
               this.oldApiProtocol = "TCP";
             }
-            this.$get('/api/definition/follow/' + response.data.id, resp => {
-              if(resp.data&&resp.data.follows){
-                for (let i = 0; i <resp.data.follows.length; i++) {
-                  if(resp.data.follows[i]===this.currentUser().id){
-                    this.newShowFollow = true;
-                    break;
-                  }
-                }
-              }
-            });
             this.dealWithTag(res.data);
             this.setRequest(res.data)
             if (!this.setRequest(res.data)) {
