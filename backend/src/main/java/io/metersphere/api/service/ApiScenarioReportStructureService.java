@@ -147,10 +147,10 @@ public class ApiScenarioReportStructureService {
          */
         for (StepTreeDTO step : dtoList) {
             if (step.getValue() != null) {
-                if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
-                    isError.set(isError.longValue() + 1);
-                } else if (StringUtils.isNotEmpty(step.getErrorCode())) {
+                if (StringUtils.isNotEmpty(step.getErrorCode())) {
                     isErrorReport.set(isErrorReport.longValue() + 1);
+                }else if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
+                    isError.set(isError.longValue() + 1);
                 }
             } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
                 AtomicLong isChildrenError = new AtomicLong();
@@ -175,8 +175,7 @@ public class ApiScenarioReportStructureService {
                 scenarioCalculate(step.getChildren(), error, errorReportCode);
                 if (error.longValue() > 0) {
                     scenarioError.set((scenarioError.longValue() + 1));
-                }
-                if (errorReportCode.longValue() > 0) {
+                } else if (errorReportCode.longValue() > 0) {
                     errorReport.set((errorReport.longValue() + 1));
                 }
             } else if (step.getValue() != null) {
