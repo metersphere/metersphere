@@ -2042,7 +2042,7 @@ export default {
       },
       case_desc: "用例描述",
       passing_rate: '用例通過率',
-      sync_to_new_version: "同步以下信息到新版本",
+      sync_to_new_version: "復製以下信息到新版本",
     },
     plan: {
       test_plan: "測試計劃",
