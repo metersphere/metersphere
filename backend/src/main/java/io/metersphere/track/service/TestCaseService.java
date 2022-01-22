@@ -534,7 +534,9 @@ public class TestCaseService {
         }
         List<TestCaseDTO> list = extTestCaseMapper.list(request);
         buildUserInfo(list);
-        buildProjectInfo(request.getProjectId(), list);
+        if(StringUtils.isNotBlank(request.getProjectId())){
+            buildProjectInfo(request.getProjectId(), list);
+        }
         list = this.parseStatus(list);
         return list;
     }
