@@ -195,4 +195,56 @@ ALTER TABLE `test_plan_report_content` ADD COLUMN `error_report_cases` LONGTEXT 
 ALTER TABLE `test_plan_report_content` ADD COLUMN `error_report_scenarios` LONGTEXT COMMENT '误报状态场景用例';
 
 -- 缺陷相关配置
-ALTER TABLE project ADD issue_config TEXT NULL;
+ALTER TABLE project
+    ADD issue_config TEXT NULL;
+
+-- 增加 latest 字段优化最新版本查询
+
+ALTER TABLE test_case
+    ADD latest tinyint DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是';
+ALTER TABLE api_definition
+    ADD latest tinyint DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是';
+ALTER TABLE api_scenario
+    ADD latest tinyint DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是';
+ALTER TABLE load_test
+    ADD latest tinyint DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是';
+
+-- 设置最新版本的数据
+
+UPDATE test_case
+SET latest = 1
+WHERE version_id = (
+    SELECT id
+    FROM project_version
+    WHERE project_version.project_id = test_case.project_id
+      AND project_version.latest = 1
+);
+
+UPDATE api_definition
+SET latest = 1
+WHERE version_id = (
+    SELECT id
+    FROM project_version
+    WHERE project_version.project_id = api_definition.project_id
+      AND project_version.latest = 1
+);
+
+UPDATE api_scenario
+SET latest = 1
+WHERE version_id = (
+    SELECT id
+    FROM project_version
+    WHERE project_version.project_id = api_scenario.project_id
+      AND project_version.latest = 1
+);
+
+UPDATE load_test
+SET latest = 1
+WHERE version_id = (
+    SELECT id
+    FROM project_version
+    WHERE project_version.project_id = load_test.project_id
+      AND project_version.latest = 1
+);
+
+
