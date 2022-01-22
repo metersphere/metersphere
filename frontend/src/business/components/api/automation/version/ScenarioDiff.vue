@@ -110,7 +110,7 @@
                         </el-tooltip>
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
-                        {{ $t('api_test.automation.step_total') }}：{{ 0}}
+                        {{ $t('api_test.automation.step_total') }}：{{ oldScenarioDefinition.length }}
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-link class="head">{{ $t('api_test.automation.scenario_total') }}
@@ -264,7 +264,7 @@
                         </el-tooltip>
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
-                        {{ $t('api_test.automation.step_total') }}：{{ 0 }}
+                        {{ $t('api_test.automation.step_total') }}：{{ newScenarioDefinition.length }}
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-link class="head" >{{ $t('api_test.automation.scenario_total') }}
