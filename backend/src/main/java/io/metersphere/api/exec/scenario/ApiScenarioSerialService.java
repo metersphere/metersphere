@@ -173,6 +173,7 @@ public class ApiScenarioSerialService {
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(caseWithBLOBs.getName());
                 group.setName(caseWithBLOBs.getName());
+                group.setProjectId(caseWithBLOBs.getProjectId());
 
                 MsTestElement testElement = parse(caseWithBLOBs, testId, envId);
                 group.setHashTree(new LinkedList<>());

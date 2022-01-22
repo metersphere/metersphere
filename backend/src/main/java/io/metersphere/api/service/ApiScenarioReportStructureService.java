@@ -228,6 +228,9 @@ public class ApiScenarioReportStructureService {
             if (StringUtils.isNotEmpty(dto.getType()) && requests.contains(dto.getType()) && dto.getValue() == null) {
                 RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO();
                 requestResultExpandDTO.setStatus("unexecute");
+                if(StringUtils.equalsAnyIgnoreCase(dto.getType(),"AbstractSampler")){
+                    requestResultExpandDTO.setSuccess(true);
+                }
                 requestResultExpandDTO.setName(dto.getLabel());
                 dto.setValue(requestResultExpandDTO);
             }

@@ -277,18 +277,19 @@
         inner join test_case on test_plan_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id = test_case.node_id
         inner join project on project.id = test_case.project_id
-        left join project_version on project_version.id = test_case.version_id and project.id = project_version.project_id
+        left join project_version on project_version.id = test_case.version_id and project.id =
+        project_version.project_id
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
                 <choose>
                     <when test="order.name == 'custom_num'">
-                     customNum ${order.type}
+                        customNum ${order.type}
                     </when>
-                     <when test="order.name == 'name'">
+                    <when test="order.name == 'name'">
                         test_case.name ${order.type}
-                     </when>
+                    </when>
                     <otherwise>
                         test_plan_test_case.${order.name} ${order.type}
                     </otherwise>
@@ -418,6 +419,7 @@
         select status
         from test_plan_test_case
         where plan_id = #{planId}
+        AND case_id in (SELECT id FROM test_case WHERE (`status` is null or `status` != 'Trash'))
     </select>
     <select id="listByPlanId" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         SELECT test_plan_api_case.id as reportId,test_plan_api_case.api_case_id as id,"definition" as
@@ -473,15 +475,15 @@
 
     <select id="listForMinder" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select pc.id as id,
-               pc.executor, pc.status,
-               pc.update_time,
-               pc.plan_id as planId,
-               t.name, t.priority,
-               t.type, t.node_id,
-               t.steps, t.prerequisite,
-               t.remark,
-               t.id as caseId,
-               t.node_path, t.method, t.num, t.step_model, t.expected_result, t.step_description
+        pc.executor, pc.status,
+        pc.update_time,
+        pc.plan_id as planId,
+        t.name, t.priority,
+        t.type, t.node_id,
+        t.steps, t.prerequisite,
+        t.remark,
+        t.id as caseId,
+        t.node_path, t.method, t.num, t.step_model, t.expected_result, t.step_description
         from test_plan_test_case pc
         inner join test_case t on pc.case_id = t.id
         <where>
@@ -492,7 +494,9 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="listTestCaseTest" resultType="io.metersphere.track.dto.TestCaseTestDTO">
-        select * from test_case_test where test_case_id = #{caseId};
+        select *
+        from test_case_test
+        where test_case_id = #{caseId};
     </select>
     <select id="selectIdsByQuery" resultType="java.lang.String">
         select test_plan_test_case.id
@@ -504,21 +508,21 @@
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
         select tptc.id, tptc.status
         from test_plan_test_case tptc
-        inner join test_case tc
-        on tc.id = tptc.case_id and tc.status != 'Trash'
+                 inner join test_case tc
+                            on tc.id = tptc.case_id and tc.status != 'Trash'
         where tptc.plan_id = #{planId};
     </select>
     <select id="getCases" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select tptc.id, tc.id as caseId, tc.name, tc.priority, tc.num, tc.custom_num, tc.project_id,
-               tc.node_id, tc.tags, tptc.actual_result,
-               tptc.update_time, tptc.create_time,
-               tptc.issues_count, tptc.status,
-               tptc.plan_id, tptc.executor
+        tc.node_id, tc.tags, tptc.actual_result,
+        tptc.update_time, tptc.create_time,
+        tptc.issues_count, tptc.status,
+        tptc.plan_id, tptc.executor
         from test_plan_test_case tptc
         inner join test_case tc on tptc.case_id = tc.id
-       <if test="status != null">
-           and tptc.status = 'Failure'
-       </if>
+        <if test="status != null">
+            and tptc.status = 'Failure'
+        </if>
         and (tc.status != 'Trash' or tc.status is null)
         where tptc.plan_id = #{planId} order by tptc.update_time desc
     </select>
@@ -556,10 +560,14 @@
     </delete>
 
     <select id="selectPlanIds" resultType="java.lang.String">
-        select DISTINCT plan_id from test_plan_test_case;
+        select DISTINCT plan_id
+        from test_plan_test_case;
     </select>
     <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
-        select id from test_plan_test_case where plan_id = #{planId} order by update_time ASC;
+        select id
+        from test_plan_test_case
+        where plan_id = #{planId}
+        order by update_time ASC;
     </select>
 
     <select id="getLastOrder" resultType="java.lang.Long">
