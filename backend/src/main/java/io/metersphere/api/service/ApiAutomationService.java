@@ -1222,6 +1222,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setId(existScenario.getId());
                 scenarioWithBLOBs.setRefId(existScenario.getRefId());
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
+                scenarioWithBLOBs.setOrder(existScenario.getOrder());
                 scenarioWithBLOBs.setNum(existScenario.getNum());
                 List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
                 scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
