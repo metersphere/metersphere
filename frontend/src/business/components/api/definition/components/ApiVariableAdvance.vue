@@ -160,7 +160,7 @@
         </ms-container>
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_test.variable')">
+      <el-tab-pane :label="$t('api_test.request.jmeter_func')">
         <el-row>
           <el-col :span="18" class="col-height">
             <div>
