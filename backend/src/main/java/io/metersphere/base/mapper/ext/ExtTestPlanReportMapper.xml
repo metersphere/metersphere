@@ -92,7 +92,7 @@
         SELECT tpr.id AS id, tpr.`name` AS `name`, tp.`name` AS testPlanName,
         IF(u.name is null,tpr.creator,u.name)AS creator, tpr.is_new, tpr.test_plan_id,
         tpr.create_time AS createTime,tpr.trigger_mode AS triggerMode,tpr.status AS status,
-        tpr.end_time AS endTime, (tpr.end_time - tpr.create_time) AS runTime, tprc.pass_rate AS passRate
+        tprc.end_time AS endTime, (tprc.end_time - tprc.start_time) AS runTime, tprc.pass_rate AS passRate
         FROM test_plan tp
         INNER JOIN test_plan_report tpr on tp.id = tpr.test_plan_id
         LEFT JOIN user u on tpr.creator = u.id
