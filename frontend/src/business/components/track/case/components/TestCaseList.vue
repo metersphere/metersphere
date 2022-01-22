@@ -232,7 +232,7 @@
 <script>
 
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
-import TestCaseImport from '../components/TestCaseImport';
+import TestCaseImport from './import/TestCaseImport';
 import TestCaseExport from '../components/TestCaseExport';
 import MsTablePagination from '../../../../components/common/pagination/TablePagination';
 import NodeBreadcrumb from '../../common/NodeBreadcrumb';
