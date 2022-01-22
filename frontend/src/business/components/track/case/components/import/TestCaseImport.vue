@@ -4,20 +4,16 @@
 
       <el-tab-pane :label="$t('test_track.case.import.excel_title')" name="excelImport">
         <test-case-common-import
-          :is-updated="isUpdated"
           name="excel"
           tab-name="excelImport"
-          @fresh="$emit('refreshAll')"
           @close="close"
           ref="excelImport"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('test_track.case.import.xmind_title')" name="xmindImport">
         <test-case-common-import
-          :is-updated="isUpdated"
           name="xmind"
           tab-name="xmindImport"
-          @fresh="$emit('refreshAll')"
           @close="close"
           ref="xmindImport"/>
       </el-tab-pane>
@@ -38,8 +34,7 @@
       return {
         activeName: 'excelImport',
         dialogVisible: false,
-        isLoading: false,
-        isUpdated: false,
+        isLoading: false
       }
     },
     methods: {
@@ -57,13 +52,12 @@
           this.$refs.xmindImport.init();
         }
       },
-      close() {
+      close(isUpdated) {
         removeGoBackListener(this.close);
         this.dialogVisible = false;
-        //通过excel导入更新过数据的话就刷新页面
-        if (this.isUpdated === true) {
+        if (isUpdated) {
+          //通过excel导入更新过数据的话就刷新页面
           this.$emit("refreshAll");
-          this.isUpdated = false;
         }
       },
     }

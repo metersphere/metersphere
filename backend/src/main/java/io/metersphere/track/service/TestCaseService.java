@@ -47,10 +47,7 @@ import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.*;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
-import io.metersphere.track.request.testcase.EditTestCaseRequest;
-import io.metersphere.track.request.testcase.QueryTestCaseRequest;
-import io.metersphere.track.request.testcase.TestCaseBatchRequest;
-import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
+import io.metersphere.track.request.testcase.*;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.xmind.XmindCaseParser;
 import io.metersphere.xmind.pojo.TestCaseXmindData;
@@ -704,47 +701,64 @@ public class TestCaseService {
     }
 
 
-    public ExcelResponse testCaseImport(MultipartFile multipartFile, String projectId, String userId, String importType, HttpServletRequest request) {
-
-        ExcelResponse excelResponse = new ExcelResponse();
-        boolean isUpdated = false;  //判断是否更新了用例
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        QueryTestCaseRequest queryTestCaseRequest = new QueryTestCaseRequest();
-        queryTestCaseRequest.setProjectId(projectId);
-        boolean useCunstomId = projectService.useCustomNum(projectId);
-        List<TestCase> testCases = extTestCaseMapper.getTestCaseNames(queryTestCaseRequest);
-        Set<String> savedIds = new HashSet<>();
-        Set<String> testCaseNames = new HashSet<>();
-        for (TestCase testCase : testCases) {
-            if (useCunstomId) {
-                savedIds.add(testCase.getCustomNum());
-            } else {
-                savedIds.add(String.valueOf(testCase.getNum()));
-            }
-
-            testCaseNames.add(testCase.getName());
-        }
-        List<ExcelErrData<TestCaseExcelData>> errList = null;
+    public ExcelResponse testCaseImport(MultipartFile multipartFile, TestCaseImportRequest request, HttpServletRequest httpRequest) {
         if (multipartFile == null) {
             MSException.throwException(Translator.get("upload_fail"));
         }
         if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
-            try {
-                XmindCaseParser xmindParser = new XmindCaseParser(this, userId, projectId, testCaseNames, useCunstomId, importType);
-                errList = xmindParser.parse(multipartFile);
-                if (CollectionUtils.isEmpty(xmindParser.getNodePaths())
-                        && CollectionUtils.isEmpty(xmindParser.getTestCase())
-                        && CollectionUtils.isEmpty(xmindParser.getUpdateTestCase())) {
-                    if (errList == null) {
-                        errList = new ArrayList<>();
-                    }
-                    ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + Translator.get("upload_content_is_null"));
-                    errList.add(excelErrData);
-                    excelResponse.setErrList(errList);
+            return testCaseXmindImport(multipartFile, request, httpRequest);
+        } else {
+            return testCaseExcelImport(multipartFile, request, httpRequest);
+        }
+    }
+
+    private List<TestCase> getTestCaseForImport(String projectId) {
+        QueryTestCaseRequest queryTestCaseRequest = new QueryTestCaseRequest();
+        queryTestCaseRequest.setProjectId(projectId);
+        return extTestCaseMapper.getTestCaseNames(queryTestCaseRequest);
+    }
+
+    private ExcelResponse getImportResponse(List<ExcelErrData<TestCaseExcelData>> errList, boolean isUpdated) {
+        ExcelResponse excelResponse = new ExcelResponse();
+        //如果包含错误信息就导出错误信息
+        if (!errList.isEmpty()) {
+            excelResponse.setSuccess(false);
+            excelResponse.setErrList(errList);
+            excelResponse.setIsUpdated(isUpdated);
+        } else {
+            excelResponse.setSuccess(true);
+        }
+        return excelResponse;
+    }
+
+    private ExcelResponse testCaseXmindImport(MultipartFile multipartFile, TestCaseImportRequest request,
+                                              HttpServletRequest httpRequest) {
+        String projectId = request.getProjectId();
+        List<ExcelErrData<TestCaseExcelData>> errList = new ArrayList<>();
+        Project project = projectService.getProjectById(projectId);
+        boolean useCunstomId = projectService.useCustomNum(project);
+
+        Set<String> testCaseNames = getTestCaseForImport(projectId).stream()
+                .map(TestCase::getName)
+                .collect(Collectors.toSet());
+
+        try {
+            XmindCaseParser xmindParser = new XmindCaseParser(this, request.getUserId(), projectId, testCaseNames, useCunstomId, request.getImportType());
+            errList = xmindParser.parse(multipartFile);
+            if (CollectionUtils.isEmpty(xmindParser.getNodePaths())
+                    && CollectionUtils.isEmpty(xmindParser.getTestCase())
+                    && CollectionUtils.isEmpty(xmindParser.getUpdateTestCase())) {
+                if (errList == null) {
+                    errList = new ArrayList<>();
                 }
+                ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + Translator.get("upload_content_is_null"));
+                errList.add(excelErrData);
+            }
+
+            List<String> names = new LinkedList<>();
+            List<String> ids = new LinkedList<>();
+            if (!request.isIgnore()) {
                 if (errList.isEmpty()) {
-                    List<String> names = new LinkedList<>();
-                    List<String> ids = new LinkedList<>();
                     if (CollectionUtils.isNotEmpty(xmindParser.getNodePaths())) {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
@@ -759,58 +773,111 @@ public class TestCaseService {
                         names.addAll(xmindParser.getUpdateTestCase().stream().map(TestCase::getName).collect(Collectors.toList()));
                         ids.addAll(xmindParser.getUpdateTestCase().stream().map(TestCase::getId).collect(Collectors.toList()));
                     }
-                    request.setAttribute("ms-req-title", String.join(",", names));
-                    request.setAttribute("ms-req-source-id", JSON.toJSONString(ids));
+                    httpRequest.setAttribute("ms-req-title", String.join(",", names));
+                    httpRequest.setAttribute("ms-req-source-id", JSON.toJSONString(ids));
                 }
-                xmindParser.clear();
-            } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
-                MSException.throwException(e.getMessage());
+            } else {
+                List<TestCaseWithBLOBs> continueCaseList = xmindParser.getContinueValidatedCase();
+                if (CollectionUtils.isNotEmpty(continueCaseList) || CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
+                    if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
+                        continueCaseList.removeAll(xmindParser.getUpdateTestCase());
+                        this.updateImportData(xmindParser.getUpdateTestCase(), projectId);
+                        names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
+                        ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
+                    }
+                    List<String> nodePathList = xmindParser.getValidatedNodePath();
+                    if (CollectionUtils.isNotEmpty(nodePathList)) {
+                        testCaseNodeService.createNodes(nodePathList, projectId);
+                    }
+                    if (CollectionUtils.isNotEmpty(continueCaseList)) {
+//                        Collections.reverse(continueCaseList);
+                        this.saveImportData(continueCaseList, projectId);
+                        names.addAll(continueCaseList.stream().map(TestCase::getName).collect(Collectors.toList()));
+                        ids.addAll(continueCaseList.stream().map(TestCase::getId).collect(Collectors.toList()));
+
+                    }
+                    httpRequest.setAttribute("ms-req-title", String.join(",", names));
+                    httpRequest.setAttribute("ms-req-source-id", JSON.toJSONString(ids));
+                }
+
+            }
+            xmindParser.clear();
+        } catch (Exception e) {
+            LogUtil.error(e);
+            MSException.throwException(e.getMessage());
+        }
+        return getImportResponse(errList, false);
+    }
+
+    private ExcelResponse  testCaseExcelImport(MultipartFile multipartFile, TestCaseImportRequest request,
+                                               HttpServletRequest httpRequest) {
+        String projectId = request.getProjectId();
+        Set<String> userIds;
+        Project project = projectService.getProjectById(projectId);
+        boolean useCunstomId = projectService.useCustomNum(project);
+
+        Set<String> savedIds = new HashSet<>();
+        Set<String> testCaseNames = new HashSet<>();
+        List<ExcelErrData<TestCaseExcelData>> errList = new ArrayList<>();
+        boolean isUpdated = false;
+
+        List<TestCase> testCases = getTestCaseForImport(projectId);
+        for (TestCase testCase : testCases) {
+            if (useCunstomId) {
+                savedIds.add(testCase.getCustomNum());
+            } else {
+                savedIds.add(String.valueOf(testCase.getNum()));
             }
 
-        } else {
+            testCaseNames.add(testCase.getName());
+        }
 
+        if (!request.isIgnore()) {
             QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
             queryMemberRequest.setProjectId(projectId);
-            Set<String> userIds = userService.getProjectMemberList(queryMemberRequest)
+            userIds = userService.getProjectMemberList(queryMemberRequest)
                     .stream()
                     .map(User::getId)
                     .collect(Collectors.toSet());
-
-            try {
-                //根据本地语言环境选择用哪种数据对象进行存放读取的数据
-                Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
-                TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
-                TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(projectId);
-                List<CustomFieldDao> customFields = null;
-                if (testCaseTemplate == null) {
-                    customFields = new ArrayList<>();
-                } else {
-                    customFields = testCaseTemplate.getCustomFields();
-                }
-                TestCaseNoModelDataListener easyExcelListener = new TestCaseNoModelDataListener(false, clazz, customFields, projectId, testCaseNames, savedIds, userIds, useCunstomId, importType);
-                //读取excel数据
-                EasyExcelFactory.read(multipartFile.getInputStream(), easyExcelListener).sheet().doRead();
-                request.setAttribute("ms-req-title", String.join(",", easyExcelListener.getNames()));
-                request.setAttribute("ms-req-source-id", JSON.toJSONString(easyExcelListener.getIds()));
-
-                errList = easyExcelListener.getErrList();
-                isUpdated = easyExcelListener.isUpdated();
-            } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
-                MSException.throwException(e.getMessage());
-            }
-
-        }
-        //如果包含错误信息就导出错误信息
-        if (!errList.isEmpty()) {
-            excelResponse.setSuccess(false);
-            excelResponse.setErrList(errList);
-            excelResponse.setIsUpdated(isUpdated);
         } else {
-            excelResponse.setSuccess(true);
+            GroupExample groupExample = new GroupExample();
+            groupExample.createCriteria().andTypeIn(Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
+            List<Group> groups = groupMapper.selectByExample(groupExample);
+            List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria()
+                    .andGroupIdIn(groupIds)
+                    .andSourceIdEqualTo(project.getWorkspaceId());
+            userIds = userGroupMapper.selectByExample(userGroupExample).stream().map(UserGroup::getUserId).collect(Collectors.toSet());
         }
-        return excelResponse;
+
+        try {
+            //根据本地语言环境选择用哪种数据对象进行存放读取的数据
+            Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
+            TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
+            TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(projectId);
+            List<CustomFieldDao> customFields = null;
+            if (testCaseTemplate == null) {
+                customFields = new ArrayList<>();
+            } else {
+                customFields = testCaseTemplate.getCustomFields();
+            }
+            TestCaseNoModelDataListener easyExcelListener = new TestCaseNoModelDataListener(request.isIgnore(), clazz, customFields, projectId, testCaseNames,
+                    savedIds, userIds, useCunstomId, request.getImportType());
+
+            //读取excel数据
+            EasyExcelFactory.read(multipartFile.getInputStream(), easyExcelListener).sheet().doRead();
+            httpRequest.setAttribute("ms-req-title", String.join(",", easyExcelListener.getNames()));
+            httpRequest.setAttribute("ms-req-source-id", JSON.toJSONString(easyExcelListener.getIds()));
+
+            errList = easyExcelListener.getErrList();
+            isUpdated = easyExcelListener.isUpdated();
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+        return getImportResponse(errList, isUpdated);
     }
 
     public void saveImportData(List<TestCaseWithBLOBs> testCases, String projectId) {
@@ -1859,122 +1926,6 @@ public class TestCaseService {
      */
     public void updateTestCaseCustomNumByProjectId(String projectId) {
         extTestCaseMapper.updateTestCaseCustomNumByProjectId(projectId);
-    }
-
-    public ExcelResponse testCaseImportIgnoreError(MultipartFile multipartFile, String projectId, String userId, String importType, HttpServletRequest request) {
-
-        ExcelResponse excelResponse = new ExcelResponse();
-        boolean isUpdated = false;  //判断是否更新了用例
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        QueryTestCaseRequest queryTestCaseRequest = new QueryTestCaseRequest();
-        queryTestCaseRequest.setProjectId(projectId);
-        List<TestCase> testCases = extTestCaseMapper.getTestCaseNames(queryTestCaseRequest);
-        boolean useCunstomId = projectService.useCustomNum(projectId);
-        Set<String> savedIds = new HashSet<>();
-        Set<String> testCaseNames = new HashSet<>();
-        for (TestCase testCase : testCases) {
-            if (useCunstomId) {
-                savedIds.add(testCase.getCustomNum());
-            } else {
-                savedIds.add(String.valueOf(testCase.getNum()));
-            }
-            testCaseNames.add(testCase.getName());
-        }
-        List<ExcelErrData<TestCaseExcelData>> errList = null;
-        if (multipartFile == null) {
-            MSException.throwException(Translator.get("upload_fail"));
-        }
-        if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
-            try {
-                XmindCaseParser xmindParser = new XmindCaseParser(this, userId, projectId, testCaseNames, useCunstomId, importType);
-                errList = xmindParser.parse(multipartFile);
-                if (CollectionUtils.isEmpty(xmindParser.getNodePaths())
-                        && CollectionUtils.isEmpty(xmindParser.getTestCase())
-                        && CollectionUtils.isEmpty(xmindParser.getUpdateTestCase())) {
-                    if (errList == null) {
-                        errList = new ArrayList<>();
-                    }
-                    ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + Translator.get("upload_content_is_null"));
-                    errList.add(excelErrData);
-                    excelResponse.setErrList(errList);
-                }
-                List<TestCaseWithBLOBs> continueCaseList = xmindParser.getContinueValidatedCase();
-                if (CollectionUtils.isNotEmpty(continueCaseList) || CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
-                    List<String> names = new LinkedList<>();
-                    List<String> ids = new LinkedList<>();
-
-                    if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
-                        continueCaseList.removeAll(xmindParser.getUpdateTestCase());
-                        this.updateImportData(xmindParser.getUpdateTestCase(), projectId);
-                        names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
-                        ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
-                    }
-                    List<String> nodePathList = xmindParser.getValidatedNodePath();
-                    if (CollectionUtils.isNotEmpty(nodePathList)) {
-                        testCaseNodeService.createNodes(nodePathList, projectId);
-                    }
-                    if (CollectionUtils.isNotEmpty(continueCaseList)) {
-//                        Collections.reverse(continueCaseList);
-                        this.saveImportData(continueCaseList, projectId);
-                        names.addAll(continueCaseList.stream().map(TestCase::getName).collect(Collectors.toList()));
-                        ids.addAll(continueCaseList.stream().map(TestCase::getId).collect(Collectors.toList()));
-
-                    }
-                    request.setAttribute("ms-req-title", String.join(",", names));
-                    request.setAttribute("ms-req-source-id", JSON.toJSONString(ids));
-
-                }
-                xmindParser.clear();
-            } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
-                MSException.throwException(e.getMessage());
-            }
-        } else {
-            GroupExample groupExample = new GroupExample();
-            groupExample.createCriteria().andTypeIn(Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
-            List<Group> groups = groupMapper.selectByExample(groupExample);
-            List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
-
-            UserGroupExample userGroupExample = new UserGroupExample();
-            userGroupExample.createCriteria()
-                    .andGroupIdIn(groupIds)
-                    .andSourceIdEqualTo(currentWorkspaceId);
-            Set<String> userIds = userGroupMapper.selectByExample(userGroupExample).stream().map(UserGroup::getUserId).collect(Collectors.toSet());
-
-            try {
-                //根据本地语言环境选择用哪种数据对象进行存放读取的数据
-                Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
-                TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
-                TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(projectId);
-                List<CustomFieldDao> customFields = null;
-                if (testCaseTemplate == null) {
-                    customFields = new ArrayList<>();
-                } else {
-                    customFields = testCaseTemplate.getCustomFields();
-                }
-                TestCaseNoModelDataListener easyExcelListener = new TestCaseNoModelDataListener(true, clazz, customFields, projectId, testCaseNames, savedIds, userIds, useCunstomId, importType);
-                //读取excel数据
-                EasyExcelFactory.read(multipartFile.getInputStream(), easyExcelListener).sheet().doRead();
-                request.setAttribute("ms-req-title", String.join(",", easyExcelListener.getNames()));
-                request.setAttribute("ms-req-source-id", JSON.toJSONString(easyExcelListener.getIds()));
-                errList = easyExcelListener.getErrList();
-                isUpdated = easyExcelListener.isUpdated();
-            } catch (Exception e) {
-
-                LogUtil.error(e);
-                MSException.throwException(e.getMessage());
-            }
-        }
-        //如果包含错误信息就导出错误信息
-        if (!errList.isEmpty()) {
-            excelResponse.setSuccess(false);
-            excelResponse.setErrList(errList);
-            excelResponse.setIsUpdated(isUpdated);
-        } else {
-            excelResponse.setSuccess(true);
-        }
-
-        return excelResponse;
     }
 
     public String getLogDetails(String id) {
