@@ -249,7 +249,7 @@
         project_version.name as version_name, api_definition.ref_id, user.name as user_name
         from api_definition
         left join user on api_definition.user_id = user.id
-        LEFT JOIN project_version ON project_version.id = api_definition.version_id AND project_version.project_id = #{request.projectId}
+        LEFT JOIN project_version ON project_version.id = api_definition.version_id
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
