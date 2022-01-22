@@ -1466,7 +1466,7 @@ public class TestCaseService {
 
     public void copyTestCaseBathPublic(TestCaseBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extTestCaseMapper.selectIds(query));
+                (query) -> extTestCaseMapper.selectPublicIds(query));
         List<String> ids = request.getIds();
         if (CollectionUtils.isEmpty(ids)) {
             return;
