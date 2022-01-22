@@ -141,21 +141,24 @@ public class ApiScenarioReportStructureService {
     }
 
     private void scenarioCalculate(List<StepTreeDTO> dtoList, AtomicLong isError, AtomicLong isErrorReport) {
+        /**
+         * 判断场景步骤的执行状态
+         * 失败状态的优先级最高，其次是误报
+         */
         for (StepTreeDTO step : dtoList) {
             if (step.getValue() != null) {
-                if (StringUtils.isNotEmpty(step.getErrorCode())) {
-                    isErrorReport.set(isErrorReport.longValue() + 1);
-                } else if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
+                if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
                     isError.set(isError.longValue() + 1);
+                } else if (StringUtils.isNotEmpty(step.getErrorCode())) {
+                    isErrorReport.set(isErrorReport.longValue() + 1);
                 }
             } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
                 AtomicLong isChildrenError = new AtomicLong();
                 AtomicLong isChildrenErrorReport = new AtomicLong();
-                stepChildrenErrorCalculate(step.getChildren(), isChildrenError,isChildrenErrorReport);
+                stepChildrenErrorCalculate(step.getChildren(), isChildrenError, isChildrenErrorReport);
                 if (isChildrenError.longValue() > 0) {
                     isError.set(isError.longValue() + 1);
-                }
-                if(isChildrenErrorReport.longValue() > 0){
+                } else if (isChildrenErrorReport.longValue() > 0) {
                     isErrorReport.set(isErrorReport.longValue() + 1);
                 }
             }
@@ -309,12 +312,11 @@ public class ApiScenarioReportStructureService {
     private void stepChildrenErrorCalculate(List<StepTreeDTO> dtoList, AtomicLong isError, AtomicLong isErrorReport) {
         for (StepTreeDTO step : dtoList) {
             if (step.getValue() != null && step.getValue().getError() > 0) {
-                if (StringUtils.isNotEmpty(step.getErrorCode())) {
-                    isErrorReport.set(isErrorReport.longValue() + 1);
-                } else if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
+                if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
                     isError.set(isError.longValue() + 1);
+                } else if (StringUtils.isNotEmpty(step.getErrorCode())) {
+                    isErrorReport.set(isErrorReport.longValue() + 1);
                 }
-                break;
             } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
                 stepChildrenErrorCalculate(step.getChildren(), isError, isErrorReport);
             }
