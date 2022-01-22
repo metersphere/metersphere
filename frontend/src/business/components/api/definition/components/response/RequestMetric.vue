@@ -7,7 +7,11 @@
           v-if="responseResult.responseCode"
           :content="responseResult.responseCode"
           placement="top">
-          <div class="node-title" :class="response && response.success ?'ms-req-success':'ms-req-error'">
+
+          <div v-if="response.attachInfoMap && response.attachInfoMap.errorReportResult" class="node-title" :class="'ms-req-error-report-result'">
+            {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
+          </div>
+          <div v-else class="node-title" :class="response && response.success ?'ms-req-success':'ms-req-error'">
             {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
           </div>
         </el-tooltip>
