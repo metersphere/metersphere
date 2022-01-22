@@ -67,8 +67,11 @@ public interface ExtTestCaseMapper {
 
     List<String> selectIds(@Param("request") BaseQueryRequest condition);
 
+    List<String> selectPublicIds(@Param("request") BaseQueryRequest condition);
+
     /**
      * 按照用例等级统计
+     *
      * @param projectId 项目ID
      * @return 统计结果
      */

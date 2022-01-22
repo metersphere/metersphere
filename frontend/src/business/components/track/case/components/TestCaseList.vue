@@ -1158,6 +1158,8 @@ export default {
     copyPublic(param) {
       param.condition = this.condition;
       param.projectId = this.projectId;
+      param.condition.projectId = null;
+      param.condition.ids = null;
       this.page.result = this.$post('/test/case/batch/copy/public', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.testBatchMove.close();
