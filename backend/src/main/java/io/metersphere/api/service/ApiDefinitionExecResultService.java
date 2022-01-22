@@ -211,13 +211,14 @@ public class ApiDefinitionExecResultService {
 
             for (RequestResult item : requestResults) {
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
+                    //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
+                    RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
+
                     ApiDefinitionExecResult reportResult = this.save(item, dto.getReportId(), dto.getConsole(), countExpectProcessResultCount, dto.getRunMode(), dto.getTestId(), isFirst);
                     String status = item.isSuccess() ? "success" : "error";
                     if (reportResult != null) {
                         status = reportResult.getStatus();
                     }
-                    //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
-                    RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
                     if (MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())) {
                         status = expandDTO.getStatus();
                     }
@@ -345,11 +346,9 @@ public class ApiDefinitionExecResultService {
             if (StringUtils.isEmpty(saveResult.getActuator())) {
                 saveResult.setActuator("LOCAL");
             }
-
-            String status = item.isSuccess() ? ExecuteResult.success.name() : ExecuteResult.error.name();
-
             //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
             RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
+            String status = item.isSuccess() ? ExecuteResult.success.name() : ExecuteResult.error.name();
             if (MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())) {
                 status = expandDTO.getStatus();
                 saveResult.setContent(JSON.toJSONString(expandDTO));

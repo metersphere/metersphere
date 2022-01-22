@@ -134,7 +134,10 @@
                 <el-link v-else-if="scope.row.execResult && scope.row.execResult === 'success'"
                          type="primary"
                          @click="getReportResult(scope.row)" v-text="getResult(scope.row.execResult)">
-
+                </el-link>
+                <el-link v-else-if="scope.row.execResult && scope.row.execResult === 'errorReportResult'"
+                         style="color: #F6972A"
+                         @click="getReportResult(scope.row)" v-text="getResult(scope.row.execResult)">
                 </el-link>
                 <div v-else v-text="getResult(scope.row.execResult)"/>
 
