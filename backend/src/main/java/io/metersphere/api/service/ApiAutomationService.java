@@ -687,7 +687,7 @@ public class ApiAutomationService {
         this.add("TCPSampler");
     }};
 
-    private void setElement(JSONObject element, Integer num, boolean enable, String versionName, boolean versionEnable) {
+    private void setElement(JSONObject element, Integer num, Boolean enable, String versionName, Boolean versionEnable) {
         element.put("num", num);
         element.put("enable", enable);
         element.put("versionName", versionName);
