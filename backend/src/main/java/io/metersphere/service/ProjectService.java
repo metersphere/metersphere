@@ -524,7 +524,10 @@ public class ProjectService {
     }
 
     public boolean useCustomNum(String projectId) {
-        Project project = this.getProjectById(projectId);
+        return useCustomNum(this.getProjectById(projectId));
+    }
+
+    public boolean useCustomNum(Project project) {
         if (project != null) {
             Boolean customNum = project.getCustomNum();
             // 未开启自定义ID

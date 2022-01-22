@@ -27,10 +27,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.dto.TestCaseDTO;
-import io.metersphere.track.request.testcase.EditTestCaseRequest;
-import io.metersphere.track.request.testcase.QueryTestCaseRequest;
-import io.metersphere.track.request.testcase.TestCaseBatchRequest;
-import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
+import io.metersphere.track.request.testcase.*;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.service.TestCaseService;
@@ -259,18 +256,11 @@ public class TestCaseController {
     }
 
 
-    @PostMapping("/import/{projectId}/{userId}/{importType}")
+    @PostMapping("/import")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, @PathVariable String importType, HttpServletRequest request) {
-        checkPermissionService.checkProjectOwner(projectId);
-        return testCaseService.testCaseImport(file, projectId, userId, importType, request);
-    }
-
-    @PostMapping("/importIgnoreError/{projectId}/{userId}/{importType}")
-    @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
-    public ExcelResponse testCaseImportIgnoreError(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, @PathVariable String importType, HttpServletRequest request) {
-        checkPermissionService.checkProjectOwner(projectId);
-        return testCaseService.testCaseImportIgnoreError(file, projectId, userId, importType, request);
+    public ExcelResponse testCaseImport(@RequestPart("request") TestCaseImportRequest request, @RequestPart("file") MultipartFile file, HttpServletRequest httpRequest) {
+        checkPermissionService.checkProjectOwner(request.getProjectId());
+        return testCaseService.testCaseImport(file, request, httpRequest);
     }
 
     @GetMapping("/export/template/{projectId}/{importType}")
