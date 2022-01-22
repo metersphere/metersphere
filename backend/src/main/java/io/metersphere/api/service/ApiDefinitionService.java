@@ -132,8 +132,10 @@ public class ApiDefinitionService {
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
-        buildProjectInfo(resList, request.getProjectId());
-        calculateResult(resList, request.getProjectId());
+        if(StringUtils.isNotBlank(request.getProjectId())){
+            buildProjectInfo(resList, request.getProjectId());
+            calculateResult(resList, request.getProjectId());
+        }
         return resList;
     }
 

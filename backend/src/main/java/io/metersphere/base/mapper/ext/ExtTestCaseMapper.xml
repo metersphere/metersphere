@@ -414,7 +414,7 @@
     <select id="moduleCount" resultType="java.lang.Integer">
         select count(test_case.id) from test_case
         left join project on test_case.project_id = project.id
-        <include refid="queryWhereCondition"/>
+        <include refid="queryWhereConditionWidthProject"/>
     </select>
 
     <select id="moduleCountByCollection" resultType="java.util.Map">
@@ -433,7 +433,7 @@
             <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
         </if>
         from test_case left join project on test_case.project_id = project.id
-        <include refid="queryWhereCondition"/>
+        <include refid="queryWhereConditionWidthProject"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="listByMethod" resultType="io.metersphere.track.dto.TestCaseDTO">
@@ -570,6 +570,94 @@
     </sql>
 
     <sql id="queryWhereCondition">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+
+            <if test="request.statusIsNot != null">
+                and (test_case.status is null or test_case.status != #{request.statusIsNot})
+            </if>
+
+            <if test="request.notEqStatus != null">
+                and (test_case.status is null or test_case.status != #{request.notEqStatus})
+            </if>
+            <if test="request.name != null">
+                and (test_case.name like CONCAT('%', #{request.name},'%')
+                or test_case.num like CONCAT('%', #{request.name},'%')
+                or test_case.tags like CONCAT('%', #{request.name},'%')
+                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
+            </if>
+            <if test="request.ids != null">
+                and test_case.id in
+                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="request.relevanceCreateTime >0">
+                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
+                #{request.createTime})
+            </if>
+            <if test="request.createTime >0">
+                and test_case.create_time >= #{request.createTime}
+            </if>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                and test_case.node_id in
+                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.projectId != null">
+                and test_case.project_id = #{request.projectId}
+            </if>
+            <include refid="filters"/>
+            <if test="request.caseCoverage == 'uncoverage' ">
+                and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
+            </if>
+            <if test="request.caseCoverage == 'coverage' ">
+                and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
+            </if>
+            <if test="request.versionId != null">
+                and test_case.version_id = #{request.versionId}
+            </if>
+            <if test="request.refId != null">
+                and test_case.ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND (
+                version_id = (SELECT project_version.id
+                FROM test_case tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND tmp.version_id = project_version.id AND latest = TRUE
+                WHERE ref_id = test_case.ref_id
+                LIMIT 1)
+                OR
+                version_id = (SELECT project_version.id
+                FROM test_case tmp
+                JOIN project_version
+                ON tmp.project_id = project_version.project_id AND
+                tmp.version_id = project_version.id AND NOT EXISTS(SELECT ref_id
+                FROM test_case tmp2
+                JOIN project_version
+                ON tmp2.project_id =
+                project_version.project_id AND
+                version_id =
+                project_version.id AND
+                latest = TRUE
+                WHERE tmp.ref_id = tmp2.ref_id)
+                WHERE tmp.ref_id = test_case.ref_id
+                ORDER BY tmp.update_time DESC
+                LIMIT 1)
+                )
+            </if>
+        </where>
+    </sql>
+
+    <sql id="queryWhereConditionWidthProject">
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
