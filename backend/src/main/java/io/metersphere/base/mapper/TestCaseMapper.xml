@@ -32,6 +32,7 @@
     <result column="case_public" jdbcType="BIT" property="casePublic" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="latest" jdbcType="TINYINT" property="latest" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseWithBLOBs">
     <result column="prerequisite" jdbcType="LONGVARCHAR" property="prerequisite" />
@@ -103,7 +104,7 @@
     id, node_id, test_id, node_path, project_id, `name`, `type`, maintainer, priority, 
     `method`, create_time, update_time, sort, num, other_test_name, review_status, tags, 
     demand_id, demand_name, `status`, step_model, custom_num, create_user, original_status, 
-    delete_time, delete_user_id, `order`, case_public, version_id, ref_id
+    delete_time, delete_user_id, `order`, case_public, version_id, ref_id, latest
   </sql>
   <sql id="Blob_Column_List">
     prerequisite, remark, steps, step_description, expected_result, custom_fields
@@ -167,8 +168,8 @@
       custom_num, create_user, original_status, 
       delete_time, delete_user_id, `order`, 
       case_public, version_id, ref_id, 
-      prerequisite, remark, steps, 
-      step_description, expected_result, 
+      latest, prerequisite, remark, 
+      steps, step_description, expected_result, 
       custom_fields)
     values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, 
       #{nodePath,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
@@ -180,8 +181,8 @@
       #{customNum,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{originalStatus,jdbcType=VARCHAR}, 
       #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, 
       #{casePublic,jdbcType=BIT}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
-      #{prerequisite,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR}, 
-      #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
+      #{latest,jdbcType=TINYINT}, #{prerequisite,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR}, 
+      #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
       #{customFields,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
@@ -276,6 +277,9 @@
       </if>
       <if test="refId != null">
         ref_id,
+      </if>
+      <if test="latest != null">
+        latest,
       </if>
       <if test="prerequisite != null">
         prerequisite,
@@ -386,6 +390,9 @@
       </if>
       <if test="refId != null">
         #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="latest != null">
+        #{latest,jdbcType=TINYINT},
       </if>
       <if test="prerequisite != null">
         #{prerequisite,jdbcType=LONGVARCHAR},
@@ -506,6 +513,9 @@
       <if test="record.refId != null">
         ref_id = #{record.refId,jdbcType=VARCHAR},
       </if>
+      <if test="record.latest != null">
+        latest = #{record.latest,jdbcType=TINYINT},
+      </if>
       <if test="record.prerequisite != null">
         prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
       </if>
@@ -561,6 +571,7 @@
       case_public = #{record.casePublic,jdbcType=BIT},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       ref_id = #{record.refId,jdbcType=VARCHAR},
+      latest = #{record.latest,jdbcType=TINYINT},
       prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
       remark = #{record.remark,jdbcType=LONGVARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR},
@@ -602,7 +613,8 @@
       `order` = #{record.order,jdbcType=BIGINT},
       case_public = #{record.casePublic,jdbcType=BIT},
       version_id = #{record.versionId,jdbcType=VARCHAR},
-      ref_id = #{record.refId,jdbcType=VARCHAR}
+      ref_id = #{record.refId,jdbcType=VARCHAR},
+      latest = #{record.latest,jdbcType=TINYINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -697,6 +709,9 @@
       <if test="refId != null">
         ref_id = #{refId,jdbcType=VARCHAR},
       </if>
+      <if test="latest != null">
+        latest = #{latest,jdbcType=TINYINT},
+      </if>
       <if test="prerequisite != null">
         prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
       </if>
@@ -749,6 +764,7 @@
       case_public = #{casePublic,jdbcType=BIT},
       version_id = #{versionId,jdbcType=VARCHAR},
       ref_id = #{refId,jdbcType=VARCHAR},
+      latest = #{latest,jdbcType=TINYINT},
       prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
       remark = #{remark,jdbcType=LONGVARCHAR},
       steps = #{steps,jdbcType=LONGVARCHAR},
@@ -787,7 +803,8 @@
       `order` = #{order,jdbcType=BIGINT},
       case_public = #{casePublic,jdbcType=BIT},
       version_id = #{versionId,jdbcType=VARCHAR},
-      ref_id = #{refId,jdbcType=VARCHAR}
+      ref_id = #{refId,jdbcType=VARCHAR},
+      latest = #{latest,jdbcType=TINYINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

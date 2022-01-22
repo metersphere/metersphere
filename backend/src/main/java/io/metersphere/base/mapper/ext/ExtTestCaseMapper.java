@@ -83,7 +83,7 @@ public interface ExtTestCaseMapper {
 
     List<TrackCountResult> countRelevance(@Param("projectId") String projectId);
 
-    long countRelevanceCreatedThisWeek(@Param("projectId") String projectId,@Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+    long countRelevanceCreatedThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
     int countCoverage(@Param("projectId") String projectId);
 
@@ -92,13 +92,15 @@ public interface ExtTestCaseMapper {
     List<TrackCountResult> countRelevanceMaintainer(@Param("projectId") String projectId);
 
     int getTestPlanBug(@Param("planId") String planId);
+
     int getTestPlanCase(@Param("planId") String planId);
+
     int getTestPlanPassCase(@Param("planId") String planId);
 
 
     List<TestCaseDTO> listForMinder(@Param("request") QueryTestCaseRequest request);
 
-    List<TestCaseDTO> getTestCaseByIds(@Param("ids")List<String> ids);
+    List<TestCaseDTO> getTestCaseByIds(@Param("ids") List<String> ids);
 
     void updateTestCaseCustomNumByProjectId(@Param("projectId") String projectId);
 
@@ -124,7 +126,7 @@ public interface ExtTestCaseMapper {
 
     List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);
 
-    Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+    Long getLastOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
     Long getPreOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
@@ -139,4 +141,10 @@ public interface ExtTestCaseMapper {
     int countByWorkSpaceId(String workSpaceId);
 
     long trashCount(@Param("projectId") String projectId);
+
+    int addLatestVersion(@Param("refId") String refId);
+
+    int clearLatestVersion(@Param("refId") String refId);
+
+    int setLatestVersion(@Param("refId") String refId, @Param("versionId") String versionId);
 }
