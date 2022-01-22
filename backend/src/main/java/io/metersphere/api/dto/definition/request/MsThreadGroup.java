@@ -63,7 +63,9 @@ public class MsThreadGroup extends MsTestElement {
             boolean isConnScenarioPost = false;
             //获取projectConfig
             String projectId = this.checkProjectId(hashTree);
-            this.checkEnvironmentConfig(projectId,config,hashTree);
+            if(StringUtils.isNotEmpty(projectId)){
+                this.checkEnvironmentConfig(projectId,config,hashTree);
+            }
             if (config.getConfig() != null) {
                 if (config.isEffective(projectId)) {
                     EnvironmentConfig environmentConfig = config.getConfig().get(projectId);
