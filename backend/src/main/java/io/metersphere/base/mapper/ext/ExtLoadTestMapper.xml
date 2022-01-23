@@ -287,4 +287,48 @@
             AND ${versionTable}.latest = 1
         </if>
     </sql>
+
+    <update id="addLatestVersion">
+        UPDATE load_test
+                INNER JOIN ((
+                                    SELECT tmp.id
+                                    FROM load_test tmp
+                                                 JOIN project_version
+                                            ON tmp.project_id = project_version.project_id AND
+                                               tmp.version_id = project_version.id AND project_version.latest = TRUE
+                                    WHERE ref_id = #{refId,jdbcType=VARCHAR}
+                                    LIMIT 1
+                                    )
+                            UNION
+                            (
+                                    SELECT tmp.id
+                                    FROM load_test tmp
+                                                 JOIN project_version
+                                            ON tmp.project_id = project_version.project_id AND
+                                               tmp.version_id = project_version.id
+                                                    AND NOT EXISTS(SELECT ref_id
+                                                                   FROM load_test tmp2
+                                                                                JOIN project_version
+                                                                           ON tmp2.project_id =
+                                                                              project_version.project_id AND
+                                                                              version_id =
+                                                                              project_version.id AND
+                                                                              project_version.latest = TRUE
+                                                                   WHERE tmp.ref_id = tmp2.ref_id)
+                                    WHERE tmp.ref_id = #{refId,jdbcType=VARCHAR}
+                                    ORDER BY tmp.update_time DESC
+                                    LIMIT 1)) AS t ON load_test.id = t.id
+        SET load_test.latest = TRUE
+    </update>
+
+    <update id="clearLatestVersion">
+        UPDATE load_test
+        SET latest = 0
+        <where>
+            <if test="refId != null">
+                and ref_id = #{refId}
+            </if>
+        </where>
+    </update>
+
 </mapper>
