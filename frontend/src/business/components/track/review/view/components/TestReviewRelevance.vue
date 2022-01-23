@@ -49,7 +49,7 @@
               </el-table-column>
 
               <el-table-column
-                v-if="hasLicense()"
+                v-if="versionEnable"
                 prop="versionName"
                 :label="$t('test_track.case.version')"
                 column-key="versionId"
@@ -193,6 +193,10 @@ export default {
   props: {
     reviewId: {
       type: String
+    },
+    versionEnable: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -218,9 +222,6 @@ export default {
     this.toggleSelection(this.testReviews);
   },
   methods: {
-    hasLicense() {
-      return hasLicense();
-    },
     openTestReviewRelevanceDialog() {
       this.getProject();
       this.dialogFormVisible = true;
