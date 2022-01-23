@@ -79,6 +79,7 @@
       @refresh="refresh"
       :plan-id="planId"
       :model="model"
+      :version-enable="versionEnable"
       ref="scenarioCaseRelevance"/>
 
   </ms-test-plan-common-component>
