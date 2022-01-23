@@ -72,7 +72,7 @@ public interface ExtApiDefinitionMapper {
 
     Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
-    Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+    Long getLastOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
     long countQuotedApiByProjectId(String projectId);
 
@@ -81,4 +81,8 @@ public interface ExtApiDefinitionMapper {
     int countByIds(@Param("ids") List<String> ids);
 
     long countByExample(ApiDefinitionExample example);
+
+    void clearLatestVersion(String refId);
+
+    void addLatestVersion(String refId);
 }
