@@ -57,6 +57,7 @@
         v-if="model === 'scenario'"
         :select-node-ids="selectNodeIds"
         :trash-enable="trashEnable"
+        :version-enable="versionEnable"
         :review-id="reviewId"
         :clickType="clickType"
         @refresh="refreshTree"
@@ -66,12 +67,14 @@
     <test-review-relevance-api
       @refresh="refresh"
       :review-id="reviewId"
+      :version-enable="versionEnable"
       :model="model"
       ref="apiCaseRelevance"
     />
     <test-review-relevance-scenario
       @refresh="refresh"
       :review-id="reviewId"
+      :version-enable="versionEnable"
       :model="model"
       ref="scenarioCaseRelevance"
     />
