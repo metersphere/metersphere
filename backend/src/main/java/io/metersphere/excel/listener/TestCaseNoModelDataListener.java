@@ -17,13 +17,13 @@ import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.excel.utils.FunctionCaseImportEnum;
 import io.metersphere.i18n.Translator;
+import io.metersphere.track.request.testcase.TestCaseImportRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,8 +36,6 @@ import java.util.stream.Stream;
 public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integer, String>> {
 
     private Class excelDataClass;
-
-    boolean isIgnoreError = false;
 
     protected List<ExcelErrData<TestCaseExcelData>> errList = new ArrayList<>();
 
@@ -53,46 +51,33 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     private TestCaseService testCaseService;
 
-    private String projectId;
-
     protected List<TestCaseExcelData> updateList = new ArrayList<>();  //存储待更新用例的集合
 
     protected List<TestCaseExcelData> list = new ArrayList<>();
 
     protected boolean isUpdated = false;  //判断是否更新过用例，将会传给前端
 
-    public boolean isUseCustomId;
-
-    public String importType;
-
-    Set<String> testCaseNames;
-
     Set<String> customIds;
-
-    Set<String> savedCustomIds;
-
-    Set<String> userIds;
 
     private List<String> names = new LinkedList<>();
     private List<String> ids = new LinkedList<>();
 
     Map<String,CustomFieldDao> customFieldsMap = new HashMap<>();
+
+    private TestCaseImportRequest request;
+
     public boolean isUpdated() {
         return isUpdated;
     }
 
-    public TestCaseNoModelDataListener(boolean isIgnoreError,Class c,List<CustomFieldDao> customFields, String projectId, Set<String> testCaseNames, Set<String> savedCustomIds, Set<String> userIds, boolean isUseCustomId, String importType) {
+    public TestCaseNoModelDataListener(TestCaseImportRequest request, Class c) {
         this.excelDataClass = c;
-        this.isIgnoreError = isIgnoreError;
         this.testCaseService = (TestCaseService) CommonBeanFactory.getBean("testCaseService");
-        this.projectId = projectId;
-        this.testCaseNames = testCaseNames;
-        this.userIds = userIds;
-        this.isUseCustomId = isUseCustomId;
-        this.importType = importType;
         customIds = new HashSet<>();
-        this.savedCustomIds = savedCustomIds;
 
+        this.request = request;
+
+        List<CustomFieldDao> customFields = request.getCustomFields();
         if(CollectionUtils.isNotEmpty(customFields)){
             for (CustomFieldDao dto:customFields) {
                 String name = dto.getName();
@@ -166,8 +151,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     }
 
     public String validate(TestCaseExcelData data, String errMsg) {
+        Set<String> savedCustomIds = request.getSavedCustomIds();
+        String importType = request.getImportType();
         StringBuilder stringBuilder = new StringBuilder(errMsg);
-        if (isUseCustomId || StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
+        if (request.isUseCustomId() || StringUtils.equals(importType, FunctionCaseImportEnum.Update.name())) {
             if (data.getCustomNum() == null) {
                 stringBuilder.append(Translator.get("id_required") + ";");
             } else {
@@ -231,7 +218,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                     if (StringUtils.isBlank(data.getMaintainer())) {
                         data.setMaintainer(SessionUtils.getUserId());
                     } else {
-                        if (!userIds.contains(data.getMaintainer())) {
+                        if (!request.getUserIds().contains(data.getMaintainer())) {
                             stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
                         }
                     }
@@ -252,10 +239,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
          */
         if (null != data.getCustomNum()) {  //当前读取的数据有ID
 
-            if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
+            if (StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Update.name())) {
                 String checkResult = null;
-                if (isUseCustomId) {
-                    checkResult = testCaseService.checkCustomIdExist(data.getCustomNum().toString(), projectId);
+                if (request.isUseCustomId()) {
+                    checkResult = testCaseService.checkCustomIdExist(data.getCustomNum(), request.getProjectId());
                 } else {
                     int customNumId = -1;
                     try {
@@ -265,7 +252,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                     if (customNumId < 0) {
                         stringBuilder.append(Translator.get("id_not_rightful") + "[" + data.getCustomNum() + "]; ");
                     } else {
-                        checkResult = testCaseService.checkIdExist(customNumId, projectId);
+                        checkResult = testCaseService.checkIdExist(customNumId, request.getProjectId());
                     }
                 }
                 if (null != checkResult) {  //该ID在当前项目中存在
@@ -290,10 +277,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         /*
         校验用例
          */
-        if (testCaseNames.contains(data.getName())) {
+        if (request.getTestCaseNames().contains(data.getName())) {
             TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
             BeanUtils.copyBean(testCase, data);
-            testCase.setProjectId(projectId);
+            testCase.setProjectId(request.getProjectId());
             String steps = getSteps(data);
             testCase.setSteps(steps);
             testCase.setType("functional");
@@ -319,7 +306,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             }
 
         } else {
-            testCaseNames.add(data.getName());
+            request.getTestCaseNames().add(data.getName());
             excelDataList.add(data);
         }
         return stringBuilder.toString();
@@ -344,7 +331,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     public void saveData() {
 
         //excel中用例都有错误时就返回，只要有用例可用于更新或者插入就不返回
-        if (!errList.isEmpty() && !isIgnoreError) {
+        if (!errList.isEmpty() && !request.isIgnore()) {
             return;
         }
 
@@ -353,7 +340,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             List<TestCaseWithBLOBs> result = list.stream()
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
-            testCaseService.saveImportData(result, projectId);
+            testCaseService.saveImportData(result, request);
             this.names = result.stream().map(TestCase::getName).collect(Collectors.toList());
             this.ids = result.stream().map(TestCase::getId).collect(Collectors.toList());
             this.isUpdated = true;
@@ -363,11 +350,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             List<TestCaseWithBLOBs> result2 = updateList.stream()
                     .map(item -> this.convert2TestCaseForUpdate(item))
                     .collect(Collectors.toList());
-            if (this.isUseCustomId) {
-                testCaseService.updateImportDataCustomId(result2, projectId);
-            } else {
-                testCaseService.updateImportDataCarryId(result2, projectId);
-            }
+            testCaseService.updateImportData(result2, request);
             this.isUpdated = true;
             this.names = result2.stream().map(TestCase::getName).collect(Collectors.toList());
             this.ids = result2.stream().map(TestCase::getId).collect(Collectors.toList());
@@ -381,11 +364,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
         BeanUtils.copyBean(testCase, data);
         testCase.setId(UUID.randomUUID().toString());
-        testCase.setProjectId(this.projectId);
+        testCase.setProjectId(request.getProjectId());
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
-        if (this.isUseCustomId) {
-            testCase.setCustomNum(data.getCustomNum().toString());
+        if (request.isUseCustomId()) {
+            testCase.setCustomNum(data.getCustomNum());
         }
 
         String nodePath = data.getNodePath();
@@ -440,7 +423,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private TestCaseWithBLOBs convert2TestCaseForUpdate(TestCaseExcelData data) {
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
         BeanUtils.copyBean(testCase, data);
-        testCase.setProjectId(this.projectId);
+        testCase.setProjectId(request.getProjectId());
         testCase.setUpdateTime(System.currentTimeMillis());
 
         //调整nodePath格式
@@ -477,7 +460,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         String modifiedTags = modifyTagPattern(data);
         testCase.setTags(modifiedTags);
 
-        if (!isUseCustomId) {
+        if (!request.isUseCustomId()) {
             testCase.setNum(Integer.parseInt(data.getCustomNum()));
             testCase.setCustomNum(null);
         }
