@@ -772,11 +772,8 @@
         <if test="request.versionId != null">
             and ${versionTable}.version_id = #{request.versionId}
         </if>
-        <if test="request.refId != null">
-            and ${versionTable}.ref_id = #{request.refId}
-        </if>
-        <if test="request.versionId == null and request.refId == null and request.id == null">
-            AND ${versionTable}.latest = 1
+        <if test="request.versionId == null and request.id == null">
+            AND a.latest = 1
         </if>
     </sql>
 </mapper>
