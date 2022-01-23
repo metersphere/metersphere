@@ -2144,52 +2144,52 @@ public class TestCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andLatestEqualTo(Byte value) {
+        public Criteria andLatestEqualTo(Boolean value) {
             addCriterion("latest =", value, "latest");
             return (Criteria) this;
         }
 
-        public Criteria andLatestNotEqualTo(Byte value) {
+        public Criteria andLatestNotEqualTo(Boolean value) {
             addCriterion("latest <>", value, "latest");
             return (Criteria) this;
         }
 
-        public Criteria andLatestGreaterThan(Byte value) {
+        public Criteria andLatestGreaterThan(Boolean value) {
             addCriterion("latest >", value, "latest");
             return (Criteria) this;
         }
 
-        public Criteria andLatestGreaterThanOrEqualTo(Byte value) {
+        public Criteria andLatestGreaterThanOrEqualTo(Boolean value) {
             addCriterion("latest >=", value, "latest");
             return (Criteria) this;
         }
 
-        public Criteria andLatestLessThan(Byte value) {
+        public Criteria andLatestLessThan(Boolean value) {
             addCriterion("latest <", value, "latest");
             return (Criteria) this;
         }
 
-        public Criteria andLatestLessThanOrEqualTo(Byte value) {
+        public Criteria andLatestLessThanOrEqualTo(Boolean value) {
             addCriterion("latest <=", value, "latest");
             return (Criteria) this;
         }
 
-        public Criteria andLatestIn(List<Byte> values) {
+        public Criteria andLatestIn(List<Boolean> values) {
             addCriterion("latest in", values, "latest");
             return (Criteria) this;
         }
 
-        public Criteria andLatestNotIn(List<Byte> values) {
+        public Criteria andLatestNotIn(List<Boolean> values) {
             addCriterion("latest not in", values, "latest");
             return (Criteria) this;
         }
 
-        public Criteria andLatestBetween(Byte value1, Byte value2) {
+        public Criteria andLatestBetween(Boolean value1, Boolean value2) {
             addCriterion("latest between", value1, value2, "latest");
             return (Criteria) this;
         }
 
-        public Criteria andLatestNotBetween(Byte value1, Byte value2) {
+        public Criteria andLatestNotBetween(Boolean value1, Boolean value2) {
             addCriterion("latest not between", value1, value2, "latest");
             return (Criteria) this;
         }
