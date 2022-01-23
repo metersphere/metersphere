@@ -17,6 +17,7 @@
       :select-node-ids="selectNodeIds"
       :trash-enable="trashEnable"
       :review-id="reviewId"
+      :version-enable="versionEnable"
       :project-id="projectId"
       ref="apiScenarioList"/>
   </test-case-relevance-base>
@@ -48,6 +49,10 @@ export default {
     reviewId: {
       type: String
     },
+    versionEnable: {
+      type: Boolean,
+      default: false
+    }
   },
   watch: {
     reviewId() {
