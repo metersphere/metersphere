@@ -132,7 +132,7 @@ public class ApiDefinitionService {
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
-        if(StringUtils.isNotBlank(request.getProjectId())){
+        if (StringUtils.isNotBlank(request.getProjectId())) {
             buildProjectInfo(resList, request.getProjectId());
             calculateResult(resList, request.getProjectId());
         }
@@ -140,7 +140,9 @@ public class ApiDefinitionService {
     }
 
     public void buildUserInfo(List<ApiDefinitionResult> apis) {
-        if (CollectionUtils.isEmpty(apis)) { return; }
+        if (CollectionUtils.isEmpty(apis)) {
+            return;
+        }
         Set<String> userIds = new HashSet<>();
         apis.forEach(i -> {
             userIds.add(i.getUserId());
@@ -1159,6 +1161,8 @@ public class ApiDefinitionService {
         List<ApiDefinitionWithBLOBs> data = apiImport.getData();
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
+
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         int num = 0;
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
@@ -1166,6 +1170,7 @@ public class ApiDefinitionService {
         }
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
+            ApiDefinition result;
             this.setModule(item);
             if (item.getName().length() > 255) {
                 item.setName(item.getName().substring(0, 255));
@@ -1176,15 +1181,18 @@ public class ApiDefinitionService {
                 String apiId = item.getId();
                 EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
                 request.setModeId("fullCoverage");//标准版ESB数据导入不区分是否覆盖，默认都为覆盖
-                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
+                result = importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
                 if (model != null) {
                     apiImport.getEsbApiParamsMap().remove(apiId);
                     model.setResourceId(item.getId());
                     apiImport.getEsbApiParamsMap().put(item.getId(), model);
                 }
             } else {
-                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
+                result = importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
             }
+            // 导入之后刷新latest
+            extApiDefinitionMapper.clearLatestVersion(result.getRefId());
+            extApiDefinitionMapper.addLatestVersion(result.getRefId());
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }
