@@ -10,6 +10,17 @@
 
         <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
                          show-overflow-tooltip/>
+        <el-table-column
+          v-if="versionEnable"
+          prop="versionId"
+          :filters="versionFilters"
+          :label="$t('commons.version')"
+          min-width="120px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.versionName }}</span>
+          </template>
+        </el-table-column>
+
         <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
                          show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -56,6 +67,7 @@ import MsTag from "@/business/components/common/components/MsTag";
 import EnvPopover from "@/business/components/track/common/EnvPopover";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
+import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "ReviewRelevanceScenarioList",
@@ -68,6 +80,7 @@ export default {
     selectNodeIds: Array,
     projectId: String,
     reviewId: String,
+    versionEnable: Boolean,
   },
   data() {
     return {
@@ -86,6 +99,7 @@ export default {
       projectEnvMap: new Map(),
       projectList: [],
       projectIds: new Set(),
+      versionFilters: []
     }
   },
   watch: {
@@ -98,6 +112,7 @@ export default {
   },
   created() {
     this.getWsProjects();
+    this.getVersionOptions();
   },
   methods: {
     search() {
@@ -159,7 +174,16 @@ export default {
     },
     checkEnv() {
       return this.$refs.envPopover.checkEnv();
-    }
+    },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
+    },
   }
 }
 </script>
