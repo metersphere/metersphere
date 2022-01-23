@@ -24,20 +24,48 @@
   </select>
 
   <select id="list" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
-    select
-      t.id, t.environment, t.create_time, t.update_time, t.last_result, t.pass_rate, t.report_id, c.scenario_definition,
-      c.id as case_id, c.user_id,c.api_scenario_module_id, c.module_path, c.name, c.level,
-      c.status, c.principal, c.step_total, c.schedule, c.description, c.tags, t.create_user, c.project_id,
-      c.num, c.custom_num, t.environment_group_id, t.environment_type
-    from
-      test_plan_api_scenario t
-    inner join
-      api_scenario c
-      on t.api_scenario_id = c.id and c.status != 'Trash'
-      <if test="request.planId != null and request.planId!=''">
-          and t.test_plan_id = #{request.planId}
-      </if>
-    where 1
+    SELECT
+    t.id,
+    t.environment,
+    t.create_time,
+    t.update_time,
+    t.last_result,
+    t.pass_rate,
+    t.report_id,
+    c.scenario_definition,
+    c.id AS case_id,
+    c.user_id,
+    c.api_scenario_module_id,
+    c.module_path,
+    c. NAME,
+    c. LEVEL,
+    c. STATUS,
+    c.principal,
+    c.step_total,
+    c. SCHEDULE,
+    c.description,
+    c.tags,
+    t.create_user,
+    c.project_id,
+    c.num,
+    c.custom_num,
+    t.environment_group_id,
+    t.environment_type,
+    project_version. NAME versionName,
+    project_version.id versionId
+    FROM
+    test_plan_api_scenario t
+    INNER JOIN api_scenario c ON t.api_scenario_id = c.id
+    INNER JOIN project_version ON c.project_id = project_version.project_id
+    AND c.version_id = project_version.id
+    AND c. STATUS != 'Trash'
+    <if test="request.planId != null and request.planId!=''">
+      and t.test_plan_id = #{request.planId}
+    </if>
+    WHERE 1
+    <include refid="queryVersionCondition">
+      <property name="versionTable" value="c"/>
+    </include>
 
     <if test="request.scenarioIds != null and request.scenarioIds.size() > 0">
       and c.id in
@@ -72,7 +100,7 @@
       </foreach>
     </if>
 
-    <include refid="filers"/>
+    <include refid="filters"/>
     <if test="request.orders != null and request.orders.size() > 0">
       order by
       <foreach collection="request.orders" separator="," item="order">
@@ -132,7 +160,7 @@
         #{nodeId}
       </foreach>
     </if>
-    <include refid="filers"/>
+    <include refid="filters"/>
     <if test="request.orders != null and request.orders.size() > 0">
       order by
       <foreach collection="request.orders" separator="," item="order">
@@ -148,7 +176,7 @@
     </if>
   </select>
 
-  <sql id="filers">
+  <sql id="filters">
     <if test="request.filters != null and request.filters.size() > 0">
       <foreach collection="request.filters.entrySet()" index="key" item="values">
         <if test="values != null and values.size() > 0">
@@ -161,6 +189,12 @@
             </when>
             <when test="key == 'last_result'">
               and t.last_result in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+            <when test="key == 'version_id'">
+              and c.version_id in
               <foreach collection="values" item="value" separator="," open="(" close=")">
                 #{value}
               </foreach>
@@ -275,4 +309,16 @@
     </if>
     order by `order` desc limit 1;
   </select>
+
+  <sql id="queryVersionCondition">
+    <if test="request.versionId != null">
+      and ${versionTable}.version_id = #{request.versionId}
+    </if>
+    <if test="request.refId != null">
+      and ${versionTable}.ref_id = #{request.refId}
+    </if>
+    <if test="request.versionId == null and request.refId == null and request.id == null">
+      AND ${versionTable}.latest = 1
+    </if>
+  </sql>
 </mapper>
