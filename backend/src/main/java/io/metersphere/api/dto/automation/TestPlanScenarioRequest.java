@@ -27,6 +27,8 @@ public class TestPlanScenarioRequest {
     private Map<String, Object> combine;
     private List<String> ids;
     private String reviewId;
+    private String versionId;
+    private String refId;
 
     /**
      * 是否选中所有数据
