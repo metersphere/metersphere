@@ -87,6 +87,7 @@ public class TestPlanLoadCaseService {
         }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         QueryTestPlanRequest newRequest = new QueryTestPlanRequest();
+        BeanUtils.copyBean(newRequest, request);
         Map filters = new HashMap();
         filters.put("id", ids);
         newRequest.setFilters(filters);
