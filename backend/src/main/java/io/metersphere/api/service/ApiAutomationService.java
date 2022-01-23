@@ -1321,6 +1321,7 @@ public class ApiAutomationService {
     private void editScenario(ApiTestImportRequest request, ScenarioImport apiImport) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioMapper batchMapper = sqlSession.getMapper(ApiScenarioMapper.class);
+        ExtApiScenarioMapper extApiScenarioMapper = sqlSession.getMapper(ExtApiScenarioMapper.class);
         List<ApiScenarioWithBLOBs> data = apiImport.getData();
         currentScenarioOrder.remove();
         int num = 0;
@@ -1348,7 +1349,10 @@ public class ApiAutomationService {
             if (StringUtils.isBlank(item.getId())) {
                 item.setId(UUID.randomUUID().toString());
             }
-            importCreate(item, batchMapper, request);
+            // 导入之后刷新latest
+            ApiScenarioWithBLOBs result = importCreate(item, batchMapper, request);
+            extApiScenarioMapper.clearLatestVersion(result.getRefId());
+            extApiScenarioMapper.addLatestVersion(result.getRefId());
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }
