@@ -282,6 +282,7 @@ public class PerformanceTestService {
         loadTest.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extLoadTestMapper::getLastOrder));
         loadTest.setVersionId(request.getVersionId());
         loadTest.setRefId(request.getId());
+        loadTest.setLatest(true); // 创建新版本的时候一定是最新的
         List<ApiLoadTest> apiList = request.getApiList();
         apiPerformanceService.add(apiList, loadTest.getId());
         loadTestMapper.insert(loadTest);
@@ -348,7 +349,16 @@ public class PerformanceTestService {
             copyLoadTestFiles(testId, loadTest.getId());
             loadTestMapper.insertSelective(loadTest);
         }
+        checkAndSetLatestVersion(loadTest.getRefId());
         return loadTest;
+    }
+
+    /**
+     * 检查设置最新版本
+     */
+    private void checkAndSetLatestVersion(String refId) {
+        extLoadTestMapper.clearLatestVersion(refId);
+        extLoadTestMapper.addLatestVersion(refId);
     }
 
     public void saveFollows(String testId, List<String> follows) {
@@ -577,6 +587,7 @@ public class PerformanceTestService {
         copy.setCreateUser(Objects.requireNonNull(SessionUtils.getUser()).getId());
         copy.setNum(getNextNum(copy.getProjectId()));
         copy.setRefId(copy.getId());
+        copy.setLatest(true);
         loadTestMapper.insert(copy);
         // copy test file
         copyLoadTestFiles(request.getId(), copy.getId());
@@ -1003,16 +1014,16 @@ public class PerformanceTestService {
 
     public List<LoadTestDTO> getLoadTestVersions(String loadTestId) {
         LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(loadTestId);
-        if(loadTestWithBLOBs==null){
+        if (loadTestWithBLOBs == null) {
             return new ArrayList<>();
         }
-        QueryTestPlanRequest request = new QueryTestPlanRequest() ;
+        QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setRefId(loadTestWithBLOBs.getRefId());
         return this.list(request);
     }
 
-    public LoadTestDTO getLoadTestByVersion(String versionId,String refId) {
-        QueryTestPlanRequest request = new QueryTestPlanRequest() ;
+    public LoadTestDTO getLoadTestByVersion(String versionId, String refId) {
+        QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setRefId(refId);
         request.setVersionId(versionId);
         List<LoadTestDTO> list = this.list(request);
@@ -1022,9 +1033,14 @@ public class PerformanceTestService {
         return list.get(0);
     }
 
-    public void deleteLoadTestByVersion(String version,String refId) {
+    public void deleteLoadTestByVersion(String version, String refId) {
         LoadTestExample loadTestExample = new LoadTestExample();
         loadTestExample.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
+        List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
+        if (CollectionUtils.isEmpty(loadTests)) {
+            return;
+        }
         loadTestMapper.deleteByExample(loadTestExample);
+        checkAndSetLatestVersion(refId);
     }
 }
