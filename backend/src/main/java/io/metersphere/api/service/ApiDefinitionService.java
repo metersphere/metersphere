@@ -617,7 +617,17 @@ public class ApiDefinitionService {
             ids.add(request.getId());
             apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol());
         }
+        //
+        checkAndSetLatestVersion(test.getRefId());
         return test;
+    }
+
+    /**
+     * 检查设置最新版本
+     */
+    private void checkAndSetLatestVersion(String refId) {
+        extApiDefinitionMapper.clearLatestVersion(refId);
+        extApiDefinitionMapper.addLatestVersion(refId);
     }
 
     public void saveFollows(String definitionId, List<String> follows) {
@@ -659,6 +669,7 @@ public class ApiDefinitionService {
         test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiDefinitionMapper::getLastOrder));
         test.setRefId(request.getId());
         test.setVersionId(request.getVersionId());
+        test.setLatest(true); // 新建一定是最新的
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
             example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
@@ -1893,6 +1904,8 @@ public class ApiDefinitionService {
         apiTestCaseMapper.deleteByExample(apiTestCaseExample);
         //
         apiDefinitionMapper.deleteByExample(example);
+
+        checkAndSetLatestVersion(refId);
     }
 
     public List<ApiDefinitionWithBLOBs> getByIds(List<String> ids) {
