@@ -1034,73 +1034,73 @@ public class LoadTestExample {
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdIsNull() {
-            addCriterion("version_id is null");
+        public Criteria andVersionIsNull() {
+            addCriterion("version is null");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdIsNotNull() {
-            addCriterion("version_id is not null");
+        public Criteria andVersionIsNotNull() {
+            addCriterion("version is not null");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdEqualTo(String value) {
-            addCriterion("version_id =", value, "versionId");
+        public Criteria andVersionEqualTo(String value) {
+            addCriterion("version =", value, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdNotEqualTo(String value) {
-            addCriterion("version_id <>", value, "versionId");
+        public Criteria andVersionNotEqualTo(String value) {
+            addCriterion("version <>", value, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdGreaterThan(String value) {
-            addCriterion("version_id >", value, "versionId");
+        public Criteria andVersionGreaterThan(String value) {
+            addCriterion("version >", value, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdGreaterThanOrEqualTo(String value) {
-            addCriterion("version_id >=", value, "versionId");
+        public Criteria andVersionGreaterThanOrEqualTo(String value) {
+            addCriterion("version >=", value, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdLessThan(String value) {
-            addCriterion("version_id <", value, "versionId");
+        public Criteria andVersionLessThan(String value) {
+            addCriterion("version <", value, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdLessThanOrEqualTo(String value) {
-            addCriterion("version_id <=", value, "versionId");
+        public Criteria andVersionLessThanOrEqualTo(String value) {
+            addCriterion("version <=", value, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdLike(String value) {
-            addCriterion("version_id like", value, "versionId");
+        public Criteria andVersionLike(String value) {
+            addCriterion("version like", value, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdNotLike(String value) {
-            addCriterion("version_id not like", value, "versionId");
+        public Criteria andVersionNotLike(String value) {
+            addCriterion("version not like", value, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdIn(List<String> values) {
-            addCriterion("version_id in", values, "versionId");
+        public Criteria andVersionIn(List<String> values) {
+            addCriterion("version in", values, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdNotIn(List<String> values) {
-            addCriterion("version_id not in", values, "versionId");
+        public Criteria andVersionNotIn(List<String> values) {
+            addCriterion("version not in", values, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdBetween(String value1, String value2) {
-            addCriterion("version_id between", value1, value2, "versionId");
+        public Criteria andVersionBetween(String value1, String value2) {
+            addCriterion("version between", value1, value2, "version");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdNotBetween(String value1, String value2) {
-            addCriterion("version_id not between", value1, value2, "versionId");
+        public Criteria andVersionNotBetween(String value1, String value2) {
+            addCriterion("version not between", value1, value2, "version");
             return (Criteria) this;
         }
 
@@ -1171,6 +1171,136 @@ public class LoadTestExample {
 
         public Criteria andRefIdNotBetween(String value1, String value2) {
             addCriterion("ref_id not between", value1, value2, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdIsNull() {
+            addCriterion("version_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdIsNotNull() {
+            addCriterion("version_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdEqualTo(String value) {
+            addCriterion("version_id =", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdNotEqualTo(String value) {
+            addCriterion("version_id <>", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdGreaterThan(String value) {
+            addCriterion("version_id >", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdGreaterThanOrEqualTo(String value) {
+            addCriterion("version_id >=", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdLessThan(String value) {
+            addCriterion("version_id <", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdLessThanOrEqualTo(String value) {
+            addCriterion("version_id <=", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdLike(String value) {
+            addCriterion("version_id like", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdNotLike(String value) {
+            addCriterion("version_id not like", value, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdIn(List<String> values) {
+            addCriterion("version_id in", values, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdNotIn(List<String> values) {
+            addCriterion("version_id not in", values, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdBetween(String value1, String value2) {
+            addCriterion("version_id between", value1, value2, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andVersionIdNotBetween(String value1, String value2) {
+            addCriterion("version_id not between", value1, value2, "versionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestIsNull() {
+            addCriterion("latest is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestIsNotNull() {
+            addCriterion("latest is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestEqualTo(Boolean value) {
+            addCriterion("latest =", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestNotEqualTo(Boolean value) {
+            addCriterion("latest <>", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestGreaterThan(Boolean value) {
+            addCriterion("latest >", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("latest >=", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestLessThan(Boolean value) {
+            addCriterion("latest <", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestLessThanOrEqualTo(Boolean value) {
+            addCriterion("latest <=", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestIn(List<Boolean> values) {
+            addCriterion("latest in", values, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestNotIn(List<Boolean> values) {
+            addCriterion("latest not in", values, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestBetween(Boolean value1, Boolean value2) {
+            addCriterion("latest between", value1, value2, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("latest not between", value1, value2, "latest");
             return (Criteria) this;
         }
     }
