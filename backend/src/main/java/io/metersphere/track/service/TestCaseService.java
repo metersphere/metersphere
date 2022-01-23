@@ -22,7 +22,6 @@ import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.constants.UserGroupType;
-import io.metersphere.commons.constants.VersionConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -205,7 +204,7 @@ public class TestCaseService {
             request.setRefId(request.getId());
         }
         //完全新增一条记录直接就是最新
-        request.setLatest(VersionConstants.LATEST);
+        request.setLatest(true);
         testCaseMapper.insert(request);
         saveFollows(request.getId(), request.getFollows());
         return request;
@@ -2457,7 +2456,7 @@ public class TestCaseService {
      */
     private void checkAndSetLatestVersion(String refId, String versionId, String projectId) {
         TestCaseExample e = new TestCaseExample();
-        e.createCriteria().andRefIdEqualTo(refId).andLatestEqualTo(VersionConstants.LATEST);
+        e.createCriteria().andRefIdEqualTo(refId).andLatestEqualTo(true);
         //如果因为删除导致没有了最新的版本，则按照版本创建顺序选择一个版本为最新版本
         if (testCaseMapper.countByExample(e) == 0) {
             extTestCaseMapper.addLatestVersion(refId);
