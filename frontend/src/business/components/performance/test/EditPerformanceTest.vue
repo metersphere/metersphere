@@ -15,11 +15,15 @@
           </el-col>
 
           <el-col :span="12">
-            <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
-              <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" />
+            <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+              <i class="el-icon-star-off"
+                 style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; "
+                 @click="saveFollow"/>
             </el-tooltip>
-            <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow">
-              <i class="el-icon-star-on" style="color: #783987; font-size: 28px;  margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" />
+            <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+              <i class="el-icon-star-on"
+                 style="color: #783987; font-size: 28px;  margin-right: 15px;cursor: pointer;position: relative; top: 5px; "
+                 @click="saveFollow"/>
             </el-tooltip>
 
             <el-link type="primary" size="small" style="margin-right: 5px" @click="openHis" v-if="test.id">
@@ -81,8 +85,9 @@
         :visible.sync="dialogVisible"
         :destroy-on-close="true"
         width="100%"
-        >
-        <diff-version v-if="dialogVisible" :old-data="oldData" :show-follow="showFollow" :new-data="newData" :new-show-follow="newShowFollow" ></diff-version>
+      >
+        <diff-version v-if="dialogVisible" :old-data="oldData" :show-follow="showFollow" :new-data="newData"
+                      :new-show-follow="newShowFollow"></diff-version>
       </el-dialog>
 
     </ms-main-container>
@@ -125,12 +130,12 @@ export default {
   ],
   data() {
     return {
-      dialogVisible:false,
+      dialogVisible: false,
       result: {},
       test: {schedule: {}, follows: []},
       oldData: {schedule: {}, follows: []},
-      newData:{schedule: {}, follows: []},
-      newShowFollow:false,
+      newData: {schedule: {}, follows: []},
+      newShowFollow: false,
       savePath: "/performance/save",
       editPath: "/performance/edit",
       runPath: "/performance/run",
@@ -138,7 +143,7 @@ export default {
       active: '0',
       testId: '',
       isReadOnly: false,
-      showFollow:false,
+      showFollow: false,
       tabs: [{
         title: this.$t('load_test.basic_config'),
         id: '0',
@@ -194,14 +199,14 @@ export default {
       });
     },
     openHis() {
-      this.$refs.changeHistory.open(this.test.id,["性能测试" , "性能測試" , "Performance test"]);
+      this.$refs.changeHistory.open(this.test.id, ["性能测试", "性能測試", "Performance test"]);
     },
     importAPITest() {
       let apiTest = this.$store.state.test;
-      console.log("输出vuex的test")
-      console.log(apiTest)
+      console.log("输出vuex的test");
+      console.log(apiTest);
       if (apiTest && apiTest.name) {
-        console.log("set test name")
+        console.log("set test name");
         this.$set(this.test, "name", apiTest.name);
         if (apiTest.jmx.scenarioId) {
           this.$refs.basicConfig.importScenario(apiTest.jmx.scenarioId);
@@ -238,10 +243,10 @@ export default {
         this.$store.commit("clearTest");
       } else {
         let scenarioJmxs = this.$store.state.scenarioJmxs;
-        console.log("输出vuex的scenarioJmxs")
-        console.log(scenarioJmxs)
+        console.log("输出vuex的scenarioJmxs");
+        console.log(scenarioJmxs);
         if (scenarioJmxs && scenarioJmxs.name) {
-          console.log("set scenarioJmxs name")
+          console.log("set scenarioJmxs name");
           this.$set(this.test, "name", scenarioJmxs.name);
           let relateApiList = [];
           if (scenarioJmxs.jmxs) {
@@ -291,18 +296,18 @@ export default {
         });
       }
     },
-    getDefaultFollow(testId){
+    getDefaultFollow(testId) {
       this.$get('/performance/test/follow/' + testId, response => {
         this.$set(this.test, 'follows', response.data);
         for (let i = 0; i < this.test.follows.length; i++) {
-          if(this.test.follows[i]===this.currentUser().id){
+          if (this.test.follows[i] === this.currentUser().id) {
             this.showFollow = true;
             break;
           }
         }
       });
     },
-    save() {
+    save(newVersion) {
       if (!this.validTest()) {
         return;
       }
@@ -313,10 +318,15 @@ export default {
       }
       let options = this.getSaveOption();
 
-      this.result = this.$request(options, () => {
+      this.result = this.$request(options, (response) => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.advancedConfig.cancelAllEdit();
-        this.$router.push({path: '/performance/test/all'});
+        if (newVersion) {
+          this.$router.push({
+            path: '/performance/test/edit/' + response.data.id,
+          });
+          this.getVersionHistory();
+        }
       });
     },
     saveAndRun() {
@@ -465,7 +475,7 @@ export default {
       };
     },
     fileChange(threadGroups) {
-      console.log("zou")
+      console.log("zou");
       let handler = this.$refs.pressureConfig;
 
       let csvSet = new Set;
@@ -509,36 +519,36 @@ export default {
         this.$refs.pressureConfig.calculateTotalChart();
       }
     },
-    saveFollow(){
-      if(this.showFollow){
+    saveFollow() {
+      if (this.showFollow) {
         this.showFollow = false;
         for (let i = 0; i < this.test.follows.length; i++) {
-          if(this.test.follows[i]===this.currentUser().id){
-            this.test.follows.splice(i,1)
+          if (this.test.follows[i] === this.currentUser().id) {
+            this.test.follows.splice(i, 1);
             break;
           }
         }
-        if(this.testId){
-          this.$post("/performance/test/update/follows/"+this.testId, this.test.follows,() => {
+        if (this.testId) {
+          this.$post("/performance/test/update/follows/" + this.testId, this.test.follows, () => {
             this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
-      }else {
+      } else {
         this.showFollow = true;
-        if(!this.test.follows){
+        if (!this.test.follows) {
           this.test.follows = [];
         }
-        this.test.follows.push(this.currentUser().id)
-        if(this.testId){
-          this.$post("/performance/test/update/follows/"+this.testId, this.test.follows,() => {
+        this.test.follows.push(this.currentUser().id);
+        if (this.testId) {
+          this.$post("/performance/test/update/follows/" + this.testId, this.test.follows, () => {
             this.$success(this.$t('commons.follow_success'));
           });
         }
       }
     },
     getVersionHistory() {
-      let testId = undefined
-      if(this.testId){
+      let testId = undefined;
+      if (this.testId) {
         testId = this.testId;
       }
       this.$get('/performance/versions/' + testId, response => {
@@ -547,14 +557,14 @@ export default {
     },
     compare(row) {
       this.oldData = this.test;
-      this.$get('/performance/get/' +  row.id+"/"+this.test.refId, response => {
+      this.$get('/performance/get/' + row.id + "/" + this.test.refId, response => {
         this.$get('/performance/get/' + response.data.id, res => {
           if (res.data) {
             this.newData = res.data;
             this.$get('/performance/test/follow/' + response.data.id, resp => {
-              if(resp.data&&resp.data.follows){
-                for (let i = 0; i <resp.data.follows.length; i++) {
-                  if(resp.data.follows[i]===this.currentUser().id){
+              if (resp.data && resp.data.follows) {
+                for (let i = 0; i < resp.data.follows.length; i++) {
+                  if (resp.data.follows[i] === this.currentUser().id) {
                     this.newShowFollow = true;
                     break;
                   }
@@ -564,14 +574,14 @@ export default {
           }
         });
       });
-      if(this.newData){
+      if (this.newData) {
         this.dialogVisible = true;
       }
     },
     checkout(row) {
       //let test = this.versionData.filter(v => v.versionId === row.id)[0];
       this.test.versionId = row.id;
-      this.result = this.$get('/performance/get/' +  this.test.versionId+"/"+this.test.refId, response => {
+      this.result = this.$get('/performance/get/' + this.test.versionId + "/" + this.test.refId, response => {
         this.testId = response.data.id;
         this.$router.push({
           path: '/performance/test/edit/' + this.testId,
@@ -582,7 +592,7 @@ export default {
     create(row) {
       // 创建新版本
       this.test.versionId = row.id;
-      this.save();
+      this.save(true);
     },
     del(row) {
       this.$alert(this.$t('load_test.delete_confirm') + ' ' + row.name + " ？", '', {
