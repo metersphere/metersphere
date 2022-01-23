@@ -998,7 +998,6 @@
         max(test_case.latest) = 0
         ORDER BY
         project_version.create_time desc
-        LIMIT 1
         ) t
         ON test_case.id = t.id
         SET test_case.latest = 1
