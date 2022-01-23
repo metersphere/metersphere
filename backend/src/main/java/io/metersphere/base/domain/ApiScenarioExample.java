@@ -864,6 +864,76 @@ public class ApiScenarioExample {
             return (Criteria) this;
         }
 
+        public Criteria andFollowPeopleIsNull() {
+            addCriterion("follow_people is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIsNotNull() {
+            addCriterion("follow_people is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleEqualTo(String value) {
+            addCriterion("follow_people =", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotEqualTo(String value) {
+            addCriterion("follow_people <>", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleGreaterThan(String value) {
+            addCriterion("follow_people >", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleGreaterThanOrEqualTo(String value) {
+            addCriterion("follow_people >=", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLessThan(String value) {
+            addCriterion("follow_people <", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLessThanOrEqualTo(String value) {
+            addCriterion("follow_people <=", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLike(String value) {
+            addCriterion("follow_people like", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotLike(String value) {
+            addCriterion("follow_people not like", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIn(List<String> values) {
+            addCriterion("follow_people in", values, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotIn(List<String> values) {
+            addCriterion("follow_people not in", values, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleBetween(String value1, String value2) {
+            addCriterion("follow_people between", value1, value2, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotBetween(String value1, String value2) {
+            addCriterion("follow_people not between", value1, value2, "followPeople");
+            return (Criteria) this;
+        }
+
         public Criteria andScheduleIsNull() {
             addCriterion("schedule is null");
             return (Criteria) this;
@@ -2121,6 +2191,66 @@ public class ApiScenarioExample {
 
         public Criteria andRefIdNotBetween(String value1, String value2) {
             addCriterion("ref_id not between", value1, value2, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestIsNull() {
+            addCriterion("latest is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestIsNotNull() {
+            addCriterion("latest is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestEqualTo(Boolean value) {
+            addCriterion("latest =", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestNotEqualTo(Boolean value) {
+            addCriterion("latest <>", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestGreaterThan(Boolean value) {
+            addCriterion("latest >", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("latest >=", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestLessThan(Boolean value) {
+            addCriterion("latest <", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestLessThanOrEqualTo(Boolean value) {
+            addCriterion("latest <=", value, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestIn(List<Boolean> values) {
+            addCriterion("latest in", values, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestNotIn(List<Boolean> values) {
+            addCriterion("latest not in", values, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestBetween(Boolean value1, Boolean value2) {
+            addCriterion("latest between", value1, value2, "latest");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatestNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("latest not between", value1, value2, "latest");
             return (Criteria) this;
         }
     }
