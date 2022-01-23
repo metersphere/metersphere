@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import {hasPermissions, publicKeyEncrypt, saveLocalStorage} from '@/common/js/utils';
+import {getCurrentUserId, hasPermissions, publicKeyEncrypt, saveLocalStorage} from '@/common/js/utils';
 import {CURRENT_LANGUAGE, DEFAULT_LANGUAGE, PRIMARY_COLOR} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -82,6 +82,7 @@ export default {
       openLdap: false,
       authSources: [],
       loginUrl: 'signin',
+      lastUser: null
     };
   },
   beforeCreate() {
@@ -136,6 +137,9 @@ export default {
     if (license.default) {
       license.default.valid(this);
     }
+
+    // 上次登录的用户
+    this.lastUser = sessionStorage.getItem('lastUser');
   },
 
   destroyed() {
@@ -218,6 +222,9 @@ export default {
       };
     },
     checkRedirectUrl() {
+      if (this.lastUser === getCurrentUserId()) {
+        return;
+      }
       let redirectUrl = '/';
       if (hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ')) {
         redirectUrl = '/project/home';
