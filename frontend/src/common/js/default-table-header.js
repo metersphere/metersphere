@@ -173,6 +173,7 @@ export let CUSTOM_TABLE_HEADER = {
   TEST_PLAN_SCENARIO_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
     {id: 'name', key: '2', label: 'api_test.automation.scenario_name'},
+    {id: 'versionId', key: 'd', label: 'commons.version'},
     {id: 'level', key: '3', label: 'api_test.automation.case_level'},
     {id: 'tagNames', key: '4', label: 'api_test.automation.tag'},
     {id: 'stepTotal', key: '7', label:  'api_test.automation.step'},
