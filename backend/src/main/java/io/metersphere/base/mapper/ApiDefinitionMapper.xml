@@ -26,7 +26,6 @@
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="delete_user_id" jdbcType="VARCHAR" property="deleteUserId" />
     <result column="order" jdbcType="BIGINT" property="order" />
-    <result column="version" jdbcType="VARCHAR" property="version" />
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="latest" jdbcType="BIT" property="latest" />
@@ -99,7 +98,7 @@
     id, project_id, `name`, `method`, module_path, environment_id, schedule, `status`, 
     module_id, user_id, create_time, update_time, protocol, `path`, num, tags, original_state, 
     create_user, case_total, case_status, case_passing_rate, delete_time, delete_user_id, 
-    `order`, version, ref_id, version_id, latest
+    `order`, ref_id, version_id, latest
   </sql>
   <sql id="Blob_Column_List">
     description, request, response, remark
@@ -161,9 +160,9 @@
       tags, original_state, create_user, 
       case_total, case_status, case_passing_rate, 
       delete_time, delete_user_id, `order`, 
-      version, ref_id, version_id, 
-      latest, description, request, 
-      response, remark)
+      ref_id, version_id, latest, 
+      description, request, response, 
+      remark)
     VALUES (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
       #{method,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
       #{schedule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
@@ -172,9 +171,9 @@
       #{tags,jdbcType=VARCHAR}, #{originalState,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{caseTotal,jdbcType=VARCHAR}, #{caseStatus,jdbcType=VARCHAR}, #{casePassingRate,jdbcType=VARCHAR}, 
       #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, 
-      #{version,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, 
-      #{latest,jdbcType=BIT}, #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, 
-      #{response,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR})
+      #{refId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, 
+      #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR}, 
+      #{remark,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     insert into api_definition
@@ -250,9 +249,6 @@
       </if>
       <if test="order != null">
         `order`,
-      </if>
-      <if test="version != null">
-        version,
       </if>
       <if test="refId != null">
         ref_id,
@@ -348,9 +344,6 @@
       </if>
       <if test="order != null">
         #{order,jdbcType=BIGINT},
-      </if>
-      <if test="version != null">
-        #{version,jdbcType=VARCHAR},
       </if>
       <if test="refId != null">
         #{refId,jdbcType=VARCHAR},
@@ -456,9 +449,6 @@
       <if test="record.order != null">
         `order` = #{record.order,jdbcType=BIGINT},
       </if>
-      <if test="record.version != null">
-        version = #{record.version,jdbcType=VARCHAR},
-      </if>
       <if test="record.refId != null">
         ref_id = #{record.refId,jdbcType=VARCHAR},
       </if>
@@ -511,7 +501,6 @@
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
-      version = #{record.version,jdbcType=VARCHAR},
       ref_id = #{record.refId,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT},
@@ -549,7 +538,6 @@
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
-      version = #{record.version,jdbcType=VARCHAR},
       ref_id = #{record.refId,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT}
@@ -629,9 +617,6 @@
       <if test="order != null">
         `order` = #{order,jdbcType=BIGINT},
       </if>
-      <if test="version != null">
-        version = #{version,jdbcType=VARCHAR},
-      </if>
       <if test="refId != null">
         ref_id = #{refId,jdbcType=VARCHAR},
       </if>
@@ -681,7 +666,6 @@
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
-      version = #{version,jdbcType=VARCHAR},
       ref_id = #{refId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT},
@@ -716,7 +700,6 @@
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
-      version = #{version,jdbcType=VARCHAR},
       ref_id = #{refId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT}

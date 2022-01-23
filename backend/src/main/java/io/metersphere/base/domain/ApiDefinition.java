@@ -54,8 +54,6 @@ public class ApiDefinition implements Serializable {
 
     private Long order;
 
-    private String version;
-
     private String refId;
 
     private String versionId;
