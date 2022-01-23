@@ -53,17 +53,13 @@
         :file-list="fileList">
         <template v-slot:trigger>
           <el-button size="mini" type="success" plain>{{$t('commons.please_select')}}</el-button>
+          <version-select style="margin-left: 25px" v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
         </template>
         <template v-slot:tip>
           <div v-if="isExcel" class="el-upload__tip">{{$t('test_track.case.import.upload_limit')}}</div>
           <div v-if="isXmind" class="el-upload__tip">{{$t('test_track.case.import.upload_xmind')}}</div>
         </template>
       </el-upload>
-    </el-row>
-
-    <el-row class="import-row">
-      <el-button :disabled="!lastFile" size="small" @click="upload(false)">{{$t('test_track.case.import.click_upload')}}</el-button>
-      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
     </el-row>
 
     <el-row>
@@ -74,11 +70,15 @@
       </ul>
     </el-row>
 
-    <el-row style="text-align: right" v-if="showContinueBtn">
-      <div style="margin-right: 20px;margin-bottom: 10px;">
+    <el-row style="text-align: right" >
+      <div v-if="showContinueBtn" style="margin-right: 20px;margin-bottom: 10px;">
         <el-checkbox :value="true" :disabled="true">{{ $t('test_track.case.import.ignore_error') }}</el-checkbox>
       </div>
-      <el-button type="primary" @click="upload(true)">{{ $t('test_track.case.import.continue_upload') }}
+      <el-button v-if="showContinueBtn" type="primary" @click="upload(true)">
+        {{ $t('test_track.case.import.continue_upload') }}
+      </el-button>
+      <el-button v-if="!showContinueBtn" type="primary" @click="upload(false)">
+        {{ $t('test_track.case.import.click_upload') }}
       </el-button>
       <el-button @click="$emit('close')">{{ $t('commons.cancel') }}</el-button>
     </el-row>
@@ -104,7 +104,7 @@ export default {
       showContinueBtn: false,
       uploadIgnoreError: false,
       lastFile: null,
-      version: null
+      versionId: null
     }
   },
   created() {
@@ -177,7 +177,7 @@ export default {
         projectId: getCurrentProjectID(),
         userId: getCurrentUserId(),
         importType: this.importType,
-        version: this.version,
+        versionId: this.versionId,
         ignore: isIgnore
       };
       this.result = this.$fileUpload('/test/case/import',
@@ -198,7 +198,7 @@ export default {
       });
     },
     changeVersion(data) {
-      this.version = data;
+      this.versionId = data;
     }
   }
 }
