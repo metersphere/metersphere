@@ -11,13 +11,18 @@
                    :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                    :project-list="projectList"
                    ref="envPopover" class="env-popover"/>
+
+
+
       <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
                 @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
       <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                                v-if="condition.components !== undefined && condition.components.length > 0"
                                @search="search"/>
+      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"  margin-right="20"
+                      class="search-input"/>
 
-      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="handleSelectAll" @select="handleSelect">
+      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="handleSelectAll" @select="handleSelect"  @filter-change="filter">
         <el-table-column type="selection"/>
         <el-table-column v-if="!customNum" prop="num" label="ID"
                          show-overflow-tooltip>
@@ -27,6 +32,17 @@
         </el-table-column>
         <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
                          show-overflow-tooltip/>
+        <el-table-column
+          v-if="versionEnable"
+          column-key="version_id"
+          :filters="versionFilters"
+          :label="$t('commons.version')"
+          min-width="120px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.versionName }}</span>
+          </template>
+        </el-table-column>
+
         <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
                          show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -77,6 +93,9 @@
   import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
   import {TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
   import {ENV_TYPE} from "@/common/js/constants";
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
+  import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "RelevanceScenarioList",
@@ -91,7 +110,8 @@
       MsTag,
       MsApiReportDetail,
       MsTestPlanList,
-      MsTableAdvSearchBar
+      MsTableAdvSearchBar,
+      'VersionSelect': VersionSelect.default,
     },
     props: {
       referenced: {
@@ -101,6 +121,7 @@
       selectNodeIds: Array,
       projectId: String,
       planId: String,
+      versionEnable: Boolean,
     },
     data() {
       return {
@@ -125,7 +146,8 @@
         map: new Map(),
         customNum: false,
         environmentType: ENV_TYPE.JSON,
-        envGroupId: ""
+        envGroupId: "",
+        versionFilters: [],
       }
     },
     computed: {
@@ -143,6 +165,7 @@
     },
     created() {
       this.getWsProjects();
+      this.getVersionOptions();
     },
     methods: {
       search() {
@@ -154,8 +177,11 @@
         this.getProject(this.projectId);
         this.selectRows = new Set();
         this.loading = true;
-
-        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+        if (this.condition.filters) {
+          this.condition.filters.status = ["Prepare", "Underway", "Completed"];
+        } else {
+          this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+        }
 
         this.condition.moduleIds = this.selectNodeIds;
 
@@ -225,6 +251,23 @@
       },
       checkEnv() {
         return this.$refs.envPopover.checkEnv();
+      },
+      changeVersion(currentVersion) {
+        this.condition.versionId = currentVersion || null;
+        this.search();
+      },
+      getVersionOptions() {
+        if (hasLicense()) {
+          this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+            this.versionFilters = response.data.map(u => {
+              return {text: u.name, value: u.id};
+            });
+          });
+        }
+      },
+      filter(field) {
+        this.condition.filters = field || null;
+        this.search();
       }
     }
   }

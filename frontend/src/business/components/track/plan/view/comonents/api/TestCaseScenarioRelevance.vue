@@ -19,6 +19,7 @@
     <relevance-scenario-list
       :select-node-ids="selectNodeIds"
       :trash-enable="trashEnable"
+      :version-enable="versionEnable"
       :plan-id="planId"
       :project-id="projectId"
       ref="apiScenarioList"/>
@@ -65,6 +66,10 @@
       planId: {
         type: String
       },
+      versionEnable: {
+        type: Boolean,
+        default: false
+      }
     },
     watch: {
       planId() {
