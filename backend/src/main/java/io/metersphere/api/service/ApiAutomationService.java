@@ -253,6 +253,7 @@ public class ApiAutomationService {
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
         scenario.setOrder(ServiceUtils.getNextOrder(scenario.getProjectId(), extApiScenarioMapper::getLastOrder));
         scenario.setRefId(request.getId());
+        scenario.setLatest(true);
         //检查场景的请求步骤。如果含有ESB请求步骤的话，要做参数计算处理。
         esbApiParamService.checkScenarioRequests(request);
 
@@ -383,7 +384,13 @@ public class ApiAutomationService {
         if (relationshipEdgeService != null) {
             relationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
         }
+        checkAndSetLatestVersion(beforeScenario.getRefId());
         return scenario;
+    }
+
+    private void checkAndSetLatestVersion(String refId) {
+        extApiScenarioMapper.clearLatestVersion(refId);
+        extApiScenarioMapper.addLatestVersion(refId);
     }
 
     /**
@@ -2096,6 +2103,7 @@ public class ApiAutomationService {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
         apiScenarioMapper.deleteByExample(example);
+        checkAndSetLatestVersion(refId);
     }
 
     public List<String> getProjects(RunScenarioRequest request) {
