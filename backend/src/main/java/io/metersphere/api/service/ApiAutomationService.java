@@ -709,8 +709,10 @@ public class ApiAutomationService {
             if (apiTestCase != null) {
                 JSONObject refElement = JSON.parseObject(apiTestCase.getRequest());
                 ElementUtil.dataFormatting(refElement);
-                if (refElement.get("hashTree") != null && StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
-                    ElementUtil.mergeHashTree(element, refElement.getJSONArray("hashTree"));
+                if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
+                    if (refElement.get("hashTree") != null) {
+                        ElementUtil.mergeHashTree(element, refElement.getJSONArray("hashTree"));
+                    }
                     element.put("referenced", "REF");
                     element.put("name", apiTestCase.getName());
                 } else {
