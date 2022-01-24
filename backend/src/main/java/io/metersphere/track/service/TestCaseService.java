@@ -2386,6 +2386,8 @@ public class TestCaseService {
                 testCase.setCustomNum(String.valueOf(nextNum));
                 testCase.setNum(nextNum++);
                 testCase.setCasePublic(false);
+                testCase.setCreateTime(System.currentTimeMillis());
+                testCase.setUpdateTime(System.currentTimeMillis());
                 testCase.setRefId(id);
                 mapper.insert(testCase);
 
