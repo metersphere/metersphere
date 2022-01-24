@@ -175,7 +175,9 @@ export default {
       }
     },
     setCurrentKey() {
-      this.$refs.nodeTree.setCurrentKey(this.currentNode);
+      if (this.$refs.nodeTree) {
+        this.$refs.nodeTree.setCurrentKey(this.currentNode);
+      }
     },
     increase(id) {
       this.$refs.nodeTree.increase(id);
