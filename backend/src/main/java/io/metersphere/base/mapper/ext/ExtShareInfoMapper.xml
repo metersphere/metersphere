@@ -62,7 +62,7 @@
         <if test="request.refId != null">
             and ${versionTable}.ref_id = #{request.refId}
         </if>
-        <if test="request.versionId == null and request.refId == null and request.id == null">
+        <if test="request.versionId == null and request.refId == null">
             AND ${versionTable}.latest = 1
         </if>
     </sql>
