@@ -663,14 +663,16 @@ export default {
     checkout(testCase, item) {
       Object.assign(item.testCaseInfo, testCase)
       //子组件先变更 copy 状态，再执行初始化操作
-      this.$refs.testCaseEdit[0].initEdit(item.testCaseInfo, () => {
-        this.$nextTick(() => {
-          let vh = this.$refs.testCaseEdit[0].$refs.versionHistory;
-          vh.getVersionOptionList(vh.handleVersionOptions);
-          vh.show = false;
-          vh.loading = false;
+      for (let i = 0; i < this.$refs.testCaseEdit.length; i++) {
+        this.$refs.testCaseEdit[i].initEdit(item.testCaseInfo, () => {
+          this.$nextTick(() => {
+            let vh = this.$refs.testCaseEdit[i].$refs.versionHistory;
+            vh.getVersionOptionList(vh.handleVersionOptions);
+            vh.show = false;
+            vh.loading = false;
+          });
         });
-      });
+      }
     },
     checkoutPublic(testCase, item) {
       Object.assign(item.testCaseInfo, testCase)
