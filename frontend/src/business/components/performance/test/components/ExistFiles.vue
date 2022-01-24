@@ -25,7 +25,7 @@
         <el-upload
           v-else
           style="margin-bottom: 10px"
-          accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx,.txt"
+          accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx,.txt,.der,.cer,.pem,.crt,.pfx,.p12,.jks"
           action=""
           :limit="fileNumLimit"
           multiple
