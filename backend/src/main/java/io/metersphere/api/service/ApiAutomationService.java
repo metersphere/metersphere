@@ -1930,6 +1930,9 @@ public class ApiAutomationService {
                 api.setApiScenarioModuleId(request.getApiScenarioModuleId());
                 api.setModulePath(request.getModulePath());
                 api.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
+                api.setCreateTime(System.currentTimeMillis());
+                api.setUpdateTime(System.currentTimeMillis());
+                api.setRefId(api.getId());
                 api.setNum(nextNum++);
                 mapper.insert(api);
                 if (i % 50 == 0)
