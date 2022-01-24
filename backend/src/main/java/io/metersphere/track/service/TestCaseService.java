@@ -533,7 +533,7 @@ public class TestCaseService {
         }
         List<TestCaseDTO> list = extTestCaseMapper.list(request);
         buildUserInfo(list);
-        if(StringUtils.isNotBlank(request.getProjectId())){
+        if (StringUtils.isNotBlank(request.getProjectId())) {
             buildProjectInfo(request.getProjectId(), list);
         }
         list = this.parseStatus(list);
@@ -818,8 +818,8 @@ public class TestCaseService {
         return getImportResponse(errList, true);
     }
 
-    private ExcelResponse  testCaseExcelImport(MultipartFile multipartFile, TestCaseImportRequest request,
-                                               HttpServletRequest httpRequest) {
+    private ExcelResponse testCaseExcelImport(MultipartFile multipartFile, TestCaseImportRequest request,
+                                              HttpServletRequest httpRequest) {
         String projectId = request.getProjectId();
         Set<String> userIds;
         Project project = projectService.getProjectById(projectId);
@@ -997,32 +997,31 @@ public class TestCaseService {
                     testcase.setSort(sort.getAndIncrement());
                     TestCase dbCase = request.isUseCustomId() ? customIdMap.get(testcase.getCustomNum()) : customIdMap.get(testcase.getNum());
                     testcase.setId(dbCase.getId());
-                    testcase.setRefId(dbCase.getId());
-                    if (StringUtils.isNotBlank(request.getVersionId())) {
-                        // 选了版本就更新到对应的版本
-                        if (dbCase.getVersionId().equals(request.getVersionId())) {
-                            mapper.updateByPrimaryKeySelective(testcase);
-                        } else { // 没有对应的版本就新建对应版本用例
-                            testcase.setCreateTime(System.currentTimeMillis());
-                            testcase.setVersionId(request.getVersionId());
-                            testcase.setId(UUID.randomUUID().toString());
-                            testcase.setOrder(dbCase.getOrder());
-                            testcase.setCreateUser(SessionUtils.getUserId());
-                            testcase.setCreateUser(SessionUtils.getUserId());
-                            testcase.setCreateUser(SessionUtils.getUserId());
-                            testcase.setCustomNum(dbCase.getCustomNum());
-                            testcase.setNum(dbCase.getNum());
-                            testcase.setLatest(false);
-                            testcase.setType(dbCase.getType());
-                            if (StringUtils.isBlank(testcase.getStatus())) {
-                                testcase.setStatus(TestCaseReviewStatus.Prepare.name());
-                            }
-                            testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                            insertCases.add(testcase); // 由于是批处理，这里先保存，最后再执行
-                            mapper.insert(testcase);
-                        }
-                    } else {
+                    testcase.setRefId(dbCase.getRefId());
+                    if (StringUtils.isBlank(request.getVersionId())) {
+                        request.setVersionId(extProjectVersionMapper.getDefaultVersion(projectId));
+                    }
+                    // 选了版本就更新到对应的版本
+                    if (dbCase.getVersionId().equals(request.getVersionId())) {
                         mapper.updateByPrimaryKeySelective(testcase);
+                    } else { // 没有对应的版本就新建对应版本用例
+                        testcase.setCreateTime(System.currentTimeMillis());
+                        testcase.setVersionId(request.getVersionId());
+                        testcase.setId(UUID.randomUUID().toString());
+                        testcase.setOrder(dbCase.getOrder());
+                        testcase.setCreateUser(SessionUtils.getUserId());
+                        testcase.setCreateUser(SessionUtils.getUserId());
+                        testcase.setCreateUser(SessionUtils.getUserId());
+                        testcase.setCustomNum(dbCase.getCustomNum());
+                        testcase.setNum(dbCase.getNum());
+                        testcase.setLatest(false);
+                        testcase.setType(dbCase.getType());
+                        if (StringUtils.isBlank(testcase.getStatus())) {
+                            testcase.setStatus(TestCaseReviewStatus.Prepare.name());
+                        }
+                        testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                        insertCases.add(testcase); // 由于是批处理，这里先保存，最后再执行
+                        mapper.insert(testcase);
                     }
                 });
             }
@@ -2462,7 +2461,7 @@ public class TestCaseService {
             //已经存在了最新版本 但是要判断这个所谓的最新版本是否是版本管理里面最新版本
             String latestVersion = extProjectVersionMapper.getDefaultVersion(projectId);
             if (StringUtils.equals(versionId, latestVersion)) {
-                extTestCaseMapper.clearLatestVersion(refId);
+                extTestCaseMapper.clearLatestVersion(refId, projectId);
                 extTestCaseMapper.setLatestVersion(refId, versionId);
             }
         }
