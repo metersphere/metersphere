@@ -376,22 +376,29 @@ public class ApiScenarioExecuteService {
             MSException.throwException(e.getMessage());
         }
         if (request.isSaved()) {
-            APIScenarioReportResult report = apiScenarioReportService.init(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
-                    SessionUtils.getUserId(), request.getConfig(), request.getId());
-            ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(request.getScenarioId());
-            if (scenarioWithBLOBs != null) {
-                report.setVersionId(scenarioWithBLOBs.getVersionId());
-                apiScenarioReportStructureService.save(scenarioWithBLOBs, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
+            APIScenarioReportResult report = apiScenarioReportService.init(request.getId(),
+                    request.getScenarioId(),
+                    request.getScenarioName(),
+                    ReportTriggerMode.MANUAL.name(),
+                    request.getExecuteType(),
+                    request.getProjectId(),
+                    SessionUtils.getUserId(),
+                    request.getConfig(),
+                    request.getId());
+            ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(request.getScenarioId());
+            String reportType = request.getConfig() != null ? request.getConfig().getReportType() : null;
+            if (scenario != null) {
+                report.setVersionId(scenario.getVersionId());
+                apiScenarioReportStructureService.save(scenario, report.getId(), reportType);
             } else {
                 if (request.getTestElement() != null && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree())) {
-                    ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
-                    scenario.setId(request.getScenarioId());
-                    report.setVersionId(scenarioWithBLOBs.getVersionId());
+                    ApiScenarioWithBLOBs apiScenario = new ApiScenarioWithBLOBs();
+                    apiScenario.setId(request.getScenarioId());
                     MsTestElement testElement = request.getTestElement().getHashTree().get(0).getHashTree().get(0);
                     if (testElement != null) {
-                        scenario.setName(testElement.getName());
-                        scenario.setScenarioDefinition(JSON.toJSONString(testElement));
-                        apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
+                        apiScenario.setName(testElement.getName());
+                        apiScenario.setScenarioDefinition(JSON.toJSONString(testElement));
+                        apiScenarioReportStructureService.save(apiScenario, report.getId(), reportType);
                     }
                 }
             }
