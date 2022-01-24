@@ -409,7 +409,6 @@ export default {
     selectNodeIds: {
       type: Array
     },
-    currentVersion: null,
     versionEnable: {
       type: Boolean,
       default: false
@@ -439,10 +438,6 @@ export default {
     },
     condition() {
       this.$emit('setCondition', this.condition);
-    },
-    currentVersion(){
-      this.condition.versionId = this.currentVersion;
-      this.initTableData();
     }
   },
   created() {

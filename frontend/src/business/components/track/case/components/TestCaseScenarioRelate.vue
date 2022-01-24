@@ -20,6 +20,7 @@
     <test-case-relate-scenario-list
       :select-node-ids="selectNodeIds"
       :project-id="projectId"
+      :not-in-ids="notInIds"
       :versionEnable="versionEnable"
       ref="apiCaseList"/>
 
@@ -60,6 +61,10 @@ export default {
       type: Boolean,
       default: false
     },
+    notInIds: {
+      type: Array,
+      default: null
+    }
   },
   methods: {
     open() {
