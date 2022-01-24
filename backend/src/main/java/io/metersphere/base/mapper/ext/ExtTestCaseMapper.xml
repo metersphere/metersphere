@@ -926,7 +926,7 @@
         status = original_status,
         delete_user_id = null,
         delete_time = null
-        where ref_id in
+        where id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
@@ -980,51 +980,4 @@
             AND ${versionTable}.latest = 1
         </if>
     </sql>
-
-    <update id="addLatestVersion">
-        UPDATE test_case
-        INNER JOIN (
-        SELECT
-        test_case.*
-        FROM
-        test_case
-        LEFT JOIN project_version ON test_case.version_id = project_version.id
-        <where>
-            <if test="refId != null">
-                ref_id = #{refId}
-            </if>
-        </where>
-        GROUP BY
-        ref_id
-        HAVING
-        max(test_case.latest) = 0
-        ORDER BY
-        project_version.create_time desc
-        LIMIT 1
-        ) t
-        ON test_case.id = t.id
-        SET test_case.latest = 1
-    </update>
-
-    <update id="clearLatestVersion">
-        UPDATE test_case
-        SET latest = 0
-        <where>
-            <if test="refId != null">
-                and ref_id = #{refId}
-            </if>
-            and project_id = #{projectId}
-        </where>
-    </update>
-
-    <update id="setLatestVersion">
-        UPDATE test_case
-        SET latest = 1
-        <where>
-            <if test="refId != null">
-                ref_id = #{refId}
-            </if>
-        </where>
-        AND version_id = #{versionId}
-    </update>
 </mapper>
