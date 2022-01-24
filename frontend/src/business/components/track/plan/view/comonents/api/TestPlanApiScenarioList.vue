@@ -156,6 +156,9 @@
               <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">
                 {{ $t('api_test.automation.fail') }}
               </el-link>
+              <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Error'">
+                {{ $t('api_test.automation.fail') }}
+              </el-link>
               <el-link style="color: #F6972A" @click="showReport(row)" v-if="row.lastResult === 'errorReportResult'">
                 {{ $t('error_report_library.option.name') }}
               </el-link>

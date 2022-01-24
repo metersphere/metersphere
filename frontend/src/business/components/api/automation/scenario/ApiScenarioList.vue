@@ -218,6 +218,9 @@
               <el-link type="danger" @click="showReport(row)" v-else-if="row.lastResult === 'Fail'">
                 {{ $t('api_test.automation.fail') }}
               </el-link>
+              <el-link type="danger" style="color: #F6972A" @click="showReport(row)" v-else-if="row.lastResult === 'errorReportResult'">
+                {{ $t('error_report_library.option.name') }}
+              </el-link>
             </template>
           </ms-table-column>
 
