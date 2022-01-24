@@ -40,6 +40,8 @@ import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.testelement.TestPlan;
+import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jorphan.collections.HashTree;
 
 import java.io.ByteArrayOutputStream;
@@ -596,5 +598,29 @@ public class ElementUtil {
         sampler.setProperty("MS-ID", id);
         sampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(id, config, parent, indexPath));
         LoggerUtil.debug("mqtt sampler resourceId :" + sampler.getPropertyAsString("MS-RESOURCE-ID"));
+    }
+
+    public static void accuracyHashTree(HashTree hashTree) {
+        Map<Object, HashTree> objects = new LinkedHashMap<>();
+        Object groupHashTree = hashTree;
+        if (hashTree != null && hashTree.size() > 0) {
+            for (Object key : hashTree.keySet()) {
+                if (key instanceof TestPlan) {
+                    for (Object node : hashTree.get(key).keySet()) {
+                        if (node instanceof ThreadGroup) {
+                            groupHashTree = hashTree.get(key).get(node);
+                        }
+                    }
+                } else {
+                    objects.put(key, hashTree.get(key));
+                }
+            }
+        }
+        if (!objects.isEmpty() && groupHashTree instanceof HashTree) {
+            for (Object key : objects.keySet()) {
+                hashTree.remove(key);
+                ((HashTree) groupHashTree).add(key, objects.get(key));
+            }
+        }
     }
 }

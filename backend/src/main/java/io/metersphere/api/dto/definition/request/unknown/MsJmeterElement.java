@@ -1,7 +1,6 @@
 package io.metersphere.api.dto.definition.request.unknown;
 
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.request.BodyFile;
@@ -24,7 +23,6 @@ import org.apache.jorphan.collections.HashTree;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,20 +77,9 @@ public class MsJmeterElement extends MsTestElement {
                         config.getCsvFilePaths().add(csvPath);
                     }
                 }
-                if (scriptWrapper instanceof TestPlan && tree.size() > 0) {
-                    for (Object obj : tree.keySet()) {
-                        if (obj instanceof CSVDataSet) {
-                            tree.remove(obj);
-                        }
-                    }
-                }
 
                 if (config.isOperating()) {
                     elementTree = tree.add(scriptWrapper);
-                    if ((scriptWrapper instanceof ThreadGroup)) {
-                        ElementUtil.addCsvDataSet(elementTree, config.getVariables(), config, "shareMode.thread");
-                    }
-
                 } else if (!(scriptWrapper instanceof TestPlan) && !(scriptWrapper instanceof ThreadGroup)) {
                     elementTree = tree.add(scriptWrapper);
                 }
