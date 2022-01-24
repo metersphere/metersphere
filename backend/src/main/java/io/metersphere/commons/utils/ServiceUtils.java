@@ -1,12 +1,15 @@
 package io.metersphere.commons.utils;
 
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.ProjectVersion;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.service.ProjectService;
+import io.metersphere.service.ProjectVersionService;
 import io.metersphere.service.UserService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -239,5 +242,38 @@ public class ServiceUtils {
 
     public static String getCopyName(String name) {
         return "copy_" + name + "_" + UUID.randomUUID().toString().substring(0, 4);
+    }
+
+    public static void buildVersionInfo(List<? extends Object> list) {
+        ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+        List<String> versionIds = list.stream()
+                .map(i -> {
+                    Class<?> clazz = i.getClass();
+                    try {
+                        Method getVersionId = clazz.getMethod("getVersionId");
+                        return getVersionId.invoke(i).toString();
+                    } catch (Exception e) {
+                        LogUtil.error(e);
+                        return i.toString();
+                    }
+                })
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<String, String> versionNameMap = projectVersionService.getProjectVersionByIds(versionIds).
+                stream()
+                .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+
+        list.forEach(i -> {
+            Class<?> clazz = i.getClass();
+            try {
+                Method setVersionName = clazz.getMethod("setVersionName", String.class);
+                Method getVersionId = clazz.getMethod("getVersionId");
+                Object versionId = getVersionId.invoke(i);
+                setVersionName.invoke(i, versionNameMap.get(versionId));
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+        });
     }
 }

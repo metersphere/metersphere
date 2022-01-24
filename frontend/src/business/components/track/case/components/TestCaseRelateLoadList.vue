@@ -114,6 +114,10 @@ export default {
   props: {
     projectId: String,
     versionEnable: Boolean,
+    notInIds: {
+      type: Array,
+      default: null
+    }
   },
   created: function () {
     this.initTable();
@@ -141,6 +145,7 @@ export default {
       } else if (this.projectId != null) {
         this.condition.projectId = this.projectId;
       }
+      this.condition.notInIds = this.notInIds;
       let url = '/test/case/relevance/load/list/';
       this.result = this.$post(this.buildPagePath(url), this.condition, response => {
         this.total = response.data.itemCount;

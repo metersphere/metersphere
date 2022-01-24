@@ -23,4 +23,6 @@ public class LoadCaseRequest extends TestPlanLoadCase {
     private String refId;
     // 测试计划是否允许重复
     private boolean repeatCase;
+
+    private List<String> notInIds;
 }
