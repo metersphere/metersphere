@@ -21,6 +21,7 @@
       :current-protocol="currentProtocol"
       :select-node-ids="selectNodeIds"
       :project-id="projectId"
+      :not-in-ids="notInIds"
       :versionEnable="versionEnable"
       ref="apiCaseList"/>
 
@@ -57,6 +58,10 @@ export default {
     versionEnable: {
       type: Boolean,
       default: false
+    },
+    notInIds: {
+      type: Array,
+      default: null
     }
   },
   methods: {
