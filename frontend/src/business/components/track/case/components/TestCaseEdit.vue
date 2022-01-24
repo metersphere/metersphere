@@ -931,10 +931,10 @@ export default {
       });
     },
     setSpecialPropForCompare: function (that) {
-      that.newData.tags = JSON.parse(that.newData.tags || "");
-      that.newData.steps = JSON.parse(that.newData.steps || "");
-      that.oldData.tags = JSON.parse(that.oldData.tags || "");
-      that.oldData.steps = JSON.parse(that.oldData.steps || "");
+      that.newData.tags = JSON.parse(that.newData.tags || "{}");
+      that.newData.steps = JSON.parse(that.newData.steps || "{}");
+      that.oldData.tags = JSON.parse(that.oldData.tags || "{}");
+      that.oldData.steps = JSON.parse(that.oldData.steps || "{}");
       that.newData.readOnly = true;
       that.oldData.readOnly = true;
     },
@@ -947,9 +947,9 @@ export default {
           if (data[0] && data[1]) {
             that.newData = data[0].data.data;
             that.oldData = data[1].data.data;
-            let testCase = this.versionData.filter(v => v.versionId === this.currentTestCaseInfo.versionId)[0];
-            that.newData.versionName = response.data.versionName
-            that.oldData.versionName = testCase.versionName
+            let testCase = that.versionData.filter(v => v.versionId === this.currentTestCaseInfo.versionId)[0];
+            that.newData.versionName = that.versionData.filter(v => v.id === that.newData.id)[0].versionName;
+            that.oldData.versionName = that.versionData.filter(v => v.id === that.oldData.id)[0].versionName;
             that.newData.userName = response.data.createName
             that.oldData.userName = testCase.createName
             this.setSpecialPropForCompare(that);
