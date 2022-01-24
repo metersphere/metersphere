@@ -303,7 +303,7 @@ public class TestCaseService {
             testCase.setCreateUser(SessionUtils.getUserId());
             testCase.setOrder(oldTestCase.getOrder());
             testCase.setRefId(oldTestCase.getRefId());
-            testCase.setLatest(null);
+            testCase.setLatest(false);
             DealWithOtherInfo(testCase, oldTestCase.getId());
             testCaseMapper.insertSelective(testCase);
         }
@@ -932,53 +932,6 @@ public class TestCaseService {
         }
     }
 
-//    public void updateImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request) {
-//        String projectId = request.getProjectId();
-//        Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
-//        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-//        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
-//        try {
-//            if (!testCases.isEmpty()) {
-//                AtomicInteger sort = new AtomicInteger();
-//                AtomicInteger num = new AtomicInteger();
-//                num.set(getNextNum(projectId) + testCases.size());
-//                testCases.forEach(testcase -> {
-//                    TestCaseWithBLOBs oldCase = testCaseMapper.selectByPrimaryKey(testcase.getId());
-//                    String customFieldStr = this.updateCustomField(oldCase.getCustomFields(), testcase.getPriority());
-//                    testcase.setUpdateTime(System.currentTimeMillis());
-//                    testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
-//                    testcase.setSort(sort.getAndIncrement());
-//                    if (testcase.getNum() == null) {
-//                        testcase.setNum(num.decrementAndGet());
-//                    }
-//                    testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-//                    testcase.setCustomFields(customFieldStr);
-//                    mapper.updateByPrimaryKeySelective(testcase);
-//                });
-//                sqlSession.flushStatements();
-//            }
-//        } finally {
-//            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-//        }
-//    }
-
-    private String updateCustomField(String customFields, String priority) {
-        try {
-            JSONArray newArr = new JSONArray();
-            JSONArray customArr = JSONArray.parseArray(customFields);
-            for (int i = 0; i < customArr.size(); i++) {
-                JSONObject obj = customArr.getJSONObject(i);
-                if (obj.containsKey("name") && StringUtils.equalsIgnoreCase(obj.getString("name"), "用例等级")) {
-                    obj.put("value", priority);
-                }
-                newArr.add(obj);
-            }
-            customFields = newArr.toJSONString();
-        } catch (Exception e) {
-
-        }
-        return customFields;
-    }
 
     /**
      * 把Excel中带ID的数据更新到数据库
@@ -1058,6 +1011,7 @@ public class TestCaseService {
                             testcase.setCreateUser(SessionUtils.getUserId());
                             testcase.setCustomNum(dbCase.getCustomNum());
                             testcase.setNum(dbCase.getNum());
+                            testcase.setLatest(false);
                             testcase.setType(dbCase.getType());
                             if (StringUtils.isBlank(testcase.getStatus())) {
                                 testcase.setStatus(TestCaseReviewStatus.Prepare.name());
@@ -1812,6 +1766,8 @@ public class TestCaseService {
         }
         this.setNode(request);
         request.setStatus(null); // 不更新状态
+        request.setRefId(testCaseWithBLOBs.getRefId());
+        request.setVersionId(testCaseWithBLOBs.getVersionId());
         editTestCase(request);
         return request.getId();
     }
