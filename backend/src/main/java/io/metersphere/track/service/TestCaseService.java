@@ -2122,7 +2122,21 @@ public class TestCaseService {
     }
 
     public List<ApiTestCaseDTO> getTestCaseApiCaseRelateList(ApiTestCaseRequest request) {
-        return testCaseTestMapper.relevanceApiList(request);
+        List<ApiTestCaseDTO> apiTestCaseDTOS = testCaseTestMapper.relevanceApiList(request);
+        ServiceUtils.buildVersionInfo(apiTestCaseDTOS);
+        return apiTestCaseDTOS;
+    }
+
+    public List<ApiScenarioDTO> getTestCaseScenarioCaseRelateList(ApiScenarioRequest request) {
+        List<ApiScenarioDTO> apiScenarioDTOS = testCaseTestMapper.relevanceScenarioList(request);
+        ServiceUtils.buildVersionInfo(apiScenarioDTOS);
+        return apiScenarioDTOS;
+    }
+
+    public List<LoadTestDTO> getTestCaseLoadCaseRelateList(LoadCaseRequest request) {
+        List<LoadTestDTO> loadTestDTOS = testCaseTestMapper.relevanceLoadList(request);
+        ServiceUtils.buildVersionInfo(loadTestDTOS);
+        return loadTestDTOS;
     }
 
     public void relateTest(String type, String caseId, List<String> apiIds) {
@@ -2230,14 +2244,6 @@ public class TestCaseService {
                 .map(TestCaseTest::getTestId)
                 .collect(Collectors.toList());
         return caseIds;
-    }
-
-    public List<ApiScenarioDTO> getTestCaseScenarioCaseRelateList(ApiScenarioRequest request) {
-        return testCaseTestMapper.relevanceScenarioList(request);
-    }
-
-    public List<LoadTestDTO> getTestCaseLoadCaseRelateList(LoadCaseRequest request) {
-        return testCaseTestMapper.relevanceLoadList(request);
     }
 
     public TestCaseWithBLOBs getTestCaseStep(String testCaseId) {
