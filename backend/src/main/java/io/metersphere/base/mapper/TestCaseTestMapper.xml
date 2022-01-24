@@ -146,16 +146,12 @@
     atc.num,
     atc.priority,
     atc.tags,
-    project_version.id versionId,
-    project_version.name versionName
+    atc.version_id
     FROM
     api_test_case atc
-    LEFT JOIN test_case_test tct ON atc.id = tct.test_id
     INNER JOIN api_definition ad ON ad.id = atc.api_definition_id
-    INNER JOIN project_version on atc.project_id = project_version.project_id and atc.version_id = project_version.id
     WHERE
-    tct.test_id IS NULL
-    AND atc. STATUS != 'Trash'
+    (atc.status is null or atc.status != 'Trash')
     <if test="request.protocol != null and request.protocol!=''">
       and ad.protocol = #{request.protocol}
     </if>
@@ -166,6 +162,12 @@
       and (atc.name like CONCAT('%', #{request.name},'%')
       or atc.tags like CONCAT('%', #{request.name},'%')
       or atc.num like CONCAT('%', #{request.name},'%'))
+    </if>
+    <if test="request.notInIds != null and request.notInIds.size() > 0">
+      and atc.id not in
+      <foreach collection="request.notInIds" item="notInId" separator="," open="(" close=")">
+        #{notInId}
+      </foreach>
     </if>
     <if test="request.moduleIds != null and request.moduleIds.size() > 0">
       and ad.module_id in
@@ -396,16 +398,12 @@
     atc.step_total,
     atc. STATUS,
     atc.tags,
-    project_version.id versionId,
-    project_version.name versionName
+    atc.version_id
     FROM
     api_scenario atc
     LEFT JOIN test_case_test tct ON atc.id = tct.test_id
-    LEFT JOIN project_version ON atc.project_id = project_version.project_id
-    AND project_version.id = atc.version_id
     WHERE
-    tct.test_id IS NULL
-    AND atc. STATUS != 'Trash'
+    (atc.status is null or atc.status != 'Trash')
     <if test="request.projectId != null and request.projectId!=''">
       and atc.project_id = #{request.projectId}
     </if>
@@ -413,6 +411,12 @@
       and (atc.name like CONCAT('%', #{request.name},'%')
       or atc.tags like CONCAT('%', #{request.name},'%')
       or atc.num like CONCAT('%', #{request.name},'%'))
+    </if>
+    <if test="request.notInIds != null and request.notInIds.size() > 0">
+      and atc.id not in
+      <foreach collection="request.notInIds" item="notInId" separator="," open="(" close=")">
+        #{notInId}
+      </foreach>
     </if>
     <if test="request.moduleIds != null and request.moduleIds.size() > 0">
       and atc.api_scenario_module_id in
@@ -456,16 +460,12 @@
     atc. STATUS,
     atc.create_time,
     atc.update_time,
-    project_version.name versionName,
-    project_version.id versionId
+    atc.version_id
     FROM
     load_test atc
     LEFT JOIN test_case_test tct ON atc.id = tct.test_id
-    LEFT JOIN project_version ON atc.project_id = project_version.project_id
-    AND atc.version_id = project_version.id
     WHERE
-    tct.test_id IS NULL
-    AND atc. STATUS != 'Trash'
+    (atc.status is null or atc.status != 'Trash')
     <if test="request.projectId != null and request.projectId!=''">
       and atc.project_id = #{request.projectId}
     </if>
@@ -476,6 +476,12 @@
     <include refid="queryVersionCondition">
       <property name="versionTable" value="atc"/>
     </include>
+    <if test="request.notInIds != null and request.notInIds.size() > 0">
+      and atc.id not in
+      <foreach collection="request.notInIds" item="notInId" separator="," open="(" close=")">
+        #{notInId}
+      </foreach>
+    </if>
     <if test="request.combine != null">
       <include refid="loadCaseCombine">
         <property name="condition" value="request.combine"/>

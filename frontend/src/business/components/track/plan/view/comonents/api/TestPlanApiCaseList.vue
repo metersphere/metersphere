@@ -6,7 +6,6 @@
           :project-id="getProjectId()"
           :condition="condition"
           :plan-id="planId"
-          @changeVersion="changeVersion"
           @refresh="initTable"
           @relevanceCase="$emit('relevanceCase')"
           @setEnvironment="setEnvironment"
@@ -646,14 +645,6 @@ export default {
           this.$refs.apiCaseResult.open();
         }
       });
-    },
-    changeVersion(currentVersion) {
-      if (currentVersion == "") {
-        this.condition.versionId = null;
-      } else {
-        this.condition.versionId = currentVersion;
-      }
-      this.initTable();
     },
     getVersionOptions() {
       if (hasLicense()) {

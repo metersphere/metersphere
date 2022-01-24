@@ -20,4 +20,6 @@ public interface ProjectVersionService {
     List<ProjectVersionDTO> getProjectVersions(String projectId);
 
     void changeStatus(String id, String status);
+
+    List<ProjectVersion> getProjectVersionByIds(List<String> versionIds);
 }

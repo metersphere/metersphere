@@ -54,17 +54,6 @@
                   :content="itemName" style="margin-left: 0px; margin-right: 2px"></ms-tag>
         </template>
       </ms-table-column>
-      <!--        <ms-table-column-->
-      <!--          prop="path"-->
-      <!--          width="180px"-->
-      <!--          :label="'API'+ $t('api_test.definition.api_path')"/>-->
-
-      <!--        <ms-table-column-->
-      <!--          sortable="custom"-->
-      <!--          prop="casePath"-->
-      <!--          width="180px"-->
-      <!--          :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>-->
-
 
     </ms-table>
     <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
@@ -132,6 +121,10 @@ export default {
     versionEnable: {
       type: Boolean,
       default: false
+    },
+    notInIds: {
+      type: Array,
+      default: null
     }
   },
   created: function () {
@@ -173,6 +166,7 @@ export default {
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }
+      this.condition.notInIds = this.notInIds; // 查询排除哪些用例
       let url = '/test/case/relevance/api/list/';
       this.result = this.$post(this.buildPagePath(url), this.condition, response => {
         this.total = response.data.itemCount;
