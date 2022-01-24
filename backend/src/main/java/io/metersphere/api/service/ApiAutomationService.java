@@ -871,6 +871,7 @@ public class ApiAutomationService {
         testPlan.setHashTree(new LinkedList<>());
         ParameterConfig config = new ParameterConfig();
         config.setOperating(true);
+        config.getExcludeScenarioIds().add(apiScenario.getId());
         try {
 
             MsScenario scenario = JSONObject.parseObject(apiScenario.getScenarioDefinition(), MsScenario.class);
