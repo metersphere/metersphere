@@ -144,7 +144,7 @@ public interface ExtTestCaseMapper {
 
     int addLatestVersion(@Param("refId") String refId);
 
-    int clearLatestVersion(@Param("refId") String refId);
+    int clearLatestVersion(@Param("refId") String refId, @Param("projectId") String projectId);
 
     int setLatestVersion(@Param("refId") String refId, @Param("versionId") String versionId);
 }

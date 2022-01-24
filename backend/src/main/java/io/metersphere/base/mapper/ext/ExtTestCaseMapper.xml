@@ -1013,6 +1013,7 @@
             <if test="refId != null">
                 and ref_id = #{refId}
             </if>
+            and project_id = #{projectId}
         </where>
     </update>
 
