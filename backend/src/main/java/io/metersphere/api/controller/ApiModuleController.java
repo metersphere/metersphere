@@ -25,10 +25,17 @@ public class ApiModuleController {
 
     @GetMapping("/list/{projectId}/{protocol}")
     public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol) {
-//        checkPermissionService.checkProjectOwner(projectId);
         String userId = SessionUtils.getUserId();
         ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
-        return apiModuleService.getNodeTreeByProjectId(projectId, protocol);
+        return apiModuleService.getNodeTreeByProjectId(projectId, protocol, null);
+    }
+
+    @GetMapping("/list/{projectId}/{protocol}/{versionId}")
+    public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol,
+                                                 @PathVariable String versionId) {
+        String userId = SessionUtils.getUserId();
+        ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
+        return apiModuleService.getNodeTreeByProjectId(projectId, protocol, versionId);
     }
 
     @GetMapping("/trashCount/{projectId}/{protocol}")

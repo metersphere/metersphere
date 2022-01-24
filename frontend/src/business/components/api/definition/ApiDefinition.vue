@@ -17,6 +17,7 @@
           :type="'edit'"
           page-source="definition"
           :total='total'
+          :current-version="currentVersion"
           ref="nodeTree"/>
       </ms-aside-container>
 
