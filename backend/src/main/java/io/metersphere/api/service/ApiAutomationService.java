@@ -302,10 +302,15 @@ public class ApiAutomationService {
 
     private void checkCustomNumExist(SaveApiScenarioRequest request) {
         ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria()
-                .andCustomNumEqualTo(request.getCustomNum())
+        String id = request.getId();
+        ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
+        ApiScenarioExample.Criteria criteria = example.createCriteria();
+        criteria.andCustomNumEqualTo(request.getCustomNum())
                 .andProjectIdEqualTo(request.getProjectId())
-                .andIdNotEqualTo(request.getId());
+                .andIdNotEqualTo(id);
+        if (apiScenarioWithBLOBs != null && StringUtils.isNotBlank(apiScenarioWithBLOBs.getRefId())) {
+            criteria.andRefIdNotEqualTo(apiScenarioWithBLOBs.getRefId());
+        }
         List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
             MSException.throwException("自定义ID " + request.getCustomNum() + " 已存在！");
@@ -374,6 +379,13 @@ public class ApiAutomationService {
             apiScenarioMapper.insertSelective(scenario);
         }
 
+        if (StringUtils.isNotBlank(request.getCustomNum()) && !StringUtils.equals(request.getCustomNum(), beforeScenario.getCustomNum())) {
+            example.clear();
+            example.createCriteria().andRefIdEqualTo(beforeScenario.getRefId());
+            ApiScenarioWithBLOBs apiScenarioWithBLOBs = new ApiScenarioWithBLOBs();
+            apiScenarioWithBLOBs.setCustomNum(request.getCustomNum());
+            apiScenarioMapper.updateByExampleSelective(apiScenarioWithBLOBs, example);
+        }
 
         apiScenarioReferenceIdService.saveByApiScenario(scenario);
         extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
