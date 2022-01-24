@@ -2452,6 +2452,8 @@ public class TestCaseService {
      * @param versionId
      */
     private void checkAndSetLatestVersion(String refId, String versionId, String projectId) {
+        if (StringUtils.isAnyBlank(refId, versionId, projectId))
+            return;
         TestCaseExample e = new TestCaseExample();
         e.createCriteria().andRefIdEqualTo(refId).andLatestEqualTo(true);
         //如果因为删除导致没有了最新的版本，则按照版本创建顺序选择一个版本为最新版本
