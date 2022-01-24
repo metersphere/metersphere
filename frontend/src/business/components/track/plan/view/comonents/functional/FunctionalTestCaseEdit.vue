@@ -27,7 +27,15 @@
                     </el-col>
 
                     <el-col class="head-right" :span="20">
-                      <ms-previous-next-button :index="index" @pre="handlePre" @next="saveCase(true, true)" :list="testCases"/>
+                      <ms-previous-next-button
+                        :index="index"
+                        :page-num="pageNum"
+                        :page-size="pageSize"
+                        :page-total="pageTotal"
+                        :total="total"
+                        @pre="handlePre"
+                        @next="saveCase(true, true)"
+                        :list="testCases"/>
                       <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly" @click="saveCase(true)">
                         {{$t('test_track.save')}} & {{$t('test_track.next')}}
                       </el-button>
@@ -185,7 +193,6 @@ export default {
       showDialog: false,
       testCase: {},
       index: 0,
-      testCases: [],
       editor: ClassicEditor,
       editorConfig: {
         toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
@@ -207,14 +214,21 @@ export default {
       isCustomFiledActive: false,
       otherInfoActive: true,
       isReadOnly: false,
+      testCases: []
     };
   },
   props: {
     total: {
-      type: Number
+      type: Number,
+
     },
     searchParam: {
       type: Object
+    },
+    pageNum: Number,
+    pageSize: {
+      type: Number,
+      default: 1
     }
   },
   computed: {
@@ -226,6 +240,9 @@ export default {
     },
     statusReadOnly() {
       return !hasPermission('PROJECT_TRACK_PLAN:READ+RUN');
+    },
+    pageTotal() {
+      return this.total / this.pageSize;
     }
   },
   methods: {
@@ -290,6 +307,10 @@ export default {
       };
     },
     saveCase(next, noTip) {
+      if (next && this.index === this.testCases.length - 1) {//需要翻页
+        this.handleNext();
+        return;
+      }
       let param = {};
       param.id = this.testCase.id;
       param.status = this.testCase.status;
@@ -320,7 +341,7 @@ export default {
         }
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
-        if (next && this.index < this.testCases.length - 1) {
+        if (next) {
           this.handleNext();
         }
       });
@@ -337,8 +358,15 @@ export default {
       }
     },
     handleNext() {
+      if (this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal) {
+        this.$warning('已经是最后一页');
+        return;
+      } else if (this.index === this.testCases.length - 1) {
+        this.$emit('nextPage');
+        return;
+      }
       this.index++;
-      this.getTestCase(this.index);
+      this.getTestCase(this.testCases[this.index].id);
       this.reloadOtherInfo();
     },
     reloadOtherInfo() {
@@ -348,15 +376,20 @@ export default {
       })
     },
     handlePre() {
+      if (this.index === 0 && this.pageNum === 1) {
+        this.$warning('已经是第一页');
+        return;
+      } else if (this.index === 0) {
+        this.$emit('prePage');
+        return;
+      }
       this.index--;
-      this.getTestCase(this.index);
+      this.getTestCase(this.testCases[this.index].id);
       this.reloadOtherInfo();
     },
-    getTestCase(index) {
-      this.testCase = {};
-      let testCase = this.testCases[index];
+    getTestCase(id) {
       // id 为 TestPlanTestCase 的 id
-      this.result = this.$get('/test/plan/case/get/' + testCase.id, response => {
+      this.result = this.$get('/test/plan/case/get/' + id, response => {
         let item = {};
         Object.assign(item, response.data);
         if (item.results) {
@@ -400,19 +433,30 @@ export default {
         this.getComments(item);
       });
     },
-    openTestCaseEdit(testCase) {
+    openTestCaseEdit(testCase, tableData) {
       this.showDialog = true;
       this.activeTab = 'detail';
       this.hasTapdId = false;
       this.hasZentaoId = false;
       this.isReadOnly = !hasPermission('PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL');
 
+      if (tableData) {
+        this.testCases = tableData;
+        for (let i = 0; i < this.testCases.length; i++) {
+          let item = this.testCases[i];
+          if (item.id === testCase.id) {
+            this.index = i;
+            break;
+          }
+        }
+      }
+
       listenGoBack(this.handleClose);
-      let initFuc = this.initData;
+      let initFuc = this.getTestCase;
       getTemplate('field/template/case/get/relate/', this)
         .then((template) => {
           this.testCaseTemplate = template;
-          initFuc(testCase);
+          initFuc(testCase.id);
         });
       if (this.$refs.otherInfo) {
         this.$refs.otherInfo.reset();
@@ -431,17 +475,6 @@ export default {
     },
     saveReport(reportId) {
       this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
-    },
-    initData(testCase) {
-      this.result = this.$post('/test/plan/case/list/ids', this.searchParam, response => {
-        this.testCases = response.data;
-        for (let i = 0; i < this.testCases.length; i++) {
-          if (this.testCases[i].id === testCase.id) {
-            this.index = i;
-            this.getTestCase(i);
-          }
-        }
-      });
     },
     openTest(item) {
       const type = item.testType;

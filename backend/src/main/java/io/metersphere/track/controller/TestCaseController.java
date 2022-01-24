@@ -100,11 +100,6 @@ public class TestCaseController {
         return testCaseService.listTestCaseMthod(request);
     }
 
-    @PostMapping("/list/ids")
-    public List<TestCaseDTO> getTestPlanCaseIds(@RequestBody QueryTestCaseRequest request) {
-        return testCaseService.listTestCaseIds(request);
-    }
-
     @GetMapping("/relationship/case/{id}/{relationshipType}")
     public List<RelationshipEdgeDTO> getRelationshipCase(@PathVariable("id") String id, @PathVariable("relationshipType") String relationshipType) {
         return testCaseService.getRelationshipCase(id, relationshipType);
