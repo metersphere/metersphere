@@ -559,6 +559,7 @@ public class TestCaseService {
         order.setName("sort");
         order.setType("desc");
         orders.add(order);
+        orders.forEach(i -> i.setPrefix("test_case"));
         request.setOrders(orders);
     }
 
