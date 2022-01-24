@@ -684,7 +684,7 @@ export default {
       //initCondition(this.condition);
       initCondition(this.condition, this.condition.selectAll);
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);
-
+      this.condition.versionId = this.currentVersion || null;
       this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
 
       if (this.planId) {

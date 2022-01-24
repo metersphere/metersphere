@@ -141,10 +141,4 @@ public interface ExtTestCaseMapper {
     int countByWorkSpaceId(String workSpaceId);
 
     long trashCount(@Param("projectId") String projectId);
-
-    int addLatestVersion(@Param("refId") String refId);
-
-    int clearLatestVersion(@Param("refId") String refId, @Param("projectId") String projectId);
-
-    int setLatestVersion(@Param("refId") String refId, @Param("versionId") String versionId);
 }
