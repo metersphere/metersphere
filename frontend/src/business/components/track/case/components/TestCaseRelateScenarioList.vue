@@ -24,20 +24,6 @@
           sortable=true>
         </ms-table-column>
 
-<!--        <ms-table-column-->
-<!--          v-if="item.id == 'num' && customNum" prop="customNum"-->
-<!--          label="ID"-->
-<!--          sortable-->
-<!--          :fields-width="fieldsWidth"-->
-<!--          min-width="120px">-->
-<!--          <template slot-scope="scope">-->
-<!--            &lt;!&ndash;<span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.customNum }} </span>&ndash;&gt;-->
-<!--            <el-tooltip content="编辑">-->
-<!--              <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.customNum }} </a>-->
-<!--            </el-tooltip>-->
-<!--          </template>-->
-<!--        </ms-table-column>-->
-
         <ms-table-column
           prop="name"
           :label="$t('api_test.automation.scenario_name')"/>
@@ -142,6 +128,10 @@ export default {
     selectNodeIds: Array,
     projectId: String,
     versionEnable: Boolean,
+    notInIds: {
+      type: Array,
+      default: null
+    }
   },
   created: function () {
     this.initTable();
@@ -174,6 +164,7 @@ export default {
         this.condition.projectId = this.projectId;
       }
       let url = '/test/case/relevance/scenario/list/';
+      this.condition.notInIds = this.notInIds;
       this.result = this.$post(this.buildPagePath(url), this.condition, response => {
         this.total = response.data.itemCount;
         this.tableData = response.data.listObject;

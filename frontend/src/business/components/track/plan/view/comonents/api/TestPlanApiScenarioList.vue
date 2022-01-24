@@ -5,7 +5,6 @@
         <test-plan-scenario-list-header
           :condition="condition"
           :projectId="projectId"
-          @changeVersion="changeVersion"
           @refresh="search"
           @relevanceCase="$emit('relevanceCase', 'scenario')"/>
       </template>
@@ -569,10 +568,6 @@ export default {
           this.search();
         });
       }
-    },
-    changeVersion(currentVersion) {
-      this.condition.versionId = currentVersion || null;
-      this.search();
     },
     getVersionOptions() {
       if (hasLicense()) {

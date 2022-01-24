@@ -50,17 +50,20 @@
     <test-case-api-relate
       :case-id="caseId"
       :versionEnable="versionEnable"
+      :not-in-ids="notInIds"
       @refresh="initTable"
       ref="apiCaseRelevance"/>
 
     <test-case-scenario-relate
       :case-id="caseId"
       :versionEnable="versionEnable"
+      :not-in-ids="notInIds"
       @refresh="initTable"
       ref="apiScenarioRelevance"/>
 
     <test-case-load-relate
       :case-id="caseId"
+      :not-in-ids="notInIds"
       :versionEnable="versionEnable"
       @refresh="initTable"
       ref="loadRelevance"/>
@@ -97,6 +100,7 @@ export default {
           }
         }
       ],
+      notInIds: null
     }
   },
   props: ['caseId', 'readOnly', 'versionEnable'],
@@ -127,6 +131,7 @@ export default {
     initTable() {
       this.result = getRelateTest(this.caseId, (data) => {
         this.data = data;
+        this.notInIds = data.map(i => i.testId);
       });
     },
   }

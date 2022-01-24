@@ -41,4 +41,9 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
      * 是否需要查询环境字段
      */
     private boolean selectEnvironment = false;
+
+    /**
+     * 查询排除一些接口
+     */
+    private List<String> notInIds;
 }
