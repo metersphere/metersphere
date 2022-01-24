@@ -1,17 +1,25 @@
 <template>
   <div class="scenario-result">
-    <div v-if="(node.children && node.children.length >0) || node.unsolicited || this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1">
+    <div v-if="(node.children && node.children.length >0) || node.unsolicited
+    || (node.type && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)">
       <el-card class="ms-card">
         <div class="el-step__icon is-text ms-api-col">
-          <div class="el-step__icon-inner"> {{ node.index }}</div>
+          <div class="el-step__icon-inner">
+            {{ node.index }}
+          </div>
         </div>
         {{ node.label }}
       </el-card>
     </div>
     <div v-else>
-      <ms-request-result :request="node.value" :indexNumber="node.index" :error-code="node.errorCode"
-                         v-on:requestResult="requestResult"
-                         :scenarioName="node.label" :console="console"/>
+      <ms-request-result
+        :request="node.value"
+        :indexNumber="node.index"
+        :error-code="node.errorCode"
+        :scenarioName="node.label"
+        :console="console"
+        v-on:requestResult="requestResult"
+      />
     </div>
   </div>
 </template>
