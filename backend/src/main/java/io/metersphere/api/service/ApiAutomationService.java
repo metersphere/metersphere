@@ -865,6 +865,7 @@ public class ApiAutomationService {
             if (scenario == null) {
                 return null;
             }
+            scenario.setId(apiScenario.getId());
             GenerateHashTreeUtil.parse(apiScenario.getScenarioDefinition(), scenario);
             String environmentType = apiScenario.getEnvironmentType();
             String environmentJson = apiScenario.getEnvironmentJson();
@@ -876,8 +877,17 @@ public class ApiAutomationService {
                 scenario.setEnvironmentMap(envMap);
             }
             // 针对导入的jmx 处理
-            if (CollectionUtils.isNotEmpty(scenario.getHashTree()) && (scenario.getHashTree().get(0) instanceof MsJmeterElement)) {
+            boolean isUseElement = false;
+            if (CollectionUtils.isNotEmpty(scenario.getHashTree())) {
+                for (MsTestElement testElement : scenario.getHashTree()) {
+                    if (testElement instanceof MsJmeterElement) {
+                        isUseElement = true;
+                    }
+                }
+            }
+            if (isUseElement) {
                 scenario.toHashTree(jmeterHashTree, scenario.getHashTree(), config);
+                ElementUtil.accuracyHashTree(jmeterHashTree);
                 return scenario.getJmx(jmeterHashTree);
             } else {
                 MsThreadGroup group = new MsThreadGroup();
@@ -892,10 +902,12 @@ public class ApiAutomationService {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LogUtil.error(ex);
             MSException.throwException(ex.getMessage());
         }
         testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
+        // 检查hashTree 准确性
+
         return testPlan.getJmx(jmeterHashTree);
     }
 
@@ -1475,21 +1487,21 @@ public class ApiAutomationService {
         return result;
     }
 
-    public List<ApiScenrioExportJmx> exportJmx(ApiScenarioBatchRequest request) {
+    public List<ApiScenarioExportJmxDTO> exportJmx(ApiScenarioBatchRequest request) {
         List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
         // 生成jmx
-        List<ApiScenrioExportJmx> resList = new ArrayList<>();
+        List<ApiScenarioExportJmxDTO> resList = new ArrayList<>();
         apiScenarioWithBLOBs.forEach(item -> {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                 String jmx = generateJmx(item);
                 if (StringUtils.isNotEmpty(jmx)) {
-                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, item.getProjectId()).getXml());
+                    ApiScenarioExportJmxDTO scenariosExportJmx = new ApiScenarioExportJmxDTO(item.getName(), apiTestService.updateJmxString(jmx, item.getProjectId()).getXml());
                     JmxInfoDTO dto = apiTestService.updateJmxString(jmx, item.getProjectId());
-                    scenrioExportJmx.setId(item.getId());
-                    scenrioExportJmx.setVersion(item.getVersion());
+                    scenariosExportJmx.setId(item.getId());
+                    scenariosExportJmx.setVersion(item.getVersion());
                     //扫描需要哪些文件
-                    scenrioExportJmx.setFileMetadataList(dto.getFileMetadataList());
-                    resList.add(scenrioExportJmx);
+                    scenariosExportJmx.setFileMetadataList(dto.getFileMetadataList());
+                    resList.add(scenariosExportJmx);
                 }
             }
         });
@@ -1503,24 +1515,24 @@ public class ApiAutomationService {
     }
 
     public byte[] exportZip(ApiScenarioBatchRequest request) {
-        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
+        List<ApiScenarioWithBLOBs> scenarios = getExportResult(request);
         // 生成jmx
         Map<String, byte[]> files = new LinkedHashMap<>();
-        apiScenarioWithBLOBs.forEach(item -> {
+        scenarios.forEach(item -> {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                 String jmx = generateJmx(item);
                 if (StringUtils.isNotEmpty(jmx)) {
-                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, item.getProjectId()).getXml());
+                    ApiScenarioExportJmxDTO scenariosExportJmx = new ApiScenarioExportJmxDTO(item.getName(), apiTestService.updateJmxString(jmx, item.getProjectId()).getXml());
                     String fileName = item.getName() + ".jmx";
-                    String jmxStr = scenrioExportJmx.getJmx();
+                    String jmxStr = scenariosExportJmx.getJmx();
                     files.put(fileName, jmxStr.getBytes(StandardCharsets.UTF_8));
                 }
             }
         });
-        if (CollectionUtils.isNotEmpty(apiScenarioWithBLOBs)) {
-            List<String> names = apiScenarioWithBLOBs.stream().map(ApiScenarioWithBLOBs::getName).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(scenarios)) {
+            List<String> names = scenarios.stream().map(ApiScenarioWithBLOBs::getName).collect(Collectors.toList());
             request.setName(String.join(",", names));
-            List<String> ids = apiScenarioWithBLOBs.stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
+            List<String> ids = scenarios.stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
             request.setId(JSON.toJSONString(ids));
         }
         return FileUtils.listBytesToZip(files);

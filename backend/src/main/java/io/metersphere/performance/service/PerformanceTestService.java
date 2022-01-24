@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.ApiScenarioBatchRequest;
-import io.metersphere.api.dto.automation.ApiScenrioExportJmx;
+import io.metersphere.api.dto.automation.ApiScenarioExportJmxDTO;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
@@ -795,7 +795,7 @@ public class PerformanceTestService {
         if (!CollectionUtils.isEmpty(scenarioIds)) {
             ApiScenarioBatchRequest scenarioRequest = new ApiScenarioBatchRequest();
             scenarioRequest.setIds(scenarioIds);
-            List<ApiScenrioExportJmx> apiScenrioExportJmxes = apiAutomationService.exportJmx(scenarioRequest);
+            List<ApiScenarioExportJmxDTO> apiScenrioExportJmxes = apiAutomationService.exportJmx(scenarioRequest);
 
             deleteLoadTestFiles(loadTest.getId());
 

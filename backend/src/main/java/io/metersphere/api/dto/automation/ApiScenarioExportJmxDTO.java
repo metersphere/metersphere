@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ApiScenrioExportJmx {
+public class ApiScenarioExportJmxDTO {
     private String name;
     private String id;
     private String jmx;
@@ -17,7 +17,7 @@ public class ApiScenrioExportJmx {
     //性能测试引用场景时需要场景下的附件
     private List<FileMetadata> fileMetadataList;
 
-    public ApiScenrioExportJmx(String name, String jmx) {
+    public ApiScenarioExportJmxDTO(String name, String jmx) {
         this.name = name;
         this.jmx = jmx;
     }
