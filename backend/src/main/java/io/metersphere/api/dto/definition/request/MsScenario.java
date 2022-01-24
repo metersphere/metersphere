@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.EnvironmentType;
-import io.metersphere.api.dto.definition.request.controller.MsCriticalSectionController;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -159,7 +158,7 @@ public class MsScenario extends MsTestElement {
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
             config.setVariables(this.variables);
         }
-        final HashTree scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName());
+        final HashTree scenarioTree = tree;
         // 场景变量和环境变量
         Arguments arguments = arguments(config);
         if (arguments != null) {
