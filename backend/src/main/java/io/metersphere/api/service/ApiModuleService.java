@@ -2,7 +2,10 @@ package io.metersphere.api.service;
 
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.ApiDefinitionRequest;
+import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
+import io.metersphere.api.dto.definition.DragModuleRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
@@ -66,9 +69,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     public ApiModule get(String id) {
         return apiModuleMapper.selectByPrimaryKey(id);
     }
-    public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
+
+    public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol, String versionId) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId,protocol);
+        this.getDefaultNode(projectId, protocol);
         List<ApiModuleDTO> apiModules = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setProjectId(projectId);
@@ -95,21 +99,24 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
             moduleIds.add(node.getId());
             for (String moduleId : moduleIds) {
-                if(!allModuleIdList.contains(moduleId)){
+                if (!allModuleIdList.contains(moduleId)) {
                     allModuleIdList.add(moduleId);
                 }
             }
         }
         request.setModuleIds(allModuleIdList);
-        List<Map<String,Object>> moduleCountList = extApiDefinitionMapper.moduleCountByCollection(request);
-        Map<String,Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
+        if (StringUtils.isNotBlank(versionId)) {
+            request.setVersionId(versionId);
+        }
+        List<Map<String, Object>> moduleCountList = extApiDefinitionMapper.moduleCountByCollection(request);
+        Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
         apiModules.forEach(node -> {
             List<String> moduleIds = new ArrayList<>();
             moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
             moduleIds.add(node.getId());
             int countNum = 0;
             for (String moduleId : moduleIds) {
-                if(moduleCountMap.containsKey(moduleId)){
+                if (moduleCountMap.containsKey(moduleId)) {
                     countNum += moduleCountMap.get(moduleId).intValue();
                 }
             }
