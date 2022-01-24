@@ -258,13 +258,13 @@
         left join (select id,workspace_id,NAME from project where workspace_id =#{request.workspaceId})
         project on test_case.project_id = project.id
         left join project_version on project.id = project_version.project_id and project_version.id =
-        test_case.version_id
+        test_case.version_id where test_case.case_public = true
         ) test_case right join
         (select
         max(test_case.update_time) update_time , ref_id
         from test_case
         left join (select id,workspace_id,NAME from project where workspace_id =#{request.workspaceId})
-        project on test_case.project_id = project.id group by test_case.ref_id
+        project on test_case.project_id = project.id where test_case.case_public = true group by test_case.ref_id
         ) tmp on test_case.update_time = tmp.update_time and test_case.ref_id = tmp.ref_id
         <where>
             <include refid="filters"/>
