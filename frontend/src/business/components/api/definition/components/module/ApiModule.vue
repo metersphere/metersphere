@@ -46,26 +46,26 @@
 </template>
 
 <script>
-  import MsAddBasisApi from "../basis/AddBasisApi";
-  import SelectMenu from "../../../../track/common/SelectMenu";
-  import {OPTIONS} from "../../model/JsonData";
-  import ApiImport from "../import/ApiImport";
-  import MsNodeTree from "../../../../track/common/NodeTree";
-  import ApiModuleHeader from "./ApiModuleHeader";
-  import {buildTree} from "../../model/NodeTree";
-  import {getCurrentProjectID} from "@/common/js/utils";
+import MsAddBasisApi from "../basis/AddBasisApi";
+import SelectMenu from "../../../../track/common/SelectMenu";
+import {OPTIONS} from "../../model/JsonData";
+import ApiImport from "../import/ApiImport";
+import MsNodeTree from "../../../../track/common/NodeTree";
+import ApiModuleHeader from "./ApiModuleHeader";
+import {buildTree} from "../../model/NodeTree";
+import {getCurrentProjectID} from "@/common/js/utils";
 
-  export default {
-    name: 'MsApiModule',
-    components: {
-      ApiModuleHeader,
-      MsNodeTree,
-      MsAddBasisApi,
-      SelectMenu,
-      ApiImport
-    },
-    data() {
-      return {
+export default {
+  name: 'MsApiModule',
+  components: {
+    ApiModuleHeader,
+    MsNodeTree,
+    MsAddBasisApi,
+    SelectMenu,
+    ApiImport
+  },
+  data() {
+    return {
         openType: 'relevance',
         result: {},
         condition: {
@@ -81,14 +81,15 @@
       isReadOnly: {
         type: Boolean,
         default() {
-          return false
+          return false;
         }
       },
       showOperator: Boolean,
       planId: String,
+      currentVersion: String,
       relevanceProjectId: String,
       reviewId: String,
-      pageSource:String,
+      pageSource: String,
       total: Number,
       options: {
         type: Array,
@@ -165,9 +166,11 @@
         if (this.isPlanModel) {
           url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
         } else if (this.isRelevanceModel) {
-          url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol;
+          url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
+            (this.currentVersion ? '/' + this.currentVersion : '');
         } else {
-          url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol;
+          url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
+            (this.currentVersion ? '/' + this.currentVersion : '');
           if (!this.projectId) {
             return;
           }

@@ -48,13 +48,6 @@ public class ApiDefinitionImportUtil {
         return "/" + path;
     }
 
-    public static ApiModule getNodeTree(String projectId) {
-        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-        List<ApiModuleDTO> nodeTrees = apiModuleService.getNodeTreeByProjectId(projectId, RequestType.HTTP);
-
-        return null;
-    }
-
     public static ApiModule buildModule(ApiModule parentModule, String name, String projectId) {
         ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
         ApiModule module;
