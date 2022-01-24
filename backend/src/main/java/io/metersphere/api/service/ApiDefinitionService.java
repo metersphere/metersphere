@@ -1950,6 +1950,9 @@ public class ApiDefinitionService {
                 api.setModulePath(request.getModulePath());
                 api.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
                 api.setNum(nextNum++);
+                api.setCreateTime(System.currentTimeMillis());
+                api.setUpdateTime(System.currentTimeMillis());
+                api.setRefId(api.getId());
                 mapper.insert(api);
                 if (i % 50 == 0)
                     sqlSession.flushStatements();
