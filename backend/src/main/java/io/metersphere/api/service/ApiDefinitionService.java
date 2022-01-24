@@ -1101,6 +1101,9 @@ public class ApiDefinitionService {
         ApiDefinitionImport apiImport = null;
         try {
             apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
+            if(apiImport.getMocks() == null){
+                apiImport.setMocks(new ArrayList<>());
+            }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             String returnThrowException = e.getMessage();

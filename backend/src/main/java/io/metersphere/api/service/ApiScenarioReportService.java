@@ -351,7 +351,12 @@ public class ApiScenarioReportService {
             scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
         }
         if (scenario != null) {
-            scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
+            if(StringUtils.equalsAnyIgnoreCase(status,ExecuteResult.errorReportResult.name())){
+                scenario.setLastResult(status);
+            }else {
+                scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
+            }
+
             long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
             scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
             scenario.setReportId(dto.getReportId());
