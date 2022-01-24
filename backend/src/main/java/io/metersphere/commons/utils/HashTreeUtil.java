@@ -241,7 +241,7 @@ public class HashTreeUtil {
     }
 
     public static void addPositive(EnvironmentConfig envConfig, HashTree samplerHashTree, ParameterConfig config, String projectId) {
-        if (envConfig != null) {
+        if (envConfig == null) {
             return;
         }
         if (envConfig.isUseErrorCode()) {
