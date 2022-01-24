@@ -15,7 +15,7 @@
     <el-tag size="mini" type="danger" v-else-if="row.status === 'Error'">
       {{ row.status }}
     </el-tag>
-    <el-tag size="mini" type="danger" v-else-if="row.status === 'errorReportResult'">
+    <el-tag size="mini" type="danger" style="background-color: #F6972A; color: #FFFFFF" v-else-if="row.status === 'errorReportResult'">
       {{ $t('error_report_library.option.name') }}
     </el-tag>
     <el-tag v-else size="mini" type="info">
