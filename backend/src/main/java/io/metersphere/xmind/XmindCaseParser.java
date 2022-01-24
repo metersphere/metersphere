@@ -254,6 +254,19 @@ public class XmindCaseParser {
             }
         }
 
+        // 判断新增
+        if (StringUtils.equals(importType, FunctionCaseImportEnum.Create.name())) {
+            String checkResult;
+            // 针对自定义 ID 的情况做重复判断
+            if (isUseCustomId) {
+                checkResult = testCaseService.checkCustomIdExist(data.getCustomNum(), projectId);
+                if (null != checkResult) {  //该ID在当前项目中存在
+                    process.add(Translator.get("custom_num_is_exist"), nodePath + "/" + compartData.getName());
+                    return false;
+                }
+            }
+        }
+
         if (validatePass) {
             this.continueValidatedCase.add(data);
         }
@@ -267,6 +280,7 @@ public class XmindCaseParser {
         for (Attached item : attacheds) {
             if (isAvailable(item.getTitle(), TC_REGEX)) {
                 item.setParent(parent);
+                // 格式化一个用例
                 this.formatTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
                 String nodePath = parent.getPath().trim() + "/" + item.getTitle().trim();
@@ -430,6 +444,7 @@ public class XmindCaseParser {
                             String nodePath = item.getTitle();
                             item.setPath(nodePath);
                             if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
+                                // 递归处理案例数据
                                 recursion(item, 1, item.getChildren().getAttached());
                             } else {
                                 if (!nodePath.startsWith("/")) {
