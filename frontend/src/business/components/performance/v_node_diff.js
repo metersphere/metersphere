@@ -286,14 +286,22 @@ function diffDetail(oldVnode,newVnode,diffNode){
   //剩最后的子节点的时候，分类型做判断(注意，最后的子节点的真实dom里可能还有dom节点)
   if(isUndef(oldVnode.child)&&isUndef(newVnode.child)&&isUndef(oldVnode.children)&&isUndef(newVnode.children)){
     //比较真实的dom
-    diffRealNode(oldVnode.elm,newVnode.elm,diffNode);
-
+    if(oldVnode.elm.parentNode.className==="ms-body"){
+      console.log("到了")
+    }
+    //最子节点比较结果
+    let childDiff=[];
+    diffRealNode(oldVnode.elm,newVnode.elm,diffNode,childDiff);
+    if(childDiff.length===0){
+      diffNodeContext(oldVnode,newVnode,diffNode)
+    }
     if(isDef(oldVnode.text)&&isDef(newVnode.text)){
         if(oldVnode.text!==newVnode.text){
           diffNode.oldNodeArray.push(oldVnode.elm);
           diffNode.nodeArray.push(newVnode.elm);
         }
-    }else if(isDef(oldVnode.tag)&&isDef(newVnode.tag)){
+    }
+    else if(isDef(oldVnode.tag)&&isDef(newVnode.tag)){
       if(oldVnode.tag==='input'&&newVnode.tag==='input'){
         if(oldVnode.elm.value!==newVnode.elm.value){
           diffNode.oldNodeArray.push(oldVnode.elm);
@@ -323,7 +331,24 @@ function diffDetail(oldVnode,newVnode,diffNode){
 
 }
 
-function diffRealNode(oldNode,newNode,diffNode){
+
+function diffNodeContext(oldNode,newNode,diffNode){
+  if(isDef(oldNode.context)&&isDef(newNode.context)){
+    if(isDef(oldNode.context.value)||isDef(newNode.context.value)){
+      if(isDef(oldNode.context.value)&&isDef(newNode.context.value)){
+        if(oldNode.context.value!==newNode.context.value){
+          diffNode.oldNodeArray.push(oldNode.elm);
+          diffNode.nodeArray.push(newNode.elm);
+        }
+      }else{
+        diffNode.oldNodeArray.push(oldNode.elm);
+        diffNode.nodeArray.push(newNode.elm);
+      }
+    }
+  }
+}
+
+function diffRealNode(oldNode,newNode,diffNode,childDiff){
   let oldNodeLength = oldNode.childNodes.length;
   let newNodeLength = newNode.childNodes.length;
   let childrenLength = Math.min(oldNodeLength, newNodeLength);
@@ -331,9 +356,12 @@ function diffRealNode(oldNode,newNode,diffNode){
     let oldnode = oldNode.childNodes[i]
     let newnode = newNode.childNodes[i]
     if(oldnode.childNodes.length>0&&newnode.childNodes.length>0){
-      diffRealNode(oldnode,newnode,diffNode)
+      diffRealNode(oldnode,newnode,diffNode,childDiff);
     }else {
-      diffRealNodeDetail(oldnode,newnode,diffNode);
+      let _isSameChild = diffRealNodeDetail(oldnode,newnode,diffNode);
+      if(!_isSameChild){
+        childDiff.push(_isSameChild)
+      }
     }
   }
   for (let i = childrenLength; i < oldNodeLength; i++) {
@@ -400,7 +428,12 @@ function diffRealNodeDetail(oldNode,newNode,diffNode){
         }
       }
     }
+    //如果他们都是0，证明比较到这时，都是相同的
+    if(oldNode.childNodes.length===0&&newNode.childNodes.length===0){
+      return true;
+    }
   }
+  return false;
 }
 
 function sameVnode (a, b) {
