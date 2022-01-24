@@ -67,6 +67,10 @@ public class ParameterConfig extends MsParameter {
     private String scenarioId;
 
     private String reportType;
+    /**
+     * 排除生成临界控制器的场景
+     */
+    private List<String> excludeScenarioIds = new ArrayList<>();
 
     private List<String> csvFilePaths = new ArrayList<>();
 

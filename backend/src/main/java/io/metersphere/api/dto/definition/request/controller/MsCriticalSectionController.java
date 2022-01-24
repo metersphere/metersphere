@@ -8,6 +8,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
+import java.util.UUID;
 
 public class MsCriticalSectionController extends MsTestElement {
 
@@ -18,11 +19,21 @@ public class MsCriticalSectionController extends MsTestElement {
 
     public static HashTree createHashTree(HashTree tree, String name) {
         CriticalSectionController criticalSectionController = new CriticalSectionController();
-        criticalSectionController.setName(StringUtils.isNotEmpty(name) ? "Csc_" + name : "Scenario Critical Section Controller");
-        criticalSectionController.setLockName("global_lock");
+        criticalSectionController.setName(StringUtils.isNotEmpty(name) ? "Csc_" + name
+                : "Scenario Critical Section Controller");
+        criticalSectionController.setLockName("global_lock_" + getUUID(8));
         criticalSectionController.setEnabled(true);
         criticalSectionController.setProperty(TestElement.TEST_CLASS, CriticalSectionController.class.getName());
         criticalSectionController.setProperty(TestElement.GUI_CLASS, "CriticalSectionControllerGui");
         return tree.add(criticalSectionController);
+    }
+
+    public static String getUUID(int len) {
+        String uuid = UUID.randomUUID().toString();
+        StringBuffer str = new StringBuffer();
+        for (int i = 0; i < len; i++) {
+            str.append(uuid.charAt(i));
+        }
+        return str.toString();
     }
 }
