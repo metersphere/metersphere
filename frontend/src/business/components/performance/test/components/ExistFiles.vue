@@ -66,7 +66,7 @@
         <template v-slot:default="scope">
           <el-upload
             style="width: 38px; float: left;"
-            accept=".jmx,.jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx,.txt"
+            accept=".jmx,.jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx,.txt,.der,.cer,.pem,.crt,.pfx,.p12,.jks"
             action=""
             :limit="fileNumLimit"
             :show-file-list="false"
