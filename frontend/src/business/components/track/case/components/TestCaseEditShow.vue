@@ -290,8 +290,6 @@ export default {
         {value: 'manual', label: this.$t('test_track.case.manual')}
       ],
       testCase: {},
-      testCases: [],
-      index: 0,
       showInputTag: true,
       tableType: "",
       stepFilter: new STEP,
@@ -561,7 +559,7 @@ export default {
           this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules, buildTestCaseOldFields(this.form));
           this.reload();
         } else {
-          this.initTestCases(testCase);
+          this.getTestCase(testCase.id);
         }
       } else {
         if (this.selectNode.data) {
@@ -585,40 +583,10 @@ export default {
         callback();
       }
     },
-    handlePre() {
-      this.index--;
-      this.getTestCase(this.index)
-    },
-    handleNext() {
-      this.index++;
-      this.getTestCase(this.index);
-    },
-    initTestCases(testCase) {
-      if (this.publicEnable) {
-        this.selectCondition.projectId = null;
-      } else {
-        this.selectCondition.workspaceId = null;
-      }
-      this.selectCondition.versionId = testCase.versionId
-      this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
-        this.testCases = response.data;
-        for (let i = 0; i < this.testCases.length; i++) {
-          if (this.testCases[i].id === testCase.id) {
-            this.index = i;
-            this.getTestCase(i);
-          }
-        }
-      });
-    },
-    getTestCase(index) {
-      let id = "";
+    getTestCase(id) {
       this.showInputTag = false;
-      let testCase = this.testCases[index];
-      if (typeof (index) == "undefined") {
+      if (!id) {
         id = this.currentTestCaseInfo.id;
-
-      } else {
-        id = testCase.id;
       }
       this.result = this.$get('/test/case/get/' + id, response => {
         if (response.data) {

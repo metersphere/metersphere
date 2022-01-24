@@ -248,8 +248,14 @@
     <functional-test-case-edit
       ref="testPlanTestCaseEdit"
       :search-param.sync="condition"
+      :page-num="currentPage"
+      :page-size="pageSize"
+      @nextPage="nextPage"
+      @prePage="prePage"
       @refresh="initTableData"
+      :test-cases="tableData"
       :is-read-only="isReadOnly"
+      :total="total"
       @refreshTable="search"/>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
@@ -448,7 +454,7 @@ export default {
     hub.$on("openFailureTestCase", row => {
       this.isReadOnly = true;
       this.condition.status = 'Failure';
-      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
+      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row, this.tableData);
     });
     this.refreshTableAndPlan();
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
@@ -460,6 +466,18 @@ export default {
     hub.$off("openFailureTestCase");
   },
   methods: {
+    nextPage() {
+      this.currentPage++;
+      this.initTableData(() => {
+        this.$refs.testPlanTestCaseEdit.openTestCaseEdit(this.tableData[0], this.tableData);
+      });
+    },
+    prePage() {
+      this.currentPage--;
+      this.initTableData(() => {
+        this.$refs.testPlanTestCaseEdit.openTestCaseEdit(this.tableData[this.tableData.length - 1], this.tableData);
+      });
+    },
     getTemplateField() {
       this.result.loading = true;
       let p1 = getProjectMember((data) => {
@@ -478,7 +496,7 @@ export default {
     getCustomFieldValue(row, field) {
       return getCustomFieldValue(row, field, this.members);
     },
-    initTableData() {
+    initTableData(callback) {
       initCondition(this.condition, this.condition.selectAll);
       this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
 
@@ -515,6 +533,9 @@ export default {
               this.$set(this.tableData[i], "issuesContent", JSON.parse(this.tableData[i].issues));
             }
           }
+          if (callback) {
+            callback();
+          }
         });
       }
     },
@@ -527,7 +548,7 @@ export default {
     },
     showDetail(row, event, column) {
       this.isReadOnly = !this.hasEditPermission;
-      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
+      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row, this.tableData);
     },
     refresh() {
       this.condition = {components: TEST_PLAN_TEST_CASE_CONFIGS};
@@ -556,7 +577,7 @@ export default {
     },
     handleEdit(testCase, index) {
       this.isReadOnly = false;
-      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(testCase);
+      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(testCase, this.tableData);
     },
     handleDelete(testCase) {
       this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + ' ' + testCase.name + " ？", '', {
@@ -677,14 +698,6 @@ export default {
 .el-tag {
   margin-left: 10px;
 }
-
-/*.ms-table-header >>> .table-title {*/
-/*  height: 0px;*/
-/*}*/
-
-/*/deep/ .el-table__fixed-body-wrapper {*/
-/*  top: 59px !important;*/
-/*}*/
 
 .ms-table-header {
   margin-bottom: 10px;

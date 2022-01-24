@@ -1772,15 +1772,6 @@ public class TestCaseService {
         return request.getId();
     }
 
-    public List<TestCaseDTO> listTestCaseIds(QueryTestCaseRequest request) {
-        setDefaultOrder(request);
-        List<String> selectFields = new ArrayList<>();
-        selectFields.add("test_case.id");
-        selectFields.add("test_case.name");
-        request.setSelectFields(selectFields);
-        return extTestCaseMapper.listIds(request);
-    }
-
     public void minderEdit(TestCaseMinderEditRequest request) {
 
         deleteToGcBatch(request.getIds());
