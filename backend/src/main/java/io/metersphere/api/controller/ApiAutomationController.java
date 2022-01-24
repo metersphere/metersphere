@@ -6,7 +6,6 @@ import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -43,8 +42,6 @@ public class ApiAutomationController {
     private ApiAutomationService apiAutomationService;
     @Resource
     private TaskService taskService;
-    @Resource
-    private ExecThreadPoolExecutor execThreadPoolExecutor;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
