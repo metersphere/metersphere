@@ -542,7 +542,7 @@
     <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT apiDef.protocol AS groupField,COUNT(testCase.id) AS countNumber FROM api_test_case testCase
         INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
-        WHERE testCase.project_id = #{0} AND (testCase.status IS NULL or testCase.status != "Trash")
+        WHERE testCase.project_id = #{0} AND (testCase.status IS NULL or testCase.status != "Trash") and latest = 1
         GROUP BY apiDef.protocol
     </select>
     <select id="findApiUrlAndMethodById" resultType="io.metersphere.base.domain.ApiDefinition">
@@ -556,6 +556,7 @@
         INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
         WHERE testCase.project_id = #{projectId}AND apiDef.status != "Trash"
           AND testCase.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+          and latest = 1
     </select>
 
     <select id="moduleCount" resultType="java.lang.Integer">

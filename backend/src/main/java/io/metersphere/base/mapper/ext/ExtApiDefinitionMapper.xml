@@ -344,7 +344,12 @@
     </update>
 
     <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
-        SELECT protocol AS groupField,count(DISTINCT ref_id) AS countNumber FROM api_definition  WHERE project_id = #{0} AND `status` != 'Trash' GROUP BY protocol
+        SELECT protocol AS groupField,count(DISTINCT ref_id) AS countNumber
+        FROM api_definition
+        WHERE project_id = #{0}
+            AND `status` != 'Trash'
+            AND latest = 1
+        GROUP BY protocol
     </select>
     <select id="countStateByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT status AS groupField,count(id) AS countNumber FROM api_definition  WHERE project_id = #{0} AND `status` != 'Trash' GROUP BY status
@@ -591,7 +596,7 @@
     <select id="selectEffectiveIdByProjectId" resultType="io.metersphere.base.domain.ApiDefinition">
         select id,path,method
         from api_definition
-        WHERE project_id = #{0} AND status != 'Trash' AND protocol = 'HTTP'
+        WHERE project_id = #{0} AND status != 'Trash' AND protocol = 'HTTP' AND latest = 1
     </select>
 
     <select id="moduleCount" resultType="java.lang.Integer">
@@ -826,6 +831,7 @@
                         SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash'
                     )
             )
+        AND latest = 1
     </select>
     <select id="getForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
         select id,num,`name`
