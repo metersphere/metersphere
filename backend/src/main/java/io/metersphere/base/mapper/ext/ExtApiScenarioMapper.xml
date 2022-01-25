@@ -416,13 +416,13 @@
     </update>
 
     <select id="countByProjectID" resultType="java.lang.Long">
-        SELECT COUNT(DISTINCT ref_id) AS countNumber FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
+        SELECT COUNT(DISTINCT ref_id) AS countNumber FROM api_scenario WHERE project_id = #{0} AND status != 'Trash' AND latest = 1
     </select>
     <select id="selectIdAndScenarioByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
         SELECT id,scenario_definition FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
     </select>
     <select id="selectIdAndUseUrlByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
-        SELECT id,use_url FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
+        SELECT id,use_url FROM api_scenario WHERE project_id = #{0} AND status != 'Trash' AND latest = 1
     </select>
     <select id="countByProjectIDAndCreatInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber FROM api_scenario
