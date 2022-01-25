@@ -85,4 +85,7 @@ public interface ExtApiDefinitionMapper {
     void clearLatestVersion(String refId);
 
     void addLatestVersion(String refId);
+
+    List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
+
 }
