@@ -1025,5 +1025,6 @@
             LIMIT 1)) AS t
         ON test_case.id = t.id
             SET test_case.latest = TRUE
+        WHERE ref_id = #{refId,jdbcType=VARCHAR}
     </update>
 </mapper>
