@@ -319,6 +319,7 @@
                                     ORDER BY tmp.update_time DESC
                                     LIMIT 1)) AS t ON load_test.id = t.id
         SET load_test.latest = TRUE
+        WHERE ref_id = #{refId,jdbcType=VARCHAR}
     </update>
 
     <update id="clearLatestVersion">
