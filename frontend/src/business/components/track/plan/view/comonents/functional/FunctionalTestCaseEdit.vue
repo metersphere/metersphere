@@ -219,8 +219,7 @@ export default {
   },
   props: {
     total: {
-      type: Number,
-
+      type: Number
     },
     searchParam: {
       type: Object
@@ -242,7 +241,7 @@ export default {
       return !hasPermission('PROJECT_TRACK_PLAN:READ+RUN');
     },
     pageTotal() {
-      return this.total / this.pageSize;
+      return Math.ceil(this.total / this.pageSize);
     }
   },
   methods: {
@@ -307,10 +306,6 @@ export default {
       };
     },
     saveCase(next, noTip) {
-      if (next && this.index === this.testCases.length - 1) {//需要翻页
-        this.handleNext();
-        return;
-      }
       let param = {};
       param.id = this.testCase.id;
       param.status = this.testCase.status;
@@ -359,7 +354,6 @@ export default {
     },
     handleNext() {
       if (this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal) {
-        this.$warning('已经是最后一页');
         return;
       } else if (this.index === this.testCases.length - 1) {
         this.$emit('nextPage');
