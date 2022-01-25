@@ -214,13 +214,20 @@ public class JiraPlatform extends AbstractIssuePlatform {
                         fields.put(key, field.getInteger("id"));
                     } catch (Exception e) {}
                 }
-                if (schema.getType() != null && schema.getType().endsWith("user")) {
+                if (isUserKey) {
+                    if (schema.getType() != null && schema.getType().endsWith("user")) {
                     JSONObject field = fields.getJSONObject(key);
-                    if (isUserKey) {
                         // 如果不是用户ID，则是用户的key，参数调整为key
                         JSONObject newField = new JSONObject();
                         newField.put("name", field.getString("id"));
                         fields.put(key, newField);
+                    }
+                    if (schema.getCustom() != null && schema.getCustom().endsWith("multiuserpicker")) { // 多选用户列表
+                        try {
+                            JSONArray userItems = fields.getJSONArray(key);
+                            userItems.forEach(i ->
+                                    ((JSONObject) i).put("name", ((JSONObject) i).getString("id")));
+                        } catch (Exception e) {LogUtil.error(e);}
                     }
                 }
             }
@@ -511,6 +518,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 value = CustomFieldType.MULTIPLE_SELECT.getValue();
             } else if (customType.contains("cascadingselect")) {
                 value = "cascadingSelect";
+            } else if (customType.contains("multiuserpicker")) {
+                value = CustomFieldType.MULTIPLE_SELECT.getValue();
+                customFieldDao.setOptions(userOptions);
             } else if (customType.contains("userpicker")) {
                 value = CustomFieldType.SELECT.getValue();
                 customFieldDao.setOptions(userOptions);
