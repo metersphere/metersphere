@@ -251,11 +251,16 @@ public class TestCaseService {
     }
 
     private void checkCustomNumExist(TestCaseWithBLOBs testCase) {
+        String id = testCase.getId();
+        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(id);
         TestCaseExample example = new TestCaseExample();
-        example.createCriteria()
-                .andCustomNumEqualTo(testCase.getCustomNum())
+        TestCaseExample.Criteria criteria = example.createCriteria();
+        criteria.andCustomNumEqualTo(testCase.getCustomNum())
                 .andProjectIdEqualTo(testCase.getProjectId())
                 .andIdNotEqualTo(testCase.getId());
+        if (testCaseWithBLOBs != null && StringUtils.isNotBlank(testCaseWithBLOBs.getRefId())) {
+            criteria.andRefIdNotEqualTo(testCaseWithBLOBs.getRefId());
+        }
         List<TestCase> list = testCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
             MSException.throwException(Translator.get("custom_num_is_exist"));
@@ -282,6 +287,18 @@ public class TestCaseService {
             example.getOredCriteria().get(0).andVersionIdEqualTo(testCase.getVersionId());
         }
         createNewVersionOrNot(testCase, example);
+
+        if (StringUtils.isNotBlank(testCase.getCustomNum()) && StringUtils.isNotBlank(testCase.getId())) {
+            TestCaseWithBLOBs caseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCase.getId());
+            if (caseWithBLOBs != null) {
+                example.clear();
+                example.createCriteria().andRefIdEqualTo(caseWithBLOBs.getRefId());
+                TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
+                testCaseWithBLOBs.setCustomNum(testCase.getCustomNum());
+                testCaseMapper.updateByExampleSelective(testCaseWithBLOBs, example);
+            }
+        }
+
         testCase.setLatest(null);
         testCaseMapper.updateByPrimaryKeySelective(testCase);
         return testCaseMapper.selectByPrimaryKey(testCase.getId());
