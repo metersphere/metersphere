@@ -695,4 +695,14 @@
         LIMIT 1)) AS t ON api_scenario.id = t.id
         SET api_scenario.latest = TRUE
     </update>
+
+    <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
+        SELECT DISTINCT ref_id
+        FROM api_scenario
+        WHERE ref_id NOT IN (
+        SELECT DISTINCT ref_id
+        FROM api_scenario
+        WHERE version_id = #{versionId} AND project_id = #{projectId}
+        ) AND project_id = #{projectId}
+    </select>
 </mapper>
