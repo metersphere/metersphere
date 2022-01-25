@@ -818,7 +818,14 @@ export default {
         // 删除提供列表删除和全部版本删除
         this.$refs.apiDeleteConfirm.open(api, this.$t('api_test.definition.request.delete_confirm'));
       } else {
-        this._handleDelete(api, false);
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this._handleDelete(api, false);
+            }
+          }
+        });
       }
     },
     _handleDelete(api, deleteCurrentVersion) {
