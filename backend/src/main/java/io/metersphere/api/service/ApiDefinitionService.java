@@ -1780,7 +1780,7 @@ public class ApiDefinitionService {
             return 0;
         } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
+            example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andLatestEqualTo(true);
             return apiDefinitionMapper.countByExample(example);
         }
     }

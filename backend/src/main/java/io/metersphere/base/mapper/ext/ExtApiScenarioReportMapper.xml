@@ -230,7 +230,7 @@
         SELECT count(ar.id) AS countNumber FROM
         api_scenario_report ar
         INNER JOIN (
-            SELECT acitem.`name`,acitem.id FROM api_scenario acitem INNER JOIN `schedule` sc ON acitem.id = sc.resource_id
+            SELECT acitem.`name`,acitem.id FROM api_scenario acitem INNER JOIN `schedule` sc ON acitem.id = sc.resource_id and latest = 1
         ) ac on ar.scenario_id = ac.id
         WHERE ar.project_id = #{projectId} AND ar.trigger_mode = 'SCHEDULE' AND ar.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
@@ -239,7 +239,7 @@
         SELECT count(ar.id) AS countNumber,ar.status AS groupField FROM
         api_scenario_report ar
         INNER JOIN (
-        SELECT acitem.`name`,acitem.id FROM api_scenario acitem INNER JOIN `schedule` sc ON acitem.id = sc.resource_id
+        SELECT acitem.`name`,acitem.id FROM api_scenario acitem INNER JOIN `schedule` sc ON acitem.id = sc.resource_id and latest = 1
         ) ac on ar.scenario_id = ac.id
         WHERE ar.project_id = #{projectId} AND ar.trigger_mode = 'SCHEDULE'
         GROUP BY groupField;
