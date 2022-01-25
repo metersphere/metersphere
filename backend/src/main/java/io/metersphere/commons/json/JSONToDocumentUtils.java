@@ -26,21 +26,21 @@ public class JSONToDocumentUtils {
             Object value = array.get(i);
             if (value instanceof JSONObject) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                children.add(new DocumentElement("", "object", "", childrenElements));
+                children.add(new DocumentElement("", BasicConstant.OBJECT, "", childrenElements));
                 jsonDataFormatting((JSONObject) value, childrenElements);
             } else if (value instanceof JSONArray) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                DocumentElement documentElement = new DocumentElement("", "array", "", childrenElements);
+                DocumentElement documentElement = new DocumentElement("", BasicConstant.ARRAY, "", childrenElements);
                 documentElement.setArrayVerification(true);
                 children.add(documentElement);
                 jsonDataFormatting((JSONArray) value, childrenElements);
             } else {
-                String type = "string";
+                String type = BasicConstant.STRING;
                 if (value != null) {
                     if (isWholeNumber(value.toString())) {
-                        type = "integer";
+                        type = BasicConstant.INTEGER;
                     } else if (isNumber(value.toString())) {
-                        type = "number";
+                        type = BasicConstant.NUMBER;
                     }
                 }
                 children.add(new DocumentElement("", type, value, null));
@@ -53,23 +53,23 @@ public class JSONToDocumentUtils {
             Object value = object.get(key);
             if (value instanceof JSONObject) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                children.add(new DocumentElement(key, "object", "", childrenElements));
+                children.add(new DocumentElement(key, BasicConstant.OBJECT, "", childrenElements));
                 jsonDataFormatting((JSONObject) value, childrenElements);
             } else if (value instanceof JSONArray) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                DocumentElement documentElement = new DocumentElement(key, "array", "", childrenElements);
+                DocumentElement documentElement = new DocumentElement(key, BasicConstant.ARRAY, "", childrenElements);
                 documentElement.setArrayVerification(true);
                 children.add(documentElement);
                 jsonDataFormatting((JSONArray) value, childrenElements);
             } else {
-                String type = "string";
+                String type = BasicConstant.STRING;
                 if (value != null) {
                     if (isWholeNumber(value.toString())) {
-                        type = "integer";
+                        type = BasicConstant.INTEGER;
                     } else if (isNumber(value.toString())) {
-                        type = "number";
-                    } else if (StringUtils.equalsIgnoreCase(DocumentUtils.getType(value), "boolean")) {
-                        type = "boolean";
+                        type = BasicConstant.NUMBER;
+                    } else if (StringUtils.equalsIgnoreCase(DocumentUtils.getType(value), BasicConstant.BOOLEAN)) {
+                        type = BasicConstant.BOOLEAN;
                     }
                 }
                 children.add(new DocumentElement(key, type, value, null));
@@ -83,7 +83,7 @@ public class JSONToDocumentUtils {
         Object typeObject = new JSONTokener(json).nextValue();
         if (typeObject instanceof net.sf.json.JSONArray) {
             if (StringUtils.equals(type, "JSON")) {
-                roots.add(new DocumentElement().newRoot("array", children));
+                roots.add(new DocumentElement().newRoot(BasicConstant.ARRAY, children));
                 JSONArray array = JSON.parseArray(json);
                 jsonDataFormatting(array, children);
             } else {
@@ -92,7 +92,7 @@ public class JSONToDocumentUtils {
             }
         } else {
             if (StringUtils.equals(type, "JSON")) {
-                roots.add(new DocumentElement().newRoot("object", children));
+                roots.add(new DocumentElement().newRoot(BasicConstant.OBJECT, children));
                 JSONObject object = JSON.parseObject(json);
                 jsonDataFormatting(object, children);
             } else {
@@ -113,7 +113,7 @@ public class JSONToDocumentUtils {
                 return getJsonDocument(jsonPrettyPrintString, type);
             } else {
                 return new LinkedList<DocumentElement>() {{
-                    this.add(new DocumentElement().newRoot("object", null));
+                    this.add(new DocumentElement().newRoot(BasicConstant.OBJECT, null));
                 }};
             }
         } catch (Exception e) {
@@ -140,12 +140,12 @@ public class JSONToDocumentUtils {
         //递归遍历当前节点所有的子节点
         List<Element> listElement = node.elements();
         if (listElement.isEmpty()) {
-            String type = "string";
+            String type = BasicConstant.STRING;
             if (StringUtils.isNotEmpty(node.getTextTrim())) {
                 if (isWholeNumber(node.getText())) {
-                    type = "integer";
+                    type = BasicConstant.INTEGER;
                 } else if (isNumber(node.getText())) {
-                    type = "number";
+                    type = BasicConstant.NUMBER;
                 }
             }
             children.add(new DocumentElement(node.getName(), type, node.getTextTrim(), null));
@@ -154,7 +154,7 @@ public class JSONToDocumentUtils {
             List<Element> elementNodes = element.elements();
             if (elementNodes.size() > 0) {
                 List<DocumentElement> elements = new LinkedList<>();
-                children.add(new DocumentElement(element.getName(), "object", element.getTextTrim(), elements));
+                children.add(new DocumentElement(element.getName(), BasicConstant.OBJECT, element.getTextTrim(), elements));
                 getNodes(element, elements);//递归
             } else {
                 getNodes(element, children);//递归
@@ -176,7 +176,7 @@ public class JSONToDocumentUtils {
             if (roots.size() > 1) {
                 Element node = document.getRootElement();
                 List<DocumentElement> newRoots = new LinkedList<>();
-                newRoots.add(new DocumentElement("root", node.getName(), "object", node.getTextTrim(), roots));
+                newRoots.add(new DocumentElement("root", node.getName(), BasicConstant.OBJECT, node.getTextTrim(), roots));
                 return newRoots;
             } else if (roots.size() == 1) {
                 roots.get(0).setId("root");
