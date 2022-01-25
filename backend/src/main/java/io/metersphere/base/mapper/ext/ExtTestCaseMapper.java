@@ -141,4 +141,8 @@ public interface ExtTestCaseMapper {
     int countByWorkSpaceId(String workSpaceId);
 
     long trashCount(@Param("projectId") String projectId);
+
+    List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
+
+    int addLatestVersion(@Param("refId") String refId);
 }
