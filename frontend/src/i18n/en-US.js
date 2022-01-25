@@ -783,6 +783,7 @@ export default {
       delete_tip: 'This version has associated system resources, this operation will delete the associated resources',
       checkout: 'Checkout',
       compare: 'Compare',
+      change_latest_tip: 'This operation will modify the default display of the interface, scene, test case and other list pages, which may take some time. Please wait! '
     },
     timing_clean_plan_report: "Regularly clean up test report",
     timing_clean_api_report: "Regularly clean up api report",
