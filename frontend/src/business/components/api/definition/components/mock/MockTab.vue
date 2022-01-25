@@ -129,6 +129,9 @@ export default {
   },
 
   watch: {
+    baseMockConfigData(){
+      this.mockConfigData = this.baseMockConfigData;
+    }
   },
   created() {
     this.mockConfigData = this.baseMockConfigData;
