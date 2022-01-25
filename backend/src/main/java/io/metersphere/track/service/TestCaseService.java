@@ -164,6 +164,9 @@ public class TestCaseService {
     @Resource
     private ProjectVersionMapper projectVersionMapper;
 
+    private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
+    private ThreadLocal<Integer> beforeImportCreateNum = new ThreadLocal<>();
+
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
             TestCaseNodeExample example = new TestCaseNodeExample();
@@ -251,16 +254,11 @@ public class TestCaseService {
     }
 
     private void checkCustomNumExist(TestCaseWithBLOBs testCase) {
-        String id = testCase.getId();
-        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(id);
         TestCaseExample example = new TestCaseExample();
-        TestCaseExample.Criteria criteria = example.createCriteria();
-        criteria.andCustomNumEqualTo(testCase.getCustomNum())
+        example.createCriteria()
+                .andCustomNumEqualTo(testCase.getCustomNum())
                 .andProjectIdEqualTo(testCase.getProjectId())
                 .andIdNotEqualTo(testCase.getId());
-        if (testCaseWithBLOBs != null && StringUtils.isNotBlank(testCaseWithBLOBs.getRefId())) {
-            criteria.andRefIdNotEqualTo(testCaseWithBLOBs.getRefId());
-        }
         List<TestCase> list = testCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
             MSException.throwException(Translator.get("custom_num_is_exist"));
@@ -729,6 +727,9 @@ public class TestCaseService {
         if (StringUtils.isBlank(request.getVersionId()) && StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Create.name())) {
             // 创建如果没选版本就创建最新版本，更新时没选就更新最近版本的用例
             request.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
+            int nextNum = getNextNum(request.getProjectId());
+            importCreateNum.set(nextNum);
+            beforeImportCreateNum.set(nextNum);
         }
         if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
             return testCaseXmindImport(multipartFile, request, httpRequest);
@@ -917,36 +918,38 @@ public class TestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         Project project = projectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+
         try {
-            Long nextOrder = ServiceUtils.getNextOrder(projectId, extTestCaseMapper::getLastOrder);
             if (!testCases.isEmpty()) {
-                AtomicInteger sort = new AtomicInteger();
-                AtomicInteger num = new AtomicInteger();
-                num.set(getNextNum(projectId) + testCases.size());
-                for (TestCaseWithBLOBs testcase : testCases) {
-                    testcase.setId(UUID.randomUUID().toString());
-                    testcase.setCreateUser(SessionUtils.getUserId());
-                    testcase.setCreateTime(System.currentTimeMillis());
-                    testcase.setUpdateTime(System.currentTimeMillis());
-                    testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
-                    testcase.setSort(sort.getAndIncrement());
-                    int number = num.incrementAndGet();
-                    testcase.setNum(number);
-                    if (project.getCustomNum() && StringUtils.isBlank(testcase.getCustomNum())) {
-                        testcase.setCustomNum(String.valueOf(number));
+                Integer num = importCreateNum.get();
+                Integer beforeInsertId = beforeImportCreateNum.get();
+
+                for (int i = testCases.size() - 1; i > - 1; i--) { // 反向遍历，保持和文件顺序一致
+                    TestCaseWithBLOBs testCase = testCases.get(i);
+                    testCase.setId(UUID.randomUUID().toString());
+                    testCase.setCreateUser(SessionUtils.getUserId());
+                    testCase.setCreateTime(System.currentTimeMillis());
+                    testCase.setUpdateTime(System.currentTimeMillis());
+                    testCase.setNodeId(nodePathMap.get(testCase.getNodePath()));
+                    testCase.setNum(num);
+                    if (project.getCustomNum() && StringUtils.isBlank(testCase.getCustomNum())) {
+                        testCase.setCustomNum(String.valueOf(num));
                     }
-                    testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                    testcase.setStatus(TestCaseReviewStatus.Prepare.name());
-                    testcase.setOrder(nextOrder);
-                    testcase.setRefId(testcase.getId());
-                    testcase.setVersionId(request.getVersionId());
-                    testcase.setLatest(true);
-                    mapper.insert(testcase);
-                    nextOrder += ServiceUtils.ORDER_STEP;
+                    num++;
+                    testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                    testCase.setStatus(TestCaseReviewStatus.Prepare.name());
+                    testCase.setOrder(new Long(testCases.size() - (num - beforeInsertId)) * ServiceUtils.ORDER_STEP);
+                    testCase.setRefId(testCase.getId());
+                    testCase.setVersionId(request.getVersionId());
+                    testCase.setLatest(true);
+                    mapper.insert(testCase);
                 }
+
+                importCreateNum.set(num);
             }
-            sqlSession.flushStatements();
         } finally {
+            sqlSession.commit();
+            sqlSession.clearCache();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
@@ -1670,7 +1673,6 @@ public class TestCaseService {
             return Optional.ofNullable(testCase.getNum() + 1).orElse(100001);
         }
     }
-
 
     /**
      * 导入用例前，检查数据库是否存在此用例
