@@ -1004,7 +1004,7 @@
             WHERE ref_id = #{refId,jdbcType=VARCHAR}
             LIMIT 1
             )
-            UNION
+            UNION ALL
             (
             SELECT tmp.id
             FROM test_case tmp
