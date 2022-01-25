@@ -18,17 +18,26 @@
       <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')&&isSameSpace">
         <span v-if="isShowNum" @click="clickResource(request)">{{ "（ ID: " + request.num + "）" }}</span>
         <span v-else>
-          <el-tooltip class="ms-num" effect="dark" :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')" placement="top">
+          <el-tooltip class="ms-num" effect="dark"
+                      :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')"
+                      placement="top">
             <i class="el-icon-warning"/>
           </el-tooltip>
         </span>
-        <span v-xpack v-if="request.versionEnable&&showVersion">{{ $t('project.version.name') }}: {{ request.versionName }}</span>
+        <span v-xpack v-if="request.versionEnable&&showVersion">{{ $t('project.version.name') }}: {{
+            request.versionName
+          }}</span>
       </template>
 
       <template v-slot:behindHeaderLeft>
-        <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
+        <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">
+          {{ $t('api_test.automation.reference_deleted') }}
+        </el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-        <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+        <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{
+            $t('api_test.scenario.reference')
+          }}
+        </el-tag>
         <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
@@ -36,7 +45,15 @@
            <i class="el-icon-loading" style="font-size: 16px"/>
            {{ $t('commons.testing') }}
          </span>
-        <span class="ms-step-debug-code" :class="request.requestResult[0].success && reqSuccess?'ms-req-success':'ms-req-error'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+
+        <!--  场景调试步骤增加误报判断  -->
+        <span class="ms-step-debug-code" :class="'ms-req-error-report'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult && request.requestResult[0].status==='errorReportResult'">
+          {{ $t("error_report_library.option.name") }}
+        </span>
+
+        <span class="ms-step-debug-code"
+              :class="request.requestResult[0].success && reqSuccess?'ms-req-success':'ms-req-error'"
+              v-else-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success && reqSuccess ? 'success' : 'error' }}
         </span>
       </template>
@@ -45,7 +62,8 @@
           <el-button @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-          <el-button @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+          <el-button @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;"
+                     class="stop-btn" circle>
             <div style="transform: scale(0.66)">
               <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
             </div>
@@ -111,8 +129,10 @@
             />
           </div>
           <div v-else>
-            <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
-              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+            <el-tabs v-model="request.activeName" closable class="ms-tabs"
+                     v-if="request.requestResult && request.requestResult.length > 1">
+              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i"
+                           style="margin-bottom: 5px">
                 <api-response-component
                   :currentProtocol="request.protocol"
                   :apiActive="true"
@@ -146,7 +166,8 @@ import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/u
 import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
-import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+import TemplateComponent
+  from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 import {ENV_TYPE} from "@/common/js/constants";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
@@ -669,7 +690,13 @@ export default {
         }
         let definitionData = this.$router.resolve({
           name: 'ApiDefinition',
-          params: {redirectID: getUUID(), dataType: "api", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, type: resource.protocol}
+          params: {
+            redirectID: getUUID(),
+            dataType: "api",
+            dataSelectRange: 'edit:' + resource.id,
+            projectId: resource.projectId,
+            type: resource.protocol
+          }
         });
         window.open(definitionData.href, '_blank');
       } else if (resource.refType && resource.refType === 'CASE') {
@@ -780,6 +807,10 @@ export default {
 
 .ms-req-error {
   color: #F56C6C;
+}
+
+.ms-req-error-report {
+  color: #F6972A;
 }
 
 .ms-test-running {
