@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.utils.DocumentUtils;
 import net.sf.json.util.JSONTokener;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
@@ -67,6 +68,8 @@ public class JSONToDocumentUtils {
                         type = "integer";
                     } else if (isNumber(value.toString())) {
                         type = "number";
+                    } else if (StringUtils.equalsIgnoreCase(DocumentUtils.getType(value), "boolean")) {
+                        type = "boolean";
                     }
                 }
                 children.add(new DocumentElement(key, type, value, null));
