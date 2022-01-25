@@ -19,14 +19,12 @@ package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
+import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.exec.utils.ResultParseUtil;
 import io.metersphere.api.service.MsResultService;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.ErrorReportLibraryUtil;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.utils.JMeterVars;
@@ -163,22 +161,16 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                     requestResult.getSubRequestResults().forEach(transactionResult -> {
                         transactionResult.getResponseResult().setConsole(console);
                         //解析误报内容
-                        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(transactionResult);
-                        JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(transactionResult));
-                        if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
-                            requestResultObject.put("errorReportResult",errorCodeDTO.getErrorCodeStr());
-                        }
+                        RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(transactionResult);
+                        JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(expandDTO));
                         dto.setContent("result_" + JSON.toJSONString(requestResultObject));
                         WebSocketUtils.sendMessageSingle(dto);
                     });
                 } else {
                     requestResult.getResponseResult().setConsole(console);
                     //解析误报内容
-                    ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(requestResult);
-                    JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(requestResult));
-                    if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
-                        requestResultObject.put("errorReportResult",errorCodeDTO.getErrorCodeStr());
-                    }
+                    RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(requestResult);
+                    JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(expandDTO));
                     dto.setContent("result_" + JSON.toJSONString(requestResultObject));
                     WebSocketUtils.sendMessageSingle(dto);
                 }
