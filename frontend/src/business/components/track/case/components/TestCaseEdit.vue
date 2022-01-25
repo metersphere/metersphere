@@ -711,7 +711,7 @@ export default {
           this.$emit("refreshTestCase",);
           this.$store.state.testCaseMap.delete(this.form.id);
           //this.tableType = 'edit';
-          this.$emit("refresh", this.form);
+          this.$emit("refresh", response.data);
           if (this.form.id) {
             this.$emit("caseEdit", param);
           } else {
@@ -1014,6 +1014,7 @@ export default {
             this.$get('/test/case/delete/' + row.id + '/' + this.form.refId, () => {
               this.$success(this.$t('commons.delete_success'));
               this.getVersionHistory();
+              this.$emit("refresh");
             });
           } else {
             that.$refs.versionHistory.loading = false;
