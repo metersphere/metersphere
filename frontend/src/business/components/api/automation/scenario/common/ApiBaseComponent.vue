@@ -15,7 +15,8 @@
             <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input" @focus="active(data)"
                       @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
           </span>
-          <span :class="showVersion?'scenario-name':'scenario-version'" v-else>
+
+          <span :class="showVersion?'scenario-unscroll':'scenario-version'" id="moveout"  @mouseenter="enter($event)" @mouseleave="leave($event)" v-else>
             <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
                v-if="data.referenced!='REF' && !data.disabled"/>
             <el-tooltip placement="top" :content="data.name">
@@ -65,7 +66,6 @@
 <script>
 import StepExtendBtns from "../component/StepExtendBtns";
 import {STEP} from "../Setting";
-
 export default {
   name: "ApiBaseComponent",
   components: {StepExtendBtns},
@@ -177,9 +177,26 @@ export default {
       this.$nextTick(() => {
         this.$refs.nameEdit.focus();
       });
+    },
+    enter($event){
+      if(this.showVersion){
+        $event.currentTarget.className="scenario-name"
+      }else{
+        $event.currentTarget.className="scenario-version"
+      }
+    },
+    leave($event){
+      if(this.showVersion){
+        $event.currentTarget.className="scenario-unscroll"
+      }else{
+        $event.currentTarget.className="scenario-version"
+      }
     }
+
+
   }
 }
+
 </script>
 
 <style scoped>
@@ -234,7 +251,7 @@ export default {
   /*text-overflow: ellipsis;*/
   vertical-align: middle;
   white-space: nowrap;
-  width: calc(100% - 20rem);
+  width: calc(100% - 23rem);
   height: auto;
 }
 .scenario-version::-webkit-scrollbar
@@ -254,7 +271,7 @@ export default {
 {
   border-radius: 1px;
   -webkit-box-shadow: inset 0 0 6px #fff;
-  background-color: #7c3030;
+  background-color: #783887;
 }
 .scenario-version::-webkit-scrollbar {
   /* width: 0px; */
@@ -272,7 +289,7 @@ export default {
   /*text-overflow: ellipsis;*/
   vertical-align: middle;
   white-space: nowrap;
-  width: calc(100% - 25rem);
+  width: calc(100% - 30rem);
   height: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
@@ -296,12 +313,31 @@ export default {
 {
   border-radius: 1px;
   -webkit-box-shadow: inset 0 0 6px #fff;
-  background-color: #7c3030;
+  background-color: #783887;
 }
 .scenario-name::-webkit-scrollbar {
   /* width: 0px; */
   height: 3px;
   position: fixed;
+}
+
+.scenario-unscroll{
+  display: inline-block;
+  font-size: 13px;
+  margin: 0 5px;
+  overflow-x: hidden;
+  /*overflow-x: auto;*/
+  overflow-y: hidden;
+  padding-bottom: 0;
+  /*text-overflow: ellipsis;*/
+  vertical-align: middle;
+  white-space: nowrap;
+  width: calc(100% - 30rem);
+  height: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  scrollbar-track-color: transparent;
+  -ms-scrollbar-track-color: transparent;
 }
 
 /deep/ .el-step__icon {

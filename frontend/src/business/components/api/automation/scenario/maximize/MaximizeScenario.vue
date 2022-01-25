@@ -35,7 +35,7 @@
                    @node-expand="nodeExpand"
                    @node-collapse="nodeCollapse"
                    :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick">
-              <span class="custom-tree-node father" slot-scope="{ node, data}">
+              <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                 <!-- 步骤组件-->
                  <ms-component-config
                    :isMax="true"
