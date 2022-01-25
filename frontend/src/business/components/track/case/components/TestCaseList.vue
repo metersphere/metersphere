@@ -804,6 +804,7 @@ export default {
         } else {
           this.$get('test/case/get/' + testCase.id, response => {
             let testCase = response.data;
+            testCase.trashEnable = this.trashEnable;
             this.$emit('testCaseEdit', testCase);
           });
         }
