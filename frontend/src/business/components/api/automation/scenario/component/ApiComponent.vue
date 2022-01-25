@@ -45,13 +45,12 @@
            <i class="el-icon-loading" style="font-size: 16px"/>
            {{ $t('commons.testing') }}
          </span>
-
         <!--  场景调试步骤增加误报判断  -->
         <span class="ms-step-debug-code" :class="'ms-req-error-report'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult && request.requestResult[0].status==='errorReportResult'">
           {{ $t("error_report_library.option.name") }}
         </span>
-
         <span class="ms-step-debug-code"
+              @click="active"
               :class="request.requestResult[0].success && reqSuccess?'ms-req-success':'ms-req-error'"
               v-else-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success && reqSuccess ? 'success' : 'error' }}
@@ -166,8 +165,7 @@ import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/u
 import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
-import TemplateComponent
-  from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 import {ENV_TYPE} from "@/common/js/constants";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
