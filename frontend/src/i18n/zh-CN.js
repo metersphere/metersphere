@@ -2036,6 +2036,7 @@ export default {
         import_update: "导入更新",
         import_tip1: "项目设置中“测试用例自定义ID” 开关开启时ID为必填项",
         import_tip2: "导入更新时ID为必填项",
+        import_file_tips: "请先上传文件！",
       },
       export: {
         export: "导出用例",

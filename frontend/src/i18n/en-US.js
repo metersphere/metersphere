@@ -2038,6 +2038,7 @@ export default {
         import_update: "Import Update",
         import_tip1: "The ID is required when the \"Test Case Custom ID\" switch is turned on in the project settings",
         import_tip2: "ID is required when importing and updating",
+        import_file_tips: "Please upload the file first!",
       },
       export: {
         export: "Export cases",
