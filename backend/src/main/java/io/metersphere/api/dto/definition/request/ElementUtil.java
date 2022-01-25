@@ -580,7 +580,8 @@ public class ElementUtil {
     public static JSR223PreProcessor argumentsToProcessor(Arguments arguments) {
         JSR223PreProcessor processor = new JSR223PreProcessor();
         processor.setEnabled(true);
-        processor.setName("scene variable");
+        processor.setName("User Defined Variables");
+        processor.setProperty("scriptLanguage", "beanshell");
         processor.setProperty(TestElement.TEST_CLASS, JSR223PreProcessor.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         StringBuffer script = new StringBuffer();
