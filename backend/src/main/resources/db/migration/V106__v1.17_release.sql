@@ -223,7 +223,20 @@ SET latest = 1;
 UPDATE load_test
 SET latest = 1;
 
-ALTER TABLE file_metadata ADD index file_name (NAME);
-ALTER TABLE file_content ADD index file_id_index (file_id);
+ALTER TABLE file_metadata
+    ADD index file_name (NAME);
+ALTER TABLE file_content
+    ADD index file_id_index (file_id);
+
+UPDATE api_scenario
+SET custom_num = num
+WHERE custom_num IS NULL
+   OR custom_num = '';
+
+UPDATE test_case
+SET custom_num = num
+WHERE custom_num IS NULL
+   OR custom_num = '';
+
 
 
