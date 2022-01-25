@@ -1151,7 +1151,15 @@ export default {
             // 删除提供列表删除和全部版本删除
             this.$refs.apiDeleteConfirm.open(row, alertMsg);
           } else {
-            this._handleDelete(row, false);
+            this.$alert(alertMsg, '', {
+              confirmButtonText: this.$t('commons.confirm'),
+              cancelButtonText: this.$t('commons.cancel'),
+              callback: (action) => {
+                if (action === 'confirm') {
+                  this._handleDelete(row, false);
+                }
+              }
+            });
           }
         });
       }
