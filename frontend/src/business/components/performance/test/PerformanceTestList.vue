@@ -260,7 +260,14 @@ export default {
         // 删除提供列表删除和全部版本删除
         this.$refs.apiDeleteConfirm.open(test, this.$t('load_test.delete_confirm'));
       } else {
-        this._handleDelete(test, false);
+        this.$alert(this.$t('load_test.delete_confirm') + test.name + "？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this._handleDelete(test, false);
+            }
+          }
+        });
       }
     },
     _handleDelete(test, deleteCurrentVersion) {
