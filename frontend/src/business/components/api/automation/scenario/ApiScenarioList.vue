@@ -218,7 +218,8 @@
               <el-link type="danger" @click="showReport(row)" v-else-if="row.lastResult === 'Fail'">
                 {{ $t('api_test.automation.fail') }}
               </el-link>
-              <el-link type="danger" style="color: #F6972A" @click="showReport(row)" v-else-if="row.lastResult === 'errorReportResult'">
+              <el-link type="danger" style="color: #F6972A" @click="showReport(row)"
+                       v-else-if="row.lastResult === 'errorReportResult'">
                 {{ $t('error_report_library.option.name') }}
               </el-link>
             </template>
@@ -1146,8 +1147,12 @@ export default {
             }
           }
           //
-          // 删除提供列表删除和全部版本删除
-          this.$refs.apiDeleteConfirm.open(row, alertMsg);
+          if (hasLicense()) {
+            // 删除提供列表删除和全部版本删除
+            this.$refs.apiDeleteConfirm.open(row, alertMsg);
+          } else {
+            this._handleDelete(row, false);
+          }
         });
       }
     },
