@@ -132,7 +132,7 @@ export default {
         {value: 'string', label: 'string'},
         {value: 'int', label: 'int'},
         {value: 'number', label: 'number'},
-
+        {value: 'boolean', label: 'boolean'},
       ],
       requiredSelectOptions: [
         {value: true, label: this.$t('commons.selector.required')},
