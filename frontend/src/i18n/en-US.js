@@ -1684,7 +1684,7 @@ export default {
       import_version: 'Import version',
       data_update_version: 'Api update version',
       data_new_version: 'Api creation version',
-      current_version: 'Current version',
+      latest_version: 'Latest version',
     },
     home_page: {
       unit_of_measurement: "",
