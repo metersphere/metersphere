@@ -59,7 +59,7 @@ public class MsJSR223Processor extends MsTestElement {
         }
         script = StringUtils.replace(script, RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + this.getEnvironmentId() + ".\"");
 
-        if(config.isOperating()){
+        if (config.isOperating()) {
             if (script.startsWith("io.metersphere.utils.JMeterVars.addVars")) {
                 return;
             }
@@ -76,7 +76,8 @@ public class MsJSR223Processor extends MsTestElement {
         } else {
             processor.setName("JSR223Processor");
         }
-        ElementUtil.setBaseParams(processor, this.getParent(), config, this.getId(), this.getIndex());
+        String resourceId = StringUtils.isNotEmpty(this.getId()) ? this.getId() : this.getResourceId();
+        ElementUtil.setBaseParams(processor, this.getParent(), config, resourceId, this.getIndex());
         processor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         processor.setProperty("scriptLanguage", this.getScriptLanguage());
