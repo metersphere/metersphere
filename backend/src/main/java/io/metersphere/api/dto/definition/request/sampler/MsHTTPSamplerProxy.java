@@ -57,7 +57,6 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -533,7 +532,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
 
                 if (StringUtils.isNotEmpty(this.alias)) {
-                    String aliasVar = UUID.randomUUID().toString();
+                    String aliasVar = "User-Defined-KeyStore-" + this.alias.trim();
                     this.addArguments(httpSamplerTree, aliasVar, this.alias.trim());
                     // 校验 keystore
                     commandService.checkKeyStore(msKeyStore.getPassword(), msKeyStore.getPath());
@@ -744,7 +743,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private void addArguments(HashTree tree, String key, String value) {
         Arguments arguments = new Arguments();
         arguments.setEnabled(true);
-        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "-KeyStoreAlias" : "KeyStoreAlias");
+        arguments.setName("User Defined KeyStoreAlias");
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
         arguments.addArgument(key, value, "=");
