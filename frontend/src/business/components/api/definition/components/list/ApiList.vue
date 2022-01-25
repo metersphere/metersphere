@@ -814,8 +814,12 @@ export default {
         });
         return;
       }
-      // 删除提供列表删除和全部版本删除
-      this.$refs.apiDeleteConfirm.open(api, this.$t('api_test.definition.request.delete_confirm'));
+      if (hasLicense()) {
+        // 删除提供列表删除和全部版本删除
+        this.$refs.apiDeleteConfirm.open(api, this.$t('api_test.definition.request.delete_confirm'));
+      } else {
+        this._handleDelete(api, false);
+      }
     },
     _handleDelete(api, deleteCurrentVersion) {
       // 删除指定版本
