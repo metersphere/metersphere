@@ -71,9 +71,9 @@
     </el-row>
 
     <el-row style="text-align: right" >
-      <div v-if="showContinueBtn" style="margin-right: 20px;margin-bottom: 10px;">
-        <el-checkbox :value="true" :disabled="true">{{ $t('test_track.case.import.ignore_error') }}</el-checkbox>
-      </div>
+<!--      <div v-if="showContinueBtn" style="margin-right: 20px;margin-bottom: 10px;">-->
+<!--        <el-checkbox :value="true" :disabled="true">{{ $t('test_track.case.import.ignore_error') }}</el-checkbox>-->
+<!--      </div>-->
       <el-button v-if="showContinueBtn" type="primary" @click="upload(true)">
         {{ $t('test_track.case.import.continue_upload') }}
       </el-button>
@@ -170,6 +170,7 @@ export default {
     },
     handleRemove(file, fileList) {
       this.lastFile = null;
+      this.showContinueBtn = false;
     },
     upload(isIgnore) {
       this.isLoading = false;
@@ -180,6 +181,10 @@ export default {
         versionId: this.versionId,
         ignore: isIgnore
       };
+      if (this.lastFile == null || this.lastFile == undefined) {
+        this.$warning(this.$t('test_track.case.import.import_file_tips'));
+        return;
+      }
       this.result = this.$fileUpload('/test/case/import',
         this.lastFile, null, param, response => {
         let res = response.data;
