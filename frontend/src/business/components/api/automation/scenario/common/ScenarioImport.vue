@@ -306,7 +306,7 @@ export default {
             this.versionOptions = response.data.filter(v => v.status === 'open');
             this.versionOptions.forEach(v => {
               if (v.latest) {
-                v.name = v.name + ' ' + this.$t('api_test.api_import.current_version');
+                v.name = v.name + ' ' + this.$t('api_test.api_import.latest_version');
               }
             });
           });
