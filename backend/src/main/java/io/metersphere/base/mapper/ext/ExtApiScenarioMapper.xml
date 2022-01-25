@@ -694,6 +694,7 @@
         ORDER BY tmp.update_time DESC
         LIMIT 1)) AS t ON api_scenario.id = t.id
         SET api_scenario.latest = TRUE
+        WHERE ref_id = #{refId,jdbcType=VARCHAR}
     </update>
 
     <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
