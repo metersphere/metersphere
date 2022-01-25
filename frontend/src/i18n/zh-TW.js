@@ -787,6 +787,7 @@ export default {
       delete_tip: '此版本已經關聯繫統資源，此操作會將所關聯的資源一併刪除',
       checkout: '切換',
       compare: '對比',
+      change_latest_tip: '此操作會修改接口，場景，測試用例等列表頁面的默認展示，可能會消耗一些時間。請耐心等待！ '
     },
     timing_clean_plan_report: "定時清理測試計劃報告",
     timing_clean_api_report: "定時清理接口測試報告",
