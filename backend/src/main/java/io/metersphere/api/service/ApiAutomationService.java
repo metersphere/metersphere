@@ -752,10 +752,12 @@ public class ApiAutomationService {
     }
 
     private JSONObject setRefScenario(JSONObject element) {
-        boolean enable = element.getBoolean("enable");
+        boolean enable = element.containsKey("enable") ? element.getBoolean("enable") : true;
         ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString("id"));
         if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
-            boolean environmentEnable = element.getBoolean("environmentEnable");
+            boolean environmentEnable = element.containsKey("environmentEnable")
+                    ? element.getBoolean("environmentEnable") : false;
+
             if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
                 element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
                 element.put("referenced", "REF");
