@@ -1689,7 +1689,7 @@ export default {
       import_version: '导入版本',
       data_update_version: '数据更新版本',
       data_new_version: '数据创建版本',
-      current_version: '当前版本',
+      latest_version: '最新版本',
     },
     home_page: {
       unit_of_measurement: "个",

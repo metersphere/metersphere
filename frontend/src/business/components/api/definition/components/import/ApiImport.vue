@@ -134,27 +134,28 @@
 </template>
 
 <script>
-  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {listenGoBack, removeGoBackListener, hasLicense, getCurrentProjectID} from "@/common/js/utils";
-  import MsSelectTree from "../../../../common/select-tree/SelectTree";
-  import MsApiKeyValue from "../ApiKeyValue";
-  import MsApiVariable from "../ApiVariable";
-  import MsApiAuthConfig from "../auth/ApiAuthConfig";
-  import {REQUEST_HEADERS} from "@/common/js/constants";
-  import {ELEMENT_TYPE, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
-  import {KeyValue} from "../../model/ApiTestModel";
+import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+import {getCurrentProjectID, hasLicense, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import MsSelectTree from "../../../../common/select-tree/SelectTree";
+import MsApiKeyValue from "../ApiKeyValue";
+import MsApiVariable from "../ApiVariable";
+import MsApiAuthConfig from "../auth/ApiAuthConfig";
+import {REQUEST_HEADERS} from "@/common/js/constants";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {KeyValue} from "../../model/ApiTestModel";
 
-  export default {
-    name: "ApiImport",
-    components: {
-      MsDialogFooter,
-      MsSelectTree,
-      MsApiKeyValue,
-      MsApiVariable,
-      MsApiAuthConfig},
-    props: {
-      saved: {
-        type: Boolean,
+export default {
+  name: "ApiImport",
+  components: {
+    MsDialogFooter,
+    MsSelectTree,
+    MsApiKeyValue,
+    MsApiVariable,
+    MsApiAuthConfig
+  },
+  props: {
+    saved: {
+      type: Boolean,
         default: true,
       },
       moduleOptions: Array,
@@ -451,7 +452,7 @@
             this.versionOptions = response.data.filter(v => v.status === 'open');
             this.versionOptions.forEach(v => {
               if (v.latest) {
-                v.name = v.name + ' ' + this.$t('api_test.api_import.current_version');
+                v.name = v.name + ' ' + this.$t('api_test.api_import.latest_version');
               }
             });
           });
