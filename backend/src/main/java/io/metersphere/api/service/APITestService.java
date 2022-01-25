@@ -459,7 +459,7 @@ public class APITestService {
      * @return
      * @author song tianyang
      */
-    public JmxInfoDTO updateJmxString(String jmx,String projectId) {
+    public JmxInfoDTO updateJmxString(String jmx, String projectId) {
         jmx = this.updateJmxMessage(jmx);
 
         //获取要转化的文件
@@ -495,9 +495,11 @@ public class APITestService {
             File file = new File(filePath);
             if (file.exists() && file.isFile()) {
                 try {
-                    FileMetadata fileMetadata = fileService.saveFile(file, FileUtil.readAsByteArray(file),projectId);
-                    fileMetadataList.add(fileMetadata);
-                    attachmentFiles.put(fileMetadata.getId(), fileMetadata.getName());
+                    FileMetadata fileMetadata = fileService.insertFileByFileName(file, FileUtil.readAsByteArray(file), projectId);
+                    if (fileMetadata != null) {
+                        fileMetadataList.add(fileMetadata);
+                        attachmentFiles.put(fileMetadata.getId(), fileMetadata.getName());
+                    }
                 } catch (Exception e) {
                     LogUtil.error(e);
                 }
@@ -623,7 +625,7 @@ public class APITestService {
         HashTree hashTree = runRequest.getTestElement().generateHashTree(config);
         String jmxString = runRequest.getTestElement().getJmx(hashTree);
         //将jmx处理封装为通用方法
-        JmxInfoDTO dto = updateJmxString(jmxString,runRequest.getProjectId());
+        JmxInfoDTO dto = updateJmxString(jmxString, runRequest.getProjectId());
         dto.setName(runRequest.getName() + ".jmx");
         return dto;
     }
