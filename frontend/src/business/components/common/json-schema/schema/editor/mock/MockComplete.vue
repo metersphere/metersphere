@@ -10,7 +10,7 @@
       value-key="name"
       highlight-first-item
       @select="change">
-      <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced()"></i>
+      <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(mock)"></i>
     </el-autocomplete>
 
     <ms-advance ref="variableAdvance" :current-item="mock"/>
@@ -31,6 +31,7 @@
         }
       },
       disabled: Boolean,
+      scenarioDefinition: Array,
     },
     data() {
       return {
@@ -72,8 +73,14 @@
       },
       change: function () {
       },
-      advanced() {
-        this.$refs.variableAdvance.open();
+      advanced(item) {
+        this.mock = item;
+        // 冒泡到父组件，调用父组件的参数设置打开方法
+        if (this.scenarioDefinition != undefined) {
+          this.$emit('editScenarioAdvance', this.mock);
+        } else {
+          this.$refs.variableAdvance.open();
+        }
       },
       showEdit() {
         this.$emit('showEdit')
@@ -95,7 +102,10 @@
             state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
           )
         }
-      }
+      },
+      editScenarioAdvance(data) {
+        this.$emit('editScenarioAdvance', data);
+      },
     }
   }
 </script>

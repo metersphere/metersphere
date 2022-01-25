@@ -21,7 +21,10 @@
         </el-select>
       </el-col>
       <el-col :span="4">
-        <ms-mock :disabled="pickKey ==='root' || pickValue.type==='object' || pickValue.type==='array' || pickValue.type==='null'" :schema="pickValue"/>
+        <ms-mock :disabled="pickValue.type==='object' || pickKey ==='root' || pickValue.type==='array' || pickValue.type==='null'"
+                 :schema="pickValue"
+                 :scenario-definition="scenarioDefinition"
+                 @editScenarioAdvance="editScenarioAdvance"/>
       </el-col>
       <el-col :span="4">
         <el-input v-model="pickValue.description" class="ms-col-title" :placeholder="$t('schema.description')" size="small"/>
@@ -40,10 +43,18 @@
     </el-row>
 
     <template v-if="!hidden&&pickValue.properties && !isArray && reloadItemOver">
-      <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
+      <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}"
+                          :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children"
+                          :scenario-definition="scenarioDefinition"
+                          @editScenarioAdvance="editScenarioAdvance"
+                          :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
     </template>
     <template v-if="isArray && reloadItemOver">
-      <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
+      <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue" :key="index"
+                          :deep="deep+1" :root="false" class="children"
+                          :scenario-definition="scenarioDefinition"
+                          @editScenarioAdvance="editScenarioAdvance"
+                          :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
     <!-- 高级设置-->
     <el-dialog append-to-body :close-on-click-modal="true" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
@@ -128,7 +139,8 @@ export default {
     lang: { // i18n language
       type: String,
       default: 'zh_CN'
-    }
+    },
+    scenarioDefinition: Array,
   },
   computed: {
     pickValue() {
@@ -172,6 +184,7 @@ export default {
   },
   data() {
     return {
+      TYPE_NAME,
       hidden: false,
       countAdd: 1,
       modalVisible: false,
@@ -336,7 +349,10 @@ export default {
       this.$nextTick(() => {
         this.reloadItemOver = true;
       })
-    }
+    },
+    editScenarioAdvance(data) {
+      this.$emit('editScenarioAdvance', data);
+    },
   }
 }
 </script>

@@ -6,7 +6,11 @@
           {{ this.$t('commons.import') }}
         </el-button>
         <div style="min-height: 200px">
-          <json-schema-editor class="schema" :value="schema" lang="zh_CN" custom/>
+          <json-schema-editor class="schema"
+                              :value="schema"
+                              :scenario-definition="scenarioDefinition"
+                              @editScenarioAdvance="editScenarioAdvance"
+                              lang="zh_CN" custom/>
         </div>
       </el-tab-pane>
       <el-tab-pane v-if="showPreview" :label="$t('schema.preview')" name="preview">
@@ -35,6 +39,7 @@
         type: Boolean,
         default: true
       },
+      scenarioDefinition: Array,
     },
     created() {
       if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
@@ -109,7 +114,10 @@
           this.schema.root = data;
           this.body.jsonSchema = this.schema.root;
         })
-      }
+      },
+      editScenarioAdvance(data) {
+        this.$emit('editScenarioAdvance', data);
+      },
     }
   }
 </script>
