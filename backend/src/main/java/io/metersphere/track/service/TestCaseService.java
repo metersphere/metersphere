@@ -1595,6 +1595,13 @@ public class TestCaseService {
 
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
         TestCaseExample example = this.getBatchExample(request);
+        //删除全部版本的数据根据 RefId
+        List<String> refIds = testCaseMapper.selectByExample(example).stream().map(TestCase::getRefId).collect(Collectors.toList());
+        example.clear();
+        example.createCriteria().andRefIdIn(refIds);
+        List<String> allVersionDataIds = testCaseMapper.selectByExample(example).stream().map(TestCase::getId).collect(Collectors.toList());
+        request.setIds(allVersionDataIds);
+
         deleteTestPlanTestCaseBath(request.getIds());
         relationshipEdgeService.delete(request.getIds()); // 删除关系图
 
