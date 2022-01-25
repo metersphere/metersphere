@@ -684,6 +684,7 @@
         FROM test_case
         WHERE project_id = #{projectId}
           AND (test_case.status IS NULL OR test_case.status != 'Trash')
+          and latest = true
         GROUP BY test_case.priority
     </select>
 
