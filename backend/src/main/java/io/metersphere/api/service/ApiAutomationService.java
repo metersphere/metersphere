@@ -1961,6 +1961,7 @@ public class ApiAutomationService {
                 api.setUpdateTime(System.currentTimeMillis());
                 api.setRefId(api.getId());
                 api.setNum(nextNum++);
+                api.setCustomNum(String.valueOf(api.getNum()));
                 mapper.insert(api);
                 if (i % 50 == 0)
                     sqlSession.flushStatements();
