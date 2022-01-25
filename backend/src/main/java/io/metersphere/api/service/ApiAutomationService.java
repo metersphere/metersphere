@@ -1222,7 +1222,6 @@ public class ApiAutomationService {
 
     private void _importCreate(List<ApiScenarioWithBLOBs> sameRequest, ApiScenarioMapper batchMapper, ExtApiScenarioMapper extApiScenarioMapper,
                                ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest) {
-        String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
         if (CollectionUtils.isEmpty(sameRequest)) {
             scenarioWithBLOBs.setId(UUID.randomUUID().toString());
             List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
@@ -1233,7 +1232,7 @@ public class ApiAutomationService {
             if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getVersionId());
             } else {
-                scenarioWithBLOBs.setVersionId(defaultVersion);
+                scenarioWithBLOBs.setVersionId(apiTestImportRequest.getDefaultVersion());
             }
             scenarioWithBLOBs.setLatest(true);
             batchMapper.insert(scenarioWithBLOBs);
@@ -1241,7 +1240,7 @@ public class ApiAutomationService {
         } else {
             //如果存在则修改
             if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
-                apiTestImportRequest.setUpdateVersionId(defaultVersion);
+                apiTestImportRequest.setUpdateVersionId(apiTestImportRequest.getDefaultVersion());
             }
             Optional<ApiScenarioWithBLOBs> scenarioOp = sameRequest.stream()
                     .filter(api -> StringUtils.equals(api.getVersionId(), apiTestImportRequest.getUpdateVersionId()))
@@ -1333,8 +1332,7 @@ public class ApiAutomationService {
                 if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
                     scenarioWithBLOBs.setVersionId(apiTestImportRequest.getVersionId());
                 } else {
-                    String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
-                    scenarioWithBLOBs.setVersionId(defaultVersion);
+                    scenarioWithBLOBs.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
                 scenarioWithBLOBs.setLatest(true);
                 batchMapper.insert(scenarioWithBLOBs);
@@ -1366,6 +1364,8 @@ public class ApiAutomationService {
             num = getNextNum(data.get(0).getProjectId());
             request.setOpenCustomNum(project.getScenarioCustomNum());
         }
+        String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        request.setDefaultVersion(defaultVersion);
         for (int i = 0; i < data.size(); i++) {
             ApiScenarioWithBLOBs item = data.get(i);
             if (item.getName().length() > 255) {
