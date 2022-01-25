@@ -70,7 +70,7 @@
     api_definition a
     on
     c.api_definition_id = a.id
-    left join project_version on a.version_id = project_version.id and a.project_id = project_version.project_id
+    inner join project_version on a.version_id = project_version.id and a.project_id = project_version.project_id
     <if test="request.protocol != null and request.protocol!=''">
       and a.protocol = #{request.protocol}
     </if>
