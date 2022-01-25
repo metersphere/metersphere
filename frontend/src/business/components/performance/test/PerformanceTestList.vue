@@ -256,8 +256,12 @@ export default {
       });
     },
     handleDelete(test) {
-      // 删除提供列表删除和全部版本删除
-      this.$refs.apiDeleteConfirm.open(test, this.$t('load_test.delete_confirm'));
+      if (hasLicense()) {
+        // 删除提供列表删除和全部版本删除
+        this.$refs.apiDeleteConfirm.open(test, this.$t('load_test.delete_confirm'));
+      } else {
+        this._handleDelete(test, false);
+      }
     },
     _handleDelete(test, deleteCurrentVersion) {
       if (deleteCurrentVersion) {

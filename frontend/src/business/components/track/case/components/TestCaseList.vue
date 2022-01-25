@@ -897,8 +897,12 @@ export default {
       });
     },
     handleDeleteToGc(testCase) {
+      if (hasLicense()) {
         // 删除提供列表删除和全部版本删除
         this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
+      } else {
+        this._handleDeleteVersion(testCase, false);
+      }
     },
     batchReduction() {
       let param = buildBatchParam(this, this.$refs.table.selectIds);
