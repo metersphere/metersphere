@@ -1220,7 +1220,8 @@ public class ApiAutomationService {
         return apiScenarioMapper.selectByExampleWithBLOBs(example);
     }
 
-    private void _importCreate(List<ApiScenarioWithBLOBs> sameRequest, ApiScenarioMapper batchMapper, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest) {
+    private void _importCreate(List<ApiScenarioWithBLOBs> sameRequest, ApiScenarioMapper batchMapper, ExtApiScenarioMapper extApiScenarioMapper,
+                               ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest) {
         String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
         if (CollectionUtils.isEmpty(sameRequest)) {
             scenarioWithBLOBs.setId(UUID.randomUUID().toString());
@@ -1234,6 +1235,7 @@ public class ApiAutomationService {
             } else {
                 scenarioWithBLOBs.setVersionId(defaultVersion);
             }
+            scenarioWithBLOBs.setLatest(true);
             batchMapper.insert(scenarioWithBLOBs);
             apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
         } else {
@@ -1265,10 +1267,13 @@ public class ApiAutomationService {
                 batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
             }
             apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
+            extApiScenarioMapper.clearLatestVersion(scenarioWithBLOBs.getRefId());
+            extApiScenarioMapper.addLatestVersion(scenarioWithBLOBs.getRefId());
         }
     }
 
-    private ApiScenarioWithBLOBs importCreate(ApiScenarioWithBLOBs request, ApiScenarioMapper batchMapper, ApiTestImportRequest apiTestImportRequest) {
+    private ApiScenarioWithBLOBs importCreate(ApiScenarioWithBLOBs request, ApiScenarioMapper batchMapper, ExtApiScenarioMapper extApiScenarioMapper,
+                                              ApiTestImportRequest apiTestImportRequest) {
         final ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
         BeanUtils.copyBean(scenarioWithBLOBs, request);
         scenarioWithBLOBs.setCreateTime(System.currentTimeMillis());
@@ -1317,7 +1322,7 @@ public class ApiAutomationService {
         }
 
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
-            _importCreate(sameRequest, batchMapper, scenarioWithBLOBs, apiTestImportRequest);
+            _importCreate(sameRequest, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
@@ -1331,6 +1336,7 @@ public class ApiAutomationService {
                     String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
                     scenarioWithBLOBs.setVersionId(defaultVersion);
                 }
+                scenarioWithBLOBs.setLatest(true);
                 batchMapper.insert(scenarioWithBLOBs);
 
                 // 存储依赖关系
@@ -1342,7 +1348,7 @@ public class ApiAutomationService {
             }
 
         } else {
-            _importCreate(sameRequest, batchMapper, scenarioWithBLOBs, apiTestImportRequest);
+            _importCreate(sameRequest, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest);
         }
         return scenarioWithBLOBs;
     }
@@ -1379,9 +1385,7 @@ public class ApiAutomationService {
                 item.setId(UUID.randomUUID().toString());
             }
             // 导入之后刷新latest
-            ApiScenarioWithBLOBs result = importCreate(item, batchMapper, request);
-            extApiScenarioMapper.clearLatestVersion(result.getRefId());
-            extApiScenarioMapper.addLatestVersion(result.getRefId());
+            importCreate(item, batchMapper, extApiScenarioMapper, request);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }
