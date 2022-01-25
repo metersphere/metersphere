@@ -2146,14 +2146,26 @@ public class ApiAutomationService {
     public List<String> getProjects(RunScenarioRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery(query));
+
         List<String> ids = request.getIds();
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(ids);
-        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+        List<ApiScenarioWithBLOBs> apiScenarios = apiScenarioMapper.selectByExampleWithBLOBs(example);
+
         List<String> strings = new LinkedList<>();
         apiScenarios.forEach(item -> {
-            if (!strings.contains(item.getProjectId())) {
-                strings.add(item.getProjectId());
+            if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
+                ScenarioEnv env = getApiScenarioEnv(item.getScenarioDefinition());
+                if (!strings.contains(item.getProjectId())) {
+                    strings.add(item.getProjectId());
+                }
+                if (env != null && CollectionUtils.isNotEmpty(env.getProjectIds())) {
+                    env.getProjectIds().forEach(projectId -> {
+                        if (!strings.contains(projectId)) {
+                            strings.add(projectId);
+                        }
+                    });
+                }
             }
         });
         return strings;
