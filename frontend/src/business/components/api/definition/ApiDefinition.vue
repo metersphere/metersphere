@@ -44,7 +44,8 @@
               right-content="CASE"
             >
               <template v-slot:version>
-                <version-select v-xpack :project-id="projectId" :version-id="trashVersion" @changeVersion="changeVersion"/>
+                <version-select v-xpack :project-id="projectId" :version-id="trashVersion"
+                                @changeVersion="changeVersion"/>
               </template>
               <!-- 列表集合 -->
               <ms-api-list
@@ -156,6 +157,7 @@
                 v-if="activeDom==='right' && currentProtocol==='HTTP'"
                 :project-id="projectId"
                 :trash-enable="trashEnable"
+                :version-id="currentVersion"
                 :module-ids="selectNodeIds"
                 ref="documentsPage"/>
             </ms-tab-button>
@@ -358,7 +360,7 @@ export default {
       useEnvironment: String,
       activeTab: "api",
       currentVersion: null,
-      trashVersion:null
+      trashVersion: null
     };
   },
   activated() {

@@ -1,7 +1,7 @@
 <template>
   <div>
     <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable"
-                         :project-id="projectId" :module-ids="moduleIds"
+                         :project-id="projectId" :module-ids="moduleIds" :version-id="versionId"
                          ref="documentAnchor"/>
   </div>
 </template>
@@ -24,6 +24,7 @@ export default {
   props: {
     projectId: String,
     moduleIds: Array,
+    versionId: String,
     activeDom: String,
     trashEnable: {
       type: Boolean,
@@ -32,7 +33,11 @@ export default {
   },
   created: function () {
   },
-  watch: {},
+  watch: {
+    versionId() {
+      this.initApiDocSimpleList();
+    }
+  },
   computed: {},
   methods: {
     initApiDocSimpleList() {
