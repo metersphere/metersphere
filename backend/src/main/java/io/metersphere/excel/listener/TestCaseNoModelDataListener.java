@@ -47,7 +47,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     /**
      * 每隔2000条存储数据库，然后清理list ，方便内存回收
      */
-    protected static final int BATCH_COUNT = 2000;
+    protected static final int BATCH_COUNT = 5000;
 
     private TestCaseService testCaseService;
 
@@ -158,7 +158,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             if (data.getCustomNum() == null) {
                 stringBuilder.append(Translator.get("id_required") + ";");
             } else {
-                String customId = data.getCustomNum().toString();
+                String customId = data.getCustomNum();
                 if (StringUtils.isEmpty(customId)) {
                     stringBuilder.append(Translator.get("id_required") + ";");
                 } else if (customIds.contains(customId)) {
