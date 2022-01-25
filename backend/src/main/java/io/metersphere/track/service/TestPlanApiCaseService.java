@@ -80,6 +80,7 @@ public class TestPlanApiCaseService {
         request.setProjectId(null);
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<TestPlanApiCaseDTO> apiTestCases = extTestPlanApiCaseMapper.list(request);
+        ServiceUtils.buildVersionInfo(apiTestCases);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
@@ -244,6 +245,7 @@ public class TestPlanApiCaseService {
         ApiTestCaseRequest selectReq = new ApiTestCaseRequest();
         selectReq.setIds(ids);
         List<TestPlanApiCaseDTO> returnList = extTestPlanApiCaseMapper.list(selectReq);
+        ServiceUtils.buildVersionInfo(returnList);
         return returnList;
     }
 
