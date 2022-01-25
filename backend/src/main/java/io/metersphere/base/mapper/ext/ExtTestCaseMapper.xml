@@ -980,4 +980,50 @@
             AND ${versionTable}.latest = 1
         </if>
     </sql>
+
+    <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
+        SELECT DISTINCT ref_id
+        FROM test_case
+        WHERE ref_id NOT IN (
+            SELECT DISTINCT ref_id
+            FROM test_case
+            WHERE version_id = #{versionId}
+              AND project_id = #{projectId}
+        )
+          AND project_id = #{projectId}
+    </select>
+
+    <update id="addLatestVersion">
+        UPDATE test_case
+            INNER JOIN ((
+            SELECT tmp.id
+            FROM test_case tmp
+            JOIN project_version
+            ON tmp.project_id = project_version.project_id AND
+            tmp.version_id = project_version.id AND project_version.latest = TRUE
+            WHERE ref_id = #{refId,jdbcType=VARCHAR}
+            LIMIT 1
+            )
+            UNION
+            (
+            SELECT tmp.id
+            FROM test_case tmp
+            JOIN project_version
+            ON tmp.project_id = project_version.project_id AND
+            tmp.version_id = project_version.id
+            AND NOT EXISTS (SELECT ref_id
+            FROM test_case tmp2
+            JOIN project_version
+            ON tmp2.project_id =
+            project_version.project_id AND
+            version_id =
+            project_version.id AND
+            project_version.latest = TRUE
+            WHERE tmp.ref_id = tmp2.ref_id)
+            WHERE tmp.ref_id = #{refId,jdbcType=VARCHAR}
+            ORDER BY tmp.update_time DESC
+            LIMIT 1)) AS t
+        ON test_case.id = t.id
+            SET test_case.latest = TRUE
+    </update>
 </mapper>
