@@ -1815,6 +1815,7 @@ export default {
     create(row) {
       // 创建新版本
       this.currentScenario.versionId = row.id;
+      this.currentScenario.versionName = row.name;
       this.loading = true;
       this.editScenario()
         .then(() => {
