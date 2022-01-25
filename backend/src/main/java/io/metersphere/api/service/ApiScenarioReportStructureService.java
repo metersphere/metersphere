@@ -11,7 +11,6 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
 import io.metersphere.base.mapper.ApiScenarioReportStructureMapper;
 import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
@@ -81,8 +80,9 @@ public class ApiScenarioReportStructureService {
         StepTreeDTO dto = null;
         if (element != null && element.getBoolean("enable")) {
             element = getRefElement(element);
-            String type = element.getString("type");
-            String resourceId = "JSR223Processor".equals(type) ? element.getString("resourceId") : element.getString("id");
+            String resourceId = StringUtils.isNotEmpty(element.getString("id"))
+                    ? element.getString("id") : element.getString("resourceId");
+
             if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
                 if (StringUtils.isNotEmpty(resourceId) && StringUtils.isNotEmpty(apiScenario.getId()) && !resourceId.contains(apiScenario.getId())) {
                     resourceId = apiScenario.getId() + "=" + resourceId;
@@ -116,8 +116,8 @@ public class ApiScenarioReportStructureService {
             JSONObject element = hashTree.getJSONObject(i);
             if (element != null && element.getBoolean("enable")) {
                 element = getRefElement(element);
-                String type = element.getString("type");
-                String resourceId = "JSR223Processor".equals(type) ? element.getString("resourceId") : element.getString("id");
+                String resourceId = StringUtils.isNotEmpty(element.getString("id"))
+                        ? element.getString("id") : element.getString("resourceId");
                 if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
                     if (StringUtils.isNotEmpty(resourceId) && StringUtils.isNotEmpty(id) && !resourceId.contains(id)) {
                         resourceId = id + "=" + resourceId;
