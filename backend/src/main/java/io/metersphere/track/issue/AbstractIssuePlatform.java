@@ -498,7 +498,12 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             Set<String> ids = issueFields.stream().map(i -> ((JSONObject) i).getString("id")).collect(Collectors.toSet());
             JSONArray defaultFields = JSONArray.parseArray(defaultCustomField);
             defaultFields.forEach(item -> { // 如果自定义字段里没有模板新加的字段，就把新字段加上
-                if (!ids.contains(((JSONObject) item).getString("id"))) {
+                String id = ((JSONObject) item).getString("id");
+                if (StringUtils.isBlank(id)) {
+                    id = ((JSONObject) item).getString("key");
+                    ((JSONObject) item).put("id", id);
+                }
+                if (!ids.contains(id)) {
                     issueFields.add(item);
                 }
             });
