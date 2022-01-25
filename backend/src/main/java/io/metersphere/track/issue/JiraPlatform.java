@@ -141,11 +141,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         setUserConfig();
         Project project = getProject();
+        List<File> imageFiles = getImageFiles(issuesRequest);
         JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, getIssueType(project.getIssueConfig()), project.getJiraKey());
+
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
-
-        List<File> imageFiles = getImageFiles(issuesRequest.getDescription());
 
         imageFiles.forEach(img -> jiraClientV2.uploadAttachment(result.getKey(), img));
 
@@ -166,6 +166,24 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     public Project getProject() {
       return super.getProject(this.projectId, Project::getJiraKey);
+    }
+
+    private List<File> getImageFiles(IssuesUpdateRequest issuesRequest) {
+        List<File> files = getImageFiles(issuesRequest.getDescription());
+        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
+        customFields.forEach(item -> {
+            String fieldName = item.getCustomData();
+            if (StringUtils.isNotBlank(fieldName)) {
+                if (item.getValue() != null) {
+                    if (StringUtils.isNotBlank(item.getType())) {
+                        if (StringUtils.equalsAny(item.getType(),  "richText")) {
+                            files.addAll(getImageFiles(item.getValue().toString()));
+                        }
+                    }
+                }
+            }
+        });
+        return files;
     }
 
     /**
@@ -293,6 +311,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
                                     attr.put("id", item.getValue());
                                 }
                                 fields.put(fieldName, attr);
+                            }
+                        } else if (StringUtils.equalsAny(item.getType(),  "richText")) {
+                            fields.put(fieldName, removeImage(item.getValue().toString()));
+                            if (fieldName.equals("description")) {
+                                issuesRequest.setDescription(item.getValue().toString());
                             }
                         } else {
                             fields.put(fieldName, item.getValue());
