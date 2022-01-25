@@ -156,6 +156,7 @@
                 v-if="activeDom==='right' && currentProtocol==='HTTP'"
                 :project-id="projectId"
                 :trash-enable="trashEnable"
+                :version-id="currentVersion"
                 :module-ids="selectNodeIds"
                 ref="documentsPage"/>
             </ms-tab-button>
@@ -538,7 +539,6 @@ export default {
         userId: getCurrentUser().id,
         url: "",
         protocol: this.currentProtocol,
-
         environmentId: "",
         remark: "",
         moduleId: 'default-module',
