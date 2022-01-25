@@ -69,7 +69,7 @@ import {getRelationshipApi} from "@/network/api";
 import ApiRelationshipRelevance
   from "@/business/components/api/definition/components/complete/ApiRelationshipRelevance";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 
 export default {
   name: "ApiRelationshipList",
@@ -86,7 +86,7 @@ export default {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API'],
-          isDisable:this.readOnly
+          isDisable: this.readOnly
         }
       ],
       condition: {},
@@ -118,12 +118,14 @@ export default {
       this.$emit('deleteRelationship', item.sourceId, item.targetId);
     },
     getProjectVersions() {
-      this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-        this.versionOptions = response.data.reduce((result, next) => {
-          result[next.id] = next.name;
-          return result;
-        }, {});
-      });
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionOptions = response.data.reduce((result, next) => {
+            result[next.id] = next.name;
+            return result;
+          }, {});
+        });
+      }
     }
   }
 };
