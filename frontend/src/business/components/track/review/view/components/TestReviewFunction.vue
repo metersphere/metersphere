@@ -18,9 +18,6 @@
         :right-tip="$t('test_track.case.minder')"
         :right-content="$t('test_track.case.minder')"
         :middle-button-enable="false">
-        <template v-slot:version>
-          <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-        </template>
         <test-review-test-case-list
           class="table-list"
           v-if="activeDom === 'left'"
