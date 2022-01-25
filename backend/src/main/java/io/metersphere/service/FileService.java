@@ -9,8 +9,8 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -44,7 +44,7 @@ public class FileService {
 
     public void setFileContent(String fileId, byte[] content) {
         FileContent record = new FileContent();
-        record  .setFile(content);
+        record.setFile(content);
         record.setFileId(fileId);
         fileContentMapper.updateByPrimaryKeySelective(record);
     }
@@ -119,6 +119,51 @@ public class FileService {
         fileContentMapper.insert(fileContent);
 
         return fileMetadata;
+    }
+
+    public FileMetadata insertFileByFileName(File file, byte[] fileByte, String projectId) {
+        if (StringUtils.isEmpty(file.getName())) {
+            return null;
+        }else {
+            FileMetadataExample example = new FileMetadataExample();
+            example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(file.getName());
+            List<FileMetadata> fileMetadatasInDataBase = fileMetadataMapper.selectByExample(example);
+            if(CollectionUtils.isEmpty(fileMetadatasInDataBase)){
+                final FileMetadata fileMetadata = new FileMetadata();
+                fileMetadata.setId(UUID.randomUUID().toString());
+                fileMetadata.setName(file.getName());
+                fileMetadata.setSize(file.length());
+                fileMetadata.setProjectId(projectId);
+                fileMetadata.setCreateTime(System.currentTimeMillis());
+                fileMetadata.setUpdateTime(System.currentTimeMillis());
+                FileType fileType = getFileType(fileMetadata.getName());
+                fileMetadata.setType(fileType.name());
+                fileMetadataMapper.insert(fileMetadata);
+
+                FileContent fileContent = new FileContent();
+                fileContent.setFileId(fileMetadata.getId());
+                fileContent.setFile(fileByte);
+                fileContentMapper.insert(fileContent);
+                return fileMetadata;
+            }else {
+                FileMetadata fileMetadata = fileMetadatasInDataBase.get(0);
+                fileMetadata.setName(file.getName());
+                fileMetadata.setSize(file.length());
+                fileMetadata.setProjectId(projectId);
+                fileMetadata.setUpdateTime(System.currentTimeMillis());
+                FileType fileType = getFileType(fileMetadata.getName());
+                fileMetadata.setType(fileType.name());
+                fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
+
+                fileContentMapper.deleteByPrimaryKey(fileMetadata.getId());
+                FileContent fileContent = new FileContent();
+                fileContent.setFileId(fileMetadata.getId());
+                fileContent.setFile(fileByte);
+                fileContentMapper.insert(fileContent);
+                return fileMetadata;
+            }
+        }
+
     }
 
     public FileMetadata saveFile(File file, byte[] fileByte, String projectId) {
