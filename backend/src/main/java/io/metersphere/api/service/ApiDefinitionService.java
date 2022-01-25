@@ -752,8 +752,7 @@ public class ApiDefinitionService {
                 if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
                     apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
                 } else {
-                    String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
-                    apiDefinition.setVersionId(defaultVersion);
+                    apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
                 apiDefinition.setLatest(true); // 新增的接口 latest = true
                 batchMapper.insert(apiDefinition);
@@ -802,7 +801,6 @@ public class ApiDefinitionService {
                                ApiTestCaseMapper apiTestCaseMapper, ExtApiDefinitionMapper extApiDefinitionMapper,
                                ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases, List<MockConfigImportDTO> mocks) {
         String originId = apiDefinition.getId();
-        String defaultVersion = extProjectVersionMapper.getDefaultVersion(apiTestImportRequest.getProjectId());
 
         if (CollectionUtils.isEmpty(sameRequest)) { // 没有这个接口 新增
             apiDefinition.setId(UUID.randomUUID().toString());
@@ -810,7 +808,7 @@ public class ApiDefinitionService {
             if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
                 apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
             } else {
-                apiDefinition.setVersionId(defaultVersion);
+                apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
             }
             apiDefinition.setLatest(true); // 新增接口 latest = true
             // case 设置版本
@@ -834,7 +832,7 @@ public class ApiDefinitionService {
 
         } else { //如果存在则修改
             if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
-                apiTestImportRequest.setUpdateVersionId(defaultVersion);
+                apiTestImportRequest.setUpdateVersionId(apiTestImportRequest.getDefaultVersion());
             }
             Optional<ApiDefinition> apiOp = sameRequest.stream()
                     .filter(api -> StringUtils.equals(api.getVersionId(), apiTestImportRequest.getUpdateVersionId()))
@@ -1175,6 +1173,8 @@ public class ApiDefinitionService {
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             num = getNextNum(data.get(0).getProjectId());
         }
+        String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        request.setDefaultVersion(defaultVersion);
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
             this.setModule(item);
