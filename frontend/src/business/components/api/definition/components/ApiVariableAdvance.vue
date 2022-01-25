@@ -544,6 +544,9 @@
           this.$set(this.currentItem, 'value', '@' + this.itemValue);
         } else {
           this.$set(this.currentItem, 'value', this.itemValue);
+          if(this.currentItem.mock != undefined){
+            this.$set(this.currentItem, 'mock', this.itemValue);
+          }
         }
         this.itemValueVisible = false;
         this.mockVariableFuncs = [];
