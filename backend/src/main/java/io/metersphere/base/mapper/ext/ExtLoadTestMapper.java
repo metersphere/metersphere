@@ -35,4 +35,6 @@ public interface ExtLoadTestMapper {
     void addLatestVersion(String refId);
 
     void clearLatestVersion(String refId);
+
+    List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
 }

@@ -331,4 +331,13 @@
         </where>
     </update>
 
+    <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
+        SELECT DISTINCT ref_id
+        FROM load_test
+        WHERE ref_id NOT IN (
+        SELECT DISTINCT ref_id
+        FROM load_test
+        WHERE version_id = #{versionId} AND project_id = #{projectId}
+        ) AND project_id = #{projectId}
+    </select>
 </mapper>
