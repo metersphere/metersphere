@@ -744,6 +744,9 @@ export default {
           param.projectId = this.projectId;
         }
       }
+      if (this.publicEnable) {
+        this.casePublic = true;
+      }
       param.name = param.name.trim();
       if (this.form.tags instanceof Array) {
         this.form.tags = JSON.stringify(this.form.tags);
