@@ -1,5 +1,6 @@
 package io.metersphere.base.mapper;
 
+import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseReviewTestCase;
 import io.metersphere.base.domain.TestCaseReviewTestCaseExample;
 import java.util.List;
@@ -27,4 +28,6 @@ public interface TestCaseReviewTestCaseMapper {
     int updateByPrimaryKeySelective(TestCaseReviewTestCase record);
 
     int updateByPrimaryKey(TestCaseReviewTestCase record);
+
+    List<TestCase> getTestCaseWithNodeInfo(@Param("reviewId") String reviewId);
 }

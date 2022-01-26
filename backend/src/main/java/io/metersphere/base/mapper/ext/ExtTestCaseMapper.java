@@ -8,6 +8,7 @@ import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.response.TrackCountResult;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -145,4 +146,7 @@ public interface ExtTestCaseMapper {
     List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
 
     int addLatestVersion(@Param("refId") String refId);
+
+    @MapKey("id")
+    Map<String, TestCase> getMaintainerMap(@Param("request") QueryTestCaseRequest request);
 }
