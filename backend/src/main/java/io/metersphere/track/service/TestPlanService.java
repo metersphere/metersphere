@@ -1571,7 +1571,7 @@ public class TestPlanService {
             List<TestPlanFailureScenarioDTO> failureScenarios = new ArrayList<>();
             List<TestPlanFailureScenarioDTO> errorReportScenarios = new ArrayList<>();
             for (TestPlanFailureScenarioDTO scenario : scenarios) {
-                if (StringUtils.equalsIgnoreCase(scenario.getLastResult(), "Fail")) {
+                if (StringUtils.equalsAnyIgnoreCase(scenario.getLastResult(), "Fail", "Error")) {
                     failureScenarios.add(scenario);
                 } else if (StringUtils.equalsIgnoreCase(scenario.getLastResult(), ExecuteResult.errorReportResult.name())) {
                     errorReportScenarios.add(scenario);
