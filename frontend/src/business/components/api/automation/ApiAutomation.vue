@@ -369,7 +369,7 @@ export default {
     },
     closeConfirm(targetName) {
       let t = this.tabs.filter(tab => tab.name === targetName);
-      if (t && this.$store.state.scenarioMap.has(t[0].currentScenario.id) && this.$store.state.scenarioMap.get(t[0].currentScenario.id) > 1) {
+      if (t && this.$store.state.scenarioMap.has(t[0].currentScenario.id) && this.$store.state.scenarioMap.get(t[0].currentScenario.id) > 0) {
         this.$alert(this.$t('commons.scenario') + " [ " + t[0].currentScenario.name + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),

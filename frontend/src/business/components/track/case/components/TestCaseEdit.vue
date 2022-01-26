@@ -358,7 +358,7 @@ export default {
   watch: {
     form: {
       handler(val) {
-        if (val && this.$store.state.testCaseMap) {
+        if (val && this.$store.state.testCaseMap && this.form.id) {
           let change = this.$store.state.testCaseMap.get(this.form.id);
           change = change + 1;
           this.$store.state.testCaseMap.set(this.form.id, change);
@@ -368,7 +368,7 @@ export default {
     },
     'testCaseTemplate.customFields': {
       handler(val) {
-        if (val && this.$store.state.testCaseMap) {
+        if (val && this.$store.state.testCaseMap && this.form.id) {
           let change = this.$store.state.testCaseMap.get(this.form.id);
           change = change + 1;
           this.$store.state.testCaseMap.set(this.form.id, change);
@@ -404,7 +404,10 @@ export default {
     if (!(this.$store.state.testCaseMap instanceof Map)) {
       this.$store.state.testCaseMap = new Map();
     }
-    this.$store.state.testCaseMap.set(this.form.id, 0);
+    if (this.form.id) {
+      this.$store.state.testCaseMap.set(this.form.id, 0);
+    }
+
   },
   created() {
     if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
@@ -513,7 +516,9 @@ export default {
       if (!this.form.remark) {
         this.form.remark = "";
       }
-      this.$store.state.testCaseMap.set(this.form.id, 0);
+      if (this.form.id) {
+        this.$store.state.testCaseMap.set(this.form.id, 0);
+      }
     },
     handleCommand(e) {
       if (e === "ADD_AND_CREATE") {
@@ -560,7 +565,9 @@ export default {
       this.isStepTableAlive = false;
       this.$nextTick(() => {
         this.isStepTableAlive = true;
-        this.$store.state.testCaseMap.set(this.form.id, 0);
+        if (this.form.id) {
+          this.$store.state.testCaseMap.set(this.form.id, 0);
+        }
       });
     },
     reloadForm() {
