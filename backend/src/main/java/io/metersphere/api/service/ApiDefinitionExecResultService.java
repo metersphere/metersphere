@@ -5,10 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiDefinitionMapper;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
-import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.DateUtils;
@@ -67,6 +64,8 @@ public class ApiDefinitionExecResultService {
     private TestPlanTestCaseService testPlanTestCaseService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private UserMapper userMapper;
 
     public void saveApiResult(List<RequestResult> requestResults, ResultDTO dto) {
         boolean isFirst = true;
@@ -111,13 +110,13 @@ public class ApiDefinitionExecResultService {
                 event = NoticeConstants.Event.EXECUTE_FAILED;
                 status = "失败";
             }
-
+            User user = userMapper.selectByPrimaryKey(result.getUserId());
             Map paramMap = new HashMap<>(beanMap);
-            paramMap.put("operator", SessionUtils.getUser().getName());
+            paramMap.put("operator", user != null ? user.getName() : SessionUtils.getUser().getName());
             paramMap.put("status", result.getStatus());
             String context = "${operator}执行接口用例" + status + ": ${name}";
             NoticeModel noticeModel = NoticeModel.builder()
-                    .operator(SessionUtils.getUserId())
+                    .operator(result.getUserId() != null ? result.getUserId() : SessionUtils.getUserId())
                     .context(context)
                     .subject("接口用例通知")
                     .successMailTemplate("api/CaseResultSuccess")

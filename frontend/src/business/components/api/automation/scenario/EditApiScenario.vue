@@ -1238,7 +1238,6 @@ export default {
       }
       this.clearResult(this.scenarioDefinition);
       this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
-      this.sort();
       this.saved = runScenario && runScenario.stepScenario ? false : true;
       /*触发执行操作*/
       this.$refs.currentScenario.validate(async (valid) => {
