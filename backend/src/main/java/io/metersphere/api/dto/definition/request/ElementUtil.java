@@ -509,6 +509,7 @@ public class ElementUtil {
             if (CollectionUtils.isNotEmpty(targetHashTree)) {
                 for (int i = 0; i < targetHashTree.size(); i++) {
                     JSONObject item = targetHashTree.getJSONObject(i);
+                    item.put("disabled", true);
                     if (StringUtils.isNotEmpty(item.getString("id"))) {
                         updateMap.put(item.getString("id"), item);
                     }
