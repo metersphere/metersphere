@@ -1625,7 +1625,7 @@ public class TestPlanService {
                 if (!CollectionUtils.isEmpty(allCases)) {
                     failureCases = allCases.stream()
                             .filter(i -> StringUtils.isNotBlank(i.getStatus())
-                                    && i.getStatus().equals("error"))
+                                    && StringUtils.equalsAnyIgnoreCase(i.getStatus(), "error"))
                             .collect(Collectors.toList());
                 }
                 report.setLoadFailureCases(failureCases);

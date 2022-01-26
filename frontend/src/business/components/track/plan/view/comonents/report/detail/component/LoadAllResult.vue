@@ -1,12 +1,13 @@
 <template>
   <el-container>
     <ms-aside-container width="500px" :default-hidden-bottom-top="200" :enable-auto-height="true">
-      <load-failure-result :class="{'init-height': !showResponse}" :is-db="isDb" @rowClick="getReport" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
-                         :report="report" :plan-id="planId" @setSize="setAllSize"/>
+      <load-failure-result :class="{'init-height': !showResponse}" :is-db="isDb" @rowClick="getReport" :is-all="isAll"
+                           :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
+                           :report="report" :plan-id="planId" @setSize="setAllSize"/>
     </ms-aside-container>
     <ms-main-container>
-        <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare" v-show="showResponse"
-                               :plan-report-template="response" :report-id="reportId" ref="loadCaseReportView"/>
+      <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare" v-show="showResponse"
+                             :plan-report-template="response" :report-id="reportId" ref="loadCaseReportView"/>
       <div class="empty" v-show="!showResponse">{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </ms-main-container>
   </el-container>
@@ -23,23 +24,29 @@ import LoadCaseReport from "@/business/components/track/plan/view/comonents/load
 import LoadCaseReportView from "@/business/components/track/plan/view/comonents/load/LoadCaseReportView";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+
 export default {
   name: "LoadAllResult",
   components: {
     MsMainContainer,
     MsAsideContainer,
-    LoadCaseReportView, LoadCaseReport, LoadFailureResult, StatusTableItem, MethodTableItem, TypeTableItem},
+    LoadCaseReportView, LoadCaseReport, LoadFailureResult, StatusTableItem, MethodTableItem, TypeTableItem
+  },
   props: {
     planId: String,
     report: Object,
     isTemplate: Boolean,
     isShare: Boolean,
     shareId: String,
-    isDb: Boolean
+    isDb: Boolean,
+    isAll: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
-      failureTestCases:  [],
+      failureTestCases: [],
       showResponse: false,
       reportId: "",
       response: null
