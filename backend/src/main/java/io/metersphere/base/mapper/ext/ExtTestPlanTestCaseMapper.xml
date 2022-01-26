@@ -556,6 +556,13 @@
         order by `order` desc limit 1;
     </select>
 
+    <select id="getTestCaseWithNodeInfo" resultType="io.metersphere.base.domain.TestCase">
+        select tc.project_id, tc.node_id
+        from test_plan_test_case tptc
+        join test_case tc on tptc.case_id = tc.id
+        where tptc.plan_id = #{planId}
+    </select>
+
     <sql id="queryVersionCondition">
         <if test="request.versionId != null">
             and ${versionTable}.version_id = #{request.versionId}
