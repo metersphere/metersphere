@@ -115,7 +115,7 @@
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-link class="head">{{ $t('api_test.automation.scenario_total') }}
                         </el-link>
-                        ：{{ oldVariableSize }}
+                        ：{{ getOldVariableSize() }}
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-checkbox v-model="oldEnableCookieShare"><span style="font-size: 13px;">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox>
@@ -269,7 +269,7 @@
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-link class="head" >{{ $t('api_test.automation.scenario_total') }}
                         </el-link>
-                        ：{{ newVariableSize }}
+                        ：{{ getNewVariableSize() }}
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-checkbox v-model="newEnableCookieShare"><span style="font-size: 13px;">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox>
@@ -459,19 +459,19 @@ export default{
      newColor:""
    }
   },
-  methods:{
-    getDiff(){
+  methods: {
+    getDiff() {
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
       //oldVnode.style.backgroundColor = "rgb(241,200,196)";
-      if(this.oldData.createTime>this.newData.createTime){
+      if (this.oldData.createTime > this.newData.createTime) {
         this.oldColor = "rgb(121, 225, 153,0.3)";
         this.newColor = "rgb(241,200,196,0.45)"
-      }else{
+      } else {
         this.oldColor = "rgb(241,200,196,0.45)"
         this.newColor = "rgb(121, 225, 153,0.3)";
       }
-      diff(oldVnode,vnode,this.oldColor,this.newColor);
+      diff(oldVnode, vnode, this.oldColor, this.newColor);
       this.isReloadData = false
     },
     showAll() {
@@ -482,7 +482,7 @@ export default{
         this.$store.state.selectStep = undefined;
       }
     },
-    oldShowPopover(){
+    oldShowPopover() {
       let definition = JSON.parse(JSON.stringify(this.oldData));
       definition.hashTree = this.oldScenarioDefinition;
       this.oldEnvResult.loading = true;
@@ -491,7 +491,7 @@ export default{
         this.oldEnvResult.loading = false;
       })
     },
-    newShowPopover(){
+    newShowPopover() {
       let definition = JSON.parse(JSON.stringify(this.newData));
       definition.hashTree = this.newScenarioDefinition;
       this.newEnvResult.loading = true;
@@ -500,13 +500,13 @@ export default{
         this.newEnvResult.loading = false;
       })
     },
-    changeNodeStatus(nodes,source) {
+    changeNodeStatus(nodes, source) {
       for (let i in nodes) {
         if (nodes[i]) {
           if (this.expandedStatus) {
-            if(source==="new"){
+            if (source === "new") {
               this.newExpandedNode.push(nodes[i].resourceId);
-            }else {
+            } else {
               this.oldExpandedNode.push(nodes[i].resourceId);
             }
           }
@@ -515,7 +515,7 @@ export default{
             nodes[i].active = false;
           }
           if (nodes[i].hashTree !== undefined && nodes[i].hashTree.length > 0) {
-            this.changeNodeStatus(nodes[i].hashTree,source);
+            this.changeNodeStatus(nodes[i].hashTree, source);
           }
         }
       }
@@ -524,10 +524,10 @@ export default{
       this.newExpandedNode = [];
       this.oldExpandedNode = [];
       this.expandedStatus = true;
-      if(source==="new"){
-        this.changeNodeStatus(this.newScenarioDefinition,source);
-      }else {
-        this.changeNodeStatus(this.oldScenarioDefinition,source);
+      if (source === "new") {
+        this.changeNodeStatus(this.newScenarioDefinition, source);
+      } else {
+        this.changeNodeStatus(this.oldScenarioDefinition, source);
       }
 
     },
@@ -535,10 +535,10 @@ export default{
       this.expandedStatus = false;
       this.newExpandedNode = [];
       this.oldExpandedNode = [];
-      if(source==="new"){
-        this.changeNodeStatus( this.newScenarioDefinition,source);
-      }else {
-        this.changeNodeStatus( this.oldScenarioDefinition,source);
+      if (source === "new") {
+        this.changeNodeStatus(this.newScenarioDefinition, source);
+      } else {
+        this.changeNodeStatus(this.oldScenarioDefinition, source);
       }
       this.showHide();
     },
@@ -561,9 +561,9 @@ export default{
     enableAll(source) {
       this.stepEnable = true;
       let scenarioDefinition;
-      if(source==="new"){
+      if (source === "new") {
         scenarioDefinition = this.newScenarioDefinition;
-      }else {
+      } else {
         scenarioDefinition = this.oldScenarioDefinition;
       }
       this.stepStatus(scenarioDefinition);
@@ -571,59 +571,77 @@ export default{
     disableAll(source) {
       this.stepEnable = false;
       let scenarioDefinition;
-      if(source==="new"){
+      if (source === "new") {
         scenarioDefinition = this.newScenarioDefinition;
-      }else {
+      } else {
         scenarioDefinition = this.oldScenarioDefinition;
       }
       this.stepStatus(scenarioDefinition);
     },
-    nodeExpand(data, node,source) {
-      if(source==="new"){
+    nodeExpand(data, node, source) {
+      if (source === "new") {
         if (data && data.resourceId && this.newExpandedNode.indexOf(data.resourceId) === -1) {
           this.newExpandedNode.push(data.resourceId);
         }
-      }else{
+      } else {
         if (data && data.resourceId && this.oldExpandedNode.indexOf(data.resourceId) === -1) {
           this.oldExpandedNode.push(data.resourceId);
         }
       }
 
     },
-    nodeCollapse(data, node,source) {
+    nodeCollapse(data, node, source) {
       if (data && data.resourceId) {
-        if(source==="new"){
+        if (source === "new") {
           this.newExpandedNode.splice(this.newExpandedNode.indexOf(data.resourceId), 1);
-        }else {
+        } else {
           this.oldExpandedNode.splice(this.oldExpandedNode.indexOf(data.resourceId), 1);
         }
       }
     },
-    nodeClick(data, node,source) {
+    nodeClick(data, node, source) {
       this.$store.state.selectStep = data;
       this.rightChildData = data;
       this.rightChildNode = node
       this.rightChildVnode = source
       this.currentRightChild = source;
       console.log(this.rightChildVnode)
-      if(this.currentLeftChild){
+      if (this.currentLeftChild) {
         this.dialogVisible = true;
       }
     },
-    oldNodeClick(data, node,source) {
+    oldNodeClick(data, node, source) {
       this.$store.state.selectStep = data;
       this.leftChildData = data;
       this.leftChildNode = node
       this.leftChildVnode = source
       this.currentLeftChild = source;
-      if(this.currentRightChild){
+      if (this.currentRightChild) {
         this.dialogVisible = true;
       }
     },
-
+    getOldVariableSize() {
+      let size = 0;
+      if (this.oldData.variables) {
+        size += this.oldData.variables.length;
+      }
+      if (this.oldData.headers && this.oldData.headers.length > 1) {
+        size += this.oldData.headers.length - 1;
+      }
+      return size;
+    },
+    getNewVariableSize(){
+      let size = 0;
+      if (this.newData.variables) {
+        size += this.newData.variables.length;
+      }
+      if (this.newData.headers && this.newData.headers.length > 1) {
+        size += this.newData.headers.length - 1;
+      }
+      return size;
+    }
   },
   created() {
-
   },
   mounted() {
     this.$nextTick(function () {
