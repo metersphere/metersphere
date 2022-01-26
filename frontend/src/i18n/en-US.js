@@ -1456,6 +1456,7 @@ export default {
       parameters_advance_add_func: "Add Function",
       parameters_advance_add_func_limit: "Support up to 5 functions",
       parameters_advance_add_func_error: "Please select function first",
+      parameters_advance_add_mock_error: "Please select mock data first",
       parameters_advance_add_param_error: "Please enter function parameters",
       parameters_desc: "Parameters will be appended to the URL e.g. https://fit2cloud.com?Name=Value&Name2=Value2",
       headers: "Headers",

@@ -1461,6 +1461,7 @@ export default {
       parameters_advance_add_func: "添加函数",
       parameters_advance_add_func_limit: "最多支持5个函数",
       parameters_advance_add_func_error: "请先选择函数",
+      parameters_advance_add_mock_error: "请先选择mock数据",
       parameters_advance_add_param_error: "请输入函数参数",
       parameters_desc: "参数追加到URL，例如https://fit2cloud.com/entries?key1=Value1&Key2=Value2",
       headers: "请求头",

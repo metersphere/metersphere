@@ -511,6 +511,10 @@
         }
       },
       addFunc() {
+        if(this.itemValue == undefined || this.itemValue == null){
+          this.$warning(this.$t('api_test.request.parameters_advance_add_mock_error'));
+          return;
+        }
         if(this.itemValue.indexOf('@') == -1){
           this.itemValue = '@' + this.itemValue;
         } else {
