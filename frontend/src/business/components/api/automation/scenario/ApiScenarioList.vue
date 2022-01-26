@@ -563,6 +563,7 @@ export default {
       envGroupId: "",
       apiscenariofilters: {},
       runRequest: {},
+      versionEnable: false,
     };
   },
   created() {
@@ -843,6 +844,7 @@ export default {
       }
       if (hasLicense()) {
         this.$get('/project/version/enable/' + projectId, response => {
+          this.versionEnable = response.data;
           if (!response.data) {
             this.fields = this.fields.filter(f => f.id !== 'versionId');
           }
@@ -1147,20 +1149,22 @@ export default {
             }
           }
           //
-          if (hasLicense()) {
-            // 删除提供列表删除和全部版本删除
-            this.$refs.apiDeleteConfirm.open(row, alertMsg);
-          } else {
-            this.$alert(alertMsg, '', {
-              confirmButtonText: this.$t('commons.confirm'),
-              cancelButtonText: this.$t('commons.cancel'),
-              callback: (action) => {
-                if (action === 'confirm') {
-                  this._handleDelete(row, false);
+          this.$get('/api/automation/versions/' + row.id, response => {
+            if (hasLicense() && this.versionEnable && response.data.length > 1) {
+              // 删除提供列表删除和全部版本删除
+              this.$refs.apiDeleteConfirm.open(row, alertMsg);
+            } else {
+              this.$alert(alertMsg, '', {
+                confirmButtonText: this.$t('commons.confirm'),
+                cancelButtonText: this.$t('commons.cancel'),
+                callback: (action) => {
+                  if (action === 'confirm') {
+                    this._handleDelete(row, false);
+                  }
                 }
-              }
-            });
-          }
+              });
+            }
+          });
         });
       }
     },
