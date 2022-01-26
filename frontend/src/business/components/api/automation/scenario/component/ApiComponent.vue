@@ -250,6 +250,7 @@ export default {
 
     if (this.request.num) {
       this.isShowNum = true;
+      this.request.root = true;
       this.getWorkspaceId(this.request.projectId);
     } else {
       this.isShowNum = false;
