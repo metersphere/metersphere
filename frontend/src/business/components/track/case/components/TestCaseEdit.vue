@@ -155,6 +155,14 @@
 
       </el-dialog>
 
+      <el-dialog
+        :visible.sync="isValidate"
+        :destroy-on-close="true"
+        :title="$t('commons.prompt')"
+      >
+        <span>{{currentValidateName+$t('commons.cannot_be_null')}}</span>
+      </el-dialog>
+
       <version-create-other-info-select @confirmOtherInfo="confirmOtherInfo" ref="selectPropDialog"></version-create-other-info-select>
     </div>
   </el-card>
@@ -237,6 +245,8 @@ export default {
       result: {},
       dialogFormVisible: false,
       showFollow: false,
+      isValidate:false,
+      currentValidateName:"",
       form: {
         name: '',
         module: 'default-module',
@@ -992,6 +1002,17 @@ export default {
       this.$refs['customFieldForm'].validate((valid) => {
         if (!valid) {
           isValidate = false;
+          for (let i = 0; i < this.$refs['customFieldForm'].fields.length; i++) {
+            let customField = this.$refs['customFieldForm'].fields[i];
+            if(customField.validateState==='error'){
+              if(this.currentValidateName){
+                this.currentValidateName = this.currentValidateName+","+customField.label
+              }else{
+                this.currentValidateName = customField.label
+              }
+            }
+          }
+          this.isValidate = true;
           return false;
         }
       });
