@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.dto.automation.parse.ApiScenarioImportUtil;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
@@ -137,6 +138,7 @@ public class ApiAutomationService {
     private ApiScenarioExecuteService apiScenarioExecuteService;
     @Resource
     private ExtProjectVersionMapper extProjectVersionMapper;
+
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -469,13 +471,7 @@ public class ApiAutomationService {
         }
 
         if (StringUtils.isEmpty(request.getApiScenarioModuleId()) || "default-module".equals(request.getApiScenarioModuleId())) {
-            ApiScenarioModuleExample example = new ApiScenarioModuleExample();
-            example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andNameEqualTo("未规划场景");
-            List<ApiScenarioModule> modules = apiScenarioModuleMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(modules)) {
-                scenario.setApiScenarioModuleId(modules.get(0).getId());
-                scenario.setModulePath(modules.get(0).getName());
-            }
+            replenishScenarioModuleIdPath(request.getProjectId(), apiScenarioModuleMapper, scenario);
         }
         saveFollows(scenario.getId(), request.getFollows());
         if (StringUtils.isEmpty(request.getVersionId())) {
@@ -1367,6 +1363,13 @@ public class ApiAutomationService {
         request.setDefaultVersion(defaultVersion);
         for (int i = 0; i < data.size(); i++) {
             ApiScenarioWithBLOBs item = data.get(i);
+            if(StringUtils.isBlank(item.getApiScenarioModuleId())|| "default-module".equals(item.getApiScenarioModuleId())){
+                replenishScenarioModuleIdPath(request.getProjectId(), apiScenarioModuleMapper, item);
+            }
+
+            if(StringUtils.isBlank(item.getCreateUser())){
+                item.setCreateUser(SessionUtils.getUserId());
+            }
             if (item.getName().length() > 255) {
                 item.setName(item.getName().substring(0, 255));
             }
@@ -1392,6 +1395,16 @@ public class ApiAutomationService {
         sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    private void replenishScenarioModuleIdPath(String request, ApiScenarioModuleMapper apiScenarioModuleMapper, ApiScenarioWithBLOBs item) {
+        ApiScenarioModuleExample example = new ApiScenarioModuleExample();
+        example.createCriteria().andProjectIdEqualTo(request).andNameEqualTo("未规划场景");
+        List<ApiScenarioModule> modules = apiScenarioModuleMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(modules)) {
+            item.setApiScenarioModuleId(modules.get(0).getId());
+            item.setModulePath(modules.get(0).getName());
         }
     }
 
