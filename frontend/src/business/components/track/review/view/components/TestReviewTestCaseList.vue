@@ -433,7 +433,7 @@ export default {
       });
     },
     handleEditBatch() {
-      this.$refs.batchEdit.open(this.$refs.table.selectRows.size);
+      this.$refs.batchEdit.open(this.condition.selectAll ? this.total : this.$refs.table.selectRows.size);
     },
     batchEdit(form) {
       let reviewId = this.reviewId;
