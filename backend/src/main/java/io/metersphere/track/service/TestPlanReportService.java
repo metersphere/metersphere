@@ -622,7 +622,7 @@ public class TestPlanReportService {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url = baseSystemConfigDTO.getUrl() + "/#/track/testPlan/reportList";
         String subject = "";
-        String event = "";
+        String event = NoticeConstants.Event.COMPLETE;
         String successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
         String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
         String context = "${operator}完成了测试计划: ${name}";
@@ -632,11 +632,6 @@ public class TestPlanReportService {
             subject = Translator.get("task_notification");
         }
 
-        if (StringUtils.equals(TestPlanReportStatus.FAILED.name(), testPlanReport.getStatus())) {
-            event = NoticeConstants.Event.EXECUTE_FAILED;
-        } else {
-            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
-        }
         String creator = testPlanReport.getCreator();
         UserDTO userDTO = userService.getUserDTO(creator);
 
@@ -671,7 +666,6 @@ public class TestPlanReportService {
                 .build();
 
         if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.MANUAL.name())) {
-            noticeModel.setEvent(NoticeConstants.Event.COMPLETE);
             noticeSendService.send(projectService.getProjectById(projectId), NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
         }
 
