@@ -154,8 +154,14 @@
     <test-review-test-case-edit
       ref="testReviewTestCaseEdit"
       :search-param="condition"
+      :page-num="currentPage"
+      :page-size="pageSize"
+      @nextPage="nextPage"
+      @prePage="prePage"
       @refresh="initTableData"
+      :test-cases="tableData"
       :is-read-only="isReadOnly"
+      :total="total"
       @refreshTable="search"/>
 
 
@@ -333,6 +339,18 @@ export default {
     this.getVersionOptions();
   },
   methods: {
+    nextPage() {
+      this.currentPage++;
+      this.initTableData(() => {
+        this.$refs.testReviewTestCaseEdit.openTestCaseEdit(this.tableData[0], this.tableData);
+      });
+    },
+    prePage() {
+      this.currentPage--;
+      this.initTableData(() => {
+        this.$refs.testReviewTestCaseEdit.openTestCaseEdit(this.tableData[this.tableData.length - 1], this.tableData);
+      });
+    },
     initTableHeader() {
       this.result.loading = true;
       this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, []);
@@ -343,7 +361,7 @@ export default {
       const list = deepClone(this.tableLabel);
       this.$refs.headerCustom.open(list);
     },
-    initTableData() {
+    initTableData(callback) {
       initCondition(this.condition, this.condition.selectAll);
       if (this.reviewId) {
         this.condition.reviewId = this.reviewId;
@@ -365,13 +383,16 @@ export default {
           this.total = data.itemCount;
           this.tableData = data.listObject;
           this.tableClear();
+          if (callback) {
+            callback();
+          }
         });
       }
 
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;
-      this.$refs.testReviewTestCaseEdit.openTestCaseEdit(row);
+      this.$refs.testReviewTestCaseEdit.openTestCaseEdit(row, this.tableData);
     },
     refresh() {
       this.condition = {components: TEST_CASE_CONFIGS};
@@ -396,7 +417,7 @@ export default {
     },
     handleEdit(testCase, index) {
       this.isReadOnly = false;
-      this.$refs.testReviewTestCaseEdit.openTestCaseEdit(testCase);
+      this.$refs.testReviewTestCaseEdit.openTestCaseEdit(testCase, this.tableData);
     },
     handleDelete(testCase) {
       this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + ' ' + testCase.name + " ？", '', {
@@ -463,7 +484,7 @@ export default {
     startReview() {
       if (this.tableData.length !== 0) {
         this.isReadOnly = false;
-        this.$refs.testReviewTestCaseEdit.openTestCaseEdit(this.tableData[0]);
+        this.$refs.testReviewTestCaseEdit.openTestCaseEdit(this.tableData[0], this.tableData);
       } else {
         this.$warning(this.$t('test_track.review.no_link_case'));
       }

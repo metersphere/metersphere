@@ -95,12 +95,6 @@ public class TestPlanTestCaseController {
         return testPlanTestCaseService.idList(request);
     }
 
-
-    @PostMapping("/list/ids")
-    public List<TestPlanCaseDTO> getTestPlanCaseIds(@RequestBody QueryTestPlanCaseRequest request) {
-        return testPlanTestCaseService.list(request);
-    }
-
     @PostMapping("/edit")
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanTestCase.id)", msClass = TestPlanTestCaseService.class)
     public void editTestCase(@RequestBody TestPlanTestCaseWithBLOBs testPlanTestCase) {
