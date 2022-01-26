@@ -7,6 +7,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper;
+import io.metersphere.base.mapper.ext.ExtTestCaseReviewTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
@@ -52,8 +53,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     @Resource
     TestPlanMapper testPlanMapper;
     @Resource
-    TestPlanTestCaseMapper testPlanTestCaseMapper;
-    @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
     @Resource
     ExtTestCaseMapper extTestCaseMapper;
@@ -65,6 +64,8 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     ProjectMapper projectMapper;
     @Resource
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
+    @Resource
+    ExtTestCaseReviewTestCaseMapper extTestCaseReviewTestCaseMapper;
     @Resource
     TestCaseReviewMapper testCaseReviewMapper;
 
@@ -307,55 +308,64 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
      * @return List<TestCaseNodeDTO>
      */
     public List<TestCaseNodeDTO> getNodeByPlanId(String planId) {
+        List<TestCase> testCases = extTestPlanTestCaseMapper.getTestCaseWithNodeInfo(planId);
+        Map<String, List<String>> projectNodeMap = getProjectNodeMap(testCases);
+        return getNodeTreeWithPruningTree(projectNodeMap);
+    }
 
+    public List<TestCaseNodeDTO> getNodeByReviewId(String reviewId) {
+        List<TestCase> testCases = extTestCaseReviewTestCaseMapper.getTestCaseWithNodeInfo(reviewId);
+        Map<String, List<String>> projectNodeMap = getProjectNodeMap(testCases);
+        return getNodeTreeWithPruningTree(projectNodeMap);
+    }
+
+    public List<TestCaseNodeDTO> getNodeTreeWithPruningTree(Map<String, List<String>> projectNodeMap) {
         List<TestCaseNodeDTO> list = new ArrayList<>();
-        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(planId);
-        projectIds.forEach(id -> {
-            Project project = projectMapper.selectByPrimaryKey(id);
+        projectNodeMap.forEach((k, v) -> {
+            Project project = projectMapper.selectByPrimaryKey(k);
             if (project != null) {
                 String name = project.getName();
-                List<TestCaseNodeDTO> nodeList = getNodeDTO(id, planId);
+                List<TestCaseNodeDTO> testCaseNodes = getNodeTreeWithPruningTree(k, v);
                 TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
                 testCaseNodeDTO.setId(project.getId());
                 testCaseNodeDTO.setName(name);
                 testCaseNodeDTO.setLabel(name);
-                testCaseNodeDTO.setChildren(nodeList);
-                if (!CollectionUtils.isEmpty(nodeList)) {
+                testCaseNodeDTO.setChildren(testCaseNodes);
+                if (!CollectionUtils.isEmpty(testCaseNodes)) {
                     list.add(testCaseNodeDTO);
                 }
             }
         });
-
         return list;
     }
 
-    public List<TestCaseNodeDTO> getNodeByReviewId(String reviewId) {
-        List<TestCaseNodeDTO> list = new ArrayList<>();
-        ProjectExample example = new ProjectExample();
-        example.createCriteria().andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId());
-        List<Project> projects = projectMapper.selectByExample(example);
-        List<String> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
-
-        projectIds.forEach(id -> {
-            String name = projectMapper.selectByPrimaryKey(id).getName();
-
-            TestCaseReviewTestCaseExample testCaseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
-            testCaseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(reviewId);
-            List<TestCaseReviewTestCase> testCaseReviewTestCases = testCaseReviewTestCaseMapper.selectByExample(testCaseReviewTestCaseExample);
-            List<String> caseIds = testCaseReviewTestCases.stream().map(TestCaseReviewTestCase::getCaseId).collect(Collectors.toList());
-
-            List<TestCaseNodeDTO> nodeList = getReviewNodeDTO(id, caseIds);
-            if (!CollectionUtils.isEmpty(nodeList)) {
-                TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
-                testCaseNodeDTO.setName(name);
-                testCaseNodeDTO.setLabel(name);
-                testCaseNodeDTO.setChildren(nodeList);
-                testCaseNodeDTO.setProjectId(id);
-                list.add(testCaseNodeDTO);
+    /**
+     * 获取当前项目下的
+     * @param projectId
+     * @param pruningTreeIds
+     * @return
+     */
+    public List<TestCaseNodeDTO> getNodeTreeWithPruningTree(String projectId, List<String> pruningTreeIds) {
+        List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
+        List<TestCaseNodeDTO> nodeTrees = getNodeTrees(testCaseNodes);
+        Iterator<TestCaseNodeDTO> iterator = nodeTrees.iterator();
+        while (iterator.hasNext()) {
+            TestCaseNodeDTO rootNode = iterator.next();
+            if (pruningTree(rootNode, pruningTreeIds)) {
+                iterator.remove();
             }
-        });
-        return list;
+        }
+        return nodeTrees;
+    }
 
+    private Map<String, List<String>> getProjectNodeMap(List<TestCase> testCases) {
+        Map<String, List<String>> projectNodeMap = new HashMap<>();
+        for (TestCase testCase : testCases) {
+            List<String> nodeIds = Optional.ofNullable(projectNodeMap.get(testCase.getProjectId())).orElse(new ArrayList<>());
+            nodeIds.add(testCase.getNodeId());
+            projectNodeMap.put(testCase.getProjectId(), nodeIds);
+        }
+        return projectNodeMap;
     }
 
     private List<TestCaseNodeDTO> getNodeDTO(String projectId, QueryTestPlanCaseRequest request) {
@@ -363,8 +373,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         if (testPlanTestCases.isEmpty()) {
             return null;
         }
-
-        List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
 
         List<String> caseIds = testPlanTestCases.stream()
                 .map(TestPlanCaseDTO::getCaseId)
@@ -376,79 +384,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                 .map(TestCase::getNodeId)
                 .collect(Collectors.toList());
 
-        List<TestCaseNodeDTO> nodeTrees = getNodeTrees(testCaseNodes);
-
-        Iterator<TestCaseNodeDTO> iterator = nodeTrees.iterator();
-        while (iterator.hasNext()) {
-            TestCaseNodeDTO rootNode = iterator.next();
-            if (pruningTree(rootNode, dataNodeIds)) {
-                iterator.remove();
-            }
-        }
-
-        return nodeTrees;
-    }
-
-    private List<TestCaseNodeDTO> getNodeDTO(String projectId, String planId) {
-        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-        testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(planId);
-        List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
-
-        if (testPlanTestCases.isEmpty()) {
-            return null;
-        }
-
-        List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
-
-        List<String> caseIds = testPlanTestCases.stream()
-                .map(TestPlanTestCase::getCaseId)
-                .collect(Collectors.toList());
-
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andIdIn(caseIds);
-        List<String> dataNodeIds = testCaseMapper.selectByExample(testCaseExample).stream()
-                .map(TestCase::getNodeId)
-                .collect(Collectors.toList());
-
-        List<TestCaseNodeDTO> nodeTrees = getNodeTrees(testCaseNodes);
-
-        Iterator<TestCaseNodeDTO> iterator = nodeTrees.iterator();
-        while (iterator.hasNext()) {
-            TestCaseNodeDTO rootNode = iterator.next();
-            if (pruningTree(rootNode, dataNodeIds)) {
-                iterator.remove();
-            }
-        }
-
-        return nodeTrees;
-    }
-
-    private List<TestCaseNodeDTO> getReviewNodeDTO(String projectId, List<String> caseIds) {
-
-        if (CollectionUtils.isEmpty(caseIds)) {
-            return null;
-        }
-
-        List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
-
-
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andIdIn(caseIds);
-        List<String> dataNodeIds = testCaseMapper.selectByExample(testCaseExample).stream()
-                .map(TestCase::getNodeId)
-                .collect(Collectors.toList());
-
-        List<TestCaseNodeDTO> nodeTrees = getNodeTrees(testCaseNodes);
-
-        Iterator<TestCaseNodeDTO> iterator = nodeTrees.iterator();
-        while (iterator.hasNext()) {
-            TestCaseNodeDTO rootNode = iterator.next();
-            if (pruningTree(rootNode, dataNodeIds)) {
-                iterator.remove();
-            }
-        }
-
-        return nodeTrees;
+        return getNodeTreeWithPruningTree(projectId, dataNodeIds);
     }
 
     public List<TestCaseNodeDTO> getAllNodeByPlanId(QueryNodeRequest request) {
