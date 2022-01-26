@@ -1,7 +1,6 @@
 package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.service.ApiScenarioReportService;
@@ -155,18 +154,12 @@ public class JMeterService {
             ResponseEntity<String> result = restTemplate.postForEntity(uri, request, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-                RunRequest runRequest = new RunRequest();
-                runRequest.setTestId(request.getTestId());
-                runRequest.setRunMode(request.getRunMode());
                 remakeReportService.remake(request);
                 LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + uri + " 节点执行失败");
                 LoggerUtil.info(result.getBody());
             }
         } catch (Exception e) {
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-            RunRequest runRequest = new RunRequest();
-            runRequest.setTestId(request.getTestId());
-            runRequest.setRunMode(request.getRunMode());
             remakeReportService.remake(request);
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败：" + e.getMessage());
             LoggerUtil.error(e);
