@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
-import io.metersphere.api.dto.automation.parse.ApiScenarioImportUtil;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
@@ -1363,11 +1362,11 @@ public class ApiAutomationService {
         request.setDefaultVersion(defaultVersion);
         for (int i = 0; i < data.size(); i++) {
             ApiScenarioWithBLOBs item = data.get(i);
-            if(StringUtils.isBlank(item.getApiScenarioModuleId())|| "default-module".equals(item.getApiScenarioModuleId())){
+            if (StringUtils.isBlank(item.getApiScenarioModuleId()) || "default-module".equals(item.getApiScenarioModuleId())) {
                 replenishScenarioModuleIdPath(request.getProjectId(), apiScenarioModuleMapper, item);
             }
 
-            if(StringUtils.isBlank(item.getCreateUser())){
+            if (StringUtils.isBlank(item.getCreateUser())) {
                 item.setCreateUser(SessionUtils.getUserId());
             }
             if (item.getName().length() > 255) {
@@ -1617,7 +1616,21 @@ public class ApiAutomationService {
     public void deleteBatchByCondition(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery(query));
-        this.deleteBatch(request.getIds());
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        ids.forEach(id -> {
+            ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
+            if (scenario == null) {
+                return;
+            }
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andRefIdEqualTo(scenario.getRefId());
+            List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+            List<String> apiIds = apiScenarios.stream().map(ApiScenario::getId).collect(Collectors.toList());
+            this.deleteBatch(apiIds);
+        });
     }
 
     /**
