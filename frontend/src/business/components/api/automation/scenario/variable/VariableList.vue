@@ -307,6 +307,7 @@
       },
       updateParameters(v) {
         this.editData = JSON.parse(JSON.stringify(v));
+        this.upDateFiles();
         let datas = [];
         this.variables.forEach(item => {
           if(item.id === v.id){
@@ -467,8 +468,16 @@
       handleRowClick(row) {
         // 做深拷贝
         this.editData = JSON.parse(JSON.stringify(row));
+        this.upDateFiles();
         this.showDelete = true;
       },
+      upDateFiles(){
+        this.variables.forEach(item => {
+          if(item.id === this.editData.id){
+            this.editData.files = item.files
+          }
+        });
+      }
     }
   };
 </script>
