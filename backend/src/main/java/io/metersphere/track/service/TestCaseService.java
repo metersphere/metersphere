@@ -729,9 +729,11 @@ public class TestCaseService {
         if (multipartFile == null) {
             MSException.throwException(Translator.get("upload_fail"));
         }
-        if (StringUtils.isBlank(request.getVersionId()) && StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Create.name())) {
+        if (StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Create.name())) {
             // 创建如果没选版本就创建最新版本，更新时没选就更新最近版本的用例
-            request.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
+            if (StringUtils.isBlank(request.getVersionId())) {
+                request.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
+            }
             int nextNum = getNextNum(request.getProjectId());
             importCreateNum.set(nextNum);
             beforeImportCreateNum.set(nextNum);
