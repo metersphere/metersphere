@@ -307,7 +307,7 @@ export default {
     },
     'httpForm.description': {
       handler(v, v1) {
-        if (v && v1 && v !== v1) {
+        if (v && v1 !== undefined && v !== v1) {
           this.apiMapStatus();
         }
       }
