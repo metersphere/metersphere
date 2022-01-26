@@ -172,8 +172,7 @@ export default {
         testId: this.testId,
       }],
       scheduleEventOptions: [
-        {value: 'EXECUTE_SUCCESSFUL', label: this.$t('schedule.event_success')},
-        {value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed')}
+        {value: 'COMPLETE', label: this.$t('commons.run_completed')},
       ],
       receiveTypeOptions: [
         {value: 'EMAIL', label: this.$t('organization.message.mail')},
@@ -365,6 +364,10 @@ export default {
           case 'EXECUTE_FAILED':
             htmlTemplate = this.title.replace('成功', '失败');
             robotTemplate = this.robotTitle.replace('成功', '失败');
+            break;
+          case 'COMPLETE':
+            htmlTemplate = this.title.replace('成功', '完成');
+            robotTemplate = this.robotTitle.replace('成功', '完成');
             break;
           default:
             break;
