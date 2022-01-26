@@ -71,11 +71,6 @@ public class TestReviewTestCaseController {
         return testReviewTestCaseService.get(reviewId);
     }
 
-    @PostMapping("/list/ids")
-    public List<TestReviewCaseDTO> getTestReviewCaseList(@RequestBody QueryCaseReviewRequest request) {
-        return testReviewTestCaseService.getTestCaseReviewDTOList(request);
-    }
-
     @PostMapping("/edit/order")
     public void orderCase(@RequestBody ResetOrderRequest request) {
         testReviewTestCaseService.updateOrder(request);

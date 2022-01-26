@@ -29,13 +29,16 @@
 
                     <el-col :span="14" class="head-right">
 
-                      <el-button plain size="mini" icon="el-icon-arrow-up"
-                                 :disabled="index + 1 <= 1"
-                                 @click="handlePre()"/>
-                      <span>  {{ index + 1 }}/{{ testCases.length }} </span>
-                      <el-button plain size="mini" icon="el-icon-arrow-down"
-                                 :disabled="index + 1 >= testCases.length"
-                                 @click="handleNext()"/>
+                      <ms-previous-next-button
+                        :index="index"
+                        :page-num="pageNum"
+                        :page-size="pageSize"
+                        :page-total="pageTotal"
+                        :total="total"
+                        @pre="handlePre"
+                        @next="handleNext"
+                        :list="testCases"/>
+
                       <el-divider direction="vertical"></el-divider>
 
                       <el-button type="success" size="mini"
@@ -148,10 +151,12 @@ import FormRichTextItem from "@/business/components/track/case/components/FormRi
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
+import MsPreviousNextButton from "@/business/components/common/components/MsPreviousNextButton";
 
 export default {
   name: "TestReviewTestCaseEdit",
   components: {
+    MsPreviousNextButton,
     TestCaseStepItem,
     StepChangeItem,
     CustomFiledComponent,
@@ -204,6 +209,11 @@ export default {
     isReadOnly: {
       type: Boolean,
       default: false
+    },
+    pageNum: Number,
+    pageSize: {
+      type: Number,
+      default: 1
     }
   },
   computed: {
@@ -212,6 +222,9 @@ export default {
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
+    },
+    pageTotal() {
+      return Math.ceil(this.total / this.pageSize);
     }
   },
   methods: {
@@ -303,17 +316,27 @@ export default {
       }
     },
     handleNext() {
+      if (this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal) {
+        return;
+      } else if (this.index === this.testCases.length - 1) {
+        this.$emit('nextPage');
+        return;
+      }
       this.index++;
-      this.getTestCase(this.index);
+      this.getTestCase(this.testCases[this.index].id);
     },
     handlePre() {
+      if (this.index === 0 && this.pageNum === 1) {
+        return;
+      } else if (this.index === 0) {
+        this.$emit('prePage');
+        return;
+      }
       this.index--;
-      this.getTestCase(this.index);
+      this.getTestCase(this.testCases[this.index].id);
     },
-    getTestCase(index) {
-      this.testCase = {};
-      let testCase = this.testCases[index];
-      this.result = this.$get("/test/review/case/get/" + testCase.id, response => {
+    getTestCase(id) {
+      this.result = this.$get("/test/review/case/get/" + id, response => {
         let item = {};
         let data = response.data;
         Object.assign(item, data);
@@ -355,35 +378,33 @@ export default {
         });
       })
     },
-    openTestCaseEdit(testCase) {
+    openTestCaseEdit(testCase, tableData) {
       this.showDialog = true;
       this.activeTab = 'detail';
       this.getComments(testCase);
       this.hasTapdId = false;
       this.hasZentaoId = false;
       listenGoBack(this.handleClose);
-      let initFuc = this.initData;
+      let initFuc = this.getTestCase;
+
+      if (tableData) {
+        this.testCases = tableData;
+        for (let i = 0; i < this.testCases.length; i++) {
+          let item = this.testCases[i];
+          if (item.id === testCase.id) {
+            this.index = i;
+            break;
+          }
+        }
+      }
+
       getTemplate('field/template/case/get/relate/', this)
         .then((template) => {
           this.testCaseTemplate = template;
-          initFuc(testCase);
+          initFuc(testCase.id);
         });
     },
-    /* initTest() {
-       this.$nextTick(() => {
-         if (this.testCase.testId && this.testCase.testId !== 'other') {
-           if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-             this.$refs.apiTestDetail.init();
-           } else if (this.testCase.type === 'performance') {
-             this.$refs.performanceTestDetail.init();
-           } else if (this.testCase.type === 'testcase') {
-             this.$refs.apiCaseConfig.active(this.api);
-           } else if (this.testCase.type === 'automation') {
-              this.$refs.autoScenarioConfig.showAll();
-           }
-         }
-       });
-     },*/
+
     getComments(testCase) {
       let id = '';
       if (testCase) {
@@ -398,17 +419,6 @@ export default {
         }
 
       })
-    },
-    initData(testCase) {
-      this.result = this.$post('/test/review/case/list/ids', this.searchParam, response => {
-        this.testCases = response.data;
-        for (let i = 0; i < this.testCases.length; i++) {
-          if (this.testCases[i].id === testCase.id) {
-            this.index = i;
-            this.getTestCase(i);
-          }
-        }
-      });
     },
     getRelatedTest() {
       if (this.testCase.method === 'auto' && this.testCase.testId && this.testCase.testId !== 'other') {
