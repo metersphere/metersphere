@@ -143,6 +143,6 @@ public class RemakeReportService {
             apiScenarioMapper.updateByPrimaryKey(scenarioWithBLOBs);
         }
         report.setStatus(APITestStatus.Error.name());
-        apiScenarioReportMapper.insert(report);
+        apiScenarioReportMapper.updateByPrimaryKeySelective(report);
     }
 }
