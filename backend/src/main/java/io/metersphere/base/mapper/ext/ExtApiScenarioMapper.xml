@@ -426,13 +426,13 @@
     </select>
     <select id="countByProjectIDAndCreatInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber FROM api_scenario
-        WHERE project_id = #{projectId}  AND status != 'Trash'
+        WHERE project_id = #{projectId}  AND status != 'Trash' and latest = 1
         AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
     <select id="countRunResultByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(id) AS countNumber, if(last_result is null,"notRun",last_result) AS groupField  FROM api_scenario
-        WHERE project_id = #{0} AND status != 'Trash'
+        WHERE project_id = #{0} AND status != 'Trash' and latest = 1
         GROUP BY groupField
     </select>
 
@@ -504,7 +504,7 @@
 
     <select id="countExecuteTimesByProjectID" resultType="java.lang.Long">
         SELECT SUM(execute_times) FROM api_scenario
-        WHERE project_id = #{0}
+        WHERE project_id = #{0} and latest = 1
     </select>
     <select id="selectProjectIds" resultType="java.lang.String">
         select DISTINCT project_id from api_scenario;
