@@ -76,6 +76,10 @@ public class EnvironmentGroupService {
         if (CollectionUtils.isEmpty(envGroupProject)) {
             return;
         }
+        List<String> distinctProjects = envGroupProject.stream().map(EnvironmentGroupProject::getProjectId).distinct().collect(Collectors.toList());
+        if (envGroupProject.size() != distinctProjects.size()) {
+            MSException.throwException(Translator.get("environment_group_has_duplicate_project"));
+        }
         List<Project> projects = projectMapper.selectByExample(new ProjectExample());
         List<String> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
         List<ApiTestEnvironment> environments = apiTestEnvironmentMapper.selectByExample(new ApiTestEnvironmentExample());
