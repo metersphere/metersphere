@@ -256,8 +256,6 @@ export default {
       this.isShowNum = false;
     }
     if (this.request.protocol === 'HTTP') {
-      this.setUrl(this.request.url);
-      this.setUrl(this.request.path);
       // 历史数据 auth 处理
       if (this.request.hashTree) {
         for (let index in this.request.hashTree) {
