@@ -8,7 +8,6 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -109,16 +108,14 @@ public class RemakeReportService {
                 }
             }
             // 处理队列
-            if (StringUtils.equals(request.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-                example.createCriteria().andQueueIdEqualTo(request.getQueueId()).andTestIdEqualTo(request.getTestId());
-                CommonBeanFactory.getBean(ApiExecutionQueueDetailMapper.class).deleteByExample(example);
-                ResultDTO dto = new ResultDTO();
-                BeanUtils.copyBean(dto, request);
-                dto.setQueueId(request.getQueueId());
-                dto.setTestId(request.getTestId());
-                CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
-            }
+            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+            example.createCriteria().andQueueIdEqualTo(request.getQueueId()).andTestIdEqualTo(request.getTestId());
+            CommonBeanFactory.getBean(ApiExecutionQueueDetailMapper.class).deleteByExample(example);
+            ResultDTO dto = new ResultDTO();
+            BeanUtils.copyBean(dto, request);
+            dto.setQueueId(request.getQueueId());
+            dto.setTestId(request.getTestId());
+            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
         } catch (Exception e) {
             LogUtil.error(e);
         }
