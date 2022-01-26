@@ -499,7 +499,7 @@ export default {
       this.rowLoading = "";
     },
     handleBatchEdit() {
-      this.$refs.batchEdit.open(this.$refs.table.selectRows.size);
+      this.$refs.batchEdit.open(this.condition.selectAll ? this.total : this.$refs.table.selectRows.size);
       this.$refs.batchEdit.setSelectRows(this.$refs.table.selectRows);
     },
     getData() {
