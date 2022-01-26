@@ -8,14 +8,14 @@
         <template v-slot:label>
           <tab-pane-count :title="$t('test_track.report.fail_case')" :count="failureSize"/>
         </template>
-        <load-failure-result class="container" :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
-                             :report="report" :plan-id="planId" @setSize="setFailureSize"/>
+        <load-all-result :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :is-all="false"
+                         :report="report" :plan-id="planId" @setSize="setFailureSize"/>
       </el-tab-pane>
       <el-tab-pane name="third" v-if="allEnable" style="min-height: 550px">
         <template v-slot:label>
           <tab-pane-count :title="$t('test_track.report.all_case')" :count="allSize"/>
         </template>
-        <load-all-result :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
+        <load-all-result :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :is-all="true"
                          :report="report" :plan-id="planId" @setSize="setAllSize"/>
       </el-tab-pane>
     </el-tabs>
