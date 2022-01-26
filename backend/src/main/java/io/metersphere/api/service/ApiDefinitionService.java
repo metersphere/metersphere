@@ -1320,8 +1320,25 @@ public class ApiDefinitionService {
     }
 
     public void deleteByParams(ApiBatchRequest request) {
-        apiDefinitionMapper.deleteByExample(getBatchExample(request));
-        apiTestCaseService.deleteBatchByDefinitionId(request.getIds());
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        ids.forEach(id -> {
+            // 把所有版本的api移到回收站
+            ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(id);
+            if (api == null) {
+                return;
+            }
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andRefIdEqualTo(api.getRefId());
+            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+
+            List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+            apiTestCaseService.deleteBatchByDefinitionId(apiIds);
+            //
+            apiDefinitionMapper.deleteByExample(example);
+        });
     }
 
     public ApiDefinitionExample getBatchExample(ApiBatchRequest request) {
