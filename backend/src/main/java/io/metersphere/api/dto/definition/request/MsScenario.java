@@ -167,6 +167,8 @@ public class MsScenario extends MsTestElement {
         Arguments arguments = arguments(config);
         if (arguments != null) {
             Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
+            // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
+            scenarioTree.add(valueSupposeMock);
             scenarioTree.add(ElementUtil.argumentsToProcessor(valueSupposeMock));
         }
         ElementUtil.addCsvDataSet(scenarioTree, variables, config, "shareMode.group");
