@@ -719,16 +719,17 @@ public class ApiAutomationService {
         if (StringUtils.equalsIgnoreCase(element.getString("refType"), "CASE")) {
             ApiTestCaseInfo apiTestCase = apiTestCaseService.get(element.getString("id"));
             if (apiTestCase != null) {
-                JSONObject refElement = JSON.parseObject(apiTestCase.getRequest());
-                ElementUtil.dataFormatting(refElement);
                 if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
-                    if (refElement.get("hashTree") != null) {
+                    JSONObject refElement = JSON.parseObject(apiTestCase.getRequest());
+                    ElementUtil.dataFormatting(refElement);
+                    JSONArray array = refElement.getJSONArray("hashTree");
+                    BeanUtils.copyBean(element, refElement);
+                    if (array != null) {
                         ElementUtil.mergeHashTree(element, refElement.getJSONArray("hashTree"));
                     }
                     element.put("referenced", "REF");
+                    element.put("disabled", true);
                     element.put("name", apiTestCase.getName());
-                } else {
-                    element = refElement;
                 }
                 element.put("id", apiTestCase.getId());
                 isExist = true;
@@ -1144,10 +1145,8 @@ public class ApiAutomationService {
     public JmxInfoDTO genPerformanceTestJmx(GenScenarioRequest request) {
         List<String> ids = request.getIds();
         List<ApiScenarioDTO> apiScenarios = extApiScenarioMapper.selectIds(ids);
-        String testName = "";
         String id = "";
         if (!apiScenarios.isEmpty()) {
-            testName = apiScenarios.get(0).getName();
             id = apiScenarios.get(0).getId();
         }
         if (CollectionUtils.isEmpty(apiScenarios)) {
@@ -1764,33 +1763,6 @@ public class ApiAutomationService {
         }
         return returnList;
     }
-
-
-    private void addUrlAndIdToList(String scenarioDefiniton, List<String> urlList, List<String> idList) {
-        try {
-            JSONObject scenarioObj = JSONObject.parseObject(scenarioDefiniton);
-            if (scenarioObj.containsKey("hashTree")) {
-                JSONArray hashArr = scenarioObj.getJSONArray("hashTree");
-                for (int i = 0; i < hashArr.size(); i++) {
-                    JSONObject elementObj = hashArr.getJSONObject(i);
-                    if (elementObj.containsKey("id")) {
-                        String id = elementObj.getString("id");
-                        idList.add(id);
-                    }
-                    if (elementObj.containsKey("url")) {
-                        String url = elementObj.getString("url");
-                        urlList.add(url);
-                    }
-                    if (elementObj.containsKey("path")) {
-                        String path = elementObj.getString("path");
-                        urlList.add(path);
-                    }
-                }
-            }
-        } catch (Exception e) {
-        }
-    }
-
 
     public ScenarioEnv getApiScenarioProjectId(String id) {
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
