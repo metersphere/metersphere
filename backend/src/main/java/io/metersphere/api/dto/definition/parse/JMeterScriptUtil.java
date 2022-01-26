@@ -57,15 +57,20 @@ public class JMeterScriptUtil {
      * @param environmentId        环境ID
      * @param config               参数配置
      */
-    public static void setScript(EnvironmentConfig envConfig, HashTree samplerHashTree, String protocal, String environmentId, ParameterConfig config, boolean isAfterPrivateScript) {
+    public static void setScriptByEnvironmentConfig(EnvironmentConfig envConfig, HashTree samplerHashTree, String protocal, String environmentId, ParameterConfig config, boolean isAfterPrivateScript) {
         GlobalScriptConfig globalScriptConfig = envConfig != null ? envConfig.getGlobalScriptConfig() : null;
+        MsJSR223PreProcessor preProcessor = JMeterScriptUtil.getPreScript(envConfig);
+        MsJSR223PostProcessor postProcessor = JMeterScriptUtil.getPostScript(envConfig);
+        setScript(globalScriptConfig, protocal, isAfterPrivateScript, environmentId, config, samplerHashTree, preProcessor, postProcessor);
 
+    }
+
+    public static void setScript(GlobalScriptConfig globalScriptConfig, String protocal, boolean isAfterPrivateScript, String environmentId, ParameterConfig config,
+                                 HashTree samplerHashTree, MsJSR223PreProcessor preProcessor, MsJSR223PostProcessor postProcessor) {
         boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
         boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
         List<String> preFilterProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPreScript();
         List<String> postFilterProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPostScript();
-        MsJSR223PreProcessor preProcessor = JMeterScriptUtil.getPreScript(envConfig);
-        MsJSR223PostProcessor postProcessor = JMeterScriptUtil.getPostScript(envConfig);
         boolean globalPreScriptIsFilter = JMeterScriptUtil.isScriptFilter(preFilterProtocal, protocal);
         boolean globalPostScriptIsFilter = JMeterScriptUtil.isScriptFilter(postFilterProtocal, protocal);
         if (isAfterPrivateScript) {
@@ -92,41 +97,12 @@ public class JMeterScriptUtil {
         }
     }
 
-    public static void setHttpScript(HttpConfig httpConfig, HashTree httpSamplerTree, ParameterConfig config, String useEnvironment, String environmentId) {
+    public static void setScriptByHttpConfig(HttpConfig httpConfig, HashTree httpSamplerTree, ParameterConfig config, String useEnvironment, String environmentId, boolean isStepAfterElement) {
         MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
         MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
         GlobalScriptConfig globalScriptConfig = httpConfig.getGlobalScriptConfig();
-        List<String> filterPreProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPreScript();
-        List<String> filterPostProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPostScript();
 
-        boolean filterPre = JMeterScriptUtil.isScriptFilter(filterPreProtocal, GlobalScriptFilterRequest.HTTP.name());
-        boolean filterPost = JMeterScriptUtil.isScriptFilter(filterPostProtocal, GlobalScriptFilterRequest.HTTP.name());
-        boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
-        boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
-
-        if (!filterPre && preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
-            if ((isPreScriptExecAfterPrivateScript) || (!isPreScriptExecAfterPrivateScript)) {
-                if (preProcessor.getEnvironmentId() == null) {
-                    if (environmentId == null) {
-                        preProcessor.setEnvironmentId(useEnvironment);
-                    } else {
-                        preProcessor.setEnvironmentId(useEnvironment);
-                    }
-                }
-                preProcessor.toHashTree(httpSamplerTree, preProcessor.getHashTree(), config);
-            }
-        }
-        if (!filterPost && postProcessor != null && StringUtils.isNotEmpty(postProcessor.getScript())) {
-            if ((isPostScriptExecAfterPrivateScript) || (!isPostScriptExecAfterPrivateScript)) {
-                if (postProcessor.getEnvironmentId() == null) {
-                    if (environmentId == null) {
-                        postProcessor.setEnvironmentId(useEnvironment);
-                    } else {
-                        postProcessor.setEnvironmentId(environmentId);
-                    }
-                }
-                postProcessor.toHashTree(httpSamplerTree, postProcessor.getHashTree(), config);
-            }
-        }
+        setScript(globalScriptConfig, GlobalScriptFilterRequest.HTTP.name(), isStepAfterElement, environmentId == null ? useEnvironment : environmentId, config, httpSamplerTree, preProcessor, postProcessor);
     }
+
 }
