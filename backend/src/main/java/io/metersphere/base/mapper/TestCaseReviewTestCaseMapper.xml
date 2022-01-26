@@ -188,7 +188,13 @@
       <include refid="Example_Where_Clause" />
     </if>
   </select>
-  <update id="updateByExampleSelective" parameterType="map">
+    <select id="getTestCaseWithNodeInfo" resultType="io.metersphere.base.domain.TestCase">
+      select DISTINCT tc.project_id, tc.node_id
+      from test_case_review_test_case tcrtc
+      join test_case tc on tcrtc.case_id = tc.id
+      where tcrtc.review_id = #{reviewId}
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
     update test_case_review_test_case
     <set>
       <if test="record.id != null">
