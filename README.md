@@ -1,8 +1,8 @@
 <p align="center"><a href="https://metersphere.io"><img src="https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/MeterSphere-%E7%B4%AB%E8%89%B2.png" alt="MeterSphere" width="300" /></a></p>
 <h3 align="center">一站式开源持续测试平台</h3>
 <p align="center">
-  <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0"><img src="https://img.shields.io/github/license/metersphere/metersphere?color=%231890FF&style=flat-square" alt="License: GPL v2"></a>
-  <a href="https://app.codacy.com/gh/metersphere/metersphere?utm_source=github.com&utm_medium=referral&utm_content=metersphere/metersphere&utm_campaign=Badge_Grade_Dashboar"><img src="https://app.codacy.com/project/badge/Grade/da67574fd82b473992781d1386b937ef" alt="Codacy"></a>
+  <a href="https://www.gnu.org/licenses/gpl-3.0.html"><img src="https://shields.io/github/license/metersphere/metersphere" alt="License: GPL v3"></a>
+  <a href="https://www.codacy.com/gh/metersphere/metersphere/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=metersphere/metersphere&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/da67574fd82b473992781d1386b937ef" alt="Codacy"></a>
   <a href="https://github.com/metersphere/metersphere/releases/latest"><img src="https://img.shields.io/github/downloads/metersphere/metersphere/total" alt="Latest release"></a>
   <a href="https://github.com/metersphere/metersphere"><img src="https://img.shields.io/github/stars/metersphere/metersphere?color=%231890FF&style=flat-square" alt="Stars"></a>
 </p>
@@ -31,7 +31,7 @@ MeterSphere `/ˈmitərˌsfɪər/` 是一站式开源持续测试平台，涵盖�
 
 ### 功能架构
 
-![产品定位](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/ct-devops.png)
+![产品定位](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/ms-architecture.png)
 
 ### 在线体验
 
@@ -100,8 +100,8 @@ MeterSphere v1.10 版本为该项目的第一个LTS（Long Term Support）版本
 
 Copyright (c) 2014-2022 飞致云 FIT2CLOUD, All rights reserved.
 
-Licensed under The GNU General Public License version 2 (GPLv2)  (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Licensed under The GNU General Public License version 3 (GPLv3)  (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
-<https://www.gnu.org/licenses/gpl-2.0.html>
+https://www.gnu.org/licenses/gpl-3.0.html
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
