@@ -56,7 +56,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
     protected ApiScenarioWithBLOBs parsePluginFormat(JSONObject testObject, ApiTestImportRequest importRequest) {
         LinkedList<MsTestElement> results = new LinkedList<>();
         testObject.keySet().forEach(tag -> {
-            results.addAll(parseMsHTTPSamplerProxy(testObject, tag));
+            results.addAll(parseMsHTTPSamplerProxy(testObject, tag, true));
         });
         MsScenario msScenario = new MsScenario();
         msScenario.setName(importRequest.getFileName());

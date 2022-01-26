@@ -16,9 +16,9 @@ import java.util.*;
 
 public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
 
-    protected List<MsHTTPSamplerProxy> parseMsHTTPSamplerProxy(JSONObject testObject, String tag) {
+    protected List<MsHTTPSamplerProxy> parseMsHTTPSamplerProxy(JSONObject testObject, String tag, boolean isSetUrl) {
         JSONObject requests = testObject.getJSONObject(tag);
-        List<MsHTTPSamplerProxy> msHTTPSamplerProxies =  new ArrayList<>();
+        List<MsHTTPSamplerProxy> msHTTPSamplerProxies = new ArrayList<>();
         requests.keySet().forEach(requestName -> {
             JSONObject requestObject = requests.getJSONObject(requestName);
             String path = requestObject.getString("url");
@@ -27,6 +27,9 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
             parseBody(requestObject, request.getBody());
             parseHeader(requestObject, request.getHeaders());
             parsePath(request);
+            if (isSetUrl) {
+                request.setUrl(path);
+            }
             msHTTPSamplerProxies.add(request);
         });
         return msHTTPSamplerProxies;
@@ -59,6 +62,7 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
             }
         }
     }
+
     private void parseHeader(JSONObject requestObject, List<KeyValue> msHeaders) {
         JSONArray headers = requestObject.getJSONArray("headers");
         if (CollectionUtils.isNotEmpty(headers)) {
@@ -100,6 +104,7 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
 
     /**
      * 删除没有用例的节点
+     *
      * @param nodeTree
      * @param ids
      * @return
