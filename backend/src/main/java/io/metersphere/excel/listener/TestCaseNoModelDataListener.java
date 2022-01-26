@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
+import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.CustomFieldDao;
@@ -210,6 +211,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 String value = null;
                 if (StringUtils.equals(customName, "status")) {
                     value = data.getStatus();
+                    if (!(StringUtils.equalsIgnoreCase(TestCaseReviewStatus.Prepare.name(),value)
+                        ||StringUtils.equalsIgnoreCase(TestCaseReviewStatus.Underway.name(),value)
+                        ||StringUtils.equalsIgnoreCase(TestCaseReviewStatus.Completed.name(), value))){
+                        stringBuilder.append(Translator.get("case_status_not_exist")).append("; ");
+                    }
                 }else if (StringUtils.equals(customName, "priority")) {
                     value = data.getPriority();
                 }else if (StringUtils.equals(customName, "maintainer")) {
