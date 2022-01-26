@@ -256,19 +256,21 @@ export default {
       });
     },
     handleDelete(test) {
-      if (hasLicense()) {
-        // 删除提供列表删除和全部版本删除
-        this.$refs.apiDeleteConfirm.open(test, this.$t('load_test.delete_confirm'));
-      } else {
-        this.$alert(this.$t('load_test.delete_confirm') + test.name + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this._handleDelete(test, false);
+      this.$get('/performance/versions/' + test.id, response => {
+        if (hasLicense() && this.versionEnable && response.data.length > 1) {
+          // 删除提供列表删除和全部版本删除
+          this.$refs.apiDeleteConfirm.open(test, this.$t('load_test.delete_confirm'));
+        } else {
+          this.$alert(this.$t('load_test.delete_confirm') + test.name + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this._handleDelete(test, false);
+              }
             }
-          }
-        });
-      }
+          });
+        }
+      });
     },
     _handleDelete(test, deleteCurrentVersion) {
       if (deleteCurrentVersion) {
