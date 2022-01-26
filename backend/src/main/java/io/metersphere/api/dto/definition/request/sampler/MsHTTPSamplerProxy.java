@@ -232,7 +232,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         if (httpConfig != null) {
             //根据配置增加全局前后至脚本
-            JMeterScriptUtil.setHttpScript(httpConfig, httpSamplerTree, config, useEnvironment, this.getEnvironmentId());
+            JMeterScriptUtil.setScriptByHttpConfig(httpConfig, httpSamplerTree, config, useEnvironment, this.getEnvironmentId(), false);
             //增加误报、断言
             if (CollectionUtils.isNotEmpty(httpConfig.getErrorReportAssertions())) {
                 for (MsAssertions assertion : httpConfig.getErrorReportAssertions()) {
@@ -260,7 +260,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         //根据配置增加全局前后至脚本
         if (httpConfig != null) {
-            JMeterScriptUtil.setHttpScript(httpConfig, httpSamplerTree, config, useEnvironment, this.getEnvironmentId());
+            JMeterScriptUtil.setScriptByHttpConfig(httpConfig, httpSamplerTree, config, useEnvironment, this.getEnvironmentId(), true);
         }
     }
 
@@ -658,22 +658,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                    try {
-                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                        if (keyValue.getValue() == null) {
-                            httpArgument.setValue("");
-                        }
-                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                            httpArgument.setContentType(keyValue.getContentType());
-                        }
-                        arguments.addArgument(httpArgument);
-                    } catch (Exception e) {
+                            try {
+                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                                if (keyValue.getValue() == null) {
+                                    httpArgument.setValue("");
+                                }
+                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                                    httpArgument.setContentType(keyValue.getContentType());
+                                }
+                                arguments.addArgument(httpArgument);
+                            } catch (Exception e) {
 
-                    }
-                }
-        );
+                            }
+                        }
+                );
         return arguments;
     }
 
