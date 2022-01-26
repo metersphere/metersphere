@@ -481,9 +481,13 @@ public class ApiDefinitionService {
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
             if (project != null && project.getRepeatable() != null && project.getRepeatable()) {
                 criteria.andNameEqualTo(request.getName());
-            }
-            if (apiDefinitionMapper.countByExample(example) > 0) {
-                MSException.throwException(Translator.get("api_definition_url_not_repeating"));
+                if (apiDefinitionMapper.countByExample(example) > 0) {
+                    MSException.throwException(Translator.get("api_definition_name_not_repeating"));
+                }
+            } else {
+                if (apiDefinitionMapper.countByExample(example) > 0) {
+                    MSException.throwException(Translator.get("api_definition_url_not_repeating"));
+                }
             }
         } else {
             example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
