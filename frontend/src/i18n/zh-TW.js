@@ -1461,6 +1461,7 @@ export default {
       parameters_advance_add_func: "添加函數",
       parameters_advance_add_func_limit: "最多支持5個函數",
       parameters_advance_add_func_error: "請先選擇函數",
+      parameters_advance_add_mock_error: "請先選擇mock數據",
       parameters_advance_add_param_error: "請輸入函數參數",
       parameters_desc: "參數追加到URL，例如https://fit2cloud.com/entries?key1=Value1&Key2=Value2",
       headers: "請求頭",
