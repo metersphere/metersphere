@@ -248,9 +248,12 @@
       api_scenario c
       on t.api_scenario_id = c.id and (c.status != 'Trash' or c.status is null)
       and t.test_plan_id = #{planId}
-      <if test="status != null">
+      <if test="status != null and status != 'Fail'">
         and t.last_result = #{status}
       </if>
+    <if test="status == 'Fail'">
+        and t.last_result in ('Fail','Error')
+    </if>
       where t.test_plan_id = #{planId}
     </select>
 
