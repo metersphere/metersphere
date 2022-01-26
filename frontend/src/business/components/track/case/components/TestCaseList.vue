@@ -1071,7 +1071,7 @@ export default {
     },
     handleBatchEdit() {
       this.getMaintainerOptions();
-      this.$refs.batchEdit.open(this.$refs.table.selectRows.size);
+      this.$refs.batchEdit.open(this.condition.selectAll ? this.page.total : this.$refs.table.selectRows.size);
     },
     handleBatchAddPublic() {
       this.$get('/project/get/' + getCurrentProjectID(), res => {
