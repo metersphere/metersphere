@@ -405,7 +405,7 @@ public class ApiTestCaseService {
     private ApiTestCase createTest(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         checkNameExist(request);
         FileUtils.createBodyFiles(request.getId(), bodyFiles);
-
+        request.setRequest(tcpApiParamService.parseMsTestElement(request.getRequest()));
         if (StringUtils.isNotEmpty(request.getEsbDataStruct()) || StringUtils.isNotEmpty(request.getBackEsbDataStruct())) {
             request = esbApiParamService.handleEsbRequest(request);
         }
