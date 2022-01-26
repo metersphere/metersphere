@@ -42,15 +42,6 @@ public class ApiScenarioReportResultService {
         //解析误报内容
         ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(result);
         report.setId(UUID.randomUUID().toString());
-        result.setEndTime(System.currentTimeMillis());
-        if (result.getResponseResult() != null) {
-            long time = result.getEndTime() - result.getStartTime();
-            if (time > 0) {
-                result.getResponseResult().setResponseTime(time);
-            } else {
-                result.setEndTime(result.getEndTime());
-            }
-        }
         String resourceId = result.getResourceId();
         report.setResourceId(resourceId);
         report.setReportId(reportId);
@@ -58,7 +49,7 @@ public class ApiScenarioReportResultService {
         report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
         report.setCreateTime(System.currentTimeMillis());
         String status = result.getError() == 0 ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
-        if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
+        if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
             status = ExecuteResult.errorReportResult.name();
             report.setErrorCode(errorCodeDTO.getErrorCodeStr());
         }
