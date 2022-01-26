@@ -2,13 +2,12 @@
 name: BUG 提交
 about: 提交产品缺陷帮助我们更好的改进
 title: "[BUG]"
-labels: bug
-assignees: xulinde
+labels: "类型: 缺陷"
+assignees: youliyuan-fit2cloud
 
 ---
 
 **MeterSphere 版本**
->v1.10是MeterSphere的首个LTS版本，建议升级到该版本后再次验证是否能重现该问题。
 
 您所使用的 MeterSphere 版本是？
 
