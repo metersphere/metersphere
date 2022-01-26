@@ -356,6 +356,10 @@
         :new-scenario-definition="newScenarioDefinition"
         :project-env-map="projectEnvMap"
         :new-project-env-map="newProjectEnvMap"
+        :old-enable-cookie-share="enableCookieShare"
+        :new-enable-cookie-share="newEnableCookieShare"
+        :old-on-sample-error="onSampleError"
+        :new-on-sample-error="newOnSampleError"
         :project-list="projectList"
         :type ="type"
       ></scenario-diff>
@@ -427,6 +431,7 @@ export default {
   data() {
     return {
       onSampleError: true,
+      newOnSampleError: true,
       showConfigButtonWithOutPermission: false,
       props: {
         label: "label",
@@ -474,6 +479,7 @@ export default {
       debugData: {},
       reportId: "",
       enableCookieShare: false,
+      newEnableCookieShare: false,
       globalOptions: {
         spacing: 30
       },
@@ -1766,6 +1772,12 @@ export default {
                       if (!obj.hashTree[i].requestResult) {
                         obj.hashTree[i].requestResult = [{responseResult: {}}];
                       }
+                    }
+                    this.newEnableCookieShare = obj.enableCookieShare;
+                    if (obj.onSampleError === undefined) {
+                      this.newOnSampleError = true;
+                    } else {
+                      this.newOnSampleError = obj.onSampleError;
                     }
                   }
                   for (let i = 0; i < this.scenarioDefinition.length; i++) {
