@@ -897,19 +897,21 @@ export default {
       });
     },
     handleDeleteToGc(testCase) {
-      if (hasLicense()) {
-        // 删除提供列表删除和全部版本删除
-        this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
-      } else {
-        this.$alert(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'' + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this._handleDeleteVersion(testCase, false);
+      this.$get('/test/case/versions/' + testCase.id, response => {
+        if (hasLicense() && this.versionEnable && response.data.length > 1) {
+          // 删除提供列表删除和全部版本删除
+          this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
+        } else {
+          this.$alert(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'' + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this._handleDeleteVersion(testCase, false);
+              }
             }
-          }
-        });
-      }
+          });
+        }
+      });
     },
     batchReduction() {
       let param = buildBatchParam(this, this.$refs.table.selectIds);
