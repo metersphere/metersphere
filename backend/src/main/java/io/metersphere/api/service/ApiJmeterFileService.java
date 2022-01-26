@@ -11,7 +11,6 @@ import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -70,7 +69,7 @@ public class ApiJmeterFileService {
         if (detail != null && StringUtils.isNotEmpty(detail.getEvnMap())) {
             envMap = JSON.parseObject(detail.getEvnMap(), Map.class);
         }
-        HashTree hashTree;
+        HashTree hashTree = null;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             hashTree = apiScenarioSerialService.generateHashTree(remoteTestId, reportId, runMode, envMap);
         } else {
@@ -78,7 +77,8 @@ public class ApiJmeterFileService {
                 scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
             }
             if (scenario == null) {
-                MSException.throwException("未找到执行场景。");
+                // 清除队列
+                executionQueueDetailMapper.deleteByPrimaryKey(queueId);
             }
             if (envMap != null && !envMap.isEmpty()) {
                 planEnvMap = envMap;
@@ -92,7 +92,11 @@ public class ApiJmeterFileService {
                     planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
                 }
             }
-            hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap, reportType);
+            try {
+                hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap, reportType);
+            } catch (Exception e) {
+                executionQueueDetailMapper.deleteByPrimaryKey(queueId);
+            }
         }
         return zipFilesToByteArray((reportId + "_" + remoteTestId), hashTree);
     }
