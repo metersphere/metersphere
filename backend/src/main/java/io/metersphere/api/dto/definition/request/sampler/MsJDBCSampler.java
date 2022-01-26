@@ -169,7 +169,7 @@ public class MsJDBCSampler extends MsTestElement {
             environmentId = this.useEnvironment;
         }
         //根据配置将脚本放置在私有脚本之前
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, false);
+        JMeterScriptUtil.setScriptByEnvironmentConfig(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, false);
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
@@ -177,7 +177,7 @@ public class MsJDBCSampler extends MsTestElement {
             });
         }
         //根据配置将脚本放置在私有脚本之后
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, true);
+        JMeterScriptUtil.setScriptByEnvironmentConfig(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, true);
 
     }
 
