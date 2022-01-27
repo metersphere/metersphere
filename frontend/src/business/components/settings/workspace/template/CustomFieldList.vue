@@ -203,10 +203,10 @@ export default {
       });
     },
     handleEdit(data) {
-      this.$refs.customFieldEdit.open(data);
+      this.$refs.customFieldEdit.open(data, this.$t('custom_field.update'));
     },
     handleCreate() {
-      this.$refs.customFieldEdit.open();
+      this.$refs.customFieldEdit.open(null, this.$t('custom_field.create'));
     },
     handleCopy(data) {
       let copyData = {};
