@@ -404,7 +404,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         testCase.setTags(modifiedTags);
         testCase.setType("functional");
 
-        JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
         if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Underway", "进行中", "進行中")) {
             caseStatusValue = "Underway";
