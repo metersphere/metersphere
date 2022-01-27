@@ -502,6 +502,7 @@ export default {
     issue_status: 'Status',
     issue_severity: 'Severity',
     create: 'Create Field',
+    update: 'Update Field',
     name: 'Custom Field',
     system_field: 'System Field',
     scene: 'Use Scene',

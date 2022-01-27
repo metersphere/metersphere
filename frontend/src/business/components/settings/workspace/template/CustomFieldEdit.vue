@@ -3,7 +3,7 @@
     width="30%"
     :visible.sync="visible"
     @confirm="save"
-    :title="$t('custom_field.create')"
+    :title="title"
     append-to-body
     ref="msEditDialog">
 
@@ -45,7 +45,7 @@
         prop="options" :label-width="labelWidth">
         <ms-single-handle-drag
             :is-kv="form.scene === 'ISSUE'"
-            :disable="form.name === '用例等级'"
+            :disable="form.name === '用例等级' || isSystem"
             :data="form.options"/>
       </el-form-item>
 
@@ -91,7 +91,8 @@ export default {
         type: [{required: true,  trigger: 'change'}],
       },
       visible: false,
-      url: ''
+      url: '',
+      title: this.$t('custom_field.create')
     };
   },
   computed: {
@@ -123,8 +124,9 @@ export default {
     }
   },
   methods: {
-    open(data) {
+    open(data, title) {
       this.visible = true;
+      this.title = title;
       if (data) {
         Object.assign(this.form, data);
         if (!(data.options instanceof Array)) {
