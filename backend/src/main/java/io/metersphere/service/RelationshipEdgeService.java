@@ -51,10 +51,9 @@ public class RelationshipEdgeService {
     }
 
     public void delete(String sourceId ,List<String> targetIds) {
-        RelationshipEdgeExample example = new RelationshipEdgeExample();
-        example.createCriteria().andSourceIdEqualTo(sourceId).andTargetIdIn(targetIds);
-
-        relationshipEdgeMapper.deleteByExample(example);
+        targetIds.forEach(targetId -> {
+            delete(sourceId, targetId);
+        });
     }
 
     /**
