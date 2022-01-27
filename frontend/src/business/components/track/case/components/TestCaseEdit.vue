@@ -769,7 +769,12 @@ export default {
       if (this.form.tags instanceof Array) {
         this.form.tags = JSON.stringify(this.form.tags);
       }
-      param.testId = JSON.stringify(this.form.selected);
+      //当 testId 为其他信息的时候必须删除该字段避免后端反序列化报错
+      if ("other" != this.form.selected) {
+        param.testId = JSON.stringify(this.form.selected);
+      }else{
+        delete param.selected;
+      }
       param.tags = this.form.tags;
       param.casePublic = this.casePublic;
       param.type = 'functional';
