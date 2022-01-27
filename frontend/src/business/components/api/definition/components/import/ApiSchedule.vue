@@ -305,6 +305,12 @@ export default {
         this.formData.enable = true;
         url = '/api/definition/schedule/create';
       }
+      if(!this.formData.moduleId){
+        console.log(this.$refs.selectTree.returnDataKeys)
+        if( this.$refs.selectTree.returnDataKeys.length>0){
+          this.formData.moduleId = this.$refs.selectTree.returnDataKeys
+        }
+      }
       this.$post(url, this.formData, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.taskList.search();
