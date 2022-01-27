@@ -504,6 +504,7 @@ export default {
     issue_status: '狀態',
     issue_severity: '嚴重程度',
     create: '創建字段',
+    update: '更新字段',
     name: '自定義字段',
     system_field: '系統字段',
     scene: '使用場景',
