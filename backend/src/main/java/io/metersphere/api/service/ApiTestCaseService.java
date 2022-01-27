@@ -648,7 +648,7 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseWithBLOBs> selectCasesBydApiIds(List<String> apiIds) {
         ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andApiDefinitionIdIn(apiIds);
+        example.createCriteria().andApiDefinitionIdIn(apiIds).andStatusNotEqualTo("Trash");
         return apiTestCaseMapper.selectByExampleWithBLOBs(example);
     }
 
