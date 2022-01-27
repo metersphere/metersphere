@@ -467,6 +467,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             node.setCreateTime(System.currentTimeMillis());
             node.setUpdateTime(System.currentTimeMillis());
             node.setId(UUID.randomUUID().toString());
+            node.setCreateUser(SessionUtils.getUserId());
             apiModuleMapper.insertSelective(node);
             return node;
         }
@@ -538,6 +539,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             record.setCreateTime(System.currentTimeMillis());
             record.setUpdateTime(System.currentTimeMillis());
             record.setProjectId(projectId);
+            record.setCreateUser(SessionUtils.getUserId());
             apiModuleMapper.insert(record);
             return record;
         }else {
