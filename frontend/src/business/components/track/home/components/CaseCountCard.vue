@@ -29,20 +29,6 @@
               <div class="count-info-div" v-html="trackCountData.p3CountStr"></div>
             </el-col>
           </el-row>
-<!--          <el-row align="right" style="margin-left: 20px" class="hidden-xl-only">-->
-<!--            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">-->
-<!--              <div class="count-info-div" v-html="trackCountData.p0CountStr"></div>-->
-<!--            </el-col>-->
-<!--            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">-->
-<!--              <div class="count-info-div" v-html="trackCountData.p1CountStr"></div>-->
-<!--            </el-col>-->
-<!--            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">-->
-<!--              <div class="count-info-div" v-html="trackCountData.p2CountStr"></div>-->
-<!--            </el-col>-->
-<!--            <el-col :span="6" style="padding: 5px;">-->
-<!--              <div class="count-info-div" v-html="trackCountData.p3CountStr"></div>-->
-<!--            </el-col>-->
-<!--          </el-row>-->
         </div>
       </el-main>
     </el-container>
