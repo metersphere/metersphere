@@ -475,9 +475,7 @@ export default {
       };
     },
     fileChange(threadGroups) {
-      console.log("zou");
       let handler = this.$refs.pressureConfig;
-
       let csvSet = new Set;
       threadGroups.forEach(tg => {
         tg.threadNumber = tg.threadNumber || 10;
