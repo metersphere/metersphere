@@ -88,11 +88,13 @@ public class ApiScenarioEnvService {
                         ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(tr.getId());
                         if (apiTestCaseWithBLOBs != null) {
                             env.getProjectIds().add(apiTestCaseWithBLOBs.getProjectId());
+                            env.setFullUrl(false);
                         }
                     } else {
                         ApiDefinition apiDefinition = apiDefinitionService.get(tr.getId());
                         if (apiDefinition != null) {
                             env.getProjectIds().add(apiDefinition.getProjectId());
+                            env.setFullUrl(false);
                         }
                     }
                 } else if (StringUtils.equals(tr.getType(), "scenario")) {
@@ -117,6 +119,7 @@ public class ApiScenarioEnvService {
                     }
                 } else if (StringUtils.equals(tr.getType(), "JDBCSampler") || StringUtils.equals(tr.getType(), "TCPSampler")) {
                     env.getProjectIds().add(tr.getProjectId());
+                    env.setFullUrl(false);
                 }
             }
             if (StringUtils.equals(tr.getType(), "scenario")) {
@@ -163,9 +166,11 @@ public class ApiScenarioEnvService {
                         if (StringUtils.equals(tr.getRefType(), "CASE")) {
                             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(tr.getId());
                             env.getProjectIds().add(apiTestCaseWithBLOBs.getProjectId());
+                            env.setFullUrl(false);
                         } else {
                             ApiDefinition apiDefinition = apiDefinitionService.get(tr.getId());
                             env.getProjectIds().add(apiDefinition.getProjectId());
+                            env.setFullUrl(false);
                         }
                     } else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {
@@ -193,6 +198,7 @@ public class ApiScenarioEnvService {
                         }
                     } else if (StringUtils.equals(tr.getType(), "JDBCSampler") || StringUtils.equals(tr.getType(), "TCPSampler")) {
                         env.getProjectIds().add(tr.getProjectId());
+                        env.setFullUrl(false);
                     }
                 }
                 if (StringUtils.equals(tr.getType(), "scenario")) {
