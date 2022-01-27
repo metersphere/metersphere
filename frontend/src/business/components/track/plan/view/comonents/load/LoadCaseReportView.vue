@@ -264,10 +264,14 @@ export default {
       }
     },
     clearData() {
+      this.show = false;
       this.startTime = '0';
       this.endTime = '0';
       this.minutes = '0';
       this.seconds = '0';
+      this.$nextTick(() => {
+        this.show = true;
+      })
     },
     stopTest(forceStop) {
       this.result = this.$get('/performance/stop/' + this.reportId + '/' + forceStop, () => {
