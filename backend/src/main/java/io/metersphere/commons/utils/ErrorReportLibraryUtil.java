@@ -26,9 +26,9 @@ public class ErrorReportLibraryUtil {
                 if (StringUtils.startsWith(assertion.getContent(), ERROR_CODE_START)) {
                     errorReportAssertionList.add(assertion);
                 }else {
+                    otherAssertionCount ++;
                     if(!assertion.isPass()){
                         hasOtherErrorAssertion = true;
-                        otherAssertionCount ++;
                     }
                 }
             }
