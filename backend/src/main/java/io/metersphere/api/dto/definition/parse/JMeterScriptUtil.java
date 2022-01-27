@@ -74,17 +74,17 @@ public class JMeterScriptUtil {
         boolean globalPreScriptIsFilter = JMeterScriptUtil.isScriptFilter(preFilterProtocal, protocal);
         boolean globalPostScriptIsFilter = JMeterScriptUtil.isScriptFilter(postFilterProtocal, protocal);
         if (isAfterPrivateScript) {
-            if (isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter && StringUtils.isNotEmpty(preProcessor.getScript())) {
+            if (isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter && preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
                 addItemHashTree(preProcessor, samplerHashTree, config, environmentId);
             }
-            if (isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter && StringUtils.isNotEmpty(postProcessor.getScript())) {
+            if (isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter && postProcessor != null && StringUtils.isNotEmpty(postProcessor.getScript())) {
                 addItemHashTree(postProcessor, samplerHashTree, config, environmentId);
             }
         } else {
-            if (!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter && StringUtils.isNotEmpty(preProcessor.getScript())) {
+            if (!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter && preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
                 addItemHashTree(preProcessor, samplerHashTree, config, environmentId);
             }
-            if (!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter && StringUtils.isNotEmpty(postProcessor.getScript())) {
+            if (!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter && postProcessor != null && StringUtils.isNotEmpty(postProcessor.getScript())) {
                 addItemHashTree(postProcessor, samplerHashTree, config, environmentId);
             }
         }
