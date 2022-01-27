@@ -285,10 +285,6 @@ function diffDetail(oldVnode,newVnode,diffNode){
   }
   //剩最后的子节点的时候，分类型做判断(注意，最后的子节点的真实dom里可能还有dom节点)
   if(isUndef(oldVnode.child)&&isUndef(newVnode.child)&&isUndef(oldVnode.children)&&isUndef(newVnode.children)){
-    //比较真实的dom
-    if(oldVnode.elm.parentNode.className==="ms-body"){
-      console.log("到了")
-    }
     //最子节点比较结果
     let childDiff=[];
     diffRealNode(oldVnode.elm,newVnode.elm,diffNode,childDiff);
