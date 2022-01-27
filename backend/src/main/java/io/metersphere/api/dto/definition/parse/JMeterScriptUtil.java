@@ -74,17 +74,17 @@ public class JMeterScriptUtil {
         boolean globalPreScriptIsFilter = JMeterScriptUtil.isScriptFilter(preFilterProtocal, protocal);
         boolean globalPostScriptIsFilter = JMeterScriptUtil.isScriptFilter(postFilterProtocal, protocal);
         if (isAfterPrivateScript) {
-            if (isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter) {
+            if (isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter && StringUtils.isNotEmpty(preProcessor.getScript())) {
                 addItemHashTree(preProcessor, samplerHashTree, config, environmentId);
             }
-            if (isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter) {
+            if (isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter && StringUtils.isNotEmpty(postProcessor.getScript())) {
                 addItemHashTree(postProcessor, samplerHashTree, config, environmentId);
             }
         } else {
-            if (!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter) {
+            if (!isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter && StringUtils.isNotEmpty(preProcessor.getScript())) {
                 addItemHashTree(preProcessor, samplerHashTree, config, environmentId);
             }
-            if (!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter) {
+            if (!isPostScriptExecAfterPrivateScript && !globalPostScriptIsFilter && StringUtils.isNotEmpty(postProcessor.getScript())) {
                 addItemHashTree(postProcessor, samplerHashTree, config, environmentId);
             }
         }

@@ -15,11 +15,12 @@ import java.util.Map;
 public class ResponseUtil {
 
     public static RequestResultExpandDTO parseByRequestResult(RequestResult requestResult) {
+        //解析是否含有误报库信息
+        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(requestResult);
+
         RequestResultExpandDTO expandDTO = new RequestResultExpandDTO();
         BeanUtils.copyBean(expandDTO, requestResult);
 
-        //解析是否含有误报库信息
-        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(requestResult);
         if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
             Map<String, String> expandMap = new HashMap<>();
             expandDTO.setStatus(ExecuteResult.errorReportResult.name());

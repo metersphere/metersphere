@@ -21,12 +21,14 @@ public class ErrorReportLibraryUtil {
         if (result != null && result.getResponseResult() != null && CollectionUtils.isNotEmpty(result.getResponseResult().getAssertions())) {
             List<ResponseAssertionResult> errorReportAssertionList = new ArrayList<>();
             boolean hasOtherErrorAssertion = false;
+            int otherAssertionCount = 0;
             for (ResponseAssertionResult assertion : result.getResponseResult().getAssertions()) {
                 if (StringUtils.startsWith(assertion.getContent(), ERROR_CODE_START)) {
                     errorReportAssertionList.add(assertion);
                 }else {
                     if(!assertion.isPass()){
                         hasOtherErrorAssertion = true;
+                        otherAssertionCount ++;
                     }
                 }
             }
@@ -46,7 +48,7 @@ public class ErrorReportLibraryUtil {
                     if (result.getResponseResult() != null
                             && StringUtils.equalsIgnoreCase(result.getResponseResult().getResponseCode(), "200")
                             && result.getError() > 0) {
-                        if(!hasOtherErrorAssertion){
+                        if(otherAssertionCount == 0 || !hasOtherErrorAssertion){
                             result.setError(result.getError() - 1);
                         }
                     }
