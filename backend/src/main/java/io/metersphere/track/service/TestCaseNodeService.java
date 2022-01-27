@@ -125,7 +125,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         List<TestCaseNode> list = testCaseNodeMapper.selectByExample(example);
         if(CollectionUtils.isEmpty(list)){
             NodeNumDTO record = new NodeNumDTO();
-            //TestCaseNode record = new TestCaseNode();
             record.setId(UUID.randomUUID().toString());
             record.setCreateUser(SessionUtils.getUserId());
             record.setName("未规划用例");
@@ -144,34 +143,11 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
         this.getDefaultNode(projectId);
-//        TestCaseNodeExample example = new TestCaseNodeExample();
-//        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块");
-//        long count = testCaseNodeMapper.countByExample(example);
-//        if (count <= 0) {
-//            NodeNumDTO record = new NodeNumDTO();
-//            //TestCaseNode record = new TestCaseNode();
-//            record.setId(UUID.randomUUID().toString());
-//            record.setCreateUser(SessionUtils.getUserId());
-//            record.setName("默认模块");
-//            record.setPos(1.0);
-//            record.setLevel(1);
-//            record.setCreateTime(System.currentTimeMillis());
-//            record.setUpdateTime(System.currentTimeMillis());
-//            record.setProjectId(projectId);
-//            testCaseNodeMapper.insert(record);
-//            record.setCaseNum(0);
-//        }
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setUserId(SessionUtils.getUserId());
         request.setProjectId(projectId);
-//        for (TestCaseNodeDTO node : testCaseNodes) {
-//            List<String> nodeIds = new ArrayList<>();
-//            nodeIds = this.nodeList(testCaseNodes, node.getId(), nodeIds);
-//            nodeIds.add(node.getId());
-//            request.setNodeIds(nodeIds);
-//            node.setCaseNum(extTestCaseMapper.moduleCount(request));
-//        }
+
         //优化：将for循环内的SQL抽出来，只差一次
         List<String> allModuleIdList = new ArrayList<>();
         for (TestCaseNodeDTO node : testCaseNodes) {
@@ -464,6 +440,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         testCaseNode.setCreateTime(System.currentTimeMillis());
         testCaseNode.setUpdateTime(System.currentTimeMillis());
         testCaseNode.setLevel(level);
+        testCaseNode.setCreateUser(SessionUtils.getUserId());
         testCaseNode.setId(UUID.randomUUID().toString());
         double pos = getNextLevelPos(projectId, level, pId);
         testCaseNode.setPos(pos);
