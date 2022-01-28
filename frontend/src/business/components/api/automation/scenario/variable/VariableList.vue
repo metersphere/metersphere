@@ -307,7 +307,7 @@
       },
       updateParameters(v) {
         this.editData = JSON.parse(JSON.stringify(v));
-        this.upDateFiles();
+        this.updateFiles();
         let datas = [];
         this.variables.forEach(item => {
           if(item.id === v.id){
@@ -347,7 +347,7 @@
         this.$emit('setVariables', saveVariables, this.headers);
       },
       addVariable() {
-        this.editData = {delimiter: ",", quotedData: 'false'};
+        this.editData = {delimiter: ",", quotedData: 'false',files:[]};
         this.editData.type = this.selectType;
         this.showDelete = false;
         this.$refs.variableTable.cancelCurrentRow();
@@ -366,6 +366,7 @@
           this.addVariable();
           this.$refs.variableTable.cancelCurrentRow();
         }
+        this.$success(this.$t('commons.save_success'));
       },
       cancelVariable() {
         this.$refs.variableTable.cancelCurrentRow();
@@ -468,10 +469,10 @@
       handleRowClick(row) {
         // 做深拷贝
         this.editData = JSON.parse(JSON.stringify(row));
-        this.upDateFiles();
+        this.updateFiles();
         this.showDelete = true;
       },
-      upDateFiles(){
+      updateFiles(){
         this.variables.forEach(item => {
           if(item.id === this.editData.id){
             this.editData.files = item.files
