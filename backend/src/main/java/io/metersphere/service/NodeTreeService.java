@@ -170,7 +170,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
 
         path.append("/" + nodeName);
 
-        String pid = null;
+        String pid;
         //创建过不创建
         if (pathMap.get(path.toString()) != null) {
             pid = pathMap.get(path.toString());
