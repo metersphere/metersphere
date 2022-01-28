@@ -12,18 +12,18 @@
       @select="change">
       <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(mock)"></i>
     </el-autocomplete>
+    <ms-api-variable-advance :scenario-definition="scenarioDefinition" :current-item="mock" ref="variableAdvance"/>
 
-    <ms-advance ref="variableAdvance" :current-item="mock"/>
   </div>
 </template>
 
 <script>
   import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-  import MsAdvance from "./Advance";
+  import MsApiVariableAdvance from "../../../../../api/definition/components/ApiVariableAdvance";
 
   export default {
     name: 'MsMock',
-    components: {MsAdvance},
+    components: {MsApiVariableAdvance},
     props: {
       schema: {
         type: Object,

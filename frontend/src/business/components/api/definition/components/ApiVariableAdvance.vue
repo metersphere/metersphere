@@ -3,6 +3,7 @@
              :visible.sync="itemValueVisible"
              :append-to-body="appendToBody"
              :fullscreen="dialogVisible"
+             :modal="false"
              class="advanced-item-value"
              width="100%">
 
