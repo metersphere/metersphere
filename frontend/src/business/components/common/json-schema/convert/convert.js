@@ -133,6 +133,10 @@ class Convert {
                   // 新增的properties才合并进来
                   item = Object.assign(item, this._json2schema(elementItem, `${$id}/items`));
                   itemArr.push(item);
+                }else {
+                  let item = this._value2object(elementItem, `${$id}/items`, key + 'items');
+                  item = Object.assign(item, this._json2schema(elementItem, `${$id}/items`));
+                  itemArr.push(item);
                 }
               }
               result["properties"][key]["items"] = itemArr;
