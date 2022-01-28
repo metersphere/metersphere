@@ -375,12 +375,14 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     private String ms2ZentaoDescription(String msDescription) {
-        String imgUrlRegex = "!\\[.*?]\\(/resource/md/get/(.*?\\..*?)\\)";
+        String imgUrlRegex = "!\\[.*?]\\(/resource/md/get(.*?\\..*?)\\)";
         String zentaoSteps = msDescription.replaceAll(imgUrlRegex, zentaoClient.requestUrl.getReplaceImgUrl());
         Matcher matcher = zentaoClient.requestUrl.getImgPattern().matcher(zentaoSteps);
         while (matcher.find()) {
             // get file name
-            String fileName = matcher.group(1);
+            String originSubUrl = matcher.group(1);
+            String fileName = originSubUrl.substring(10);
+            fileName = resourceService.decodeFileName(fileName);
             // get file
             ResponseEntity<FileSystemResource> mdImage = resourceService.getMdImage(fileName);
             // upload zentao
@@ -388,10 +390,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             // todo delete local file
             int index = fileName.lastIndexOf(".");
             if (index != -1) {
-                fileName = fileName.substring(0, index);
+                // replace id
+                zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(originSubUrl), id);
             }
-            // replace id
-            zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(fileName), id);
         }
         // image link
         String netImgRegex = "!\\[(.*?)]\\((http.*?)\\)";

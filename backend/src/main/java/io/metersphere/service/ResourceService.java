@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.MdUploadRequest;
 import io.metersphere.i18n.Translator;
 import org.springframework.core.io.FileSystemResource;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Date;
 
@@ -30,12 +32,7 @@ public class ResourceService {
             MSException.throwException(Translator.get("invalid_parameter"));
         File file = new File(FileUtils.MD_IMAGE_DIR + "/" + name);
         HttpHeaders headers = new HttpHeaders();
-        String fileName = "";
-        try {
-            fileName = URLEncoder.encode(file.getName(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        String fileName = encodeFileName(file.getName());
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Content-Disposition", "attachment; filename=" + fileName);
         headers.add("Pragma", "no-cache");
@@ -47,6 +44,24 @@ public class ResourceService {
                 .contentLength(file.length())
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .body(new FileSystemResource(file));
+    }
+
+    public String encodeFileName(String fileName) {
+        try {
+            return URLEncoder.encode(fileName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            LogUtil.error(e);
+            return fileName;
+        }
+    }
+
+    public String decodeFileName(String fileName) {
+        try {
+            return URLDecoder.decode(fileName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            LogUtil.error(e);
+            return fileName;
+        }
     }
 
     public void mdDelete(String fileName) {
