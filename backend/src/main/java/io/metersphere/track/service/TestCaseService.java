@@ -937,6 +937,17 @@ public class TestCaseService {
                     testCase.setCreateUser(SessionUtils.getUserId());
                     testCase.setCreateTime(System.currentTimeMillis());
                     testCase.setUpdateTime(System.currentTimeMillis());
+                    if (StringUtils.isNotBlank(testCase.getNodePath())) {
+                        String[] modules = testCase.getNodePath().split("/");
+                        StringBuilder path = new StringBuilder();
+                        for (String module : modules) {
+                            if (StringUtils.isNotBlank(module)) {
+                                path.append("/");
+                                path.append(module.trim());
+                            }
+                        }
+                        testCase.setNodePath(path.toString());
+                    }
                     testCase.setNodeId(nodePathMap.get(testCase.getNodePath()));
                     testCase.setNum(num);
                     if (project.getCustomNum() && StringUtils.isBlank(testCase.getCustomNum())) {
