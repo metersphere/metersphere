@@ -127,10 +127,9 @@ class Convert {
                 if (isArray(elementItem)) {
                   let innerItemArr = this._deepTraversal(elementItem, `${$id}/items`, key + 'items');
                   itemArr.push(innerItemArr);
-                } else if (isObject(elementItem) && !isEmpty(elementItem)) {
+                }else {
+                  //item不是Array，进行统一处理
                   let item = this._value2object(elementItem, `${$id}/items`, key + 'items');
-                  // 判断第一项是否是对象,且对象属性不为空
-                  // 新增的properties才合并进来
                   item = Object.assign(item, this._json2schema(elementItem, `${$id}/items`));
                   itemArr.push(item);
                 }
