@@ -153,8 +153,6 @@ public class TestCaseService {
     @Resource
     private MinderExtraNodeService minderExtraNodeService;
     @Resource
-    private ProjectVersionService projectVersionService;
-    @Resource
     @Lazy
     private IssuesService issuesService;
     @Resource
