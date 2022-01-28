@@ -344,15 +344,16 @@
       :fullscreen="true"
       :visible.sync="dialogVisible"
       :destroy-on-close="true"
+      @close="closeDiff"
       width="100%"
     >
       <scenario-diff
         v-if="dialogVisible"
-        :old-data="currentScenario"
+        :old-data="oldData"
         :new-data="newData"
         :custom-num="customNum"
         :module-options="moduleOptions"
-        :old-scenario-definition="scenarioDefinition"
+        :old-scenario-definition="oldScenarioDefinition"
         :new-scenario-definition="newScenarioDefinition"
         :project-env-map="projectEnvMap"
         :new-project-env-map="newProjectEnvMap"
@@ -521,8 +522,10 @@ export default {
       executeType: "",
       versionData: [],
       newData: [],
+      oldData:[],
       dialogVisible: false,
       newScenarioDefinition: [],
+      oldScenarioDefinition:[],
       currentItem: {},
       pluginDelStep: false
     }
@@ -1473,6 +1476,7 @@ export default {
                 }
                 this.dataProcessing(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
+                this.oldScenarioDefinition = obj.hashTree;
               }
             }
             if (this.currentScenario.copy) {
@@ -1780,11 +1784,11 @@ export default {
                       this.newOnSampleError = obj.onSampleError;
                     }
                   }
-                  for (let i = 0; i < this.scenarioDefinition.length; i++) {
-                    this.scenarioDefinition[i].disabled = true;
-                  }
-                  this.newScenarioDefinition = obj.hashTree;
 
+                  this.newScenarioDefinition = obj.hashTree;
+                  for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
+                    this.oldScenarioDefinition[i].disabled = true;
+                  }
                   if (response.data.environmentJson) {
                     this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
                   } else {
@@ -1795,12 +1799,16 @@ export default {
               }
               res.data.userName = response.data.userName
               this.dealWithTag(res.data);
+              this.oldData = this.currentScenario;
               this.newData = res.data;
               this.closeExpansion()
               this.dialogVisible = true;
             }
           });
       })
+    },
+    closeDiff(){
+      this.oldScenarioDefinition = []
     },
     dealWithTag(newScenario){
       if(newScenario.tags){
