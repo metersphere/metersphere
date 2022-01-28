@@ -236,7 +236,7 @@ export default {
     getVersionHistory() {
       this.$get('/api/definition/versions/' + this.basisData.id, response => {
         if (this.basisData.isCopy) {
-          this.versionData = response.data.filter(v => v.versionId === this.httpForm.versionId);
+          this.versionData = response.data.filter(v => v.versionId === this.basisData.versionId);
         } else {
           this.versionData = response.data;
         }
