@@ -122,12 +122,16 @@ export default {
       },
     }
   },
-  watch:{
-    request:{
+  watch: {
+    request: {
       deep: true,
       handler(n) {
-        if(this.request.errorCode){
+        if (this.request.errorCode) {
           this.errorCode = this.request.errorCode;
+        } else if (this.request.attachInfoMap && this.request.attachInfoMap.errorReportResult) {
+          if (this.request.attachInfoMap.errorReportResult !== "") {
+            this.errorCode = this.request.attachInfoMap.errorReportResult;
+          }
         }
       },
     }
