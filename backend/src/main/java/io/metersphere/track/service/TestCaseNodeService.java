@@ -405,7 +405,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             List<String> nodeNameList = new ArrayList<>(Arrays.asList(item.split("/")));
             Iterator<String> itemIterator = nodeNameList.iterator();
             Boolean hasNode = false;
-            String rootNodeName = null;
+            String rootNodeName;
 
             if (nodeNameList.size() <= 1) {
                 throw new ExcelException(Translator.get("test_case_create_module_fail") + ":" + item);
