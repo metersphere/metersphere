@@ -23,7 +23,6 @@ import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.exec.utils.ResultParseUtil;
-import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.jmeter.JMeterBase;
@@ -156,7 +155,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                 dto.setReportId("send." + this.getName());
                 dto.setToReport(this.getName());
 
-                String console = CommonBeanFactory.getBean(MsResultService.class).getJmeterLogger(this.getName());
+                String console = FixedCapacityUtils.getJmeterLogger(this.getName());
                 if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
                     requestResult.getSubRequestResults().forEach(transactionResult -> {
                         transactionResult.getResponseResult().setConsole(console);

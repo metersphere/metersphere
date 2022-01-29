@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.jmeter.ExecutedHandleSingleton;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -42,6 +43,8 @@ public class TestResultService {
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private ApiAutomationService apiAutomationService;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
@@ -85,7 +88,7 @@ public class TestResultService {
         if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             ApiScenarioReport scenarioReport = apiScenarioReportService.testEnded(dto);
             if (scenarioReport != null) {
-                ApiScenarioWithBLOBs apiScenario = apiAutomationService.getApiScenario(scenarioReport.getScenarioId());
+                ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
                 String environment = "";
                 //执行人
                 String userName = "";
@@ -128,7 +131,7 @@ public class TestResultService {
             if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 TestPlanScenarioCaseService testPlanScenarioCaseService = CommonBeanFactory.getBean(TestPlanScenarioCaseService.class);
                 TestPlanApiScenario testPlanApiScenario = testPlanScenarioCaseService.get(testPlanScenarioId);
-                ApiScenarioWithBLOBs apiScenario = CommonBeanFactory.getBean(ApiAutomationService.class).getApiScenario(testPlanApiScenario.getApiScenarioId());
+                ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
                 testPlanTestCaseService.updateTestCaseStates(apiScenario.getId(), apiScenario.getName(), testPlanApiScenario.getTestPlanId(), TrackCount.AUTOMATION);
             }
         } catch (Exception e) {

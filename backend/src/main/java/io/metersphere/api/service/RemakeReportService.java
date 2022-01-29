@@ -12,17 +12,17 @@ import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class RemakeReportService {
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private ApiDefinitionExecResultMapper execResultMapper;
     @Resource
@@ -53,6 +53,19 @@ public class RemakeReportService {
                         testCaseReviewApiCase.setStatus("error");
                         testCaseReviewApiCase.setUpdateTime(System.currentTimeMillis());
                         testCaseReviewApiCaseMapper.updateByPrimaryKeySelective(testCaseReviewApiCase);
+                    }
+                }
+            } else if (StringUtils.equals(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                ApiDefinitionExecResult result = execResultMapper.selectByPrimaryKey(request.getReportId());
+                if (result != null) {
+                    result.setStatus("error");
+                    result.setEndTime(System.currentTimeMillis());
+                    execResultMapper.updateByPrimaryKeySelective(result);
+                    ApiTestCaseWithBLOBs apiTestCase = apiTestCaseMapper.selectByPrimaryKey(request.getTestId());
+                    if (apiTestCase != null) {
+                        apiTestCase.setStatus("error");
+                        apiTestCase.setUpdateTime(System.currentTimeMillis());
+                        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
                     }
                 }
             } else if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
@@ -94,7 +107,7 @@ public class RemakeReportService {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                 if (report != null) {
                     report.setStatus(APITestStatus.Error.name());
-                    apiScenarioReportMapper.updateByPrimaryKey(report);
+                    apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 }
                 if (StringUtils.isNotEmpty(request.getTestId())) {
                     ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(request.getTestId());
@@ -103,14 +116,11 @@ public class RemakeReportService {
                         scenarioWithBLOBs.setPassRate("0%");
                         scenarioWithBLOBs.setReportId(report.getId());
                         scenarioWithBLOBs.setExecuteTimes(1);
-                        apiScenarioMapper.updateByPrimaryKey(scenarioWithBLOBs);
+                        apiScenarioMapper.updateByPrimaryKeySelective(scenarioWithBLOBs);
                     }
                 }
             }
             // 处理队列
-            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-            example.createCriteria().andQueueIdEqualTo(request.getQueueId()).andTestIdEqualTo(request.getTestId());
-            CommonBeanFactory.getBean(ApiExecutionQueueDetailMapper.class).deleteByExample(example);
             ResultDTO dto = new ResultDTO();
             BeanUtils.copyBean(dto, request);
             dto.setQueueId(request.getQueueId());

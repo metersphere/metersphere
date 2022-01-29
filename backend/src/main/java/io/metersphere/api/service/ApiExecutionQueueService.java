@@ -5,6 +5,8 @@ import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
+import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.JmeterThreadUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
@@ -13,6 +15,7 @@ import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiExecutionQueueMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
@@ -23,12 +26,15 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -54,10 +60,12 @@ public class ApiExecutionQueueService {
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
-
+    @Resource
+    private JMeterService jMeterService;
     @Resource
     private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
         ApiExecutionQueue executionQueue = new ApiExecutionQueue();
         executionQueue.setId(UUID.randomUUID().toString());
@@ -237,13 +245,16 @@ public class ApiExecutionQueueService {
             long count = executionQueueDetailMapper.countByExample(queueDetailExample);
             if (count == 0) {
                 queueMapper.deleteByPrimaryKey(dto.getQueueId());
+                if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                    apiScenarioReportService.margeReport(dto.getReportId());
+                }
             }
             return;
         }
         DBTestQueue executionQueue = this.handleQueue(dto.getQueueId(), dto.getTestId());
         if (executionQueue != null) {
             // 串行失败停止
-            if (executionQueue.getFailure() && StringUtils.isNotEmpty(executionQueue.getCompletedReportId())) {
+            if (BooleanUtils.isTrue(executionQueue.getFailure()) && StringUtils.isNotEmpty(executionQueue.getCompletedReportId())) {
                 boolean isNext = failure(executionQueue, dto);
                 if (!isNext) {
                     return;
@@ -273,21 +284,34 @@ public class ApiExecutionQueueService {
         final int SECOND_MILLIS = 1000;
         final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
         // 计算二十分钟前的超时报告
-        final long twentyMinutesAgo = System.currentTimeMillis() - (20 * MINUTE_MILLIS);
+        final long twentyMinutesAgo = System.currentTimeMillis() - (30 * MINUTE_MILLIS);
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
         example.createCriteria().andCreateTimeLessThan(twentyMinutesAgo);
         List<ApiExecutionQueueDetail> queueDetails = executionQueueDetailMapper.selectByExample(example);
 
-        queueDetails.forEach(item -> {
+        for (ApiExecutionQueueDetail item : queueDetails) {
             ApiExecutionQueue queue = queueMapper.selectByPrimaryKey(item.getQueueId());
-            if (queue != null && StringUtils.equalsAnyIgnoreCase(queue.getRunMode(),
+            if (queue == null) {
+                continue;
+            }
+            // 在资源池中执行
+            if (StringUtils.isNotEmpty(queue.getPoolId())
+                    && jMeterService.getRunningQueue(queue.getPoolId(), item.getReportId())) {
+                continue;
+            }
+            // 检查执行报告是否还在等待队列中或执行线程中
+            if (JmeterThreadUtils.isRunning(item.getReportId(), item.getTestId())) {
+                continue;
+            }
+            // 检查是否已经超时
+            if (StringUtils.equalsAnyIgnoreCase(queue.getRunMode(),
                     ApiRunMode.SCENARIO.name(),
                     ApiRunMode.SCENARIO_PLAN.name(),
                     ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
                     ApiRunMode.SCHEDULE_SCENARIO.name(),
                     ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name())
+                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name(), APITestStatus.Waiting.name())
                         && report.getUpdateTime() < twentyMinutesAgo) {
                     report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
@@ -311,13 +335,13 @@ public class ApiExecutionQueueService {
                 }
             } else {
                 ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
-                if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
+                if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name(), APITestStatus.Waiting.name())) {
                     result.setStatus(ScenarioStatus.Timeout.name());
                     apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
                     executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                 }
             }
-        });
+        }
 
         ApiExecutionQueueExample queueDetailExample = new ApiExecutionQueueExample();
         queueDetailExample.createCriteria().andReportTypeEqualTo(RunModeConstants.SET_REPORT.toString()).andCreateTimeLessThan(twentyMinutesAgo);
@@ -325,7 +349,7 @@ public class ApiExecutionQueueService {
         if (CollectionUtils.isNotEmpty(executionQueues)) {
             executionQueues.forEach(item -> {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
-                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name())
+                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name(), APITestStatus.Waiting.name())
                         && (report.getUpdateTime() < twentyMinutesAgo)) {
                     report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);

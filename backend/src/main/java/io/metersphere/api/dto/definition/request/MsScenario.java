@@ -13,10 +13,10 @@ import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
@@ -96,10 +96,10 @@ public class MsScenario extends MsTestElement {
             return;
         } else if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             try {
-                ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+                ApiScenarioMapper apiAutomationService = CommonBeanFactory.getBean(ApiScenarioMapper.class);
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
+                ApiScenarioWithBLOBs scenario = apiAutomationService.selectByPrimaryKey(this.getId());
                 if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
                     JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
                     // 历史数据处理
@@ -179,9 +179,9 @@ public class MsScenario extends MsTestElement {
         }
         ParameterConfig newConfig = new ParameterConfig();
         if (this.isEnvironmentEnable()) {
-            ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+            ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
             EnvironmentGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(EnvironmentGroupProjectService.class);
-            ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
+            ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(this.getId());
             String environmentType = scenario.getEnvironmentType();
             String environmentJson = scenario.getEnvironmentJson();
             String environmentGroupId = scenario.getEnvironmentGroupId();
