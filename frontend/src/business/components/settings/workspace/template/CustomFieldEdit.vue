@@ -45,7 +45,7 @@
         prop="options" :label-width="labelWidth">
         <ms-single-handle-drag
             :is-kv="form.scene === 'ISSUE'"
-            :disable="form.name === '用例等级' || isSystem"
+            :disable="form.name === '用例等级'"
             :data="form.options"/>
       </el-form-item>
 
