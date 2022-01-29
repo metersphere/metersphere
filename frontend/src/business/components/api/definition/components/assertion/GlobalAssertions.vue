@@ -16,48 +16,48 @@
         </el-col>
         <el-col :span="20">
           <global-assertion-text
-            :is-read-only="isReadOnly"
-            :list="assertions.regex"
-            :callback="after"
-            v-if="type === options.TEXT"
+              :is-read-only="isReadOnly"
+              :list="assertions.regex"
+              :callback="after"
+              v-if="type === options.TEXT"
           />
           <ms-api-assertion-regex
-            :is-read-only="isReadOnly"
-            :list="assertions.regex"
-            :callback="after"
-            v-if="type === options.REGEX"
+              :is-read-only="isReadOnly"
+              :list="assertions.regex"
+              :callback="after"
+              v-if="type === options.REGEX"
           />
           <ms-api-assertion-json-path
-            :is-read-only="isReadOnly"
-            :list="assertions.jsonPath"
-            :callback="after"
-            v-if="type === options.JSON_PATH"
+              :is-read-only="isReadOnly"
+              :list="assertions.jsonPath"
+              :callback="after"
+              v-if="type === options.JSON_PATH"
           />
           <ms-api-assertion-x-path2
-            :is-read-only="isReadOnly"
-            :list="assertions.xpath2"
-            :callback="after"
-            v-if="type === options.XPATH2"
+              :is-read-only="isReadOnly"
+              :list="assertions.xpath2"
+              :callback="after"
+              v-if="type === options.XPATH2"
           />
           <ms-api-assertion-duration
-            v-model="time"
-            :is-read-only="isReadOnly"
-            :duration="assertions.duration"
-            :callback="after"
-            v-if="type === options.DURATION"
+              v-model="time"
+              :is-read-only="isReadOnly"
+              :duration="assertions.duration"
+              :callback="after"
+              v-if="type === options.DURATION"
           />
           <ms-api-assertion-jsr223
-            :is-read-only="isReadOnly"
-            :list="assertions.jsr223"
-            :callback="after"
-            v-if="type === options.JSR223"
+              :is-read-only="isReadOnly"
+              :list="assertions.jsr223"
+              :callback="after"
+              v-if="type === options.JSR223"
           />
           <ms-api-assertion-document
-            :is-read-only="isReadOnly"
-            v-model="time"
-            :document="assertions.document"
-            :callback="after"
-            v-if="type === options.DOCUMENT"
+              :is-read-only="isReadOnly"
+              v-model="time"
+              :document="assertions.document"
+              :callback="after"
+              v-if="type === options.DOCUMENT"
           />
           <el-button v-if="!type" :disabled="true" type="primary" size="small">
             {{ $t('api_test.request.assertions.add') }}
@@ -67,22 +67,23 @@
     </div>
 
     <api-json-path-suggest-button
-      :open-tip="$t('api_test.request.assertions.json_path_suggest')"
-      :clear-tip="$t('api_test.request.assertions.json_path_clear')"
-      @open="suggestJsonOpen"
-      @clear="clearJson"/>
+        v-if="isShowJsonPathSuggest"
+        :open-tip="$t('api_test.request.assertions.json_path_suggest')"
+        :clear-tip="$t('api_test.request.assertions.json_path_clear')"
+        @open="suggestJsonOpen"
+        @clear="clearJson"/>
 
     <ms-api-assertions-edit
-      :is-read-only="isReadOnly"
-      :assertions="assertions"
-      :apiId="apiId"
-      :reloadData="reloadData"
-      style="margin-bottom: 20px"/>
+        :is-read-only="isReadOnly"
+        :assertions="assertions"
+        :apiId="apiId"
+        :reloadData="reloadData"
+        style="margin-bottom: 20px"/>
 
     <api-jsonpath-suggest
-      :tip="$t('api_test.request.extract.suggest_tip')"
-      @addSuggest="addJsonPathSuggest"
-      ref="jsonpathSuggest"/>
+        :tip="$t('api_test.request.extract.suggest_tip')"
+        @addSuggest="addJsonPathSuggest"
+        ref="jsonpathSuggest"/>
   </div>
 </template>
 
@@ -144,6 +145,10 @@ export default {
     isReadOnly: {
       type: Boolean,
       default: false
+    },
+    isShowJsonPathSuggest: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -197,9 +202,9 @@ export default {
       let expect = jsonItem.expect;
       if (expect) {
         expect = expect.replaceAll('\\', "\\\\").replaceAll('(', "\\(").replaceAll(')', "\\)")
-          .replaceAll('+', "\\+").replaceAll('.', "\\.").replaceAll('[', "\\[").replaceAll(']', "\\]")
-          .replaceAll('?', "\\?").replaceAll('/', "\\/").replaceAll('*', "\\*")
-          .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
+            .replaceAll('+', "\\+").replaceAll('.', "\\.").replaceAll('[', "\\[").replaceAll(']', "\\]")
+            .replaceAll('?', "\\?").replaceAll('/', "\\/").replaceAll('*', "\\*")
+            .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
       }
       jsonItem.expect = expect;
       this.assertions.jsonPath.push(jsonItem);

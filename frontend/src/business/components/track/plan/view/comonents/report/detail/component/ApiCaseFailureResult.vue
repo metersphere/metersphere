@@ -46,6 +46,7 @@
                 <status-table-item v-else-if="scope.row.execResult === 'STOP'" :value="'STOP'"/>
                 <status-table-item v-else-if="scope.row.execResult === 'errorReportResult'"
                                    :value="'ErrorReportResult'"/>
+                <status-table-item v-else-if="scope.row.execResult === 'Timeout'" :value="'Timeout'"/>
                 <status-table-item v-else :value="'Prepare'"/>
               </template>
             </ms-table-column>
