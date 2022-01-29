@@ -63,7 +63,7 @@
         </el-tab-pane>
         <!--        全局断言-->
         <el-tab-pane :label="$t('env_options.all_assertions')" name="assertions">
-          <el-row type="flex" :gutter="20">
+          <el-row type="flex" :gutter="20" v-if="hasLicense">
             <el-col :span="12">
               <el-form-item
                 :label="$t('error_report_library.use_error_report')"
@@ -72,10 +72,8 @@
                 {{$t('error_report_library.use_desc')}}
               </el-form-item>
             </el-col>
-
           </el-row>
-          <global-assertions :is-read-only="isReadOnly"
-            :assertions="environment.config.assertions"/>
+          <global-assertions :is-read-only="isReadOnly" :assertions="environment.config.assertions" :is-show-json-path-suggest="false"/>
         </el-tab-pane>
       </el-tabs>
       <div class="environment-footer">
@@ -100,7 +98,7 @@ import MsEnvironmentCommonConfig from "./EnvironmentCommonConfig";
 import MsEnvironmentSSLConfig from "./EnvironmentSSLConfig";
 import MsApiAuthConfig from "@/business/components/api/definition/components/auth/ApiAuthConfig";
 import MsTcpConfig from "@/business/components/api/test/components/request/tcp/TcpConfig";
-import {getUUID} from "@/common/js/utils";
+import {getUUID,hasLicense} from "@/common/js/utils";
 import Jsr233ProcessorContent from "@/business/components/api/automation/scenario/common/Jsr233ProcessorContent";
 import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
 import EnvironmentGlobalScript from "@/business/components/api/test/components/environment/EnvironmentGlobalScript";
@@ -237,6 +235,12 @@ export default {
       });
       this.envEnable = o.enable;
     }
+  },
+  computed: {
+    hasLicense(){
+      let license= hasLicense();
+      return license;
+    },
   },
   methods: {
     updateGlobalScript(isPreScript, filedName, value) {
