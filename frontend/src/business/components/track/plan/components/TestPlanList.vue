@@ -383,6 +383,14 @@ export default {
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     getPlanStageOption((data) => {
       this.stageOption = data;
+      if (this.stageOption.length > 0) {
+        this.stageFilters = this.stageOption;
+        this.stageFilters.forEach((stage) => {
+          if (stage.system != null && stage.system) {
+            stage.text = this.$t(stage.text);
+          }
+        })
+      }
     });
     this.initTableData();
   },
