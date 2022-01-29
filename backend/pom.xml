@@ -269,6 +269,12 @@
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
         </dependency>
+        <!-- appium 包  -->
+        <dependency>
+            <groupId>io.appium</groupId>
+            <artifactId>java-client</artifactId>
+            <version>7.6.0</version>
+        </dependency>
         <!-- 基础包 -->
         <dependency>
             <groupId>io.metersphere</groupId>
