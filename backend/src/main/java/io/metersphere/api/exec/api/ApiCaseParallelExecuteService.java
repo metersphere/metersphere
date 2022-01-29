@@ -8,7 +8,6 @@ import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.RunModeConfigDTO;
-import io.metersphere.utils.LoggerUtil;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 
@@ -26,30 +25,26 @@ public class ApiCaseParallelExecuteService {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(5000);
-                    Thread.currentThread().setName("API-CASE-THREAD");
-                    for (String testId : executeQueue.keySet()) {
-                        ApiDefinitionExecResult result = executeQueue.get(testId);
-                        String reportId = result.getId();
-                        HashTree hashTree = null;
-                        if (!GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()).isPool()) {
-                            hashTree = apiScenarioSerialService.generateHashTree(testId, result.getId(), runMode, config.getEnvMap());
-                        }
-                        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, hashTree);
-                        runRequest.setPool(GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()));
-                        runRequest.setTestPlanReportId(executionQueue.getReportId());
-                        runRequest.setPoolId(config.getResourcePoolId());
-                        runRequest.setReportType(executionQueue.getReportType());
-                        runRequest.setRunType(RunModeConstants.PARALLEL.toString());
-                        runRequest.setQueueId(executionQueue.getId());
-                        if (executionQueue.getQueue() != null) {
-                            runRequest.setPlatformUrl(executionQueue.getQueue().getId());
-                        }
-                        jMeterService.run(runRequest);
+                Thread.currentThread().setName("API-CASE-THREAD");
+                for (String testId : executeQueue.keySet()) {
+                    ApiDefinitionExecResult result = executeQueue.get(testId);
+                    String reportId = result.getId();
+                    HashTree hashTree = null;
+                    JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, hashTree);
+                    runRequest.setPool(GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()));
+                    runRequest.setTestPlanReportId(executionQueue.getReportId());
+                    runRequest.setPoolId(config.getResourcePoolId());
+                    runRequest.setReportType(executionQueue.getReportType());
+                    runRequest.setRunType(RunModeConstants.PARALLEL.toString());
+                    runRequest.setQueueId(executionQueue.getId());
+                    if (executionQueue.getQueue() != null) {
+                        runRequest.setPlatformUrl(executionQueue.getQueue().getId());
                     }
-                } catch (Exception e) {
-                    LoggerUtil.error("并发执行用例失败：" + e.getMessage());
+                    if (!GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()).isPool()) {
+                        hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
+                        runRequest.setHashTree(hashTree);
+                    }
+                    jMeterService.run(runRequest);
                 }
             }
         });

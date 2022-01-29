@@ -7,9 +7,9 @@ import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
+import io.metersphere.api.service.ApiCaseResultService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
@@ -26,23 +26,15 @@ import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class ApiCaseExecuteService {
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
-    @Resource
-    private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiScenarioSerialService apiScenarioSerialService;
     @Resource
@@ -55,6 +47,8 @@ public class ApiCaseExecuteService {
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
+    @Resource
+    private ApiCaseResultService apiCaseResultService;
 
     /**
      * 测试计划case执行
@@ -79,8 +73,6 @@ public class ApiCaseExecuteService {
         example.createCriteria().andIdIn(ids);
         example.setOrderByClause("`order` DESC");
         List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
         if (StringUtils.isEmpty(request.getTriggerMode())) {
             request.setTriggerMode(ApiRunMode.API_PLAN.name());
         }
@@ -89,14 +81,12 @@ public class ApiCaseExecuteService {
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
         planApiCases.forEach(testPlanApiCase -> {
-            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, batchMapper);
+            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status);
             executeQueue.put(testPlanApiCase.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
         });
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        }
+
+        apiCaseResultService.batchSave(executeQueue);
 
         LoggerUtil.debug("开始生成测试计划队列");
         String reportType = request.getConfig().getReportType();
@@ -155,8 +145,6 @@ public class ApiCaseExecuteService {
             }
         }
 
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
         if (StringUtils.isEmpty(request.getTriggerMode())) {
             request.setTriggerMode(ApiRunMode.DEFINITION.name());
         }
@@ -168,14 +156,12 @@ public class ApiCaseExecuteService {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
             report.setStatus(status);
             report.setName(caseWithBLOBs.getName());
-            batchMapper.insert(report);
+            report.setVersionId(caseWithBLOBs.getVersionId());
             executeQueue.put(caseWithBLOBs.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
         });
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        }
+
+        apiCaseResultService.batchSave(executeQueue);
 
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
