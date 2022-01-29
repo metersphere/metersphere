@@ -4,7 +4,6 @@ import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.TriggerMode;
@@ -40,7 +39,7 @@ public class ApiDefinitionExecResultUtil {
         return apiResult;
     }
 
-    public static ApiDefinitionExecResult addResult(BatchRunDefinitionRequest request, TestPlanApiCase key, String status, ApiDefinitionExecResultMapper batchMapper) {
+    public static ApiDefinitionExecResult addResult(BatchRunDefinitionRequest request, TestPlanApiCase key, String status) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         apiResult.setId(UUID.randomUUID().toString());
         apiResult.setCreateTime(System.currentTimeMillis());
@@ -68,7 +67,6 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setType(ApiRunMode.API_PLAN.name());
         apiResult.setStatus(status);
         apiResult.setContent(request.getPlanReportId());
-        batchMapper.insert(apiResult);
         return apiResult;
     }
 

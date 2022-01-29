@@ -9,8 +9,6 @@ import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.datacount.ApiMethodUrlDTO;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
-import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -106,10 +104,6 @@ public class ApiAutomationService {
     @Resource
     private EsbApiParamService esbApiParamService;
     @Resource
-    private ApiTestCaseService apiTestCaseService;
-    @Resource
-    private ApiDefinitionService apiDefinitionService;
-    @Resource
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private UserMapper userMapper;
@@ -137,7 +131,8 @@ public class ApiAutomationService {
     private ApiScenarioExecuteService apiScenarioExecuteService;
     @Resource
     private ExtProjectVersionMapper extProjectVersionMapper;
-
+    @Resource
+    private MsHashTreeService hashTreeService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -680,124 +675,14 @@ public class ApiAutomationService {
         }
     }
 
-    public ApiScenarioDTO getApiScenario(String id) {
-        return extApiScenarioMapper.selectById(id);
-    }
-
     public ApiScenarioDTO getNewApiScenario(String id) {
         ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(id);
         if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
             JSONObject element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
-            this.dataFormatting(element);
+            hashTreeService.dataFormatting(element);
             scenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(element));
         }
         return scenarioWithBLOBs;
-    }
-
-    private final static List<String> requests = new ArrayList<String>() {{
-        this.add("HTTPSamplerProxy");
-        this.add("DubboSampler");
-        this.add("JDBCSampler");
-        this.add("TCPSampler");
-    }};
-
-    private void setElement(JSONObject element, Integer num, Boolean enable, String versionName, Boolean versionEnable) {
-        element.put("num", num);
-        element.put("enable", enable == null ? false : enable);
-        element.put("versionName", versionName);
-        element.put("versionEnable", versionEnable == null ? false : versionEnable);
-    }
-
-    private JSONObject setRequest(JSONObject element) {
-        boolean enable = element.getBoolean("enable");
-        boolean isExist = false;
-        if (StringUtils.equalsIgnoreCase(element.getString("refType"), "CASE")) {
-            ApiTestCaseInfo apiTestCase = apiTestCaseService.get(element.getString("id"));
-            if (apiTestCase != null) {
-                if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
-                    JSONObject refElement = JSON.parseObject(apiTestCase.getRequest());
-                    ElementUtil.dataFormatting(refElement);
-                    JSONArray array = refElement.getJSONArray("hashTree");
-                    BeanUtils.copyBean(element, refElement);
-                    if (array != null) {
-                        ElementUtil.mergeHashTree(element, refElement.getJSONArray("hashTree"));
-                    }
-                    element.put("referenced", "REF");
-                    element.put("disabled", true);
-                    element.put("name", apiTestCase.getName());
-                }
-                element.put("id", apiTestCase.getId());
-                isExist = true;
-                this.setElement(element, apiTestCase.getNum(), enable, apiTestCase.getVersionName(), apiTestCase.getVersionEnable());
-            }
-        } else {
-            ApiDefinitionResult definitionWithBLOBs = apiDefinitionService.getById(element.getString("id"));
-            if (definitionWithBLOBs != null) {
-                element.put("id", definitionWithBLOBs.getId());
-                this.setElement(element, definitionWithBLOBs.getNum(), enable, definitionWithBLOBs.getVersionName(), definitionWithBLOBs.getVersionEnable());
-                isExist = true;
-            }
-        }
-        if (!isExist) {
-            if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
-                element.put("enable", false);
-            }
-            element.put("num", "");
-        }
-        return element;
-    }
-
-    private JSONObject setRefScenario(JSONObject element) {
-        boolean enable = element.containsKey("enable") ? element.getBoolean("enable") : true;
-        ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString("id"));
-        if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
-            boolean environmentEnable = element.containsKey("environmentEnable")
-                    ? element.getBoolean("environmentEnable") : false;
-
-            if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
-                element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
-                element.put("referenced", "REF");
-                element.put("name", scenarioWithBLOBs.getName());
-            }
-            element.put("id", scenarioWithBLOBs.getId());
-            element.put("environmentEnable", environmentEnable);
-            this.setElement(element, scenarioWithBLOBs.getNum(), enable, scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable());
-        } else {
-            if (StringUtils.equalsIgnoreCase(element.getString("referenced"), "REF")) {
-                element.put("enable", false);
-            }
-            element.put("num", "");
-        }
-        return element;
-    }
-
-    public void dataFormatting(JSONArray hashTree) {
-        for (int i = 0; i < hashTree.size(); i++) {
-            JSONObject element = hashTree.getJSONObject(i);
-            if (element != null && StringUtils.equalsIgnoreCase(element.getString("type"), "scenario")) {
-                element = this.setRefScenario(element);
-                hashTree.set(i, element);
-            } else if (element != null && requests.contains(element.getString("type"))) {
-                element = this.setRequest(element);
-                hashTree.set(i, element);
-            }
-            if (element.containsKey("hashTree")) {
-                JSONArray elementJSONArray = element.getJSONArray("hashTree");
-                dataFormatting(elementJSONArray);
-            }
-        }
-    }
-
-    public void dataFormatting(JSONObject element) {
-        if (element != null && StringUtils.equalsIgnoreCase(element.getString("type"), "scenario")) {
-            element = this.setRefScenario(element);
-        } else if (element != null && requests.contains(element.getString("type"))) {
-            element = this.setRequest(element);
-        }
-        if (element != null && element.containsKey("hashTree")) {
-            JSONArray elementJSONArray = element.getJSONArray("hashTree");
-            dataFormatting(elementJSONArray);
-        }
     }
 
     public String setDomain(ApiScenarioEnvRequest request) {
@@ -1179,7 +1064,6 @@ public class ApiAutomationService {
         apiScenarioMapper.updateByExampleSelective(
                 apiScenarioWithBLOBs,
                 apiScenarioExample);
-//        apiScenarioReferenceIdService.saveByApiScenario(apiScenarioWithBLOBs);
     }
 
     public void bathEditEnv(ApiScenarioBatchRequest request) {
@@ -1440,45 +1324,6 @@ public class ApiAutomationService {
         return apiImport;
     }
 
-    private void setHashTree(JSONArray hashTree) {
-        // 将引用转成复制
-        if (CollectionUtils.isNotEmpty(hashTree)) {
-            for (int i = 0; i < hashTree.size(); i++) {
-                JSONObject object = (JSONObject) hashTree.get(i);
-                String referenced = object.getString("referenced");
-                if (StringUtils.isNotBlank(referenced) && StringUtils.equals(referenced, "REF")) {
-                    // 检测引用对象是否存在，若果不存在则改成复制对象
-                    String refType = object.getString("refType");
-                    if (StringUtils.isNotEmpty(refType)) {
-                        if (refType.equals("CASE")) {
-                            ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(object.getString("id"));
-                            if (bloBs != null) {
-                                object = JSON.parseObject(bloBs.getRequest());
-                                object.put("id", bloBs.getId());
-                                object.put("name", bloBs.getName());
-                                hashTree.set(i, object);
-                            }
-                        } else {
-                            ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString("id"));
-                            if (bloBs != null) {
-                                object = JSON.parseObject(bloBs.getScenarioDefinition());
-                                hashTree.set(i, object);
-                            }
-                        }
-                    } else if ("scenario".equals(object.getString("type"))) {
-                        ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString("id"));
-                        if (bloBs != null) {
-                            object = JSON.parseObject(bloBs.getScenarioDefinition());
-                            hashTree.set(i, object);
-                        }
-                    }
-                }
-                if (object != null && CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
-                    setHashTree(object.getJSONArray("hashTree"));
-                }
-            }
-        }
-    }
 
     private List<ApiScenarioWithBLOBs> getExportResult(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
@@ -1493,7 +1338,7 @@ public class ApiAutomationService {
                     JSONObject scenario = JSONObject.parseObject(item.getScenarioDefinition());
                     JSONArray hashTree = scenario.getJSONArray("hashTree");
                     if (hashTree != null) {
-                        setHashTree(hashTree);
+                        hashTreeService.setHashTree(hashTree);
                         scenario.put("hashTree", hashTree);
                     }
                     item.setScenarioDefinition(JSON.toJSONString(scenario));
@@ -1717,78 +1562,16 @@ public class ApiAutomationService {
 
     public List<ApiMethodUrlDTO> parseUrl(ApiScenarioWithBLOBs scenario) {
         List<ApiMethodUrlDTO> urlList = new ArrayList<>();
-
-        try {
-            String scenarioDefinition = scenario.getScenarioDefinition();
-            JSONObject scenarioObj = JSONObject.parseObject(scenarioDefinition);
-            List<ApiMethodUrlDTO> stepUrlList = this.getMethodUrlDTOByHashTreeJsonObj(scenarioObj);
-            if (CollectionUtils.isNotEmpty(stepUrlList)) {
-                Collection unionList = CollectionUtils.union(urlList, stepUrlList);
-                urlList = new ArrayList<>(unionList);
-            }
-        } catch (Exception e) {
-            LogUtil.error(e);
+        String scenarioDefinition = scenario.getScenarioDefinition();
+        JSONObject scenarioObj = JSONObject.parseObject(scenarioDefinition);
+        List<ApiMethodUrlDTO> stepUrlList = hashTreeService.getMethodUrlDTOByHashTreeJsonObj(scenarioObj);
+        if (CollectionUtils.isNotEmpty(stepUrlList)) {
+            Collection unionList = CollectionUtils.union(urlList, stepUrlList);
+            urlList = new ArrayList<>(unionList);
         }
         return urlList;
     }
 
-    private List<ApiMethodUrlDTO> getMethodUrlDTOByHashTreeJsonObj(JSONObject obj) {
-        List<ApiMethodUrlDTO> returnList = new ArrayList<>();
-        if (obj != null && obj.containsKey("hashTree")) {
-            JSONArray hashArr = obj.getJSONArray("hashTree");
-            for (int i = 0; i < hashArr.size(); i++) {
-                JSONObject elementObj = hashArr.getJSONObject(i);
-                if (elementObj == null) {
-                    continue;
-                }
-                if (elementObj.containsKey("url") && elementObj.containsKey("method")) {
-                    String url = elementObj.getString("url");
-                    String method = elementObj.getString("method");
-                    ApiMethodUrlDTO dto = new ApiMethodUrlDTO(url, method);
-                    if (!returnList.contains(dto)) {
-                        returnList.add(dto);
-                    }
-                }
-                if (elementObj.containsKey("path") && elementObj.containsKey("method")) {
-                    String path = elementObj.getString("path");
-                    String method = elementObj.getString("method");
-                    ApiMethodUrlDTO dto = new ApiMethodUrlDTO(path, method);
-                    if (!returnList.contains(dto)) {
-                        returnList.add(dto);
-                    }
-                }
-
-                if (elementObj.containsKey("id") && elementObj.containsKey("refType")) {
-                    String refType = elementObj.getString("refType");
-                    String id = elementObj.getString("id");
-                    if (StringUtils.equals("CASE", refType)) {
-                        ApiDefinition apiDefinition = apiTestCaseService.findApiUrlAndMethodById(id);
-                        if (apiDefinition != null) {
-                            ApiMethodUrlDTO dto = new ApiMethodUrlDTO(apiDefinition.getPath(), apiDefinition.getMethod());
-                            if (!returnList.contains(dto)) {
-                                returnList.add(dto);
-                            }
-                        }
-                    } else if (StringUtils.equals("API", refType)) {
-                        ApiDefinition apiDefinition = apiDefinitionService.selectUrlAndMethodById(id);
-                        if (apiDefinition != null) {
-                            ApiMethodUrlDTO dto = new ApiMethodUrlDTO(apiDefinition.getPath(), apiDefinition.getMethod());
-                            if (!returnList.contains(dto)) {
-                                returnList.add(dto);
-                            }
-                        }
-                    }
-                }
-
-                List<ApiMethodUrlDTO> stepUrlList = this.getMethodUrlDTOByHashTreeJsonObj(elementObj);
-                if (CollectionUtils.isNotEmpty(stepUrlList)) {
-                    Collection unionList = CollectionUtils.union(returnList, stepUrlList);
-                    returnList = new ArrayList<>(unionList);
-                }
-            }
-        }
-        return returnList;
-    }
 
     public ScenarioEnv getApiScenarioProjectId(String id) {
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
@@ -1926,7 +1709,6 @@ public class ApiAutomationService {
             return returnList;
         } else {
             apiScenarioList.forEach(item -> {
-                String testName = item.getName();
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
                 JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(item), item.getProjectId());

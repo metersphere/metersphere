@@ -7,6 +7,7 @@ import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -21,35 +22,29 @@ import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.service.TestCaseReviewApiCaseService;
-import io.metersphere.track.service.TestPlanApiCaseService;
-import io.metersphere.track.service.TestPlanService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiDefinitionExecResultService {
-    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
-    private TestPlanApiCaseService testPlanApiCaseService;
+    private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
-    private TestPlanService testPlanService;
+    private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
@@ -68,11 +63,6 @@ public class ApiDefinitionExecResultService {
     private UserMapper userMapper;
 
     public void saveApiResult(List<RequestResult> requestResults, ResultDTO dto) {
-        boolean isFirst = true;
-        int count = requestResults.stream()
-                .filter(item -> !StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_"))
-                .collect(Collectors.toList()).size();
-
         LoggerUtil.info("接收到API/CASE执行结果【 " + requestResults.size() + " 】");
 
         for (RequestResult item : requestResults) {
@@ -81,12 +71,11 @@ public class ApiDefinitionExecResultService {
                 item.getResponseResult().setResponseTime((item.getEndTime() - item.getStartTime()));
             }
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                ApiDefinitionExecResult result = this.save(item, dto.getReportId(), dto.getConsole(), count, dto.getRunMode(), dto.getTestId(), isFirst);
+                ApiDefinitionExecResult result = this.save(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId());
                 if (result != null) {
                     // 发送通知
                     sendNotice(result);
                 }
-                isFirst = false;
             }
         }
     }
@@ -136,18 +125,26 @@ public class ApiDefinitionExecResultService {
         }
     }
 
+    public void setExecResult(String id, String status, Long time) {
+        TestPlanApiCase apiCase = new TestPlanApiCase();
+        apiCase.setId(id);
+        apiCase.setStatus(status);
+        apiCase.setUpdateTime(time);
+        testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+    }
+
     public void editStatus(ApiDefinitionExecResult saveResult, String type, String status, Long time, String reportId, String testId) {
         String name = testId;
         String version = "";
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(testId);
+            TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
             if (testPlanApiCase != null) {
-                testPlanApiCaseService.setExecResult(testId, status, time);
+                this.setExecResult(testId, status, time);
                 caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
                 testPlanApiCase.setStatus(status);
                 testPlanApiCase.setUpdateTime(System.currentTimeMillis());
-                testPlanApiCaseService.updateByPrimaryKeySelective(testPlanApiCase);
+                testPlanApiCaseMapper.updateByPrimaryKeySelective(testPlanApiCase);
                 if (LoggerUtil.getLogger().isDebugEnabled()) {
                     LoggerUtil.debug("更新测试计划用例【 " + testPlanApiCase.getId() + " 】");
                 }
@@ -198,22 +195,14 @@ public class ApiDefinitionExecResultService {
      * 定时任务时，userID要改为定时任务中的用户
      */
     public void saveApiResultByScheduleTask(List<RequestResult> requestResults, ResultDTO dto) {
-        boolean isFirst = true;
-        int countExpectProcessResultCount = 0;
         if (CollectionUtils.isNotEmpty(requestResults)) {
-            for (RequestResult resultItem : requestResults) {
-                if (!StringUtils.startsWithAny(resultItem.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                    countExpectProcessResultCount++;
-                }
-            }
             LoggerUtil.info("接收到定时任务执行结果【 " + requestResults.size() + " 】");
-
             for (RequestResult item : requestResults) {
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                     //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
 
-                    ApiDefinitionExecResult reportResult = this.save(item, dto.getReportId(), dto.getConsole(), countExpectProcessResultCount, dto.getRunMode(), dto.getTestId(), isFirst);
+                    ApiDefinitionExecResult reportResult = this.save(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId());
                     String status = item.isSuccess() ? "success" : "error";
                     if (reportResult != null) {
                         status = reportResult.getStatus();
@@ -222,17 +211,16 @@ public class ApiDefinitionExecResultService {
                         status = expandDTO.getStatus();
                     }
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
-                        TestPlanApiCase apiCase = testPlanApiCaseService.getById(dto.getTestId());
+                        TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
                         if (apiCase != null) {
                             apiCase.setStatus(status);
                             apiCase.setUpdateTime(System.currentTimeMillis());
-                            testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
+                            testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
                         }
                     } else {
-                        testPlanApiCaseService.setExecResult(dto.getTestId(), status, item.getStartTime());
+                        this.setExecResult(dto.getTestId(), status, item.getStartTime());
                         testCaseReviewApiCaseService.setExecResult(dto.getTestId(), status, item.getStartTime());
                     }
-                    isFirst = false;
                 }
             }
         }
@@ -243,7 +231,7 @@ public class ApiDefinitionExecResultService {
         if (StringUtils.isNotEmpty(dto.getReportId())) {
             apiIdResultMap.put(dto.getReportId(), status);
         }
-        testPlanLog.info("TestPlanReportId[" + dto.getTestPlanReportId() + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
+        LoggerUtil.info("TestPlanReportId[" + dto.getTestPlanReportId() + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
     }
 
     /**
@@ -251,7 +239,7 @@ public class ApiDefinitionExecResultService {
      */
     public void updateTestCaseStates(String testPlanApiCaseId) {
         try {
-            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(testPlanApiCaseId);
+            TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(testPlanApiCaseId);
             if (testPlanApiCase == null) return;
             ApiTestCaseWithBLOBs apiTestCase = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
             testPlanTestCaseService.updateTestCaseStates(apiTestCase.getId(), apiTestCase.getName(), testPlanApiCase.getTestPlanId(), TrackCount.TESTCASE);
@@ -322,7 +310,7 @@ public class ApiDefinitionExecResultService {
                     } else if ("load".equals(item.getCaseType())) {
                         planRequest.setLoadId(item.getTestCaseID());
                     }
-                    List<TestPlanDTO> dtoList = testPlanService.selectTestPlanByRelevancy(planRequest);
+                    List<TestPlanDTO> dtoList = extTestPlanMapper.selectTestPlanByRelevancy(planRequest);
                     item.setTestPlanDTOList(dtoList);
                     returnList.add(item);
                 } else {
@@ -334,7 +322,7 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    private ApiDefinitionExecResult save(RequestResult item, String reportId, String console, int expectProcessResultCount, String type, String testId, boolean isFirst) {
+    private ApiDefinitionExecResult save(RequestResult item, String reportId, String console, String type, String testId) {
         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
             ApiDefinitionExecResult saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
             if (saveResult == null) {

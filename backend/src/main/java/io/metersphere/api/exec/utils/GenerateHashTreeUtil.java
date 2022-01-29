@@ -10,15 +10,19 @@ import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
+import io.metersphere.api.service.ApiExecutionQueueService;
+import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
-import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.JvmInfoDTO;
+import io.metersphere.dto.ResultDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
@@ -120,14 +124,14 @@ public class GenerateHashTreeUtil {
         }
     }
 
-    public static HashTree generateHashTree(ApiScenarioWithBLOBs item, String reportId, Map<String, String> planEnvMap, String reportType) {
+    public static HashTree generateHashTree(ApiScenarioWithBLOBs item, Map<String, String> planEnvMap, JmeterRunRequestDTO runRequest) {
         HashTree jmeterHashTree = new HashTree();
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         try {
             MsThreadGroup group = new MsThreadGroup();
             group.setLabel(item.getName());
-            group.setName(reportId);
+            group.setName(runRequest.getReportId());
             MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
             group.setOnSampleError(scenario.getOnSampleError());
             if (planEnvMap != null && planEnvMap.size() > 0) {
@@ -144,11 +148,15 @@ public class GenerateHashTreeUtil {
             group.setHashTree(scenarios);
             testPlan.getHashTree().add(group);
         } catch (Exception ex) {
-            MSException.throwException(ex.getMessage());
+            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+            remakeReportService.remake(runRequest);
+            ResultDTO dto = new ResultDTO();
+            BeanUtils.copyBean(dto, runRequest);
+            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
         }
         ParameterConfig config = new ParameterConfig();
         config.setScenarioId(item.getId());
-        config.setReportType(reportType);
+        config.setReportType(runRequest.getReportType());
         testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
         return jmeterHashTree;
     }

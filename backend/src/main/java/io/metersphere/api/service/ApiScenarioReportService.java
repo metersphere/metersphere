@@ -3,22 +3,18 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.APIReportBatchRequest;
-import io.metersphere.api.dto.DeleteAPIReportRequest;
-import io.metersphere.api.dto.EnvironmentType;
-import io.metersphere.api.dto.QueryAPIReportRequest;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.api.jmeter.ReportCounter;
+import io.metersphere.api.jmeter.FixedCapacityUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.RunModeConstants;
@@ -36,12 +32,15 @@ import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
@@ -82,7 +81,7 @@ public class ApiScenarioReportService {
     @Resource
     private ApiScenarioReportStructureMapper apiScenarioReportStructureMapper;
     @Resource
-    private MsResultService resultService;
+    private SqlSessionFactory sqlSessionFactory;
 
     public void saveResult(List<RequestResult> requestResults, ResultDTO dto) {
         // 报告详情内容
@@ -238,9 +237,9 @@ public class ApiScenarioReportService {
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (testPlanApiScenario != null) {
-            if(report != null){
+            if (report != null) {
                 testPlanApiScenario.setLastResult(report.getStatus());
-            }else {
+            } else {
                 if (errorSize > 0) {
                     testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
                 } else {
@@ -333,7 +332,7 @@ public class ApiScenarioReportService {
             report.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
             report.setEndTime(System.currentTimeMillis());
             // 更新控制台信息
-            apiScenarioReportStructureService.update(reportId, resultService.getJmeterLogger(reportId));
+            apiScenarioReportStructureService.update(reportId, FixedCapacityUtils.getJmeterLogger(reportId));
             // 更新报告
             apiScenarioReportMapper.updateByPrimaryKey(report);
         }
@@ -351,9 +350,9 @@ public class ApiScenarioReportService {
             scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
         }
         if (scenario != null) {
-            if(StringUtils.equalsAnyIgnoreCase(status,ExecuteResult.errorReportResult.name())){
+            if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.errorReportResult.name())) {
                 scenario.setLastResult(status);
-            }else {
+            } else {
                 scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
             }
 
@@ -650,32 +649,6 @@ public class ApiScenarioReportService {
         return extApiScenarioReportMapper.countByApiScenarioId();
     }
 
-    @Resource
-    private RestTemplate restTemplate;
-    private static final String BASE_URL = "http://%s:%d";
-
-    public Integer get(String reportId, ReportCounter counter) {
-        int count = 0;
-        try {
-            for (JvmInfoDTO item : counter.getPoolUrls()) {
-                TestResourceDTO testResource = item.getTestResource();
-                String configuration = testResource.getConfiguration();
-                NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
-                String nodeIp = node.getIp();
-                Integer port = node.getPort();
-
-                String uri = String.format(BASE_URL + "/jmeter/getRunning/" + reportId, nodeIp, port);
-                ResponseEntity<Integer> result = restTemplate.getForEntity(uri, Integer.class);
-                if (result == null) {
-                    count += result.getBody();
-                }
-            }
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage());
-        }
-        return count;
-    }
-
     public Map<String, String> getReportStatusByReportIds(Collection<String> values) {
         if (CollectionUtils.isEmpty(values)) {
             return new HashMap<>();
@@ -688,7 +661,7 @@ public class ApiScenarioReportService {
         return map;
     }
 
-    public APIScenarioReportResult init(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID, RunModeConfigDTO config, String desc) {
+    public APIScenarioReportResult init(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID, RunModeConfigDTO config) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         if (triggerMode.equals(ApiRunMode.SCENARIO.name()) || triggerMode.equals(ApiRunMode.DEFINITION.name())) {
             triggerMode = ReportTriggerMode.MANUAL.name();
@@ -696,6 +669,7 @@ public class ApiScenarioReportService {
         report.setId(id);
         report.setTestId(id);
         if (StringUtils.isNotEmpty(scenarioName)) {
+            scenarioName = scenarioName.length() >= 3000 ? scenarioName.substring(0, 2000) : scenarioName;
             report.setName(scenarioName);
         } else {
             report.setName("场景调试");
@@ -703,7 +677,9 @@ public class ApiScenarioReportService {
         report.setUpdateTime(System.currentTimeMillis());
         report.setCreateTime(System.currentTimeMillis());
 
-        report.setStatus(APITestStatus.Running.name());
+        String status = config != null && StringUtils.equals(config.getMode(), RunModeConstants.SERIAL.toString())
+                ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
+        report.setStatus(status);
         if (StringUtils.isNotEmpty(userID)) {
             report.setUserId(userID);
             report.setCreateUser(userID);
@@ -736,11 +712,11 @@ public class ApiScenarioReportService {
             }
         }
         String status;//增加误报状态判断
-        if(errorSize > 0){
+        if (errorSize > 0) {
             status = ScenarioStatus.Error.name();
-        }else if(errorReportResultSize > 0){
+        } else if (errorReportResultSize > 0) {
             status = ExecuteResult.errorReportResult.name();
-        }else {
+        } else {
             status = ScenarioStatus.Success.name();
         }
 
@@ -763,5 +739,23 @@ public class ApiScenarioReportService {
         if (CollectionUtils.isNotEmpty(ids)) {
             deleteByIds(ids);
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void batchSave(Map<String, RunModeDataDTO> executeQueue, String serialReportId, String runMode, List<MsExecResponseDTO> responseDTOS) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
+        if (StringUtils.isEmpty(serialReportId)) {
+            for (String reportId : executeQueue.keySet()) {
+                APIScenarioReportResult report = executeQueue.get(reportId).getReport();
+                batchMapper.insert(report);
+                responseDTOS.add(new MsExecResponseDTO(executeQueue.get(reportId).getTestId(), reportId, runMode));
+            }
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
+        }
+
     }
 }

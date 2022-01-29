@@ -7,7 +7,6 @@ import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.domain.TestResourcePoolExample;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.dto.JvmInfoDTO;
 import io.metersphere.dto.NodeDTO;
@@ -70,9 +69,6 @@ public class ResourcePoolCalculation {
                 nodeJvm.setTestResource(dto);
                 availableNodes.add(nodeJvm);
             }
-        }
-        if (CollectionUtils.isEmpty(availableNodes)) {
-            MSException.throwException("未获取到资源池，请检查配置【系统设置-系统-测试资源池】");
         }
         return availableNodes;
     }
