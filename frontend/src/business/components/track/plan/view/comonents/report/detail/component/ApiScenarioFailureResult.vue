@@ -168,7 +168,7 @@ export default {
           this.response = row.response;
         }
       } else {
-        if (row.reportId && row.lastResult !=='Running' && row.lastResult !== 'Waiting') {
+        if (row.reportId && row.lastResult !=="Running" && row.lastResult !== "Waiting") {
           this.showResponse = true;
           this.reportId = row.reportId;
         }
