@@ -17,6 +17,7 @@ import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -25,7 +26,6 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -34,7 +34,6 @@ import java.io.File;
 import java.util.List;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class JMeterService {
     public static final String BASE_URL = "http://%s:%d";
     @Resource
@@ -77,11 +76,11 @@ public class JMeterService {
 
     private void runLocal(JmeterRunRequestDTO request) {
         init();
-        if (!MessageCache.jmeterLogTask.containsKey(request.getReportId())) {
-            MessageCache.jmeterLogTask.put(request.getReportId(), System.currentTimeMillis());
+        if (!FixedCapacityUtils.jmeterLogTask.containsKey(request.getReportId())) {
+            FixedCapacityUtils.jmeterLogTask.put(request.getReportId(), System.currentTimeMillis());
         }
 
-        LoggerUtil.debug("监听MessageCache.tasks当前容量：" + MessageCache.jmeterLogTask.size());
+        LoggerUtil.debug("监听MessageCache.tasks当前容量：" + FixedCapacityUtils.jmeterLogTask.size());
         if (request.isDebug() && !StringUtils.equalsAny(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
             JMeterBase.addSyncListener(request, request.getHashTree(), APISingleResultListener.class.getCanonicalName());
@@ -135,9 +134,16 @@ public class JMeterService {
         }
     }
 
-    private void send(JmeterRunRequestDTO request) {
+    private synchronized void send(JmeterRunRequestDTO request) {
         try {
             List<JvmInfoDTO> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
+            if (CollectionUtils.isEmpty(resources)) {
+                LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】");
+                RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+                remakeReportService.remake(request);
+                return;
+            }
+
             int index = (int) (Math.random() * resources.size());
             JvmInfoDTO jvmInfoDTO = resources.get(index);
             TestResourceDTO testResource = jvmInfoDTO.getTestResource();
@@ -150,7 +156,6 @@ public class JMeterService {
             String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
 
             LoggerUtil.info("开始发送请求【 " + request.getReportId() + " 】,资源【 " + request.getTestId() + " 】" + uri + " 节点执行");
-
             ResponseEntity<String> result = restTemplate.postForEntity(uri, request, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
@@ -168,14 +173,40 @@ public class JMeterService {
 
 
     public void run(JmeterRunRequestDTO request) {
-        CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
-    }
-
-    public void addQueue(JmeterRunRequestDTO request) {
         if (request.getPool().isPool()) {
             this.runNode(request);
         } else {
-            this.runLocal(request);
+            CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
+        }
+    }
+
+    public void addQueue(JmeterRunRequestDTO request) {
+        this.runLocal(request);
+    }
+
+    public boolean getRunningQueue(String poolId, String reportId) {
+        try {
+            List<JvmInfoDTO> resources = GenerateHashTreeUtil.setPoolResource(poolId);
+            if (CollectionUtils.isEmpty(resources)) {
+                return false;
+            }
+            boolean isRunning = false;
+            for (JvmInfoDTO jvmInfoDTO : resources) {
+                TestResourceDTO testResource = jvmInfoDTO.getTestResource();
+                String configuration = testResource.getConfiguration();
+                NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
+                String nodeIp = node.getIp();
+                Integer port = node.getPort();
+                String uri = String.format(BASE_URL + "/jmeter/get/running/queue/" + reportId, nodeIp, port);
+                ResponseEntity<Boolean> result = restTemplate.getForEntity(uri, Boolean.class);
+                if (result != null && result.getBody()) {
+                    isRunning = true;
+                    break;
+                }
+            }
+            return isRunning;
+        } catch (Exception e) {
+            return false;
         }
     }
 }

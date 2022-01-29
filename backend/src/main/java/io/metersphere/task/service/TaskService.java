@@ -3,6 +3,7 @@ package io.metersphere.task.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.TaskRequest;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
+import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.base.domain.*;
@@ -120,6 +121,7 @@ public class TaskService {
                     // 从队列移除
                     execThreadPoolExecutor.removeQueue(request.getReportId());
                     apiExecutionQueueService.stop(request.getReportId());
+                    PoolExecBlockingQueueUtil.offer(request.getReportId());
                     if (StringUtils.equals(request.getType(), "API")) {
                         ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
                         if (result != null) {
@@ -151,6 +153,7 @@ public class TaskService {
                                 // 从队列移除
                                 execThreadPoolExecutor.removeQueue(item.getId());
                                 apiExecutionQueueService.stop(item.getId());
+                                PoolExecBlockingQueueUtil.offer(item.getId());
                             }
                         }
                     } else if (StringUtils.equals(request.getType(), "SCENARIO")) {
@@ -165,6 +168,7 @@ public class TaskService {
                                 // 从队列移除
                                 execThreadPoolExecutor.removeQueue(report.getId());
                                 apiExecutionQueueService.stop(report.getId());
+                                PoolExecBlockingQueueUtil.offer(report.getId());
                             }
                         }
                     } else if (StringUtils.equals(request.getType(), "PERFORMANCE")) {
@@ -177,6 +181,7 @@ public class TaskService {
                                 // 从队列移除
                                 execThreadPoolExecutor.removeQueue(loadTestReport.getId());
                                 apiExecutionQueueService.stop(loadTestReport.getId());
+                                PoolExecBlockingQueueUtil.offer(loadTestReport.getId());
                             }
                         }
                     }

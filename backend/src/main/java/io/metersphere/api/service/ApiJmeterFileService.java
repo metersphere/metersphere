@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.PluginService;
@@ -48,6 +49,10 @@ public class ApiJmeterFileService {
 
     public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType, String queueId) {
         Map<String, String> planEnvMap = new HashMap<>();
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(remoteTestId, reportId, runMode, null);
+        runRequest.setReportType(reportType);
+        runRequest.setQueueId(queueId);
+
         ApiScenarioWithBLOBs scenario = null;
         if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
             // 获取场景用例单独的执行环境
@@ -71,7 +76,7 @@ public class ApiJmeterFileService {
         }
         HashTree hashTree = null;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId, reportId, runMode, envMap);
+            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId, envMap, runRequest);
         } else {
             if (scenario == null) {
                 scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
@@ -92,11 +97,7 @@ public class ApiJmeterFileService {
                     planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
                 }
             }
-            try {
-                hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap, reportType);
-            } catch (Exception e) {
-                executionQueueDetailMapper.deleteByPrimaryKey(queueId);
-            }
+            hashTree = GenerateHashTreeUtil.generateHashTree(scenario, planEnvMap, runRequest);
         }
         return zipFilesToByteArray((reportId + "_" + remoteTestId), hashTree);
     }
