@@ -57,7 +57,8 @@ public class UserController {
     @MsAuditLog(module = "system_user", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#userId)", msClass = UserService.class)
     public void deleteUser(@PathVariable(value = "userId") String userId) {
         userService.deleteUser(userId);
-        // todo 剔除在线用户
+        // 剔除在线用户
+        SessionUtils.kickOutUser(userId);
     }
 
     @PostMapping("/special/update")
@@ -256,7 +257,7 @@ public class UserController {
      * 根据userId 获取 user 所属工作空间和所属工作项目
      */
     @GetMapping("/get/ws_pj/{userId}")
-    public Map<Object,Object> getWSAndProjectByUserId(@PathVariable String userId) {
+    public Map<Object, Object> getWSAndProjectByUserId(@PathVariable String userId) {
         return userService.getWSAndProjectByUserId(userId);
     }
 }
