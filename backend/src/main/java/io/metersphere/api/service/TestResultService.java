@@ -194,12 +194,14 @@ public class TestResultService {
         if (StringUtils.equals("error", report.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         }
+        ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(testId);
         Map paramMap = new HashMap<>();
         paramMap.put("type", "api");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         paramMap.put("reportUrl", reportUrl);
         paramMap.put("operator", report.getExecutor());
         paramMap.putAll(new BeanMap(report));
+        paramMap.putAll(new BeanMap(scenario));
         NoticeModel noticeModel = NoticeModel.builder()
                 .operator(report.getUserId())
                 .successContext(successContext)
