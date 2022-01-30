@@ -1,13 +1,22 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.commons.user.SessionUser;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
+import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.support.DefaultSubjectContext;
+import org.springframework.core.env.Environment;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.Map;
 
 import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
 
@@ -35,9 +44,48 @@ public class SessionUtils {
         return (String) SecurityUtils.getSubject().getSession().getId();
     }
 
+    private static Session getSessionByUsername(String username) {
+        DefaultSessionManager sessionManager = CommonBeanFactory.getBean(DefaultSessionManager.class);
+        Collection<Session> sessions = sessionManager.getSessionDAO().getActiveSessions();
+        for (Session session : sessions) {
+            if (null != session && org.apache.commons.lang3.StringUtils.equals(String.valueOf(session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY)), username)) {
+                return session;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 踢除用户
+     *
+     * @param username
+     */
+    public static void kickOutUser(String username) {
+        // local session
+        String storeType = CommonBeanFactory.getBean(Environment.class).getProperty("spring.session.store-type");
+        if (StringUtils.equalsIgnoreCase(storeType, "none")) {
+            Session session = getSessionByUsername(username);
+            if (session != null) {
+                DefaultSessionManager sessionManager = CommonBeanFactory.getBean(DefaultSessionManager.class);
+                sessionManager.getSessionDAO().delete(session);
+            }
+            return;
+        }
+        // redis session
+        RedisIndexedSessionRepository sessionRepository = CommonBeanFactory.getBean(RedisIndexedSessionRepository.class);
+        if (sessionRepository == null) {
+            return;
+        }
+        Map<String, ?> users = sessionRepository.findByPrincipalName(username);
+        if (MapUtils.isNotEmpty(users)) {
+            users.keySet().forEach(sessionRepository::deleteById);
+        }
+    }
+
     //
     public static void putUser(SessionUser sessionUser) {
         SecurityUtils.getSubject().getSession().setAttribute(ATTR_USER, sessionUser);
+        SecurityUtils.getSubject().getSession().setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, sessionUser.getId());
     }
 
     public static String getCurrentWorkspaceId() {

@@ -378,7 +378,9 @@ public class UserService {
         user.setPassword(null);
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
-        // todo  禁用用户之后，剔除在线用户
+        if (StringUtils.equals(user.getStatus(), UserStatus.DISABLED)) {
+            SessionUtils.kickOutUser(user.getId());
+        }
     }
 
     public void switchUserResource(String sign, String sourceId) {
