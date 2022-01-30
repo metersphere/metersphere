@@ -16,7 +16,7 @@
                style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
                @click="saveFollow"/>
           </el-tooltip>
-          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="basisData.id">
+          <el-link type="primary" style="margin-right: 5px" @click="openHis" v-if="basisData.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
           <!--  版本历史 -->
