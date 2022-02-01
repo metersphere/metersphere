@@ -140,7 +140,6 @@ public class JmeterDocumentParser implements EngineSourceParser {
             Object o = ((List<?>) autoStopDelays).get(0);
             autoStopDelay = o.toString();
         }
-        Document document = autoStopListener.getDocument();
         // 清空child
         removeChildren(autoStopListener);
         // 添加子元素
@@ -157,14 +156,14 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (!BooleanUtils.toBoolean(autoStop)) {
             return;
         }
-
+        Element hashTree = getNextSibling(element);
         // add class name
-        Element autoStopListener = element.addElement(THREAD_GROUP_AUTO_STOP);
+        Element autoStopListener = hashTree.addElement(THREAD_GROUP_AUTO_STOP);
         autoStopListener.addAttribute("guiclass", "io.metersphere.jmeter.reporters.ThreadGroupAutoStopGui");
         autoStopListener.addAttribute("testclass", "io.metersphere.jmeter.reporters.ThreadGroupAutoStop");
         autoStopListener.addAttribute("testname", "MeterSphere - AutoStop Listener");
         autoStopListener.addAttribute("enabled", "true");
-        element.addElement(HASH_TREE_ELEMENT);
+        hashTree.addElement(HASH_TREE_ELEMENT);
     }
 
     private void processCheckoutSerializeThreadgroups(Element element) {
