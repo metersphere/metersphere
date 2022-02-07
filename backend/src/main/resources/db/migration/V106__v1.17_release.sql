@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS `project_version`
     PRIMARY KEY (`id`),
     KEY `project_version_project_id_index` (`project_id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+  DEFAULT CHARSET = utf8mb4
+  COLLATE utf8mb4_general_ci;
 
 ALTER TABLE project
     ADD version_enable TINYINT(1) DEFAULT 1 NULL;
