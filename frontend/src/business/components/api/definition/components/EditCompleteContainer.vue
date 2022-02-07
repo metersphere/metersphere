@@ -44,6 +44,7 @@
         @saveAsApi="editApi"
         @saveAsCase="saveAsCase"
         @refresh="refresh"
+        ref="httpTestPage"
         v-if="currentProtocol==='HTTP'"
       />
       <ms-run-test-tcp-page
@@ -54,6 +55,7 @@
         @saveAsApi="editApi"
         @saveAsCase="saveAsCase"
         @refresh="refresh"
+        ref="tcpTestPage"
         v-if="currentProtocol==='TCP'"
       />
       <ms-run-test-sql-page
@@ -78,11 +80,9 @@
       />
     </div>
 
-    <div v-if="showMock && (currentProtocol === 'HTTP')">
-      <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="false"/>
-    </div>
-    <div v-if="showMock && (currentProtocol === 'TCP')">
-      <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="true"/>
+    <div v-if="showMock && (currentProtocol === 'HTTP' || currentProtocol === 'TCP')">
+      <mock-tab :base-mock-config-data="baseMockConfigData" @redirectToTest="redirectToTest"
+                :is-tcp="currentProtocol === 'TCP'"/>
     </div>
     <div v-if="showTestCaseList">
       <!--测试用例列表-->
@@ -274,6 +274,20 @@ export default {
     },
     changeTab(tabType) {
       this.refreshButtonActiveClass(tabType);
+    },
+    redirectToTest(param) {
+      this.refreshButtonActiveClass("test");
+      this.$nextTick(() => {
+        if (this.currentProtocol === "HTTP" && this.$refs.httpTestPage) {
+          let requestParam = null;
+          if (param.params) {
+            requestParam = param.params;
+          }
+          this.$refs.httpTestPage.setRequestParam(requestParam);
+        } else if (this.currentProtocol === "TCP" && this.$refs.tcpTestPage) {
+          this.$refs.tcpTestPage.setRequestParam(param);
+        }
+      });
     },
     removeListener() {
       if (this.$refs && this.$refs.apiConfig) {

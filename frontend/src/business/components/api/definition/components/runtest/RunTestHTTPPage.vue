@@ -23,7 +23,8 @@
 
         <!-- 请求地址 -->
         <el-form-item prop="path">
-          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path" class="ms-htt-width"
+          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path"
+                    class="ms-htt-width"
                     size="small" :disabled="false"/>
         </el-form-item>
 
@@ -37,7 +38,10 @@
               </el-dropdown-item>
               <el-dropdown-item command="save_as_case">{{ $t('api_test.definition.request.save_as_case') }}
               </el-dropdown-item>
-              <el-dropdown-item command="update_api">{{ $t('api_test.definition.request.update_api') }}</el-dropdown-item>
+              <el-dropdown-item command="update_api">{{
+                  $t('api_test.definition.request.update_api')
+                }}
+              </el-dropdown-item>
               <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -51,7 +55,8 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers" :request="api.request"/>
+        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers"
+                             :request="api.request"/>
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
@@ -135,6 +140,23 @@ export default {
     }
   },
   methods: {
+    setRequestParam(param) {
+      this.init();
+      if (param) {
+        if(param.headers){
+          this.api.request.headers = param.headers;
+        }
+        if(param.argument){
+          this.api.request.argument = param.argument;
+        }
+        if(param.body){
+          this.api.request.body = param.body;
+        }
+        if(param.rest){
+          this.api.request.rest = param.rest;
+        }
+      }
+    },
     handleCommand(e) {
       switch (e) {
         case "load_case":
@@ -301,19 +323,21 @@ export default {
           this.versionEnable = response.data;
         });
       }
+    },
+    init() {
+      // 深度复制
+      this.api = JSON.parse(JSON.stringify(this.apiData));
+      this.api.protocol = this.currentProtocol;
+      this.currentRequest = this.api.request;
+      if (!this.api.environmentId && this.$store.state.useEnvironment) {
+        this.api.environmentId = this.$store.state.useEnvironment;
+      }
+      this.runLoading = false;
+      this.checkVersionEnable();
     }
   },
   created() {
-    // 深度复制
-    this.api = JSON.parse(JSON.stringify(this.apiData));
-    this.api.protocol = this.currentProtocol;
-    this.currentRequest = this.api.request;
-    if (!this.api.environmentId && this.$store.state.useEnvironment) {
-      this.api.environmentId = this.$store.state.useEnvironment;
-    }
-    this.runLoading = false;
-    //this.getResult();
-    this.checkVersionEnable();
+    this.init();
   }
 }
 </script>

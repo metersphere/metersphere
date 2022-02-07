@@ -91,13 +91,13 @@ export default {
   name: 'MockTab',
   components: {
     MockEditDrawer,
-    MsTable,MsTableColumn,MsTag
+    MsTable, MsTableColumn, MsTag
   },
   props: {
     baseMockConfigData: {},
-    isTcp:{
-      type:Boolean,
-      default:false,
+    isTcp: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
@@ -105,11 +105,18 @@ export default {
       result: {},
       visible: false,
       mockConfigData: {},
-      tableSearch:"",
+      tableSearch: "",
       apiParams: {},
       pageSize: 10,
-      screenHeight:document.documentElement.clientHeight - 250,
+      screenHeight: document.documentElement.clientHeight - 250,
       operators: [
+        {
+          tip: this.$t('api_test.automation.execute'),
+          icon: "el-icon-video-play",
+          exec: this.redirectToTest,
+          class: "run-button",
+          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.clickRow,
@@ -129,7 +136,7 @@ export default {
   },
 
   watch: {
-    baseMockConfigData(){
+    baseMockConfigData() {
       this.mockConfigData = this.baseMockConfigData;
     }
   },
@@ -143,18 +150,25 @@ export default {
     },
   },
   methods: {
+    redirectToTest(row) {
+      let requestParam = null;
+      if (row && row.request) {
+        requestParam = row.request;
+      }
+      this.$emit("redirectToTest", requestParam);
+    },
     searchApiParams(apiId) {
       let selectUrl = "/mockConfig/getApiParams/" + apiId;
       this.$get(selectUrl, response => {
 
         this.apiParams = response.data;
-        if(!this.apiParams.query){
+        if (!this.apiParams.query) {
           this.apiParams.query = [];
         }
-        if(!this.apiParams.rest){
+        if (!this.apiParams.rest) {
           this.apiParams.rest = [];
         }
-        if(!this.apiParams.form){
+        if (!this.apiParams.form) {
           this.apiParams.form = [];
         }
       });
@@ -223,7 +237,7 @@ export default {
         });
       });
     },
-    addApiMock(){
+    addApiMock() {
       this.searchApiParams(this.mockConfigData.mockConfig.apiId);
       this.$refs.mockEditDrawer.close();
       this.$nextTick(() => {
@@ -274,6 +288,7 @@ export default {
 .ms-drawer >>> .ms-drawer-body {
   margin-top: 40px;
 }
+
 .search-input {
   float: right;
   width: 300px;
