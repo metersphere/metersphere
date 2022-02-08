@@ -327,7 +327,7 @@ export default {
           request.hashTree.push(request.backScript);
         }
         let newUuid = getUUID();
-        request.id = uuid;
+        request.id = newUuid;
         let obj = {
           apiDefinitionId: this.api.id,
           name: '',
