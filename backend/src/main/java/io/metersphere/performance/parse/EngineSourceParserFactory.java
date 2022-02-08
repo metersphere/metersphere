@@ -38,8 +38,8 @@ public class EngineSourceParserFactory {
         return reader.read(source);
     }
 
-    public static byte[] formatXml(Document document) throws Exception {
-        OutputFormat format = OutputFormat.createPrettyPrint();
+    public static byte[] getBytes(Document document) throws Exception {
+        OutputFormat format = OutputFormat.createCompactFormat();
         try (
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
         ) {
