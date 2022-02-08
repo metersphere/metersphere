@@ -1,20 +1,16 @@
 package io.metersphere.performance.parse;
 
 import io.metersphere.commons.constants.FileType;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.performance.parse.xml.reader.JmeterDocumentParser;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
-import org.dom4j.io.XMLWriter;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLFilterImpl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class EngineSourceParserFactory {
     public static final boolean IS_TRANS = true;
@@ -39,20 +35,8 @@ public class EngineSourceParserFactory {
     }
 
     public static byte[] getBytes(Document document) throws Exception {
-        OutputFormat format = OutputFormat.createCompactFormat();
-        try (
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ) {
-            XMLWriter xw = new XMLWriter(out, format);
-            xw.setEscapeText(IS_TRANS);
-            xw.write(document);
-            xw.flush();
-            xw.close();
-            return out.toByteArray();
-        } catch (IOException e) {
-            LogUtil.error(e);
-        }
-        return new byte[0];
+        // todo 格式化代码会导致前后置脚本缩进有问题，先使用基本方式
+        return document.asXML().getBytes(StandardCharsets.UTF_8);
     }
 
     public static XMLFilterImpl getFilter() {
