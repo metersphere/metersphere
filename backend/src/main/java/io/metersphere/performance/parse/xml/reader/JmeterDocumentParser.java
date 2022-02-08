@@ -1127,9 +1127,6 @@ public class JmeterDocumentParser implements EngineSourceParser {
     }
 
     private void removeChildren(Element node) {
-        List<Element> elements = node.elements();
-        for (Element ele : elements) {
-            node.remove(ele);
-        }
+        node.setText("");
     }
 }
