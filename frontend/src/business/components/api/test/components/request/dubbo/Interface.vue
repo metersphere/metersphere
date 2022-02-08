@@ -5,7 +5,8 @@
     <el-row>
       <el-col :span="12">
         <el-form-item label="Interfaces" prop="interfaces">
-          <el-select v-model="serviceInterface" class="select-100" @change="changeInterface" :disabled="isDisable">
+          <el-select filterable v-model="serviceInterface" class="select-100" @change="changeInterface"
+                     :disabled="isDisable">
             <el-option v-for="i in interfaces" :key="i.value" :label="i.label" :value="i.value"/>
           </el-select>
         </el-form-item>
@@ -37,19 +38,19 @@
 </template>
 
 <script>
-  import {DubboRequest, RegistryCenter} from "@/business/components/api/test/model/ScenarioModel";
+import {DubboRequest, RegistryCenter} from "@/business/components/api/test/model/ScenarioModel";
 
-  export default {
-    name: "MsDubboInterface",
-    props: {
-      request: DubboRequest,
-      registryCenter: RegistryCenter,
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      }
-    },
-    data() {
+export default {
+  name: "MsDubboInterface",
+  props: {
+    request: DubboRequest,
+    registryCenter: RegistryCenter,
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
       return {
         loading: false,
         providerMap: {},
