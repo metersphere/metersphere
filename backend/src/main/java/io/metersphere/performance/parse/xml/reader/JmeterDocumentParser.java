@@ -62,7 +62,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
             parseHashTree(ele);
         }
 
-        return EngineSourceParserFactory.formatXml(document);
+        return EngineSourceParserFactory.getBytes(document);
     }
 
 
