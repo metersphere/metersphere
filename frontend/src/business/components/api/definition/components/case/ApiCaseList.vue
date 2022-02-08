@@ -212,6 +212,7 @@ export default {
     apiCaseClose() {
       this.apiCaseList = [];
       this.visible = false;
+      this.$router.replace({path: '/api/definition'});
       this.$emit('refresh');
     },
     refreshModule() {
