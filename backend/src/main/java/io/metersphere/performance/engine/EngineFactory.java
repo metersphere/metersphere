@@ -349,7 +349,7 @@ public class EngineFactory {
                 //
                 inputSource.close();
             }
-            return EngineSourceParserFactory.formatXml(rootDocument);
+            return EngineSourceParserFactory.getBytes(rootDocument);
         } catch (Exception e) {
             MSException.throwException(e);
         }
