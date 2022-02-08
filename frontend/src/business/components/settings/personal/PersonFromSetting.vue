@@ -9,7 +9,7 @@
         <el-input v-model="form.name" autocomplete="off"/>
       </el-form-item>
       <el-form-item :label="$t('commons.email')" prop="email">
-        <el-input v-model="form.email" autocomplete="off" :disabled="!isLocalUser"/>
+        <el-input v-model="form.email" autocomplete="off"/>
       </el-form-item>
       <el-form-item :label="$t('commons.phone')" prop="phone">
         <el-input v-model="form.phone" autocomplete="off"/>
