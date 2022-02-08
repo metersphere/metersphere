@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible">
-    <ms-drawer :size="60" @close="apiCaseClose" direction="bottom">
+    <ms-drawer :size="60" @close="apiCaseClose" direction="bottom" ref="testCaseDrawer">
       <template v-slot:header>
         <api-case-header
           :api="api"
@@ -17,24 +17,24 @@
 
       <el-container v-if="!result.loading">
         <el-main>
-            <api-case-item
-              :loading="singleLoading && singleRunId === apiCaseList[0].id || batchLoadingIds.indexOf(apiCaseList[0].id) > -1"
-              @refresh="refresh"
-              @singleRun="singleRun"
-              @stop="stop"
-              @refreshModule="refreshModule"
-              @copyCase="copyCase"
-              @showExecResult="showExecResult"
-              @showHistory="showHistory"
-              @reLoadCase="reLoadCase"
-              :environment="environment"
-              :is-case-edit="isCaseEdit"
-              :api="api"
-              :currentApi="currentApi"
-              :loaded="loaded"
-              :runResult="runResult"
-              :maintainerOptions="maintainerOptions"
-              :api-case="apiCaseList[0]" ref="apiCaseItem"/>
+          <api-case-item
+            :loading="singleLoading && singleRunId === apiCaseList[0].id || batchLoadingIds.indexOf(apiCaseList[0].id) > -1"
+            @refresh="refresh"
+            @singleRun="singleRun"
+            @stop="stop"
+            @refreshModule="refreshModule"
+            @copyCase="copyCase"
+            @showExecResult="showExecResult"
+            @showHistory="showHistory"
+            @reLoadCase="reLoadCase"
+            :environment="environment"
+            :is-case-edit="isCaseEdit"
+            :api="api"
+            :currentApi="currentApi"
+            :loaded="loaded"
+            :runResult="runResult"
+            :maintainerOptions="maintainerOptions"
+            :api-case="apiCaseList[0]" ref="apiCaseItem"/>
         </el-main>
       </el-container>
     </ms-drawer>
@@ -147,6 +147,9 @@ export default {
       this.condition = {components: API_CASE_CONFIGS};
       this.sysAddition();
       this.visible = true;
+      this.$nextTick(() => {
+        this.$refs.testCaseDrawer.setfullScreen();
+      });
     },
     copy(apiCase) {
       this.api.id = apiCase.apiDefinitionId;
@@ -178,8 +181,8 @@ export default {
       }
       this.visible = true;
     },
-    saveCase(item , hideAlert) {
-      this.$refs.apiCaseItem.saveTestCase(item ,hideAlert);
+    saveCase(item, hideAlert) {
+      this.$refs.apiCaseItem.saveTestCase(item, hideAlert);
     },
     saveApiAndCase(api) {
       if (api && api.url) {
@@ -323,9 +326,17 @@ export default {
         if (request.backScript) {
           request.hashTree.push(request.backScript);
         }
-        let uuid = getUUID();
+        let newUuid = getUUID();
         request.id = uuid;
-        let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: [], uuid: uuid, caseStatus: "Underway"};
+        let obj = {
+          apiDefinitionId: this.api.id,
+          name: '',
+          priority: 'P0',
+          active: true,
+          tags: [],
+          uuid: newUuid,
+          caseStatus: "Underway"
+        };
         obj.request = request;
         this.apiCaseList.unshift(obj);
       }

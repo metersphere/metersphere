@@ -5,14 +5,20 @@
           <el-col :span="1">
             {{$t('commons.name')}}
           </el-col>
-          <el-col :span="11">
+          <el-col :span="10">
             <el-input class="ms-http-input" style="width: 80%" size="small" v-model="mockExpectConfig.name"/>
           </el-col>
           <el-col :span="1">
             {{$t('commons.tag')}}
           </el-col>
-          <el-col :span="11">
+          <el-col :span="10">
               <ms-input-tag :currentScenario="mockExpectConfig" style="width: 80%;height: 100%;white-space: nowrap;overflow: hidden"  v-if="showHeadTable" ref="tag"/>
+          </el-col>
+          <el-col :span="2">
+            <el-button type="primary" size="small" @click="saveMockExpectConfig" title="ctrl + s">{{
+                $t('commons.save')
+              }}
+            </el-button>
           </el-col>
         </el-row>
     </el-card>
@@ -39,6 +45,9 @@ export default {
   watch: {
   },
   methods: {
+    saveMockExpectConfig(){
+      this.$emit("saveMockExpectConfig");
+    }
   }
 }
 </script>
