@@ -161,10 +161,9 @@ public class MsDubboSampler extends MsTestElement {
                 String testName = testNameArr[0];
                 sampler.setName(testName);
             }
-        } else {
-            sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
-            sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
         }
+        sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
+        sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
         ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
         sampler.addTestElement(configCenter(this.getConfigCenter()));
         sampler.addTestElement(registryCenter(this.getRegistryCenter()));
