@@ -87,6 +87,9 @@
         }
       },
       methods: {
+        setfullScreen(){
+          this.isFullScreen = true;
+        },
         init() {
           window.addEventListener("resize", this.listenScreenChange,false);
           //  todo 其他方向待优化

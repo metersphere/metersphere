@@ -1,9 +1,10 @@
 <template>
-  <ms-drawer :size="60" @close="close" :visible="showDrawer" direction="bottom">
+  <ms-drawer :size="60" @close="close" :visible="showDrawer" direction="bottom" ref="mockDrawer">
     <template v-slot:header>
       <mock-config-header
         :mock-expect-config="mockExpectConfig"
         :show-head-table="showHeadTable"
+        @saveMockExpectConfig="saveMockExpectConfig"
       />
     </template>
     <el-container>
@@ -33,14 +34,6 @@
               <el-row>
                 <mock-response-param :api-id="apiId" :is-tcp="isTcp"
                   :response="mockExpectConfig.response.responseResult"/>
-              </el-row>
-              <el-row>
-                <div style="float: right;margin-right: 20px">
-                  <el-button type="primary" size="small" @click="saveMockExpectConfig" title="ctrl + s">{{
-                      $t('commons.save')
-                    }}
-                  </el-button>
-                </div>
               </el-row>
             </div>
           </div>
@@ -215,6 +208,7 @@ export default {
         }
       }
       this.showDrawer = true;
+      this.$refs.mockDrawer.setfullScreen();
     },
     close(){
       this.showDrawer = false;
