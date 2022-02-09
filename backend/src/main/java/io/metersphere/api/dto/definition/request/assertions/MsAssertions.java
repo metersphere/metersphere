@@ -42,6 +42,9 @@ public class MsAssertions extends MsTestElement {
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
+        if (StringUtils.isEmpty(this.getName())) {
+            this.setName("Assertion");
+        }
         addAssertions(tree);
     }
 

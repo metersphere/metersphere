@@ -4,9 +4,6 @@ package io.metersphere.track.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.EnvironmentType;
@@ -14,11 +11,6 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
-import io.metersphere.api.dto.definition.request.ElementUtil;
-import io.metersphere.api.dto.definition.request.MsScenario;
-import io.metersphere.api.dto.definition.request.MsTestPlan;
-import io.metersphere.api.dto.definition.request.MsThreadGroup;
-import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioReportService;
@@ -43,7 +35,6 @@ import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.*;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
@@ -55,6 +46,7 @@ import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -526,8 +518,8 @@ public class TestPlanService {
         boolean isSelectAll = request.getRequest() != null && request.getRequest().isSelectAll();
         if (isSelectAll) {
             Map<String, TestCase> maintainerMap = extTestCaseMapper.getMaintainerMap(request.getRequest());
-           for (String k : maintainerMap.keySet()) {
-               userMap.put(k, maintainerMap.get(k).getMaintainer());
+            for (String k : maintainerMap.keySet()) {
+                userMap.put(k, maintainerMap.get(k).getMaintainer());
             }
         } else {
             TestCaseExample testCaseExample = new TestCaseExample();
@@ -1017,11 +1009,15 @@ public class TestPlanService {
 
 
         //执行接口案例任务
+        LoggerUtil.info("开始执行测试计划接口用例 " + planReportId);
         Map<String, String> apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId, userId, new ArrayList<>(reportInfoDTO.getApiTestCaseDataMap().keySet()), runModeConfig);
         //执行场景执行任务
+        LoggerUtil.info("开始执行测试计划场景用例 " + planReportId);
         Map<String, String> scenarioReportMap = this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
         //执行性能测试任务
+        LoggerUtil.info("开始执行测试计划性能用例 " + planReportId);
         Map<String, String> loadCaseReportMap = this.executeLoadCaseTask(runModeConfig, triggerMode, reportInfoDTO.getPerformanceIdMap());
+        LoggerUtil.info("开始生成测试计划报告 " + planReportId);
         testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiCaseReportMap, scenarioReportMap, loadCaseReportMap);
         return planReportId;
     }
@@ -1040,9 +1036,9 @@ public class TestPlanService {
     private Map<String, String> executeScenarioCase(String planReportId, String testPlanID, String projectID, RunModeConfigDTO runModeConfig, String triggerMode, String userId, Map<String, String> planScenarioIdMap) {
         if (!planScenarioIdMap.isEmpty()) {
             SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
-            String senarionReportID = UUID.randomUUID().toString();
-            scenarioRequest.setId(senarionReportID);
-            scenarioRequest.setReportId(senarionReportID);
+            String scenarioReportID = UUID.randomUUID().toString();
+            scenarioRequest.setId(scenarioReportID);
+            scenarioRequest.setReportId(scenarioReportID);
             scenarioRequest.setProjectId(projectID);
             if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
                 scenarioRequest.setTriggerMode(ReportTriggerMode.API.name());

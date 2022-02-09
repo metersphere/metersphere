@@ -123,10 +123,10 @@ public class TestPlanReportService {
         return list;
     }
 
-    public void setTestPlanReportPassRate(List<TestPlanReportDTO> list){
-        for(TestPlanReportDTO testPlanReportDTO : list){
+    public void setTestPlanReportPassRate(List<TestPlanReportDTO> list) {
+        for (TestPlanReportDTO testPlanReportDTO : list) {
             // 如果数据库查询成功率字段为空或 0 则重新计算一次
-            if(testPlanReportDTO.getPassRate() == null || testPlanReportDTO.getPassRate() == 0){
+            if (testPlanReportDTO.getPassRate() == null || testPlanReportDTO.getPassRate() == 0) {
                 TestPlanReportContentExample example = new TestPlanReportContentExample();
                 example.createCriteria().andTestPlanReportIdEqualTo(testPlanReportDTO.getId());
                 List<TestPlanReportContentWithBLOBs> testPlanReportContents = testPlanReportContentMapper.selectByExampleWithBLOBs(example);
@@ -156,7 +156,7 @@ public class TestPlanReportService {
                                 // 性能用例
                                 planReportCaseDTOS = extTestPlanLoadCaseMapper.selectForPlanReport(planId);
                                 TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, TestPlanLoadCaseStatus.success.name());
-                            }else{
+                            } else {
                                 // 报告 ID 集合
                                 List<String> reportIds = null;
                                 if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap())) {
@@ -513,7 +513,7 @@ public class TestPlanReportService {
     public TestPlanReportContentWithBLOBs parseReportDaoToReportContent(TestPlanSimpleReportDTO reportDTO, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
         String id = testPlanReportContentWithBLOBs.getId();
         String testPlanReportId = testPlanReportContentWithBLOBs.getTestPlanReportId();
-        if(testPlanReportContentWithBLOBs.getEndTime() != null){
+        if (testPlanReportContentWithBLOBs.getEndTime() != null) {
             reportDTO.setEndTime(testPlanReportContentWithBLOBs.getEndTime());
         }
         BeanUtils.copyBean(testPlanReportContentWithBLOBs, reportDTO);
@@ -859,25 +859,20 @@ public class TestPlanReportService {
     }
 
     public void createTestPlanReportContentReportIds(String testPlanReportID, Map<String, String> apiCaseReportMap, Map<String, String> scenarioReportIdMap, Map<String, String> loadCaseReportIdMap) {
-        TestPlanReportContentExample example = new TestPlanReportContentExample();
-        example.createCriteria().andTestPlanReportIdEqualTo(testPlanReportID);
-        long dataCount = testPlanReportContentMapper.countByExample(example);
-        if (dataCount == 0) {
-            TestPlanReportContentWithBLOBs content = new TestPlanReportContentWithBLOBs();
-            content.setId(UUID.randomUUID().toString());
-            content.setTestPlanReportId(testPlanReportID);
+        TestPlanReportContentWithBLOBs content = new TestPlanReportContentWithBLOBs();
+        content.setId(UUID.randomUUID().toString());
+        content.setTestPlanReportId(testPlanReportID);
 
-            if (MapUtils.isNotEmpty(apiCaseReportMap)) {
-                content.setPlanApiCaseReportStruct(JSONObject.toJSONString(apiCaseReportMap));
-            }
-            if (MapUtils.isNotEmpty(scenarioReportIdMap)) {
-                content.setPlanScenarioReportStruct(JSONObject.toJSONString(scenarioReportIdMap));
-            }
-            if (MapUtils.isNotEmpty(loadCaseReportIdMap)) {
-                content.setPlanLoadCaseReportStruct(JSONObject.toJSONString(loadCaseReportIdMap));
-            }
-            testPlanReportContentMapper.insert(content);
+        if (MapUtils.isNotEmpty(apiCaseReportMap)) {
+            content.setPlanApiCaseReportStruct(JSONObject.toJSONString(apiCaseReportMap));
         }
+        if (MapUtils.isNotEmpty(scenarioReportIdMap)) {
+            content.setPlanScenarioReportStruct(JSONObject.toJSONString(scenarioReportIdMap));
+        }
+        if (MapUtils.isNotEmpty(loadCaseReportIdMap)) {
+            content.setPlanLoadCaseReportStruct(JSONObject.toJSONString(loadCaseReportIdMap));
+        }
+        testPlanReportContentMapper.insert(content);
     }
 
     public TestPlanExecuteReportDTO genTestPlanExecuteReportDTOByTestPlanReportContent(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
