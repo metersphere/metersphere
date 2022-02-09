@@ -187,11 +187,11 @@ public class ReflexObjectUtil {
                                 column.setDiffValue(ApiDefinitionDiffUtil.diffResponse(newValue, oldValue));
                             }
                         } else {
-                            String newValue = column.getNewValue().toString();
+                            String newValue = Objects.toString(column.getNewValue(), "");
                             if (StringUtils.isNotEmpty(newValue)) {
                                 column.setNewValue(newValue.replaceAll("\\n", " "));
                             }
-                            String oldValue = column.getOriginalValue().toString();
+                            String oldValue = Objects.toString(column.getOriginalValue(), "");
                             if (StringUtils.isNotEmpty(oldValue)) {
                                 column.setOriginalValue(oldValue.replaceAll("\\n", " "));
                             }
@@ -206,15 +206,15 @@ public class ReflexObjectUtil {
         return comparedColumns;
     }
 
-    private static String reviverJson(String str,String key,String option){
+    private static String reviverJson(String str, String key, String option) {
         JSONObject obj = new JSONObject(str);
         org.json.JSONArray arr = obj.getJSONArray(key);
         for (int i = 0; i < arr.length(); i++) {
             String s = arr.getString(i);
-            if(option.equals(DIFF_ADD)){
-                s = DIFF_ADD+s;
+            if (option.equals(DIFF_ADD)) {
+                s = DIFF_ADD + s;
             }
-            arr.put(i,s);
+            arr.put(i, s);
         }
         return obj.toString();
     }
