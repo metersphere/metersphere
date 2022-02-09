@@ -4,6 +4,7 @@ import io.metersphere.base.domain.SystemHeader;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.UserHeader;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.controller.request.HeaderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -38,7 +39,7 @@ public class SystemParameterController {
     private ProjectService projectService;
 
     @PostMapping("/edit/email")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "邮件设置", beforeEvent = "#msClass.getMailLogDetails()", content = "#msClass.getMailLogDetails()", msClass = SystemParameterService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.UPDATE, title = "邮件设置", beforeEvent = "#msClass.getMailLogDetails()", content = "#msClass.getMailLogDetails()", msClass = SystemParameterService.class)
     public void editMail(@RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.editMail(systemParameter);
     }
@@ -79,7 +80,7 @@ public class SystemParameterController {
     }
 
     @PostMapping("/save/base")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getBaseLogDetails()", content = "#msClass.getBaseLogDetails()", msClass = SystemParameterService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getBaseLogDetails()", content = "#msClass.getBaseLogDetails()", msClass = SystemParameterService.class)
     public void saveBaseInfo(@RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.saveBaseInfo(systemParameter);
     }
@@ -90,7 +91,7 @@ public class SystemParameterController {
     }
 
     @PostMapping("/save/ldap")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails()", content = "#msClass.getLogDetails()", msClass = SystemParameterService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails()", content = "#msClass.getLogDetails()", msClass = SystemParameterService.class)
     public void saveLdap(@RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.saveLdap(systemParameter);
     }
@@ -101,7 +102,7 @@ public class SystemParameterController {
     }
 
     @PostMapping("save/header")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "显示设置")
+    @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.UPDATE, title = "显示设置")
     public void saveHeader(@RequestBody UserHeader userHeader) {
         systemParameterService.saveHeader(userHeader);
     }

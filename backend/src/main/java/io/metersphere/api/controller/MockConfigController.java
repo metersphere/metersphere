@@ -47,15 +47,6 @@ public class MockConfigController {
         return mockConfigService.updateMockExpectConfigStatus(request);
     }
 
-//    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
-//    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API)
-//    @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
-//    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "api/DefinitionCreate", subject = "接口定义通知")
-//    public ApiDefinitionWithBLOBs create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
-//        checkPermissionService.checkProjectOwner(request.getProjectId());
-//        return apiDefinitionService.create(request, bodyFiles);
-//    }
-
     @GetMapping("/mockExpectConfig/{id}")
     public MockExpectConfigResponse selectMockExpectConfig(@PathVariable String id) {
         MockExpectConfigWithBLOBs config = mockConfigService.findMockExpectConfigById(id);

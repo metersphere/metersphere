@@ -1,6 +1,7 @@
 package io.metersphere.controller;
 
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.RsaKey;
@@ -46,7 +47,7 @@ public class LoginController {
     }
 
     @PostMapping(value = "/signin")
-    @MsAuditLog(module = "auth_title", type = OperLogConstants.LOGIN, title = "登录")
+    @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
     public ResultHolder login(@RequestBody LoginRequest request) {
         SessionUser sessionUser = SessionUtils.getUser();
         if (sessionUser != null) {
@@ -64,7 +65,7 @@ public class LoginController {
     }
 
     @GetMapping(value = "/signout")
-    @MsAuditLog(module = "auth_title", beforeEvent = "#msClass.getUserId(id)",type = OperLogConstants.LOGIN, title = "登出",msClass = SessionUtils.class)
+    @MsAuditLog(module = OperLogModule.AUTH_TITLE, beforeEvent = "#msClass.getUserId(id)", type = OperLogConstants.LOGIN, title = "登出", msClass = SessionUtils.class)
     public ResultHolder logout() throws Exception {
         userService.logout();
         SecurityUtils.getSubject().logout();
