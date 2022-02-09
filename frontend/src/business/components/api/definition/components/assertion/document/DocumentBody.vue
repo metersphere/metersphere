@@ -30,7 +30,7 @@
       <el-table-column prop="include" width="78" :label="$t('api_test.request.assertions.must_contain')"
                        :render-header="renderHeader">
         <template slot-scope="scope">
-          <el-checkbox v-model="scope.row.include" @change="handleCheckOneChange" :disabled="checked"/>
+          <el-checkbox v-model="scope.row.include" @change="handleCheckOneChange" :disabled="checked || scope.row.type==='array'"/>
         </template>
       </el-table-column>
 
@@ -307,6 +307,9 @@ export default {
         arr.forEach(item => {
           if (type === 1) {
             item.include = val
+            if (item.type === 'array') {
+              item.include = false;
+            }
           }
           if (type === 2) {
             item.typeVerification = val
@@ -326,6 +329,9 @@ export default {
       }
       this.tableData.forEach(item => {
         item.include = val;
+        if (item.type === 'array') {
+          item.include = false;
+        }
         this.childrenChecked(item.children, 1, val);
       })
     },
