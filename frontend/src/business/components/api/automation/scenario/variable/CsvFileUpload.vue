@@ -72,7 +72,7 @@ export default {
       }
     },
     handleRemove(file) {
-      this.$alert('是否确认删除CSV文件：【 ' + file.name + " 】？", '', {
+      this.$alert('是否确认删除CSV文件：【 ' + file.file.name + " 】？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
