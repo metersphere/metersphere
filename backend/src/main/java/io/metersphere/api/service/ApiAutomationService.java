@@ -728,6 +728,17 @@ public class ApiAutomationService {
         return new ArrayList<>();
     }
 
+    public List<ApiScenarioDTO> getNewApiScenarios(List<String> ids) {
+        List<ApiScenarioDTO> list = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ids.forEach(item -> {
+                ApiScenarioDTO dto = this.getNewApiScenario(item);
+                list.add(dto);
+            });
+        }
+        return list;
+    }
+
     public byte[] loadFileAsBytes(FileOperationRequest fileOperationRequest) {
         if (fileOperationRequest.getId().contains("/") || fileOperationRequest.getName().contains("/"))
             MSException.throwException(Translator.get("invalid_parameter"));
