@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestPlanTestCaseWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -96,31 +97,31 @@ public class TestPlanTestCaseController {
     }
 
     @PostMapping("/edit")
-    @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanTestCase.id)", msClass = TestPlanTestCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanTestCase.id)", msClass = TestPlanTestCaseService.class)
     public void editTestCase(@RequestBody TestPlanTestCaseWithBLOBs testPlanTestCase) {
         testPlanTestCaseService.editTestCase(testPlanTestCase);
     }
 
     @PostMapping("/minder/edit")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getCaseLogDetails(#testPlanTestCases)", msClass = TestPlanTestCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getCaseLogDetails(#testPlanTestCases)", msClass = TestPlanTestCaseService.class)
     public void editTestCaseForMinder(@RequestBody List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
         testPlanTestCaseService.editTestCaseForMinder(testPlanTestCases);
     }
 
     @PostMapping("/batch/edit")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanTestCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanTestCaseService.class)
     public void editTestCaseBath(@RequestBody TestPlanCaseBatchRequest request) {
         testPlanTestCaseService.editTestCaseBath(request);
     }
 
     @PostMapping("/batch/delete")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanTestCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanTestCaseService.class)
     public void deleteTestCaseBath(@RequestBody TestPlanCaseBatchRequest request) {
         testPlanTestCaseService.deleteTestCaseBath(request);
     }
 
     @PostMapping("/delete/{id}")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanTestCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanTestCaseService.class)
     public int deleteTestCase(@PathVariable String id) {
         return testPlanTestCaseService.deleteTestCase(id);
     }

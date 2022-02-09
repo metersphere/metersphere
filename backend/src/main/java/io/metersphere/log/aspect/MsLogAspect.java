@@ -137,7 +137,7 @@ public class MsLogAspect {
                 // 项目ID
                 msOperLog.setProjectId(msLog.project());
 
-                String module = Translator.get(msLog.module());
+                String module = msLog.module();
                 msOperLog.setOperModule(StringUtils.isNotEmpty(module) ? module : msLog.module());
                 //获取方法参数名
                 String[] params = discoverer.getParameterNames(method);

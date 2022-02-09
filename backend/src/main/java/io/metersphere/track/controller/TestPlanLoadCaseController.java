@@ -6,6 +6,7 @@ import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.TestPlanLoadCase;
 import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -37,7 +38,7 @@ public class TestPlanLoadCaseController {
     }
 
     @PostMapping("/relevance")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request.caseIds,#request.testPlanId)", msClass = TestPlanLoadCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request.caseIds,#request.testPlanId)", msClass = TestPlanLoadCaseService.class)
     public void relevanceCase(@RequestBody LoadCaseRequest request) {
         testPlanLoadCaseService.relevanceCase(request);
     }
@@ -54,19 +55,19 @@ public class TestPlanLoadCaseController {
     }
 
     @GetMapping("/delete/{id}")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanLoadCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanLoadCaseService.class)
     public void delete(@PathVariable String id) {
         testPlanLoadCaseService.delete(id);
     }
 
     @PostMapping("/run")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.testPlanLoadId)", msClass = TestPlanLoadCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.testPlanLoadId)", msClass = TestPlanLoadCaseService.class)
     public String run(@RequestBody RunTestPlanRequest request) {
         return testPlanLoadCaseService.run(request);
     }
 
     @PostMapping("/run/batch")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getRunLogDetails(#request.requests)", msClass = TestPlanLoadCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getRunLogDetails(#request.requests)", msClass = TestPlanLoadCaseService.class)
     public void runBatch(@RequestBody RunBatchTestPlanRequest request) {
         if (request.getRequests() != null) {
             for (RunTestPlanRequest req : request.getRequests()) {
@@ -82,19 +83,19 @@ public class TestPlanLoadCaseController {
     }
 
     @PostMapping("/batch/delete")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanLoadCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanLoadCaseService.class)
     public void batchDelete(@RequestBody LoadCaseReportBatchRequest request) {
         testPlanLoadCaseService.batchDelete(request);
     }
 
     @PostMapping("/update")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
     public void update(@RequestBody TestPlanLoadCaseWithBLOBs testPlanLoadCase) {
         testPlanLoadCaseService.update(testPlanLoadCase);
     }
 
     @PostMapping("/update/api")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
     public void updateByApi(@RequestBody TestPlanLoadCase testPlanLoadCase) {
         testPlanLoadCaseService.updateByApi(testPlanLoadCase);
     }
