@@ -28,10 +28,6 @@ import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +40,6 @@ import java.util.stream.Collectors;
 public class ApiExecutionQueueService {
     @Resource
     private ApiExecutionQueueMapper queueMapper;
-    @Resource
-    private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
     @Resource
@@ -79,9 +73,7 @@ public class ApiExecutionQueueService {
         DBTestQueue resQueue = new DBTestQueue();
         BeanUtils.copyBean(resQueue, executionQueue);
         Map<String, String> detailMap = new HashMap<>();
-
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiExecutionQueueDetailMapper batchMapper = sqlSession.getMapper(ApiExecutionQueueDetailMapper.class);
+        List<ApiExecutionQueueDetail> queueDetails = new LinkedList<>();
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
             final int[] sort = {0};
             Map<String, ApiDefinitionExecResult> runMap = (Map<String, ApiDefinitionExecResult>) runObj;
@@ -95,7 +87,7 @@ public class ApiExecutionQueueService {
                     resQueue.setQueue(queue);
                 }
                 sort[0]++;
-                batchMapper.insert(queue);
+                queueDetails.add(queue);
                 detailMap.put(k, queue.getId());
             });
         } else {
@@ -108,13 +100,12 @@ public class ApiExecutionQueueService {
                     resQueue.setQueue(queue);
                 }
                 sort[0]++;
-                batchMapper.insert(queue);
+                queueDetails.add(queue);
                 detailMap.put(k, queue.getId());
             });
         }
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        if (CollectionUtils.isNotEmpty(queueDetails)) {
+            extApiExecutionQueueMapper.sqlInsert(queueDetails);
         }
         resQueue.setDetailMap(detailMap);
         return resQueue;
@@ -283,10 +274,10 @@ public class ApiExecutionQueueService {
     public void timeOut() {
         final int SECOND_MILLIS = 1000;
         final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
-        // 计算二十分钟前的超时报告
-        final long twentyMinutesAgo = System.currentTimeMillis() - (30 * MINUTE_MILLIS);
+        // 计算一小时前的超时报告
+        final long timeout = System.currentTimeMillis() - (60 * MINUTE_MILLIS);
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-        example.createCriteria().andCreateTimeLessThan(twentyMinutesAgo);
+        example.createCriteria().andCreateTimeLessThan(timeout);
         List<ApiExecutionQueueDetail> queueDetails = executionQueueDetailMapper.selectByExample(example);
 
         for (ApiExecutionQueueDetail item : queueDetails) {
@@ -312,7 +303,7 @@ public class ApiExecutionQueueService {
                     ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
                 if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name(), APITestStatus.Waiting.name())
-                        && report.getUpdateTime() < twentyMinutesAgo) {
+                        && report.getUpdateTime() < timeout) {
                     report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
 
@@ -344,13 +335,13 @@ public class ApiExecutionQueueService {
         }
 
         ApiExecutionQueueExample queueDetailExample = new ApiExecutionQueueExample();
-        queueDetailExample.createCriteria().andReportTypeEqualTo(RunModeConstants.SET_REPORT.toString()).andCreateTimeLessThan(twentyMinutesAgo);
+        queueDetailExample.createCriteria().andReportTypeEqualTo(RunModeConstants.SET_REPORT.toString()).andCreateTimeLessThan(timeout);
         List<ApiExecutionQueue> executionQueues = queueMapper.selectByExample(queueDetailExample);
         if (CollectionUtils.isNotEmpty(executionQueues)) {
             executionQueues.forEach(item -> {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
                 if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name(), APITestStatus.Waiting.name())
-                        && (report.getUpdateTime() < twentyMinutesAgo)) {
+                        && (report.getUpdateTime() < timeout)) {
                     report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 }
