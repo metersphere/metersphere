@@ -179,6 +179,7 @@ public class SendNoticeAspect {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         paramMap.put("operator", SessionUtils.getUser().getName());
+        paramMap.put("planShareUrl", ""); // 占位符
         paramMap.putAll(resource);
         return paramMap;
     }
