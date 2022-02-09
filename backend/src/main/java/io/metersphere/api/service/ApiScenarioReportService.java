@@ -32,10 +32,7 @@ import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -743,19 +740,16 @@ public class ApiScenarioReportService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void batchSave(Map<String, RunModeDataDTO> executeQueue, String serialReportId, String runMode, List<MsExecResponseDTO> responseDTOS) {
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
+        List<APIScenarioReportResult> list = new LinkedList<>();
         if (StringUtils.isEmpty(serialReportId)) {
             for (String reportId : executeQueue.keySet()) {
                 APIScenarioReportResult report = executeQueue.get(reportId).getReport();
-                batchMapper.insert(report);
+                list.add(report);
                 responseDTOS.add(new MsExecResponseDTO(executeQueue.get(reportId).getTestId(), reportId, runMode));
             }
-            sqlSession.flushStatements();
-            if (sqlSession != null && sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            if (CollectionUtils.isNotEmpty(list)) {
+                extApiScenarioReportMapper.sqlInsert(list);
             }
         }
-
     }
 }
