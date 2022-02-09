@@ -250,10 +250,6 @@ export default {
           label:this.$t('test_resource_pool.id'),
           value:'testResourcePoolId',
         },
-        {
-          label:this.$t('report.plan_share_url'),
-          value:'planShareUrl',
-        },
       ]
     };
   },

@@ -296,10 +296,7 @@ export default {
           label: this.$t('api_test.environment.environment_group_id'),
           value: 'environmentGroupId',
         },
-        {
-          label: this.$t('report.plan_share_url'),
-          value: 'planShareUrl',
-        },
+
       ]
     };
   },
