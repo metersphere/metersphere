@@ -52,6 +52,11 @@ public class MsHashTreeService {
     private static final String VERSION_NAME = "versionName";
     private static final String VERSION_ENABLE = "versionEnable";
     private static final String URL = "url";
+    private static final String HEADERS = "headers";
+    private static final String REST = "rest";
+    private static final String BODY = "body";
+    private static final String ARGUMENTS = "arguments";
+    private static final String AUTH_MANAGER = "authManager";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -177,6 +182,11 @@ public class MsHashTreeService {
                     ElementUtil.dataFormatting(refElement);
                     JSONArray array = refElement.getJSONArray(HASH_TREE);
                     BeanUtils.copyBean(element, refElement);
+                    element.put(HEADERS, refElement.get(HEADERS));
+                    element.put(REST, refElement.get(REST));
+                    element.put(BODY, refElement.get(BODY));
+                    element.put(AUTH_MANAGER, refElement.get(AUTH_MANAGER));
+                    element.put(ARGUMENTS, refElement.get(ARGUMENTS));
                     if (array != null) {
                         ElementUtil.mergeHashTree(element, refElement.getJSONArray(HASH_TREE));
                     }

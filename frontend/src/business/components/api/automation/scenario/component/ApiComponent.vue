@@ -251,6 +251,9 @@ export default {
     if (this.request.num) {
       this.isShowNum = true;
       this.request.root = true;
+      if (this.request.id && this.request.referenced === 'REF') {
+        this.request.disabled = true;
+      }
       this.getWorkspaceId(this.request.projectId);
     } else {
       this.isShowNum = false;
