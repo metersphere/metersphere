@@ -238,7 +238,7 @@ public class TestCaseReviewService {
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-        return testCaseReview;
+        return testCaseReviewMapper.selectByPrimaryKey(testCaseReview.getId());
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
