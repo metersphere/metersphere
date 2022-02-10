@@ -124,7 +124,7 @@ export default {
       issueRelateVisible: false
     }
   },
-  props: ['caseId', 'readOnly','planId'],
+  props: ['caseId', 'readOnly','planId', 'isCopy'],
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
@@ -171,20 +171,22 @@ export default {
       return getCustomFieldValue(row, field, this.members);
     },
     getIssues() {
-      let result = getIssuesByCaseId(this.caseId, this.page);
-      if (result) {
-        this.page.result = result;
+      if (!this.isCopy) {
+        let result = getIssuesByCaseId(this.caseId, this.page);
+        if (result) {
+          this.page.result = result;
+        }
       }
     },
     addIssue() {
-      if (!this.caseId) {
+      if (!this.caseId || this.isCopy) {
         this.$warning(this.$t('api_test.automation.save_case_info'));
         return;
       }
       this.$refs.issueEdit.open();
     },
     relateIssue() {
-      if (!this.caseId) {
+      if (!this.caseId || this.isCopy) {
         this.$warning(this.$t('api_test.automation.save_case_info'));
         return;
       }
