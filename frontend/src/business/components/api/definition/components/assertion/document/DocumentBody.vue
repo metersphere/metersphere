@@ -131,7 +131,7 @@ export default {
         {value: 'object', label: 'object'},
         {value: 'array', label: 'array'},
         {value: 'string', label: 'string'},
-        {value: 'int', label: 'int'},
+        {value: 'integer', label: 'integer'},
         {value: 'number', label: 'number'},
         {value: 'boolean', label: 'boolean'},
       ],
