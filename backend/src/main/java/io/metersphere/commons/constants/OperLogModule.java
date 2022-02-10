@@ -30,6 +30,12 @@ public class OperLogModule {
     public static final String PERSONAL_INFORMATION_PERSONAL_SETTINGS = "PERSONAL_INFORMATION_PERSONAL_SETTINGS";
     public static final String PERSONAL_INFORMATION_APIKEYS = "PERSONAL_INFORMATION_APIKEYS";
     public static final String GROUP_PERMISSION = "GROUP_PERMISSION";
+    public static final String PERFORMANCE_TEST_REPORT = "PERFORMANCE_TEST_REPORT";
+    public static final String PERFORMANCE_TEST = "PERFORMANCE_TEST";
+    public static final String ERROR_REPORT_LIBRARY = "ERROR_REPORT_LIBRARY";
+    public static final String SYSTEM_QUOTA_MANAGEMENT = "SYSTEM_QUOTA_MANAGEMENT";
+    public static final String ENTERPRISE_TEST_REPORT = "ENTERPRISE_TEST_REPORT";
+    public static final String SYSTEM_AUTHORIZATION_MANAGEMENT = "SYSTEM_AUTHORIZATION_MANAGEMENT";
 
 
 

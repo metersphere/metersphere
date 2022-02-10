@@ -87,6 +87,12 @@ export function LOG_MODULE_MAP(_this) {
     ['PERSONAL_INFORMATION_PERSONAL_SETTINGS', _this.$t('operating_log.personal_information_personal_settings')],
     ['PERSONAL_INFORMATION_APIKEYS', _this.$t('operating_log.personal_information_apikeys')],
     ['GROUP_PERMISSION', _this.$t('operating_log.group_permission')],
+    ['PERFORMANCE_TEST_REPORT', _this.$t('operating_log.performance_test_report')],
+    ['PERFORMANCE_TEST', _this.$t('operating_log.performance_test')],
+    ['ERROR_REPORT_LIBRARY', _this.$t('operating_log.error_report_library')],
+    ['SYSTEM_QUOTA_MANAGEMENT', _this.$t('operating_log.system_quota_management')],
+    ['ENTERPRISE_TEST_REPORT', _this.$t('operating_log.enterprise_test_report')],
+    ['SYSTEM_AUTHORIZATION_MANAGEMENT', _this.$t('operating_log.system_authorization_management')],
   ]);
   return LOG_MODULE_MAP;
 }
