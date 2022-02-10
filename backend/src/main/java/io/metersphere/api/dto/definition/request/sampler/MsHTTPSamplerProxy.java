@@ -447,7 +447,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProperty("HTTPSampler.path", envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
-                    String path = getPostQueryParameters(envPath);
+                    String path = envPath;
+                    if (StringUtils.equalsIgnoreCase(this.getMethod(), "GET")) {
+                        getQueryParameters(sampler);
+                    } else {
+                        path = postQueryParameters(envPath);
+                    }
                     if (HTTPConstants.DELETE.equals(this.getMethod()) && !path.startsWith("${")) {
                         if (!path.startsWith("/")) {
                             path = "/" + path;
@@ -476,7 +481,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                 if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                     sampler.setProperty("HTTPSampler.port", this.getPort());
-
                 } else {
                     sampler.setPort(urlObject.getPort());
                 }
@@ -488,7 +492,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProperty("HTTPSampler.path", envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
-                    sampler.setProperty("HTTPSampler.path", getPostQueryParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8")));
+                    if (StringUtils.equalsIgnoreCase(this.getMethod(), "GET")) {
+                        getQueryParameters(sampler);
+                    } else {
+                        sampler.setProperty("HTTPSampler.path", postQueryParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8")));
+                    }
                 }
             }
         } catch (Exception e) {
@@ -629,7 +637,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         return path;
     }
 
-    private String getPostQueryParameters(String path) {
+    private void getQueryParameters(HTTPSamplerProxy sampler) {
+        Arguments arguments = httpArguments(this.getArguments());
+        if (arguments != null && !arguments.getArguments().isEmpty()) {
+            sampler.setArguments(arguments);
+        }
+    }
+
+    private String postQueryParameters(String path) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(path);
         if (path.indexOf("?") != -1) {
@@ -658,22 +673,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                            try {
-                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                                if (keyValue.getValue() == null) {
-                                    httpArgument.setValue("");
-                                }
-                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                                    httpArgument.setContentType(keyValue.getContentType());
-                                }
-                                arguments.addArgument(httpArgument);
-                            } catch (Exception e) {
-
-                            }
+                    try {
+                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                        if (keyValue.getValue() == null) {
+                            httpArgument.setValue("");
                         }
-                );
+                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                            httpArgument.setContentType(keyValue.getContentType());
+                        }
+                        arguments.addArgument(httpArgument);
+                    } catch (Exception e) {
+
+                    }
+                }
+        );
         return arguments;
     }
 
