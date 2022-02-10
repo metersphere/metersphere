@@ -61,6 +61,12 @@ public abstract class JiraAbstractClient extends BaseClient {
         ResponseEntity<String> response = null;
         try {
             response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, project.getId());
+        } catch (HttpClientErrorException e) {
+            if (e.getRawStatusCode() == 404) { // Sass 的jira才有这个接口，报错则调用其他接口
+                return this.getProject(projectKey).getIssueTypes();
+            }
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
