@@ -8,7 +8,7 @@
                              @search="initTable"/>
 
     <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
-              :total="total" enableSelection
+              :total="total" enableSelection @selectCountChange="selectCountChange"
               :screenHeight="screenHeight"
               operator-width="170px"
               @refresh="initTable"
@@ -210,6 +210,9 @@ export default {
   methods: {
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
+    },
+    selectCountChange(value) {
+      this.$emit('selectCountChange', value)
     },
     getColor(flag, method) {
       return this.methodColorMap.get(method);
