@@ -5,33 +5,35 @@ import com.google.gson.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class JSONSchemaRunTest {
 
-    private static void generator(String json, JSONObject obj) {
-        analyzeSchema(json, obj);
+    private static void generator(String json, JSONObject obj, Map<String, String> map) {
+        analyzeSchema(json, obj, map);
     }
 
-    private static void analyzeSchema(String json, JSONObject rootObj) {
+    private static void analyzeSchema(String json, JSONObject rootObj, Map<String, String> map) {
         Gson gson = new Gson();
         JsonElement element = gson.fromJson(json, JsonElement.class);
         JsonObject rootElement = element.getAsJsonObject();
-        analyzeRootSchemaElement(rootElement, rootObj);
+        analyzeRootSchemaElement(rootElement, rootObj, map);
     }
 
-    private static void analyzeRootSchemaElement(JsonObject rootElement, JSONObject rootObj) {
+    private static void analyzeRootSchemaElement(JsonObject rootElement, JSONObject rootObj, Map<String, String> map) {
         if (rootElement.has(BasicConstant.TYPE) || rootElement.has(BasicConstant.ALL_OF)) {
-            analyzeObject(rootElement, rootObj);
+            analyzeObject(rootElement, rootObj, map);
         }
         if (rootElement.has("definitions")) {
-            analyzeDefinitions(rootElement);
+            analyzeDefinitions(rootElement, map);
         }
     }
 
-    private static void analyzeObject(JsonObject object, JSONObject rootObj) {
+    private static void analyzeObject(JsonObject object, JSONObject rootObj, Map<String, String> map) {
         if (object.has(BasicConstant.ALL_OF)) {
             JsonArray allOfArray = object.get(BasicConstant.ALL_OF).getAsJsonArray();
             for (JsonElement allOfElement : allOfArray) {
@@ -41,7 +43,7 @@ public class JSONSchemaRunTest {
                     for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
                         String propertyKey = entry.getKey();
                         JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
-                        analyzeProperty(rootObj, propertyKey, propertyObj);
+                        analyzeProperty(rootObj, propertyKey, propertyObj, map);
                     }
                 }
             }
@@ -50,16 +52,21 @@ public class JSONSchemaRunTest {
             for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
                 String propertyKey = entry.getKey();
                 JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
-                analyzeProperty(rootObj, propertyKey, propertyObj);
+                analyzeProperty(rootObj, propertyKey, propertyObj, map);
             }
         } else if (object.has(BasicConstant.TYPE) && object.get(BasicConstant.TYPE).getAsString().equals(BasicConstant.ARRAY)) {
-            analyzeProperty(rootObj, BasicConstant.MS_OBJECT, object);
+            analyzeProperty(rootObj, BasicConstant.MS_OBJECT, object, map);
         } else if (object.has(BasicConstant.TYPE) && !object.get(BasicConstant.TYPE).getAsString().equals(BasicConstant.OBJECT)) {
-            analyzeProperty(rootObj, object.getAsString(), object);
+            analyzeProperty(rootObj, object.getAsString(), object, map);
         }
     }
 
-    private static void analyzeProperty(JSONObject concept, String propertyName, JsonObject object) {
+    public static boolean isBoolean(String value) {
+        return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
+    }
+
+    private static void analyzeProperty(JSONObject concept, String propertyName,
+                                        JsonObject object, Map<String, String> map) {
         if (object.has(BasicConstant.TYPE)) {
             String propertyObjType = null;
             if (object.get(BasicConstant.TYPE) instanceof JsonPrimitive) {
@@ -95,7 +102,12 @@ public class JSONSchemaRunTest {
                             if (value.indexOf("\"") != -1) {
                                 value = value.replaceAll("\"", "");
                             }
-                            concept.put(propertyName, Boolean.valueOf(value));
+                            if (isBoolean(value)) {
+                                concept.put(propertyName, Boolean.valueOf(value));
+                            } else {
+                                concept.put(propertyName, value);
+                                map.put("\"" + propertyName + "\"" + ": \"" + value + "\"", "\"" + propertyName + "\"" + ":" + value);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -141,13 +153,13 @@ public class JSONSchemaRunTest {
                             for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
                                 String propertyKey = entry.getKey();
                                 JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
-                                analyzeProperty(propertyConcept, propertyKey, propertyObj);
+                                analyzeProperty(propertyConcept, propertyKey, propertyObj, map);
                             }
                             array.add(propertyConcept);
 
                         } else if (itemsObject.has(BasicConstant.TYPE) && itemsObject.get(BasicConstant.TYPE) instanceof JsonPrimitive) {
                             JSONObject newJsonObj = new JSONObject();
-                            analyzeProperty(newJsonObj, propertyName + "_item", itemsObject);
+                            analyzeProperty(newJsonObj, propertyName + "_item", itemsObject, map);
                             array.add(newJsonObj.get(propertyName + "_item"));
                         }
                     } else if (object.has("items") && object.get("items").isJsonArray()) {
@@ -159,7 +171,7 @@ public class JSONSchemaRunTest {
             } else if (propertyObjType.equals(BasicConstant.OBJECT)) {
                 JSONObject obj = new JSONObject();
                 concept.put(propertyName, obj);
-                analyzeObject(object, obj);
+                analyzeObject(object, obj, map);
             } else if (StringUtils.equalsIgnoreCase(propertyObjType, "null")) {
                 concept.put(propertyName, null);
             }
@@ -179,22 +191,22 @@ public class JSONSchemaRunTest {
         return "";
     }
 
-    private static void analyzeDefinitions(JsonObject object) {
+    private static void analyzeDefinitions(JsonObject object, Map<String, String> map) {
         JsonObject definitionsObj = object.get("definitions").getAsJsonObject();
         if (definitionsObj != null) {
             for (Entry<String, JsonElement> entry : definitionsObj.entrySet()) {
                 String definitionKey = entry.getKey();
                 JsonObject definitionObj = definitionsObj.get(definitionKey).getAsJsonObject();
                 JSONObject obj = new JSONObject();
-                analyzeRootSchemaElement(definitionObj, obj);
+                analyzeRootSchemaElement(definitionObj, obj, map);
             }
         }
     }
 
 
-    private static String formerJson(String jsonSchema) {
+    private static String formerJson(String jsonSchema, Map<String, String> map) {
         JSONObject root = new JSONObject(true);
-        generator(jsonSchema, root);
+        generator(jsonSchema, root, map);
         // 格式化返回
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().disableHtmlEscaping().create();
         if (root.get(BasicConstant.MS_OBJECT) != null) {
@@ -208,7 +220,14 @@ public class JSONSchemaRunTest {
             if (StringUtils.isEmpty(jsonSchema)) {
                 return null;
             }
-            return formerJson(jsonSchema);
+            Map<String, String> map = new HashMap<>();
+            String json = formerJson(jsonSchema, map);
+            if (!map.isEmpty()) {
+                for (String str : map.keySet()) {
+                    json = json.replace(str, map.get(str));
+                }
+            }
+            return json;
         } catch (Exception ex) {
             return jsonSchema;
         }
