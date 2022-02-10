@@ -263,6 +263,7 @@ public class ScheduleService {
             schedule.setProjectId(testPlan.getProjectId());
             schedule.setGroup(ScheduleGroup.TEST_PLAN_TEST.name());
             schedule.setType(ScheduleType.CRON.name());
+            schedule.setConfig(request.getConfig());
             jobKey = TestPlanTestJob.getJobKey(request.getResourceId());
             triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
             clazz = TestPlanTestJob.class;
