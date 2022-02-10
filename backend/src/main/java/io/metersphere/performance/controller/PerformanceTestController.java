@@ -7,6 +7,7 @@ import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -77,7 +78,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = "performance_test", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_CREATE)
     @CacheNode // 把监控节点缓存起来
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, event = NoticeConstants.Event.CREATE,
@@ -98,7 +99,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = "performance_test", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_EDIT)
     @CacheNode // 把监控节点缓存起来
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "performance/TestUpdate", subject = "性能测试通知")
@@ -155,7 +156,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/delete")
-    @MsAuditLog(module = "performance_test", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_DELETE)
     @CacheNode // 把监控节点缓存起来
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, event = NoticeConstants.Event.DELETE,
@@ -166,7 +167,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/run")
-    @MsAuditLog(module = "performance_test", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_RUN)
     public String run(@RequestBody RunTestPlanRequest request) {
         return performanceTestService.run(request);
@@ -208,7 +209,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping(value = "/copy")
-    @MsAuditLog(module = "performance_test", type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_COPY)
     @CacheNode // 把监控节点缓存起来
     public void copy(@RequestBody SaveTestPlanRequest request) {

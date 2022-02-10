@@ -2640,6 +2640,8 @@ export default {
     personal_information_apikeys: "个人信息-API Keys",
     auth_title: "系统认证",
     group_permission: "用户组与权限",
+    error_report_library: "误报库",
+    enterprise_test_report: "项目报告",
     change_history: "变更记录",
     change_content: "变更内容"
   },

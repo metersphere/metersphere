@@ -2639,6 +2639,8 @@ export default {
     personal_information_apikeys: "個人信息-API Keys",
     auth_title: "系統認證",
     group_permission: "用戶組與權限",
+    error_report_library: "誤報庫",
+    enterprise_test_report: "項目報告",
     change_history: "變更記錄",
     change_content: "變更內容"
   },
