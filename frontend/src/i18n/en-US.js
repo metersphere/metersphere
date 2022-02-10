@@ -934,7 +934,7 @@ export default {
     not_exist: "Test report does not exist",
     batch_delete: "Delete reports in bulk",
     delete_batch_confirm: 'Confirm batch delete report',
-    response_time: 'Response Time(s)',
+    response_time: 'Response(s)',
     max_users: 'VUs',
     file_id: 'Report File ID',
     avg_response_time: 'Average Response Time',

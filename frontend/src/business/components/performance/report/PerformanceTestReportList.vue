@@ -98,6 +98,7 @@
           </el-table-column>
           <el-table-column prop="triggerMode" :label="$t('test_track.report.list.trigger_mode')"
                            column-key="triggerMode"
+                           min-width="90"
                            :filters="triggerFilters">
             <template v-slot:default="scope">
               <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
@@ -113,12 +114,9 @@
             </template>
           </el-table-column>
           <el-table-column
-            width="180"
+            min-width="130"
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator-button :tip="$t('test_track.module.rename')" icon="el-icon-edit"
-                                        v-permission="['PROJECT_PERFORMANCE_REPORT:READ+DELETE']"
-                                        @exec="handleRename(scope.row)" type="success"/>
               <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
                                         v-permission="['PROJECT_PERFORMANCE_REPORT:READ']"
                                         @exec="handleView(scope.row)" type="primary"/>

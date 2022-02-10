@@ -938,7 +938,7 @@ export default {
     not_exist: "测试报告不存在",
     batch_delete: "批量删除报告",
     delete_batch_confirm: '确认批量删除报告',
-    response_time: '响应时间(s)',
+    response_time: '响应(s)',
     max_users: '并发数',
     file_id: '文件ID',
     avg_response_time: '平均响应时间',
