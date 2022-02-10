@@ -98,4 +98,9 @@ public class TestPlanReportController {
         testPlanReportService.countReportByTestPlanReportId(report.getTestPlanReport().getId(), null, triggerMode);
         return "success";
     }
+
+    @PostMapping("/reName")
+    public void reName(@RequestBody TestPlanReport request) {
+        testPlanReportService.reName(request.getId(), request.getName());
+    }
 }

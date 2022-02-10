@@ -31,8 +31,17 @@
               <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
-          </el-table-column>
+
+          <ms-table-column
+            prop="name"
+            sortable
+            :label="$t('commons.name')"
+            :show-overflow-tooltip="false"
+            :editable="true"
+            :edit-content="$t('report.rename_report')"
+            @editColumn="openReNameDialog"
+            min-width="200px">
+          </ms-table-column>
 
           <el-table-column prop="scenarioName" :label="$t('api_test.automation.scenario_name')" width="150"
                            show-overflow-tooltip/>
@@ -75,6 +84,8 @@
         <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
+      <ms-rename-report-dialog ref="renameDialog" @submit="rename($event)"></ms-rename-report-dialog>
+
     </ms-main-container>
   </ms-container>
 </template>
@@ -83,7 +94,8 @@
 import {getCurrentProjectID} from "@/common/js/utils";
 import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
 import {_filter, _sort} from "@/common/js/tableUtils";
-
+import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 export default {
   components: {
     ReportTriggerModeItem: () => import("../../../common/tableItem/ReportTriggerModeItem"),
@@ -93,7 +105,9 @@ export default {
     MsContainer: () => import("../../../common/components/MsContainer"),
     MsTableHeader: () => import("../../../common/components/MsTableHeader"),
     MsTablePagination: () => import("../../../common/pagination/TablePagination"),
-    ShowMoreBtn: () => import("../../../track/case/components/ShowMoreBtn")
+    ShowMoreBtn: () => import("../../../track/case/components/ShowMoreBtn"),
+    MsRenameReportDialog,
+    MsTableColumn,
   },
   data() {
     return {
@@ -271,6 +285,16 @@ export default {
       let rowArray = Array.from(rowSets)
       let ids = rowArray.map(s => s.id);
       return ids;
+    },
+    openReNameDialog($event) {
+      this.$refs.renameDialog.open($event);
+    },
+    rename(data) {
+      this.$post("/api/scenario/report/reName/", data, () => {
+        this.$success(this.$t("organization.integration.successful_operation"));
+        this.init();
+        this.$refs.renameDialog.close();
+      });
     }
   },
 

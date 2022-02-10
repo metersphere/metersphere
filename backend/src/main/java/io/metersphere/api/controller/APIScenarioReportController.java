@@ -60,4 +60,8 @@ public class APIScenarioReportController {
         apiReportService.deleteAPIReportBatch(request);
     }
 
+    @PostMapping("/reName")
+    public void reName(@RequestBody QueryAPIReportRequest reportRequest) {
+        apiReportService.reName(reportRequest);
+    }
 }
