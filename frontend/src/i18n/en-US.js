@@ -2637,6 +2637,8 @@ export default {
     personal_information_apikeys: "Personal information API Keys",
     auth_title: "Auth",
     group_permission: "Group",
+    error_report_library: "Error report",
+    enterprise_test_report: "Enterprise report",
     change_history: "Change log",
     change_content: "Change content"
   },
