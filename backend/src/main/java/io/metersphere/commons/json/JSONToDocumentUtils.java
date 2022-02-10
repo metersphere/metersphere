@@ -17,7 +17,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class JSONToDocumentUtils {
 
@@ -37,11 +36,7 @@ public class JSONToDocumentUtils {
             } else {
                 String type = BasicConstant.STRING;
                 if (value != null) {
-                    if (isWholeNumber(value.toString())) {
-                        type = BasicConstant.INTEGER;
-                    } else if (isNumber(value.toString())) {
-                        type = BasicConstant.NUMBER;
-                    }
+                    type = DocumentUtils.getType(value);
                 }
                 children.add(new DocumentElement("", type, value, null));
             }
@@ -64,13 +59,7 @@ public class JSONToDocumentUtils {
             } else {
                 String type = BasicConstant.STRING;
                 if (value != null) {
-                    if (isWholeNumber(value.toString())) {
-                        type = BasicConstant.INTEGER;
-                    } else if (isNumber(value.toString())) {
-                        type = BasicConstant.NUMBER;
-                    } else if (StringUtils.equalsIgnoreCase(DocumentUtils.getType(value), BasicConstant.BOOLEAN)) {
-                        type = BasicConstant.BOOLEAN;
-                    }
+                    type = DocumentUtils.getType(value);
                 }
                 children.add(new DocumentElement(key, type, value, null));
             }
@@ -122,17 +111,6 @@ public class JSONToDocumentUtils {
         }
     }
 
-    public static boolean isNumber(String number) {
-        Pattern pattern = Pattern.compile("^-?\\d+(\\.\\d+)?$");
-        return StringUtils.isNotEmpty(number) && pattern.matcher(number).matches();
-    }
-
-    public static boolean isWholeNumber(String wholeNumber) {
-        Pattern pattern = Pattern.compile("[+-]?[0-9]+?");
-        return StringUtils.isNotEmpty(wholeNumber) && pattern.matcher(wholeNumber).matches();
-    }
-
-
     /**
      * 从指定节点开始,递归遍历所有子节点
      */
@@ -142,11 +120,7 @@ public class JSONToDocumentUtils {
         if (listElement.isEmpty()) {
             String type = BasicConstant.STRING;
             if (StringUtils.isNotEmpty(node.getTextTrim())) {
-                if (isWholeNumber(node.getText())) {
-                    type = BasicConstant.INTEGER;
-                } else if (isNumber(node.getText())) {
-                    type = BasicConstant.NUMBER;
-                }
+                type = DocumentUtils.getType(node.getTextTrim());
             }
             children.add(new DocumentElement(node.getName(), type, node.getTextTrim(), null));
         }
