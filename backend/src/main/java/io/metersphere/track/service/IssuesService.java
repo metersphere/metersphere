@@ -339,6 +339,8 @@ public class IssuesService {
         Map<String, String> planMap = testPlans.stream()
                 .collect(Collectors.toMap(TestPlan::getId, TestPlan::getName));
 
+        Project project = projectService.getProjectById(request.getProjectId());
+
         issues.forEach(item -> {
             User createUser = userMap.get(item.getCreator());
             if (createUser != null) {
@@ -355,12 +357,12 @@ public class IssuesService {
                     .collect(Collectors.toList());
             item.setCaseIds(caseIds);
             item.setCaseCount(testCaseIssues.size());
-            if (StringUtils.equals(item.getPlatform(), "Tapd")) {
+            if (IssuesManagePlatform.Tapd.name().equals(project.getPlatform()) && StringUtils.equals(item.getPlatform(), IssuesManagePlatform.Tapd.name())) {
                 TapdPlatform platform = (TapdPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
                 List<String> tapdUsers = platform.getTapdUsers(item.getProjectId(), item.getPlatformId());
                 item.setTapdUsers(tapdUsers);
             }
-            if (StringUtils.equals(item.getPlatform(), "Zentao")) {
+            if (IssuesManagePlatform.Zentao.name().equals(project.getPlatform()) && StringUtils.equals(item.getPlatform(), IssuesManagePlatform.Zentao.name())) {
                 ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
                 platform.getZentaoAssignedAndBuilds(item);
             }
