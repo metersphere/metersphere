@@ -1,6 +1,6 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.dto.mock.MockApiUtils;
+import io.metersphere.api.mock.utils.MockApiUtils;
 import io.metersphere.api.service.MockConfigService;
 import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.Project;

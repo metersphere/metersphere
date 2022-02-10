@@ -104,6 +104,9 @@
           }
           this.$refs.environmentConfig.open(this.projectId);
         },
+        setEnvironment(enviromentId){
+          this.currentData.environmentId = enviromentId;
+        }
       }
     }
 </script>

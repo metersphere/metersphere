@@ -310,8 +310,8 @@ public class ApiDefinitionController {
         esbImportService.templateExport(response);
     }
 
-    @GetMapping("/getMockEnvironment/{projectId}/{protocal}")
-    public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId, @PathVariable String protocal, HttpServletRequest request) {
+    @GetMapping("/getMockEnvironment/{projectId}")
+    public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId) {
         return apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId);
     }
 

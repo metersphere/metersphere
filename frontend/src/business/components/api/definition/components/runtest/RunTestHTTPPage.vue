@@ -18,7 +18,7 @@
 
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
-          <environment-select :current-data="api" :project-id="projectId"/>
+          <environment-select :current-data="api" :project-id="projectId" ref="environmentSelect"/>
         </el-form-item>
 
         <!-- 请求地址 -->
@@ -140,21 +140,32 @@ export default {
     }
   },
   methods: {
-    setRequestParam(param) {
+    setRequestParam(param, isEnvironmentMock) {
       this.init();
       if (param) {
-        if(param.headers){
+        if (param.headers) {
           this.api.request.headers = param.headers;
         }
-        if(param.argument){
-          this.api.request.argument = param.argument;
+        if (param.arguments!==null && param.arguments.length > 0) {
+          this.api.request.arguments = param.arguments;
         }
-        if(param.body){
+        if (param.body) {
           this.api.request.body = param.body;
         }
-        if(param.rest){
+        if (param.rest) {
           this.api.request.rest = param.rest;
         }
+      }
+      if (isEnvironmentMock) {
+        this.$nextTick(() => {
+          let url = "/api/definition/getMockEnvironment/";
+          this.$get(url + this.projectId, response => {
+            let mockEnvironment = response.data;
+            if (mockEnvironment !== null) {
+              this.$refs.environmentSelect.setEnvironment(mockEnvironment.id);
+            }
+          });
+        })
       }
     },
     handleCommand(e) {
