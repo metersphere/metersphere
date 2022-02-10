@@ -397,9 +397,17 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 parseKvBodyItem(schema, body, k, infoMap);
             });
         } else {
-            if(data instanceof  Schema) {
+            if(data instanceof Schema) {
                 Schema dataSchema = (Schema) data;
-                parseKvBodyItem(schema, body, dataSchema.getName(), infoMap);
+                if (StringUtils.isNotBlank(dataSchema.getName())) {
+                    parseKvBodyItem(schema, body, dataSchema.getName(), infoMap);
+                } else if (dataSchema.getProperties() != null) {
+                    dataSchema.getProperties().forEach((k, v) -> {
+                        if (v instanceof Schema) {
+                            parseKvBodyItem(v, body, k.toString(), infoMap);
+                        }
+                    });
+                }
             }
         }
     }
@@ -413,6 +421,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             if (schemaInfo instanceof BinarySchema) {
                 kv.setType("file");
             }
+        }
+        if (StringUtils.isNotBlank(schema.getType()) && StringUtils.equals("file", schema.getType())) {
+            kv.setType("file");
         }
         if (body != null) {
             if (body.getKvs() == null) {
@@ -804,7 +815,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         return schema;
     }
 
-    private JSONObject buildformDataSchema(JSONObject kvs) {
+    private JSONObject buildFormDataSchema(JSONObject kvs) {
         JSONObject schema = new JSONObject();
         JSONObject properties = new JSONObject();
         for (String key : kvs.keySet()) {
@@ -942,7 +953,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
             } else if (bodyType.equalsIgnoreCase("WWW_FORM") || bodyType.equalsIgnoreCase("Form Data") || bodyType.equalsIgnoreCase("BINARY")) {    //  key-value 类格式
                 JSONObject formData = getformDataProperties(body.getJSONArray("kvs"));
-                bodyInfo = buildformDataSchema(formData);
+                bodyInfo = buildFormDataSchema(formData);
             }
         }
 
