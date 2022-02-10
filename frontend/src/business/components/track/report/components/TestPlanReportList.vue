@@ -31,6 +31,10 @@
         :fields-width="fieldsWidth"
         sortable
         :label="$t('test_track.report.list.name')"
+        :show-overflow-tooltip="false"
+        :editable="true"
+        :edit-content="$t('report.rename_report')"
+        @editColumn="openReNameDialog"
         min-width="200px">
       </ms-table-column>
 
@@ -114,6 +118,7 @@
                          :total="total"/>
     <test-plan-report-view @refresh="initTableData" ref="testPlanReportView"/>
     <test-plan-db-report ref="dbReport"/>
+    <ms-rename-report-dialog ref="renameDialog" @submit="rename"></ms-rename-report-dialog>
   </el-card>
 </template>
 
@@ -147,7 +152,7 @@ import {getCurrentProjectID} from "@/common/js/utils";
 import TestPlanDbReport from "@/business/components/track/report/components/TestPlanDbReport";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-
+import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
 export default {
   name: "TestPlanReportList",
   components: {
@@ -159,6 +164,7 @@ export default {
     ShowMoreBtn, MsTableSelectAll,
     MsTableColumn,
     MsTable,
+    MsRenameReportDialog
   },
   data() {
     return {
@@ -355,6 +361,16 @@ export default {
     saveSortField(key, orders) {
       saveLastTableSortField(key, JSON.stringify(orders));
     },
+    openReNameDialog($event) {
+      this.$refs.renameDialog.open($event);
+    },
+    rename(data) {
+      this.$post("/test/plan/report/reName/", data, () => {
+        this.$success(this.$t("organization.integration.successful_operation"));
+        this.initTableData();
+        this.$refs.renameDialog.close();
+      });
+    }
   }
 };
 </script>

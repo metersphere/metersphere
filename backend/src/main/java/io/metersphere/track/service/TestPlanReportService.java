@@ -919,4 +919,12 @@ public class TestPlanReportService {
             }
         }
     }
+
+    public void reName(String planId, String planName) {
+        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(planId);
+        if (testPlanReport != null) {
+            testPlanReport.setName(planName);
+            testPlanReportMapper.updateByPrimaryKey(testPlanReport);
+        }
+    }
 }

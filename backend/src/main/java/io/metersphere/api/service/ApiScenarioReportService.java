@@ -752,4 +752,12 @@ public class ApiScenarioReportService {
             }
         }
     }
+
+    public void reName(QueryAPIReportRequest reportRequest) {
+        ApiScenarioReport apiTestReport = apiScenarioReportMapper.selectByPrimaryKey(reportRequest.getId());
+        if (apiTestReport != null) {
+            apiTestReport.setName(reportRequest.getName());
+            apiScenarioReportMapper.updateByPrimaryKey(apiTestReport);
+        }
+    }
 }

@@ -12,8 +12,17 @@
       :filter-method="filterMethod"
       :show-overflow-tooltip="showOverflowTooltip">
     <template v-slot:default="scope">
-      <slot :row="scope.row" :$index="scope.$index">
-        {{scope.row[prop]}}
+      <slot :row="scope.row" :$index="scope.$index" v-if="!editable">
+        <span @click="$emit('click', scope.row)">{{ scope.row[prop] }}</span>
+      </slot>
+      <slot :row="scope.row" :$index="scope.$index" v-if="editable">
+        <span style="cursor: pointer;" @click="$emit('click', scope.row)">{{ scope.row[prop] }}</span>
+        <el-tooltip :content="editContent ? editContent : $t('commons.edit')"
+                    @click.native.stop="$emit('editColumn', scope.row)">
+          <a style="cursor: pointer">
+            <i style="cursor:pointer" class="el-input__icon el-icon-edit pointer"></i>
+          </a>
+        </el-tooltip>
       </slot>
     </template>
   </el-table-column>
@@ -63,7 +72,15 @@ export default {
       default() {
         return null;
       }
-    }
+    },
+    editable: {
+      type: Boolean,
+      default: false
+    },
+    editContent: {
+      type: String,
+      default: null
+    },
   },
   mounted() {
     this.active = true;
