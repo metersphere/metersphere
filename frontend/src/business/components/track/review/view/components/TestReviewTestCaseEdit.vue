@@ -58,7 +58,9 @@
 
                   <el-row style="margin-top: 0;">
                     <el-col>
-                      <el-divider content-position="left">{{ testCase.name }}</el-divider>
+                      <el-divider content-position="left">
+                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.name }}</el-button>
+                      </el-divider>
                     </el-col>
                   </el-row>
 
@@ -419,6 +421,12 @@ export default {
         }
 
       })
+    },
+    openTestTestCase(item) {
+      let testCaseData = this.$router.resolve(
+        {path: '/track/case/all', query: {redirectID: getUUID(), dataType: "testCase", dataSelectRange: item.caseId}}
+      );
+      window.open(testCaseData.href, '_blank');
     },
     getRelatedTest() {
       if (this.testCase.method === 'auto' && this.testCase.testId && this.testCase.testId !== 'other') {
