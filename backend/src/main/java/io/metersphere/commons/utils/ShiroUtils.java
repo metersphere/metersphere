@@ -60,6 +60,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/echartPic/**", "anon");
         filterChainDefinitionMap.put("/share/**", "anon");
         filterChainDefinitionMap.put("/sharePlanReport", "anon");
+        filterChainDefinitionMap.put("/sharePerformanceReport", "anon");
 
         filterChainDefinitionMap.put("/system/theme", "anon");
         filterChainDefinitionMap.put("/system/save/baseurl/**", "anon");

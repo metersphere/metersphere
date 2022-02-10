@@ -305,12 +305,17 @@ export default {
     reportId: {
       type: String
     },
+    report: {
+      type: Object
+    },
     isReadOnly: {
       type: Boolean,
       default() {
         return false;
       }
-    }
+    },
+    isShare: Boolean,
+    shareId: String,
   },
   data() {
     return {
@@ -354,7 +359,12 @@ export default {
     } else {
       this.calculateTotalChart();
     }
-    this.resourcePool = this.test.testResourcePoolId;
+    if (this.test) {
+      this.resourcePool = this.test.testResourcePoolId;
+    }
+    if (this.report) {
+      this.resourcePool = this.report.testResourcePoolId;
+    }
     this.getResourcePools();
   },
   watch: {
@@ -385,7 +395,11 @@ export default {
   },
   methods: {
     getResourcePools() {
-      this.result = this.$get('/testresourcepool/list/quota/valid', response => {
+      let url = '/testresourcepool/list/quota/valid';
+      if (this.isShare) {
+        url = '/share/testresourcepool/list/quota/valid';
+      }
+      this.result = this.$get(url, response => {
         this.resourcePools = response.data;
         // 如果当前的资源池无效 设置 null
         if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
@@ -405,6 +419,9 @@ export default {
       }
       if (!url) {
         return;
+      }
+      if (this.isShare) {
+        url = '/share/performance/report/get-load-config/' + this.reportId;
       }
       this.$get(url, (response) => {
         if (response.data) {
@@ -518,6 +535,9 @@ export default {
       }
       if (!url) {
         return;
+      }
+      if (this.isShare) {
+        url = '/share/performance/report/get-jmx-content/' + this.reportId;
       }
       let threadGroups = [];
       this.$get(url, (response) => {

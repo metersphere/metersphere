@@ -30,6 +30,25 @@
                          v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
+              <el-popover
+                v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
+                style="padding: 0 10px;"
+                placement="bottom"
+                width="300">
+                <p>{{ shareUrl }}</p>
+                <span style="color: red;float: left;margin-left: 10px;">{{
+                    $t('test_track.report.valid_for_24_hours')
+                  }}</span>
+                <div style="text-align: right; margin: 0">
+                  <el-button type="primary" size="mini" :disabled="!shareUrl"
+                             v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}
+                  </el-button>
+                </div>
+                <el-button slot="reference" :disabled="isReadOnly" type="danger" plain size="mini"
+                           @click="handleShare(report)">
+                  {{ $t('分享报告') }}
+                </el-button>
+              </el-popover>
               <el-button :disabled="report.status !== 'Completed'" type="default" plain
                          size="mini" v-permission="['PROJECT_PERFORMANCE_REPORT:READ+COMPARE']"
                          @click="compareReports()">
@@ -141,6 +160,7 @@ import {Message} from "element-ui";
 import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
 import MsTestConfiguration from "@/business/components/performance/report/components/TestConfiguration";
+import {generateShareInfoWithExpired} from "@/network/share";
 
 
 export default {
@@ -195,6 +215,7 @@ export default {
         {value: '300', label: '5m'}
       ],
       testDeleted: false,
+      shareUrl: "",
     };
   },
   methods: {
@@ -344,6 +365,15 @@ export default {
             reset();
           });
         }, 1000);
+      });
+    },
+    handleShare(report) {
+      let pram = {};
+      pram.customData = report.id;
+      pram.shareType = 'PERFORMANCE_REPORT';
+      generateShareInfoWithExpired(pram, (data) => {
+        let thisHost = window.location.host;
+        this.shareUrl = thisHost + "/sharePerformanceReport" + data.shareUrl;
       });
     },
     exportReportReset() {
