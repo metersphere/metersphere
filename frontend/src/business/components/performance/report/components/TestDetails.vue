@@ -241,47 +241,47 @@
         <el-row>
           <el-col :offset="2" :span="20">
             <el-table
-                :data="tableData"
-                stripe
-                border
-                style="width: 100%">
+              :data="tableData"
+              stripe
+              border
+              style="width: 100%">
               <el-table-column label="Label" align="center">
                 <el-table-column
-                    prop="label"
-                    label="Label"
-                    sortable>
+                  prop="label"
+                  label="Label"
+                  sortable>
                 </el-table-column>
               </el-table-column>
               <el-table-column label="Aggregate" align="center">
                 <el-table-column
-                    prop="avg"
-                    label="Avg."
-                    width="100"
-                    sortable
+                  prop="avg"
+                  label="Avg."
+                  width="100"
+                  sortable
                 />
                 <el-table-column
-                    prop="min"
-                    label="Min."
-                    width="100"
-                    sortable
+                  prop="min"
+                  label="Min."
+                  width="100"
+                  sortable
                 />
                 <el-table-column
-                    prop="max"
-                    label="Max."
-                    width="100"
-                    sortable
+                  prop="max"
+                  label="Max."
+                  width="100"
+                  sortable
                 />
               </el-table-column>
               <el-table-column label="Range" align="center">
                 <el-table-column
-                    prop="startTime"
-                    label="Start"
-                    width="160"
+                  prop="startTime"
+                  label="Start"
+                  width="160"
                 />
                 <el-table-column
-                    prop="endTime"
-                    label="End"
-                    width="160"
+                  prop="endTime"
+                  label="End"
+                  width="160"
                 />
               </el-table-column>
             </el-table>
@@ -686,7 +686,11 @@ export default {
     }
   },
   created() {
-    this.id = this.$route.path.split('/')[4];
+    if (this.report) {
+      this.id = this.report.id;
+    } else {
+      this.id = this.$route.path.split('/')[4];
+    }
     this.initTableData();
   },
   watch: {
