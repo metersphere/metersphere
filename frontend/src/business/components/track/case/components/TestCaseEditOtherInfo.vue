@@ -14,7 +14,7 @@
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
 
-          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" clearable/>
+          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" clearable filterable/>
         </el-form-item>
       </el-col>
       <el-col :span="7">
