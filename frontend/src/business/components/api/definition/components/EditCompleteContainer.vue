@@ -283,9 +283,9 @@ export default {
           if (param.params) {
             requestParam = param.params;
           }
-          this.$refs.httpTestPage.setRequestParam(requestParam);
+          this.$refs.httpTestPage.setRequestParam(requestParam,true);
         } else if (this.currentProtocol === "TCP" && this.$refs.tcpTestPage) {
-          this.$refs.tcpTestPage.setRequestParam(param);
+          this.$refs.tcpTestPage.setRequestParam(param,true);
         }
       });
     },

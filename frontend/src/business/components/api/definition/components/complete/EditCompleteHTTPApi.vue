@@ -510,7 +510,7 @@ export default {
       let protocol = document.location.protocol;
       protocol = protocol.substring(0, protocol.indexOf(":"));
       let url = "/api/definition/getMockEnvironment/";
-      this.$get(url + this.projectId + "/" + protocol, response => {
+      this.$get(url + this.projectId, response => {
         this.mockEnvironment = response.data;
         let httpConfig = JSON.parse(this.mockEnvironment.config);
         if (httpConfig != null) {
