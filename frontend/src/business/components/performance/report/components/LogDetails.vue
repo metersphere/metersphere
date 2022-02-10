@@ -140,7 +140,11 @@ export default {
     },
   },
   created() {
-    this.id = this.$route.path.split('/')[4];
+    if (this.report) {
+      this.id = this.report.id;
+    } else {
+      this.id = this.$route.path.split('/')[4];
+    }
     this.getResource();
   },
   watch: {

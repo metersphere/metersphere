@@ -12,9 +12,12 @@ import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.LoadTestReportLog;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.LogDetailDTO;
+import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.dto.MetricData;
@@ -22,6 +25,7 @@ import io.metersphere.performance.dto.Monitor;
 import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
+import io.metersphere.service.TestResourcePoolService;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
@@ -64,6 +68,8 @@ public class ShareController {
     TestPlanReportService testPlanReportService;
     @Resource
     MetricQueryService metricService;
+    @Resource
+    private TestResourcePoolService testResourcePoolService;
 
     @GetMapping("/issues/plan/get/{shareId}/{planId}")
     public List<IssuesDao> getIssuesByPlanoId(@PathVariable String shareId, @PathVariable String planId) {
@@ -112,11 +118,13 @@ public class ShareController {
         shareInfoService.validate(shareId, planId);
         return testPlanApiCaseService.getFailureCases(planId);
     }
+
     @GetMapping("/test/plan/api/case/list/errorReport/{shareId}/{planId}")
     public List<TestPlanFailureApiDTO> getErrorReportApiCaseList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
         return testPlanApiCaseService.getErrorReportCases(planId);
     }
+
     @GetMapping("/test/plan/api/case/list/all/{shareId}/{planId}")
     public List<TestPlanFailureApiDTO> getApiAllList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
@@ -169,6 +177,16 @@ public class ShareController {
     public Boolean isExistReport(@PathVariable String shareId, @RequestBody LoadCaseReportRequest request) {
         // testPlanLoadCaseService  todo checkout
         return testPlanLoadCaseService.isExistReport(request);
+    }
+
+    @GetMapping("/performance/report/get-advanced-config/{shareId}/{reportId}")
+    public String getAdvancedConfig(@PathVariable String shareId, @PathVariable String reportId) {
+        return performanceReportService.getAdvancedConfiguration(reportId);
+    }
+
+    @GetMapping("/performance/report/get-jmx-content/{reportId}")
+    public List<LoadTestExportJmx> getJmxContents(@PathVariable String reportId) {
+        return performanceReportService.getJmxContent(reportId);
     }
 
     @GetMapping("/performance/report/get-jmx-content/{shareId}/{reportId}")
@@ -258,5 +276,17 @@ public class ShareController {
     public String getLoadConfiguration(@PathVariable String shareId, @PathVariable String testId) {
         //checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getLoadConfiguration(testId);
+    }
+
+    @GetMapping("/performance/report/get-load-config/{reportId}")
+    public String getLoadConfiguration(@PathVariable String reportId) {
+        return performanceReportService.getLoadConfiguration(reportId);
+    }
+
+    @GetMapping("/testresourcepool/list/quota/valid")
+    public List<TestResourcePoolDTO> getTestResourcePools() {
+        QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
+        resourcePoolRequest.setStatus(ResourceStatusEnum.VALID.name());
+        return testResourcePoolService.listResourcePools(resourcePoolRequest);
     }
 }

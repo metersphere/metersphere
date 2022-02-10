@@ -504,7 +504,9 @@ export default {
       default() {
         return false;
       }
-    }
+    },
+    isShare: Boolean,
+    shareId: String,
   },
   mounted() {
     if (this.testId) {
@@ -533,6 +535,9 @@ export default {
       let url = '/performance/get-advanced-config/' + this.testId;
       if (type) {
         url = '/performance/report/get-advanced-config/' + this.reportId;
+      }
+      if (this.isShare) {
+        url = '/share/performance/report/get-advanced-config/' + this.shareId + '/' + this.reportId;
       }
       this.$get(url, (response) => {
         if (response.data) {
