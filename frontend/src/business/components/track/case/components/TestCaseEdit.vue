@@ -114,6 +114,7 @@
           <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
           <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
+                                     :is-copy="currentTestCaseInfo.isCopy"
                                      :label-width="formLabelWidth" :case-id="form.id" :version-enable="versionEnable"
                                      ref="otherInfo"/>
 

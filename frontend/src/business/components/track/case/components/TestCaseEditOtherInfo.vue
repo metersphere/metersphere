@@ -29,6 +29,7 @@
       <test-case-issue-relate
         v-if="tabActiveName === 'bug'"
         :plan-id="planId"
+        :is-copy="isCopy"
         :read-only="readOnly && !(isTestPlan)"
         :case-id="caseId" ref="issue"/>
     </el-tab-pane>
@@ -90,7 +91,7 @@ export default {
     DependenciesList,
     TestCaseTestRelate,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable'],
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy'],
   data() {
     return {
       result: {},
