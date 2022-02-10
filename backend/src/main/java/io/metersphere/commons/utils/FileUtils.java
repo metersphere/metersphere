@@ -222,10 +222,10 @@ public class FileUtils {
                 }
             } else if (key instanceof CSVDataSet) {
                 CSVDataSet source = (CSVDataSet) key;
-                if (source != null && source.getFilename() != null) {
+                if (source != null && StringUtils.isNotEmpty(source.getPropertyAsString("filename"))) {
                     BodyFile file = new BodyFile();
-                    file.setId(source.getFilename());
-                    file.setName(source.getFilename());
+                    file.setId(source.getPropertyAsString("filename"));
+                    file.setName(source.getPropertyAsString("filename"));
                     files.add(file);
                 }
             }
