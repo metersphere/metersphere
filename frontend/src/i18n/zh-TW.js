@@ -1139,6 +1139,16 @@ export default {
       delete_mock_expect: "確認刪除這條預期嗎？",
       rule: {
         input_code: "請輸入 HTTP Code"
+      },
+      range_type:{
+        value_eq: "值-等於[value=]",
+        value_not_eq: "值-不等於[value!=]",
+        value_contain:"值-包含[include=]",
+        length_eq: "長度-等于[length=]",
+        length_not_eq: "長度-不等於[length!=]",
+        length_large_than:"長度-大於[length>]",
+        length_shot_than:"長度-小於[length<]",
+        regular_match: "正則匹配",
       }
     },
     definition: {

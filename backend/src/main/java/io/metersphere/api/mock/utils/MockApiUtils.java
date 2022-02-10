@@ -1,25 +1,30 @@
-package io.metersphere.api.dto.mock;
+package io.metersphere.api.mock.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
+import io.metersphere.api.dto.mock.MockConfigRequestParams;
+import io.metersphere.api.dto.mock.RequestMockParams;
 import io.metersphere.api.dto.mockconfig.response.JsonSchemaReturnObj;
+import io.metersphere.api.mock.dto.MockParamConditionEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.samplers.SampleResult;
-import org.json.XML;
 
 import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author song.tianyang
@@ -207,15 +212,23 @@ public class MockApiUtils {
         return values;
     }
 
-    public static JSONObject getParamsByJSONArray(JSONArray array) {
-        JSONObject returnObject = new JSONObject();
+    public static List<MockConfigRequestParams> getParamsByJSONArray(JSONArray array) {
+        List<MockConfigRequestParams> requestParamsList = new ArrayList<>();
         for (int i = 0; i < array.size(); i++) {
             JSONObject obj = array.getJSONObject(i);
             if (obj.containsKey("name") && obj.containsKey("value")) {
-                returnObject.put(obj.getString("name"), obj.getString("value"));
+                String condition = null;
+                if (obj.containsKey("rangeType")) {
+                    condition = obj.getString("rangeType");
+                }
+                MockConfigRequestParams requestParams = new MockConfigRequestParams();
+                requestParams.setKey(obj.getString("name"));
+                requestParams.setValue(obj.getString("value"));
+                requestParams.setCondition(parseCondition(condition));
+                requestParamsList.add(requestParams);
             }
         }
-        return returnObject;
+        return requestParamsList;
     }
 
     public static Map<String, String> getApiResponse(String response) {
@@ -470,7 +483,7 @@ public class MockApiUtils {
         requestMockParams.setRestParamsObj(urlParamsObject);
         requestMockParams.setQueryParamsObj(queryParamsObject);
 
-        if(isPostRequest){
+        if (isPostRequest) {
             JSONArray jsonArray = new JSONArray();
             jsonArray.add(queryParamsObject);
             requestMockParams.setBodyParams(jsonArray);
@@ -587,9 +600,9 @@ public class MockApiUtils {
         if (charEncoding == null) {
             charEncoding = "UTF-8";
         }
-        if(buffer == null){
+        if (buffer == null) {
             return "";
-        }else {
+        } else {
             return new String(buffer, charEncoding);
         }
     }
@@ -644,5 +657,113 @@ public class MockApiUtils {
             i += readlen;
         }
         return buffer;
+    }
+
+    public static String parseCondition(String condition) {
+        String returnCondition = MockParamConditionEnum.VALUE_EQUALS.name();
+        if (StringUtils.isNotEmpty(condition)) {
+            switch (condition) {
+                case "value_not_eq":
+                    returnCondition = MockParamConditionEnum.VALUE_NOT_EQUALS.name();
+                    break;
+                case "value_contain":
+                    returnCondition = MockParamConditionEnum.VALUE_CONTAINS.name();
+                    break;
+                case "length_eq":
+                    returnCondition = MockParamConditionEnum.LENGTH_EQUALS.name();
+                    break;
+                case "length_not_eq":
+                    returnCondition = MockParamConditionEnum.LENGTH_NOT_EQUALS.name();
+                    break;
+                case "length_large_than":
+                    returnCondition = MockParamConditionEnum.LENGTH_LARGE_THAN.name();
+                    break;
+                case "length_shot_than":
+                    returnCondition = MockParamConditionEnum.LENGTH_SHOT_THAN.name();
+                    break;
+                case "regular_match":
+                    returnCondition = MockParamConditionEnum.REGULAR_MATCH.name();
+                    break;
+                default:
+                    returnCondition = MockParamConditionEnum.VALUE_EQUALS.name();
+                    break;
+            }
+        }
+        return returnCondition;
+    }
+
+    public static boolean checkParamsCompliance(JSONObject queryParamsObj, List<MockConfigRequestParams> mockConfigRequestParamList) {
+        if (CollectionUtils.isNotEmpty(mockConfigRequestParamList)) {
+            for (MockConfigRequestParams params : mockConfigRequestParamList) {
+                String key = params.getKey();
+                if (queryParamsObj.containsKey(key)) {
+                    boolean isMatch = MockApiUtils.isValueMatch(String.valueOf(queryParamsObj.get(key)), params);
+                    if (!isMatch) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public static boolean checkParamsCompliance(JSONArray jsonArray, List<MockConfigRequestParams> mockConfigRequestParamList) {
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject obj = jsonArray.getJSONObject(i);
+            boolean isMatch = checkParamsCompliance(obj, mockConfigRequestParamList);
+            if (isMatch) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isValueMatch(String requestParam, MockConfigRequestParams params) {
+        if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.VALUE_EQUALS.name())) {
+            return StringUtils.equals(requestParam, params.getValue());
+        } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.VALUE_NOT_EQUALS.name())) {
+            return !StringUtils.equals(requestParam, params.getValue());
+        } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.VALUE_CONTAINS.name())) {
+            return StringUtils.contains(requestParam, params.getValue());
+        } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.LENGTH_EQUALS.name())) {
+            try {
+                int length = Integer.parseInt(params.getValue());
+                return requestParam.length() == length;
+            } catch (Exception e) {
+                return false;
+            }
+        } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.LENGTH_NOT_EQUALS.name())) {
+            try {
+                int length = Integer.parseInt(params.getValue());
+                return requestParam.length() == length;
+            } catch (Exception e) {
+                return false;
+            }
+        } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.LENGTH_SHOT_THAN.name())) {
+            try {
+                int length = Integer.parseInt(params.getValue());
+                return requestParam.length() < length;
+            } catch (Exception e) {
+                return false;
+            }
+        } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.LENGTH_LARGE_THAN.name())) {
+            try {
+                int length = Integer.parseInt(params.getValue());
+                return requestParam.length() > length;
+            } catch (Exception e) {
+                return false;
+            }
+        } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.REGULAR_MATCH.name())) {
+            try {
+                Pattern pattern = Pattern.compile(params.getValue());
+                Matcher matcher = pattern.matcher(requestParam);
+                boolean isMatch = matcher.matches();
+                return isMatch;
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }

@@ -1133,6 +1133,16 @@ export default {
       delete_mock_expect: "Confirm to delete this expect info ?",
       rule: {
         input_code: "Please input HTTP Code"
+      },
+      range_type:{
+        value_eq: "value=",
+        value_not_eq: "value!=",
+        value_contain:"include=",
+        length_eq: "length=",
+        length_not_eq: "length!=",
+        length_large_than:"length>",
+        length_shot_than:"length<",
+        regular_match: "Regular match",
       }
     },
     definition: {

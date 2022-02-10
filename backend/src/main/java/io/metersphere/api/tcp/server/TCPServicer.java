@@ -1,7 +1,7 @@
 package io.metersphere.api.tcp.server;
 
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.mock.MockApiUtils;
+import io.metersphere.api.mock.utils.MockApiUtils;
 import io.metersphere.api.service.MockConfigService;
 import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;

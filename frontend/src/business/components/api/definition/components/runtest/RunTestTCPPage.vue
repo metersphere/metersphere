@@ -29,7 +29,7 @@
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
           {{ $t('api_test.definition.request.run_env') }}：
-          <environment-select :type="'TCP'" :current-data="api" :project-id="projectId"/>
+          <environment-select :type="'TCP'" :current-data="api" :project-id="projectId" ref="environmentSelect"/>
         </el-form-item>
 
 
@@ -128,7 +128,7 @@ export default {
   },
   props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
   methods: {
-    setRequestParam(param) {
+    setRequestParam(param, isEnvironmentMock) {
       this.init();
       if (this.api.method === "TCP" && param && this.api.request) {
         if (param.reportType) {
@@ -147,6 +147,17 @@ export default {
           this.$refs.requestForm.reload();
           this.$refs.requestForm.setReportType(param.reportType);
         });
+      }
+      if (isEnvironmentMock) {
+        this.$nextTick(() => {
+          let url = "/api/definition/getMockEnvironment/";
+          this.$get(url + this.projectId, response => {
+            let mockEnvironment = response.data;
+            if (mockEnvironment !== null) {
+              this.$refs.environmentSelect.setEnvironment(mockEnvironment.id);
+            }
+          });
+        })
       }
     },
     handleCommand(e) {

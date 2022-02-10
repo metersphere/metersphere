@@ -1,11 +1,13 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.dto.mock.MockApiUtils;
 import io.metersphere.api.dto.mock.MockParamSuggestions;
+import io.metersphere.api.dto.mock.MockTestDataRequest;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
 import io.metersphere.api.dto.mockconfig.response.MockConfigResponse;
 import io.metersphere.api.dto.mockconfig.response.MockExpectConfigResponse;
+import io.metersphere.api.mock.utils.MockApiUtils;
+import io.metersphere.api.mock.utils.MockTestDataUtil;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.MockConfigService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
@@ -72,6 +74,12 @@ public class MockConfigController {
         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionService.getBLOBs(id);
         Map<String, String> returnMap = MockApiUtils.getApiResponse(apiDefinitionWithBLOBs.getResponse());
         return returnMap;
+    }
+
+    @PostMapping("/getMockTestData")
+    public List<MockTestDataRequest> getMockTestData(@RequestBody List<MockTestDataRequest> requestArray) {
+        MockTestDataUtil testDataUtil = new MockTestDataUtil();
+        return testDataUtil.parseTestDataByRequest(requestArray);
     }
 
 }

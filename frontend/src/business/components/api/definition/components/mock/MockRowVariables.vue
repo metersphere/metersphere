@@ -53,7 +53,8 @@ export default {
     headerSuggestions: Array
   },
   data() {
-    return {};
+    return {
+    };
   },
   methods: {
     remove: function (index) {
