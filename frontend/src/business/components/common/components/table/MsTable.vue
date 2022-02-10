@@ -246,6 +246,9 @@ export default {
           this.initData();
         });
       }
+    },
+    selectDataCounts(value) {
+      this.$emit("selectCountChange", value);
     }
   },
   methods: {
