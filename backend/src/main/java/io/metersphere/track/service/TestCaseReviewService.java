@@ -31,6 +31,7 @@ import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
 import io.metersphere.track.request.testreview.*;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -118,38 +119,11 @@ public class TestCaseReviewService {
     }
 
     //评审内容
-    private Map<String, String> getReviewParamMap(SaveTestCaseReviewRequest reviewRequest) {
-        Long startTime = reviewRequest.getCreateTime();
-        Long endTime = reviewRequest.getEndTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String start = null;
-        String sTime = String.valueOf(startTime);
-        String eTime = String.valueOf(endTime);
-        if (!sTime.equals("null")) {
-            start = sdf.format(new Date(Long.parseLong(sTime)));
-        }
-        String end = null;
-        if (!eTime.equals("null")) {
-            end = sdf.format(new Date(Long.parseLong(eTime)));
-        }
-
-        Map<String, String> paramMap = new HashMap<>();
+    private Map getReviewParamMap(TestCaseReview review) {
+        Map paramMap = new HashMap<>();
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         paramMap.put("url", baseSystemConfigDTO.getUrl());
-        paramMap.put("creator", reviewRequest.getCreator());
-        paramMap.put("name", reviewRequest.getName());
-        paramMap.put("start", start);
-        paramMap.put("end", end);
-        paramMap.put("id", reviewRequest.getId());
-        String status = "";
-        if (StringUtils.equals(TestPlanStatus.Underway.name(), reviewRequest.getStatus())) {
-            status = "进行中";
-        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), reviewRequest.getStatus())) {
-            status = "未开始";
-        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), reviewRequest.getStatus())) {
-            status = "已完成";
-        }
-        paramMap.put("status", status);
+        paramMap.putAll(new BeanMap(review));
         return paramMap;
     }
 
@@ -439,7 +413,7 @@ public class TestCaseReviewService {
             try {
                 BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
                 String context = getReviewContext(testCaseReviewRequest, NoticeConstants.Event.UPDATE);
-                Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReviewRequest));
+                Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(_testCaseReview));
                 paramMap.put("operator", SessionUtils.getUser().getName());
                 NoticeModel noticeModel = NoticeModel.builder()
                         .operator(SessionUtils.getUserId())
