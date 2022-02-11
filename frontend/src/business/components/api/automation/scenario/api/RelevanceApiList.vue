@@ -146,7 +146,7 @@ export default {
       } else {
         this.condition.protocol = "HTTP";
       }
-
+      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       let url = '/api/definition/list/';
       if (this.isTestPlan) {
         url = '/api/definition/list/relevance/';
