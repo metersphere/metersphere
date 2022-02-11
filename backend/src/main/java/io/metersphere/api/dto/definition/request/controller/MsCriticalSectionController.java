@@ -17,12 +17,12 @@ public class MsCriticalSectionController extends MsTestElement {
 
     }
 
-    public static HashTree createHashTree(HashTree tree, String name) {
+    public static HashTree createHashTree(HashTree tree, String name, boolean enable) {
         CriticalSectionController criticalSectionController = new CriticalSectionController();
         criticalSectionController.setName(StringUtils.isNotEmpty(name) ? "Csc_" + name
                 : "Scenario Critical Section Controller");
         criticalSectionController.setLockName("global_lock_" + getUUID(8));
-        criticalSectionController.setEnabled(true);
+        criticalSectionController.setEnabled(enable);
         criticalSectionController.setProperty(TestElement.TEST_CLASS, CriticalSectionController.class.getName());
         criticalSectionController.setProperty(TestElement.GUI_CLASS, "CriticalSectionControllerGui");
         return tree.add(criticalSectionController);

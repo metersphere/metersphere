@@ -161,7 +161,7 @@ public class MsScenario extends MsTestElement {
         }
         HashTree scenarioTree = tree;
         if (config != null && !config.getExcludeScenarioIds().contains(this.getId())) {
-            scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName());
+            scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
         }
         // 场景变量和环境变量
         Arguments arguments = arguments(config);
