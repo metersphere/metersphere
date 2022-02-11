@@ -126,7 +126,6 @@ export default {
       this.dialogVisible = true;
       this.dialogType = type;
       this.form = Object.assign({type: 'PROJECT' ,global: false , scopeId: getCurrentWorkspaceId()}, row);
-      this.getWorkspace();
     },
     cancel() {
       this.dialogVisible = false;
