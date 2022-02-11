@@ -1342,20 +1342,6 @@ public class ApiAutomationService {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(request.getIds());
         List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = apiScenarioMapper.selectByExampleWithBLOBs(example);
-        // 处理引用数据
-        if (CollectionUtils.isNotEmpty(apiScenarioWithBLOBs)) {
-            apiScenarioWithBLOBs.forEach(item -> {
-                if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
-                    JSONObject scenario = JSONObject.parseObject(item.getScenarioDefinition());
-                    JSONArray hashTree = scenario.getJSONArray("hashTree");
-                    if (hashTree != null) {
-                        hashTreeService.setHashTree(hashTree);
-                        scenario.put("hashTree", hashTree);
-                    }
-                    item.setScenarioDefinition(JSON.toJSONString(scenario));
-                }
-            });
-        }
         return apiScenarioWithBLOBs;
     }
 
