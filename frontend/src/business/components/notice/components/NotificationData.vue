@@ -24,18 +24,23 @@
                 :highlight-current-row="true"
                 style="width: 100%">
         <el-table-column prop="content" :label="$t('commons.name')">
-          <template slot-scope="{row}">
+          <template v-slot="{row}">
             <el-row type="flex" align="start" class="current-user">
-              <div class="icon-title">
-                {{ row.user.name.substring(0, 1) }}
-              </div>
-              <span class="username">{{ row.user.name }}</span>
-              <span class="operation">
-             {{ getOperation(row.operation) }}{{ getResource(row) }}:
-              <span v-if="row.resourceId && row.operation.indexOf('DELETE') < 0"
-                    @click="clickResource(row)" style="color: #783887; cursor: pointer;">{{ row.resourceName }}</span>
-              <span v-else>{{ row.resourceName }}</span>
-            </span>
+              <el-col :span="2">
+                <div class="icon-title">
+                  {{ row.user.name.substring(0, 1) }}
+                </div>
+              </el-col>
+              <el-col :span="22">
+                <span class="username">{{ row.user.name }}</span>
+                <span class="operation">{{ getOperation(row.operation) }}{{ getResource(row) }}:
+                  <span v-if="row.resourceId && row.operation.indexOf('DELETE') < 0" @click="clickResource(row)"
+                        style="color: #783887; cursor: pointer;">
+                    {{ row.resourceName }}
+                  </span>
+                  <span v-else>{{ row.resourceName }}</span>
+                </span>
+              </el-col>
             </el-row>
             <el-row type="flex" justify="space-between">
               <el-col :span="12">
@@ -59,7 +64,7 @@
 import {getOperation, getResource, getUrl} from "@/business/components/notice/util";
 
 export default {
-  name: "MentionedMeData",
+  name: "NotificationData",
   data() {
     return {
       systemNoticeData: [],
@@ -71,7 +76,8 @@ export default {
     };
   },
   props: {
-    userList: Array
+    userList: Array,
+    type: String,
   },
   created() {
     this.init();
@@ -88,7 +94,7 @@ export default {
       this.init();
     },
     init() {
-      let param = {type: 'MENTIONED_ME'};
+      let param = {type: this.type};
       this.result = this.$post('/notification/list/all/' + this.goPage + '/' + this.pageSize, param, response => {
         this.systemNoticeData = response.data.listObject;
         this.totalPage = response.data.pageCount;
@@ -162,7 +168,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  max-width: 180px;
+  max-width: 100px;
 }
 
 .current-user .operation {
@@ -174,6 +180,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
+  max-width: 320px;
 }
 
 .current-user .edit {
