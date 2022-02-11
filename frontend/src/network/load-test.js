@@ -106,10 +106,10 @@ export function getSharePerformanceReportLogResource(shareId, reportId, callback
 }
 
 export function getPerformanceReportLogResourceDetail(reportId, resourceId, pageInfo, callback) {
-  return reportId ? baseGet('/performance/report/log/' + reportId + '/' + resourceId + "/" + pageInfo, callback) : {};
+  return reportId ? baseGet('/share/performance/report/log/' + reportId + '/' + resourceId + "/" + pageInfo, callback) : {};
 }
 export function getSharePerformanceReportLogResourceDetail(shareId, reportId, resourceId, pageInfo, callback) {
-  return reportId ? baseGet('/performance/report/log/' + shareId + '/' + reportId + '/' + resourceId + "/" + pageInfo, callback) : {};
+  return reportId ? baseGet('/share/performance/report/log/' + shareId + '/' + reportId + '/' + resourceId + "/" + pageInfo, callback) : {};
 }
 
 export function getPerformanceMetricQueryResource(resourceId, callback) {

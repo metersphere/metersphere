@@ -161,7 +161,7 @@ export default {
         }
         let status = val.status;
         this.id = val.id;
-        if (status === "Running") {
+        if (status === "Completed" || status === "Running") {
           this.getResource();
         }
       },
