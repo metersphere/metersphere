@@ -1,6 +1,7 @@
 export default {
   commons: {
     project_permission: 'Please add the project permission first',
+    no_permission:'No permission yet',
     failure_continues: "Failure continues",
     full_screen_editing: "Full screen editing",
     trash: "Trash",
@@ -861,6 +862,7 @@ export default {
     select_type: 'please select type',
     view_permission: 'view permission',
     system: 'System',
+    personal: 'Personal Information',
     organization: 'Organization',
     workspace: 'Workspace',
     project: 'Project',
@@ -3001,6 +3003,13 @@ export default {
       upload: "UPLOAD",
       delete: "DELETE",
       read: "READ",
+    },
+    personal_information:{
+      name:'Setting',
+      personal_setting: 'Personal Setting',
+      api_keys: 'API Keys',
+      edit_password: "EDIT PASSWORD",
+      third_account: 'Third Account',
     },
     other: {
       track: "Track",

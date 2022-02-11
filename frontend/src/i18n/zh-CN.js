@@ -1,6 +1,7 @@
 export default {
   commons: {
     project_permission: '请先添加该项目权限',
+    no_permission:'暂无权限',
     failure_continues: "失败继续",
     full_screen_editing: "全屏编辑",
     trash: "回收站",
@@ -865,6 +866,7 @@ export default {
     admin_not_allow_delete: '系统用户组不支持删除!',
     select_type: '请选择所属类型',
     system: '系统',
+    personal: '个人信息',
     organization: '组织',
     workspace: '工作空间',
     project: '项目',
@@ -3006,12 +3008,19 @@ export default {
       delete: "删除",
       read: "查看脚本",
     },
+    personal_information:{
+      name:'设置',
+      personal_setting: '个人设置',
+      api_keys: 'API Keys',
+      edit_password: "修改密码",
+      third_account: '第三方平台账号',
+    },
     other: {
       track: "测试跟踪",
       api: "接口测试",
       performance: "性能测试",
       project: "项目设置",
-      report: "报表统计"
+      report: "报表统计",
     }
   },
   env_options: {

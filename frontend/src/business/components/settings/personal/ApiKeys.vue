@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-card class="table-card">
+    <el-card class="table-card" v-permission="['PERSONAL_INFORMATION:READ+API_KEYS']">
       <template v-slot:header>
         <div>
           <el-row class="table-title" type="flex" justify="space-between" align="middle">
@@ -66,21 +66,14 @@
         </el-table-column>
       </el-table>
     </el-card>
-<!--    <el-dialog title="Secret Key" :visible.sync="apiKeysVisible">
-      <div class="variable">
-        {{ currentRow.secretKey }}
-        <el-tooltip :content="$t('api_test.copied')" manual v-model="currentRow.visible2" placement="top"
-                    :visible-arrow="false">
-          <i class="el-icon-copy-document copy" @click="copy(currentRow, 'secretKey', 'visible2')"/>
-        </el-tooltip>
-      </div>
-    </el-dialog>-->
+    <div v-if="!isShowText" style="width: 6%;margin: auto">{{$t('commons.no_permission')}}</div>
+
   </div>
 </template>
 
 <script>
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {getCurrentUser} from "../../../../common/js/utils";
+import {getCurrentUser, hasPermission} from "../../../../common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import MsTableHeader from "../../common/components/MsTableHeader";
 
@@ -90,6 +83,7 @@ export default {
   data() {
     return {
       result: {},
+      isShowText:false,
       updateVisible: false,
       editPasswordVisible: false,
       apiKeysVisible: false,
@@ -100,6 +94,7 @@ export default {
   },
 
   created() {
+    this.isShowText = hasPermission('PERSONAL_INFORMATION:READ+API_KEYS');
     this.search();
   },
 

@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
     <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
-             ref="updateUserForm">
+             ref="updateUserForm" v-permission="['PERSONAL_INFORMATION:READ+EDIT']">
       <el-form-item label="ID" prop="id">
         <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
       </el-form-item>
@@ -14,21 +14,12 @@
       <el-form-item :label="$t('commons.phone')" prop="phone">
         <el-input v-model="form.phone" autocomplete="off"/>
       </el-form-item>
-<!--      <el-form-item label="所属工作空间" v-if="workspaceList.length>0">
-        <span v-for="(item,index) in workspaceList" :key = item.id >
-          <span>{{item.name}}</span><span v-if="index<workspaceList.length-1"> | </span>
-        </span>
-      </el-form-item>
-      <el-form-item label="所属工作项目" v-if ="projectList.length>0">
-        <span v-for="(item,index) in projectList" :key = item.id >
-          <span>{{item.name}}</span><span v-if="index<projectList.length-1"> | </span>
-        </span>
-      </el-form-item>-->
       <el-form-item>
         <el-button @click="cancel">{{$t('commons.cancel')}}</el-button>
         <el-button type="primary" @click="updateUser('updateUserForm')" @keydown.enter.native.prevent>{{$t('commons.confirm')}}</el-button>
       </el-form-item>
     </el-form>
+    <div  v-if="!isShowText" style="width: 6%;margin: auto">{{$t('commons.no_permission')}}</div>
   </div>
 </template>
 
@@ -38,7 +29,7 @@ import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
   fullScreenLoading, getCurrentProjectID,
   getCurrentUser,
-  getCurrentWorkspaceId,
+  getCurrentWorkspaceId, hasPermission,
   listenGoBack,
   removeGoBackListener, saveLocalStorage, stopFullScreenLoading
 } from "@/common/js/utils";
@@ -67,6 +58,7 @@ export default {
     return {
       result: {},
       isLocalUser: false,
+      isShowText:false,
       updatePath: '/user/update/current',
       ruleForm: {},
       rule: {
@@ -101,7 +93,7 @@ export default {
   },
 
   created() {
-
+    this.isShowText = hasPermission('PERSONAL_INFORMATION:READ+EDIT');
   },
   methods: {
     currentUser: () => {
