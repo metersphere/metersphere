@@ -1828,6 +1828,7 @@ export default {
         swagger_schedule: "swagger",
         confirm: {
           close_title: "要关闭这条定时任务吗？",
+          open_title: "要开启这条定时任务吗？",
         }
       }
     },
@@ -2109,6 +2110,11 @@ export default {
       test_plan_load_case_count: "性能用例数",
       test_plan_component_case_count: "步骤用例数",
       data_name: "数据名称",
+      test_plan_batch_switch: "批量开/关定时任务",
+      batch_update_schedule_enable: '更新{0}个测试计划的定时任务状态为',
+      batch_update_schedule_enable_alert: '注意：只能更新已设置了定时任务的测试计划',
+      next_run_time: '下次运行时间',
+      schedule_enabled: '已开启',
       load_case: {
         case: "性能用例",
         execution_status: "执行状态",

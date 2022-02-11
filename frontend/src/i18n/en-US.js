@@ -1823,6 +1823,7 @@ export default {
         swagger_schedule: "swagger",
         confirm: {
           close_title: "Do you want to close this scheduled task？",
+          open_title: "Do you want to start this scheduled task?？",
         }
       }
     },
@@ -2109,6 +2110,11 @@ export default {
       test_plan_load_case_count: "Load case count",
       test_plan_component_case_count: "Component Case Count",
       data_name: "Data Name",
+      test_plan_batch_switch: "batch on/off scheduled tasks",
+      batch_update_schedule_enable: 'update the scheduled task status of {0} test plans',
+      batch_update_schedule_enable_alert: 'note: only test plans with scheduled tasks can be updated',
+      next_run_time: 'next running time',
+      schedule_enabled: 'enabled',
       load_case: {
         case: "Load Case",
         execution_status: "Execution status",
