@@ -943,6 +943,30 @@
       "name": "permission.project_error_report_library.delete",
       "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
       "license": true
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+EDIT",
+      "name": "permission.personal_information.personal_setting",
+      "resourceId": "PERSONAL_INFORMATION",
+      "license": true
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+API_KEYS",
+      "name": "permission.personal_information.api_keys",
+      "resourceId": "PERSONAL_INFORMATION",
+      "license": true
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+EDIT_PASSWORD",
+      "name": "permission.personal_information.edit_password",
+      "resourceId": "PERSONAL_INFORMATION",
+      "license": true
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+THIRD_ACCOUNT",
+      "name": "permission.personal_information.third_account",
+      "resourceId": "PERSONAL_INFORMATION",
+      "license": true
     }
   ],
   "resource": [
@@ -1101,5 +1125,10 @@
       "id": "SYSTEM_PLUGIN",
       "name": "permission.system_plugin.name"
     },
+    {
+      "id": "PERSONAL_INFORMATION",
+      "name": "permission.personal_information.name",
+      "license": true
+    }
   ]
 }

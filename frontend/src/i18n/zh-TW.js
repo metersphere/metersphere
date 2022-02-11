@@ -1,6 +1,7 @@
 export default {
   commons: {
     project_permission: '請先添加該項目權限',
+    no_permission:'暫無權限',
     failure_continues: "失敗繼續",
     full_screen_editing: "全屏編輯",
     trash: "回收站",
@@ -865,6 +866,7 @@ export default {
     admin_not_allow_delete: '系統用戶組不支持刪除!',
     select_type: '請選擇所屬類型',
     system: '系統',
+    personal: '個人信息',
     organization: '組織',
     workspace: '工作空間',
     project: '項目',
@@ -2998,6 +3000,13 @@ export default {
       upload: "點擊上傳",
       delete: "刪除",
       read: "查看腳本",
+    },
+    personal_information:{
+      name:'設置',
+      personal_setting: '個人設置',
+      api_keys: 'API Keys',
+      edit_password: "修改密碼",
+      third_account: '第三方平臺賬號',
     },
     other: {
       track: "測試跟蹤",
