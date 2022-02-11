@@ -458,7 +458,7 @@ export default {
       if (this.stageOption.length > 0) {
         this.stageFilters = this.stageOption;
         this.stageFilters.forEach((stage) => {
-          if (stage.system != null && stage.system) {
+          if (stage.system !== null && stage.system) {
             stage.text = this.$t(stage.text);
           }
         })
@@ -561,7 +561,7 @@ export default {
       let size = 0;
       let row = this.$refs.testPlanLitTable.selectRows.size;
       this.$refs.testPlanLitTable.selectRows.forEach((item) => {
-        if (item.scheduleStatus != null && item.scheduleStatus != 'NOTSET') {
+        if (item.scheduleStatus !== null && item.scheduleStatus !== 'NOTSET') {
           param.push(item.scheduleId);
           size++;
         }
