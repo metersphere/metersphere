@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="result.loading">
+  <div>
     <el-card class="table-card">
       <template v-slot:header>
         <div style="font-size: 16px;margin-bottom: 20px;margin-left: 10px">
@@ -86,7 +86,7 @@
         </div>
       </template>
       <el-table border class="adjust-table" :data="tableData" ref="operLog"
-                :height="screenHeight">
+                :height="screenHeight" v-loading="loading">
         <el-table-column prop="operTime" :label="$t('operating_log.time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.operTime | timestampFormatDate }}</span>
@@ -159,6 +159,7 @@ export default {
         LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
         LOG_MODULE_MAP: new LOG_MODULE_MAP(this),
         sysList:new SYSLIST(),
+        loading: false
       }
     },
     mounted() {
@@ -269,11 +270,11 @@ export default {
           this.condition.operModule = this.condition.operModules[1];
         }
         let url = "/operating/log/list/" + this.currentPage + "/" + this.pageSize;
-        this.result.loading = true;
+        this.loading = true;
         this.$post(url, this.condition, response => {
           this.tableData = response.data.listObject;
           this.total = response.data.itemCount;
-          this.result.loading = false;
+          this.loading = false;
         })
 
       },

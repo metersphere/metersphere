@@ -255,6 +255,7 @@ export default {
         }
         this.taskID = paramTestId;
         this.findSchedule(paramTestId);
+        this.$emit("refreshTable");
       });
     },
     initUserList() {

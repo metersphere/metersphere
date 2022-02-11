@@ -78,7 +78,6 @@ public class MsLogAspect {
             Object[] args = joinPoint.getArgs();
             MsAuditLog msLog = method.getAnnotation(MsAuditLog.class);
             if (msLog != null && StringUtils.isNotEmpty(msLog.beforeEvent())) {
-                // 操作内容
                 //获取方法参数名
                 String[] params = discoverer.getParameterNames(method);
                 //将参数纳入Spring管理
@@ -107,7 +106,7 @@ public class MsLogAspect {
                 }
             }
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error("操作日志写入异常：" + joinPoint.getSignature());
         }
     }
 
@@ -201,7 +200,7 @@ public class MsLogAspect {
                         }
                         if (StringUtils.isNotEmpty(content) && StringUtils.isNotEmpty(msLog.beforeValue())) {
                             OperatingLogDetails details = JSON.parseObject(content, OperatingLogDetails.class);
-                            List<DetailColumn> columns = ReflexObjectUtil.compared(JSON.parseObject(msLog.beforeValue(), OperatingLogDetails.class), details,msLog.module());
+                            List<DetailColumn> columns = ReflexObjectUtil.compared(JSON.parseObject(msLog.beforeValue(), OperatingLogDetails.class), details, msLog.module());
                             details.setColumns(columns);
                             msOperLog.setOperContent(JSON.toJSONString(details));
                             msOperLog.setSourceId(details.getSourceId());
@@ -256,17 +255,14 @@ public class MsLogAspect {
                 }
 
                 String path = request.getServletPath();
-                if (StringUtils.isNotEmpty(msOperLog.getSourceId()) && msOperLog.getSourceId().length() > 6000) {
-                    msOperLog.setSourceId(msOperLog.getSourceId().substring(0, 5999));
-                }
                 if (StringUtils.isNotEmpty(msOperLog.getOperTitle()) && msOperLog.getOperTitle().length() > 6000) {
                     msOperLog.setOperTitle(msOperLog.getOperTitle().substring(0, 5999));
                 }
                 msOperLog.setOperPath(path);
-                operatingLogService.create(msOperLog);
+                operatingLogService.create(msOperLog, msOperLog.getSourceId());
             }
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error("操作日志写入异常：" + joinPoint.getSignature());
         }
     }
 }

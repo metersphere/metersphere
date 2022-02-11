@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
@@ -55,6 +56,10 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.quartz.CronExpression;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -431,6 +436,18 @@ public class TestPlanService {
             TestPlanReportExample example = new TestPlanReportExample();
             example.createCriteria().andTestPlanIdEqualTo(item.getId());
             item.setExecutionTimes((int) testPlanReportMapper.countByExample(example));
+            if (StringUtils.isNotBlank(item.getScheduleId())) {
+                if (item.isScheduleOpen()) {
+                    item.setScheduleStatus(ScheduleStatus.OPEN.name());
+                    Schedule schedule = scheduleService.getScheduleByResource(item.getId(), ScheduleGroup.TEST_PLAN_TEST.name());
+                    item.setScheduleCorn(schedule.getValue());
+                    item.setScheduleExecuteTime(getNextTriggerTime(schedule.getValue()));
+                } else {
+                    item.setScheduleStatus(ScheduleStatus.SHUT.name());
+                }
+            } else {
+                item.setScheduleStatus(ScheduleStatus.NOTSET.name());
+            }
         });
         calcTestPlanRate(testPlans);
         return testPlans;
@@ -1982,5 +1999,24 @@ public class TestPlanService {
             customFields = customFieldMapper.selectByExampleWithBLOBs(example);
         }
         return JSONArray.parseArray(customFields.get(0).getOptions());
+    }
+
+    public void batchUpdateScheduleEnable(ScheduleInfoRequest request) {
+        for (String id : request.getTaskIds()) {
+            Schedule schedule = scheduleService.getSchedule(id);
+            schedule.setEnable(request.isEnable());
+            apiAutomationService.updateSchedule(schedule);
+        }
+    }
+
+    //获取下次执行时间（getFireTimeAfter，也可以下下次...）
+    private static long getNextTriggerTime(String cron) {
+        if (!CronExpression.isValidExpression(cron)) {
+            return 0;
+        }
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Caclulate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
+        Date time0 = trigger.getStartTime();
+        Date time1 = trigger.getFireTimeAfter(time0);
+        return time1.getTime();
     }
 }

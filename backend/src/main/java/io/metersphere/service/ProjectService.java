@@ -120,6 +120,11 @@ public class ProjectService {
         if (projectMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("project_name_already_exists"));
         }
+
+        if (project.getMockTcpPort() != null && project.getMockTcpPort().intValue() > 0) {
+            this.checkMockTcpPort(project.getMockTcpPort().intValue());
+        }
+
         if (StringUtils.isBlank(project.getPlatform())) {
             project.setPlatform(IssuesManagePlatform.Local.name());
         }

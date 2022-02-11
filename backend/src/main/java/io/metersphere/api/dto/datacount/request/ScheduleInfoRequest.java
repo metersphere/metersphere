@@ -3,6 +3,8 @@ package io.metersphere.api.dto.datacount.request;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * @author song.tianyang
  * @Date 2020/12/17 5:04 下午
@@ -13,4 +15,5 @@ import lombok.Setter;
 public class ScheduleInfoRequest {
     private String taskID;
     private boolean enable;
+    private List<String> taskIds;
 }
