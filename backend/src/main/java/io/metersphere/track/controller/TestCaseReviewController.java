@@ -21,7 +21,6 @@ import io.metersphere.track.dto.TestReviewDTOWithMetric;
 import io.metersphere.track.request.testreview.*;
 import io.metersphere.track.service.TestCaseCommentService;
 import io.metersphere.track.service.TestCaseReviewService;
-import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestReviewProjectService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -157,7 +156,7 @@ public class TestCaseReviewController {
     @PostMapping("/comment/save")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestCase(#request.caseId)", targetClass = TestCaseService.class,
+    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReview(#request.reviewId)", targetClass = TestCaseReviewService.class,
             event = NoticeConstants.Event.COMMENT, mailTemplate = "track/TestCaseComment", subject = "测试评审通知")
     public TestCaseComment saveComment(@RequestBody SaveCommentRequest request) {
         request.setId(UUID.randomUUID().toString());

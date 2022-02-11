@@ -191,10 +191,6 @@ export default {
           value:'name',
         },
         {
-          label:this.$t('commons.create_user'),
-          value:'creator',
-        },
-        {
           label:this.$t('commons.status'),
           value:'status',
         },
