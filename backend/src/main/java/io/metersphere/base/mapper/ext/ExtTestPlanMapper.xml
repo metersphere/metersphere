@@ -103,7 +103,7 @@
             </include>
         </if>
         <if test="${condition}.principal != null">
-            and test_plan.id in (SELECT test_plan_id FROM test_plan_principal  WHERE principal_id
+            and test_plan.id in (SELECT test_plan_id FROM test_plan_principal WHERE principal_id
             <include refid="condition">
                 <property name="object" value="${condition}.principal"/>
             </include>
@@ -114,8 +114,8 @@
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         select DISTINCT test_plan.*, project.name as projectName,schedule.id as scheduleId,
-                        (select name from user where user.id = test_plan.creator) as createUser,
-            IF(schedule.enable = true,true,false) as scheduleOpen,
+        (select name from user where user.id = test_plan.creator) as createUser,
+        IF(schedule.enable = true,true,false) as scheduleOpen,
         (select COUNT(*) from test_plan_test_case t
         inner join test_case on t.case_id = test_case.id
         left join test_case_node on test_case_node.id = test_case.node_id
@@ -176,27 +176,43 @@
                             <when test="key=='status'">
                                 <choose>
                                     <when test="request.executorOrPrincipal != null">
-                                        AND (( test_plan_principal.principal_id  = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
-                                                test_plan.status in
-                                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                                    #{value}
-                                                </foreach>
-                                               )
-                                               or
-                                                (test_plan_test_case.executor = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
-                                                    test_plan_test_case.status in
-                                                    <foreach collection="values" item="value" separator="," open="(" close=")">
-                                                        #{value}
-                                                    </foreach>
-                                                ))
+                                        AND (( test_plan_principal.principal_id =
+                                        '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
+                                        test_plan.status in
+                                        <foreach collection="values" item="value" separator="," open="(" close=")">
+                                            #{value}
+                                        </foreach>
+                                        )
+                                        or
+                                        (test_plan_test_case.executor =
+                                        '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
+                                        test_plan_test_case.status in
+                                        <foreach collection="values" item="value" separator="," open="(" close=")">
+                                            #{value}
+                                        </foreach>
+                                        ))
                                     </when>
-                                    <otherwise >
+                                    <otherwise>
                                         and test_plan.status in
                                         <foreach collection="values" item="value" separator="," open="(" close=")">
                                             #{value}
                                         </foreach>
                                     </otherwise>
                                 </choose>
+                            </when>
+                            <when test="key=='schedule_status'">
+                                and
+                                <foreach collection="values" item="value" separator="or" open="(" close=")">
+                                    <if test="value == 'OPEN'">
+                                        schedule.`enable` = 1
+                                    </if>
+                                    <if test="value == 'SHUT'">
+                                        schedule.`enable` = 0
+                                    </if>
+                                    <if test="value == 'NOTSET' ">
+                                        schedule.id is null
+                                    </if>
+                                </foreach>
                             </when>
                         </choose>
                     </if>
@@ -277,14 +293,17 @@
             <foreach collection="projectIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
-        </if>) as temp
+        </if>
+        ) as temp
     </select>
 
-    <select id="selectTestPlanByRelevancy" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
+    <select id="selectTestPlanByRelevancy" resultMap="BaseResultMap"
+            parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         SELECT * FROM test_plan p
         <where>
             <if test="request.scenarioId != null">
-                AND p.id IN (SELECT test_plan_id FROM test_plan_api_scenario WHERE api_scenario_id = #{request.scenarioId} )
+                AND p.id IN (SELECT test_plan_id FROM test_plan_api_scenario WHERE api_scenario_id =
+                #{request.scenarioId} )
             </if>
             <if test="request.apiId != null">
                 AND p.id IN (SELECT test_plan_id FROM test_plan_api_case WHERE api_case_id = #{request.apiId})
@@ -295,18 +314,24 @@
         </where>
     </select>
     <select id="findTestProjectNameByTestPlanID" resultType="java.lang.String">
-        SELECT p.name FROM test_plan tp INNER JOIN project p ON p.id =tp.project_id
-        WHERE tp.id = #{0} limit 1;
+        SELECT p.name
+        FROM test_plan tp
+                 INNER JOIN project p ON p.id = tp.project_id
+        WHERE tp.id = #{0}
+        limit 1;
     </select>
     <select id="findScheduleCreateUserById" resultType="java.lang.String">
-        SELECT user_id FROM `schedule`
+        SELECT user_id
+        FROM `schedule`
         WHERE resource_id = #{0}
         limit 1;
     </select>
 
     <select id="findIdByPerformanceReportId" resultType="java.lang.String">
-        SELECT report.id FROM test_plan_report report INNER JOIN test_plan_report_data reportData ON report.id = reportData.test_plan_report_id
-        WHERE reportData.performance_info like CONCAT('%', #{0},'%')
+        SELECT report.id
+        FROM test_plan_report report
+                 INNER JOIN test_plan_report_data reportData ON report.id = reportData.test_plan_report_id
+        WHERE reportData.performance_info like CONCAT('%', #{0}, '%')
           AND report.is_performance_executing = true;
     </select>
     <select id="listRecent" resultType="io.metersphere.base.domain.TestPlan">
@@ -316,7 +341,7 @@
             <if test="projectId != null">
                 and test_plan.project_id = #{projectId}
             </if>
-            and (test_plan.creator = #{userId}  or test_plan.principal = #{userId})
+            and (test_plan.creator = #{userId} or test_plan.principal = #{userId})
         </where>
         order by test_plan.update_time desc
     </select>

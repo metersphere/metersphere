@@ -277,4 +277,9 @@ public class TestPlanController {
     public List<User> getPlanFollow(@PathVariable String planId) {
         return testPlanService.getPlanFollow(planId);
     }
+
+    @PostMapping(value = "/schedule/Batch/updateEnable")
+    public void updateBatchScheduleEnable(@RequestBody ScheduleInfoRequest request) {
+        testPlanService.batchUpdateScheduleEnable(request);
+    }
 }
