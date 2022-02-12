@@ -991,6 +991,7 @@ export default {
     ramp_up_time_within: 'In',
     ramp_up_time_minutes: 'seconds, separate',
     ramp_up_time_seconds: 'seconds add VUs',
+    ramp_up_tips: 'The RampUp is too large, the chart rendering will not be displayed, this does not affect the test execution, please refer to the actual results',
     iterate_num: 'Iterations',
     by_iteration: 'By iterations',
     by_duration: 'By duration',
