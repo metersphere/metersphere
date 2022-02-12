@@ -393,7 +393,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
       </Arguments>
          */
 
-        Element element = ele.addElement(ARGUMENTS);
+        Element element = hashTree.addElement(ARGUMENTS);
         element.addAttribute("guiclass", "ArgumentsPanel");
         element.addAttribute("testclass", "Arguments");
         element.addAttribute("testname", "User Defined Variables");
