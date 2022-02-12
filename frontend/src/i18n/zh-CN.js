@@ -998,6 +998,7 @@ export default {
     ramp_up_time_within: '在',
     ramp_up_time_minutes: '秒内，分',
     ramp_up_time_seconds: '秒内增加并发用户',
+    ramp_up_tips: 'RampUp 过大，图表渲染卡顿不予展示，这并不影响测试执行，请以实际结果为准',
     iterate_num: '迭代次数',
     by_iteration: '按迭代次数',
     by_duration: '按持续时间',
