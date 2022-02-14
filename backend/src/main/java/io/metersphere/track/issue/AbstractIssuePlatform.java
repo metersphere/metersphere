@@ -396,6 +396,27 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         });
     }
 
+    protected Object getSyncJsonParamValue(Object value) {
+        JSONObject valObj = ((JSONObject) value);
+        String accountId = valObj.getString("accountId");
+        JSONObject child = valObj.getJSONObject("child");
+        if (child != null) {// 级联框
+            List<Object> values = new ArrayList<>();
+            if (StringUtils.isNotBlank(valObj.getString("id")))  {
+                values.add(valObj.getString("id"));
+            }
+            if (StringUtils.isNotBlank(child.getString("id")))  {
+                values.add(child.getString("id"));
+            }
+            return values;
+        } else if (StringUtils.isNotBlank(accountId) && isThirdPartTemplate) {
+            // 用户选择框
+            return accountId;
+        } else {
+            return valObj.getString("id");
+        }
+    }
+
     protected String syncIssueCustomField(String customFieldsStr, JSONObject issue) {
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
         Set<String> names = issue.keySet();
@@ -404,31 +425,12 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             Object value = issue.get(fieldName);
             if (value != null) {
                if (value instanceof JSONObject) {
-                   JSONObject valObj = ((JSONObject) value);
-                   String accountId = valObj.getString("accountId");
-                   JSONObject child = valObj.getJSONObject("child");
-                   if (child != null) {// 级联框
-                       List<Object> values = new ArrayList<>();
-                       if (StringUtils.isNotBlank(valObj.getString("id")))  {
-                           values.add(valObj.getString("id"));
-                       }
-                       if (StringUtils.isNotBlank(child.getString("id")))  {
-                           values.add(child.getString("id"));
-                       }
-                       item.setValue(values);
-                   } else if (StringUtils.isNotBlank(accountId)) {
-                       // 用户选择框
-                       if (isThirdPartTemplate) {
-                           item.setValue(accountId);
-                       }
-                    } else {
-                       item.setValue(valObj.getString("id"));
-                    }
+                   item.setValue(getSyncJsonParamValue(value));
                 } else if (value instanceof JSONArray) {
                     List<Object> values = new ArrayList<>();
                     ((JSONArray)value).forEach(attr -> {
                         if (attr instanceof JSONObject) {
-                            values.add(((JSONObject)attr).getString("id"));
+                            values.add(getSyncJsonParamValue(attr));
                         } else {
                             values.add(attr);
                         }
