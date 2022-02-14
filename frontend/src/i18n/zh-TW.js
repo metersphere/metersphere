@@ -1407,7 +1407,9 @@ export default {
       request_timeout: "鏈接超時",
       response_timeout: "響應超時",
       repeat_warning: "啟用條件為 '無' 的域名已經存在！",
-      copy_warning: "啟用條件為 '無' 的域名不支持複製！"
+      copy_warning: "啟用條件為 '無' 的域名不支持複製！",
+      path_warning: "路徑不能為空",
+      module_warning: "模塊不能為空"
     },
     scenario: {
       id: "場景ID",
