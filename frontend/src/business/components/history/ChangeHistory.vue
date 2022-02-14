@@ -87,7 +87,7 @@ export default {
             // 不显示的节点 id
             let ids = [];
             for(let i=0; i<data.length; i++){
-              if(data[i].details.columns.findIndex(d => (d.diffValue === null || d.diffValue === '' || d.diffValue === undefined)) !== -1){
+              if(data[i].details.columns.findIndex(d => (d.diffValue === null || d.diffValue === '')) !== -1){
                 ids.push(data[i].id);
                 continue;
               }
