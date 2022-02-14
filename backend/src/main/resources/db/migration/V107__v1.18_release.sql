@@ -52,6 +52,46 @@ DELIMITER ;
 CALL test_personal();
 DROP PROCEDURE IF EXISTS test_personal;
 
+
+DROP PROCEDURE IF EXISTS project_appl;
+DELIMITER //
+CREATE PROCEDURE project_appl()
+BEGIN
+    #声明结束标识
+    DECLARE end_flag int DEFAULT 0;
+
+    DECLARE projectId varchar(64);
+
+    #声明游标 group_curosr
+    DECLARE project_curosr CURSOR FOR SELECT DISTINCT id FROM project;
+
+    #设置终止标志
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET end_flag=1;
+
+    #打开游标
+    OPEN project_curosr;
+
+    #遍历游标
+    REPEAT
+        #获取当前游标指针记录，取出值赋给自定义的变量
+        FETCH project_curosr INTO projectId;
+        #利用取到的值进行数据库的操作
+        INSERT INTO project_application (project_id, type, share_report_expr)
+        VALUES (projectId, 'TRACK', '24H'),
+               (projectId, 'PERFORMANCE', '24H');
+        # 根据 end_flag 判断是否结束
+    UNTIL end_flag END REPEAT;
+
+    #关闭游标
+    close project_curosr;
+
+END
+//
+DELIMITER ;
+
+CALL project_appl();
+DROP PROCEDURE IF EXISTS project_appl;
+
 ALTER TABLE api_definition_exec_result
     ADD project_id varchar(50);
 

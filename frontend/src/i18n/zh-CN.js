@@ -234,6 +234,7 @@ export default {
     follow_success: "关注成功",
     cancel_follow_success: "取消关注成功",
     type: "类型",
+    validity_period:'有效期',
     please_select_a_deadline: "请选择截止时间",
     relationship: {
       name: '依赖关系',
@@ -899,6 +900,7 @@ export default {
     api_test_report: '接口测试报告',
     load_test_report: '性能测试报告',
     test_plan_report: '测试计划报告',
+    report_sharing_link:'报告分享链接',
     recent: '我最近的报告',
     search_by_name: '根据名称搜索',
     batch_add_monitor_tips: '格式：名称,IP,Port,描述<br/>如：项目1,192.168.1.52,9100,测试',
