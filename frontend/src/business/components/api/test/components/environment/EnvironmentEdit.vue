@@ -5,6 +5,10 @@
       <el-form-item prop="name" :label="$t('api_test.environment.name')">
         <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')"
                   clearable/>
+        <ms-dialog-header class="ms-opt-btn"
+          :btn-size="'medium'"
+          @cancel="cancel"
+          @confirm="save()"/>
       </el-form-item>
 
 
@@ -30,7 +34,7 @@
                                        :is-read-only="isReadOnly"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="prescript">
-          <div style="padding-bottom: 20px;">
+          <div style="padding-bottom: 20px;" v-if="!ifCreate">
             <el-link style="float: right;" type="primary" @click="openHis">
               {{ $t('operating_log.change_history') }}
             </el-link>
@@ -47,7 +51,7 @@
             @updateGlobalScript="updateGlobalScript"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_post_script')" name="postscript">
-          <div style="padding-bottom: 20px;">
+          <div style="padding-bottom: 20px;" v-if="!ifCreate">
             <el-link style="float: right;" type="primary" @click="openHis">
               {{ $t('operating_log.change_history') }}
             </el-link>
@@ -135,6 +139,10 @@ export default {
     environment: new Environment(),
     projectId: String,
     isReadOnly: {
+      type: Boolean,
+      default: false
+    },
+    ifCreate: {
       type: Boolean,
       default: false
     },
@@ -382,20 +390,11 @@ export default {
 
 <style scoped>
 
-.el-main {
-  border: solid 1px #EBEEF5;
-  margin-left: 200px;
-  min-height: 400px;
-  max-height: 550px;
-}
-
-.el-row {
-  margin-bottom: 15px;
-}
-
-.environment-footer {
-  margin-top: 15px;
-  float: right;
+.ms-opt-btn {
+  position: fixed;
+  right: 290px;
+  z-index: 10;
+  top: 80px;
 }
 
 span {

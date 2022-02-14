@@ -63,11 +63,6 @@
 
     <!-- 创建、编辑、复制环境时的对话框 -->
     <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :title="dialogTitle" top="50px" width="66%">
-      <ms-dialog-header
-        style="margin-bottom: 10px; float: right;"
-        :btn-size="'medium'"
-        @cancel="close"
-        @confirm="save()"/>
       <el-form label-width="80px" :rules="rules" style="display: flow-root">
         <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
           <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
@@ -75,7 +70,7 @@
           </el-select>
         </el-form-item>
       </el-form>
-      <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close"
+      <environment-edit :if-create="ifCreate" :environment="currentEnvironment" ref="environmentEdit" @close="close"
                         :project-id="currentProjectId" @refreshAfterSave="refresh">
       </environment-edit>
     </el-dialog>
@@ -196,7 +191,8 @@ export default {
         {
           name: this.$t('workspace.env_group.batch_add_to_ws'), handleClick: this.batchAddToGroup
         },
-      ]
+      ],
+      ifCreate: false, //是否是创建环境
     };
   },
   created() {
@@ -301,6 +297,7 @@ export default {
       this.currentProjectId = '';
       this.dialogTitle = this.$t('api_test.environment.create');
       this.dialogVisible = true;
+      this.ifCreate = true;
       this.currentEnvironment = new Environment();
     },
     search() {
@@ -314,6 +311,7 @@ export default {
       parseEnvironment(temEnv);   //parseEnvironment会改变环境对象的内部结构，从而影响前端列表的显示，所以复制一个环境对象作为代替
       this.currentEnvironment = temEnv;
       this.dialogVisible = true;
+      this.ifCreate = false;
     },
     save(){
       this.$refs.environmentEdit.save();
