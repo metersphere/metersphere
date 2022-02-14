@@ -199,7 +199,7 @@ export default {
       });
     },
     openHis() {
-      this.$refs.changeHistory.open(this.test.id, ["性能测试", "性能測試", "Performance test"]);
+      this.$refs.changeHistory.open(this.test.id, ["性能测试", "性能測試", "Performance test", "PERFORMANCE_TEST"]);
     },
     importAPITest() {
       let apiTest = this.$store.state.test;
