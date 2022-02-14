@@ -524,6 +524,13 @@ public class JiraPlatform extends AbstractIssuePlatform {
             } else if (customType.contains("userpicker")) {
                 value = CustomFieldType.SELECT.getValue();
                 customFieldDao.setOptions(userOptions);
+            } else if (customType.contains("people")) {
+                if (StringUtils.isNotBlank(schema.getType()) && StringUtils.equals(schema.getType(), "array")) {
+                    value = CustomFieldType.MULTIPLE_SELECT.getValue();
+                } else {
+                    value = CustomFieldType.SELECT.getValue();
+                }
+                customFieldDao.setOptions(userOptions);
             } else if (customType.contains("multicheckboxes")) {
                 value = CustomFieldType.CHECKBOX.getValue();
                 customFieldDao.setDefaultValue(JSONObject.toJSONString(new ArrayList<>()));
