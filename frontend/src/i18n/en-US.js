@@ -1402,7 +1402,9 @@ export default {
       request_timeout: "Request Timeout",
       response_timeout: "Response Timeout",
       repeat_warning: "The domain name whose activation condition is'None' already exists!",
-      copy_warning: "Domain names whose enabling conditions are'none' do not support copying!"
+      copy_warning: "Domain names whose enabling conditions are'none' do not support copying!",
+      path_warning: "The path cannot be empty",
+      module_warning: "The path cannot be empty"
     },
     scenario: {
       id: "Scenario ID",
