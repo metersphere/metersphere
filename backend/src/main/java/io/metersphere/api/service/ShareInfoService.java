@@ -15,6 +15,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+
+import static io.metersphere.api.service.utils.ShareUtill.getTimeMills;
 
 /**
  * @author song.tianyang
@@ -44,6 +47,8 @@ public class ShareInfoService {
     TestPlanScenarioCaseService testPlanScenarioCaseService;
     @Resource
     TestPlanReportMapper testPlanReportMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     public List<ApiDocumentInfoDTO> findApiDocumentSimpleInfoByRequest(ApiDocumentRequest request) {
         if (this.isParamLegitimacy(request)) {
@@ -510,8 +515,33 @@ public class ShareInfoService {
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void validateExpired(ShareInfo shareInfo) {
-        // 有效期24小时
-        if (shareInfo == null || System.currentTimeMillis() - shareInfo.getUpdateTime() > 1000 * 60 * 60 * 24) {
+        // 有效期根据类型从ProjectApplication中获取
+        if(shareInfo == null ){
+            MSException.throwException("连接已失效，请重新获取!");
+        }
+        String type = "";
+        if(shareInfo.getShareType().equals("PERFORMANCE_REPORT")){
+            type = "PERFORMANCE";
+        }
+        if(shareInfo.getShareType().equals("PLAN_DB_REPORT")){
+            type = "TRACK";
+        }
+        if(StringUtils.isBlank(type)){
+            millisCheck(shareInfo,1000 * 60 * 60 * 24);
+        }else{
+            ProjectApplication projectApplication = projectApplicationService.getProjectApplication(SessionUtils.getCurrentProjectId(),type);
+            if(projectApplication.getProjectId()==null){
+                millisCheck(shareInfo,1000 * 60 * 60 * 24);
+            }else {
+                String expr= projectApplication.getShareReportExpr();
+                long timeMills = getTimeMills(expr);
+                millisCheck(shareInfo,timeMills);
+            }
+        }
+    }
+
+    private void millisCheck(ShareInfo shareInfo, long millis) {
+        if (System.currentTimeMillis() - shareInfo.getUpdateTime() > millis) {
             shareInfoMapper.deleteByPrimaryKey(shareInfo.getId());
             MSException.throwException("连接已失效，请重新获取!");
         }
