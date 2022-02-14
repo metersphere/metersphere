@@ -692,25 +692,52 @@ public class MockApiUtils {
         return returnCondition;
     }
 
-    public static boolean checkParamsCompliance(JSONObject queryParamsObj, List<MockConfigRequestParams> mockConfigRequestParamList) {
-        if (CollectionUtils.isNotEmpty(mockConfigRequestParamList)) {
-            for (MockConfigRequestParams params : mockConfigRequestParamList) {
-                String key = params.getKey();
-                if (queryParamsObj.containsKey(key)) {
-                    boolean isMatch = MockApiUtils.isValueMatch(String.valueOf(queryParamsObj.get(key)), params);
-                    if (!isMatch) {
+    public static boolean checkParamsCompliance(JSONObject queryParamsObj, List<MockConfigRequestParams> mockConfigRequestParamList, boolean isAllMatch) {
+        if (isAllMatch) {
+            if (CollectionUtils.isNotEmpty(mockConfigRequestParamList)) {
+                for (MockConfigRequestParams params : mockConfigRequestParamList) {
+                    String key = params.getKey();
+                    if (queryParamsObj.containsKey(key)) {
+                        boolean isMatch = MockApiUtils.isValueMatch(String.valueOf(queryParamsObj.get(key)), params);
+                        if (!isMatch) {
+                            return false;
+                        }
+                    }else {
                         return false;
                     }
                 }
+            }
+            return true;
+        } else {
+            if (CollectionUtils.isNotEmpty(mockConfigRequestParamList)) {
+                for (MockConfigRequestParams params : mockConfigRequestParamList) {
+                    String key = params.getKey();
+                    if (queryParamsObj.containsKey(key)) {
+                        boolean isMatch = MockApiUtils.isValueMatch(String.valueOf(queryParamsObj.get(key)), params);
+                        if (isMatch) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    public static boolean checkParamsCompliance(JSONObject queryParamsObj, MockConfigRequestParams mockConfigRequestParams) {
+        if (mockConfigRequestParams != null) {
+            String key = mockConfigRequestParams.getKey();
+            if (queryParamsObj.containsKey(key)) {
+                return MockApiUtils.isValueMatch(String.valueOf(queryParamsObj.get(key)), mockConfigRequestParams);
             }
         }
         return true;
     }
 
-    public static boolean checkParamsCompliance(JSONArray jsonArray, List<MockConfigRequestParams> mockConfigRequestParamList) {
+    public static boolean checkParamsCompliance(JSONArray jsonArray, List<MockConfigRequestParams> mockConfigRequestParamList, boolean isAllMatch) {
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject obj = jsonArray.getJSONObject(i);
-            boolean isMatch = checkParamsCompliance(obj, mockConfigRequestParamList);
+            boolean isMatch = checkParamsCompliance(obj, mockConfigRequestParamList, isAllMatch);
             if (isMatch) {
                 return true;
             }

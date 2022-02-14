@@ -1,26 +1,29 @@
 <template>
   <el-header style="width: 100% ;padding: 0px">
     <el-card>
-        <el-row>
-          <el-col :span="1">
-            {{$t('commons.name')}}
-          </el-col>
-          <el-col :span="10">
-            <el-input class="ms-http-input" style="width: 80%" size="small" v-model="mockExpectConfig.name"/>
-          </el-col>
-          <el-col :span="1">
-            {{$t('commons.tag')}}
-          </el-col>
-          <el-col :span="10">
-              <ms-input-tag :currentScenario="mockExpectConfig" style="width: 80%;height: 100%;white-space: nowrap;overflow: hidden"  v-if="showHeadTable" ref="tag"/>
-          </el-col>
-          <el-col :span="2">
-            <el-button type="primary" size="small" @click="saveMockExpectConfig" title="ctrl + s">{{
-                $t('commons.save')
-              }}
-            </el-button>
-          </el-col>
-        </el-row>
+      <el-row>
+        <el-col :span="1">
+          {{ $t('commons.name') }}
+        </el-col>
+        <el-col :span="9">
+          <el-input class="ms-http-input" style="width: 80%" size="small" v-model="mockExpectConfig.name"/>
+        </el-col>
+        <el-col :span="1">
+          {{ $t('commons.tag') }}
+        </el-col>
+        <el-col :span="9">
+          <ms-input-tag :currentScenario="mockExpectConfig"
+                        style="width: 80%;height: 100%;white-space: nowrap;overflow: hidden" v-if="showHeadTable"
+                        ref="tag"/>
+        </el-col>
+        <el-col :span="4">
+          <el-button type="primary" size="small" style="float: right;margin-right: 50px;" @click="saveMockExpectConfig"
+                     title="ctrl + s">{{
+              $t('commons.save')
+            }}
+          </el-button>
+        </el-col>
+      </el-row>
     </el-card>
   </el-header>
 </template>
@@ -33,19 +36,17 @@ export default {
   name: "MockConfigHeader",
   components: {MsInputTag},
   data() {
-    return {
-    }
+    return {}
   },
   props: {
     mockExpectConfig: Object,
-    showHeadTable:Boolean,
+    showHeadTable: Boolean,
   },
   created() {
   },
-  watch: {
-  },
+  watch: {},
   methods: {
-    saveMockExpectConfig(){
+    saveMockExpectConfig() {
       this.$emit("saveMockExpectConfig");
     }
   }
