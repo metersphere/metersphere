@@ -30,6 +30,11 @@
                                        :is-read-only="isReadOnly"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="prescript">
+          <div style="padding-bottom: 20px;">
+            <el-link style="float: right;" type="primary" @click="openHis">
+              {{ $t('operating_log.change_history') }}
+            </el-link>
+          </div>
           <environment-global-script
             v-if="isRefresh && environment.config.globalScriptConfig && environment.config.preProcessor && environment.config.preStepProcessor"
             :filter-request.sync="environment.config.globalScriptConfig.filterRequestPreScript"
@@ -42,6 +47,11 @@
             @updateGlobalScript="updateGlobalScript"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_post_script')" name="postscript">
+          <div style="padding-bottom: 20px;">
+            <el-link style="float: right;" type="primary" @click="openHis">
+              {{ $t('operating_log.change_history') }}
+            </el-link>
+          </div>
           <environment-global-script
             v-if="isRefresh && environment.config.globalScriptConfig && environment.config.postProcessor && environment.config.postStepProcessor"
             :filter-request.sync="environment.config.globalScriptConfig.filterRequestPostScript"
@@ -76,12 +86,13 @@
           <global-assertions :is-read-only="isReadOnly" :assertions="environment.config.assertions" :is-show-json-path-suggest="false"/>
         </el-tab-pane>
       </el-tabs>
-      <div class="environment-footer">
-        <ms-dialog-footer
-          @cancel="cancel"
-          @confirm="save()"/>
-      </div>
+<!--      <div class="environment-footer">-->
+<!--        <ms-dialog-footer-->
+<!--          @cancel="cancel"-->
+<!--          @confirm="save()"/>-->
+<!--      </div>-->
     </el-form>
+    <ms-change-history ref="changeHistory"/>
   </el-main>
 </template>
 
@@ -103,6 +114,8 @@ import Jsr233ProcessorContent from "@/business/components/api/automation/scenari
 import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
 import EnvironmentGlobalScript from "@/business/components/api/test/components/environment/EnvironmentGlobalScript";
 import GlobalAssertions from "@/business/components/api/definition/components/assertion/GlobalAssertions";
+import MsChangeHistory from "../../../../history/ChangeHistory";
+import MsDialogHeader from "../../../../common/components/MsDialogHeader";
 
 export default {
   name: "EnvironmentEdit",
@@ -115,7 +128,8 @@ export default {
     MsEnvironmentHttpConfig,
     MsEnvironmentSSLConfig,
     EnvironmentGlobalScript,
-    MsDatabaseConfig, MsApiHostTable, MsDialogFooter, MsApiKeyValue, MsApiScenarioVariables
+    MsDatabaseConfig, MsApiHostTable, MsDialogFooter, MsApiKeyValue, MsApiScenarioVariables, MsChangeHistory,
+    MsDialogHeader
   },
   props: {
     environment: new Environment(),
@@ -268,6 +282,9 @@ export default {
           this._save(this.environment);
         }
       });
+    },
+    openHis() {
+      this.$refs.changeHistory.open(this.environment.id, ["项目-环境设置", "項目-環境設置", "Project environment setting"]);
     },
     validate() {
       let isValidate = false;

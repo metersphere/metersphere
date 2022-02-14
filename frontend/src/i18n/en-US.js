@@ -1849,6 +1849,7 @@ export default {
       before_the_pre_script_step: "Before pre-script in step",
       after_the_post_script_step: "After the script is placed in the step",
       before_the_post_script_step: "Post-in-step before script",
+      global_script_config: "Global script config",
     }
   },
   api_report: {

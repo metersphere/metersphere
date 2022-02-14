@@ -186,8 +186,17 @@ public class ReflexObjectUtil {
                                 String oldValue = column.getOriginalValue().toString();
                                 column.setDiffValue(ApiDefinitionDiffUtil.diffResponse(newValue, oldValue));
                             }
-                        } else {
-                            String newValue = Objects.toString(column.getNewValue(), "");
+                        }
+                        // 环境全局前后置脚本深度对比
+                        else if(StringUtils.equals(module, "PROJECT_ENVIRONMENT_SETTING")){
+                            if (originalColumns.get(i).getColumnName().equals("config")) {
+                                String newValue = newColumns.get(i).getOriginalValue().toString();
+                                String oldValue = column.getOriginalValue().toString();
+                                column.setDiffValue(ApiTestEnvironmentDiffUtil.diff(newValue, oldValue));
+                            }
+                        }
+                        else {
+                            String newValue = column.getNewValue().toString();
                             if (StringUtils.isNotEmpty(newValue)) {
                                 column.setNewValue(newValue.replaceAll("\\n", " "));
                             }
