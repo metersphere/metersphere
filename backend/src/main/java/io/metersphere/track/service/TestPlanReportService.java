@@ -647,6 +647,9 @@ public class TestPlanReportService {
         } else {
             subject = Translator.get("task_notification");
         }
+        // 计算通过率
+        TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
+        testPlanService.calcTestPlanRate(Collections.singletonList(testPlanDTOWithMetric));
 
         String creator = testPlanReport.getCreator();
         UserDTO userDTO = userService.getUserDTO(creator);
@@ -658,7 +661,7 @@ public class TestPlanReportService {
         if (userDTO != null) {
             paramMap.put("operator", userDTO.getName());
         }
-        paramMap.putAll(new BeanMap(testPlan));
+        paramMap.putAll(new BeanMap(testPlanDTOWithMetric));
 
         String successfulMailTemplate = "TestPlanSuccessfulNotification";
         String errfoMailTemplate = "TestPlanFailedNotification";
