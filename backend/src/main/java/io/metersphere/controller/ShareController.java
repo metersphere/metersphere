@@ -181,6 +181,7 @@ public class ShareController {
 
     @GetMapping("/performance/report/get-advanced-config/{shareId}/{reportId}")
     public String getAdvancedConfig(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validate(shareId, reportId);
         return performanceReportService.getAdvancedConfiguration(reportId);
     }
 
