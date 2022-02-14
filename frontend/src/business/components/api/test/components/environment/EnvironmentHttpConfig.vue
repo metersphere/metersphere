@@ -316,8 +316,16 @@ export default {
         domain: this.condition.domain, port: this.condition.port, time: new Date().getTime(), description: this.condition.description
       };
       if (this.condition.type === "PATH") {
+        if (this.pathDetails.name === '') {
+          this.$warning(this.$t('api_test.environment.path_warning'));
+          return;
+        }
         obj.details = [JSON.parse(JSON.stringify(this.pathDetails))];
       } else {
+        if (this.condition.details.length === 0) {
+          this.$warning(this.$t('api_test.environment.module_warning'));
+          return;
+        }
         obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
       }
       this.httpConfig.conditions.unshift(obj);
