@@ -41,7 +41,7 @@
         this.detail = value;
         let diffValue = value.diffValue;
         if (diffValue) {
-          if (value !== null && value.diffValue !== 'null' && value.diffValue !== '' && value.diffValue !== undefined) {
+          if (value !== null && value.diffValue && value.diffValue !== 'null') {
             if (Object.prototype.toString.call(value.diffValue).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
               && Object.prototype.toString.call(value.diffValue).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
               diffValue = JSON.parse(value.diffValue);
