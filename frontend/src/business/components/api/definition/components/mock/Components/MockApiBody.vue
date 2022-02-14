@@ -25,14 +25,11 @@
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
         <el-link class="ms-el-link" @click="batchAdd"> {{ $t("commons.batch_add") }}</el-link>
       </el-row>
-      <mock-api-variable
-        :with-mor-setting="true"
-        :suggestions="suggestions"
-        :is-read-only="isReadOnly"
-        :parameters="body.kvs"
-        :isShowEnable="isShowEnable"
-        :append-dialog-to-body="true"
-        type="body"/>
+      <mock-combination-condition :filter-type-object="body"
+                                  :is-read-only="isReadOnly"
+                                  :is-show-enable="isShowEnable"
+                                  :suggestions="suggestions"
+                                  :parameters="body.kvs"/>
     </div>
     <div v-if="body.type == 'JSON'">
       <div style="padding: 10px">
@@ -78,22 +75,22 @@ import {BODY_TYPE, KeyValue} from "@/business/components/api/definition/model/Ap
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
-import MockApiVariable from "@/business/components/api/definition/components/mock/Components/MockApiVariable";
 import MsApiFromUrlVariable from "@/business/components/api/definition/components/body/ApiFromUrlVariable";
 import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 import Convert from "@/business/components/common/json-schema/convert/convert";
-
+import MockCombinationCondition
+  from "@/business/components/api/definition/components/mock/Components/MockCombinationCondition";
 
 export default {
   name: "MockApiBody",
   components: {
-    MockApiVariable,
     MsDropdown,
     MsCodeEdit,
     MsApiKeyValue,
     MsApiFromUrlVariable,
     MsJsonCodeEdit,
-    BatchAddParameter
+    BatchAddParameter,
+    MockCombinationCondition
   },
   props: {
     body: {},
