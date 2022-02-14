@@ -2119,6 +2119,8 @@ export default {
       batch_update_schedule_enable_alert: '注意：只能更新已設定了定時任務的測試計畫',
       next_run_time: '下次運行時間',
       schedule_enabled: '已開啟',
+      check_schedule_enabled: '您勾選的數據檢測到有{0}條定時任務可以修改',
+      no_check_schedule_enabled: '您勾選的數據沒有檢測到定時任務',
       load_case: {
         case: "性能用例",
         execution_status: "執行狀態",

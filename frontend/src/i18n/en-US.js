@@ -2120,6 +2120,8 @@ export default {
       batch_update_schedule_enable_alert: 'note: only test plans with scheduled tasks can be updated',
       next_run_time: 'next running time',
       schedule_enabled: 'enabled',
+      check_schedule_enabled: 'the data you checked has detected {0} scheduled tasks that can be modified',
+      no_check_schedule_enabled: 'the data you checked does not detect a scheduled task',
       load_case: {
         case: "Load Case",
         execution_status: "Execution status",

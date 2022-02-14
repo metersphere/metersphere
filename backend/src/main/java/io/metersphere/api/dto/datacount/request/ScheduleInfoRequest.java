@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.datacount.request;
 
+import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,4 +17,6 @@ public class ScheduleInfoRequest {
     private String taskID;
     private boolean enable;
     private List<String> taskIds;
+    private boolean selectAll;
+    private QueryTestPlanRequest queryTestPlanRequest;
 }
