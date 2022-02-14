@@ -111,7 +111,9 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                     apiTestCase.setPriority("P0");
                     definitionCases.add(apiTestCase);
 
-                    element.getHashTree().clear();
+                    if (element.getHashTree() != null) {
+                        element.getHashTree().clear();
+                    }
                     apiDefinitionWithBLOBs.setRequest(JSON.toJSONString(element));
                     definitions.add(apiDefinitionWithBLOBs);
                 }
