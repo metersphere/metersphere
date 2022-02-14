@@ -5,7 +5,7 @@
         placement="right"
         width="300">
         <p>{{shareUrl}}</p>
-        <span style="color: red;float: left;margin-left: 10px;">{{ $t('test_track.report.valid_for_24_hours') }}</span>
+        <span style="color: red;float: left;margin-left: 10px;">{{ $t('commons.validity_period')+application.shareReportExpr}}</span>
         <div style="text-align: right; margin: 0">
           <el-button type="primary" size="mini" :disabled="!shareUrl"
                      v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
@@ -42,6 +42,7 @@ import {generateShareInfoWithExpired} from "@/network/share";
 import TestPlanReportEdit
   from "@/business/components/track/plan/view/comonents/report/detail/component/TestPlanReportEdit";
 import {editPlanReport, saveTestPlanReport} from "@/network/test-plan";
+import {getCurrentProjectID} from "@/common/js/utils";
 export default {
   name: "TestPlanReportButtons",
   components: {
@@ -59,6 +60,7 @@ export default {
       result: {},
       isTestManagerOrTestUser: true,
       shareUrl: '',
+      application:{},
     };
   },
   methods: {
@@ -76,6 +78,14 @@ export default {
       generateShareInfoWithExpired(pram, (data) => {
         let thisHost = window.location.host;
         this.shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
+      });
+      this.getProjectApplication();
+    },
+    getProjectApplication(){
+      this.$get('/project_application/get/' + getCurrentProjectID()+"/TRACK", res => {
+        if(res.data){
+          this.application = res.data;
+        }
       });
     },
     handleSave() {

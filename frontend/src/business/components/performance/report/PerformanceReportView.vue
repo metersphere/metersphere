@@ -37,7 +37,7 @@
                 width="300">
                 <p>{{ shareUrl }}</p>
                 <span style="color: red;float: left;margin-left: 10px;">{{
-                    $t('test_track.report.valid_for_24_hours')
+                    $t('commons.validity_period')+application.shareReportExpr
                   }}</span>
                 <div style="text-align: right; margin: 0">
                   <el-button type="primary" size="mini" :disabled="!shareUrl"
@@ -153,7 +153,7 @@ import MsReportTestOverview from './components/TestOverview';
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 
-import {exportPdf, hasPermission} from "@/common/js/utils";
+import {exportPdf, getCurrentProjectID, hasPermission} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
@@ -216,6 +216,7 @@ export default {
       ],
       testDeleted: false,
       shareUrl: "",
+      application:{}
     };
   },
   methods: {
@@ -374,6 +375,14 @@ export default {
       generateShareInfoWithExpired(pram, (data) => {
         let thisHost = window.location.host;
         this.shareUrl = thisHost + "/sharePerformanceReport" + data.shareUrl;
+      });
+      this.getProjectApplication();
+    },
+    getProjectApplication(){
+      this.$get('/project_application/get/' + getCurrentProjectID()+"/PERFORMANCE", res => {
+        if(res.data){
+          this.application = res.data;
+        }
       });
     },
     exportReportReset() {

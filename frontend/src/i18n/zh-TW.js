@@ -234,6 +234,7 @@ export default {
     follow_success: "關註成功",
     cancel_follow_success: "取消關註成功",
     type: "類型",
+    validity_period:'有效期',
     please_select_a_deadline: "請選擇截止時間",
     relationship: {
       name: '依賴關系',
@@ -899,6 +900,7 @@ export default {
     api_test_report: '接口測試報告',
     load_test_report: '性能測試報告',
     test_plan_report: '測試計劃報告',
+    report_sharing_link: '報告分享鏈接',
     recent: '我最近的報告',
     search_by_name: '根據名稱搜索',
     batch_add_monitor_tips: '格式：名稱,IP,Port,描述<br/>如：項目1,192.168.1.52,9100,測試',

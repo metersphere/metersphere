@@ -1,8 +1,10 @@
 <template>
   <app-manage-item :title="title" :append-span="3" :middle-span="12" :prepend-span="9">
     <template #middle>
-      <span class="timing_name">{{ $t('project.keep_recent') }}</span>
-      <el-select v-model="selfQuantity" placeholder=" " size="mini"
+      <span class="timing_name" v-if="shareLink">{{ $t('commons.validity_period') }}</span>
+      <span class="timing_name" v-if="!shareLink">{{ $t('project.keep_recent') }}</span>
+      <el-select v-model="selfQuantity" placeholder=" " size="mini" filterable
+                 allow-create
                  class="timing_select" :disabled="selfChoose">
         <el-option
           v-for="item in quantityOptions"
@@ -20,7 +22,7 @@
           :value="item.value">
         </el-option>
       </el-select>
-      <span class="timing_name" style="margin-left: 3px;">{{ $t('commons.report') }}</span>
+      <span class="timing_name" v-if="!shareLink" style="margin-left: 3px;">{{ $t('commons.report') }}</span>
     </template>
     <template #append>
       <el-switch v-model="selfChoose" @change="chooseChange"></el-switch>
@@ -41,7 +43,7 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     expr: {
       type: String,
@@ -54,7 +56,13 @@ export default {
       default() {
         return "";
       }
-    }
+    },
+    shareLink: {
+      type: Boolean,
+      default() {
+        return false;
+      },
+    },
   },
   watch: {
     expr(val) {
