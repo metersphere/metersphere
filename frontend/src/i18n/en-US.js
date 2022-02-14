@@ -234,6 +234,7 @@ export default {
     cancel_follow_success: "Cancel Follow Success",
     generate_test_data: "Generate test data",
     type: "Type",
+    validity_period:'Validity Period',
     please_select_a_deadline: "Please select a deadline",
     relationship: {
       name: 'Dependencies',
@@ -895,6 +896,7 @@ export default {
     api_test_report: 'Api Test Report',
     load_test_report: 'Load Test Report',
     test_plan_report: 'Test Plan Report',
+    report_sharing_link: 'Report Sharing Link',
     recent: 'My recent Report',
     search_by_name: 'Search by Name',
     batch_add_monitor_tips: 'Format: name, IP, Port, description<br/>such as: item 1, 192.168.1.52, 9100, test',
