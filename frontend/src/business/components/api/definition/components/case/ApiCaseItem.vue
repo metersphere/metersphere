@@ -286,7 +286,7 @@ export default {
     },
     hasPermission,
     openHis(row) {
-      this.$refs.changeHistory.open(row.id, ["接口定义用例", "接口定義用例", "Api definition case"]);
+      this.$refs.changeHistory.open(row.id, ["接口定义用例", "接口定義用例", "Api definition case", "API_DEFINITION_CASE"]);
     },
     getColor(enable, method) {
       if (enable) {

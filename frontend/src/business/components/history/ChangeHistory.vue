@@ -94,7 +94,7 @@ export default {
       if (value.columnName === "tags") {
         this.$refs.tagsHistoryDetail.open(value);
       } else if ((value.columnName === "request" || value.columnName === "response") &&
-        (row.operModule === "接口定义" || row.operModule === "接口定義" || row.operModule === "Api definition")) {
+        (row.operModule === "接口定义" || row.operModule === "接口定義" || row.operModule === "Api definition" || row.operModule === "API_DEFINITION")) {
         this.$refs.apiHistoryDetail.open(value);
       } else {
         this.$refs.historyDetail.open(value);
