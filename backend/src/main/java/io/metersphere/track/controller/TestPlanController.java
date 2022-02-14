@@ -282,4 +282,9 @@ public class TestPlanController {
     public void updateBatchScheduleEnable(@RequestBody ScheduleInfoRequest request) {
         testPlanService.batchUpdateScheduleEnable(request);
     }
+
+    @PostMapping(value = "/schedule/enable/total")
+    public long countByScheduleEnableTotal(@RequestBody QueryTestPlanRequest request) {
+        return testPlanService.countScheduleEnableTotal(request);
+    }
 }

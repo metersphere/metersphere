@@ -8,7 +8,7 @@
     </template>
 
     <ms-table
-      v-loading="result.loading"
+      v-loading="cardResult.loading"
       operator-width="170px"
       row-key="id"
       :data="tableData"
@@ -23,7 +23,8 @@
       :field-key="tableHeaderKey"
       @handlePageChange="intoPlan"
       @refresh="initTableData"
-      ref="testPlanLitTable">
+      ref="testPlanLitTable"
+      @handleRowClick="intoPlan">
 
       <span v-for="item in fields" :key="item.key">
 
@@ -106,6 +107,7 @@
                   }}</span>
                 </div>
                 <el-switch
+                  @click.stop.native
                   v-model="scope.row.scheduleOpen"
                   inactive-color="#DCDFE6"
                   @change="scheduleChange(scope.row)">
@@ -114,6 +116,7 @@
             </span>
             <span v-else-if="scope.row.scheduleStatus === 'SHUT'">
               <el-switch
+                @click.stop.native
                 v-model="scope.row.scheduleOpen"
                 inactive-color="#DCDFE6"
                 @change="scheduleChange(scope.row)">
@@ -305,7 +308,7 @@
       {{ $t('test_track.plan.plan_delete_tip') }}
     </ms-delete-confirm>
     <ms-test-plan-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData"/>
-    <ms-test-plan-schedule-batch-switch ref="scheduleBatchSwitch" @refreshTable="initTableData"/>
+    <ms-test-plan-schedule-batch-switch ref="scheduleBatchSwitch" @refresh="refresh"/>
     <plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'"
                             :plan-id="currentPlanId"/>
     <test-plan-report-review ref="testCaseReportView"/>
@@ -556,17 +559,28 @@ export default {
     handleEdit(testPlan) {
       this.$emit('testPlanEdit', testPlan);
     },
+    refresh() {
+      this.$refs.testPlanLitTable.clear();
+      this.$refs.testPlanLitTable.isSelectDataAll(false);
+      this.initTableData();
+    },
     handleBatchSwitch() {
       let param = [];
       let size = 0;
-      let row = this.$refs.testPlanLitTable.selectRows.size;
-      this.$refs.testPlanLitTable.selectRows.forEach((item) => {
-        if (item.scheduleStatus !== null && item.scheduleStatus !== 'NOTSET') {
-          param.push(item.scheduleId);
-          size++;
-        }
-      });
-      this.$refs.scheduleBatchSwitch.open(param, size);
+      if (this.condition.selectAll) {
+        this.$post("/test/plan/schedule/enable/total", this.condition, response => {
+          size = response.data;
+          this.$refs.scheduleBatchSwitch.open(param, size, this.condition.selectAll, this.condition);
+        });
+      } else {
+        this.$refs.testPlanLitTable.selectRows.forEach((item) => {
+          if (item.scheduleStatus !== null && item.scheduleStatus !== 'NOTSET') {
+            param.push(item.scheduleId);
+            size++;
+          }
+        });
+        this.$refs.scheduleBatchSwitch.open(param, size, this.condition.selectAll, this.condition);
+      }
     },
     statusChange(data) {
       if (!hasPermission('PROJECT_TRACK_PLAN:READ+EDIT')) {
@@ -626,10 +640,6 @@ export default {
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
       });
-    },
-    refresh() {
-      this.$refs.table.clear();
-      this.$emit('refresh');
     },
     intoPlan(row, column, event) {
       if (column.label !== this.$t('commons.operating')) {

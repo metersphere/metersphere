@@ -2002,11 +2002,31 @@ public class TestPlanService {
     }
 
     public void batchUpdateScheduleEnable(ScheduleInfoRequest request) {
-        for (String id : request.getTaskIds()) {
+        List<String> scheduleIds = request.getTaskIds();
+        if (request.isSelectAll()) {
+            QueryTestPlanRequest queryTestPlanRequest = request.getQueryTestPlanRequest();
+            request.getQueryTestPlanRequest().setOrders(ServiceUtils.getDefaultOrder(queryTestPlanRequest.getOrders()));
+            if (StringUtils.isNotBlank(queryTestPlanRequest.getProjectId())) {
+                request.getQueryTestPlanRequest().setProjectId(queryTestPlanRequest.getProjectId());
+            }
+            List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(queryTestPlanRequest);
+            scheduleIds = testPlans.stream().filter(testPlan -> testPlan.getScheduleId() != null).map(testPlan -> testPlan.getScheduleId()).collect(Collectors.toList());
+        }
+        for (String id : scheduleIds) {
             Schedule schedule = scheduleService.getSchedule(id);
             schedule.setEnable(request.isEnable());
             apiAutomationService.updateSchedule(schedule);
         }
+    }
+
+    public long countScheduleEnableTotal(QueryTestPlanRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        if (StringUtils.isNotBlank(request.getProjectId())) {
+            request.setProjectId(request.getProjectId());
+        }
+        List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
+        return testPlans.stream().filter(testPlan -> testPlan.getScheduleId() != null).count();
+
     }
 
     //获取下次执行时间（getFireTimeAfter，也可以下下次...）

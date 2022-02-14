@@ -2,17 +2,32 @@
 
   <el-dialog :visible.sync="dialogFormVisible"
              :before-close="close"
-             width="14%">
+             :close-on-click-modal="false"
+             :destroy-on-close="true"
+             append-to-body
+             width="30%">
     <div>
-      <el-switch
-        v-model="schedule.enable"
-        :inactive-text="$t('test_track.plan.batch_update_schedule_enable', [size])"
-        active-color="#783887">
-      </el-switch>
-      <p style="font-size: 10px;color: gray;margin-bottom: -10px">
-        {{ $t('test_track.plan.batch_update_schedule_enable_alert') }}</p>
+      <div style="margin-bottom: 8px;">
+        <i class="el-icon-warning" style="color: #e6a23c;"/>
+        <span v-if="size > 0 " style="margin-left: 4px; font-size: 14px">
+          {{ $t('test_track.plan.check_schedule_enabled', [size]) }}
+        </span>
+        <span v-else style="margin-left: 4px; font-size: 14px">
+          {{ $t('test_track.plan.no_check_schedule_enabled') }}
+        </span>
+      </div>
+      <div v-if=" size  > 0 ">
+        <el-switch
+          v-model="schedule.enable"
+          :inactive-text="$t('test_track.plan.batch_update_schedule_enable', [size])"
+          active-color="#783887">
+        </el-switch>
+        <p style="font-size: 10px;color: gray;margin-bottom: -10px">
+          {{ $t('test_track.plan.batch_update_schedule_enable_alert') }}
+        </p>
+      </div>
     </div>
-    <template v-slot:footer>
+    <template v-slot:footer v-if="size > 0">
       <ms-dialog-footer
         @cancel="close"
         @confirm="saveTest"/>
@@ -35,13 +50,14 @@ export default {
       name: "MsTestPlanScheduleBatchSwitch",
       schedule: {
         enable: true,
-        taskIds: []
+        taskIds: [],
+        selectAll: false,
+        queryTestPlanRequest: {}
       },
       size: 0,
       selectRows: new Set(),
       allDataRows: new Set(),
-      dialogFormVisible: false,
-      test: {}
+      dialogFormVisible: false
     }
   },
   props: {
@@ -53,12 +69,12 @@ export default {
     }
   },
   methods: {
-    open(ids, size) {
-      if (size) {
-        this.size = size;
-      } else {
-        this.size = this.$parent.selectDataCounts;
+    open(ids, size, selectAll, condition) {
+      if (selectAll) {
+        this.schedule.selectAll = true;
+        this.schedule.queryTestPlanRequest = condition;
       }
+      this.size = size;
       this.schedule.taskIds = ids;
       listenGoBack(this.close);
       this.dialogFormVisible = true;
@@ -66,13 +82,19 @@ export default {
     saveTest() {
       this.$post("/test/plan/schedule/Batch/updateEnable", this.schedule, () => {
         this.$success(this.$t('commons.modify_success'));
-        this.dialogFormVisible = false;
-        this.$emit("refreshTable");
+        this.close();
       });
     },
     close() {
-      removeGoBackListener(this.close);
+      this.schedule = {
+        enable: true,
+        taskIds: [],
+        selectAll: false,
+        queryTestPlanRequest: {}
+      };
       this.dialogFormVisible = false;
+      removeGoBackListener(this.close);
+      this.$emit("refresh");
     }
   }
 }

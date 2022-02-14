@@ -2120,6 +2120,8 @@ export default {
       batch_update_schedule_enable_alert: '注意：只能更新已设置了定时任务的测试计划',
       next_run_time: '下次运行时间',
       schedule_enabled: '已开启',
+      check_schedule_enabled: '您勾选的数据检测到有{0}条定时任务可以修改',
+      no_check_schedule_enabled: '您勾选的数据没有检测到定时任务',
       load_case: {
         case: "性能用例",
         execution_status: "执行状态",
