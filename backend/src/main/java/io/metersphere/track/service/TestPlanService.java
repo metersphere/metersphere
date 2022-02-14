@@ -372,7 +372,7 @@ public class TestPlanService {
         testPlanTestCaseMapper.deleteByExample(testPlanTestCaseExample);
     }
 
-    private void calcTestPlanRate(List<TestPlanDTOWithMetric> testPlans) {
+    public void calcTestPlanRate(List<TestPlanDTOWithMetric> testPlans) {
         testPlans.forEach(testPlan -> {
             testPlan.setTested(0);
             testPlan.setPassed(0);

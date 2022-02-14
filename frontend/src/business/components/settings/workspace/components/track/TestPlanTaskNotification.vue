@@ -261,6 +261,10 @@ export default {
           value: 'automaticStatusUpdate',
         },
         {
+          label: this.$t('test_track.pass_rate'),
+          value: 'passRate',
+        },
+        {
           label: this.$t('report.plan_share_url'),
           value: 'planShareUrl',
         },

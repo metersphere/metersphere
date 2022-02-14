@@ -251,15 +251,19 @@ export default {
         },
         {
           label:this.$t('project.id'),
-          value:'projectId',
+          value: 'projectId',
         },
         {
-          label:this.$t('commons.execution_times'),
-          value:'executionTimes',
+          label: this.$t('commons.execution_times'),
+          value: 'executionTimes',
         },
         {
-          label:this.$t('test_track.automatic_status_update'),
-          value:'automaticStatusUpdate',
+          label: this.$t('test_track.automatic_status_update'),
+          value: 'automaticStatusUpdate',
+        },
+        {
+          label: this.$t('test_track.pass_rate'),
+          value: 'passRate',
         },
       ],
     };
