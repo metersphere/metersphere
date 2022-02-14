@@ -1854,6 +1854,7 @@ export default {
       before_the_pre_script_step: "步骤内前置脚本前",
       after_the_post_script_step: "步骤内后置脚本后",
       before_the_post_script_step: "步骤内后置脚本前",
+      global_script_config: "全局脚本配置",
     }
   },
   api_report: {

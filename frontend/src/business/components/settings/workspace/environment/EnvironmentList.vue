@@ -63,7 +63,12 @@
 
     <!-- 创建、编辑、复制环境时的对话框 -->
     <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :title="dialogTitle" top="50px" width="66%">
-      <el-form label-width="80px" :rules="rules">
+      <ms-dialog-header
+        style="margin-bottom: 10px; float: right;"
+        :btn-size="'medium'"
+        @cancel="close"
+        @confirm="save()"/>
+      <el-form label-width="80px" :rules="rules" style="display: flow-root">
         <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
           <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
             <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
@@ -138,6 +143,7 @@ import EnvironmentImport from "@/business/components/project/menu/EnvironmentImp
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import {_handleSelect, _handleSelectAll, getSelectDataCounts, setUnSelectIds} from "@/common/js/tableUtils";
 import EnvGroupCascader from "@/business/components/settings/workspace/environment/EnvGroupCascader";
+import MsDialogHeader from "../../../common/components/MsDialogHeader";
 
 export default {
   name: "EnvironmentList",
@@ -154,7 +160,8 @@ export default {
     MsTableOperator,
     MsTableButton,
     MsTableHeader,
-    ShowMoreBtn
+    ShowMoreBtn,
+    MsDialogHeader
   },
   data() {
     return {
@@ -308,7 +315,9 @@ export default {
       this.currentEnvironment = temEnv;
       this.dialogVisible = true;
     },
-
+    save(){
+      this.$refs.environmentEdit.save();
+    },
     copyEnv(environment) {
       this.currentProjectId = environment.projectId;  //复制时默认选择所要复制环境对应的项目
       this.dialogTitle = this.$t('api_test.environment.copy_environment');
