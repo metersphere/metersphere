@@ -422,7 +422,7 @@ export default {
       return getCurrentUser();
     },
     openHis() {
-      this.$refs.changeHistory.open(this.form.id, ["测试用例", "測試用例", "Test case"]);
+      this.$refs.changeHistory.open(this.form.id, ["测试用例", "測試用例", "Test case", "TRACK_TEST_CASE"]);
     },
     setModule(id, data) {
       this.form.module = id;
