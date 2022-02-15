@@ -134,7 +134,7 @@
 
           <ms-table-column prop="principalName"
                            min-width="120px"
-                           :label="$t('api_test.definition.api_principal')"
+                           :label="$t('api_test.definition.request.responsible')"
                            :filters="userFilters"
                            :field="item"
                            :fields-width="fieldsWidth"
@@ -727,6 +727,7 @@ export default {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
+          console.log(this.tableData)
           this.tableData.forEach(item => {
             if (item.tags && item.tags.length > 0) {
               item.tags = JSON.parse(item.tags);
