@@ -32,6 +32,7 @@ public class CleanUpReportJob extends MsScheduleJob {
 
     @Override
     void businessExecute(JobExecutionContext context) {
+        LogUtil.info("clean up report start.");
         Project project = projectService.getProjectById(resourceId);
         Boolean cleanTrackReport = project.getCleanTrackReport();
         Boolean cleanApiReport = project.getCleanApiReport();
@@ -47,8 +48,10 @@ public class CleanUpReportJob extends MsScheduleJob {
                 this.cleanUpLoadReport(project.getCleanLoadReportExpr());
             }
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error("clean up report error.");
+            LogUtil.error(e.getMessage(), e);
         }
+        LogUtil.info("clean up report end.");
     }
 
     public static JobKey getJobKey(String projectId) {
@@ -64,7 +67,7 @@ public class CleanUpReportJob extends MsScheduleJob {
         if (time == 0) {
             return;
         }
-        LogUtil.info("clean up track plan report before: " + DateUtils.getTimeString(time));
+        LogUtil.info("clean up track plan report before: " + DateUtils.getTimeString(time) + ", resourceId : " + resourceId);
         projectService.cleanUpTrackReport(time, resourceId);
     }
 
@@ -73,7 +76,7 @@ public class CleanUpReportJob extends MsScheduleJob {
         if (time == 0) {
             return;
         }
-        LogUtil.info("clean up api report before: " + DateUtils.getTimeString(time));
+        LogUtil.info("clean up api report before: " + DateUtils.getTimeString(time) + ", resourceId : " + resourceId);
         projectService.cleanUpApiReport(time, resourceId);
     }
 
@@ -82,7 +85,7 @@ public class CleanUpReportJob extends MsScheduleJob {
         if (time == 0) {
             return;
         }
-        LogUtil.info("clean up load report before: " + DateUtils.getTimeString(time));
+        LogUtil.info("clean up load report before: " + DateUtils.getTimeString(time) + ", resourceId : " + resourceId);
         projectService.cleanUpLoadReport(time, resourceId);
     }
 
@@ -99,9 +102,11 @@ public class CleanUpReportJob extends MsScheduleJob {
                     date = localDate.minusMonths(quantity);
                 } else if (StringUtils.equals(unit, UNIT_YEAR)) {
                     date = localDate.minusYears(quantity);
+                } else {
+                    LogUtil.error("clean up expr parse error. expr : " + expr);
                 }
             } catch (Exception e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage(), e);
                 LogUtil.error("clean up job. get clean date error. project : " + resourceId);
             }
         }
