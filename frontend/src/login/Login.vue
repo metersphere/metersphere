@@ -178,6 +178,8 @@ export default {
       });
     },
     doLogin() {
+      // 删除缓存
+      sessionStorage.removeItem('changePassword');
       let publicKey = localStorage.getItem("publicKey");
 
       let form = {
@@ -189,6 +191,7 @@ export default {
       this.result = this.$post(this.loginUrl, form, response => {
         saveLocalStorage(response);
         sessionStorage.setItem('loginSuccess', 'true');
+        sessionStorage.setItem('changePassword', response.message);
         this.getLanguage(response.data.language);
         // 检查登录用户的权限
         this.checkRedirectUrl();
