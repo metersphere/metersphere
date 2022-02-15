@@ -2,15 +2,15 @@
   <el-card class="ms-cards" v-if="request && request.responseResult">
     <div class="request-result">
       <div @click="active">
-        <el-row :gutter="10" type="flex" align="middle" class="info">
-          <el-col class="ms-req-name-col" :span="10" v-if="indexNumber!=undefined">
+        <el-row :gutter="18" type="flex" align="middle" class="info">
+          <el-col class="ms-req-name-col" :span="18" v-if="indexNumber!=undefined">
             <el-tooltip :content="getName(request.name)" placement="top">
               <div class="method ms-req-name">
                 <div class="el-step__icon is-text ms-api-col-create">
                   <div class="el-step__icon-inner"> {{ indexNumber }}</div>
                 </div>
                 <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}" @click="active" @click.stop/>
-                {{ getName(request.name) }}
+                <span>{{ getName(request.name) }}</span>
               </div>
             </el-tooltip>
           </el-col>
@@ -103,10 +103,10 @@ export default {
     indexNumber: Number,
     console: String,
     errorCode: String,
+    isActive: Boolean,
   },
   data() {
     return {
-      isActive: false,
       requestType: "",
       color: {
         type: String,
@@ -188,6 +188,10 @@ export default {
   font-weight: 500;
   line-height: 35px;
   padding-left: 5px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .request-result .url {

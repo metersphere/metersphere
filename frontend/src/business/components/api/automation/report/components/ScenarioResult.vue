@@ -8,7 +8,9 @@
             {{ node.index }}
           </div>
         </div>
-        {{ node.label }}
+        <el-tooltip effect="dark" :content="node.label" placement="top">
+          <span>{{ node.label }}</span>
+        </el-tooltip>
       </el-card>
     </div>
     <div v-else>
@@ -18,6 +20,7 @@
         :error-code="node.errorCode"
         :scenarioName="node.label"
         :console="console"
+        :isActive="isActive"
         v-on:requestResult="requestResult"
       />
     </div>
@@ -35,11 +38,11 @@ export default {
     scenario: Object,
     node: Object,
     console: String,
+    isActive: Boolean,
   },
 
   data() {
     return {
-      isActive: false,
       stepFilter: new STEP,
     }
   },
@@ -75,6 +78,9 @@ export default {
 
 .ms-card >>> .el-card__body {
   padding: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .scenario-result .info {
@@ -98,13 +104,14 @@ export default {
   color: #64666A;
 }
 
-.ms-api-col-create {
+.ms-card .ms-api-col-create {
   background-color: #EBF2F2;
   border-color: #008080;
   margin-right: 10px;
   font-size: 12px;
   color: #008080;
 }
+
 
 /deep/ .el-step__icon {
   width: 20px;
