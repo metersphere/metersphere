@@ -1,5 +1,13 @@
 <template>
   <el-card class="scenario-results">
+    <div v-if="errorReport > 0">
+      <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
+        <i class="el-icon-circle-plus-outline  ms-open-btn ms-open-btn-left" v-prevent-re-click @click="openExpansion"/>
+      </el-tooltip>
+      <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
+        <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion"/>
+      </el-tooltip>
+    </div>
     <el-tree :data="treeData"
              :expand-on-click-node="false"
              :default-expand-all="defaultExpand"
@@ -7,7 +15,8 @@
              highlight-current
              class="ms-tree ms-report-tree" ref="resultsTree">
           <span slot-scope="{ node, data}" style="width: 99%" @click="nodeClick(node)">
-            <ms-scenario-result :node="data" :console="console" v-on:requestResult="requestResult"/>
+            <ms-scenario-result :node="data" :console="console" v-on:requestResult="requestResult"
+                                :isActive="isActive"/>
           </span>
     </el-tree>
   </el-card>
@@ -23,9 +32,15 @@ export default {
     scenarios: Array,
     treeData: Array,
     console: String,
+    errorReport: Number,
     defaultExpand: {
       default: false,
       type: Boolean,
+    }
+  },
+  data() {
+    return {
+      isActive: false
     }
   },
   created() {
@@ -65,7 +80,30 @@ export default {
     },
     nodeClick(node) {
       node.expanded = !node.expanded;
-    }
+    },
+    // 改变节点的状态
+    changeTreeNodeStatus(node) {
+      node.expanded = this.expandAll
+      for (let i = 0; i < node.childNodes.length; i++) {
+        // 改变节点的自身expanded状态
+        node.childNodes[i].expanded = this.expandAll
+        // 遍历子节点
+        if (node.childNodes[i].childNodes.length > 0) {
+          this.changeTreeNodeStatus(node.childNodes[i])
+        }
+      }
+    },
+    closeExpansion() {
+      this.isActive = false;
+      this.expandAll = false;
+      this.changeTreeNodeStatus(this.$refs.resultsTree.store.root);
+    },
+    openExpansion() {
+      this.isActive = true;
+      this.expandAll = true;
+      // 改变每个节点的状态
+      this.changeTreeNodeStatus(this.$refs.resultsTree.store.root)
+    },
   }
 }
 </script>
@@ -109,6 +147,22 @@ export default {
 
 .ms-sc-variable-header >>> .el-dialog__body {
   padding: 0px 20px;
+}
+
+.ms-open-btn {
+  margin: 5px 5px 0px;
+  color: #6D317C;
+  font-size: 20px;
+}
+
+.ms-open-btn:hover {
+  background-color: #F2F9EE;
+  cursor: pointer;
+  color: #67C23A;
+}
+
+.ms-open-btn-left {
+  margin-left: 30px;
 }
 
 </style>

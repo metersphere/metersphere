@@ -19,7 +19,8 @@
                     <span class="fail">{{ $t('api_report.fail') }}</span>
                   </template>
                   <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
-                                       :treeData="fullTreeNodes" ref="failsTree"/>
+                                       :treeData="fullTreeNodes" ref="failsTree"
+                                       :errorReport="content.error"/>
                 </el-tab-pane>
                 <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
                   <template slot="label">
