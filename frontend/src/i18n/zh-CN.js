@@ -427,6 +427,7 @@ export default {
     sync_other_info: "复制以下信息到新版本",
     delete_current_version: '列表版本',
     delete_all_version: '全部版本',
+    change_password_tips: '您的密码是系统初始密码，请尽快修改密码',
   },
   login: {
     normal_Login: "普通登录",

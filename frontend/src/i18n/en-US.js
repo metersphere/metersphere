@@ -425,6 +425,7 @@ export default {
     sync_other_info: "Copy other config",
     delete_current_version: 'Current version',
     delete_all_version: 'All versions',
+    change_password_tips: 'Your password is the initial system password, please change it as soon as possible'
   },
   login: {
     normal_Login: "Normal Login",

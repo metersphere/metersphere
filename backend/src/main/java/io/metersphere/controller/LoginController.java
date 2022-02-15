@@ -12,6 +12,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.BaseDisplayService;
 import io.metersphere.service.UserService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -56,7 +57,11 @@ public class LoginController {
             }
         }
         SecurityUtils.getSubject().getSession().setAttribute("authenticate", UserSource.LOCAL.name());
-        return userService.login(request);
+        ResultHolder result = userService.login(request);
+        // 登录是否提示修改密码
+        boolean changePassword = userService.checkWhetherChangePasswordOrNot(request);
+        result.setMessage(BooleanUtils.toStringTrueFalse(changePassword));
+        return result;
     }
 
     @GetMapping(value = "/currentUser")

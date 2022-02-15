@@ -33,9 +33,12 @@ import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.UserDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.service.OperatingLogService;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.OperatingLogRequest;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
@@ -94,6 +97,8 @@ public class UserService {
     private ExtProjectMapper extProjectMapper;
     @Resource
     private ExtWorkspaceMapper extWorkspaceMapper;
+    @Resource
+    private OperatingLogService operatingLogService;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -1287,12 +1292,30 @@ public class UserService {
      * 根据userId 获取 user 所属工作空间和所属工作项目
      * @param userId
      */
-    public Map<Object,Object> getWSAndProjectByUserId(String userId){
-        Map<Object,Object>map = new HashMap<>(2);
+    public Map<Object, Object> getWSAndProjectByUserId(String userId) {
+        Map<Object, Object> map = new HashMap<>(2);
         List<Project> projects = extProjectMapper.getProjectByUserId(userId);
         List<Workspace> workspaces = extWorkspaceMapper.getWorkspaceByUserId(userId);
-        map.put("project",projects);
-        map.put("workspace",workspaces);
+        map.put("project", projects);
+        map.put("workspace", workspaces);
         return map;
+    }
+
+    public boolean checkWhetherChangePasswordOrNot(LoginRequest request) {
+        List<OperatingLogDTO> list = operatingLogService.list(new OperatingLogRequest());
+        // 首次登录需要提示
+        if (CollectionUtils.isEmpty(list)) {
+            return true;
+        }
+
+        // 升级之后 admin 还使用弱密码也提示修改
+        if (StringUtils.equals("admin", request.getUsername())) {
+            UserExample example = new UserExample();
+            example.createCriteria().andIdEqualTo("admin")
+                    .andPasswordEqualTo(CodingUtil.md5("metersphere"));
+            return userMapper.countByExample(example) > 0;
+        }
+
+        return false;
     }
 }
