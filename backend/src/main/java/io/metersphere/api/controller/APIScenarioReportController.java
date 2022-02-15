@@ -8,6 +8,7 @@ import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
@@ -61,7 +62,7 @@ public class APIScenarioReportController {
     }
 
     @PostMapping("/reName")
-    public void reName(@RequestBody QueryAPIReportRequest reportRequest) {
+    public void reName(@RequestBody ApiScenarioReport reportRequest) {
         apiReportService.reName(reportRequest);
     }
 }

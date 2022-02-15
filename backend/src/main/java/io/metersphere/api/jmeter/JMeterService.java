@@ -10,6 +10,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaConfig;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
@@ -79,7 +80,11 @@ public class JMeterService {
         if (!FixedCapacityUtils.jmeterLogTask.containsKey(request.getReportId())) {
             FixedCapacityUtils.jmeterLogTask.put(request.getReportId(), System.currentTimeMillis());
         }
-
+        if (StringUtils.isNotEmpty(request.getTestPlanReportId())
+                && !FixedCapacityUtils.jmeterLogTask.containsKey(request.getTestPlanReportId())
+                && StringUtils.equals(request.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+            FixedCapacityUtils.jmeterLogTask.put(request.getTestPlanReportId(), System.currentTimeMillis());
+        }
         LoggerUtil.debug("监听MessageCache.tasks当前容量：" + FixedCapacityUtils.jmeterLogTask.size());
         if (request.isDebug() && !StringUtils.equalsAny(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");

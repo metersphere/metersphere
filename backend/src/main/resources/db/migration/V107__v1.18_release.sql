@@ -51,3 +51,23 @@ DELIMITER ;
 
 CALL test_personal();
 DROP PROCEDURE IF EXISTS test_personal;
+
+ALTER TABLE api_definition_exec_result
+    ADD project_id varchar(50);
+
+ALTER TABLE api_definition_exec_result
+    ADD integrated_report_id varchar(50);
+
+ALTER TABLE `api_definition_exec_result`
+    ADD INDEX project_id_index ( `project_id` );
+
+ALTER TABLE api_scenario_report
+    ADD report_type varchar(100);
+
+update api_definition_exec_result t
+    INNER JOIN
+    (select id,project_id from api_test_case) atc on t.resource_id = atc.id
+set t.project_id = atc.project_id where atc.id = t.resource_id;
+
+update api_scenario_report set report_type = 'SCENARIO_INTEGRATED' where scenario_id like '[%';
+update api_scenario_report set report_type = 'SCENARIO_INDEPENDENT' where report_type is null;
