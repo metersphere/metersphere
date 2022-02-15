@@ -110,7 +110,8 @@
                   @click.stop.native
                   v-model="scope.row.scheduleOpen"
                   inactive-color="#DCDFE6"
-                  @change="scheduleChange(scope.row)">
+                  @change="scheduleChange(scope.row)"
+                  :disabled="!hasSchedulePermission">
                 </el-switch>
               </el-tooltip>
             </span>
@@ -119,11 +120,12 @@
                 @click.stop.native
                 v-model="scope.row.scheduleOpen"
                 inactive-color="#DCDFE6"
-                @change="scheduleChange(scope.row)">
+                @change="scheduleChange(scope.row)"
+                :disabled="!hasSchedulePermission">
                 </el-switch>
             </span>
             <span v-else>
-             <el-link @click.stop="scheduleTask(scope.row)" style="color:#783887;">{{
+             <el-link @click.stop="scheduleTask(scope.row)" :disabled="!hasSchedulePermission" style="color:#783887;">{{
                  $t('schedule.not_set')
                }}</el-link>
             </span>
@@ -387,6 +389,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       hasEditPermission: false,
+      hasSchedulePermission: false,
       total: 0,
       tableData: [],
       fields: getCustomTableHeader('TEST_PLAN_LIST'),
@@ -415,7 +418,8 @@ export default {
       publicButtons: [
         {
           name: this.$t('test_track.plan.test_plan_batch_switch'),
-          handleClick: this.handleBatchSwitch
+          handleClick: this.handleBatchSwitch,
+          permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
         }
       ],
       simpleOperators: [
@@ -455,6 +459,7 @@ export default {
       this.projectId = getCurrentProjectID();
     }
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
+    this.hasSchedulePermission = hasPermission('PROJECT_TRACK_PLAN:READ+SCHEDULE');
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     getPlanStageOption((data) => {
       this.stageOption = data;
