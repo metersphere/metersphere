@@ -136,6 +136,7 @@ public class ApiDefinitionExecResultService {
     public void editStatus(ApiDefinitionExecResult saveResult, String type, String status, Long time, String reportId, String testId) {
         String name = testId;
         String version = "";
+        String projectId = "";
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
@@ -164,11 +165,13 @@ public class ApiDefinitionExecResultService {
             if (caseWithBLOBs != null) {
                 name = caseWithBLOBs.getName();
                 version = caseWithBLOBs.getVersionId();
+                projectId = caseWithBLOBs.getProjectId();
             }
         } else {
             ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(testId);
             if (apiDefinition != null) {
                 name = apiDefinition.getName();
+                projectId = apiDefinition.getProjectId();
             } else {
                 ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testId);
                 if (caseWithBLOBs != null) {
@@ -183,8 +186,12 @@ public class ApiDefinitionExecResultService {
                     }
                     name = caseWithBLOBs.getName();
                     version = caseWithBLOBs.getVersionId();
+                    projectId = caseWithBLOBs.getProjectId();
                 }
             }
+        }
+        if (StringUtils.isEmpty(saveResult.getProjectId()) && StringUtils.isNotEmpty(projectId)) {
+            saveResult.setProjectId(projectId);
         }
         saveResult.setVersionId(version);
         saveResult.setName(name);

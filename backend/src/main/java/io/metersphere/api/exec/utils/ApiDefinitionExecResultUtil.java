@@ -48,6 +48,7 @@ public class ApiDefinitionExecResultUtil {
         ApiTestCaseWithBLOBs caseWithBLOBs = CommonBeanFactory.getBean(ApiTestCaseMapper.class).selectByPrimaryKey(key.getApiCaseId());
         if (caseWithBLOBs != null) {
             apiResult.setName(caseWithBLOBs.getName());
+            apiResult.setProjectId(caseWithBLOBs.getProjectId());
         }
         apiResult.setTriggerMode(request.getTriggerMode());
         apiResult.setActuator("LOCAL");

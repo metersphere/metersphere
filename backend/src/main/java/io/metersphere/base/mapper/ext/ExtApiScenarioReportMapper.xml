@@ -99,10 +99,36 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap">
-        SELECT r.name AS test_name,r.end_time, r.user_id,
-        r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,IfNULL(s.name,r.scenario_name) as scenario_name
-        FROM api_scenario_report r
-        LEFT JOIN api_scenario s on r.scenario_id = s.id
+        select * from (
+            SELECT s_r.name AS test_name,
+            s_r.end_time,
+            s_r.user_id,
+            s_r.name,
+            s_r.id,
+            s_r.project_id,
+            s_r.create_time,
+            s_r.update_time,
+            s_r.status,
+            s_r.trigger_mode,
+            s_r.execute_type,
+            s_r.report_type
+        FROM api_scenario_report s_r
+        union
+            select a_r.name as test_name,
+            a_r.end_time,
+            a_r.user_id,
+            a_r.name,
+            a_r.id,
+            a_r.project_id,
+            a_r.create_time,
+            a_r.create_time as update_time,
+            a_r.status,
+            a_r.trigger_mode,
+            'Saved' as execute_type,
+            'API_INDEPENDENT' as report_type
+            from api_definition_exec_result a_r
+            where a_r.integrated_report_id is null
+        ) r
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -126,6 +152,12 @@
                         <choose>
                             <when test="key=='status'">
                                 and r.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='report_type'">
+                                and r.report_type in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>

@@ -61,25 +61,28 @@ public class ApiScenarioSerialService {
 
     public void serial(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue) {
         LoggerUtil.debug("Scenario run-执行脚本装载-进入串行准备");
-        if (!StringUtils.equals(executionQueue.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+        if (!StringUtils.equals(executionQueue.getReportType(), RunModeConstants.SET_REPORT.toString())
+                || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
             if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(queue.getReportId());
-                report.setStatus(APITestStatus.Running.name());
-                report.setCreateTime(System.currentTimeMillis());
-                report.setUpdateTime(System.currentTimeMillis());
-                apiScenarioReportMapper.updateByPrimaryKey(report);
+                if (report != null) {
+                    report.setStatus(APITestStatus.Running.name());
+                    report.setCreateTime(System.currentTimeMillis());
+                    report.setUpdateTime(System.currentTimeMillis());
+                    apiScenarioReportMapper.updateByPrimaryKey(report);
+                }
             } else {
                 ApiDefinitionExecResult execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
                 if (execResult != null) {
                     execResult.setStatus(APITestStatus.Running.name());
-                    apiDefinitionExecResultMapper.updateByPrimaryKey(execResult);
+                    apiDefinitionExecResultMapper.updateByPrimaryKeySelective(execResult);
                 }
             }
         }
 
         LoggerUtil.info("Scenario run-开始执行，队列ID：【 " + executionQueue.getReportId() + " 】");
         String reportId = StringUtils.isNotEmpty(executionQueue.getReportId()) ? executionQueue.getReportId() : queue.getReportId();
-        if (!StringUtils.equals(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name())) {
+        if (!StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name())) {
             reportId = queue.getReportId();
         }
         HashTree hashTree = null;

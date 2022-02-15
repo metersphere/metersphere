@@ -25,14 +25,18 @@
         <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
       </el-radio-group>
     </div>
-    <div class="ms-mode-div" v-if="runConfig.mode === 'serial'">
+
+    <div class="ms-mode-div">
       <el-row>
         <el-col :span="6">
           <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
         </el-col>
         <el-col :span="18">
           <div>
-            <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
+            <el-radio-group v-model="runConfig.reportType">
+              <el-radio label="iddReport">{{ $t("run_mode.idd_report") }}</el-radio>
+              <el-radio label="setReport">{{ $t("run_mode.set_report") }}</el-radio>
+            </el-radio-group>
           </div>
           <div style="padding-top: 10px">
             <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
@@ -43,6 +47,7 @@
                 v-for="item in resourcePools"
                 :key="item.id"
                 :label="item.name"
+                :disabled="!item.api"
                 :value="item.id">
               </el-option>
             </el-select>
@@ -50,26 +55,20 @@
         </el-col>
       </el-row>
     </div>
-    <div class="ms-mode-div" v-if="runConfig.mode === 'parallel'">
-      <el-row>
-        <el-col :span="6">
-          <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
-        </el-col>
-        <el-col :span="18">
-          <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
-            {{ $t('run_mode.run_with_resource_pool') }}
-          </el-checkbox>
-          <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
-            <el-option
-              v-for="item in resourcePools"
-              :key="item.id"
-              :label="item.name"
-              :disabled="!item.api"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-col>
-      </el-row>
+    <!--- 失败停止 -->
+    <div style="margin-top: 10px" v-if="runConfig.mode === 'serial'">
+      <el-checkbox v-model="runConfig.onSampleError" style="margin-left: 127px">
+        {{ $t("api_test.fail_to_stop") }}
+      </el-checkbox>
+    </div>
+
+    <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport'">
+      <span class="ms-mode-span">{{ $t("run_mode.report_name") }}：</span>
+      <el-input
+        v-model="runConfig.reportName"
+        :placeholder="$t('commons.input_content')"
+        size="small"
+        style="width: 300px"/>
     </div>
     <template v-slot:footer>
       <ms-dialog-footer @cancel="close" @confirm="handleRunBatch"/>
