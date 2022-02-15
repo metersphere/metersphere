@@ -152,9 +152,8 @@ public class ApiTestCaseService {
 
     public List<String> idSimple(ApiTestCaseRequest request) {
         request = this.initRequest(request, true, true);
-
-        List<String> ids = extApiTestCaseMapper.idSimple(request);
-        return ids;
+        List<ApiTestCaseDTO> apiTestCaseDTOS = extApiTestCaseMapper.listSimple(request);
+        return apiTestCaseDTOS.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
     }
 
     /**
