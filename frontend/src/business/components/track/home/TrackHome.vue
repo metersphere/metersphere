@@ -139,19 +139,21 @@ export default {
           orient: 'vertical',
           right: '80',
         },
-        series: [{
-          name: this.$t('test_track.home.function_case_count'),
-          data: yAxis1,
-          type: 'bar',
-          barWidth: 50,
-          itemStyle: {
-            color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER
-          }
-        },
+        series: [
+          {
+            name: this.$t('test_track.home.function_case_count'),
+            data: yAxis1,
+            type: 'bar',
+            barWidth: 50,
+            itemStyle: {
+              color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER
+            }
+          },
           {
             name: this.$t('test_track.home.relevance_case_count'),
             data: yAxis2,
             type: 'bar',
+            barWidth: 50,
             itemStyle: {
               color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER_SHALLOW
             }
@@ -165,9 +167,9 @@ export default {
       switch (page) {
         case "case":
           this.$router.push({
-            name:'testCase',
-            params:{
-              dataType:dataType,dataSelectRange:selectType, projectId: this.projectId
+            name: 'testCase',
+            params: {
+              dataType: dataType, dataSelectRange: selectType, projectId: this.projectId
             }
           });
           break;
