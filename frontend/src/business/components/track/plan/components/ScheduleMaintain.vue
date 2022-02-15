@@ -322,7 +322,9 @@ export default {
         if (valid) {
           this.intervalShortValidate();
           let formCronValue = this.form.cronValue;
-          this.schedule.enable = true;
+          if (!this.schedule.id) {
+            this.schedule.enable = true;
+          }
           this.schedule.value = formCronValue;
           this.saveSchedule();
           this.dialogVisible = false;
