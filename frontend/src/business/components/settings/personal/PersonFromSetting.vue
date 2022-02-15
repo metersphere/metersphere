@@ -9,7 +9,7 @@
         <el-input v-model="form.name" autocomplete="off"/>
       </el-form-item>
       <el-form-item :label="$t('commons.email')" prop="email">
-        <el-input v-model="form.email" autocomplete="off"/>
+        <el-input v-model="form.email" autocomplete="off" type="text" maxlength="60" show-word-limit/>
       </el-form-item>
       <el-form-item :label="$t('commons.phone')" prop="phone">
         <el-input v-model="form.phone" autocomplete="off"/>
