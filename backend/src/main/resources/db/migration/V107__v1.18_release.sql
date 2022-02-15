@@ -70,19 +70,21 @@ CREATE PROCEDURE test_personal()
 
         #打开游标
         OPEN group_curosr;
-
-        #遍历游标
-        REPEAT
             #获取当前游标指针记录，取出值赋给自定义的变量
             FETCH group_curosr INTO groupId;
-            #利用取到的值进行数据库的操作
-            INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-            VALUES (uuid(), groupId, 'PERSONAL_INFORMATION:READ+EDIT', 'PERSONAL_INFORMATION'),
-                   (uuid(), groupId, 'PERSONAL_INFORMATION:READ+THIRD_ACCOUNT', 'PERSONAL_INFORMATION'),
-                   (uuid(), groupId, 'PERSONAL_INFORMATION:READ+API_KEYS', 'PERSONAL_INFORMATION'),
-                   (uuid(), groupId, 'PERSONAL_INFORMATION:READ+EDIT_PASSWORD', 'PERSONAL_INFORMATION');
-            # 根据 end_flag 判断是否结束
-        UNTIL end_flag END REPEAT;
+            #遍历游标
+            REPEAT
+
+                #利用取到的值进行数据库的操作
+                INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+                VALUES (uuid(), groupId, 'PERSONAL_INFORMATION:READ+EDIT', 'PERSONAL_INFORMATION'),
+                       (uuid(), groupId, 'PERSONAL_INFORMATION:READ+THIRD_ACCOUNT', 'PERSONAL_INFORMATION'),
+                       (uuid(), groupId, 'PERSONAL_INFORMATION:READ+API_KEYS', 'PERSONAL_INFORMATION'),
+                       (uuid(), groupId, 'PERSONAL_INFORMATION:READ+EDIT_PASSWORD', 'PERSONAL_INFORMATION');
+                # 根据 end_flag 判断是否结束
+                # 将游标中的值再赋值给变量，供下次循环使用
+                FETCH group_curosr INTO groupId;
+            UNTIL end_flag END REPEAT;
 
         #关闭游标
         close group_curosr;
@@ -105,7 +107,7 @@ INSERT INTO test_case_issues (id, resource_id, issues_id, ref_id, ref_type)
              INNER JOIN test_case_issues tci
                         ON tci.issues_id = i.id
              INNER JOIN test_plan_test_case tptc
-                        ON tci.resource_id = tptc.case_id AND i.resource_id = tptc.plan_id
+                        ON tci.resource_id = tptc.case_id AND i.resource_id = tptc.plan_id;
 
 DELETE FROM test_case_issues WHERE id IN (
     SELECT id FROM (
@@ -116,7 +118,7 @@ DELETE FROM test_case_issues WHERE id IN (
                        INNER JOIN test_plan_test_case tptc
                            ON tci.resource_id = tptc.case_id AND i.resource_id = tptc.plan_id
                    ) tmp
-)
+);
 
 
 DROP PROCEDURE IF EXISTS project_appl;
@@ -136,17 +138,17 @@ BEGIN
 
     #打开游标
     OPEN project_curosr;
-
-    #遍历游标
-    REPEAT
         #获取当前游标指针记录，取出值赋给自定义的变量
         FETCH project_curosr INTO projectId;
-        #利用取到的值进行数据库的操作
-        INSERT INTO project_application (project_id, type, share_report_expr)
-        VALUES (projectId, 'TRACK', '24H'),
-               (projectId, 'PERFORMANCE', '24H');
-        # 根据 end_flag 判断是否结束
-    UNTIL end_flag END REPEAT;
+        #遍历游标
+        REPEAT
+            #利用取到的值进行数据库的操作
+            INSERT INTO project_application (project_id, type, share_report_expr)
+            VALUES (projectId, 'TRACK', '24H'),
+                   (projectId, 'PERFORMANCE', '24H');
+            # 将游标中的值再赋值给变量，供下次循环使用
+            FETCH project_curosr INTO projectId;
+        UNTIL end_flag END REPEAT;
 
     #关闭游标
     close project_curosr;
