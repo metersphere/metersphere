@@ -613,6 +613,7 @@ public class APITestService {
     public JmxInfoDTO getJmxInfoDTO(RunDefinitionRequest runRequest, List<MultipartFile> bodyFiles) {
         ParameterConfig config = new ParameterConfig();
         config.setProjectId(runRequest.getProjectId());
+        config.setOperating(true);
 
         Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         Map<String, String> map = runRequest.getEnvironmentMap();
