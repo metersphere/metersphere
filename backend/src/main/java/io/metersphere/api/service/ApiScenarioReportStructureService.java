@@ -6,11 +6,12 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiScenarioReportDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.StepTreeDTO;
+import io.metersphere.api.service.vo.ApiDefinitionExecResultVo;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
-import io.metersphere.base.mapper.ApiScenarioReportStructureMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.constants.ReportTypeConstants;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
@@ -34,6 +35,10 @@ public class ApiScenarioReportStructureService {
     private ApiScenarioReportStructureMapper mapper;
     @Resource
     private ApiScenarioReportResultMapper reportResultMapper;
+    @Resource
+    private ApiScenarioReportMapper scenarioReportMapper;
+    @Resource
+    private ApiDefinitionExecResultMapper definitionExecResultMapper;
 
     private static final List<String> requests = Arrays.asList("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler");
 
@@ -56,7 +61,7 @@ public class ApiScenarioReportStructureService {
         this.save(reportId, dtoList);
     }
 
-    private void save(String reportId, List<StepTreeDTO> dtoList) {
+    public void save(String reportId, List<StepTreeDTO> dtoList) {
         ApiScenarioReportStructureWithBLOBs structure = new ApiScenarioReportStructureWithBLOBs();
         structure.setId(UUID.randomUUID().toString());
         structure.setCreateTime(System.currentTimeMillis());
@@ -271,7 +276,90 @@ public class ApiScenarioReportStructureService {
         }
     }
 
-    public ApiScenarioReportDTO getReport(String reportId) {
+    private List<ApiDefinitionExecResultVo> formatApiReport(String reportId, List<StepTreeDTO> stepList) {
+        ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
+        example.createCriteria().andIntegratedReportIdEqualTo(reportId);
+        List<ApiDefinitionExecResult> reportResults = definitionExecResultMapper.selectByExampleWithBLOBs(example);
+        List<ApiDefinitionExecResultVo> resultVos = new LinkedList<>();
+        for (int i = 0; i < reportResults.size(); i++) {
+            ApiDefinitionExecResult item = reportResults.get(i);
+            if (StringUtils.equalsIgnoreCase(item.getErrorCode(), "null")) {
+                item.setErrorCode(null);
+            }
+            ApiDefinitionExecResultVo vo = new ApiDefinitionExecResultVo();
+            BeanUtils.copyBean(vo, item);
+            if (StringUtils.isNotEmpty(item.getContent())) {
+                vo.setRequestResult(JSON.parseObject(item.getContent(), RequestResult.class));
+                if (vo.getRequestResult() != null) {
+                    vo.setPassAssertions(vo.getRequestResult().getPassAssertions());
+                    vo.setTotalAssertions(vo.getRequestResult().getTotalAssertions());
+                    vo.getRequestResult().setName(item.getName());
+                }
+            }
+            if (vo.getRequestResult() == null) {
+                RequestResult requestResult = new RequestResult();
+                BeanUtils.copyBean(requestResult, item);
+                vo.setRequestResult(requestResult);
+            }
+            StepTreeDTO treeDTO = new StepTreeDTO(item.getName(), item.getResourceId(), "API", (i + 1));
+            treeDTO.setValue(vo.getRequestResult());
+            stepList.add(treeDTO);
+            resultVos.add(vo);
+        }
+        return resultVos;
+    }
+
+    private ApiScenarioReportDTO apiIntegratedReport(String reportId) {
+        List<StepTreeDTO> stepList = new LinkedList<>();
+        List<ApiDefinitionExecResultVo> reportResults = this.formatApiReport(reportId, stepList);
+        ApiScenarioReportDTO reportDTO = new ApiScenarioReportDTO();
+        // 组装报告
+        if (CollectionUtils.isNotEmpty(reportResults)) {
+            reportDTO.setTotal(reportResults.size());
+            reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equalsIgnoreCase(e.getStatus(), "Error")).collect(Collectors.toList()).size());
+            reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.isNotEmpty(e.getErrorCode())).collect(Collectors.toList()).size());
+            reportDTO.setPassAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getPassAssertions).sum());
+            reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getTotalAssertions).sum());
+
+            // 统计场景数据
+            AtomicLong totalScenario = new AtomicLong();
+            AtomicLong scenarioError = new AtomicLong();
+            AtomicLong totalTime = new AtomicLong();
+            AtomicLong errorReport = new AtomicLong();
+
+            calculate(stepList, totalScenario, scenarioError, totalTime, errorReport, true);
+            reportDTO.setTotalTime(totalTime.longValue());
+            reportDTO.setScenarioTotal(totalScenario.longValue());
+            reportDTO.setScenarioError(scenarioError.longValue());
+            reportDTO.setScenarioErrorReport(errorReport.longValue());
+            //统计步骤数据
+            reportDTO.setScenarioStepSuccess((reportResults.size() - reportDTO.getError()));
+            reportDTO.setScenarioStepTotal(reportResults.size());
+            reportDTO.setScenarioStepError(reportDTO.getError());
+            reportDTO.setScenarioStepErrorReport(0);
+
+            ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+            structureExample.createCriteria().andReportIdEqualTo(reportId);
+            List<ApiScenarioReportStructureWithBLOBs> reportStructureWithBLOBs = mapper.selectByExampleWithBLOBs(structureExample);
+            if (CollectionUtils.isNotEmpty(reportStructureWithBLOBs)) {
+                reportDTO.setConsole(reportStructureWithBLOBs.get(0).getConsole());
+            }
+            reportDTO.setSteps(stepList);
+        }
+
+        return reportDTO;
+    }
+
+    public ApiScenarioReportDTO assembleReport(String reportId) {
+        ApiScenarioReport report = scenarioReportMapper.selectByPrimaryKey(reportId);
+        if (report != null && report.getReportType().equals(ReportTypeConstants.API_INTEGRATED.name())) {
+            return this.apiIntegratedReport(reportId);
+        } else {
+            return this.getReport(reportId);
+        }
+    }
+
+    private ApiScenarioReportDTO getReport(String reportId) {
         ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
         example.createCriteria().andReportIdEqualTo(reportId);
         List<ApiScenarioReportResult> reportResults = reportResultMapper.selectByExampleWithBLOBs(example);
