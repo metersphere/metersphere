@@ -7,7 +7,7 @@
     :before-close="close">
     <el-form>
       <el-form-item :label="$t('commons.name')">
-        <el-input v-model="data.name"></el-input>
+        <el-input v-model="data.name" maxlength="60" show-word-limit></el-input>
       </el-form-item>
     </el-form>
 
