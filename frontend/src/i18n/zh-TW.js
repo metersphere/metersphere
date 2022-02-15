@@ -429,6 +429,7 @@ export default {
     sync_other_info: "復製以下信息到新版本",
     delete_current_version: '列表版本',
     delete_all_version: '全部版本',
+    change_password_tips: '您的密碼是系統初始密碼，請盡快修改密碼',
   },
   login: {
     normal_Login: "普通登錄",
