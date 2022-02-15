@@ -134,7 +134,7 @@
 
           <ms-table-column prop="principalName"
                            min-width="120px"
-                           :label="$t('api_test.definition.api_principal')"
+                           :label="$t('api_test.definition.request.responsible')"
                            :filters="userFilters"
                            :field="item"
                            :fields-width="fieldsWidth"
