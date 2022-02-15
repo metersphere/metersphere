@@ -2,6 +2,8 @@ package io.metersphere.api.exec.api;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.ApiCaseRunRequest;
+import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.exec.queue.DBTestQueue;
@@ -9,13 +11,16 @@ import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.service.ApiCaseResultService;
 import io.metersphere.api.service.ApiExecutionQueueService;
+import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.ApiScenarioReportStructureService;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
+import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.constants.*;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.MsExecResponseDTO;
@@ -49,6 +54,12 @@ public class ApiCaseExecuteService {
     private EnvironmentGroupProjectService environmentGroupProjectService;
     @Resource
     private ApiCaseResultService apiCaseResultService;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    ApiScenarioReportStructureService apiScenarioReportStructureService;
 
     /**
      * 测试计划case执行
@@ -80,8 +91,18 @@ public class ApiCaseExecuteService {
         Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
+        Map<String, String> planProjects = new HashMap<>();
         planApiCases.forEach(testPlanApiCase -> {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status);
+            if (planProjects.containsKey(testPlanApiCase.getTestPlanId())) {
+                report.setProjectId(planProjects.get(testPlanApiCase.getTestPlanId()));
+            } else {
+                TestPlan plan = CommonBeanFactory.getBean(TestPlanMapper.class).selectByPrimaryKey(testPlanApiCase.getTestPlanId());
+                if (plan != null) {
+                    planProjects.put(plan.getId(), plan.getProjectId());
+                    report.setProjectId(plan.getProjectId());
+                }
+            }
             executeQueue.put(testPlanApiCase.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
         });
@@ -135,6 +156,26 @@ public class ApiCaseExecuteService {
         List<ApiTestCaseWithBLOBs> list = apiTestCaseMapper.selectByExampleWithBLOBs(example);
         LoggerUtil.debug("查询到执行数据：" + list.size());
 
+        // 集合报告设置
+        String serialReportId = null;
+        if (StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())
+                && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
+            serialReportId = UUID.randomUUID().toString();
+            APIScenarioReportResult report = apiScenarioReportService.init(request.getConfig().getReportId(), null, request.getConfig().getReportName(),
+                    ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(),
+                    null, request.getConfig());
+            report.setVersionId(list.get(0).getVersionId());
+            report.setName(request.getConfig().getReportName());
+            report.setTestName(request.getConfig().getReportName());
+            report.setId(serialReportId);
+            report.setReportType(ReportTypeConstants.API_INTEGRATED.name());
+            request.getConfig().setAmassReport(serialReportId);
+            report.setStatus(APITestStatus.Running.name());
+            apiScenarioReportMapper.insert(report);
+
+            apiScenarioReportStructureService.save(serialReportId, new ArrayList<>());
+        }
+
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
             if (request.getCondition() == null || !request.getCondition().isSelectAll()) {
                 // 按照id指定顺序排序
@@ -152,11 +193,15 @@ public class ApiCaseExecuteService {
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
+
+        String finalSerialReportId = serialReportId;
         list.forEach(caseWithBLOBs -> {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
             report.setStatus(status);
             report.setName(caseWithBLOBs.getName());
+            report.setProjectId(caseWithBLOBs.getProjectId());
             report.setVersionId(caseWithBLOBs.getVersionId());
+            report.setIntegratedReportId(finalSerialReportId);
             executeQueue.put(caseWithBLOBs.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
         });
@@ -165,7 +210,7 @@ public class ApiCaseExecuteService {
 
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
-        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), null, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
+        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), finalSerialReportId, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
         // 开始选择执行模式
         if (request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
             LoggerUtil.debug("开始串行执行");

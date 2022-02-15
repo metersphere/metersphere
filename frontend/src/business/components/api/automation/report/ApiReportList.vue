@@ -43,8 +43,34 @@
             min-width="200px">
           </ms-table-column>
 
-          <el-table-column prop="scenarioName" :label="$t('api_test.automation.scenario_name')" width="150"
-                           show-overflow-tooltip/>
+          <el-table-column prop="reportType" :label="$t('load_test.report_type')" width="150">
+            <template v-slot:default="scope">
+              <div v-if="scope.row.reportType === 'SCENARIO_INTEGRATED'">
+                <el-tag size="mini" type="primary">
+                  {{ $t('api_test.scenario.integrated') }}
+                </el-tag>
+                {{ $t('commons.scenario') }}
+              </div>
+              <div v-else-if="scope.row.reportType === 'API_INDEPENDENT'">
+                <el-tag size="mini" type="primary">
+                  {{ $t('api_test.scenario.independent') }}
+                </el-tag>
+                case
+              </div>
+              <div v-else-if="scope.row.reportType === 'API_INTEGRATED'">
+                <el-tag size="mini" type="primary">
+                  {{ $t('api_test.scenario.integrated') }}
+                </el-tag>
+                case
+              </div>
+              <div v-else>
+                <el-tag size="mini" type="primary">
+                  {{ $t('api_test.scenario.independent') }}
+                </el-tag>
+                {{ $t('commons.scenario') }}
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
           <el-table-column prop="createTime" min-width="120" :label="$t('commons.create_time')" sortable>
             <template v-slot:default="scope">
@@ -85,7 +111,10 @@
                              :total="total"/>
       </el-card>
       <ms-rename-report-dialog ref="renameDialog" @submit="rename($event)"></ms-rename-report-dialog>
-
+      <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
+                 :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">
+        <ms-request-result-tail :response="response" ref="debugResult"/>
+      </el-dialog>
     </ms-main-container>
   </ms-container>
 </template>
@@ -96,6 +125,8 @@ import {REPORT_CONFIGS} from "../../../common/components/search/search-component
 import {_filter, _sort} from "@/common/js/tableUtils";
 import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
+import MsRequestResultTail from "../../../api/definition/components/response/RequestResultTail";
+
 export default {
   components: {
     ReportTriggerModeItem: () => import("../../../common/tableItem/ReportTriggerModeItem"),
@@ -108,10 +139,13 @@ export default {
     ShowMoreBtn: () => import("../../../track/case/components/ShowMoreBtn"),
     MsRenameReportDialog,
     MsTableColumn,
+    MsRequestResultTail,
   },
   data() {
     return {
       result: {},
+      resVisible: false,
+      response: {},
       reportId: "",
       debugVisible: false,
       condition: {
@@ -180,17 +214,36 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
+    getExecResult(apiCase) {
+      if (apiCase.id) {
+        let url = "/api/definition/report/get/" + apiCase.id;
+        this.$get(url, response => {
+          if (response.data) {
+            try {
+              let data = JSON.parse(response.data.content);
+              this.response = data;
+              this.resVisible = true;
+            } catch (error) {
+              this.resVisible = true;
+            }
+          }
+        });
+      }
+    },
     handleView(report) {
       this.reportId = report.id;
       if (report.status === 'Running') {
         this.$warning(this.$t('commons.run_warning'))
         return;
       }
-      this.currentProjectId = report.projectId;
-      this.$router.push({
-        path: 'report/view/' + report.id,
-      })
-
+      if (report.reportType.indexOf('SCENARIO') !== -1 || report.reportType === 'API_INTEGRATED') {
+        this.currentProjectId = report.projectId;
+        this.$router.push({
+          path: 'report/view/' + report.id,
+        })
+      } else {
+        this.getExecResult(report);
+      }
     },
     handleDelete(report) {
       this.$alert(this.$t('api_report.delete_confirm') + report.name + "？", '', {
