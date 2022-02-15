@@ -534,14 +534,14 @@ public class ShareInfoService {
                 millisCheck(shareInfo,1000 * 60 * 60 * 24);
             }else {
                 String expr= projectApplication.getShareReportExpr();
-                long timeMills = getTimeMills(expr);
+                long timeMills = getTimeMills(shareInfo.getUpdateTime(),expr);
                 millisCheck(shareInfo,timeMills);
             }
         }
     }
 
     private void millisCheck(ShareInfo shareInfo, long millis) {
-        if (System.currentTimeMillis() - shareInfo.getUpdateTime() > millis) {
+        if (shareInfo.getUpdateTime()<millis) {
             shareInfoMapper.deleteByPrimaryKey(shareInfo.getId());
             MSException.throwException("连接已失效，请重新获取!");
         }
