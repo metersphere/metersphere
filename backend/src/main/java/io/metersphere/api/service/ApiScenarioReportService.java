@@ -32,7 +32,6 @@ import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -78,7 +77,7 @@ public class ApiScenarioReportService {
     @Resource
     private ApiScenarioReportStructureMapper apiScenarioReportStructureMapper;
     @Resource
-    private SqlSessionFactory sqlSessionFactory;
+    private ApiDefinitionExecResultMapper definitionExecResultMapper;
 
     public void saveResult(List<RequestResult> requestResults, ResultDTO dto) {
         // 报告详情内容
@@ -118,7 +117,7 @@ public class ApiScenarioReportService {
         APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(reportId);
         if (reportResult != null) {
             if (reportResult.getReportVersion() != null && reportResult.getReportVersion() > 1) {
-                reportResult.setContent(JSON.toJSONString(apiScenarioReportStructureService.getReport(reportId)));
+                reportResult.setContent(JSON.toJSONString(apiScenarioReportStructureService.assembleReport(reportId)));
             } else {
                 ApiScenarioReportDetail detail = apiScenarioReportDetailMapper.selectByPrimaryKey(reportId);
                 if (detail != null && reportResult != null) {
@@ -319,17 +318,25 @@ public class ApiScenarioReportService {
         return report;
     }
 
-    public void margeReport(String reportId) {
+    public void margeReport(String reportId, String runMode) {
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
         if (report != null) {
             // 更新场景状态
-            ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
-            example.createCriteria().andReportIdEqualTo(reportId).andStatusEqualTo(ScenarioStatus.Error.name());
-            long size = apiScenarioReportResultMapper.countByExample(example);
-            report.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
-            report.setEndTime(System.currentTimeMillis());
+            if (StringUtils.equalsIgnoreCase(runMode, ApiRunMode.DEFINITION.name())) {
+                ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+                execResultExample.createCriteria().andIntegratedReportIdEqualTo(reportId).andStatusEqualTo("Error");
+                long size = definitionExecResultMapper.countByExample(execResultExample);
+                report.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
+            } else {
+                ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
+                example.createCriteria().andReportIdEqualTo(reportId).andStatusEqualTo(ScenarioStatus.Error.name());
+                long size = apiScenarioReportResultMapper.countByExample(example);
+                report.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
+            }
             // 更新控制台信息
             apiScenarioReportStructureService.update(reportId, FixedCapacityUtils.getJmeterLogger(reportId));
+
+            report.setEndTime(System.currentTimeMillis());
             // 更新报告
             apiScenarioReportMapper.updateByPrimaryKey(report);
         }
@@ -695,6 +702,7 @@ public class ApiScenarioReportService {
         report.setProjectId(projectId);
         report.setScenarioName(scenarioName);
         report.setScenarioId(scenarioId);
+        report.setReportType(ReportTypeConstants.SCENARIO_INDEPENDENT.name());
         return report;
     }
 
@@ -753,11 +761,19 @@ public class ApiScenarioReportService {
         }
     }
 
-    public void reName(QueryAPIReportRequest reportRequest) {
-        ApiScenarioReport apiTestReport = apiScenarioReportMapper.selectByPrimaryKey(reportRequest.getId());
-        if (apiTestReport != null) {
-            apiTestReport.setName(reportRequest.getName());
-            apiScenarioReportMapper.updateByPrimaryKey(apiTestReport);
+    public void reName(ApiScenarioReport reportRequest) {
+        if (StringUtils.equalsIgnoreCase(reportRequest.getReportType(), ReportTypeConstants.API_INDEPENDENT.name())) {
+            ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportRequest.getId());
+            if (result != null) {
+                result.setName(reportRequest.getName());
+                definitionExecResultMapper.updateByPrimaryKeySelective(result);
+            }
+        } else {
+            ApiScenarioReport apiTestReport = apiScenarioReportMapper.selectByPrimaryKey(reportRequest.getId());
+            if (apiTestReport != null) {
+                apiTestReport.setName(reportRequest.getName());
+                apiScenarioReportMapper.updateByPrimaryKey(apiTestReport);
+            }
         }
     }
 }

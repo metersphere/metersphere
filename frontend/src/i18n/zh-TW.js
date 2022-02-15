@@ -1042,6 +1042,7 @@ export default {
     delete_threadgroup_confirm: '確認刪除場景',
     scenario_list: '場景列表',
     scenario_name: "場景名稱",
+    report_type: "报告类型",
     upload_jmx: '上傳 JMX 文件',
     exist_jmx: '已存在的文件',
     other_resource: '資源文件',
@@ -1445,6 +1446,8 @@ export default {
       scenario_warning: "引用的場景步驟及子步驟都無法添加其他步驟",
       scenario_step_warning: "當前步驟下不能添加其他步驟",
       scenario_error: "不能引用或復製自身！",
+      integrated: "集合",
+      independent: "獨立",
     },
     request: {
       debug: "調試",

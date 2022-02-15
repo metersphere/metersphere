@@ -1,11 +1,10 @@
-package io.metersphere.base.domain;
+package io.metersphere.api.service.vo;
 
+import io.metersphere.dto.RequestResult;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
-public class ApiDefinitionExecResult implements Serializable {
+public class ApiDefinitionExecResultVo {
     private String id;
 
     private String name;
@@ -36,7 +35,9 @@ public class ApiDefinitionExecResult implements Serializable {
 
     private String integratedReportId;
 
-    private String content;
+    private long totalAssertions = 0;
 
-    private static final long serialVersionUID = 1L;
+    private long passAssertions = 0;
+
+    private RequestResult requestResult;
 }

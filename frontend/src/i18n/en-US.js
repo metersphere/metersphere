@@ -1036,6 +1036,7 @@ export default {
     delete_threadgroup_confirm: 'Confirm delete scenario',
     scenario_list: 'Scenario List',
     scenario_name: 'Scenario Name',
+    report_type: 'Report type',
     upload_jmx: 'Upload JMX',
     exist_jmx: 'Existed Files',
     other_resource: 'Resource Files',
@@ -1441,6 +1442,8 @@ export default {
       scenario_warning: "No other steps can be added to the referenced scenario steps and sub-steps",
       scenario_step_warning: "No other steps can be added under the current step",
       scenario_error: "Cannot reference or copy itself！",
+      integrated: "Integrated",
+      independent: "Independent",
     },
     request: {
       debug: "Debug",

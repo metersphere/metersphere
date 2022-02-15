@@ -8,7 +8,7 @@ public class ExtApiDefinitionExecResultProvider {
     public String insertListSql(List<ApiDefinitionExecResult> list) {
         StringBuffer sqlList = new StringBuffer();
         sqlList.append("insert into api_definition_exec_result (id, `name`, resource_id, `status`, user_id, start_time, end_time," +
-                " create_time, `type`, actuator, trigger_mode, version_id, error_code, content) values ");
+                " create_time, `type`, actuator, trigger_mode, version_id, error_code,project_id,integrated_report_id, content) values ");
         for (int i = 0; i < list.size(); i++) {
             ApiDefinitionExecResult result = list.get(i);
             sqlList.append(" (")
@@ -38,6 +38,10 @@ public class ExtApiDefinitionExecResultProvider {
                     .append(result.getVersionId())
                     .append("','")
                     .append(result.getErrorCode())
+                    .append("','")
+                    .append(result.getProjectId())
+                    .append("','")
+                    .append(result.getIntegratedReportId())
                     .append("','")
                     .append(result.getContent())
                     .append("'")

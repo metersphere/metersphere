@@ -83,6 +83,7 @@ public class ApiExecuteService {
         report.setName(caseWithBLOBs.getName());
         report.setTriggerMode(ApiRunMode.JENKINS.name());
         report.setType(ApiRunMode.JENKINS.name());
+        report.setProjectId(caseWithBLOBs.getProjectId());
         apiDefinitionExecResultMapper.insert(report);
         //更新接口案例的最后执行状态等信息
         caseWithBLOBs.setLastResultId(report.getId());

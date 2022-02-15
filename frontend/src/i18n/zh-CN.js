@@ -1042,6 +1042,7 @@ export default {
     delete_threadgroup_confirm: '确认删除场景',
     scenario_list: '场景列表',
     scenario_name: "场景名称",
+    report_type: "报告类型",
     upload_jmx: '上传 JMX 文件',
     exist_jmx: '已存在的文件',
     other_resource: '资源文件',
@@ -1445,6 +1446,8 @@ export default {
       scenario_warning: "引用的场景步骤及子步骤都无法添加其他步骤",
       scenario_step_warning: "当前步骤下不能添加其他步骤",
       scenario_error: "不能引用或复制自身！",
+      integrated: "集合",
+      independent: "独立",
     },
     request: {
       debug: "调试",

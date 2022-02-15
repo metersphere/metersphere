@@ -9,7 +9,7 @@
                 <div class="el-step__icon is-text ms-api-col-create">
                   <div class="el-step__icon-inner"> {{ indexNumber }}</div>
                 </div>
-                <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}" @click="active" @click.stop/>
+                <i class="icon el-icon-arrow-right" :class="{'is-active': showActive}" @click="active" @click.stop/>
                 <span>{{ getName(request.name) }}</span>
               </div>
             </el-tooltip>
@@ -68,13 +68,13 @@
       </div>
 
       <el-collapse-transition>
-        <div v-show="isActive && !request.unexecute" style="width: 99%">
+        <div v-show="showActive && !request.unexecute" style="width: 99%">
           <ms-request-result-tail
             :scenario-name="scenarioName"
             :request-type="requestType"
             :request="request"
             :console="console"
-            v-if="isActive"/>
+            v-if="showActive"/>
         </div>
       </el-collapse-transition>
     </div>
@@ -103,7 +103,13 @@ export default {
     indexNumber: Number,
     console: String,
     errorCode: String,
-    isActive: Boolean,
+    isActive: {
+      type: Boolean,
+      default: false
+    }
+  },
+  created() {
+    this.showActive = this.isActive;
   },
   data() {
     return {
@@ -120,6 +126,7 @@ export default {
           return "#F9F1EA";
         }
       },
+      showActive: false,
     }
   },
   watch: {
@@ -139,9 +146,9 @@ export default {
   methods: {
     active() {
       if (this.request.unexecute) {
-        this.isActive = false;
+        this.showActive = false;
       } else {
-        this.isActive = !this.isActive;
+        this.showActive = !this.showActive;
       }
     },
     getName(name) {

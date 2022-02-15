@@ -25,6 +25,7 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -154,6 +155,7 @@ public class ApiScenarioExecuteService {
             report.setVersionId(apiScenarios.get(0).getVersionId());
             report.setName(request.getConfig().getReportName());
             report.setId(serialReportId);
+            report.setReportType(ReportTypeConstants.SCENARIO_INTEGRATED.name());
             request.getConfig().setAmassReport(serialReportId);
             report.setStatus(APITestStatus.Running.name());
             apiScenarioReportMapper.insert(report);
