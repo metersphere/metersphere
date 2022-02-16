@@ -95,6 +95,7 @@
     <IssueRelateList
       :plan-case-id="planCaseId"
       :case-id="caseId"
+      :not-in-ids="notInIds"
       @refresh="getIssues"
       ref="issueRelate"/>
   </div>
@@ -145,6 +146,9 @@ export default {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
     },
+    notInIds() {
+      return this.page.data ? this.page.data.map(i => i.id) : [];
+    }
   },
   created() {
     getIssuePartTemplateWithProject((template, project) => {

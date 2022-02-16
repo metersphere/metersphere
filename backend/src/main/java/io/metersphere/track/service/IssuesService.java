@@ -273,7 +273,7 @@ public class IssuesService {
         example.createCriteria().andIssuesIdEqualTo(id);
         List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
         testCaseIssues.forEach(i -> {
-            if (i.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL)) {
+            if (i.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name())) {
                 testCaseIssueService.updateIssuesCount(i.getResourceId());
             }
         });
@@ -336,14 +336,21 @@ public class IssuesService {
             if (planMap.get(item.getResourceId()) != null) {
                 item.setResourceName(planMap.get(item.getResourceId()));
             }
+
             TestCaseIssuesExample example = new TestCaseIssuesExample();
             example.createCriteria().andIssuesIdEqualTo(item.getId());
             List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
-            List<String> caseIds = testCaseIssues.stream()
-                    .map(TestCaseIssues::getResourceId)
-                    .collect(Collectors.toList());
-            item.setCaseIds(caseIds);
-            item.setCaseCount(testCaseIssues.size());
+            Set<String> caseIdSet = new HashSet<>();
+            testCaseIssues.forEach(i -> {
+                if (i.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name())) {
+                    caseIdSet.add(i.getRefId());
+                } else {
+                    caseIdSet.add(i.getResourceId());
+                }
+            });
+            item.setCaseIds(new ArrayList<>(caseIdSet));
+            item.setCaseCount(caseIdSet.size());
+
             try {
                 if (StringUtils.equals(item.getPlatform(), IssuesManagePlatform.Tapd.name())) {
                     TapdPlatform platform = (TapdPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
@@ -541,7 +548,7 @@ public class IssuesService {
     }
 
     public List<IssuesDao> relateList(IssuesRequest request) {
-        return extIssuesMapper.getRelateIssues(request);
+        return extIssuesMapper.getIssues(request);
     }
 
     public void userAuth(AuthUserIssueRequest authUserIssueRequest) {
@@ -578,10 +585,20 @@ public class IssuesService {
         functionResult.setIssueData(statusResult);
     }
 
-    public List<IssuesDao> getIssuesByPlanoId(String planId) {
+    public List<IssuesDao> getIssuesByPlanId(String planId) {
         IssuesRequest issueRequest = new IssuesRequest();
-        issueRequest.setResourceId(planId);
-        return extIssuesMapper.getIssues(issueRequest);
+        issueRequest.setPlanId(planId);
+        List<IssuesDao> planIssues = extIssuesMapper.getPlanIssues(issueRequest);
+        Set<String> ids = new HashSet<>(planIssues.size());
+        Iterator<IssuesDao> iterator = planIssues.iterator();
+        while (iterator.hasNext()) {
+            IssuesDao next = iterator.next();
+            if (ids.contains(next.getId())) {
+                iterator.remove();
+            }
+            ids.add(next.getId());
+        }
+        return planIssues;
     }
 
     public void changeStatus(IssuesRequest request) {

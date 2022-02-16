@@ -249,8 +249,8 @@
     <select id="getProjectPlanBugSize" resultType="java.lang.Integer">
         select count(distinct (tci.issues_id))
         from test_plan_test_case tptc
-                 join test_case_issues tci on tptc.case_id = tci.resource_id
-                 right join test_case on test_case.id = tci.resource_id
+                 join test_case_issues tci on tptc.id = tci.resource_id
+                 right join test_case on test_case.id = tci.ref_id
                  join issues on tci.issues_id = issues.id
                  join test_plan on tptc.plan_id = test_plan.id
         where test_plan.project_id = #{projectId}

@@ -43,9 +43,11 @@ public class IssuesRequest extends BaseQueryRequest {
     private String platform;
     private String customFields;
     private List<String> testCaseIds;
+    private List<String> notInIds;
 
     private String requestType;
     private String status;
     private String defaultCustomFields;
     private Boolean isPlanEdit = false;
+    private String planId;
 }
