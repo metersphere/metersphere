@@ -47,7 +47,19 @@
         <el-col class="item" v-if="isActive && item.type !== 'file'">
           <el-input-number v-if="item.rangeType === 'length_eq' || item.rangeType === 'length_not_eq' || item.rangeType === 'length_large_than' || item.rangeType === 'length_shot_than'"
                            v-model="item.value" size="small" :placeholder="valueText" show-word-limit />
-          <el-input v-else v-model="item.value" size="small" :placeholder="valueText" show-word-limit />
+          <el-autocomplete
+            v-else
+            :disabled="isReadOnly"
+            size="small"
+            class="input-with-autocomplete"
+            v-model="item.value"
+            :fetch-suggestions="funcSearch"
+            :placeholder="valueText"
+            value-key="name"
+            highlight-first-item
+            @select="change">
+            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
+          </el-autocomplete>
         </el-col>
 
         <el-col class="item">

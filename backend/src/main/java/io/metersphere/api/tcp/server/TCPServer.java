@@ -21,7 +21,6 @@ public class TCPServer implements Runnable {
 
     public void openSocket() throws Exception {
         this.serverSocket = new ServerSocket(this.port);
-        int connectIndex = 0;
 
         while (true) {
             if (!this.serverSocket.isClosed()) {
