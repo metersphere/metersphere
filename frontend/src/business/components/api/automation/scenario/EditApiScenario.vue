@@ -1772,6 +1772,9 @@ export default {
                 if(obj){
                   if(obj.hashTree){
                     for (let i = 0; i < obj.hashTree.length; i++) {
+                      if(!obj.hashTree[i].index){
+                        obj.hashTree[i].index = i+1;
+                      }
                       obj.hashTree[i].disabled = true;
                       if (!obj.hashTree[i].requestResult) {
                         obj.hashTree[i].requestResult = [{responseResult: {}}];
@@ -1784,7 +1787,7 @@ export default {
                       this.newOnSampleError = obj.onSampleError;
                     }
                   }
-
+                  this.dataProcessing(obj.hashTree);
                   this.newScenarioDefinition = obj.hashTree;
                   for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
                     this.oldScenarioDefinition[i].disabled = true;
@@ -1802,8 +1805,9 @@ export default {
               this.oldData = this.currentScenario;
               this.newData = res.data;
               this.closeExpansion()
-              this.dialogVisible = true;
             }
+            this.sort();
+            this.dialogVisible = true;
           });
       })
     },
