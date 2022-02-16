@@ -13,21 +13,28 @@
             </div>
             <span>{{ $t('schedule.edit_timer_task') }}</span>
             <el-form :model="form" :rules="rules" ref="from" style="padding-top: 10px;margin-left: 20px;">
-              <el-form-item
-                prop="cronValue">
-                <el-row>
+              <el-form-item :label="$t('commons.schedule_switch')">
+                <el-row :gutter="20">
                   <el-col :span="18">
-                    <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
-                              :placeholder="$t('schedule.please_input_cron_expression')"/>
+                    <el-tooltip effect="dark" placement="bottom"
+                                :content="schedule.enable?$t('commons.close_schedule'):$t('commons.open_schedule')">
+                      <el-switch v-model="schedule.enable"></el-switch>
+                    </el-tooltip>
+                  </el-col>
+                  <el-col :span="2">
                     <el-button :disabled="isReadOnly" type="primary" @click="saveCron">{{
                         $t('commons.save')
                       }}
                     </el-button>
                   </el-col>
-                  <el-col :span="6">
-                    <schedule-switch :schedule="schedule" :corn-value="form.cronValue"
-                                     @resultListChange="getExecuteTimeTemplate"
-                                     @scheduleChange="scheduleChange"></schedule-switch>
+                </el-row>
+              </el-form-item>
+              <el-form-item :label="$t('commons.schedule_cron_title')"
+                            prop="cronValue">
+                <el-row>
+                  <el-col :span="18">
+                    <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
+                              :placeholder="$t('schedule.please_input_cron_expression')"/>
                   </el-col>
                 </el-row>
 
@@ -192,6 +199,7 @@ export default {
       dialogVisible: false,
       schedule: {
         value: "",
+        enable: true,
       },
       scheduleTaskType: "",
       testId: String,
@@ -290,8 +298,8 @@ export default {
       this.getResourcePools();
     },
     findSchedule() {
-      var scheduleResourceID = this.testId;
-      var taskType = this.scheduleTaskType;
+      let scheduleResourceID = this.testId;
+      let taskType = this.scheduleTaskType;
       this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" + taskType, response => {
         if (response.data != null) {
           this.schedule = response.data;
@@ -299,7 +307,10 @@ export default {
             this.runConfig = JSON.parse(response.data.config);
           }
         } else {
-          this.schedule = {};
+          this.schedule = {
+            value: '',
+            enable: true
+          };
         }
       });
     },
@@ -322,7 +333,7 @@ export default {
         if (valid) {
           this.intervalShortValidate();
           let formCronValue = this.form.cronValue;
-          this.schedule.enable = true;
+          // this.schedule.enable = true;
           this.schedule.value = formCronValue;
           this.saveSchedule();
           this.dialogVisible = false;

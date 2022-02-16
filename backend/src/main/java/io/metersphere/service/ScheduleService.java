@@ -164,7 +164,7 @@ public class ScheduleService {
     public Schedule buildApiTestSchedule(ScheduleRequest request) {
         Schedule schedule = new Schedule();
         schedule.setResourceId(request.getResourceId());
-        schedule.setEnable(true);
+        schedule.setEnable(request.getEnable());
         schedule.setValue(request.getValue().trim());
         schedule.setKey(request.getResourceId());
         schedule.setUserId(SessionUtils.getUser().getId());
