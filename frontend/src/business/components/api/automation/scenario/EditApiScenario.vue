@@ -1378,7 +1378,7 @@ export default {
           if (valid) {
             await this.setParameter();
             if (!this.currentScenario.versionId) {
-              if (this.$refs.versionHistory) {
+              if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
                 this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
               }
             }
