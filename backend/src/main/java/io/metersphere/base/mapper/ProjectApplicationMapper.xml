@@ -4,7 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ProjectApplication">
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="share_report_expr" jdbcType="VARCHAR" property="shareReportExpr" />
+    <result column="type_value" jdbcType="VARCHAR" property="typeValue" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +65,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    project_id, `type`, share_report_expr
+    project_id, `type`, type_value
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ProjectApplicationExample" resultMap="BaseResultMap">
     select
@@ -88,9 +88,9 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ProjectApplication">
-    insert into project_application (project_id, `type`, share_report_expr
+    insert into project_application (project_id, `type`, type_value
       )
-    values (#{projectId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{shareReportExpr,jdbcType=VARCHAR}
+    values (#{projectId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{typeValue,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ProjectApplication">
@@ -102,8 +102,8 @@
       <if test="type != null">
         `type`,
       </if>
-      <if test="shareReportExpr != null">
-        share_report_expr,
+      <if test="typeValue != null">
+        type_value,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -113,8 +113,8 @@
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
-      <if test="shareReportExpr != null">
-        #{shareReportExpr,jdbcType=VARCHAR},
+      <if test="typeValue != null">
+        #{typeValue,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -133,8 +133,8 @@
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
       </if>
-      <if test="record.shareReportExpr != null">
-        share_report_expr = #{record.shareReportExpr,jdbcType=VARCHAR},
+      <if test="record.typeValue != null">
+        type_value = #{record.typeValue,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -145,7 +145,7 @@
     update project_application
     set project_id = #{record.projectId,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
-      share_report_expr = #{record.shareReportExpr,jdbcType=VARCHAR}
+      type_value = #{record.typeValue,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

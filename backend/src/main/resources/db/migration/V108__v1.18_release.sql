@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `project_application`
 (
     `project_id` varchar(50) DEFAULT NULL,
     `type` varchar(50) DEFAULT NULL,
-    `share_report_expr`varchar(50) NOT NULL DEFAULT '24H',
+    `type_value` varchar(255) DEFAULT NULL,
     UNIQUE KEY `project_application_pk` (`project_id`, `type`),
     KEY `project_application_project_id_index` (`project_id`),
     KEY `project_application_type` (`type`)
@@ -143,9 +143,9 @@ BEGIN
         #遍历游标
         REPEAT
             #利用取到的值进行数据库的操作
-            INSERT INTO project_application (project_id, type, share_report_expr)
-            VALUES (projectId, 'TRACK', '24H'),
-                   (projectId, 'PERFORMANCE', '24H');
+            INSERT INTO project_application (project_id, type, type_value)
+            VALUES (projectId, 'TRACK_SHARE_REPORT_TIME', '24H'),
+                   (projectId, 'PERFORMANCE_SHARE_REPORT_TIME', '24H');
             # 将游标中的值再赋值给变量，供下次循环使用
             FETCH project_curosr INTO projectId;
         UNTIL end_flag END REPEAT;
