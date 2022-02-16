@@ -48,6 +48,7 @@ public class MsHashTreeService {
     private static final String ENABLE = "enable";
     private static final String NUM = "num";
     private static final String ENV_ENABLE = "environmentEnable";
+    private static final String VARIABLE_ENABLE = "variableEnable";
     private static final String DISABLED = "disabled";
     private static final String VERSION_NAME = "versionName";
     private static final String VERSION_ENABLE = "versionEnable";
@@ -217,10 +218,16 @@ public class MsHashTreeService {
 
     private JSONObject setRefScenario(JSONObject element) {
         boolean enable = element.containsKey(ENABLE) ? element.getBoolean(ENABLE) : true;
+        if (!element.containsKey(VARIABLE_ENABLE)) {
+            element.put(VARIABLE_ENABLE, true);
+        }
+
         ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString(ID));
         if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
             boolean environmentEnable = element.containsKey(ENV_ENABLE)
                     ? element.getBoolean(ENV_ENABLE) : false;
+            boolean variableEnable = element.containsKey(VARIABLE_ENABLE)
+                    ? element.getBoolean(VARIABLE_ENABLE) : true;
 
             if (StringUtils.equalsIgnoreCase(element.getString(REFERENCED), REF)) {
                 element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
@@ -229,6 +236,9 @@ public class MsHashTreeService {
             }
             element.put(ID, scenarioWithBLOBs.getId());
             element.put(ENV_ENABLE, environmentEnable);
+            if (!element.containsKey(VARIABLE_ENABLE)) {
+                element.put(VARIABLE_ENABLE, variableEnable);
+            }
             this.setElement(element, scenarioWithBLOBs.getNum(), enable, scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable());
         } else {
             if (StringUtils.equalsIgnoreCase(element.getString(REFERENCED), REF)) {
