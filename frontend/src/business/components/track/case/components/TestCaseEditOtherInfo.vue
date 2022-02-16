@@ -14,7 +14,7 @@
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
 
-          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" clearable filterable/>
+          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" clearable filterable :filter-method="filterDemand"/>
         </el-form-item>
       </el-col>
       <el-col :span="7">
@@ -310,6 +310,12 @@ export default {
         }
         pathArray.pop();
       });
+    },
+    filterDemand(node, keyword) {
+      if (keyword && node.text.toLowerCase().indexOf(keyword.toLowerCase()) !== -1) {
+        return true;
+      }
+      return false;
     }
   }
 };

@@ -3,7 +3,7 @@
     <el-row>
       <el-col>
         <span v-if="!debug">
-          <el-input v-if="nameIsEdit" size="mini" @blur="handleSave(report.name)" style="width: 200px" v-model="report.name"/>
+          <el-input v-if="nameIsEdit" size="mini" @blur="handleSave(report.name)" style="width: 200px" v-model="report.name" maxlength="60" show-word-limit/>
           <span v-else>
             <router-link v-if="isSingleScenario" :to="{name: 'ApiAutomation', params: { dataSelectRange: 'edit:' + scenarioId }}">
               {{ report.name }}
