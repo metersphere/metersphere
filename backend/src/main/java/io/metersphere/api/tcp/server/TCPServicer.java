@@ -60,7 +60,7 @@ public class TCPServicer {
                     MockApiUtils mockApiUtils = new MockApiUtils();
                     boolean useScript = false;
                     if(respResultObj.containsKey("usePostScript")){
-                        useScript = responseObj.getBoolean("usePostScript");
+                        useScript = respResultObj.getBoolean("usePostScript");
                     }
                     returnMsg = mockApiUtils.getResultByResponseResult(respResultObj.getJSONObject("body"),"",null,null,useScript);
                 }
