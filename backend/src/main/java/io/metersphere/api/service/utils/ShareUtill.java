@@ -1,10 +1,8 @@
 package io.metersphere.api.service.utils;
 
 import org.apache.commons.lang3.StringUtils;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+
+import java.time.*;
 
 public class ShareUtill {
 
@@ -13,8 +11,10 @@ public class ShareUtill {
     private static final String UNIT_MONTH = "M";
     private static final String UNIT_YEAR = "Y";
 
-    public static long getTimeMills(String expr) {
-        LocalDateTime localDateTime  = LocalDateTime.of(LocalDate.now(), LocalTime.now().withMinute(0).withSecond(0).withNano(0));
+    public static long getTimeMills(long time,String expr) {
+        Instant instant = Instant.ofEpochMilli(time);
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
         long timeMills = 0;
         LocalDateTime date = exprToLocalDateTime(localDateTime, expr);
         if (date != null) {
