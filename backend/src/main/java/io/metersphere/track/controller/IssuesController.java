@@ -82,7 +82,7 @@ public class IssuesController {
     @GetMapping("/plan/get/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<IssuesDao> getIssuesByPlanId(@PathVariable String planId) {
-        return issuesService.getIssuesByPlanoId(planId);
+        return issuesService.getIssuesByPlanId(planId);
     }
 
     @GetMapping("/auth/{workspaceId}/{platform}")

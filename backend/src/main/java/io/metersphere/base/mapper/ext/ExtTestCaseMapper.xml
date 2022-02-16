@@ -724,9 +724,9 @@
     <select id="getTestPlanBug" resultType="int">
         select count(distinct (tci.issues_id))
         from test_plan_test_case tptc
-                 join test_case_issues tci on tptc.case_id = tci.resource_id
+                 join test_case_issues tci on tptc.id = tci.resource_id
                  right join test_case
-                            on test_case.id = tci.resource_id
+                            on test_case.id = tci.ref_id
                  join issues
                       on tci.issues_id = issues.id
         where tptc.plan_id = #{planId}

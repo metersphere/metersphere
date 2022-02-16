@@ -50,6 +50,7 @@
     </ms-table>
 
     <test-case-relate-list
+      :test-case-contain-ids="testCaseContainIds"
       @refresh="initTableData"
       @save="handleRelate"
       ref="testCaseRelevance"/>
@@ -72,6 +73,7 @@ export default {
       tableData: [],
       deleteIds: new Set(),
       addIds: new Set(),
+      testCaseContainIds: new Set(),
       operators: [
         {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
@@ -85,6 +87,7 @@ export default {
   },
   methods: {
     handleDelete(item, index) {
+      this.testCaseContainIds.delete(item.id);
       this.tableData.splice(index, 1);
       this.deleteIds.add(item.id);
     },
@@ -96,6 +99,9 @@ export default {
       if (this.issuesId) {
         this.result = this.$post('test/case/issues/list', condition, response => {
           this.tableData = response.data;
+          this.tableData.forEach(item => {
+            this.testCaseContainIds.add(item.id);
+          });
           this.$refs.table.reloadTable();
         });
       }
@@ -106,6 +112,9 @@ export default {
     handleRelate(selectRows) {
       let selectData = Array.from(selectRows);
       selectRows.forEach(i => {
+        if (i.id) {
+          this.testCaseContainIds.add(i.id);
+        }
         this.deleteIds.delete(i.id);
         this.addIds.add(i.id);
       });
