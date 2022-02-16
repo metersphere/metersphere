@@ -223,6 +223,9 @@ public class ApiScenarioEnvService {
      * @param apiScenarioWithBLOBs
      */
     public void setScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, RunScenarioRequest request) {
+        if (apiScenarioWithBLOBs == null) {
+            return;
+        }
         String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
         String environmentJson = apiScenarioWithBLOBs.getEnvironmentJson();
         String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
@@ -245,68 +248,70 @@ public class ApiScenarioEnvService {
     }
 
     public boolean checkScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, TestPlanApiScenario testPlanApiScenarios) {
-        String definition = apiScenarioWithBLOBs.getScenarioDefinition();
-        MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
         boolean isEnv = true;
-        Map<String, String> envMap = scenario.getEnvironmentMap();
-        if (testPlanApiScenarios != null) {
-            String envType = testPlanApiScenarios.getEnvironmentType();
-            String envJson = testPlanApiScenarios.getEnvironment();
-            String envGroupId = testPlanApiScenarios.getEnvironmentGroupId();
-            if (StringUtils.equals(envType, EnvironmentType.JSON.toString())
-                    && StringUtils.isNotBlank(envJson)) {
-                envMap = JSON.parseObject(testPlanApiScenarios.getEnvironment(), Map.class);
-            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name())
-                    && StringUtils.isNotBlank(envGroupId)) {
-                envMap = environmentGroupProjectService.getEnvMap(envGroupId);
-            } else {
-                envMap = new HashMap<>();
-            }
-        }
-        ScenarioEnv apiScenarioEnv = getApiScenarioEnv(definition);
-        // 所有请求非全路径检查环境
-        if (!apiScenarioEnv.getFullUrl()) {
-            try {
-                if (envMap == null || envMap.isEmpty()) {
-                    isEnv = false;
+        if (apiScenarioWithBLOBs != null) {
+            String definition = apiScenarioWithBLOBs.getScenarioDefinition();
+            MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
+            Map<String, String> envMap = scenario.getEnvironmentMap();
+            if (testPlanApiScenarios != null) {
+                String envType = testPlanApiScenarios.getEnvironmentType();
+                String envJson = testPlanApiScenarios.getEnvironment();
+                String envGroupId = testPlanApiScenarios.getEnvironmentGroupId();
+                if (StringUtils.equals(envType, EnvironmentType.JSON.toString())
+                        && StringUtils.isNotBlank(envJson)) {
+                    envMap = JSON.parseObject(testPlanApiScenarios.getEnvironment(), Map.class);
+                } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name())
+                        && StringUtils.isNotBlank(envGroupId)) {
+                    envMap = environmentGroupProjectService.getEnvMap(envGroupId);
                 } else {
-                    Set<String> projectIds = apiScenarioEnv.getProjectIds();
-                    projectIds.remove(null);
-                    if (CollectionUtils.isNotEmpty(envMap.keySet())) {
-                        for (String id : projectIds) {
-                            Project project = projectMapper.selectByPrimaryKey(id);
-                            if (project == null) {
-                                id = apiScenarioWithBLOBs.getProjectId();
-                            }
-                            String s = envMap.get(id);
-                            if (StringUtils.isBlank(s)) {
-                                isEnv = false;
-                                break;
-                            } else {
-                                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(s);
-                                if (env == null) {
+                    envMap = new HashMap<>();
+                }
+            }
+            ScenarioEnv apiScenarioEnv = getApiScenarioEnv(definition);
+            // 所有请求非全路径检查环境
+            if (!apiScenarioEnv.getFullUrl()) {
+                try {
+                    if (envMap == null || envMap.isEmpty()) {
+                        isEnv = false;
+                    } else {
+                        Set<String> projectIds = apiScenarioEnv.getProjectIds();
+                        projectIds.remove(null);
+                        if (CollectionUtils.isNotEmpty(envMap.keySet())) {
+                            for (String id : projectIds) {
+                                Project project = projectMapper.selectByPrimaryKey(id);
+                                if (project == null) {
+                                    id = apiScenarioWithBLOBs.getProjectId();
+                                }
+                                String s = envMap.get(id);
+                                if (StringUtils.isBlank(s)) {
                                     isEnv = false;
                                     break;
+                                } else {
+                                    ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(s);
+                                    if (env == null) {
+                                        isEnv = false;
+                                        break;
+                                    }
                                 }
                             }
+                        } else {
+                            isEnv = false;
                         }
-                    } else {
-                        isEnv = false;
                     }
+                } catch (Exception e) {
+                    isEnv = false;
+                    LogUtil.error(e.getMessage(), e);
                 }
-            } catch (Exception e) {
-                isEnv = false;
-                LogUtil.error(e.getMessage(), e);
             }
-        }
 
-        // 1.8 之前环境是 environmentId
-        if (!isEnv) {
-            String envId = scenario.getEnvironmentId();
-            if (StringUtils.isNotBlank(envId)) {
-                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
-                if (env != null) {
-                    isEnv = true;
+            // 1.8 之前环境是 environmentId
+            if (!isEnv) {
+                String envId = scenario.getEnvironmentId();
+                if (StringUtils.isNotBlank(envId)) {
+                    ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
+                    if (env != null) {
+                        isEnv = true;
+                    }
                 }
             }
         }

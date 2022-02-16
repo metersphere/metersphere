@@ -43,11 +43,24 @@
       </span>
     </template>
     <template v-slot:scenarioEnable v-if="!ifFromVariableAdvance">
-      <el-tooltip :content="$t('commons.enable_scene_info')" placement="top">
-        <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">
-          {{ $t('commons.enable_scene') }}
-        </el-checkbox>
-      </el-tooltip>
+      <el-popover
+        placement="bottom"
+        width="200"
+        trigger="click">
+        <ul>
+          <el-tooltip :content="$t('commons.enable_scene_info')" placement="top">-->
+            <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">
+              {{ $t('commons.enable_scene') }}
+            </el-checkbox>
+          </el-tooltip>
+          <el-checkbox v-model="scenario.variableEnable" :disabled="scenario.disabled">
+            {{ $t('commons.variable_scene') }}
+          </el-checkbox>
+        </ul>
+        <span class="el-dropdown-link ms-test-running" slot="reference" @click.stop>
+          {{ $t('commons.reference_settings') }}
+        </span>
+      </el-popover>
     </template>
     <template v-slot:button v-if="!ifFromVariableAdvance">
       <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!scenario.run">
@@ -90,7 +103,7 @@ export default {
       type: Boolean,
       default: true,
     },
-    showVersion:{
+    showVersion: {
       type: Boolean,
       default: true,
     },

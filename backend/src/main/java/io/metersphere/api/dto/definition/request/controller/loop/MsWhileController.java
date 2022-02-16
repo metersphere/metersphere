@@ -7,6 +7,6 @@ public class MsWhileController {
     private String variable;
     private String operator;
     private String value;
-    private int timeout;
+    private long timeout;
     private Object requestResult;
 }
