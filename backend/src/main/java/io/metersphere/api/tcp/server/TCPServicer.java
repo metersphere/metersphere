@@ -57,7 +57,12 @@ public class TCPServicer {
             if(responseObj.containsKey("responseResult")){
                 JSONObject respResultObj = responseObj.getJSONObject("responseResult");
                 if(respResultObj.containsKey("body")){
-                    returnMsg = MockApiUtils.getResultByResponseResult(respResultObj.getJSONObject("body"),"",null,null);
+                    MockApiUtils mockApiUtils = new MockApiUtils();
+                    boolean useScript = false;
+                    if(respResultObj.containsKey("usePostScript")){
+                        useScript = responseObj.getBoolean("usePostScript");
+                    }
+                    returnMsg = mockApiUtils.getResultByResponseResult(respResultObj.getJSONObject("body"),"",null,null,useScript);
                 }
                 try {
                     if(respResultObj.containsKey("delayed")){
@@ -69,7 +74,6 @@ public class TCPServicer {
             }else {
                 returnMsg = responseObj.getString("body");
             }
-
 
             try {
                 Thread.sleep(delayed);

@@ -1,35 +1,56 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <div class="text-container" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%">
-    <el-form :model="response" ref="response" label-width="100px">
+<template>
+  <div v-if="reloaded">
+    <div class="text-container" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%">
+      <el-form :model="response" ref="response" label-width="100px">
 
-      <el-collapse-transition>
-        <el-tabs v-model="activeName" v-show="isActive" style="margin: 20px">
-          <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-            <ms-api-key-value style="width: 95%" :isShowEnable="false" :suggestions="headerSuggestions" :items="response.headers"/>
-          </el-tab-pane>
-          <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-            <mock-api-response-body :isReadOnly="false" :isShowEnable="false" :api-id="apiId" :body="response.body" :headers="response.headers"/>
-          </el-tab-pane>
+        <el-collapse-transition>
+          <el-tabs v-model="activeName" v-show="isActive" style="margin: 20px">
+            <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.response_header')" name="headers"
+                         class="pane">
+              <ms-api-key-value style="width: 95%" :isShowEnable="false" :suggestions="headerSuggestions"
+                                :items="response.headers"/>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
+              <mock-api-response-body :isReadOnly="false" :isShowEnable="false" :api-id="apiId" :body="response.body"
+                                      :headers="response.headers" :use-post-script="response.usePostScript"/>
+            </el-tab-pane>
 
-          <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.status_code')" name="status_code" class="pane">
-            <el-row>
-              <el-col :span="2"/>
-              <el-col :span="20">
-                <el-input size="small" style="width: 180px;margin-top: 10px" v-model="response.httpCode"/>
-              </el-col>
-              <el-col :span="2"/>
-            </el-row>
-          </el-tab-pane>
-          <el-tab-pane :label="$t('commons.response_time_delay')" name="delayed" class="pane">
-            <el-row>
-              <el-input-number v-model="response.delayed" :min="0">
-                <template slot="append">ms</template>
-              </el-input-number>
-            </el-row>
-          </el-tab-pane>
-        </el-tabs>
-      </el-collapse-transition>
-    </el-form>
+            <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.status_code')" name="status_code"
+                         class="pane">
+              <el-row>
+                <el-col :span="2"/>
+                <el-col :span="20">
+                  <el-input size="small" style="width: 180px;margin-top: 10px" v-model="response.httpCode"/>
+                </el-col>
+                <el-col :span="2"/>
+              </el-row>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('commons.response_time_delay')" name="delayed" class="pane">
+              <el-row>
+                <el-input-number v-model="response.delayed" :min="0">
+                  <template slot="append">ms</template>
+                </el-input-number>
+              </el-row>
+            </el-tab-pane>
+          </el-tabs>
+        </el-collapse-transition>
+      </el-form>
+    </div>
+    <div v-if="response.usePostScript">
+      <el-row style="margin-top: 10px;">
+        <el-col :span="12">
+          <p class="tip">{{ $t('api_test.definition.request.post_script') }}</p>
+        </el-col>
+        <el-col :span="12">
+          <i class="el-icon-close" @click="removePostScript"/>
+        </el-col>
+      </el-row>
+      <div class="text-container" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%">
+        <div style="padding: 15px 0;">
+          <mock-api-script-editor :jsr223-processor="response.body.scriptObject"/>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -44,6 +65,7 @@ import MsApiExtract from "@/business/components/api/definition/components/extrac
 import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 import MsApiAdvancedConfig from "@/business/components/api/definition/components/request/http/ApiAdvancedConfig";
 import MsJsr233Processor from "@/business/components/api/automation/scenario/component/Jsr233Processor";
+import MockApiScriptEditor from "@/business/components/api/definition/components/mock/Components/MockApiScriptEditor";
 import ApiDefinitionStepButton
   from "@/business/components/api/definition/components/request/components/ApiDefinitionStepButton";
 import {Body, BODY_FORMAT} from "@/business/components/api/definition/model/ApiTestModel";
@@ -61,13 +83,14 @@ export default {
     MsApiExtract,
     MsApiAuthConfig,
     MockApiResponseBody,
+    MockApiScriptEditor,
     MsApiKeyValue,
     MsApiAssertions
   },
   props: {
     response: {},
-    apiId:String,
-    isTcp:{
+    apiId: String,
+    isTcp: {
       type: Boolean,
       default: false,
     }
@@ -75,6 +98,7 @@ export default {
   data() {
     return {
       isActive: true,
+      reloaded: true,
       activeName: "body",
       modes: ['text', 'json', 'xml', 'html'],
       sqlModes: ['text', 'table'],
@@ -85,16 +109,30 @@ export default {
     };
   },
   watch: {
-    response(){
+    response() {
       this.setBodyType();
       this.setReqMessage();
-    }
+    },
   },
   created() {
     this.setBodyType();
     this.setReqMessage();
   },
   methods: {
+    setUsePostScript() {
+      this.response.usePostScript = true;
+      this.refresh();
+    },
+    removePostScript() {
+      this.response.usePostScript = false;
+      this.refresh();
+    },
+    refresh() {
+      this.reloaded = false;
+      this.$nextTick(() => {
+        this.reloaded = true;
+      })
+    },
     modeChange(mode) {
       this.mode = mode;
     },
@@ -102,13 +140,16 @@ export default {
       this.mode = mode;
     },
     setBodyType() {
+      if (!this.response.usePostScript) {
+        this.response.usePostScript = false;
+      }
       if (!this.response || !this.response || !this.response.headers) {
         return;
       }
-      if(!this.response.httpCode || this.response.httpCode === ''){
-        this.$set(this.response,"httpCode","200");
+      if (!this.response.httpCode || this.response.httpCode === '') {
+        this.$set(this.response, "httpCode", "200");
       }
-      if(!this.response.delayed){
+      if (!this.response.delayed) {
         this.response.delayed = 0;
       }
       if (Object.prototype.toString.call(this.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
@@ -167,8 +208,8 @@ export default {
           this.response.vars = "";
         }
         this.reqMessages = this.$t('api_test.request.address') + ":\n" + this.response.url + "\n" +
-          this.$t('api_test.scenario.headers') + ":\n" + this.response.headers + "\n" + "Cookies :\n" +
-          this.response.cookies + "\n" + "Body:" + "\n" + this.response.body;
+            this.$t('api_test.scenario.headers') + ":\n" + this.response.headers + "\n" + "Cookies :\n" +
+            this.response.cookies + "\n" + "Body:" + "\n" + this.response.body;
       }
     },
   },
@@ -222,5 +263,13 @@ export default {
 
 pre {
   margin: 0;
+}
+
+.el-icon-close {
+  position: absolute;
+  font-size: 20px;
+  right: 10px;
+  top: 10px;
+  color: gray;
 }
 </style>
