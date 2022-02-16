@@ -315,7 +315,7 @@
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
         t1.id, t1.project_id, t1.name,t1.case_status, t1.api_definition_id, t1.priority, t1.description, t1.create_user_id, t1.update_user_id, t1.create_time, t1.update_time, t1.num,
-        a.module_id, a.path, a.protocol, t1.tags,t1.status,t2.STATUS AS execResult, t1.last_result_id as lastResultId, project.name as project_name,
+        a.module_id, a.path, a.protocol, t1.tags,t1.status,t2.STATUS AS execResult, t2.id as lastResultId, project.name as project_name,
         t1.delete_time, deleteUser.name AS deleteUser,CONCAT(FORMAT(SUM(IF (t2.`status`='success',1,0))/COUNT(t2.id)*100,2),'%') passRate, project_version.name as version_name
         from
         api_test_case t1
