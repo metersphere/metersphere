@@ -108,9 +108,15 @@
             min-width="120px"
             :label="$t('test_track.plan_view.execute_result')">
             <template v-slot:default="scope">
-              <i class="el-icon-loading ms-running" v-if="scope.row.status === 'Running'"/>
-              <el-link @click="getExecResult(scope.row)"
-                       :class="getStatusClass(scope.row.status)">{{ getStatusTitle(scope.row.status) }}</el-link>
+              <div v-if="scope.row.status === 'Running'">
+                  <i class="el-icon-loading ms-running"/>
+                  <el-link :class="getStatusClass(scope.row.status)">
+                    {{ getStatusTitle(scope.row.status) }}
+                  </el-link>
+              </div>
+              <el-link v-else @click="getExecResult(scope.row)" :class="getStatusClass(scope.row.execResult)">
+                {{ getStatusTitle(scope.row.execResult) }}
+              </el-link>
             </template>
           </ms-table-column>
 
@@ -406,6 +412,7 @@ export default {
       statusFilters: [
         {text: this.$t('api_test.automation.success'), value: 'success'},
         {text: this.$t('api_test.automation.fail'), value: 'error'},
+        {text: this.$t('report.stop_btn'), value: 'STOP'},
         {text: this.$t('api_test.home_page.detail_card.unexecute'), value: ''},
         {text: this.$t('commons.testing'), value: 'Running'}
       ],
@@ -549,7 +556,7 @@ export default {
       this.$refs.taskCenter.openHistory(row.id);
     },
     getExecResult(apiCase) {
-      if (apiCase.lastResultId) {
+      if (apiCase.lastResultId && apiCase.execResult) {
         let url = "/api/definition/report/get/" + apiCase.lastResultId;
         this.$get(url, response => {
           if (response.data) {
@@ -560,6 +567,8 @@ export default {
             } catch (error) {
               this.resVisible = true;
             }
+          } else {
+            this.$warning(this.$t('commons.report_delete'));
           }
         });
       }
@@ -574,6 +583,8 @@ export default {
           return "ms-running";
         case "errorReportResult":
           return "ms-error-report-result";
+        case "STOP":
+          return "stop";
         default:
           return "ms-unexecute";
       }
@@ -588,6 +599,8 @@ export default {
           return this.$t('commons.testing');
         case "errorReportResult":
           return this.$t('error_report_library.option.name');
+        case "STOP":
+          return this.$t('report.stop_btn');
         default:
           return this.$t('api_test.home_page.detail_card.unexecute');
       }
