@@ -10,6 +10,37 @@ CREATE TABLE `operating_log_resource`
  KEY `source_id_index` (`source_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
+-- 操作日志
+INSERT INTO operating_log_resource ( id, operating_log_id, source_id )
+SELECT id, id AS operating_log_id, TRIM( BOTH '"' FROM source_id ) AS source_id
+FROM operating_log
+WHERE
+	source_id != ''
+	AND oper_type = 'UPDATE'
+	AND oper_module IN (
+		'API_AUTOMATION',
+		'接口自动化',
+		'Api automation',
+		'接口自動化',
+		'API_AUTOMATION',
+		'接口定义',
+		'接口定義',
+		'Api definition',
+		'API_DEFINITION',
+		'接口定义用例',
+		'接口定義用例',
+		'Api definition case',
+		'API_DEFINITION_CASE',
+		'性能测试',
+		'性能測試',
+		'Performance test',
+		'PERFORMANCE_TEST',
+		'测试用例',
+		'測試用例',
+		'Test case',
+		'TRACK_TEST_CASE'
+	);
+
 CREATE TABLE IF NOT EXISTS `project_application`
 (
     `project_id` varchar(50) DEFAULT NULL,
