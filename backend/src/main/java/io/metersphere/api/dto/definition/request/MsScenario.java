@@ -74,6 +74,9 @@ public class MsScenario extends MsTestElement {
     @JSONField(ordinal = 29)
     private boolean environmentEnable;
 
+    @JSONField(ordinal = 30)
+    private Boolean variableEnable;
+
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public MsScenario() {
@@ -136,22 +139,24 @@ public class MsScenario extends MsTestElement {
         if (config != null && !config.getExcludeScenarioIds().contains(this.getId())) {
             scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
         }
-        // 场景变量和环境变量
+        // 环境变量
         Arguments arguments = arguments(this.isEnvironmentEnable() ? newConfig : config);
-        if (arguments != null) {
+        if (arguments != null && (this.variableEnable == null || this.variableEnable)) {
             Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
             // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
             scenarioTree.add(valueSupposeMock);
             scenarioTree.add(ElementUtil.argumentsToProcessor(valueSupposeMock));
         }
-        ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
-        ElementUtil.addCounter(scenarioTree, variables, false);
-        ElementUtil.addRandom(scenarioTree, variables);
-        if (CollectionUtils.isNotEmpty(this.headers)) {
-            if (this.isEnvironmentEnable()) {
-                newConfig.setHeaders(this.headers);
-            } else {
-                config.setHeaders(this.headers);
+        if (this.variableEnable == null || this.variableEnable) {
+            ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
+            ElementUtil.addCounter(scenarioTree, variables, false);
+            ElementUtil.addRandom(scenarioTree, variables);
+            if (CollectionUtils.isNotEmpty(this.headers)) {
+                if (this.isEnvironmentEnable()) {
+                    newConfig.setHeaders(this.headers);
+                } else {
+                    config.setHeaders(this.headers);
+                }
             }
         }
         // 添加全局前置
@@ -175,7 +180,7 @@ public class MsScenario extends MsTestElement {
     }
 
     private void setGlobProcessor(ParameterConfig config, HashTree scenarioTree, boolean isPre) {
-        if (config.getConfig() != null) {
+        if (config.getConfig() != null && (this.variableEnable == null || this.variableEnable)) {
             config.getConfig().forEach((k, environmentConfig) -> {
                 if (environmentConfig != null) {
                     MsJSR223Processor processor = isPre ? environmentConfig.getPreStepProcessor() : environmentConfig.getPostStepProcessor();
@@ -211,14 +216,14 @@ public class MsScenario extends MsTestElement {
                 LinkedList<MsTestElement> sourceHashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                 });
                 // 场景变量
-                if (StringUtils.isNotEmpty(element.getString("variables"))) {
+                if (StringUtils.isNotEmpty(element.getString("variables")) && (this.variableEnable == null || this.variableEnable)) {
                     LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
                             new TypeReference<LinkedList<ScenarioVariable>>() {
                             });
                     this.setVariables(variables);
                 }
                 // 场景请求头
-                if (StringUtils.isNotEmpty(element.getString("headers"))) {
+                if (StringUtils.isNotEmpty(element.getString("headers")) && (this.variableEnable == null || this.variableEnable)) {
                     LinkedList<KeyValue> headers = mapper.readValue(element.getString("headers"),
                             new TypeReference<LinkedList<KeyValue>>() {
                             });
