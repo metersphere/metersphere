@@ -166,6 +166,7 @@ export default {
     weeks_5: 'Fri',
     weeks_6: 'Sat',
     date_unit: {
+      hour: "HOUR",
       day: "Day",
       month: "Month",
       year: "Year"

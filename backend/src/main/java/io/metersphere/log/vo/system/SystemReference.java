@@ -114,7 +114,7 @@ public class SystemReference {
 
         projectApplicationColumns.put("projectId", "项目ID");
         projectApplicationColumns.put("type", "类型");
-        projectApplicationColumns.put("shareReportExpr", "报告分享链接时间");
+        projectApplicationColumns.put("value", "值");
 
         jarColumns.put("name", "名称");
         jarColumns.put("fileName", "文件名称");

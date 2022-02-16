@@ -8,6 +8,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ShareInfoMapper;
 import io.metersphere.base.mapper.TestPlanReportMapper;
 import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.ShareType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.json.JSONSchemaGenerator;
@@ -521,10 +522,10 @@ public class ShareInfoService {
         }
         String type = "";
         if(shareInfo.getShareType().equals("PERFORMANCE_REPORT")){
-            type = "PERFORMANCE";
+            type = ProjectApplicationType.TRACK_SHARE_REPORT_TIME.toString();
         }
         if(shareInfo.getShareType().equals("PLAN_DB_REPORT")){
-            type = "TRACK";
+            type = ProjectApplicationType.PERFORMANCE_SHARE_REPORT_TIME.toString();
         }
         if(StringUtils.isBlank(type)){
             millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime() ,1000 * 60 * 60 * 24,shareInfo.getId());
@@ -533,7 +534,7 @@ public class ShareInfoService {
             if(projectApplication.getProjectId()==null){
                 millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime() ,1000 * 60 * 60 * 24,shareInfo.getId());
             }else {
-                String expr= projectApplication.getShareReportExpr();
+                String expr= projectApplication.getValue();
                 long timeMills = getTimeMills(shareInfo.getUpdateTime(),expr);
                 millisCheck(System.currentTimeMillis(),timeMills,shareInfo.getId());
             }

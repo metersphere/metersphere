@@ -28,7 +28,7 @@
                 </app-manage-item>
                 <timing-item ref="trackTimingItem" :choose.sync="form.cleanTrackReport" :expr.sync="form.cleanTrackReportExpr"
                              @chooseChange="chooseChange" :title="$t('project.timing_clean_plan_report')"/>
-                <timing-item ref="trackTimingItem" :choose.sync="application.shareReport" :expr.sync="application.shareReportExpr" :share-link="true"
+                <timing-item ref="trackTimingItem" :choose.sync="application.shareReport" :expr.sync="application.value" :share-link="true" :unit-options="applyUnitOptions"
                              @chooseChange="chooseChangeApply" :title="$t('report.report_sharing_link')"/>
               </el-row>
             </el-tab-pane>
@@ -94,7 +94,7 @@
               <el-row style="margin-top: 15px">
                 <timing-item ref="loadTimingItem" :choose.sync="form.cleanLoadReport" :expr.sync="form.cleanLoadReportExpr"
                              @chooseChange="chooseChange" :title="$t('project.timing_clean_load_report')"/>
-                <timing-item ref="trackTimingItem" :choose.sync="application.shareReport" :expr.sync="application.shareReportExpr" :share-link="true"
+                <timing-item ref="trackTimingItem" :choose.sync="application.shareReport" :expr.sync="application.value" :share-link="true" :unit-options="applyUnitOptions"
                              @chooseChange="chooseChangeApply" :title="$t('report.report_sharing_link')"/>
               </el-row>
             </el-tab-pane>
@@ -147,14 +147,20 @@ export default {
       },
       application:{
         shareReport:'',
-        shareReportExpr:'',
+        value:'',
       },
       count: 0,
       isXpack: false,
       result: {},
       quantity: "",
       unit: "",
-      choose: false
+      choose: false,
+      applyUnitOptions: [
+        {value: "H", label: this.$t('commons.date_unit.hour')},
+        {value: "D", label: this.$t('commons.date_unit.day')},
+        {value: "M", label: this.$t('commons.date_unit.month')},
+        {value: "Y", label: this.$t('commons.date_unit.year')},
+      ]
     };
   },
   created() {
@@ -192,11 +198,11 @@ export default {
     getProjectApplication(){
       let type;
       if(this.activeName==='test_track'){
-        type = 'TRACK'
+        type = 'TRACK_SHARE_REPORT_TIME'
       }else if(this.activeName==='performance'){
-        type = 'PERFORMANCE'
+        type = 'PERFORMANCE_SHARE_REPORT_TIME'
       }else if(this.activeName==='api'){
-        type = 'API'
+        type = 'API_SHARE_REPORT_TIME'
       }
       if(type){
         this.$get('/project_application/get/' + this.projectId+"/"+type, res => {

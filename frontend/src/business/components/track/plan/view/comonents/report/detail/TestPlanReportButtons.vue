@@ -5,7 +5,7 @@
         placement="right"
         width="300">
         <p>{{shareUrl}}</p>
-        <span style="color: red;float: left;margin-left: 10px;">{{ $t('commons.validity_period')+application.shareReportExpr}}</span>
+        <span style="color: red;float: left;margin-left: 10px;">{{ $t('commons.validity_period')+application.value}}</span>
         <div style="text-align: right; margin: 0">
           <el-button type="primary" size="mini" :disabled="!shareUrl"
                      v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
@@ -82,7 +82,7 @@ export default {
       this.getProjectApplication();
     },
     getProjectApplication(){
-      this.$get('/project_application/get/' + getCurrentProjectID()+"/TRACK", res => {
+      this.$get('/project_application/get/' + getCurrentProjectID()+"/TRACK_SHARE_REPORT_TIME", res => {
         if(res.data){
           this.application = res.data;
         }
