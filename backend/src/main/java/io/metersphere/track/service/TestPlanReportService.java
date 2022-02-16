@@ -30,6 +30,10 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -89,6 +93,8 @@ public class TestPlanReportService {
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     public List<TestPlanReportDTO> list(QueryTestPlanReportRequest request) {
         List<TestPlanReportDTO> list = new ArrayList<>();
@@ -746,6 +752,66 @@ public class TestPlanReportService {
         }
     }
 
+    private void deleteReportBatch(List<String> reportIds) {
+        int handleCount = 5000;
+        List<String> handleIdList;
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanReportMapper planReportMapper = sqlSession.getMapper(TestPlanReportMapper.class);
+        TestPlanReportDataMapper planReportDataMapper = sqlSession.getMapper(TestPlanReportDataMapper.class);
+        TestPlanReportContentMapper planReportContentMapper = sqlSession.getMapper(TestPlanReportContentMapper.class);
+
+        try {
+            while (reportIds.size() > handleCount) {
+                handleIdList = new ArrayList<>(handleCount);
+                List<String> otherIdList = new ArrayList<>();
+                for (int index = 0; index < reportIds.size(); index++) {
+                    if (index < handleCount) {
+                        handleIdList.add(reportIds.get(index));
+                    } else {
+                        otherIdList.add(reportIds.get(index));
+                    }
+                }
+
+                TestPlanReportExample deleteReportExample = new TestPlanReportExample();
+                deleteReportExample.createCriteria().andIdIn(handleIdList);
+                planReportMapper.deleteByExample(deleteReportExample);
+
+                TestPlanReportDataExample example = new TestPlanReportDataExample();
+                example.createCriteria().andTestPlanReportIdIn(handleIdList);
+                planReportDataMapper.deleteByExample(example);
+
+                TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
+                contentExample.createCriteria().andTestPlanReportIdIn(handleIdList);
+                planReportContentMapper.deleteByExample(contentExample);
+
+                sqlSession.flushStatements();
+
+                reportIds = otherIdList;
+            }
+
+            if (!reportIds.isEmpty()) {
+                TestPlanReportExample deleteReportExample = new TestPlanReportExample();
+                deleteReportExample.createCriteria().andIdIn(reportIds);
+                planReportMapper.deleteByExample(deleteReportExample);
+
+
+                TestPlanReportDataExample example = new TestPlanReportDataExample();
+                example.createCriteria().andTestPlanReportIdIn(reportIds);
+                planReportDataMapper.deleteByExample(example);
+
+                TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
+                contentExample.createCriteria().andTestPlanReportIdIn(reportIds);
+                planReportContentMapper.deleteByExample(contentExample);
+
+                sqlSession.flushStatements();
+            }
+        } finally {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+
+    }
+
     private List<String> getAllApiIdsByFrontedSelect(Map<String, List<String>> filters, String name, String projectId, List<String> unSelectIds, Map<String, Object> combine) {
         QueryTestPlanReportRequest request = new QueryTestPlanReportRequest();
         request.setFilters(filters);
@@ -919,7 +985,7 @@ public class TestPlanReportService {
             List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(example);
             List<String> ids = testPlanReports.stream().map(TestPlanReport::getId).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(ids)) {
-                delete(ids);
+                deleteReportBatch(ids);
             }
         }
     }
