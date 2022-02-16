@@ -312,7 +312,7 @@ export default {
         return;
       }
       if (!this.test.versionId) {
-        if (this.$refs.versionHistory) {
+        if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
           this.test.versionId = this.$refs.versionHistory.currentVersion.id;
         }
       }
