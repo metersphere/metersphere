@@ -93,6 +93,7 @@ export default {
   props: {
     caseId: String,
     planCaseId: String,
+    notInIds: Array,
   },
   created() {
     isThirdPartEnable((data) => {
@@ -106,7 +107,7 @@ export default {
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
-      this.page.condition.caseResourceId = this.getCaseResourceId();
+      this.page.condition.notInIds = this.notInIds;
       this.page.result = getRelateIssues(this.page);
     },
     getCaseResourceId() {

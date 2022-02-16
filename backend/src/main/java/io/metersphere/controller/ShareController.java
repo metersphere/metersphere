@@ -74,7 +74,7 @@ public class ShareController {
     @GetMapping("/issues/plan/get/{shareId}/{planId}")
     public List<IssuesDao> getIssuesByPlanoId(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
-        return issuesService.getIssuesByPlanoId(planId);
+        return issuesService.getIssuesByPlanId(planId);
     }
 
     @GetMapping("/test/plan/report/{shareId}/{planId}")

@@ -1397,7 +1397,7 @@ public class TestPlanService {
                 report.setFunctionFailureCases(failureCases);
             }
             if (checkReportConfig(config, "functional", "issue")) {
-                List<IssuesDao> issueList = issuesService.getIssuesByPlanoId(planId);
+                List<IssuesDao> issueList = issuesService.getIssuesByPlanId(planId);
                 report.setIssueList(issueList);
             }
         }
