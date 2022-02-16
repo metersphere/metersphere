@@ -107,6 +107,12 @@ export default {
       selectNodeIds: [],
     };
   },
+  props: {
+    testCaseContainIds: {
+      type: Set,
+      default: new Set()
+    }
+  },
   watch: {
     selectNodeIds() {
       this.initTableData();
@@ -132,6 +138,7 @@ export default {
       if (this.projectId) {
         this.getProjectNode();
         this.condition.projectId = this.projectId;
+        this.condition.testCaseContainIds = Array.from(this.testCaseContainIds)
         this.result = this.$post('/test/case/relate/issue/' + +this.currentPage + '/' + this.pageSize, this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
