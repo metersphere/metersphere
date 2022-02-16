@@ -1,6 +1,5 @@
 package io.metersphere.base.mapper;
 
-import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ProjectApplication;
 import io.metersphere.base.domain.ProjectApplicationExample;
 import java.util.List;
@@ -20,5 +19,4 @@ public interface ProjectApplicationMapper {
     int updateByExampleSelective(@Param("record") ProjectApplication record, @Param("example") ProjectApplicationExample example);
 
     int updateByExample(@Param("record") ProjectApplication record, @Param("example") ProjectApplicationExample example);
-
 }

@@ -9,7 +9,7 @@ public class ProjectApplication implements Serializable {
 
     private String type;
 
-    private String shareReportExpr;
+    private String typeValue;
 
     private static final long serialVersionUID = 1L;
 }

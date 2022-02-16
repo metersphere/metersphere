@@ -160,6 +160,7 @@ export default {
     weeks_5: '周五',
     weeks_6: '周六',
     date_unit: {
+      hour: "小时",
       day: "天",
       month: "月",
       year: "年"
