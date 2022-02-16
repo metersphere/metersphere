@@ -14,10 +14,7 @@ import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
-import io.metersphere.commons.constants.IssuesManagePlatform;
-import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.constants.ScheduleType;
-import io.metersphere.commons.constants.UserGroupConstants;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -172,9 +169,10 @@ public class ProjectService {
         ProjectApplication projectApplication = new ProjectApplication();
         projectApplication.setProjectId(project.getId());
         //每个新项目都会有测试跟踪/性能报告分享链接的有效时间,默认时间24H
-        projectApplication.setType("TRACK");
+        projectApplication.setType(ProjectApplicationType.TRACK_SHARE_REPORT_TIME.toString());
+        projectApplication.setTypeValue("24H");
         projectApplicationMapper.insert(projectApplication);
-        projectApplication.setType("PERFORMANCE");
+        projectApplication.setType(ProjectApplicationType.PERFORMANCE_SHARE_REPORT_TIME.toString());
         projectApplicationMapper.insert(projectApplication);
         return project;
     }
