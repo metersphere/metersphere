@@ -610,8 +610,9 @@ public class TestPlanReportService {
             try {
                 //更新TestPlan状态为完成
                 TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
-                if (testPlan != null) {
-                    testPlanService.checkStatus(testPlan);
+                if (testPlan != null && !StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
+                    testPlan.setStatus(TestPlanStatus.Completed.name());
+                    testPlanService.editTestPlan(testPlan);
                 }
                 if (testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
                         ReportTriggerMode.MANUAL.name(),
