@@ -39,7 +39,7 @@
 
               </el-tabs>
             </div>
-            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
+            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.name"
                                   :content="content" :total-time="totalTime"/>
           </main>
         </section>
