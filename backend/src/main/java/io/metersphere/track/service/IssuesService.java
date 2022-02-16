@@ -131,14 +131,8 @@ public class IssuesService {
 
     public List<AbstractIssuePlatform> getAddPlatforms(IssuesUpdateRequest updateRequest) {
         List<String> platforms = new ArrayList<>();
-//        if (StringUtils.isNotBlank(updateRequest.getTestCaseId())) {
-//            // 测试计划关联
-//            platforms.add(getPlatformsByCaseId(updateRequest.getTestCaseId()));
-//        } else {
-            // 缺陷管理关联
-            platforms.add(getPlatform(updateRequest.getProjectId()));
-//        }
-
+        // 缺陷管理关联
+        platforms.add(getPlatform(updateRequest.getProjectId()));
         if (CollectionUtils.isEmpty(platforms)) {
             platforms.add(IssuesManagePlatform.Local.toString());
         }
