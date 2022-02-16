@@ -244,73 +244,73 @@ public class ProjectApplicationExample {
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprIsNull() {
-            addCriterion("share_report_expr is null");
+        public Criteria andTypeValueIsNull() {
+            addCriterion("type_value is null");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprIsNotNull() {
-            addCriterion("share_report_expr is not null");
+        public Criteria andTypeValueIsNotNull() {
+            addCriterion("type_value is not null");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprEqualTo(String value) {
-            addCriterion("share_report_expr =", value, "shareReportExpr");
+        public Criteria andTypeValueEqualTo(String value) {
+            addCriterion("type_value =", value, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprNotEqualTo(String value) {
-            addCriterion("share_report_expr <>", value, "shareReportExpr");
+        public Criteria andTypeValueNotEqualTo(String value) {
+            addCriterion("type_value <>", value, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprGreaterThan(String value) {
-            addCriterion("share_report_expr >", value, "shareReportExpr");
+        public Criteria andTypeValueGreaterThan(String value) {
+            addCriterion("type_value >", value, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprGreaterThanOrEqualTo(String value) {
-            addCriterion("share_report_expr >=", value, "shareReportExpr");
+        public Criteria andTypeValueGreaterThanOrEqualTo(String value) {
+            addCriterion("type_value >=", value, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprLessThan(String value) {
-            addCriterion("share_report_expr <", value, "shareReportExpr");
+        public Criteria andTypeValueLessThan(String value) {
+            addCriterion("type_value <", value, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprLessThanOrEqualTo(String value) {
-            addCriterion("share_report_expr <=", value, "shareReportExpr");
+        public Criteria andTypeValueLessThanOrEqualTo(String value) {
+            addCriterion("type_value <=", value, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprLike(String value) {
-            addCriterion("share_report_expr like", value, "shareReportExpr");
+        public Criteria andTypeValueLike(String value) {
+            addCriterion("type_value like", value, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprNotLike(String value) {
-            addCriterion("share_report_expr not like", value, "shareReportExpr");
+        public Criteria andTypeValueNotLike(String value) {
+            addCriterion("type_value not like", value, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprIn(List<String> values) {
-            addCriterion("share_report_expr in", values, "shareReportExpr");
+        public Criteria andTypeValueIn(List<String> values) {
+            addCriterion("type_value in", values, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprNotIn(List<String> values) {
-            addCriterion("share_report_expr not in", values, "shareReportExpr");
+        public Criteria andTypeValueNotIn(List<String> values) {
+            addCriterion("type_value not in", values, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprBetween(String value1, String value2) {
-            addCriterion("share_report_expr between", value1, value2, "shareReportExpr");
+        public Criteria andTypeValueBetween(String value1, String value2) {
+            addCriterion("type_value between", value1, value2, "typeValue");
             return (Criteria) this;
         }
 
-        public Criteria andShareReportExprNotBetween(String value1, String value2) {
-            addCriterion("share_report_expr not between", value1, value2, "shareReportExpr");
+        public Criteria andTypeValueNotBetween(String value1, String value2) {
+            addCriterion("type_value not between", value1, value2, "typeValue");
             return (Criteria) this;
         }
     }

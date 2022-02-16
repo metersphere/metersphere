@@ -63,6 +63,16 @@ export default {
         return false;
       },
     },
+    unitOptions:{
+      type: Array,
+      default() {
+        return [
+          {value: "D", label: this.$t('commons.date_unit.day')},
+          {value: "M", label: this.$t('commons.date_unit.month')},
+          {value: "Y", label: this.$t('commons.date_unit.year')},
+        ];
+      },
+    }
   },
   watch: {
     expr(val) {
@@ -79,11 +89,6 @@ export default {
       selfChoose: this.choose,
       selfExpr: this.expr,
       quantityOptions: 31,
-      unitOptions: [
-        {value: "D", label: this.$t('commons.date_unit.day')},
-        {value: "M", label: this.$t('commons.date_unit.month')},
-        {value: "Y", label: this.$t('commons.date_unit.year')},
-      ]
     }
   },
   methods: {
