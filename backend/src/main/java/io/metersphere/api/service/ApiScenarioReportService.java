@@ -478,6 +478,14 @@ public class ApiScenarioReportService {
         structureExample.createCriteria().andReportIdEqualTo(request.getId());
         apiScenarioReportStructureMapper.deleteByExample(structureExample);
 
+        ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
+        definitionExecResultExample.createCriteria().andIdEqualTo(request.getId());
+        definitionExecResultMapper.deleteByExample(definitionExecResultExample);
+
+        ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+        execResultExample.createCriteria().andIntegratedReportIdEqualTo(request.getId());
+        definitionExecResultMapper.deleteByExample(execResultExample);
+
         // 补充逻辑，如果是集成报告则把零时报告全部删除
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getId());
         if (report != null && StringUtils.isNotEmpty(report.getScenarioId())) {
@@ -501,23 +509,42 @@ public class ApiScenarioReportService {
         ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
         structureExample.createCriteria().andReportIdEqualTo(id);
         apiScenarioReportStructureMapper.deleteByExample(structureExample);
+
+        ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
+        definitionExecResultExample.createCriteria().andIdEqualTo(id);
+        definitionExecResultMapper.deleteByExample(definitionExecResultExample);
+
+        ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+        execResultExample.createCriteria().andIntegratedReportIdEqualTo(id);
+        definitionExecResultMapper.deleteByExample(execResultExample);
+
     }
 
     public void deleteByIds(List<String> ids) {
-        ApiScenarioReportExample example = new ApiScenarioReportExample();
-        example.createCriteria().andIdIn(ids);
-        ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
-        detailExample.createCriteria().andReportIdIn(ids);
-        apiScenarioReportDetailMapper.deleteByExample(detailExample);
-        apiScenarioReportMapper.deleteByExample(example);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ApiScenarioReportExample example = new ApiScenarioReportExample();
+            example.createCriteria().andIdIn(ids);
+            ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
+            detailExample.createCriteria().andReportIdIn(ids);
+            apiScenarioReportDetailMapper.deleteByExample(detailExample);
+            apiScenarioReportMapper.deleteByExample(example);
 
-        ApiScenarioReportResultExample reportResultExample = new ApiScenarioReportResultExample();
-        reportResultExample.createCriteria().andReportIdIn(ids);
-        apiScenarioReportResultMapper.deleteByExample(reportResultExample);
+            ApiScenarioReportResultExample reportResultExample = new ApiScenarioReportResultExample();
+            reportResultExample.createCriteria().andReportIdIn(ids);
+            apiScenarioReportResultMapper.deleteByExample(reportResultExample);
 
-        ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
-        structureExample.createCriteria().andReportIdIn(ids);
-        apiScenarioReportStructureMapper.deleteByExample(structureExample);
+            ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+            structureExample.createCriteria().andReportIdIn(ids);
+            apiScenarioReportStructureMapper.deleteByExample(structureExample);
+
+            ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
+            definitionExecResultExample.createCriteria().andIdIn(ids);
+            definitionExecResultMapper.deleteByExample(definitionExecResultExample);
+
+            ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+            execResultExample.createCriteria().andIntegratedReportIdIn(ids);
+            definitionExecResultMapper.deleteByExample(execResultExample);
+        }
     }
 
     public void deleteAPIReportBatch(APIReportBatchRequest reportRequest) {
@@ -571,6 +598,14 @@ public class ApiScenarioReportService {
             structureExample.createCriteria().andReportIdIn(handleIdList);
             apiScenarioReportStructureMapper.deleteByExample(structureExample);
 
+            ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
+            definitionExecResultExample.createCriteria().andIdIn(handleIdList);
+            definitionExecResultMapper.deleteByExample(definitionExecResultExample);
+
+            ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+            execResultExample.createCriteria().andIntegratedReportIdIn(handleIdList);
+            definitionExecResultMapper.deleteByExample(execResultExample);
+
             //转存剩余的数据
             ids = otherIdList;
         }
@@ -592,6 +627,13 @@ public class ApiScenarioReportService {
             structureExample.createCriteria().andReportIdIn(ids);
             apiScenarioReportStructureMapper.deleteByExample(structureExample);
 
+            ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
+            definitionExecResultExample.createCriteria().andIdIn(ids);
+            definitionExecResultMapper.deleteByExample(definitionExecResultExample);
+
+            ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+            execResultExample.createCriteria().andIntegratedReportIdIn(handleIdList);
+            definitionExecResultMapper.deleteByExample(execResultExample);
         }
     }
 
