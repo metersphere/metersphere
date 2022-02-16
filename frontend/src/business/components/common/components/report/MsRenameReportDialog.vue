@@ -4,6 +4,7 @@
     :visible.sync="dialogVisible"
     width="40%"
     :modal-append-to-body="false"
+    :close-on-click-modal="false"
     :before-close="close">
     <el-form>
       <el-form-item :label="$t('commons.name')">
@@ -33,6 +34,10 @@ export default {
       this.data = JSON.parse(JSON.stringify(data));
     },
     submit() {
+      if (!this.data.name) {
+        this.$error(this.$t("commons.name") + this.$t("commons.cannot_be_null"));
+        return;
+      }
       this.$emit('submit', this.data);
     },
     close() {
