@@ -724,7 +724,12 @@ public class MockConfigService {
                     }
                 }
                 if (responseJsonObj.containsKey("body")) {
-                    returnStr = MockApiUtils.getResultByResponseResult(responseJsonObj.getJSONObject("body"), url, headerMap, requestMockParams);
+                    MockApiUtils mockApiUtils = new MockApiUtils();
+                    boolean useScript = false;
+                    if(responseJsonObj.containsKey("usePostScript")){
+                        useScript = responseJsonObj.getBoolean("usePostScript");
+                    }
+                    returnStr = mockApiUtils.getResultByResponseResult(responseJsonObj.getJSONObject("body"), url, headerMap, requestMockParams,useScript);
                 }
                 if (responseJsonObj.containsKey("httpCode")) {
                     int httpCodeNum = 500;
@@ -1262,7 +1267,7 @@ public class MockConfigService {
                                     List<TcpTreeTableDataStruct> tcpDataList = JSONArray.parseArray(requestJson.getString("xmlDataStruct"), TcpTreeTableDataStruct.class);
                                     xmlStr = TcpTreeTableDataParser.treeTableData2Xml(tcpDataList);
                                 } catch (Exception e) {
-
+                                    LogUtil.error(e);
                                 }
                                 JSONObject matchObj = XMLUtils.XmlToJson(xmlStr);
                                 isMatch = JsonStructUtils.checkJsonObjCompliance(sourceObj, matchObj);
