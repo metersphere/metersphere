@@ -3,7 +3,7 @@
     <el-row>
       <el-col>
         <span v-if="!debug">
-          <el-input v-if="nameIsEdit" size="mini" @blur="handleSave(report.name)" style="width: 200px" v-model="report.name" maxlength="60" show-word-limit/>
+          <el-input v-if="nameIsEdit" size="mini" @blur="handleSave(report.name)" @keyup.enter.native="handleSaveKeyUp" style="width: 200px" v-model="report.name" maxlength="60" show-word-limit/>
           <span v-else>
             <router-link v-if="isSingleScenario" :to="{name: 'ApiAutomation', params: { dataSelectRange: 'edit:' + scenarioId }}">
               {{ report.name }}
@@ -85,6 +85,9 @@ export default {
     handleSave(name) {
       this.nameIsEdit = false;
       this.$emit('reportSave', name);
+    },
+    handleSaveKeyUp($event) {
+      $event.target.blur();
     },
     returnView(){
       this.$router.push('/api/automation/report');
