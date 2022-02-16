@@ -80,48 +80,48 @@ export default {
   },
 
   computed: {
-    httpCodeTemplates(){
+    httpCodeTemplates() {
       let returnData = [
-          {
-            title: "API" + this.$t('api_test.definition.document.request_info'),
-            children: [
-              {
-                title: this.$t('api_test.request.address'),
-                value: this.getScript("address"),
-              },
-              {
-                title: "Header " + this.$t('api_test.definition.document.request_param'),
-                value: this.getScript("header"),
-              },
-              {
-                title: this.$t('api_test.request.body') + this.$t('api_test.variable'),
-                value: this.getScript("body"),
-              },
-              {
-                title: this.$t('api_test.request.body') + this.$t('api_test.variable') + " (Raw)",
-                value: this.getScript("bodyRaw"),
-              },
-              {
-                title: "Query " + this.$t('api_test.definition.document.request_param'),
-                value: this.getScript("query"),
-              },
-              {
-                title: "Rest " + this.$t('api_test.definition.document.request_param'),
-                value: this.getScript("rest"),
-              },
+        {
+          title: "API" + this.$t('api_test.definition.document.request_info'),
+          children: [
+            {
+              title: this.$t('api_test.request.address'),
+              value: this.getScript("address"),
+            },
+            {
+              title: "Header " + this.$t('api_test.definition.document.request_param'),
+              value: this.getScript("header"),
+            },
+            {
+              title: this.$t('api_test.request.body') + this.$t('api_test.variable'),
+              value: this.getScript("body"),
+            },
+            {
+              title: this.$t('api_test.request.body') + this.$t('api_test.variable') + " (Raw)",
+              value: this.getScript("bodyRaw"),
+            },
+            {
+              title: "Query " + this.$t('api_test.definition.document.request_param'),
+              value: this.getScript("query"),
+            },
+            {
+              title: "Rest " + this.$t('api_test.definition.document.request_param'),
+              value: this.getScript("rest"),
+            },
 
-            ]
-          },
-          {
-            title: this.$t('project.code_segment.code_segment'),
-            children: [
-              {
-                title: this.$t('project.code_segment.insert_segment'),
-                command: "custom_function",
-              }
-            ]
-          },
-        ];
+          ]
+        },
+        {
+          title: this.$t('project.code_segment.code_segment'),
+          children: [
+            {
+              title: this.$t('project.code_segment.insert_segment'),
+              command: "custom_function",
+            }
+          ]
+        },
+      ];
       return returnData;
     }
   },
@@ -144,13 +144,12 @@ export default {
     jsr223Processor() {
       this.reload();
     },
-    'jsr223Processor.scriptLanguage'(){
+    'jsr223Processor.scriptLanguage'() {
       if (this.showApi) {
         this.baseCodeTemplates = this.httpCodeTemplates;
       } else {
         this.baseCodeTemplates = this.tcpCodeTemplates;
       }
-      alert(JSON.stringify(this.baseCodeTemplates));
     }
   }
   ,
