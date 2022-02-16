@@ -224,8 +224,8 @@ public class TestPlanTestCaseService {
      * @param testId 接口测试id
      */
     public void updateTestCaseStates(String testId, String testName, String planId, String testType) {
-        TestPlan testPlan = testPlanService.getTestPlan(planId);
-        if (BooleanUtils.isNotTrue(testPlan.getAutomaticStatusUpdate())) {
+        TestPlan testPlan1 = testPlanService.getTestPlan(planId);
+        if (BooleanUtils.isNotTrue(testPlan1.getAutomaticStatusUpdate())) {
             return;
         }
         TestCaseTestExample example = new TestCaseTestExample();
