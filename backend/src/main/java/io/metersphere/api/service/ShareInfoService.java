@@ -24,6 +24,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 import static io.metersphere.api.service.utils.ShareUtill.getTimeMills;
@@ -527,22 +530,22 @@ public class ShareInfoService {
             type = "TRACK";
         }
         if(StringUtils.isBlank(type)){
-            millisCheck(shareInfo,1000 * 60 * 60 * 24);
+            millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime() ,1000 * 60 * 60 * 24,shareInfo.getId());
         }else{
             ProjectApplication projectApplication = projectApplicationService.getProjectApplication(SessionUtils.getCurrentProjectId(),type);
             if(projectApplication.getProjectId()==null){
-                millisCheck(shareInfo,1000 * 60 * 60 * 24);
+                millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime() ,1000 * 60 * 60 * 24,shareInfo.getId());
             }else {
                 String expr= projectApplication.getShareReportExpr();
                 long timeMills = getTimeMills(shareInfo.getUpdateTime(),expr);
-                millisCheck(shareInfo,timeMills);
+                millisCheck(System.currentTimeMillis(),timeMills,shareInfo.getId());
             }
         }
     }
 
-    private void millisCheck(ShareInfo shareInfo, long millis) {
-        if (shareInfo.getUpdateTime()<millis) {
-            shareInfoMapper.deleteByPrimaryKey(shareInfo.getId());
+    private void millisCheck(long compareMillis, long millis,String shareInfoId) {
+        if (compareMillis>millis) {
+            shareInfoMapper.deleteByPrimaryKey(shareInfoId);
             MSException.throwException("连接已失效，请重新获取!");
         }
     }
@@ -570,5 +573,12 @@ public class ShareInfoService {
         if (!StringUtils.equals(getPlanId(shareId), testPlanApiScenario.getTestPlanId())) {
             MSException.throwException("validate failure!");
         }
+    }
+
+    public static void main(String[] args) {
+
+        /*Instant instant = Instant.ofEpochMilli(timestamp);
+        ZoneId zone = ZoneId.systemDefault();
+         LocalDateTime.ofInstant(instant, zone);*/
     }
 }
