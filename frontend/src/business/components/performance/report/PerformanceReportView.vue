@@ -37,7 +37,7 @@
                 width="300">
                 <p>{{ shareUrl }}</p>
                 <span style="color: red;float: left;margin-left: 10px;">{{
-                    $t('commons.validity_period')+application.shareReportExpr
+                    $t('commons.validity_period')+application.value
                   }}</span>
                 <div style="text-align: right; margin: 0">
                   <el-button type="primary" size="mini" :disabled="!shareUrl"
@@ -379,7 +379,7 @@ export default {
       this.getProjectApplication();
     },
     getProjectApplication(){
-      this.$get('/project_application/get/' + getCurrentProjectID()+"/PERFORMANCE", res => {
+      this.$get('/project_application/get/' + getCurrentProjectID()+"/PERFORMANCE_SHARE_REPORT_TIME", res => {
         if(res.data){
           this.application = res.data;
         }
