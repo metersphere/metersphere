@@ -487,6 +487,13 @@ public class ApiScenarioReportService {
     public void delete(String id) {
         apiScenarioReportDetailMapper.deleteByPrimaryKey(id);
         apiScenarioReportMapper.deleteByPrimaryKey(id);
+        ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
+        example.createCriteria().andReportIdEqualTo(id);
+        apiScenarioReportResultMapper.deleteByExample(example);
+
+        ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+        structureExample.createCriteria().andReportIdEqualTo(id);
+        apiScenarioReportStructureMapper.deleteByExample(structureExample);
     }
 
     public void deleteByIds(List<String> ids) {
@@ -496,6 +503,14 @@ public class ApiScenarioReportService {
         detailExample.createCriteria().andReportIdIn(ids);
         apiScenarioReportDetailMapper.deleteByExample(detailExample);
         apiScenarioReportMapper.deleteByExample(example);
+
+        ApiScenarioReportResultExample reportResultExample = new ApiScenarioReportResultExample();
+        reportResultExample.createCriteria().andReportIdIn(ids);
+        apiScenarioReportResultMapper.deleteByExample(reportResultExample);
+
+        ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+        structureExample.createCriteria().andReportIdIn(ids);
+        apiScenarioReportStructureMapper.deleteByExample(structureExample);
     }
 
     public void deleteAPIReportBatch(APIReportBatchRequest reportRequest) {
@@ -734,7 +749,10 @@ public class ApiScenarioReportService {
         List<ApiScenarioReport> apiScenarioReports = apiScenarioReportMapper.selectByExample(example);
         List<String> ids = apiScenarioReports.stream().map(ApiScenarioReport::getId).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(ids)) {
-            deleteByIds(ids);
+            APIReportBatchRequest request = new APIReportBatchRequest();
+            request.setIds(ids);
+            request.setSelectAllDate(false);
+            deleteAPIReportBatch(request);
         }
     }
 
