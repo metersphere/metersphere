@@ -67,7 +67,7 @@ public class ApiDefinitionExecResultService {
 
         for (RequestResult item : requestResults) {
             item.setEndTime(System.currentTimeMillis());
-            if (item.getResponseResult() != null) {
+            if (item.getResponseResult() != null && item.getResponseResult().getResponseTime() <= 0) {
                 item.getResponseResult().setResponseTime((item.getEndTime() - item.getStartTime()));
             }
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
