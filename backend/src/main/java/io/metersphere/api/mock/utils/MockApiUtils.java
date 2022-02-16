@@ -290,6 +290,23 @@ public class MockApiUtils {
                         }
                     }
                 }
+                if(respObj.containsKey("statusCode")){
+                    JSONArray statusCodeArray = respObj.getJSONArray("statusCode");
+                    if(statusCodeArray != null){
+                        for(int i = 0; i < statusCodeArray.size(); i ++){
+                            JSONObject object = statusCodeArray.getJSONObject(i);
+                            if(object.containsKey("name")){
+                                try{
+                                    int code = Integer.parseInt(object.getString("name"));
+                                    returnMap.put("code",code+"");
+                                    break;
+                                }catch (Exception e){
+                                    LogUtil.error(e);
+                                }
+                            }
+                        }
+                    }
+                }
             } catch (Exception e) {
                 MSException.throwException(e);
             }

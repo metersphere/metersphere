@@ -1131,6 +1131,21 @@ public class MockConfigService {
                     returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
                     break;
                 }
+                if(!isMatch){
+                    Map<String,String> apiResponseMap = MockApiUtils.getApiResponse(api.getResponse());
+                    if(MapUtils.isNotEmpty(apiResponseMap)){
+                        returnStr = apiResponseMap.get("returnMsg");
+                        if(StringUtils.isNotEmpty(returnStr)){
+                            isMatch = true;
+                            int code = 200;
+                            if(apiResponseMap.containsKey("code")){
+                                code = Integer.parseInt(apiResponseMap.get("code"));
+                            }
+                            response.setStatus(code);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -1171,6 +1186,21 @@ public class MockConfigService {
                         returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, paramMap, response);
                         isMatch = true;
                         break;
+                    }
+                }
+                if(!isMatch){
+                    Map<String,String> apiResponseMap = MockApiUtils.getApiResponse(api.getResponse());
+                    if(MapUtils.isNotEmpty(apiResponseMap)){
+                        returnStr = apiResponseMap.get("returnMsg");
+                        if(StringUtils.isNotEmpty(returnStr)){
+                            isMatch = true;
+                            int code = 200;
+                            if(apiResponseMap.containsKey("code")){
+                                code = Integer.parseInt(apiResponseMap.get("code"));
+                            }
+                            response.setStatus(code);
+                            break;
+                        }
                     }
                 }
             }
