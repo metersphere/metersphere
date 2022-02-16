@@ -31,7 +31,9 @@
         :plan-id="planId"
         :is-copy="isCopy"
         :read-only="readOnly && !(isTestPlan)"
-        :case-id="caseId" ref="issue"/>
+        :plan-case-id="planId ? this.form.id : null"
+        :case-id="caseId"
+        ref="issue"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('commons.relationship.name')" name="relationship">

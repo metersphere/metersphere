@@ -67,10 +67,10 @@ public class IssuesController {
         issuesService.updateIssues(issuesRequest);
     }
 
-    @GetMapping("/get/case/{id}")
+    @GetMapping("/get/case/{refType}/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
-    public List<IssuesDao> getIssues(@PathVariable String id) {
-        return issuesService.getIssues(id);
+    public List<IssuesDao> getIssues(@PathVariable String refType, @PathVariable String id) {
+        return issuesService.getIssues(id, refType);
     }
 
     @GetMapping("/get/{id}")
@@ -98,13 +98,6 @@ public class IssuesController {
     @GetMapping("/close/{id}")
     public void closeLocalIssue(@PathVariable String id) {
         issuesService.closeLocalIssue(id);
-    }
-
-    @PostMapping("/delete")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_DELETE)
-    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = IssuesService.class)
-    public void deleteIssue(@RequestBody IssuesRequest request) {
-        issuesService.deleteIssue(request);
     }
 
     @PostMapping("/delete/relate")

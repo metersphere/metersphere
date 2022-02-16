@@ -3,8 +3,10 @@
 <mapper namespace="io.metersphere.base.mapper.TestCaseIssuesMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCaseIssues">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="test_case_id" jdbcType="VARCHAR" property="testCaseId" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
     <result column="issues_id" jdbcType="VARCHAR" property="issuesId" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="ref_type" jdbcType="VARCHAR" property="refType" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_case_id, issues_id
+    id, resource_id, issues_id, ref_id, ref_type
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseIssuesExample" resultMap="BaseResultMap">
     select
@@ -82,7 +84,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from test_case_issues
     where id = #{id,jdbcType=VARCHAR}
@@ -98,10 +100,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseIssues">
-    insert into test_case_issues (id, test_case_id, issues_id
-      )
-    values (#{id,jdbcType=VARCHAR}, #{testCaseId,jdbcType=VARCHAR}, #{issuesId,jdbcType=VARCHAR}
-      )
+    insert into test_case_issues (id, resource_id, issues_id,
+      ref_id, ref_type)
+    values (#{id,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{issuesId,jdbcType=VARCHAR},
+      #{refId,jdbcType=VARCHAR}, #{refType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseIssues">
     insert into test_case_issues
@@ -109,22 +111,34 @@
       <if test="id != null">
         id,
       </if>
-      <if test="testCaseId != null">
-        test_case_id,
+      <if test="resourceId != null">
+        resource_id,
       </if>
       <if test="issuesId != null">
         issues_id,
+      </if>
+      <if test="refId != null">
+        ref_id,
+      </if>
+      <if test="refType != null">
+        ref_type,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="testCaseId != null">
-        #{testCaseId,jdbcType=VARCHAR},
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
       </if>
       <if test="issuesId != null">
         #{issuesId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="refType != null">
+        #{refType,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -140,11 +154,17 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.testCaseId != null">
-        test_case_id = #{record.testCaseId,jdbcType=VARCHAR},
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
       </if>
       <if test="record.issuesId != null">
         issues_id = #{record.issuesId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refType != null">
+        ref_type = #{record.refType,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -154,8 +174,10 @@
   <update id="updateByExample" parameterType="map">
     update test_case_issues
     set id = #{record.id,jdbcType=VARCHAR},
-      test_case_id = #{record.testCaseId,jdbcType=VARCHAR},
-      issues_id = #{record.issuesId,jdbcType=VARCHAR}
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      issues_id = #{record.issuesId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
+      ref_type = #{record.refType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -163,19 +185,27 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.TestCaseIssues">
     update test_case_issues
     <set>
-      <if test="testCaseId != null">
-        test_case_id = #{testCaseId,jdbcType=VARCHAR},
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
       </if>
       <if test="issuesId != null">
         issues_id = #{issuesId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="refType != null">
+        ref_type = #{refType,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseIssues">
     update test_case_issues
-    set test_case_id = #{testCaseId,jdbcType=VARCHAR},
-      issues_id = #{issuesId,jdbcType=VARCHAR}
+    set resource_id = #{resourceId,jdbcType=VARCHAR},
+      issues_id = #{issuesId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
+      ref_type = #{refType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

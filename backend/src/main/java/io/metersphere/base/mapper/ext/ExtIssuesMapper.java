@@ -12,7 +12,7 @@ public interface ExtIssuesMapper {
 
     List<IssuesDao> getIssuesByCaseId(@Param("request") IssuesRequest issuesRequest);
 
-    List<IssuesDao> getIssueForMinder(@Param("caseIds") List<String> caseIds);
+    List<IssuesDao> getIssueForMinder(@Param("caseIds") List<String> caseIds, @Param("refType") String refType);
 
     List<IssuesDao> getIssues(@Param("request") IssuesRequest issuesRequest);
 

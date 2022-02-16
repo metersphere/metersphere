@@ -1,5 +1,5 @@
 <template>
-  <el-main v-loading="result.loading" class="container" :style="isPlan ? '' : 'height: calc(100vh - 62px)'">
+  <el-main v-loading="result.loading" class="container" :style="isCaseEdit ? '' : 'height: calc(100vh - 62px)'">
     <el-scrollbar>
       <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
@@ -61,8 +61,8 @@
           </el-col>
         </el-row>
 
-        <el-form-item v-if="!isPlan">
-          <test-case-issue-list :test-case-contain-ids="testCaseContainIds" :issues-id="form.id"
+        <el-form-item v-if="!isCaseEdit">
+          <test-case-issue-list :issues-id="form.id"
                                 ref="testCaseIssueList"/>
         </el-form-item>
 
@@ -89,8 +89,10 @@
             </div>
           </el-col>
         </el-row>
+
         <issue-comment :issues-id="form.id"
-                           @getComments="getComments" ref="issueComment"/>
+                       @getComments="getComments"
+                       ref="issueComment"/>
       </el-form>
     </el-scrollbar>
 
@@ -159,7 +161,6 @@ export default {
           {required: true, message: this.$t('commons.please_fill_content'), trigger: 'blur'},
         ]
       },
-      testCaseContainIds: new Set(),
       url: '',
       form: {
         title: '',
@@ -215,7 +216,7 @@ export default {
     };
   },
   props: {
-    isPlan: {
+    isCaseEdit: {
       type: Boolean,
       default() {
         return false;
@@ -223,6 +224,7 @@ export default {
     },
     caseId: String,
     planId: String,
+    planCaseId: String,
     isMinder: Boolean,
   },
   computed: {
@@ -301,7 +303,6 @@ export default {
       }
     },
     initEdit(data) {
-      this.testCaseContainIds = new Set();
       if (data) {
         Object.assign(this.form, data);
         if (!(data.options instanceof Array)) {
@@ -361,10 +362,24 @@ export default {
       param.projectId = this.projectId;
       param.workspaceId = getCurrentWorkspaceId();
       buildCustomFields(this.form, param, this.issueTemplate);
-      if (this.isPlan) {
-        param.testCaseIds = [this.caseId];
+      if (this.planId) {
+        // 测试计划用例创建缺陷
+        if (!this.form.id) {
+          param.addResourceIds = [this.planCaseId];
+          param.refId = this.caseId;
+          param.isPlanEdit = true;
+        }
       } else {
-        param.testCaseIds = Array.from(this.testCaseContainIds);
+        if (this.isCaseEdit) {
+          // 功能用例创建缺陷
+          if (!this.form.id) {
+            param.addResourceIds = [this.caseId];
+          }
+        } else {
+          // 缺陷管理创建缺陷
+          param.addResourceIds = [...this.$refs.testCaseIssueList.addIds];
+          param.deleteResourceIds = [...this.$refs.testCaseIssueList.deleteIds];
+        }
       }
       if (this.planId) {
         param.resourceId = this.planId;
