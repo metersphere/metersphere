@@ -917,7 +917,7 @@ public class TestPlanService {
         List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
         List<IssuesDao> issues = new ArrayList<>();
         for (TestPlanCaseDTO testCase : testPlanTestCases) {
-            List<IssuesDao> issue = issuesService.getIssues(testCase.getCaseId());
+            List<IssuesDao> issue = issuesService.getIssues(testCase.getId(), IssueRefType.PLAN_FUNCTIONAL.name());
             if (issue.size() > 0) {
                 for (IssuesDao i : issue) {
                     i.setModel(testCase.getNodePath());

@@ -7,25 +7,33 @@
         from issues
         inner join test_case_issues
         on test_case_issues.issues_id = issues.id
-        <if test="request.projectId != null||request.workspaceId != null">
-            left join
-            project on issues.project_id = project.id
-        </if>
         <include refid="queryWhereCondition"/>
         and (issues.platform_status != 'delete' or issues.platform_status is NULL)
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
     <select id="getIssueForMinder" resultType="io.metersphere.base.domain.IssuesDao">
-        select issues.id, issues.title , issues.num , test_case_issues.test_case_id as caseId
+        select issues.id, issues.title , issues.num , test_case_issues.resource_id as caseId
         from issues
         inner join test_case_issues
         on test_case_issues.issues_id = issues.id
-        where test_case_id in
-        <foreach collection="caseIds" open="(" close=")" item="item" separator=",">
-            #{item}
-        </foreach>
-        and (issues.platform_status != 'delete' or issues.platform_status is NULL)
+        where (issues.platform_status != 'delete' or issues.platform_status is NULL)
+        <if test="refType == 'FUNCTIONAL'">
+            and test_case_issues.resource_id in
+            <foreach collection="caseIds" open="(" close=")" item="item" separator=",">
+                #{item}
+            </foreach>
+            or test_case_issues.ref_id in
+            <foreach collection="caseIds" open="(" close=")" item="item" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="refType == 'PLAN_FUNCTIONAL'">
+            and test_case_issues.resource_id in
+            <foreach collection="caseIds" open="(" close=")" item="item" separator=",">
+                #{item}
+            </foreach>
+        </if>
         order by num asc
     </select>
 
@@ -54,13 +62,13 @@
     </select>
     <select id="getRelateIssues" resultType="io.metersphere.base.domain.IssuesDao">
         select issues.id, issues.num, issues.title, issues.project_id, issues.create_time, issues.update_time,
-        issues.description, issues.status, issues.platform, issues.custom_fields,test_case_issues.test_case_id,issues.platform_status,
+        issues.description, issues.status, issues.platform, issues.custom_fields,test_case_issues.resource_id,issues.platform_status,
         issues.lastmodify
         from issues
         left join
         test_case_issues on issues.id = test_case_issues.issues_id
         <include refid="queryWhereCondition"/>
-        and (test_case_issues.test_case_id is null or test_case_issues.test_case_id != #{request.caseId})
+        and (test_case_issues.resource_id is null or test_case_issues.resource_id != #{request.caseResourceId})
         and (issues.platform_status != 'delete' or issues.platform_status is NULL)
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
         group by issues.id
@@ -107,8 +115,13 @@
                 and issues.resource_id = #{request.resourceId}
             </if>
 
-            <if test="request.testCaseId != null and request.testCaseId != ''">
-                and test_case_issues.test_case_id = #{request.testCaseId}
+            <if test="request.caseResourceId != null and request.caseResourceId != ''">
+                <if test="request.refType == 'FUNCTIONAL'">
+                    and (test_case_issues.resource_id = #{request.caseResourceId} or test_case_issues.ref_id = #{request.caseResourceId})
+                </if>
+                <if test="request.refType == 'PLAN_FUNCTIONAL'">
+                    and test_case_issues.resource_id = #{request.caseResourceId}
+                </if>
             </if>
 
             <if test="request.platform != null and request.platform != ''">
@@ -117,13 +130,6 @@
             <if test="request.id != null and request.id != ''">
                 and issues.id = #{request.id}
             </if>
-
-<!--            <if test="request.ids != null and request.ids.size() > 0">-->
-<!--                and issues.id in-->
-<!--                <foreach collection="request.ids" item="id" separator="," open="(" close=")">-->
-<!--                    #{id}-->
-<!--                </foreach>-->
-<!--            </if>-->
 
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
