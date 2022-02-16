@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.CustomFieldType;
+import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -170,52 +171,35 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         return issueConfig;
     }
 
-    protected boolean isIntegratedPlatform(String workspaceId, String platform) {
-        IntegrationRequest request = new IntegrationRequest();
-        request.setPlatform(platform);
-        request.setWorkspaceId(workspaceId);
-        ServiceIntegration integration = integrationService.get(request);
-        return StringUtils.isNotBlank(integration.getId());
-    }
-
-    protected void insertTestCaseIssues(String issuesId, String caseId) {
-        if (StringUtils.isNotBlank(caseId)) {
-            TestCaseIssues testCaseIssues = new TestCaseIssues();
-            testCaseIssues.setId(UUID.randomUUID().toString());
-            testCaseIssues.setIssuesId(issuesId);
-            testCaseIssues.setTestCaseId(caseId);
-            testCaseIssuesMapper.insert(testCaseIssues);
-            testCaseIssueService.updateIssuesCount(caseId);
-        }
-    }
-
     protected void handleIssueUpdate(IssuesUpdateRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         issuesMapper.updateByPrimaryKeySelective(request);
-        if (!request.isWithoutTestCaseIssue()) {
-            handleTestCaseIssues(request);
-        }
+        handleTestCaseIssues(request);
     }
 
     protected void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
         String issuesId = issuesRequest.getId();
-        if (StringUtils.isNotBlank(issuesRequest.getTestCaseId())) {
-            insertTestCaseIssues(issuesId, issuesRequest.getTestCaseId());
-        } else {
-            List<String> testCaseIds = issuesRequest.getTestCaseIds();
+        List<String> deleteCaseIds = issuesRequest.getDeleteResourceIds();
+
+        if (!CollectionUtils.isEmpty(deleteCaseIds)) {
             TestCaseIssuesExample example = new TestCaseIssuesExample();
-            example.createCriteria().andIssuesIdEqualTo(issuesId);
-            List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
-            List<String> deleteCaseIds = testCaseIssues.stream().map(TestCaseIssues::getTestCaseId).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(testCaseIds)) {
-                deleteCaseIds.removeAll(testCaseIds);
-            }
+            example.createCriteria().andResourceIdIn(deleteCaseIds);
+            // 测试计划的用例 deleteCaseIds 是空的， 不会进到这里
+            example.or(example.createCriteria().andRefIdIn(deleteCaseIds));
             testCaseIssuesMapper.deleteByExample(example);
-            deleteCaseIds.forEach(testCaseIssueService::updateIssuesCount);
-            if (!CollectionUtils.isEmpty(testCaseIds)) {
-                testCaseIds.forEach(caseId -> {
-                    insertTestCaseIssues(issuesId, caseId);
+        }
+
+        List<String> addCaseIds = issuesRequest.getAddResourceIds();
+        TestCaseIssueService testCaseIssueService = CommonBeanFactory.getBean(TestCaseIssueService.class);
+
+        if (!CollectionUtils.isEmpty(addCaseIds)) {
+            if (issuesRequest.getIsPlanEdit()) {
+                addCaseIds.forEach(caseId -> {
+                    testCaseIssueService.add(issuesId, caseId, issuesRequest.getRefId(), IssueRefType.PLAN_FUNCTIONAL.name());
+                    testCaseIssueService.updateIssuesCount(caseId);
                 });
+            } else {
+                addCaseIds.forEach(caseId -> testCaseIssueService.add(issuesId, caseId, null, IssueRefType.FUNCTIONAL.name()));
             }
         }
     }
@@ -380,11 +364,8 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     @Override
     public void deleteIssue(String id) {
-        issuesMapper.deleteByPrimaryKey(id);
-        TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria()
-                .andIssuesIdEqualTo(id);
-        testCaseIssuesMapper.deleteByExample(example);
+        IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
+        issuesService.deleteIssue(id);
     }
 
     protected void addCustomFields(IssuesUpdateRequest issuesRequest, MultiValueMap<String, Object> paramMap) {

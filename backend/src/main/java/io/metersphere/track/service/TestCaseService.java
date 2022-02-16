@@ -19,6 +19,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.constants.UserGroupType;
@@ -346,12 +347,12 @@ public class TestCaseService {
                 testCase.setDemandName(null);
             }
             if (otherInfoConfig.isRelateIssue()) {
-                List<IssuesDao> issuesDaos = issuesService.getIssues(oldTestCaseId);
+                List<IssuesDao> issuesDaos = issuesService.getIssues(oldTestCaseId, IssueRefType.FUNCTIONAL.name());
                 if (CollectionUtils.isNotEmpty(issuesDaos)) {
                     issuesDaos.forEach(issue -> {
                         TestCaseIssues t = new TestCaseIssues();
                         t.setId(UUID.randomUUID().toString());
-                        t.setTestCaseId(testCase.getId());
+                        t.setResourceId(testCase.getId());
                         t.setIssuesId(issue.getId());
                         testCaseIssuesMapper.insertSelective(t);
                     });
@@ -1907,7 +1908,7 @@ public class TestCaseService {
         setDefaultOrder(request);
         List<TestCaseDTO> cases = extTestCaseMapper.listForMinder(request);
         List<String> caseIds = cases.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
-        HashMap<String, List<IssuesDao>> issueMap = buildMinderIssueMap(caseIds);
+        HashMap<String, List<IssuesDao>> issueMap = buildMinderIssueMap(caseIds, IssueRefType.FUNCTIONAL.name());
         for (TestCaseDTO item : cases) {
             List<IssuesDao> issues = issueMap.get(item.getId());
             if (issues != null) {
@@ -1917,10 +1918,10 @@ public class TestCaseService {
         return cases;
     }
 
-    public HashMap<String, List<IssuesDao>> buildMinderIssueMap(List<String> caseIds) {
+    public HashMap<String, List<IssuesDao>> buildMinderIssueMap(List<String> caseIds, String refType) {
         HashMap<String, List<IssuesDao>> issueMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(caseIds)) {
-            List<IssuesDao> issues = extIssuesMapper.getIssueForMinder(caseIds);
+            List<IssuesDao> issues = extIssuesMapper.getIssueForMinder(caseIds, refType);
             for (IssuesDao item : issues) {
                 List<IssuesDao> list = issueMap.get(item.getCaseId());
                 if (list == null) {
@@ -2010,7 +2011,7 @@ public class TestCaseService {
             //关联缺陷
             List<String> issuesNames = new LinkedList<>();
             TestCaseIssuesExample testCaseIssuesExample = new TestCaseIssuesExample();
-            testCaseIssuesExample.createCriteria().andTestCaseIdEqualTo(bloBs.getId());
+            testCaseIssuesExample.createCriteria().andResourceIdEqualTo(bloBs.getId());
             List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(testCaseIssuesExample);
             if (CollectionUtils.isNotEmpty(testCaseIssues)) {
                 List<String> issuesIds = testCaseIssues.stream().map(TestCaseIssues::getIssuesId).collect(Collectors.toList());
@@ -2552,7 +2553,7 @@ public class TestCaseService {
         TestCaseWithBLOBs tc = getTestCase(caseId);
         if (tc != null) {
             if (StringUtils.isNotBlank(tc.getRemark()) || StringUtils.isNotBlank(tc.getDemandId()) || CollectionUtils.isNotEmpty(getRelateTest(caseId))
-                    || CollectionUtils.isNotEmpty(issuesService.getIssues(caseId)) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "PRE")) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "POST"))
+                    || CollectionUtils.isNotEmpty(issuesService.getIssues(caseId, IssueRefType.FUNCTIONAL.name())) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "PRE")) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "POST"))
                     || CollectionUtils.isNotEmpty(fileService.getFileMetadataByCaseId(caseId))) {
                 return true;
             }

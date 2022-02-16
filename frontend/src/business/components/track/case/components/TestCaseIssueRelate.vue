@@ -85,8 +85,18 @@
       </span>
     </ms-table>
 
-    <test-plan-issue-edit :plan-id="planId" :case-id="caseId" @refresh="getIssues" ref="issueEdit"/>
-    <IssueRelateList :case-id="caseId"  @refresh="getIssues" ref="issueRelate"/>
+    <test-plan-issue-edit
+      :plan-case-id="planCaseId"
+      :plan-id="planId"
+      :case-id="caseId"
+      @refresh="getIssues"
+      ref="issueEdit"/>
+
+    <IssueRelateList
+      :plan-case-id="planCaseId"
+      :case-id="caseId"
+      @refresh="getIssues"
+      ref="issueRelate"/>
   </div>
 </template>
 
@@ -124,7 +134,13 @@ export default {
       issueRelateVisible: false
     }
   },
-  props: ['caseId', 'readOnly','planId', 'isCopy'],
+  props: {
+    planId: String,
+    caseId: String,
+    planCaseId: String,
+    readOnly: Boolean,
+    isCopy: Boolean,
+  },
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
@@ -172,11 +188,14 @@ export default {
     },
     getIssues() {
       if (!this.isCopy) {
-        let result = getIssuesByCaseId(this.caseId, this.page);
+        let result = getIssuesByCaseId(this.planId ? 'PLAN_FUNCTIONAL' : 'FUNCTIONAL', this.getCaseResourceId(), this.page);
         if (result) {
           this.page.result = result;
         }
       }
+    },
+    getCaseResourceId() {
+      return this.planId ? this.planCaseId : this.caseId;
     },
     addIssue() {
       if (!this.caseId || this.isCopy) {
@@ -203,7 +222,7 @@ export default {
       }
     },
     deleteIssue(row) {
-      this.page.result = deleteIssueRelate({id: row.id, caseId: this.caseId}, () => {
+      this.page.result = deleteIssueRelate({id: row.id, caseResourceId: this.getCaseResourceId(), isPlanEdit: this.planId ? true : false}, () => {
         this.getIssues();
         this.$success(this.$t('commons.delete_success'));
       });

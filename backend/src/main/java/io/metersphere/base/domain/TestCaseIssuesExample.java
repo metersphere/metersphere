@@ -174,73 +174,73 @@ public class TestCaseIssuesExample {
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdIsNull() {
-            addCriterion("test_case_id is null");
+        public Criteria andResourceIdIsNull() {
+            addCriterion("resource_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdIsNotNull() {
-            addCriterion("test_case_id is not null");
+        public Criteria andResourceIdIsNotNull() {
+            addCriterion("resource_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdEqualTo(String value) {
-            addCriterion("test_case_id =", value, "testCaseId");
+        public Criteria andResourceIdEqualTo(String value) {
+            addCriterion("resource_id =", value, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdNotEqualTo(String value) {
-            addCriterion("test_case_id <>", value, "testCaseId");
+        public Criteria andResourceIdNotEqualTo(String value) {
+            addCriterion("resource_id <>", value, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdGreaterThan(String value) {
-            addCriterion("test_case_id >", value, "testCaseId");
+        public Criteria andResourceIdGreaterThan(String value) {
+            addCriterion("resource_id >", value, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdGreaterThanOrEqualTo(String value) {
-            addCriterion("test_case_id >=", value, "testCaseId");
+        public Criteria andResourceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("resource_id >=", value, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdLessThan(String value) {
-            addCriterion("test_case_id <", value, "testCaseId");
+        public Criteria andResourceIdLessThan(String value) {
+            addCriterion("resource_id <", value, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdLessThanOrEqualTo(String value) {
-            addCriterion("test_case_id <=", value, "testCaseId");
+        public Criteria andResourceIdLessThanOrEqualTo(String value) {
+            addCriterion("resource_id <=", value, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdLike(String value) {
-            addCriterion("test_case_id like", value, "testCaseId");
+        public Criteria andResourceIdLike(String value) {
+            addCriterion("resource_id like", value, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdNotLike(String value) {
-            addCriterion("test_case_id not like", value, "testCaseId");
+        public Criteria andResourceIdNotLike(String value) {
+            addCriterion("resource_id not like", value, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdIn(List<String> values) {
-            addCriterion("test_case_id in", values, "testCaseId");
+        public Criteria andResourceIdIn(List<String> values) {
+            addCriterion("resource_id in", values, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdNotIn(List<String> values) {
-            addCriterion("test_case_id not in", values, "testCaseId");
+        public Criteria andResourceIdNotIn(List<String> values) {
+            addCriterion("resource_id not in", values, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdBetween(String value1, String value2) {
-            addCriterion("test_case_id between", value1, value2, "testCaseId");
+        public Criteria andResourceIdBetween(String value1, String value2) {
+            addCriterion("resource_id between", value1, value2, "resourceId");
             return (Criteria) this;
         }
 
-        public Criteria andTestCaseIdNotBetween(String value1, String value2) {
-            addCriterion("test_case_id not between", value1, value2, "testCaseId");
+        public Criteria andResourceIdNotBetween(String value1, String value2) {
+            addCriterion("resource_id not between", value1, value2, "resourceId");
             return (Criteria) this;
         }
 
@@ -311,6 +311,146 @@ public class TestCaseIssuesExample {
 
         public Criteria andIssuesIdNotBetween(String value1, String value2) {
             addCriterion("issues_id not between", value1, value2, "issuesId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdIsNull() {
+            addCriterion("ref_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdIsNotNull() {
+            addCriterion("ref_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdEqualTo(String value) {
+            addCriterion("ref_id =", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdNotEqualTo(String value) {
+            addCriterion("ref_id <>", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdGreaterThan(String value) {
+            addCriterion("ref_id >", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdGreaterThanOrEqualTo(String value) {
+            addCriterion("ref_id >=", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdLessThan(String value) {
+            addCriterion("ref_id <", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdLessThanOrEqualTo(String value) {
+            addCriterion("ref_id <=", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdLike(String value) {
+            addCriterion("ref_id like", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdNotLike(String value) {
+            addCriterion("ref_id not like", value, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdIn(List<String> values) {
+            addCriterion("ref_id in", values, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdNotIn(List<String> values) {
+            addCriterion("ref_id not in", values, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdBetween(String value1, String value2) {
+            addCriterion("ref_id between", value1, value2, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefIdNotBetween(String value1, String value2) {
+            addCriterion("ref_id not between", value1, value2, "refId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeIsNull() {
+            addCriterion("ref_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeIsNotNull() {
+            addCriterion("ref_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeEqualTo(String value) {
+            addCriterion("ref_type =", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeNotEqualTo(String value) {
+            addCriterion("ref_type <>", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeGreaterThan(String value) {
+            addCriterion("ref_type >", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("ref_type >=", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeLessThan(String value) {
+            addCriterion("ref_type <", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeLessThanOrEqualTo(String value) {
+            addCriterion("ref_type <=", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeLike(String value) {
+            addCriterion("ref_type like", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeNotLike(String value) {
+            addCriterion("ref_type not like", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeIn(List<String> values) {
+            addCriterion("ref_type in", values, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeNotIn(List<String> values) {
+            addCriterion("ref_type not in", values, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeBetween(String value1, String value2) {
+            addCriterion("ref_type between", value1, value2, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeNotBetween(String value1, String value2) {
+            addCriterion("ref_type not between", value1, value2, "refType");
             return (Criteria) this;
         }
     }

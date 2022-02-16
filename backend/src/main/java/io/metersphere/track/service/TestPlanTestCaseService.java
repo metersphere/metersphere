@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
+import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -302,10 +303,10 @@ public class TestPlanTestCaseService {
         });
         request.setOrders(orders);
         List<TestPlanCaseDTO> cases = extTestPlanTestCaseMapper.listForMinder(request);
-        List<String> caseIds = cases.stream().map(TestPlanCaseDTO::getCaseId).collect(Collectors.toList());
-        HashMap<String, List<IssuesDao>> issueMap = testCaseService.buildMinderIssueMap(caseIds);
+        List<String> caseIds = cases.stream().map(TestPlanCaseDTO::getId).collect(Collectors.toList());
+        HashMap<String, List<IssuesDao>> issueMap = testCaseService.buildMinderIssueMap(caseIds, IssueRefType.PLAN_FUNCTIONAL.name());
         for (TestPlanCaseDTO item : cases) {
-            List<IssuesDao> issues = issueMap.get(item.getCaseId());
+            List<IssuesDao> issues = issueMap.get(item.getId());
             if (issues != null) {
                 item.setIssueList(issues);
             }

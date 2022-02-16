@@ -14,8 +14,21 @@
       @save="save"
       ref="minder"
     />
-    <IssueRelateList :case-id="getCurCaseId()"  @refresh="refreshRelateIssue" ref="issueRelate"/>
-    <test-plan-issue-edit :is-minder="true" :plan-id="planId" :case-id="getCurCaseId()" @refresh="refreshIssue" ref="issueEdit"/>
+
+    <IssueRelateList
+      :plan-case-id="getCurId()"
+      :case-id="getCurCaseId()"
+      @refresh="refreshRelateIssue"
+      ref="issueRelate"/>
+
+    <test-plan-issue-edit
+      :is-minder="true"
+      :plan-id="planId"
+      :plan-case-id="getCurId()"
+      :case-id="getCurCaseId()"
+      @refresh="refreshIssue"
+      ref="issueEdit"/>
+
   </div>
 </template>
 
@@ -179,6 +192,9 @@ name: "TestPlanMinder",
     },
     getCurCaseId() {
       return getSelectedNodeData().caseId;
+    },
+    getCurId() {
+      return getSelectedNodeData().id;
     },
     refreshIssue(issue) {
       handleIssueAdd(issue);

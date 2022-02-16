@@ -52,7 +52,6 @@
     <test-case-relate-list
       @refresh="initTableData"
       @save="handleRelate"
-      :test-case-contain-ids="testCaseContainIds"
       ref="testCaseRelevance"/>
   </div>
 
@@ -71,6 +70,8 @@ export default {
     return {
       result: {},
       tableData: [],
+      deleteIds: new Set(),
+      addIds: new Set(),
       operators: [
         {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
@@ -81,12 +82,11 @@ export default {
   },
   props: {
     issuesId: String,
-    testCaseContainIds: Set,
   },
   methods: {
     handleDelete(item, index) {
-      this.testCaseContainIds.delete(item.id);
       this.tableData.splice(index, 1);
+      this.deleteIds.add(item.id);
     },
     initTableData() {
       this.tableData = [];
@@ -96,9 +96,6 @@ export default {
       if (this.issuesId) {
         this.result = this.$post('test/case/issues/list', condition, response => {
           this.tableData = response.data;
-          this.tableData.forEach(item => {
-            this.testCaseContainIds.add(item.id);
-          });
           this.$refs.table.reloadTable();
         });
       }
@@ -108,10 +105,9 @@ export default {
     },
     handleRelate(selectRows) {
       let selectData = Array.from(selectRows);
-      selectData.forEach(item => {
-        if (item.id) {
-          this.testCaseContainIds.add(item.id);
-        }
+      selectRows.forEach(i => {
+        this.deleteIds.delete(i.id);
+        this.addIds.add(i.id);
       });
       this.tableData.push(...selectData);
     },
