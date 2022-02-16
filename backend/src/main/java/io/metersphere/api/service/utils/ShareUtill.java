@@ -28,13 +28,13 @@ public class ShareUtill {
         String unit = expr.substring(expr.length() - 1);
         int quantity = Integer.parseInt(expr.substring(0, expr.length() - 1));
         if(StringUtils.equals(unit,UNIT_HOUR)){
-            date = localDateTime.minusHours(quantity);
+            date = localDateTime.plusHours(quantity);
         } else if (StringUtils.equals(unit, UNIT_DAY)) {
-            date = localDateTime.minusDays(quantity);
+            date = localDateTime.plusDays(quantity);
         } else if (StringUtils.equals(unit, UNIT_MONTH)) {
-            date = localDateTime.minusMonths(quantity);
+            date = localDateTime.plusMonths(quantity);
         } else if (StringUtils.equals(unit, UNIT_YEAR)) {
-            date = localDateTime.minusYears(quantity);
+            date = localDateTime.plusYears(quantity);
         }
         return date;
     }
