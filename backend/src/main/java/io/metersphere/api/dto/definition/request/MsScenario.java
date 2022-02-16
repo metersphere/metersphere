@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.controller.MsCriticalSectionController;
+import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -94,43 +95,9 @@ public class MsScenario extends MsTestElement {
         }
         if (this.getReferenced() != null && this.getReferenced().equals(MsTestElementConstants.Deleted.name())) {
             return;
-        } else if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            try {
-                ApiScenarioMapper apiAutomationService = CommonBeanFactory.getBean(ApiScenarioMapper.class);
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                ApiScenarioWithBLOBs scenario = apiAutomationService.selectByPrimaryKey(this.getId());
-                if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
-                    JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
-                    // 历史数据处理
-                    ElementUtil.dataFormatting(element.getJSONArray("hashTree"));
-                    this.setName(scenario.getName());
-                    this.setProjectId(scenario.getProjectId());
-                    LinkedList<MsTestElement> sourceHashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-                    });
-                    // 场景变量
-                    if (StringUtils.isNotEmpty(element.getString("variables"))) {
-                        LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
-                                new TypeReference<LinkedList<ScenarioVariable>>() {
-                                });
-                        this.setVariables(variables);
-                    }
-                    // 场景请求头
-                    if (StringUtils.isNotEmpty(element.getString("headers"))) {
-                        LinkedList<KeyValue> headers = mapper.readValue(element.getString("headers"),
-                                new TypeReference<LinkedList<KeyValue>>() {
-                                });
-                        this.setHeaders(headers);
-                    }
-                    this.setHashTree(sourceHashTree);
-                    hashTree = sourceHashTree;
-                } else {
-                    return;
-                }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+        } else if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())
+                && !this.setRefScenario(hashTree)) {
+            return;
         }
         // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
@@ -160,24 +127,113 @@ public class MsScenario extends MsTestElement {
             config.setVariables(this.variables);
         }
         HashTree scenarioTree = tree;
+        // 取出自身场景环境
+        ParameterConfig newConfig = new ParameterConfig();
+        if (this.isEnvironmentEnable()) {
+            this.setNewConfig(envConfig, newConfig);
+        }
+
         if (config != null && !config.getExcludeScenarioIds().contains(this.getId())) {
             scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
         }
         // 场景变量和环境变量
-        Arguments arguments = arguments(config);
+        Arguments arguments = arguments(this.isEnvironmentEnable() ? newConfig : config);
         if (arguments != null) {
             Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
             // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
             scenarioTree.add(valueSupposeMock);
             scenarioTree.add(ElementUtil.argumentsToProcessor(valueSupposeMock));
         }
-        ElementUtil.addCsvDataSet(scenarioTree, variables, config, "shareMode.group");
+        ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
         ElementUtil.addCounter(scenarioTree, variables, false);
         ElementUtil.addRandom(scenarioTree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
-            config.setHeaders(this.headers);
+            if (this.isEnvironmentEnable()) {
+                newConfig.setHeaders(this.headers);
+            } else {
+                config.setHeaders(this.headers);
+            }
         }
-        ParameterConfig newConfig = new ParameterConfig();
+        // 添加全局前置
+        this.setGlobProcessor(this.isEnvironmentEnable() ? newConfig : config, scenarioTree, true);
+
+        if (CollectionUtils.isNotEmpty(hashTree)) {
+            for (MsTestElement el : hashTree) {
+                el.setParent(this);
+                el.setMockEnvironment(this.isMockEnvironment());
+                if (this.isEnvironmentEnable()) {
+                    el.toHashTree(scenarioTree, el.getHashTree(), newConfig);
+                } else {
+                    el.toHashTree(scenarioTree, el.getHashTree(), config);
+                }
+            }
+        }
+        // 添加全局后置
+        this.setGlobProcessor(this.isEnvironmentEnable() ? newConfig : config, scenarioTree, false);
+    }
+
+    private void setGlobProcessor(ParameterConfig config, HashTree scenarioTree, boolean isPre) {
+        if (config.getConfig() != null) {
+            config.getConfig().forEach((k, environmentConfig) -> {
+                if (environmentConfig != null) {
+                    MsJSR223Processor processor = isPre ? environmentConfig.getPreStepProcessor() : environmentConfig.getPostStepProcessor();
+                    if (processor != null && StringUtils.isNotEmpty(processor.getScript())) {
+                        processor.setType("JSR223Processor");
+                        processor.setClazzName(MsJSR223Processor.class.getCanonicalName());
+                        boolean isConnScenarioPre = false;
+                        if (environmentConfig.getGlobalScriptConfig() != null) {
+                            isConnScenarioPre = isPre ? environmentConfig.getGlobalScriptConfig().isConnScenarioPreScript() :
+                                    environmentConfig.getGlobalScriptConfig().isConnScenarioPostScript();
+                        }
+                        String name = isPre ? "PRE_PROCESSOR_ENV_" : "POST_PROCESSOR_ENV_";
+                        processor.setName(name + isConnScenarioPre);
+                        processor.toHashTree(scenarioTree, processor.getHashTree(), config);
+                    }
+                }
+            });
+        }
+    }
+
+    private boolean setRefScenario(List<MsTestElement> hashTree) {
+        try {
+            ApiScenarioMapper apiAutomationService = CommonBeanFactory.getBean(ApiScenarioMapper.class);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            ApiScenarioWithBLOBs scenario = apiAutomationService.selectByPrimaryKey(this.getId());
+            if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
+                JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+                // 历史数据处理
+                ElementUtil.dataFormatting(element.getJSONArray("hashTree"));
+                this.setName(scenario.getName());
+                this.setProjectId(scenario.getProjectId());
+                LinkedList<MsTestElement> sourceHashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                });
+                // 场景变量
+                if (StringUtils.isNotEmpty(element.getString("variables"))) {
+                    LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                            new TypeReference<LinkedList<ScenarioVariable>>() {
+                            });
+                    this.setVariables(variables);
+                }
+                // 场景请求头
+                if (StringUtils.isNotEmpty(element.getString("headers"))) {
+                    LinkedList<KeyValue> headers = mapper.readValue(element.getString("headers"),
+                            new TypeReference<LinkedList<KeyValue>>() {
+                            });
+                    this.setHeaders(headers);
+                }
+                this.setHashTree(sourceHashTree);
+                hashTree.clear();
+                hashTree.addAll(sourceHashTree);
+                return true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    private void setNewConfig(Map<String, EnvironmentConfig> envConfig, ParameterConfig newConfig) {
         if (this.isEnvironmentEnable()) {
             ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
             EnvironmentGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(EnvironmentGroupProjectService.class);
@@ -205,18 +261,6 @@ public class MsScenario extends MsTestElement {
                     }
                 });
                 newConfig.setConfig(envConfig);
-            }
-
-        }
-        if (CollectionUtils.isNotEmpty(hashTree)) {
-            for (MsTestElement el : hashTree) {
-                el.setParent(this);
-                el.setMockEnvironment(this.isMockEnvironment());
-                if (this.isEnvironmentEnable()) {
-                    el.toHashTree(scenarioTree, el.getHashTree(), newConfig);
-                } else {
-                    el.toHashTree(scenarioTree, el.getHashTree(), config);
-                }
             }
         }
     }
