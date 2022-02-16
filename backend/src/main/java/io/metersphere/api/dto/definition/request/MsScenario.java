@@ -159,12 +159,14 @@ public class MsScenario extends MsTestElement {
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
-                el.setParent(this);
-                el.setMockEnvironment(this.isMockEnvironment());
-                if (this.isEnvironmentEnable()) {
-                    el.toHashTree(scenarioTree, el.getHashTree(), newConfig);
-                } else {
-                    el.toHashTree(scenarioTree, el.getHashTree(), config);
+                if (el != null) {
+                    el.setParent(this);
+                    el.setMockEnvironment(this.isMockEnvironment());
+                    if (this.isEnvironmentEnable()) {
+                        el.toHashTree(scenarioTree, el.getHashTree(), newConfig);
+                    } else {
+                        el.toHashTree(scenarioTree, el.getHashTree(), config);
+                    }
                 }
             }
         }
