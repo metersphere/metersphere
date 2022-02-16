@@ -52,6 +52,30 @@ DELIMITER ;
 CALL test_personal();
 DROP PROCEDURE IF EXISTS test_personal;
 
+-- 测试计划缺陷与用例缺陷分离
+ALTER TABLE test_case_issues ADD ref_type varchar(30) DEFAULT 'FUNCTIONAL' NOT NULL;
+ALTER TABLE test_case_issues CHANGE test_case_id resource_id varchar(50) NOT NULL;
+ALTER TABLE test_case_issues ADD ref_id varchar(50) NULL COMMENT '测试计划的用例所指向的用例的id';
+
+INSERT INTO test_case_issues (id, resource_id, issues_id, ref_id, ref_type)
+    SELECT uuid(), tptc.id, i.id, tptc.case_id, 'PLAN_FUNCTIONAL'
+    FROM issues i
+             INNER JOIN test_case_issues tci
+                        ON tci.issues_id = i.id
+             INNER JOIN test_plan_test_case tptc
+                        ON tci.resource_id = tptc.case_id AND i.resource_id = tptc.plan_id
+
+DELETE FROM test_case_issues WHERE id IN (
+    SELECT id FROM (
+                       SELECT tci.id AS id
+                       FROM issues i
+                       INNER JOIN test_case_issues tci
+                           ON tci.issues_id = i.id
+                       INNER JOIN test_plan_test_case tptc
+                           ON tci.resource_id = tptc.case_id AND i.resource_id = tptc.plan_id
+                   ) tmp
+)
+
 
 DROP PROCEDURE IF EXISTS project_appl;
 DELIMITER //

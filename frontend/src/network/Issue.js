@@ -24,9 +24,9 @@ export function getIssues(page) {
   });
 }
 
-export function getIssuesByCaseId(caseId, page) {
+export function getIssuesByCaseId(refType, caseId, page) {
   if (caseId) {
-    return get('issues/get/case/' + caseId, (response) => {
+    return get('issues/get/case/' + refType + '/' + caseId, (response) => {
       page.data = response.data;
       buildIssues(page);
     });
