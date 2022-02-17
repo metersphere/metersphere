@@ -84,6 +84,20 @@ export default {
     getProjectApplication(){
       this.$get('/project_application/get/' + getCurrentProjectID()+"/TRACK_SHARE_REPORT_TIME", res => {
         if(res.data){
+          let quantity = res.data.typeValue.substring(0, res.data.typeValue.length - 1);
+          let unit = res.data.typeValue.substring(res.data.typeValue.length - 1);
+          if(unit==='H'){
+            res.data.typeValue = quantity+this.$t('commons.date_unit.hour');
+          }else
+          if(unit==='D'){
+            res.data.typeValue = quantity+this.$t('commons.date_unit.day');
+          }else
+          if(unit==='M'){
+            res.data.typeValue = quantity+this.$t('commons.date_unit.month');
+          }else
+          if(unit==='Y'){
+            res.data.typeValue = quantity+this.$t('commons.date_unit.year');
+          }
           this.application = res.data;
         }
       });

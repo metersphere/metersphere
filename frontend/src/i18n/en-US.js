@@ -240,6 +240,7 @@ export default {
     cancel_follow_success: "Cancel Follow Success",
     generate_test_data: "Generate test data",
     type: "Type",
+    type_of_num:"Only Number",
     validity_period:'Validity Period',
     please_select_a_deadline: "Please select a deadline",
     relationship: {
