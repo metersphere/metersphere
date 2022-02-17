@@ -10,23 +10,22 @@
       </slot>
       <span>
         <slot name="headerLeft">
-          <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"  @click="active(data)" v-if="data.type!='scenario' && !isMax " @click.stop/>
+          <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}" @click="active(data)" v-if="data.type!='scenario' && !isMax " @click.stop/>
           <span @click.stop v-if="isShowInput && isShowNameInput">
             <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input" @focus="active(data)"
                       @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
           </span>
 
-          <span :class="showVersion?'scenario-unscroll':'scenario-version'" id="moveout"  @mouseenter="enter($event)" @mouseleave="leave($event)" v-else>
+          <span :class="showVersion?'scenario-unscroll':'scenario-version'" id="moveout" @mouseenter="enter($event)" @mouseleave="leave($event)" v-else>
             <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
                v-if="data.referenced!='REF' && !data.disabled"/>
             <el-tooltip placement="top" :content="data.name">
               <span>{{ data.name }}</span>
             </el-tooltip>
             <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{ getMethod() }}</el-tag>
-            <slot name = "afterTitle"/>
+            <slot name="afterTitle"/>
           </span>
         </slot>
-        <slot name="scenarioEnable"/>
       </span>
 
       <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop>
@@ -39,7 +38,15 @@
         <el-tooltip content="Copy" placement="top" v-if="showVersion">
           <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="data.disabled && !data.root"/>
         </el-tooltip>
-        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn && (!data.disabled || data.root)&&showVersion"/>
+        <step-extend-btns style="display: contents"
+                          :data="data"
+                          :environmentType="environmentType"
+                          :environmentGroupId="environmentGroupId"
+                          :envMap="envMap"
+                          @copy="copyRow"
+                          @remove="remove"
+                          @openScenario="openScenario"
+                          v-if="showBtn && (!data.disabled || data.root) &&showVersion"/>
       </div>
 
     </div>
@@ -66,6 +73,7 @@
 <script>
 import StepExtendBtns from "../component/StepExtendBtns";
 import {STEP} from "../Setting";
+
 export default {
   name: "ApiBaseComponent",
   components: {StepExtendBtns},
@@ -124,7 +132,10 @@ export default {
     ifFromVariableAdvance: {
       type: Boolean,
       default: false,
-    }
+    },
+    environmentType: String,
+    environmentGroupId: String,
+    envMap: Map,
   },
   watch: {
     '$store.state.selectStep': function () {
@@ -178,18 +189,18 @@ export default {
         this.$refs.nameEdit.focus();
       });
     },
-    enter($event){
-      if(this.showVersion){
-        $event.currentTarget.className="scenario-name"
-      }else{
-        $event.currentTarget.className="scenario-version"
+    enter($event) {
+      if (this.showVersion) {
+        $event.currentTarget.className = "scenario-name"
+      } else {
+        $event.currentTarget.className = "scenario-version"
       }
     },
-    leave($event){
-      if(this.showVersion){
-        $event.currentTarget.className="scenario-unscroll"
-      }else{
-        $event.currentTarget.className="scenario-version"
+    leave($event) {
+      if (this.showVersion) {
+        $event.currentTarget.className = "scenario-unscroll"
+      } else {
+        $event.currentTarget.className = "scenario-version"
       }
     }
 
@@ -240,7 +251,8 @@ export default {
   white-space: nowrap;
   width: 140px;
 }
-.scenario-version{
+
+.scenario-version {
   display: inline-block;
   font-size: 13px;
   margin: 0 5px;
@@ -254,30 +266,31 @@ export default {
   width: calc(100% - 23rem);
   height: auto;
 }
-.scenario-version::-webkit-scrollbar
-{
+
+.scenario-version::-webkit-scrollbar {
   background-color: #fff;
 }
+
 /*定义滚动条轨道 内阴影+圆角*/
-.scenario-version::-webkit-scrollbar-track
-{
+.scenario-version::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px #fff;
   border-radius: 1px;
   background-color: #ffffff;
 }
 
 /*定义滑块 内阴影+圆角*/
-.scenario-version::-webkit-scrollbar-thumb
-{
+.scenario-version::-webkit-scrollbar-thumb {
   border-radius: 1px;
   -webkit-box-shadow: inset 0 0 6px #fff;
   background-color: #783887;
 }
+
 .scenario-version::-webkit-scrollbar {
   /* width: 0px; */
   height: 3px;
   position: fixed;
 }
+
 .scenario-name {
   display: inline-block;
   font-size: 13px;
@@ -296,32 +309,32 @@ export default {
   scrollbar-track-color: transparent;
   -ms-scrollbar-track-color: transparent;
 }
-.scenario-name::-webkit-scrollbar
-{
+
+.scenario-name::-webkit-scrollbar {
   background-color: #fff;
 }
+
 /*定义滚动条轨道 内阴影+圆角*/
-.scenario-name::-webkit-scrollbar-track
-{
+.scenario-name::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px #fff;
   border-radius: 1px;
   background-color: #ffffff;
 }
 
 /*定义滑块 内阴影+圆角*/
-.scenario-name::-webkit-scrollbar-thumb
-{
+.scenario-name::-webkit-scrollbar-thumb {
   border-radius: 1px;
   -webkit-box-shadow: inset 0 0 6px #fff;
   background-color: #783887;
 }
+
 .scenario-name::-webkit-scrollbar {
   /* width: 0px; */
   height: 3px;
   position: fixed;
 }
 
-.scenario-unscroll{
+.scenario-unscroll {
   display: inline-block;
   font-size: 13px;
   margin: 0 5px;
