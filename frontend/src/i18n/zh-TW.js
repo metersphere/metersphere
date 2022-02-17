@@ -240,6 +240,7 @@ export default {
     follow_success: "關註成功",
     cancel_follow_success: "取消關註成功",
     type: "類型",
+    type_of_num:"只能輸入數字類型",
     validity_period:'有效期',
     please_select_a_deadline: "請選擇截止時間",
     relationship: {

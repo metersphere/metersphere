@@ -4,7 +4,7 @@
       <el-tab-pane  v-if="hasPermission('PERSONAL_INFORMATION:READ+EDIT')" name="commons.personal_setting" :label="$t('commons.personal_setting')" class="setting-item" ></el-tab-pane>
       <el-tab-pane  v-if="hasPermission('PERSONAL_INFORMATION:READ+API_KEYS')" name="commons.api_keys" :label="$t('commons.api_keys')" class="setting-item" ></el-tab-pane>
       <el-tab-pane  v-if="hasPermission('PERSONAL_INFORMATION:READ+EDIT_PASSWORD')" name="change_password" :label="$t('member.edit_password')" class="setting-item" ></el-tab-pane>
-      <el-tab-pane  v-if="hasPermission('PERSONAL_INFORMATION:READ+THIRD_ACCOUNT')&&(hasJira||hasTapd||hasZentao||hasAzure)" name="third_account" :label="$t('commons.third_account')" class="setting-item" ></el-tab-pane>
+      <el-tab-pane  v-if="hasPermission('PERSONAL_INFORMATION:READ+THIRD_ACCOUNT')&&(hasJira||hasTapd||hasZentao||hasAzure)&&hasPermission('WORKSPACE_SERVICE:READ')" name="third_account" :label="$t('commons.third_account')" class="setting-item" ></el-tab-pane>
     </el-tabs>
     <ms-main-container>
       <ms-person-from-setting v-if="activeIndex==='commons.personal_setting'" :form = form @getPlatformInfo = "getPlatformInfo" @cancel = "cancel"   />
@@ -65,7 +65,6 @@
         //persons: getMenus('person'),
         activeIndex: 'commons.personal_setting',
         ruleForm:{},
-        isShowText:false,
         hasJira: false,
         hasTapd: false,
         hasZentao: false,
@@ -190,10 +189,7 @@
       },
     },
     created() {
-      this.isShowText = hasPermission('PERSONAL_INFORMATION:READ+THIRD_ACCOUNT');
       this.initTableData();
-
-
     }
 
   }
