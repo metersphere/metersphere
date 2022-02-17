@@ -623,7 +623,12 @@ export default {
         cancelButtonText: this.$t('commons.cancel'),
         type: 'warning',
       }).then(() => {
-        this.result = this.$post('/test/plan/schedule/updateEnableByPrimyKey', param, response => {
+        this.result = this.$post('/test/plan/schedule/updateEnableByPrimyKey', param, () => {
+          if (row.scheduleOpen) {
+            row.scheduleStatus = 'OPEN'
+          } else {
+            row.scheduleStatus = 'SHUT'
+          }
           this.$success(this.$t('commons.save_success'));
         });
       }).catch(() => {
