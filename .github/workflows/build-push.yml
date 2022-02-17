@@ -51,7 +51,7 @@ jobs:
         run: mvn -B package --file pom.xml
 
       - name: Unzip jar
-        run: mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar)
+        run: mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar) && mkdir -p backend/target/dependency/BOOT-INF/classes/jmeter/lib/junit
 
       - name: Prepare
         id: prepare
