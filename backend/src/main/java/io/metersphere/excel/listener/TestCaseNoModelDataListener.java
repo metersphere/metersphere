@@ -517,27 +517,17 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         List<String> stepDescList = new ArrayList<>();
         List<String> stepResList = new ArrayList<>();
-        ListUtils<String> listUtils = new ListUtils<String>();
+        ListUtils<String> listUtils = new ListUtils<>();
+
+        Set<Integer> rowNums = new HashSet<>();
         if (data.getStepDesc() != null) {
-            String desc = data.getStepDesc().replaceAll("\\n([0-9]+\\.)", "\r\n$1");
-            String[] stepDesc = desc.split("\r\n");
-            StringBuffer stepBuffer = new StringBuffer();
-            int lastStepIndex = 1;
+            String[] stepDesc = data.getStepDesc().split("\r\n");
+
+            int rowIndex = 1;
             for (String row : stepDesc) {
-                RowInfo rowInfo = this.parseIndexInRow(row);
-                int rowIndex = rowInfo.index;
-                String rowMessage = rowInfo.rowInfo;
-                if (rowIndex > -1) {
-                    listUtils.set(stepDescList, lastStepIndex - 1, stepBuffer.toString(), "");
-                    stepBuffer = new StringBuffer();
-                    lastStepIndex = rowIndex;
-                    stepBuffer.append(rowMessage);
-                } else {
-                    stepBuffer.append(row);
-                }
-            }
-            if (StringUtils.isNotEmpty(stepBuffer.toString())) {
-                listUtils.set(stepDescList, lastStepIndex - 1, stepBuffer.toString(), "");
+                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row);
+                stepDescList.add(rowInfo.rowInfo);
+                rowNums.add(rowIndex++);
             }
         } else {
             stepDescList.add("");
@@ -546,23 +536,19 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         if (data.getStepResult() != null) {
             String stepResult = data.getStepResult().replaceAll("\\n([0-9]+\\.)", "\r\n$1");
             String[] stepRes = stepResult.split("\r\n");
-            StringBuffer stepBuffer = new StringBuffer();
             int lastStepIndex = 1;
             for (String row : stepRes) {
-                RowInfo rowInfo = this.parseIndexInRow(row);
+                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row);
                 int rowIndex = rowInfo.index;
                 String rowMessage = rowInfo.rowInfo;
-                if (rowIndex > -1) {
-                    listUtils.set(stepResList, lastStepIndex - 1, stepBuffer.toString(), "");
-                    stepBuffer = new StringBuffer();
+
+                if (rowIndex > -1 && rowNums.contains(rowIndex)) {
+                    listUtils.set(stepResList, lastStepIndex - 1, rowMessage, "");
                     lastStepIndex = rowIndex;
-                    stepBuffer.append(rowMessage);
                 } else {
-                    stepBuffer.append(row);
+                    listUtils.set(stepResList, lastStepIndex - 1, rowMessage, "");
+                    lastStepIndex++;
                 }
-            }
-            if (StringUtils.isNotEmpty(stepBuffer.toString())) {
-                listUtils.set(stepResList, lastStepIndex - 1, stepBuffer.toString(), "");
             }
         } else {
             stepResList.add("");
@@ -577,10 +563,14 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             step.put("num", i + 1);
             if (i < stepDescList.size()) {
                 step.put("desc", stepDescList.get(i));
+            } else {
+                step.put("desc", "");
             }
 
             if (i < stepResList.size()) {
                 step.put("result", stepResList.get(i));
+            } else {
+                step.put("result", "");
             }
 
             jsonArray.add(step);
