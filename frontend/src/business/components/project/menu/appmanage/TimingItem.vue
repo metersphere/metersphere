@@ -2,11 +2,11 @@
   <app-manage-item :title="title" :append-span="3" :middle-span="12" :prepend-span="9">
     <template #middle>
       <el-row>
-        <el-col span="5">
+        <el-col :span="5">
           <div class="timing_name" v-if="shareLink">{{ $t('commons.validity_period') }}</div>
           <div class="timing_name" v-if="!shareLink">{{ $t('project.keep_recent') }}</div>
         </el-col>
-        <el-col span="16">
+        <el-col :span="16">
           <el-select v-model="selfQuantity" placeholder=" " size="mini" filterable
                      allow-create
                      class="timing_select" :disabled="selfChoose">
@@ -27,7 +27,7 @@
             </el-option>
           </el-select>
         </el-col>
-        <el-col span="3">
+        <el-col :span="3">
           <div class="timing_name" v-if="!shareLink" style="margin-left: 3px;">{{ $t('commons.report') }}</div>
         </el-col>
       </el-row>
@@ -92,7 +92,7 @@ export default {
   },
   data() {
     return {
-      selfQuantity: "",
+      selfQuantity: Number,
       selfUnit: "",
       selfChoose: this.choose,
       selfExpr: this.expr,
@@ -106,6 +106,19 @@ export default {
         this.selfChoose = false;
         return false;
       }
+      if(val && this.selfQuantity){
+        if(typeof this.selfQuantity!=='number'&&isNaN(parseInt(this.selfQuantity))){
+          this.$warning(this.$t('api_test.request.time')+this.$t('commons.type_of_num'));
+          this.selfChoose = false;
+          return false;
+        }
+        if(this.selfQuantity<=0||parseInt(this.selfQuantity)<=0){
+          this.$warning(this.$t('commons.adv_search.operators.gt')+"0");
+          this.selfChoose = false;
+          return false;
+        }
+      }
+
       this.$emit("update:choose", val);
       this.$emit("update:expr", this.selfQuantity + this.selfUnit);
       this.$emit("chooseChange");

@@ -240,6 +240,7 @@ export default {
     follow_success: "关注成功",
     cancel_follow_success: "取消关注成功",
     type: "类型",
+    type_of_num:"只能输入数字类型",
     validity_period:'有效期',
     please_select_a_deadline: "请选择截止时间",
     relationship: {
