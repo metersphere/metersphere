@@ -9,7 +9,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="userName" :label="$t('operating_log.user')"/>
-      <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')">
+      <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')" v-if="showChangeField">
         <template v-slot:default="scope">
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">{{ detail.columnTitle }}</div>
@@ -71,6 +71,7 @@ export default {
       details: [],
       linkDatas: ["prerequisite", "steps", "remark", "request", "config",
         "response", "scenarioDefinition", "tags", "loadConfiguration", "advancedConfiguration"],
+      showChangeField: true,
     }
   },
   methods: {
@@ -84,6 +85,8 @@ export default {
         if (data) {
           // 过滤非全局脚本历史变更数据
           if(modules.length > 0 && modules[0] === '项目-环境设置'){
+            // 环境设置不显示变更字段
+            this.showChangeField = false;
             // 不显示的节点 id
             let ids = [];
             for(let i=0; i<data.length; i++){
@@ -98,6 +101,8 @@ export default {
                 data.splice(index, 1);
               });
             }
+          }else {
+            this.showChangeField = true;
           }
           this.details = data;
         }
