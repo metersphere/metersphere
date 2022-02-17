@@ -127,7 +127,7 @@
             'Saved' as execute_type,
             'API_INDEPENDENT' as report_type
             from api_definition_exec_result a_r
-            where a_r.integrated_report_id is null
+            where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
         ) r
         <where>
             <if test="request.combine != null">
@@ -211,7 +211,7 @@
             'Saved' as execute_type,
             'API_INDEPENDENT' as report_type
             from api_definition_exec_result a_r
-        where a_r.integrated_report_id is null
+        where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
         ) r
         <where>
             <if test="request.combine != null">

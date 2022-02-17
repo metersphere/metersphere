@@ -15,6 +15,9 @@
     color="#606266"
     background-color="#F4F4F5"
     :if-from-variable-advance="ifFromVariableAdvance"
+    :environmentType="environmentType"
+    :environmentGroupId="environmentGroupId"
+    :envMap="envMap"
     :title="$t('commons.scenario')">
 
     <template v-slot:afterTitle v-if="isSameSpace">
@@ -41,26 +44,6 @@
       <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug && !node.data.testing">
         {{ getCode() }}
       </span>
-    </template>
-    <template v-slot:scenarioEnable v-if="!ifFromVariableAdvance">
-      <el-popover
-        placement="bottom"
-        width="200"
-        trigger="click">
-        <ul>
-          <el-tooltip :content="$t('commons.enable_scene_info')" placement="top">-->
-            <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">
-              {{ $t('commons.enable_scene') }}
-            </el-checkbox>
-          </el-tooltip>
-          <el-checkbox v-model="scenario.variableEnable" :disabled="scenario.disabled">
-            {{ $t('commons.variable_scene') }}
-          </el-checkbox>
-        </ul>
-        <span class="el-dropdown-link ms-test-running" slot="reference" @click.stop>
-          {{ $t('commons.reference_settings') }}
-        </span>
-      </el-popover>
     </template>
     <template v-slot:button v-if="!ifFromVariableAdvance">
       <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!scenario.run">

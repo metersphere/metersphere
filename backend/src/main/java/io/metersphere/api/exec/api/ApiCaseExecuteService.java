@@ -201,7 +201,9 @@ public class ApiCaseExecuteService {
             report.setName(caseWithBLOBs.getName());
             report.setProjectId(caseWithBLOBs.getProjectId());
             report.setVersionId(caseWithBLOBs.getVersionId());
-            report.setIntegratedReportId(finalSerialReportId);
+            if (StringUtils.isNotEmpty(finalSerialReportId)) {
+                report.setIntegratedReportId(finalSerialReportId);
+            }
             executeQueue.put(caseWithBLOBs.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
         });
