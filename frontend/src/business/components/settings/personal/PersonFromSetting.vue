@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
     <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
-             ref="updateUserForm" v-permission="['PERSONAL_INFORMATION:READ+EDIT']">
+             ref="updateUserForm">
       <el-form-item label="ID" prop="id">
         <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
       </el-form-item>
@@ -19,7 +19,6 @@
         <el-button type="primary" @click="updateUser('updateUserForm')" @keydown.enter.native.prevent>{{$t('commons.confirm')}}</el-button>
       </el-form-item>
     </el-form>
-    <div  v-if="!isShowText" style="width: 6%;margin: auto">{{$t('commons.no_permission')}}</div>
   </div>
 </template>
 
@@ -29,18 +28,15 @@ import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
   fullScreenLoading, getCurrentProjectID,
   getCurrentUser,
-  getCurrentWorkspaceId, hasPermission,
-  listenGoBack,
+  getCurrentWorkspaceId,
   removeGoBackListener, saveLocalStorage, stopFullScreenLoading
 } from "@/common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
 import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
 import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
-import {getIntegrationService} from "@/network/organization";
 import ZentaoUserInfo from "@/business/components/settings/personal/ZentaoUserInfo";
 import AzureDevopsUserInfo from "@/business/components/settings/personal/AzureDevopsUserInfo";
-import {logout} from "@/network/user";
 
 export default {
   name: "MsPersonFromSetting",
@@ -58,7 +54,6 @@ export default {
     return {
       result: {},
       isLocalUser: false,
-      isShowText:false,
       updatePath: '/user/update/current',
       ruleForm: {},
       rule: {
@@ -90,10 +85,6 @@ export default {
         ],
       },
     };
-  },
-
-  created() {
-    this.isShowText = hasPermission('PERSONAL_INFORMATION:READ+EDIT');
   },
   methods: {
     currentUser: () => {
