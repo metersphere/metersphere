@@ -95,7 +95,6 @@ export default {
         if (this.request.hashTree == undefined) {
           this.request.hashTree = [];
         }
-        this.request.hashTree.push(authManager);
         // 这里做个判断，如果原来有值则不覆盖
         if (this.authConfig.username == undefined && this.authConfig.password == undefined) {
           this.authConfig = authManager;
@@ -107,7 +106,6 @@ export default {
         if (this.request.hashTree == undefined) {
           this.request.hashTree = [];
         }
-        this.request.hashTree.push(authManager);
         this.authConfig = authManager;
         this.request.authManager = this.authConfig;
       }
