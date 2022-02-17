@@ -69,18 +69,16 @@ export default {
     },
     urlChange() {
       this.isUrl = false;
-      if (this.isCustomizeReq) {
-        this.request.path = this.request.url;
-      }
-      if (!this.request.url || this.request.url.indexOf('?') === -1) return;
-      let url = this.getURL(this.addProtocol(this.request.url));
-      if (url) {
-        let paramUrl = this.request.url.substr(this.request.url.indexOf("?") + 1);
-        if (paramUrl && this.isUrl) {
-          this.request.url = decodeURIComponent(this.request.url.substr(0, this.request.url.indexOf("?")));
-        }
-        if (this.isCustomizeReq) {
-          this.request.path = this.request.url;
+      if (this.request.isRefEnvironment) {
+        this.pathChange();
+      } else {
+        if (!this.request.url || this.request.url.indexOf('?') === -1) return;
+        let url = this.getURL(this.addProtocol(this.request.url));
+        if (url) {
+          let paramUrl = this.request.url.substr(this.request.url.indexOf("?") + 1);
+          if (paramUrl && this.isUrl) {
+            this.request.url = decodeURIComponent(this.request.url.substr(0, this.request.url.indexOf("?")));
+          }
         }
       }
     },
