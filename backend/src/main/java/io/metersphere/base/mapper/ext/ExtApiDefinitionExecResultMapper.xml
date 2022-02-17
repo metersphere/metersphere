@@ -37,13 +37,12 @@
             -- api_test_case 只查找测试计划执行的结果
             SELECT testCase.testCaseID AS testCaseID,testCase.id AS id,testCase.testCaseName AS caseName,testCase.testPlanName AS testPlan ,caseErrorCountData.dataCountNumber AS failureTimes,'apiCase' AS caseType
             FROM (
-            SELECT testPlanCase.id AS testCaseID,apiCase.id AS id,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName, testPlanCase.update_time as updateTime
+            SELECT testPlanCase.id AS testPlanCaseID, testPlanCase.api_case_id as testCaseID, apiCase.id AS id,apiCase.`name` AS testCaseName,testPlan.`name`  AS testPlanName, testPlanCase.update_time as updateTime
             FROM api_test_case apiCase
             inner join api_definition on api_definition.id = apiCase.api_definition_id
            INNER JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
            INNER JOIN test_plan testPlan ON testPlan.id = testPlanCase.test_plan_id
             and api_definition.status != 'Trash'
-            GROUP BY apiCase.id
             ORDER BY apiCase.create_time DESC
             )testCase
             INNER JOIN (
@@ -53,12 +52,11 @@
                 INNER JOIN test_plan_api_case t2 ON t1.id = t2.api_case_id
                 WHERE t1.project_id = #{projectId}
                 ) and `status` = 'error' GROUP BY resource_id
-            ) caseErrorCountData ON caseErrorCountData.testPlanCaseID =testCase.testCaseID
+            ) caseErrorCountData ON caseErrorCountData.testPlanCaseID =testCase.testPlanCaseID
             WHERE testCase.updateTime >= #{startTimestamp}
             UNION
             SELECT scene.id AS testCaseID,scene.id AS id,scene.`name` AS caseName,apiScene.testPlanName AS testPlan,count(report.id) AS failureTimes,'scenario' AS caseType
             FROM api_scenario_report report
-            INNER JOIN api_scenario_report_detail reportDetail ON report.id = reportDetail.report_id
             INNER JOIN api_scenario scene ON report.scenario_id = scene.id
             INNER JOIN(
                  SELECT apiScene.api_scenario_id, group_concat(testPlan.`name`) AS testPlanName
