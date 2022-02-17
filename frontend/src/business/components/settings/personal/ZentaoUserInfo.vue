@@ -1,5 +1,5 @@
 <template>
-  <el-form label-position="right" label-width="135px" size="small">
+  <el-form label-position="right" label-width="115px" size="small">
     <el-form-item :label="$t('organization.integration.zentao_info')">
       <ms-instructions-icon size="10" :content="$t('organization.integration.zentao_prompt_information')"/>
     </el-form-item>
