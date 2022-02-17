@@ -57,28 +57,30 @@ public class MsAuthManager extends MsTestElement {
         if (!this.isEnable()) {
             return;
         }
-        ParameterConfig config = (ParameterConfig) msParameter;
-        AuthManager authManager = new AuthManager();
-        authManager.setEnabled(true);
-        authManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "AuthManager");
-        authManager.setProperty(TestElement.TEST_CLASS, AuthManager.class.getName());
-        authManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AuthPanel"));
-        Authorization auth = new Authorization();
-        if (this.url != null) {
-            auth.setURL(this.url);
-        } else {
-            if (config != null && config.isEffective(this.getProjectId())) {
-                if (config.isEffective(this.getProjectId())) {
-                    String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
-                    auth.setURL(url);
+        if (StringUtils.equals(this.getVerification(), "Basic Auth")) {
+            ParameterConfig config = (ParameterConfig) msParameter;
+            AuthManager authManager = new AuthManager();
+            authManager.setEnabled(true);
+            authManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "AuthManager");
+            authManager.setProperty(TestElement.TEST_CLASS, AuthManager.class.getName());
+            authManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AuthPanel"));
+            Authorization auth = new Authorization();
+            if (this.url != null) {
+                auth.setURL(this.url);
+            } else {
+                if (config != null && config.isEffective(this.getProjectId())) {
+                    if (config.isEffective(this.getProjectId())) {
+                        String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                        auth.setURL(url);
+                    }
                 }
             }
+            auth.setUser(this.username);
+            auth.setPass(this.password);
+            auth.setMechanism(AuthManager.Mechanism.DIGEST);
+            authManager.addAuth(auth);
+            tree.add(authManager);
         }
-        auth.setUser(this.username);
-        auth.setPass(this.password);
-        auth.setMechanism(AuthManager.Mechanism.DIGEST);
-        authManager.addAuth(auth);
-        tree.add(authManager);
     }
 
     public void setAuth(HashTree tree, MsAuthManager msAuthManager, HTTPSamplerProxy samplerProxy) {
