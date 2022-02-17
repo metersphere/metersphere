@@ -5,7 +5,8 @@ LABEL maintainer="FIT2CLOUD <support@fit2cloud.com>"
 ARG MS_VERSION=v1.18
 ARG DEPENDENCY=backend/target/dependency
 
-COPY ${DEPENDENCY}/BOOT-INF/lib /opt/lib
+COPY ${DEPENDENCY}/BOOT-INF/lib/ms-jmeter-core-* /opt/lib/ms-jmeter-core.jar
+COPY ${DEPENDENCY}/BOOT-INF/lib/[^ms-jmeter-core]* /opt/lib
 COPY ${DEPENDENCY}/META-INF /opt/META-INF
 COPY ${DEPENDENCY}/BOOT-INF/classes /opt
 
