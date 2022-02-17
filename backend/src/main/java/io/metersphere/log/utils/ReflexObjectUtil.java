@@ -176,7 +176,7 @@ public class ReflexObjectUtil {
                             column.setDiffValue(diffValue);
                         }
                         // 深度对比
-                        else if (StringUtils.equals(module, "api_definition")) {
+                        else if (StringUtils.equals(module, "API_DEFINITION")) {
                             if (originalColumns.get(i).getColumnName().equals("request")) {
                                 String newValue = newColumns.get(i).getOriginalValue().toString();
                                 String oldValue = column.getOriginalValue().toString();
