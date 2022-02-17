@@ -323,6 +323,9 @@ export default {
       // 深度复制
       this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;
+      if (!this.api.environmentId) {
+        this.api.environmentId = this.$store.state.useEnvironment;
+      }
       this.currentRequest = this.api.request;
       this.runLoading = false;
       this.getResult();
