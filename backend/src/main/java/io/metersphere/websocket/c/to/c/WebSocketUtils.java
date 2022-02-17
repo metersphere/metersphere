@@ -16,6 +16,8 @@ public class WebSocketUtils {
         if (session == null) {
             return;
         }
+        // 设置永不超时，一直保持会话连接
+        session.setMaxIdleTimeout(-1);
         RemoteEndpoint.Async async = session.getAsyncRemote();
         if (async == null) {
             return;
