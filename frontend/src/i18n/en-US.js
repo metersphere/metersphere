@@ -26,6 +26,7 @@ export default {
     import_mode: 'Import mode',
     import_module: 'Import module',
     import_user: 'Import user',
+    module_deep_limit: 'The node depth does not exceed 8 layers!',
     export: 'Export',
     please_fill_content: 'Please fill content',
     please_fill_in_the_template: 'Please fill in the template',
