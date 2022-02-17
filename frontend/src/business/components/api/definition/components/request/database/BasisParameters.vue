@@ -218,6 +218,9 @@
           this.environments.forEach(environment => {
             parseEnvironment(environment);
           });
+          if (!this.request.environmentId) {
+            this.request.environmentId = this.$store.state.useEnvironment;
+          }
           let hasEnvironment = false;
           for (let i in this.environments) {
             if (this.environments[i].id === this.request.environmentId) {
