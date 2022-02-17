@@ -130,6 +130,9 @@ export default {
     }
   },
   watch: {
+    isActive() {
+      this.showActive = this.isActive;
+    },
     request: {
       deep: true,
       handler(n) {
