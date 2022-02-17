@@ -5,14 +5,11 @@ LABEL maintainer="FIT2CLOUD <support@fit2cloud.com>"
 ARG MS_VERSION=v1.18
 ARG DEPENDENCY=backend/target/dependency
 
-COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY ${DEPENDENCY}/META-INF /app/META-INF
-COPY ${DEPENDENCY}/BOOT-INF/classes /app
+COPY ${DEPENDENCY}/BOOT-INF/lib /opt/lib
+COPY ${DEPENDENCY}/META-INF /opt/META-INF
+COPY ${DEPENDENCY}/BOOT-INF/classes /opt
 
-RUN mv /app/jmeter /opt/
-RUN mkdir -p /opt/jmeter/lib/junit
-
-ENV JAVA_CLASSPATH=/app:/app/lib/ms-jmeter-core-*.jar:/app/lib/*
+ENV JAVA_CLASSPATH=/opt:/opt/lib/ms-jmeter-core-*.jar:/opt/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.Application
 ENV AB_OFF=true
 ENV MS_VERSION=${MS_VERSION}
