@@ -300,6 +300,10 @@ name: "TestCaseMinder",
       }
 
       this.saveModuleNodeMap.set(module.id, node);
+
+      if (module.level > 8) {
+        this.throwError(this.$t('commons.module_deep_limit'));
+      }
       this.saveModules.push(module);
     },
     buildExtraNode(data, parent, root) {
