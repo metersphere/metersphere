@@ -701,13 +701,15 @@ public class ApiAutomationService {
         } else {
             String scenarioId = request.getId();
             ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(scenarioId);
-            String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
-            String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
-            String environmentJson = apiScenarioWithBLOBs.getEnvironmentJson();
-            if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
-                environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
-            } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
-                environmentMap = JSON.parseObject(environmentJson, Map.class);
+            if (apiScenarioWithBLOBs != null) {
+                String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
+                String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
+                String environmentJson = apiScenarioWithBLOBs.getEnvironmentJson();
+                if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+                    environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+                } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                    environmentMap = JSON.parseObject(environmentJson, Map.class);
+                }
             }
         }
 

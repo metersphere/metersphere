@@ -15,10 +15,30 @@
         <el-dropdown-item command="saveAs" v-if="allSamplers.indexOf(data.type)!=-1 && (data.referenced===undefined || data.referenced ==='Created' )">
           {{ this.$t("api_test.automation.save_as_api") }}
         </el-dropdown-item>
+        <el-dropdown-item command="setScenario" v-if="data.type==='scenario'">
+          {{ $t('commons.reference_settings') }}
+        </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
     <ms-variable-list ref="scenarioParameters" @setVariables="setVariables"/>
     <ms-add-basis-api :currentProtocol="currentProtocol" ref="api"/>
+
+
+    <el-dialog
+      :title="$t('commons.reference_settings')"
+      :visible.sync="dialogVisible" width="400px">
+      <ul>
+        <el-tooltip :content="$t('commons.enable_scene_info')" placement="top">-->
+          <el-checkbox v-model="data.environmentEnable" @change="checkEnv" :disabled="data.disabled">
+            {{ $t('commons.enable_scene') }}
+          </el-checkbox>
+        </el-tooltip>
+        <el-checkbox v-model="data.variableEnable" :disabled="data.disabled">
+          {{ $t('commons.variable_scene') }}
+        </el-checkbox>
+      </ul>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -26,19 +46,23 @@
 import {STEP} from "../Setting";
 import MsVariableList from "../variable/VariableList";
 import MsAddBasisApi from "../api/AddBasisApi";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 
 export default {
   name: "StepExtendBtns",
   components: {STEP, MsVariableList, MsAddBasisApi},
   props: {
     data: Object,
+    environmentType: String,
+    environmentGroupId: String,
+    envMap: Map,
   },
   data() {
     return {
       allSamplers: [],
       currentProtocol: "HTTP",
       filter: new STEP,
+      dialogVisible: false,
     }
   },
   mounted() {
@@ -62,10 +86,16 @@ export default {
         case "saveAs":
           this.saveAsApi();
           break;
+        case "setScenario":
+          this.setScenario();
+          break;
       }
     },
-    setVariables(v,h){
+    setVariables(v, h) {
       this.data.variables = v;
+    },
+    setScenario() {
+      this.dialogVisible = true;
     },
     getScenario() {
       this.result = this.$get("/api/automation/getApiScenario/" + this.data.id, response => {
@@ -83,6 +113,32 @@ export default {
           this.$error("引用场景已经被删除");
         }
       });
+    },
+    checkEnv(val) {
+      this.$get("/api/automation/checkScenarioEnv/" + this.data.id, res => {
+        if (this.data.environmentEnable && !res.data) {
+          this.data.environmentEnable = false;
+          this.$warning(this.$t('commons.scenario_warning'));
+          return;
+        }
+        this.setDomain(val);
+      });
+    },
+    setDomain(val) {
+      let param = {
+        environmentEnable: val,
+        id: this.data.id,
+        environmentType: this.environmentType,
+        environmentGroupId: this.environmentGroupId,
+        environmentMap: strMapToObj(this.envMap),
+        definition: JSON.stringify(this.data)
+      }
+      this.$post("/api/automation/setDomain", param, res => {
+        if (res.data) {
+          let data = JSON.parse(res.data);
+          this.data.hashTree = data.hashTree;
+        }
+      })
     },
     saveAsApi() {
       this.currentProtocol = this.data.protocol;
