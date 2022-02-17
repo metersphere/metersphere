@@ -275,7 +275,7 @@ export default {
       param.status = status;
       //reviewComment
       if (status === 'UnPass') {
-        if (this.comments.length > 0) {
+        if (this.$refs.reviewComment.form.description.length > 0) {
           this.$post('/test/review/case/edit', param, () => {
             this.$success(this.$t('commons.save_success'));
             this.updateTestCases(param);
