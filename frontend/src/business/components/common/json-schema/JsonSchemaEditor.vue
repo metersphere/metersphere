@@ -8,6 +8,7 @@
         <div style="min-height: 200px">
           <json-schema-editor class="schema"
                               :value="schema"
+                              :show-mock-vars="showMockVars"
                               :scenario-definition="scenarioDefinition"
                               @editScenarioAdvance="editScenarioAdvance"
                               lang="zh_CN" custom/>
@@ -38,6 +39,12 @@
       showPreview: {
         type: Boolean,
         default: true
+      },
+      showMockVars: {
+        type: Boolean,
+        default() {
+          return false;
+        }
       },
       scenarioDefinition: Array,
     },

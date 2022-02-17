@@ -21,6 +21,7 @@
       <ms-json-code-edit
           v-if="body.format==='JSON-SCHEMA'"
           :body="body"
+          :show-mock-vars="true"
           ref="jsonCodeEdit"/>
       <ms-code-edit
           v-else-if="codeEditActive && loadIsOver"
