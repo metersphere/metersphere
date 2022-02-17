@@ -307,7 +307,7 @@ name: "TestCaseMinder",
       this.saveModules.push(module);
     },
     buildExtraNode(data, parent, root) {
-      if (data.type !== 'node' && data.type !== 'tmp' && parent && isModuleNodeData(parent.data) && data.changed === true) {
+      if (data.type !== 'node' && data.type !== 'tmp' && parent && isModuleNodeData(parent) && data.changed === true) {
         // 保存额外信息，只保存模块下的一级子节点
         let nodes = this.saveExtraNode[parent.id];
         if (!nodes) {
