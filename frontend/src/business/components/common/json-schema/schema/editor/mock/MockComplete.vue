@@ -12,7 +12,7 @@
       @select="change">
       <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(mock)"></i>
     </el-autocomplete>
-    <ms-api-variable-advance :scenario-definition="scenarioDefinition" :current-item="mock" ref="variableAdvance"/>
+    <ms-api-variable-advance :show-mock-vars="showMockVars" :scenario-definition="scenarioDefinition" :current-item="mock" ref="variableAdvance"/>
 
   </div>
 </template>
@@ -32,6 +32,12 @@
       },
       disabled: Boolean,
       scenarioDefinition: Array,
+      showMockVars: {
+        type: Boolean,
+        default() {
+          return false;
+        }
+      },
     },
     data() {
       return {
