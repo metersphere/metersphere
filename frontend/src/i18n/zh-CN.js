@@ -25,6 +25,7 @@ export default {
     import_success: '导入成功',
     import_mode: '导入模式',
     import_module: '导入模块',
+    module_deep_limit: '模块深度不超过8层!',
     import_user: '导入用户',
     export: '导出',
     please_fill_in_the_template: '请填写模版内容',
