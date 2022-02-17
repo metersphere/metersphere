@@ -83,6 +83,7 @@ export default {
       this.$post("/test/plan/schedule/Batch/updateEnable", this.schedule, () => {
         this.$success(this.$t('commons.modify_success'));
         this.close();
+        this.$emit("refresh");
       });
     },
     close() {
@@ -94,7 +95,6 @@ export default {
       };
       this.dialogFormVisible = false;
       removeGoBackListener(this.close);
-      this.$emit("refresh");
     }
   }
 }
