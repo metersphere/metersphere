@@ -25,6 +25,7 @@ export default {
     import_success: '導入成功',
     import_mode: '導入模式',
     import_module: '導入模塊',
+    module_deep_limit: '模塊深度不超過8層!',
     import_user: '導入用戶',
     export: '導出',
     please_fill_in_the_template: '請填寫模版內容',
