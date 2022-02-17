@@ -24,6 +24,7 @@
         <ms-mock :disabled="pickValue.type==='object' || pickKey ==='root' || pickValue.type==='array' || pickValue.type==='null'"
                  :schema="pickValue"
                  :scenario-definition="scenarioDefinition"
+                 :show-mock-vars="showMockVars"
                  @editScenarioAdvance="editScenarioAdvance"/>
       </el-col>
       <el-col :span="4">
@@ -46,6 +47,7 @@
       <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}"
                           :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children"
                           :scenario-definition="scenarioDefinition"
+                          :show-mock-vars="showMockVars"
                           @editScenarioAdvance="editScenarioAdvance"
                           :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
     </template>
@@ -53,6 +55,7 @@
       <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue" :key="index"
                           :deep="deep+1" :root="false" class="children"
                           :scenario-definition="scenarioDefinition"
+                          :show-mock-vars="showMockVars"
                           @editScenarioAdvance="editScenarioAdvance"
                           :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
@@ -107,6 +110,12 @@ export default {
     value: {
       type: Object,
       required: true
+    },
+    showMockVars: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     },
     disabled: { //name不可编辑，根节点name不可编辑,数组元素name不可编辑
       type: Boolean,

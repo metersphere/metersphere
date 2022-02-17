@@ -22,7 +22,7 @@
             </template>
           </el-input>
           <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit>
+                           :fetch-suggestions="querySearch" @input="change" @change="change" :placeholder="keyText" show-word-limit>
             <template v-slot:prepend>
               <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
                          @change="typeChange(item)">
