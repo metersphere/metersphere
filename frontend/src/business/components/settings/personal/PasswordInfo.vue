@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm" v-permission="['PERSONAL_INFORMATION:READ+EDIT_PASSWORD']">
+    <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm" >
       <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
         <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
       </el-form-item>
@@ -15,19 +15,17 @@
         <el-button type="primary" @click="updatePassword('editPasswordForm')" @keydown.enter.native.prevent>{{$t('commons.confirm')}}</el-button>
       </el-form-item>
     </el-form>
-    <div v-if="!isShowText" style="width: 6%;margin: auto">{{$t('commons.no_permission')}}</div>
   </div>
 </template>
 <script>
+
 import {logout} from "@/network/user";
-import {hasPermission} from "@/common/js/utils";
 
 export default {
   name:'PasswordInfo',
   data(){
     return{
       result:{},
-      isShowText:false,
       updatePasswordPath: '/user/update/password',
       rules: {
         password: [
@@ -84,11 +82,7 @@ export default {
         }
       });
     },
-  },
-  created() {
-    this.isShowText = hasPermission('PERSONAL_INFORMATION:READ+EDIT_PASSWORD');
   }
-
 }
 </script>
 <style scoped>
