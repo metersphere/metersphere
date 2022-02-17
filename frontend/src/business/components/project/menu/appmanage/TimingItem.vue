@@ -1,28 +1,36 @@
 <template>
   <app-manage-item :title="title" :append-span="3" :middle-span="12" :prepend-span="9">
     <template #middle>
-      <span class="timing_name" v-if="shareLink">{{ $t('commons.validity_period') }}</span>
-      <span class="timing_name" v-if="!shareLink">{{ $t('project.keep_recent') }}</span>
-      <el-select v-model="selfQuantity" placeholder=" " size="mini" filterable
-                 allow-create
-                 class="timing_select" :disabled="selfChoose">
-        <el-option
-          v-for="item in quantityOptions"
-          :key="item"
-          :label="item"
-          :value="item">
-        </el-option>
-      </el-select>
-      <el-select v-model="selfUnit" placeholder=" " size="mini"
-                 class="timing_select" :disabled="selfChoose">
-        <el-option
-          v-for="item in unitOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value">
-        </el-option>
-      </el-select>
-      <span class="timing_name" v-if="!shareLink" style="margin-left: 3px;">{{ $t('commons.report') }}</span>
+      <el-row>
+        <el-col span="5">
+          <div class="timing_name" v-if="shareLink">{{ $t('commons.validity_period') }}</div>
+          <div class="timing_name" v-if="!shareLink">{{ $t('project.keep_recent') }}</div>
+        </el-col>
+        <el-col span="16">
+          <el-select v-model="selfQuantity" placeholder=" " size="mini" filterable
+                     allow-create
+                     class="timing_select" :disabled="selfChoose">
+            <el-option
+              v-for="item in quantityOptions"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+          <el-select v-model="selfUnit" placeholder=" " size="mini"
+                     class="timing_select" :disabled="selfChoose">
+            <el-option
+              v-for="item in unitOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-col>
+        <el-col span="3">
+          <div class="timing_name" v-if="!shareLink" style="margin-left: 3px;">{{ $t('commons.report') }}</div>
+        </el-col>
+      </el-row>
     </template>
     <template #append>
       <el-switch v-model="selfChoose" @change="chooseChange"></el-switch>

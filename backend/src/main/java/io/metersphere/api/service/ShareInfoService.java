@@ -522,10 +522,10 @@ public class ShareInfoService {
         }
         String type = "";
         if(shareInfo.getShareType().equals("PERFORMANCE_REPORT")){
-            type = ProjectApplicationType.TRACK_SHARE_REPORT_TIME.toString();
+            type = ProjectApplicationType.PERFORMANCE_SHARE_REPORT_TIME.toString();
         }
         if(shareInfo.getShareType().equals("PLAN_DB_REPORT")){
-            type = ProjectApplicationType.PERFORMANCE_SHARE_REPORT_TIME.toString();
+            type = ProjectApplicationType.TRACK_SHARE_REPORT_TIME.toString();
         }
         if(StringUtils.isBlank(type)){
             millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime() ,1000 * 60 * 60 * 24,shareInfo.getId());
