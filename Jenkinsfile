@@ -17,7 +17,7 @@ pipeline {
 //                     sh "yarn install"
 //                     sh "cd .."
                     sh "./mvnw clean package --settings ./settings.xml"
-                    sh "mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar)"
+                    sh "mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar) && mkdir -p target/dependency/BOOT-INF/classes/jmeter/lib/junit"
                 }
             }
         }
