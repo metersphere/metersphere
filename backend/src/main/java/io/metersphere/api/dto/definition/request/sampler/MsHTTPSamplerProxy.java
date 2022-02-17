@@ -224,7 +224,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()), httpConfig);
         }
 
-        if (this.authManager != null) {
+        if (this.authManager != null && StringUtils.equals(this.authManager.getVerification(), "Basic Auth")) {
             this.authManager.setAuth(httpSamplerTree, this.authManager, sampler);
         }
 
