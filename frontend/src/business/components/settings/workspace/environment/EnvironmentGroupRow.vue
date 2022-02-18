@@ -207,8 +207,8 @@ export default {
               return;
             }
             let obj = config.httpConfig.conditions[0];
-            if (obj.protocol && obj.domain) {
-              this.$set(item, "domainName", obj.protocol + "://" + obj.domain);
+            if (obj.protocol && obj.socket) {
+              this.$set(item, "domainName", obj.protocol + "://" + obj.socket);
               this.$set(item, "domainDescription", obj.description ? obj.description : "");
               return;
             }
@@ -302,8 +302,8 @@ export default {
               return;
             }
             let obj = config.httpConfig.conditions[0];
-            if (obj.protocol && obj.domain) {
-              this.$set(item, "domainName", obj.protocol + "://" + obj.domain);
+            if (obj.protocol && obj.socket) {
+              this.$set(item, "domainName", obj.protocol + "://" + obj.socket);
               this.$set(item, "domainDescription", obj.description ? obj.description : "");
             }
           } else if (config.httpConfig.conditions.length > 1) {
