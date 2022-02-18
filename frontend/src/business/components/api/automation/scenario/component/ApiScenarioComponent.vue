@@ -149,6 +149,10 @@ export default {
   },
   methods: {
     run() {
+      if(!this.scenario.enable){
+        this.$warning(this.$t('api_test.automation.debug_message'));
+        return;
+      }
       this.scenario.run = true;
       let runScenario = JSON.parse(JSON.stringify(this.scenario));
       runScenario.hashTree = [this.scenario];
