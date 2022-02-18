@@ -462,17 +462,23 @@ export default {
     },
     handleExport() {
       if (this.report.reportVersion && this.report.reportVersion > 1) {
-        this.fullTreeNodes.forEach(item => {
-          if (item.type === "scenario") {
-            let scenario = {name: item.label, requestResults: []};
-            if (this.content.scenarios && this.content.scenarios.length > 0) {
-              this.content.scenarios.push(scenario);
-            } else {
-              this.content.scenarios = [scenario];
+        if(this.report.reportType === 'API_INTEGRATED'){
+          let scenario = {name: "", requestResults: []};
+          this.content.scenarios = [scenario];
+          this.formatExportApi(this.fullTreeNodes, scenario);
+        }else {
+          this.fullTreeNodes.forEach(item => {
+            if (item.type === "scenario") {
+              let scenario = {name: item.label, requestResults: []};
+              if (this.content.scenarios && this.content.scenarios.length > 0) {
+                this.content.scenarios.push(scenario);
+              } else {
+                this.content.scenarios = [scenario];
+              }
+              this.formatExportApi(item.children, scenario);
             }
-            this.formatExportApi(item.children, scenario);
-          }
-        })
+          })
+        }
       }
       this.reportExportVisible = true;
       let reset = this.exportReportReset;
