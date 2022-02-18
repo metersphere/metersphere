@@ -1,12 +1,17 @@
 package io.metersphere.api.dto.automation.parse;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
+import io.metersphere.api.dto.mock.MockConfigRequestParams;
+import io.metersphere.api.mock.utils.MockApiUtils;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.springframework.util.CollectionUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,11 +37,11 @@ public class TcpTreeTableDataParser {
             Document document = DocumentHelper.createDocument();
 
             TcpTreeTableDataStruct dataStruct = null;
-            if(treeDataList.size()>1){
+            if (treeDataList.size() > 1) {
                 dataStruct = new TcpTreeTableDataStruct();
                 dataStruct.setName("ROOT");
                 dataStruct.setChildren(treeDataList);
-            }else {
+            } else {
                 dataStruct = treeDataList.get(0);
             }
 
@@ -77,4 +82,60 @@ public class TcpTreeTableDataParser {
         return xmlString;
     }
 
+    public static boolean isMatchTreeTableData(JSONObject sourceObj, List<TcpTreeTableDataStruct> tcpDataList) {
+        if (CollectionUtils.isEmpty(tcpDataList)) {
+            return true;
+        }
+        if (sourceObj == null) {
+            sourceObj = new JSONObject();
+        }
+
+        boolean isMatch = false;
+        for (TcpTreeTableDataStruct dataStruct : tcpDataList) {
+            if(isMatch){
+                break;
+            }
+            String key = dataStruct.getName();
+            if (sourceObj.containsKey(key)) {
+                Object sourceObjItem = sourceObj.get(key);
+                if (sourceObjItem instanceof JSONObject) {
+                    if (!CollectionUtils.isEmpty(dataStruct.getChildren())) {
+                        if (!isMatchTreeTableData((JSONObject) sourceObjItem, dataStruct.getChildren())) {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+                } else if (sourceObjItem instanceof JSONArray) {
+                    if (!CollectionUtils.isEmpty(dataStruct.getChildren())) {
+                        JSONArray jsonArray = (JSONArray) sourceObjItem;
+                        for (int i = 0; i < jsonArray.size(); i ++){
+                            Object itemObj = jsonArray.get(i);
+                            if(itemObj instanceof JSONObject){
+                                if (!isMatchTreeTableData((JSONObject) itemObj, dataStruct.getChildren())) {
+                                    continue;
+                                }
+                            }else {
+                                continue;
+                            }
+                        }
+                    } else {
+                        continue;
+                    }
+                } else {
+                    String sourceValues = String.valueOf(sourceObjItem);
+                    MockConfigRequestParams mockParams = new MockConfigRequestParams();
+                    mockParams.setKey(dataStruct.getName());
+                    mockParams.setValue(dataStruct.getValue());
+                    mockParams.setCondition(dataStruct.getCondition());
+                    if (!MockApiUtils.isValueMatch(sourceValues, mockParams)) {
+                        continue;
+                    }
+                }
+            }
+            isMatch = true;
+        }
+
+        return isMatch;
+    }
 }

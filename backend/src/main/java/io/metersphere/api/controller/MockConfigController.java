@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.mock.MockParamSuggestions;
 import io.metersphere.api.dto.mock.MockTestDataRequest;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
@@ -80,6 +81,12 @@ public class MockConfigController {
     public List<MockTestDataRequest> getMockTestData(@RequestBody List<MockTestDataRequest> requestArray) {
         MockTestDataUtil testDataUtil = new MockTestDataUtil();
         return testDataUtil.parseTestDataByRequest(requestArray);
+    }
+
+    @PostMapping("/getTcpMockTestData")
+    public List<TcpTreeTableDataStruct> getTcpMockTestData(@RequestBody List<TcpTreeTableDataStruct> requestArray) {
+        MockTestDataUtil testDataUtil = new MockTestDataUtil();
+        return testDataUtil.parseTestDataByTcpTreeTableData(requestArray);
     }
 
 }

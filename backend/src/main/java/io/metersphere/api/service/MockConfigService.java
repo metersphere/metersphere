@@ -1292,15 +1292,12 @@ public class MockConfigService {
                         } else if (isXMLMessage && StringUtils.equalsIgnoreCase(reportType, "xml")) {
                             if (requestJson.containsKey("xmlDataStruct")) {
                                 JSONObject sourceObj = XMLUtils.XmlToJson(message);
-                                String xmlStr = "";
                                 try {
                                     List<TcpTreeTableDataStruct> tcpDataList = JSONArray.parseArray(requestJson.getString("xmlDataStruct"), TcpTreeTableDataStruct.class);
-                                    xmlStr = TcpTreeTableDataParser.treeTableData2Xml(tcpDataList);
+                                    isMatch = TcpTreeTableDataParser.isMatchTreeTableData(sourceObj,tcpDataList);
                                 } catch (Exception e) {
                                     LogUtil.error(e);
                                 }
-                                JSONObject matchObj = XMLUtils.XmlToJson(xmlStr);
-                                isMatch = JsonStructUtils.checkJsonObjCompliance(sourceObj, matchObj);
                             }
                         } else if (StringUtils.equalsIgnoreCase(reportType, "raw")) {
                             if (requestJson.containsKey("rawDataStruct")) {
