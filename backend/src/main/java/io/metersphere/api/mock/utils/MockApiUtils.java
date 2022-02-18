@@ -718,7 +718,7 @@ public class MockApiUtils {
         } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.LENGTH_NOT_EQUALS.name())) {
             try {
                 int length = Integer.parseInt(params.getValue());
-                return requestParam.length() == length;
+                return requestParam.length() != length;
             } catch (Exception e) {
                 return false;
             }
