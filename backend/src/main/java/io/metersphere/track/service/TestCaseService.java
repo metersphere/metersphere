@@ -1851,7 +1851,9 @@ public class TestCaseService {
                     editTestCase(editRequest);
                     changeOrder(item, request.getProjectId());
                 } else {
-                    item.setMaintainer(SessionUtils.getUserId());
+                    if (StringUtils.isBlank(item.getMaintainer())) {
+                        item.setMaintainer(SessionUtils.getUserId());
+                    }
                     EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
                     BeanUtils.copyBean(editTestCaseRequest, item);
                     addTestCase(editTestCaseRequest);

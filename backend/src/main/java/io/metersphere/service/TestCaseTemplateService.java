@@ -184,23 +184,11 @@ public class TestCaseTemplateService extends TemplateBaseService {
     }
 
     public Map<String,List<String>> getCaseLevelAndStatusMapByProjectId(String projectId){
-        Project project = projectService.getProjectById(projectId);
-        String caseTemplateId = project.getCaseTemplateId();
-        TestCaseTemplateWithBLOBs caseTemplate = null;
-        TestCaseTemplateDao caseTemplateDao = new TestCaseTemplateDao();
-        if (StringUtils.isNotBlank(caseTemplateId)) {
-            caseTemplate = testCaseTemplateMapper.selectByPrimaryKey(caseTemplateId);
-            if (caseTemplate == null) {
-                caseTemplate = getDefaultTemplate(project.getWorkspaceId());
-            }
-        } else {
-            caseTemplate = getDefaultTemplate(project.getWorkspaceId());
-        }
-        BeanUtils.copyBean(caseTemplateDao, caseTemplate);
-        List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(caseTemplate.getId());
+        TestCaseTemplateDao template = getTemplate(projectId);
+        List<CustomFieldDao> result = template.getCustomFields();
 
         Map<String, List<String>> returnMap = new HashMap<>();
-        for (CustomFieldDao field:result) {
+        for (CustomFieldDao field : result) {
             if(StringUtils.equalsAnyIgnoreCase(field.getScene(),"TEST_CASE")){
                 if(StringUtils.equalsAnyIgnoreCase(field.getName(),"用例等级")){
                     try {
@@ -231,7 +219,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
     public TestCaseTemplateDao getTemplate(String projectId) {
         Project project = projectService.getProjectById(projectId);
         String caseTemplateId = project.getCaseTemplateId();
-        TestCaseTemplateWithBLOBs caseTemplate = null;
+        TestCaseTemplateWithBLOBs caseTemplate;
         TestCaseTemplateDao caseTemplateDao = new TestCaseTemplateDao();
         if (StringUtils.isNotBlank(caseTemplateId)) {
             caseTemplate = testCaseTemplateMapper.selectByPrimaryKey(caseTemplateId);

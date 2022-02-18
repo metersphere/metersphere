@@ -621,6 +621,7 @@ export default {
         this.page.result.loading = true;
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields);
+        this.setTestCaseDefaultValue(template);
         this.page.result.loading = false;
         if (this.$refs.table) {
           this.$refs.table.reloadTable();
@@ -628,6 +629,19 @@ export default {
         this.typeArr = [];
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
       });
+    },
+    setTestCaseDefaultValue(template) {
+      let testCaseDefaultValue = {};
+      template.customFields.forEach(item => {
+        if (item.system) {
+          if (item.defaultValue) {
+            testCaseDefaultValue[item.name] = JSON.parse(item.defaultValue);
+          } else {
+            testCaseDefaultValue[item.name] = "";
+          }
+        }
+      });
+      this.$store.commit('setTestCaseDefaultValue', testCaseDefaultValue);
     },
     getCustomFieldValue(row, field) {
       let value = getCustomFieldValue(row, field, this.members);
