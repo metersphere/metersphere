@@ -632,7 +632,7 @@ public class ApiScenarioReportService {
             definitionExecResultMapper.deleteByExample(definitionExecResultExample);
 
             ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
-            execResultExample.createCriteria().andIntegratedReportIdIn(handleIdList);
+            execResultExample.createCriteria().andIntegratedReportIdIn(ids);
             definitionExecResultMapper.deleteByExample(execResultExample);
         }
     }
