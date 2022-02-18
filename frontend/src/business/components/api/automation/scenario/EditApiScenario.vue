@@ -1190,6 +1190,7 @@ export default {
             const index = hashTree.findIndex(d => d.resourceId !== undefined && row.resourceId !== undefined && d.resourceId === row.resourceId)
             hashTree.splice(index, 1);
             this.sort();
+            this.showHide();
           }
         }
       });
@@ -1351,6 +1352,7 @@ export default {
     allowDrag(draggingNode, dropNode, dropType) {
       if (dropNode && draggingNode && dropType) {
         this.sort();
+        this.showHide();
       }
     },
     nodeExpand(data, node) {

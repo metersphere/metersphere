@@ -254,6 +254,10 @@ export default {
         this.$warning("当前循环下没有请求，不能执行");
         return;
       }
+      if(!this.controller.enable){
+        this.$warning(this.$t('api_test.automation.debug_message'));
+        return;
+      }
       this.loading = true;
       this.debugData = {
         id: this.currentScenario.id,

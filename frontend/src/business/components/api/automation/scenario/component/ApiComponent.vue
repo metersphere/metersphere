@@ -58,7 +58,7 @@
       </template>
       <template v-slot:button v-if="!ifFromVariableAdvance">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-          <el-button @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;"
@@ -633,6 +633,10 @@ export default {
             }
           }
         }
+      }
+      if(!this.request.enable){
+        this.$warning(this.$t('api_test.automation.debug_message'));
+        return false;
       }
       this.request.debug = true;
       this.request.active = true;
