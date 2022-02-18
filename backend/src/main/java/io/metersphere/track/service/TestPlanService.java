@@ -2039,4 +2039,16 @@ public class TestPlanService {
         Date time1 = trigger.getFireTimeAfter(time0);
         return time1.getTime();
     }
+
+    public ScheduleDTO updateTestPlanBySchedule(ScheduleInfoRequest request) {
+        ScheduleDTO scheduleDTO = new ScheduleDTO();
+        Schedule schedule = scheduleService.getSchedule(request.getTaskID());
+        schedule.setEnable(request.isEnable());
+        apiAutomationService.updateSchedule(schedule);
+        BeanUtils.copyBean(scheduleDTO, schedule);
+        if (schedule.getEnable() != null && schedule.getEnable()) {
+            scheduleDTO.setScheduleExecuteTime(getNextTriggerTime(schedule.getValue()));
+        }
+        return scheduleDTO;
+    }
 }
