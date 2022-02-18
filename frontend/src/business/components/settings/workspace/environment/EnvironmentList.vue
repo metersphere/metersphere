@@ -413,8 +413,8 @@ export default {
               return "SHOW_INFO";
             }
             let obj = config.httpConfig.conditions[0];
-            if (obj.protocol && obj.domain) {
-              return obj.protocol + "://" + obj.domain;
+            if (obj.protocol && obj.socket) {
+              return obj.protocol + "://" + obj.socket;
             }
           } else if (config.httpConfig.conditions.length > 1) {
             return "SHOW_INFO";
