@@ -33,7 +33,8 @@ const state = {
   apiMap: new Map(),
   apiStatus: new Map(),
   testCaseMap: new Map(),
-  curTabId: null
+  curTabId: null,
+  testCaseDefaultValue: {}
 }
 
 const store = new Vuex.Store({
