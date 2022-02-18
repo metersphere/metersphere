@@ -357,7 +357,7 @@ public class ApiDefinitionExecResultService {
             saveResult.setStatus(status);
             saveResult.setResourceId(item.getName());
             saveResult.setStartTime(item.getStartTime());
-            saveResult.setEndTime(item.getResponseResult().getResponseTime());
+            saveResult.setEndTime(item.getEndTime());
             // 清空上次执行结果的内容，只保留近五条结果
             ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
             if (prevResult != null) {
