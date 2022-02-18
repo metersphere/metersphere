@@ -13,6 +13,7 @@
                    :project-env-map="projectEnvListMap"
                    :environment-type.sync="runConfig.environmentType"
                    :group-id="runConfig.environmentGroupId"
+                   :has-option-group="true"
                    @setEnvGroup="setEnvGroup"
                    @setProjectEnvMap="setProjectEnvMap"
                    @showPopover="showPopover"
