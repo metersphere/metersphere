@@ -88,7 +88,11 @@
       },
       methods: {
         setfullScreen(){
-          this.isFullScreen = true;
+          if(this.isFullScreen){
+            this.fullScreen();
+          }else {
+            this.isFullScreen = true;
+          }
         },
         init() {
           window.addEventListener("resize", this.listenScreenChange,false);
@@ -157,23 +161,28 @@
           window.removeEventListener("resize", this.listenScreenChange);
         },
         listenScreenChange() {
-          switch (this.direction) {
-            case 'left':
-              this.h = document.documentElement.clientHeight;
-              break;
-            case 'right':
-              this.h = document.documentElement.clientHeight;
-              break;
-            case 'top':
-              this.w = document.documentElement.clientWidth;
-              break;
-            case 'bottom':
-              this.w = document.documentElement.clientWidth;
-              break;
-            default:
-              this.h = document.documentElement.clientHeight;
-              this.w = document.documentElement.clientWidth;
-              break;
+          if(this.isFullScreen){
+            this.w = document.body.clientWidth;
+            this.h = document.body.clientHeight;
+          }else {
+            switch (this.direction) {
+              case 'left':
+                this.h = document.documentElement.clientHeight;
+                break;
+              case 'right':
+                this.h = document.documentElement.clientHeight;
+                break;
+              case 'top':
+                this.w = document.documentElement.clientWidth;
+                break;
+              case 'bottom':
+                this.w = document.documentElement.clientWidth;
+                break;
+              default:
+                this.h = document.documentElement.clientHeight;
+                this.w = document.documentElement.clientWidth;
+                break;
+            }
           }
         }
       }
