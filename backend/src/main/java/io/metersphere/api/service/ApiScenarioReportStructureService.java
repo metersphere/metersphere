@@ -395,6 +395,7 @@ public class ApiScenarioReportStructureService {
             reportDTO.setScenarioTotal(totalScenario.longValue());
             reportDTO.setScenarioError(scenarioError.longValue());
             reportDTO.setScenarioErrorReport(errorReport.longValue());
+            reportDTO.setScenarioSuccess((totalScenario.longValue() - scenarioError.longValue()));
             //统计步骤数据
             AtomicLong stepErrorCode = new AtomicLong();
             calculateStep(stepList, stepError, stepTotal, stepErrorCode, false);
