@@ -220,7 +220,14 @@
                          @stopScenario="stop"
                          @setDomain="setDomain"
                          @openScenario="openScenario"
-                         @editScenarioAdvance="editScenarioAdvance"/>
+                         @editScenarioAdvance="editScenarioAdvance"
+                         v-if="stepFilter.get('ALlSamplerStep').indexOf(data.type) ===-1
+                         || (!node.parent || !node.parent.data || stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1)"/>
+
+                       <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none;">
+                         {{ hideNode(node) }}
+                       </div>
+
                     </span>
               </el-tree>
             </div>
@@ -594,6 +601,23 @@ export default {
     }
   },
   methods: {
+    hideNode(node) {
+      node.isLeaf = true;
+      node.visible = false;
+    },
+    hideTreeNode(node, array) {
+      let isLeaf = true;
+      array.forEach(item => {
+        if (!item.isLeaf && !isLeaf) {
+          isLeaf = false;
+        }
+        if (item.childNodes && item.childNodes.length > 0) {
+          this.hideTreeNode(item, item.childNodes);
+        }
+      })
+      node.isLeaf = isLeaf;
+      node.clazzName = '.is-leaf';
+    },
     currentUser: () => {
       return getCurrentUser();
     },
@@ -630,6 +654,9 @@ export default {
                 this.$store.state.currentApiCase.resetDataSource = getUUID();
               } else {
                 this.$store.state.currentApiCase = {resetDataSource: getUUID()};
+              }
+              if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
+                this.hideTreeNode(this.$refs.stepTree.root, this.$refs.stepTree.root.childNodes);
               }
             }
           }
@@ -1503,6 +1530,9 @@ export default {
             this.resetResourceId(this.scenarioDefinition);
           }
           this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
+          if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
+            this.hideTreeNode(this.$refs.stepTree.root, this.$refs.stepTree.root.childNodes);
+          }
         })
       }
     },
@@ -2050,4 +2080,5 @@ export default {
   background: white;
   z-index: 999;
 }
+
 </style>

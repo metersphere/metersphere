@@ -1234,6 +1234,8 @@ export default {
         delete_case_confirm: "Confirm case deletion",
         delete_confirm_step: "Confirm deletion step",
         assertions_rule: "Assertion rule",
+        pre_operation: "Pre operation",
+        post_operation: "Post operation",
         response_header: "Response header",
         response_body: "Response body",
         response_template: "Response template",
@@ -1602,7 +1604,8 @@ export default {
         expected_results: 'Expected results',
         check: 'Check the elements in the array',
         add_check: 'Add check',
-        add_subfield: 'Add subfield'
+        add_subfield: 'Add subfield',
+        description: "Add assertion rules to check whether the response result is as expected",
       },
       extract: {
         label: "Extract from response",

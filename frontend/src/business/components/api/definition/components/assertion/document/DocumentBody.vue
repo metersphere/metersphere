@@ -1,13 +1,20 @@
 <template>
   <div class="ms-border" style="margin-top: 10px">
     <div style="margin-bottom: 10px">
-      <span class="ms-import" @click="importData">
-         <i class="el-icon-edit-outline" style="font-size: 16px"/>
-         {{ $t('commons.import') }}
-       </span>
-      <span v-if="apiId!=='none'">
-         <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
-      </span>
+      <el-row :gutter="10" type="flex" justify="space-between" align="middle">
+        <el-col>
+           <span class="ms-import" @click="importData">
+             <i class="el-icon-edit-outline" style="font-size: 16px"/>
+             {{ $t('commons.import') }}
+           </span>
+          <span v-if="apiId!=='none'">
+             <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
+          </span>
+        </el-col>
+        <el-col class="assertion-btn">
+          <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="removeDoc" style="float: right"/>
+        </el-col>
+      </el-row>
     </div>
     <el-table
       :data="tableData"
@@ -112,6 +119,10 @@ export default {
     document: {},
     apiId: String,
     showOptionsButton: Boolean,
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -162,6 +173,9 @@ export default {
     }
   },
   methods: {
+    removeDoc() {
+      this.$emit('remove');
+    },
     setJSONData(data) {
       this.checked = false;
       this.document.data.jsonFollowAPI = "";
@@ -527,5 +541,10 @@ export default {
 .ms-import:hover {
   cursor: pointer;
   border-color: #783887;
+}
+
+.assertion-btn {
+  text-align: center;
+  width: 60px;
 }
 </style>

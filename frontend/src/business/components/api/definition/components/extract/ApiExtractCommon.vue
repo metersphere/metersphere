@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
-      <el-col v-if="extractType === 'Regex'" :span="5">
+      <el-col v-if="extractType === 'Regex'" :span="8">
         <el-select :disabled="isReadOnly" class="extract-item" v-model="common.useHeaders" :placeholder="$t('api_test.request.assertions.select_subject')" size="small">
           <el-option v-for="item in useHeadersOption" :key="item.value" :label="item.label" :value="item.value"/>
         </el-select>
@@ -14,7 +14,7 @@
         <el-input :disabled="isReadOnly" v-model="common.expression" size="small" show-word-limit
                   :placeholder="expression" @click.native="savePreParams(common.variable)"/>
       </el-col>
-      <el-col class="multiple_checkbox">
+      <el-col class="multiple_checkbox" v-if="edit">
         <el-checkbox v-model="common.multipleMatching" :disabled="isReadOnly">
           {{ $t('api_test.request.extract.multiple_matching') }}
         </el-checkbox>
@@ -22,7 +22,7 @@
       <el-col class="extract-btn">
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"
                    v-if="edit"/>
-        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add" v-else>Add</el-button>
+        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add" v-else>{{$t('commons.add')}}</el-button>
       </el-col>
     </el-row>
   </div>

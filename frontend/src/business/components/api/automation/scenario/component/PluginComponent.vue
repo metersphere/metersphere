@@ -16,20 +16,57 @@
       <template v-slot:request>
         <legend style="width: 100%">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <div class="ms-form">
-            <div class="ms-form-create" v-loading="loading">
-              <formCreate
-                v-model="pluginForm"
-                :rule="rules"
-                :option="option"
-                :value.sync="data"
-                @prefix-change="change"
-                @prefix-click="change"
-                @display-change="changeDisplay"
-                @prefix-visible-change="visibleChange"
-              />
-            </div>
-          </div>
+          <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
+            <!-- 请求头-->
+            <el-tab-pane label="插件数据" name="base">
+              <div class="ms-form">
+                <div class="ms-form-create" v-loading="loading">
+                  <formCreate
+                    v-model="pluginForm"
+                    :rule="rules"
+                    :option="option"
+                    :value.sync="data"
+                    @prefix-change="change"
+                    @prefix-click="change"
+                    @display-change="changeDisplay"
+                    @prefix-visible-change="visibleChange"
+                  />
+                </div>
+              </div>
+            </el-tab-pane>
+
+            <!-- 脚本步骤/断言步骤 -->
+            <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate">
+              <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                {{ $t('api_test.definition.request.pre_operation') }}
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
+                  <div class="el-step__icon-inner">{{ request.preSize }}</div>
+                </div>
+              </span>
+              <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'pre'" ref="preStep"/>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                {{ $t('api_test.definition.request.post_operation') }}
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
+                  <div class="el-step__icon-inner">{{ request.postSize }}</div>
+                </div>
+              </span>
+              <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'post'" ref="postStep"/>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                {{ $t('api_test.definition.request.assertions_rule') }}
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
+                  <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
+                </div>
+              </span>
+              <div style="margin-right: 20px">
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reload" :tab-type="'assertionsRule'" ref="assertionsRule"/>
+              </div>
+            </el-tab-pane>
+
+          </el-tabs>
         </legend>
       </template>
 
@@ -99,6 +136,9 @@ import formCreate from "@form-create/element-ui";
 import MsUpload from "../common/MsPluginUpload";
 import {PLUGIN_ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
 import {getUUID} from "@/common/js/utils";
+import MsJmxStep from "../../../definition/components/step/JmxStep";
+import {Assertions} from "@/business/components/api/definition/model/ApiTestModel";
+import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
 
 formCreate.component("msUpload", MsUpload);
 
@@ -107,6 +147,7 @@ export default {
   components: {
     ApiBaseComponent,
     ApiResponseComponent,
+    MsJmxStep,
     MsRun: () => import("../../../definition/components/Run"),
   },
   props: {
@@ -115,6 +156,7 @@ export default {
       default: false,
     },
     message: String,
+    response: {},
     isReadOnly: {
       type: Boolean,
       default:
@@ -144,6 +186,7 @@ export default {
   },
   data() {
     return {
+      activeName: "base",
       loading: false,
       runData: [],
       reportId: "",
@@ -191,10 +234,17 @@ export default {
     }
     this.data = this.request;
     this.pluginName = this.request.stepName ? this.request.stepName : this.request.type;
+    if (this.request.hashTree) {
+      this.initStepSize(this.request.hashTree);
+      this.historicalDataProcessing(this.request.hashTree);
+    }
   },
   watch: {
     message() {
       this.reload();
+    },
+    'request.hashTree'() {
+      this.initStepSize(this.request.hashTree);
     },
     data: {
       handler: function () {
@@ -207,6 +257,24 @@ export default {
     }
   },
   methods: {
+    tabClick() {
+      if (this.activeName === 'preOperate') {
+        this.$refs.preStep.filter();
+      }
+      if (this.activeName === 'postOperate') {
+        this.$refs.postStep.filter();
+      }
+      if (this.activeName === 'assertionsRule') {
+        this.$refs.assertionsRule.filter();
+      }
+    },
+    historicalDataProcessing(array) {
+      hisDataProcessing(array, this.request);
+    },
+    initStepSize(array) {
+      stepCompute(array, this.request);
+      this.reload();
+    },
     blur(d) {
     },
     change(fileName) {
@@ -235,7 +303,6 @@ export default {
         }
       }
       this.request.debug = true;
-      this.request.active = true;
       this.loading = true;
       this.runData = [];
       this.runData.projectId = this.request.projectId;
@@ -385,7 +452,7 @@ export default {
   width: 100px;
 }
 
-/deep/ .el-select {
+.ms-form-create >>> .el-select {
   width: 100%;
 }
 
@@ -427,4 +494,12 @@ export default {
 .ms-form-create {
   margin: 10px;
 }
+
+.ms-header {
+  background: #783887;
+  color: white;
+  height: 18px;
+  border-radius: 42%;
+}
+
 </style>

@@ -23,8 +23,9 @@ export function STEP() {
     ['CustomizeReq', getDefaultSamplerMenu()],
     ['MaxSamplerProxy', getDefaultSamplerMenu()],
     ['GenericController', getAll()],
-    ['AllSamplerProxy', ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler', 'Sampler', 'AbstractSampler', 'JSR223Processor','API']],
+    ['AllSamplerProxy', ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler', 'Sampler', 'AbstractSampler', 'JSR223Processor', 'API']],
     ['DEFINITION', ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler']],
+    ['ALlSamplerStep', ['JSR223Processor', 'JSR223PreProcessor', 'JSR223PostProcessor', 'JDBCPreProcessor', 'JDBCPostProcessor', 'Assertions', 'Extract','ConstantTimer']],
     ['AllCanExecType', ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler', 'JSR223Processor', 'AbstractSampler']]]);
   return map
 }
@@ -74,10 +75,10 @@ export const TYPE_TO_C = new Map([
 ])
 
 export const PLUGIN_ELEMENTS = new Map([
-  ['menu_post_processors', ['HtmlExtractor', 'JMESPathExtractor', 'JSONPostProcessor', 'RegexExtractor', 'BoundaryExtractor', 'JSR223PostProcessor', 'Separator', 'JDBCPostProcessor', 'XPath2Extractor', 'XPathExtractor', 'ResultAction', 'DebugPostProcessor', 'BeanShellPostProcessor']],
-  ['menu_assertions', ['Assertions', 'Extract', 'Assertion', 'JSONPathAssertion', 'SizeAssertion', 'JSR223Assertion', 'XPath2Assertion', 'Separator', 'HTMLAssertion', 'JMESPathAssertion', 'MD5HexAssertion', 'SMIMEAssertion', 'XMLSchemaAssertion', 'XMLAssertion', 'XPathAssertion', 'DurationAssertion', 'CompareAssertion', 'BeanShellAssertion']],
+  ['menu_post_processors', ['HtmlExtractor', 'JMESPathExtractor', 'JSONPostProcessor', 'RegexExtractor', 'BoundaryExtractor', 'Separator', 'XPath2Extractor', 'XPathExtractor', 'ResultAction', 'DebugPostProcessor', 'BeanShellPostProcessor']],
+  ['menu_assertions', ['JSONPathAssertion', 'SizeAssertion', 'JSR223Assertion', 'XPath2Assertion', 'Separator', 'HTMLAssertion', 'JMESPathAssertion', 'MD5HexAssertion', 'SMIMEAssertion', 'XMLSchemaAssertion', 'XMLAssertion', 'XPathAssertion', 'DurationAssertion', 'CompareAssertion', 'BeanShellAssertion']],
   ['menu_listener', ['AbstractVisualizer', 'AbstractListener', 'ViewResultsFullVisualizer', 'SummaryReport', 'StatVisualizer', 'BackendListener', 'Separator', 'JSR223Listener', 'ResultSaver', 'RespTimeGraphVisualizer', 'GraphVisualizer', 'AssertionVisualizer', 'ComparisonVisualizer', 'StatGraphVisualizer', 'Summariser', 'TableVisualizer', 'SimpleDataWriter', 'MailerVisualizer', 'BeanShellListener']],
-  ['menu_pre_processors', ['AbstractPostProcessor', 'JSR223PreProcessor', 'UserParameters', 'Separator', 'AnchorModifier', 'URLRewritingModifier', 'JDBCPreProcessor', 'SampleTimeout', 'RegExUserParameters', 'BeanShellPreProcessor']],
+  ['menu_pre_processors', ['AbstractPostProcessor', 'UserParameters', 'Separator', 'AnchorModifier', 'URLRewritingModifier', 'SampleTimeout', 'RegExUserParameters', 'BeanShellPreProcessor']],
   ['menu_logic_controller', ['GenericController', 'scenario', 'IfController', 'LoopController', 'IfControllerPanel', 'TransactionController', 'LoopControlPanel', 'WhileController', 'Separator', 'ForeachControlPanel', 'IncludeController', 'RunTime', 'CriticalSectionController', 'InterleaveControl', 'OnceOnlyController', 'RecordController', 'LogicController', 'RandomControl', 'RandomOrderController', 'ThroughputController', 'SwitchController', 'ModuleController']],
   ['menu_fragments', ['TestFragmentController']],
   ['menu_non_test_elements', ['ProxyControl', 'HttpMirrorControl', 'GenerateTree', 'PropertyControl']],
@@ -90,7 +91,6 @@ export const PLUGIN_ELEMENTS = new Map([
 export function getDefaultSamplerMenu() {
   let array = [];
   array = array.concat(PLUGIN_ELEMENTS.get('menu_assertions'));
-  array = array.concat(PLUGIN_ELEMENTS.get('menu_timer'));
   array = array.concat(PLUGIN_ELEMENTS.get('menu_pre_processors'));
   array = array.concat(PLUGIN_ELEMENTS.get('menu_post_processors'));
   array = array.concat(PLUGIN_ELEMENTS.get('menu_config_element'));

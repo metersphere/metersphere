@@ -1240,6 +1240,8 @@ export default {
         delete_case_confirm: "确认删除用例",
         delete_confirm_step: "确认删除步骤",
         assertions_rule: "断言规则",
+        pre_operation: "前置操作",
+        post_operation: "后置操作",
         response_header: "响应头",
         response_body: "响应体",
         response_template: "响应报文模版",
@@ -1607,7 +1609,8 @@ export default {
         expected_results: '预期结果',
         check: '校验组内元素',
         add_check: '添加校验',
-        add_subfield: '添加子字段'
+        add_subfield: '添加子字段',
+        description: "添加断言规则校验响应结果是否符合预期",
       },
       extract: {
         label: "提取",

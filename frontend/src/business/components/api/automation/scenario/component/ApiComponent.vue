@@ -81,6 +81,7 @@
               :scenario-definition="scenarioDefinition"
               @editScenarioAdvance="editScenarioAdvance"
               :isShowEnable="true"
+              :response="response"
               :referenced="true"
               :headers="request.headers "
               :is-read-only="isCompReadOnly"
@@ -202,7 +203,6 @@ export default {
     message: String,
     environmentGroupId: String,
     environmentType: String,
-
     scenarioDefinition: Array,
     ifFromVariableAdvance: {
       type: Boolean,
@@ -232,6 +232,7 @@ export default {
       environmentMap: this.envMap,
       isShowNum: false,
       isSameSpace: true,
+      response: {},
     }
   },
   created() {
@@ -388,6 +389,9 @@ export default {
             }
           }
         })
+      }
+      if (this.request.requestResult && this.request.requestResult.length > 0) {
+        this.response = this.request.requestResult[0];
       }
     },
     initDataSource() {
@@ -634,7 +638,7 @@ export default {
           }
         }
       }
-      if(!this.request.enable){
+      if (!this.request.enable) {
         this.$warning(this.$t('api_test.automation.debug_message'));
         return false;
       }
@@ -669,6 +673,7 @@ export default {
       this.request.requestResult = [data];
       this.request.result = undefined;
       this.loading = false;
+      this.response = data;
       this.$emit('refReload', this.request, this.node);
     },
     setDomain() {

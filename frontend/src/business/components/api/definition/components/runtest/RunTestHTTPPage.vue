@@ -48,6 +48,12 @@
 
           <el-button size="small" type="primary" v-else @click.once="stop">{{ $t('report.stop_btn') }}</el-button>
 
+          <el-button size="small" type="primary" @click.stop @click="generate"
+                     style="margin-left: 10px"
+                     v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense()">
+            {{ $t('commons.generate_test_data') }}
+          </el-button>
+
         </el-form-item>
 
 
@@ -55,16 +61,14 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers"
+        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers" :response="responseData"
                              v-if="loadRequest"
-                             :request="api.request"/>
+                             :request="api.request" ref="apiRequestForm"/>
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
         <ms-request-result-tail :response="responseData" ref="runResult"/>
       </div>
-
-      <ms-jmx-step :request="api.request" :apiId="api.id" :response="responseData"/>
 
     </el-card>
 
@@ -85,14 +89,13 @@
 
 <script>
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import {getUUID, hasLicense} from "@/common/js/utils";
+import {getUUID, hasLicense, hasPermission} from "@/common/js/utils";
 import MsApiCaseList from "../case/ApiCaseList";
 import MsContainer from "../../../../common/components/MsContainer";
 import MsRequestResultTail from "../response/RequestResultTail";
 import MsRun from "../Run";
 import {REQ_METHOD} from "../../model/JsonData";
 import EnvironmentSelect from "../environment/EnvironmentSelect";
-import MsJmxStep from "../step/JmxStep";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
@@ -104,7 +107,6 @@ export default {
     MsContainer,
     MsRequestResultTail,
     MsRun,
-    MsJmxStep
   },
   data() {
     return {
@@ -142,6 +144,10 @@ export default {
     }
   },
   methods: {
+    hasPermission, hasLicense,
+    generate() {
+      this.$refs.apiRequestForm.generate();
+    },
     setRequestParam(param, isEnvironmentMock) {
       this.init();
       if (param) {
