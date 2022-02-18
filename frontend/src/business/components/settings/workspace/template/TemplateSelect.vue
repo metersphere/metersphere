@@ -20,6 +20,7 @@ export default {
     scene: String,
     prop: String,
     platform: String,
+    platformOptions: Array,
     disabled: Boolean,
     data: {
       type: Object,
@@ -80,14 +81,41 @@ export default {
         this.templateOptions.forEach(i => {
           if (i.platform === this.platform) {
             this.templateFilterOptions.push(i);
-            if (i.id === this.data[this.prop])
+            if (i.id === this.data[this.prop]) {
               hasTemplate = true;
+            }
           }
         });
-        if (!hasTemplate)
+        if (!hasTemplate) {
           this.data[this.prop] = null;
+        }
       } else {
-        this.templateFilterOptions = this.templateOptions;
+        if (this.scene === 'ISSUE') {
+          let hasTemplate = false;
+          this.templateFilterOptions = [];
+          this.templateOptions.forEach(template => {
+            if (this.platformOptions.length > 0) {
+              this.platformOptions.forEach(item => {
+                if (template.platform === item.value) {
+                  this.templateFilterOptions.push(template);
+                  if (template.id === this.data[this.prop]) {
+                    hasTemplate = true;
+                  }
+                }
+              });
+            } else if (template.platform === 'Local') {
+              this.templateFilterOptions.push(template);
+              if (template.id === this.data[this.prop]) {
+                hasTemplate = true;
+              }
+            }
+          });
+          if (!hasTemplate) {
+            this.data[this.prop] = null;
+          }
+        } else {
+          this.templateFilterOptions = this.templateOptions;
+        }
       }
     }
   }
