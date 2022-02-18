@@ -19,6 +19,39 @@ public class ApiTestEnvironmentDiffUtil {
 
             // 对比全局脚本配置参数
             if (!StringUtils.equals(bloBsNew.getString("globalScriptConfig"), bloBsOld.getString("globalScriptConfig"))) {
+                JSONObject globalScriptNew = JSON.parseObject(bloBsNew.getString("globalScriptConfig"));
+                JSONObject globalScriptOld = JSON.parseObject(bloBsOld.getString("globalScriptConfig"));
+                // 前置脚本过滤请求类型
+                if (!StringUtils.equals(globalScriptNew.getString("filterRequestPreScript"), globalScriptOld.getString("filterRequestPreScript"))) {
+                    diffMap.put("filterRequestPreScriptRaw1", globalScriptNew.getString("filterRequestPreScript"));
+                    diffMap.put("filterRequestPreScriptRaw2", globalScriptOld.getString("filterRequestPreScript"));
+                }
+                // 后置脚本过滤请求类型
+                if (!StringUtils.equals(globalScriptNew.getString("filterRequestPostScript"), globalScriptOld.getString("filterRequestPostScript"))) {
+                    diffMap.put("filterRequestPostScriptRaw1", globalScriptNew.getString("filterRequestPostScript"));
+                    diffMap.put("filterRequestPostScriptRaw2", globalScriptOld.getString("filterRequestPostScript"));
+                }
+                // 前置脚本执行顺序
+                if (!StringUtils.equals(globalScriptNew.getString("isPreScriptExecAfterPrivateScript"), globalScriptOld.getString("isPreScriptExecAfterPrivateScript"))) {
+                    diffMap.put("isPreScriptExecAfterPrivateScriptRaw1", globalScriptNew.getString("isPreScriptExecAfterPrivateScript"));
+                    diffMap.put("isPreScriptExecAfterPrivateScriptRaw2", globalScriptOld.getString("isPreScriptExecAfterPrivateScript"));
+                }
+                // 后置脚本执行顺序
+                if (!StringUtils.equals(globalScriptNew.getString("isPostScriptExecAfterPrivateScript"), globalScriptOld.getString("isPostScriptExecAfterPrivateScript"))) {
+                    diffMap.put("isPostScriptExecAfterPrivateScriptRaw1", globalScriptNew.getString("isPostScriptExecAfterPrivateScript"));
+                    diffMap.put("isPostScriptExecAfterPrivateScriptRaw2", globalScriptOld.getString("isPostScriptExecAfterPrivateScript"));
+                }
+                // 前置关联场景结果
+                if (!StringUtils.equals(globalScriptNew.getString("connScenarioPreScript"), globalScriptOld.getString("connScenarioPreScript"))) {
+                    diffMap.put("connScenarioPreScriptRaw1", globalScriptNew.getString("connScenarioPreScript"));
+                    diffMap.put("connScenarioPreScriptRaw2", globalScriptOld.getString("connScenarioPreScript"));
+                }
+                // 后置关联场景结果
+                if (!StringUtils.equals(globalScriptNew.getString("connScenarioPostScript"), globalScriptOld.getString("connScenarioPostScript"))) {
+                    diffMap.put("connScenarioPostScriptRaw1", globalScriptNew.getString("connScenarioPostScript"));
+                    diffMap.put("connScenarioPostScriptRaw2", globalScriptOld.getString("connScenarioPostScript"));
+                }
+                // 全局脚本设置
                 diffMap.put("globalScriptConfigRaw1", bloBsNew.getString("globalScriptConfig"));
                 diffMap.put("globalScriptConfigRaw2", bloBsOld.getString("globalScriptConfig"));
             }

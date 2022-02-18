@@ -56,6 +56,27 @@
       formatScript(diffValue) {
         this.detail.script = {};
         if (diffValue.globalScriptConfigRaw1 || diffValue.globalScriptConfigRaw2) {
+
+          this.detail.script.globalScriptConfig = {};
+          this.detail.script.globalScriptConfig.filterRequestPreScriptRaw1 = diffValue.filterRequestPreScriptRaw1;
+          this.detail.script.globalScriptConfig.filterRequestPreScriptRaw2 = diffValue.filterRequestPreScriptRaw2;
+
+          this.detail.script.globalScriptConfig.filterRequestPostScriptRaw1 = diffValue.filterRequestPostScriptRaw1;
+          this.detail.script.globalScriptConfig.filterRequestPostScriptRaw2 = diffValue.filterRequestPostScriptRaw2;
+
+          this.detail.script.globalScriptConfig.isPreScriptExecAfterPrivateScriptRaw1 = diffValue.isPreScriptExecAfterPrivateScriptRaw1;
+          this.detail.script.globalScriptConfig.isPreScriptExecAfterPrivateScriptRaw2 = diffValue.isPreScriptExecAfterPrivateScriptRaw2;
+
+          this.detail.script.globalScriptConfig.isPostScriptExecAfterPrivateScriptRaw1 = diffValue.isPostScriptExecAfterPrivateScriptRaw1;
+          this.detail.script.globalScriptConfig.isPostScriptExecAfterPrivateScriptRaw2 = diffValue.isPostScriptExecAfterPrivateScriptRaw2;
+
+          this.detail.script.globalScriptConfig.connScenarioPreScriptRaw1 = diffValue.connScenarioPreScriptRaw1;
+          this.detail.script.globalScriptConfig.connScenarioPreScriptRaw2 = diffValue.connScenarioPreScriptRaw2;
+
+          this.detail.script.globalScriptConfig.connScenarioPostScriptRaw1 = diffValue.connScenarioPostScriptRaw1;
+          this.detail.script.globalScriptConfig.connScenarioPostScriptRaw2 = diffValue.connScenarioPostScriptRaw2;
+
+          // 全局脚本配置
           this.detail.script.globalScriptConfigRaw1 = diffValue.globalScriptConfigRaw1;
           this.detail.script.globalScriptConfigRaw2 = diffValue.globalScriptConfigRaw2;
         }

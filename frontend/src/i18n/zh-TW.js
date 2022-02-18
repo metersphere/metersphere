@@ -1870,6 +1870,13 @@ export default {
       after_the_post_script_step: "步驟內後置腳本後",
       before_the_post_script_step: "步驟內後置腳本前",
       global_script_config: "全局腳本配置",
+
+      pre_script_filter_request_type: "前置腳本過濾請求類型",
+      post_script_filter_request_type: "後置腳本過濾請求類型",
+      pre_script_exec_order: "前置腳本執行順序",
+      post_script_exec_order: "後置腳本執行順序",
+      pre_link_scenario_result: "前置關聯場景結果",
+      post_link_scenario_result: "後置關聯場景結果",
     }
   },
   api_report: {
