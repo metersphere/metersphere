@@ -290,17 +290,17 @@ public class MockApiUtils {
                         }
                     }
                 }
-                if(respObj.containsKey("statusCode")){
+                if (respObj.containsKey("statusCode")) {
                     JSONArray statusCodeArray = respObj.getJSONArray("statusCode");
-                    if(statusCodeArray != null){
-                        for(int i = 0; i < statusCodeArray.size(); i ++){
+                    if (statusCodeArray != null) {
+                        for (int i = 0; i < statusCodeArray.size(); i++) {
                             JSONObject object = statusCodeArray.getJSONObject(i);
-                            if(object.containsKey("name")){
-                                try{
+                            if (object.containsKey("name")) {
+                                try {
                                     int code = Integer.parseInt(object.getString("name"));
-                                    returnMap.put("code",code+"");
+                                    returnMap.put("code", code + "");
                                     break;
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     LogUtil.error(e);
                                 }
                             }
@@ -320,7 +320,7 @@ public class MockApiUtils {
         ScriptEngine scriptEngine = null;
         String scriptLanguage = "beanshell";
         String script = null;
-        if(useScript){
+        if (useScript) {
             if (bodyObj.containsKey("scriptObject")) {
                 try {
                     JSONObject scriptObj = bodyObj.getJSONObject("scriptObject");
@@ -331,9 +331,9 @@ public class MockApiUtils {
                 }
             }
         }
-        scriptEngine = scriptEngineUtils.getBaseScriptEngine(scriptLanguage,url,headerMap,requestMockParams);
-        if(StringUtils.isNotEmpty(script) && scriptEngine != null){
-            scriptEngineUtils.runScript(scriptEngine,script);
+        scriptEngine = scriptEngineUtils.getBaseScriptEngine(scriptLanguage, url, headerMap, requestMockParams);
+        if (StringUtils.isNotEmpty(script) && scriptEngine != null) {
+            scriptEngineUtils.runScript(scriptEngine, script);
         }
 
         if (headerMap == null) {
@@ -394,7 +394,7 @@ public class MockApiUtils {
                     }
                 }
             }
-            returnStr = scriptEngineUtils.parseReportString(scriptEngine,returnStr);
+            returnStr = scriptEngineUtils.parseReportString(scriptEngine, returnStr);
             return returnStr;
         }
     }
@@ -656,7 +656,7 @@ public class MockApiUtils {
                         if (!isMatch) {
                             return false;
                         }
-                    }else {
+                    } else {
                         return false;
                     }
                 }
@@ -673,7 +673,7 @@ public class MockApiUtils {
                         }
                     }
                 }
-            }else {
+            } else {
                 return true;
             }
             return false;
@@ -718,7 +718,7 @@ public class MockApiUtils {
         } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.LENGTH_NOT_EQUALS.name())) {
             try {
                 int length = Integer.parseInt(params.getValue());
-                return requestParam.length() == length;
+                return requestParam.length() != length;
             } catch (Exception e) {
                 return false;
             }
