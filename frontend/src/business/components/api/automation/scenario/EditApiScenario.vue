@@ -1149,7 +1149,7 @@ export default {
       if (!request.url) {
         request.url = "";
       }
-      if (referenced === 'REF' || !request.hashTree) {
+      if (!request.hashTree) {
         request.hashTree = [];
       }
       if (this.selectedTreeNode !== undefined) {
