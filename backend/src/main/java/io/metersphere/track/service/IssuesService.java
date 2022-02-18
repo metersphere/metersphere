@@ -162,7 +162,7 @@ public class IssuesService {
         issueRequest.setCaseResourceId(caseResourceId);
         ServiceUtils.getDefaultOrder(issueRequest.getOrders());
         issueRequest.setRefType(refType);
-        return extIssuesMapper.getIssuesByCaseId(issueRequest);
+        return disconnectIssue(extIssuesMapper.getIssuesByCaseId(issueRequest));
     }
 
     public IssuesWithBLOBs getIssue(String id) {
@@ -589,8 +589,12 @@ public class IssuesService {
         IssuesRequest issueRequest = new IssuesRequest();
         issueRequest.setPlanId(planId);
         List<IssuesDao> planIssues = extIssuesMapper.getPlanIssues(issueRequest);
-        Set<String> ids = new HashSet<>(planIssues.size());
-        Iterator<IssuesDao> iterator = planIssues.iterator();
+        return disconnectIssue(planIssues);
+    }
+
+    public List<IssuesDao> disconnectIssue(List<IssuesDao> issues) {
+        Set<String> ids = new HashSet<>(issues.size());
+        Iterator<IssuesDao> iterator = issues.iterator();
         while (iterator.hasNext()) {
             IssuesDao next = iterator.next();
             if (ids.contains(next.getId())) {
@@ -598,7 +602,7 @@ public class IssuesService {
             }
             ids.add(next.getId());
         }
-        return planIssues;
+        return issues;
     }
 
     public void changeStatus(IssuesRequest request) {
