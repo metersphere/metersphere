@@ -7,7 +7,7 @@
           <div class="timing_name" v-if="!shareLink">{{ $t('project.keep_recent') }}</div>
         </el-col>
         <el-col :span="16">
-          <el-select v-model="selfQuantity" placeholder=" " size="mini" filterable
+          <el-select v-model="selfQuantity" placeholder=" " size="mini" filterable  default-first-option
                      allow-create
                      class="timing_select" :disabled="selfChoose">
             <el-option
@@ -96,7 +96,12 @@ export default {
       selfUnit: "",
       selfChoose: this.choose,
       selfExpr: this.expr,
-      quantityOptions: 31,
+      quantityOptions: [
+        "1","2","3","4","5","6","7","8","9","10",
+        "11","12","13","14","15","16","17","18","19","20",
+        "21","22","23","24","25","26","27","28","29","30",
+        "31"
+      ],
     }
   },
   methods: {
