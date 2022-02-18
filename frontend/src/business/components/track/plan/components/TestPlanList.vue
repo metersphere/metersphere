@@ -628,9 +628,11 @@ export default {
         cancelButtonText: this.$t('commons.cancel'),
         type: 'warning',
       }).then(() => {
-        this.result = this.$post('/test/plan/schedule/updateEnableByPrimyKey', param, () => {
+        this.result = this.$post('/test/plan/update/scheduleByEnable', param, response => {
           if (row.scheduleOpen) {
             row.scheduleStatus = 'OPEN'
+            row.scheduleCorn = response.data.value;
+            row.scheduleExecuteTime = response.data.scheduleExecuteTime;
           } else {
             row.scheduleStatus = 'SHUT'
           }

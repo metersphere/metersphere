@@ -287,4 +287,9 @@ public class TestPlanController {
     public long countByScheduleEnableTotal(@RequestBody QueryTestPlanRequest request) {
         return testPlanService.countScheduleEnableTotal(request);
     }
+
+    @PostMapping(value = "/update/scheduleByEnable")
+    public ScheduleDTO updateTestPlanBySchedule(@RequestBody ScheduleInfoRequest request) {
+        return testPlanService.updateTestPlanBySchedule(request);
+    }
 }
