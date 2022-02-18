@@ -13,7 +13,7 @@
         </el-radio>
       </el-radio-group>
       <div style="min-width: 1200px;" v-if="request.reportType === 'xml'">
-        <tcp-xml-table :table-data="request.xmlDataStruct" :show-options-button="true"
+        <tcp-xml-table :table-data="request.xmlDataStruct" :show-options-button="true" :show-operation-col="showOperationCol"
                        @xmlTablePushRow="xmlTablePushRow"
                        @initXmlTableData="initXmlTableData"
                        @saveTableData="saveXmlTableData" ref="treeTable"></tcp-xml-table>
@@ -71,6 +71,10 @@ export default {
     basisData: {},
     moduleOptions: Array,
     isReadOnly: {
+      type: Boolean,
+      default: false
+    },
+    showOperationCol: {
       type: Boolean,
       default: false
     },
@@ -165,6 +169,11 @@ export default {
             this.refreshXmlTableDataStruct(row.children);
           }
         });
+      }
+    },
+    saveData(){
+      if(this.request && this.request.reportType === 'xml' && this.$refs.treeTable){
+        this.$refs.treeTable.saveTableData();
       }
     },
     checkXmlTableDataStructData(dataStruct){
