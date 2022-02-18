@@ -71,13 +71,9 @@ public class XMLUtils {
             }
             xml = xml.substring(begin + 2);
         }   //  <?xml version="1.0" encoding="utf-8"?> 若存在，则去除
-        String rgex = "\\s*";
+        String rgex = ">";
         Pattern pattern = Pattern.compile(rgex);
         Matcher m = pattern.matcher(xml);
-        xml = m.replaceAll("");
-        rgex = ">";
-        pattern = Pattern.compile(rgex);
-        m = pattern.matcher(xml);
         xml = m.replaceAll("> ");
         rgex = "\\s*</";
         pattern = Pattern.compile(rgex);
