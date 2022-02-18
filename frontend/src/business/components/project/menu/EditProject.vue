@@ -7,7 +7,8 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth" :label="$t('test_track.issue.third_party_integrated')"
+        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth"
+                      :label="$t('test_track.issue.third_party_integrated')"
                       prop="platform">
           <el-select filterable v-model="form.platform">
             <el-option v-for="item in platformOptions" :key="item.value" :label="item.text" :value="item.value">
@@ -23,9 +24,11 @@
                       :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
           <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId"
                            :disabled="form.platform === 'Jira' && form.thirdPartTemplate"
+                           :platformOptions="issueOptions"
                            ref="issueTemplate"/>
 
-          <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'" v-model="form.thirdPartTemplate" style="margin-left: 10px">
+          <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'"
+                       v-model="form.thirdPartTemplate" style="margin-left: 10px">
             {{ $t('test_track.issue.use_third_party') }}
           </el-checkbox>
 
@@ -163,7 +166,8 @@ export default {
       },
       screenHeight: 'calc(100vh - 195px)',
       labelWidth: '150px',
-      platformOptions: []
+      platformOptions: [],
+      issueOptions: []
     };
   },
   props: {
@@ -212,11 +216,11 @@ export default {
         this.form.issueTemplateId = '';
     },
     edit(row) {
-      this.title = this.$t('project.edit');
       this.getOptions();
       this.createVisible = true;
       listenGoBack(this.handleClose);
       if (row) {
+        this.title = this.$t('project.edit');
         row.issueConfigObj = row.issueConfig ? JSON.parse(row.issueConfig) : {};
         this.form = Object.assign({}, row);
       } else {
@@ -231,6 +235,7 @@ export default {
         this.filterPlatformOptions(platforms, JIRA);
         this.filterPlatformOptions(platforms, ZEN_TAO);
         this.filterPlatformOptions(platforms, AZURE_DEVOPS);
+        this.issueOptions = this.platformOptions;
       });
     },
     filterPlatformOptions(platforms, platform) {
