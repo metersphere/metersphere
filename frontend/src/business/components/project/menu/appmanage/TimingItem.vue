@@ -92,7 +92,7 @@ export default {
   },
   data() {
     return {
-      selfQuantity: Number,
+      selfQuantity: "",
       selfUnit: "",
       selfChoose: this.choose,
       selfExpr: this.expr,
