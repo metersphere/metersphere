@@ -316,6 +316,8 @@ public class ApiScenarioExecuteService {
         }
         HashTree hashTree = null;
         try {
+            uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
+            FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
             this.testElement(request);
             hashTree = request.getTestElement().generateHashTree(config);
             LogUtil.info(request.getTestElement().getJmx(hashTree));
@@ -350,8 +352,6 @@ public class ApiScenarioExecuteService {
             }
             apiScenarioReportMapper.insert(report);
         }
-        uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
-        FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
         String runMode = StringUtils.isEmpty(request.getRunMode()) ? ApiRunMode.SCENARIO.name() : request.getRunMode();
         // 调用执行方法
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, hashTree);
