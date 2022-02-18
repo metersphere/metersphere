@@ -1321,6 +1321,8 @@ public class ApiDefinitionService {
     }
 
     public void deleteByParams(ApiBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
         List<String> ids = request.getIds();
         if (CollectionUtils.isEmpty(ids)) {
             return;
