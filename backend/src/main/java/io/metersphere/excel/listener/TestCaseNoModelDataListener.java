@@ -521,11 +521,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         Set<Integer> rowNums = new HashSet<>();
         if (data.getStepDesc() != null) {
-            String[] stepDesc = data.getStepDesc().split("\r\n");
+            String[] stepDesc = data.getStepDesc().split("\r|\n|\r\n");
 
             int rowIndex = 1;
             for (String row : stepDesc) {
-                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row);
+                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row,rowIndex);
                 stepDescList.add(rowInfo.rowInfo);
                 rowNums.add(rowIndex++);
             }
@@ -534,21 +534,13 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         }
 
         if (data.getStepResult() != null) {
-            String stepResult = data.getStepResult().replaceAll("\\n([0-9]+\\.)", "\r\n$1");
-            String[] stepRes = stepResult.split("\r\n");
+            String[] stepRes = data.getStepResult().split("\r|\n|\r\n");
             int lastStepIndex = 1;
             for (String row : stepRes) {
-                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row);
-                int rowIndex = rowInfo.index;
+                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row,lastStepIndex);
                 String rowMessage = rowInfo.rowInfo;
-
-                if (rowIndex > -1 && rowNums.contains(rowIndex)) {
-                    listUtils.set(stepResList, lastStepIndex - 1, rowMessage, "");
-                    lastStepIndex = rowIndex;
-                } else {
-                    listUtils.set(stepResList, lastStepIndex - 1, rowMessage, "");
-                    lastStepIndex++;
-                }
+                stepResList.add(rowMessage);
+                lastStepIndex++;
             }
         } else {
             stepResList.add("");
@@ -578,7 +570,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         return jsonArray.toJSONString();
     }
 
-    private RowInfo parseIndexInRow(String row) {
+    private RowInfo parseIndexInRow(String row,int rowIndex) {
         RowInfo rowInfo = new RowInfo();
         String parseString = row;
         int index = -1;
@@ -592,7 +584,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 String[] rowSplit = StringUtils.split(parseString, splitChar);
                 if (rowSplit.length > 0) {
                     String indexString = rowSplit[0];
-                    if (StringUtils.isNumeric(indexString)) {
+                    if (StringUtils.isNumeric(indexString)&&indexString.equals(String.valueOf(rowIndex))) {
                         try {
                             index = Integer.parseInt(indexString);
                             rowMessage = StringUtils.substring(parseString, indexString.length() + splitChar.length());
