@@ -155,28 +155,51 @@ export default {
       if (row && row.request) {
         requestParam = JSON.parse(JSON.stringify(row.request));
       }
-      if(requestParam.params){
+      if (requestParam.xmlDataStruct) {
+        this.getTcpMockTestData(requestParam);
+      } else {
+        this.getHttpMockTestData(requestParam);
+      }
+
+    },
+    getTcpMockTestData(requestParam) {
+      if (requestParam && requestParam.xmlDataStruct) {
+        let selectParma = requestParam.xmlDataStruct;
+        //调用后台生成符合mock需求的测试数据
+        this.$post("/mockConfig/getTcpMockTestData", selectParma, response => {
+          let returnData = response.data;
+          if (returnData) {
+            requestParam.xmlDataStruct = returnData;
+          }
+          this.$emit("redirectToTest", requestParam);
+        }, error => {
+          this.$emit("redirectToTest", requestParam);
+        });
+      }
+    },
+    getHttpMockTestData(requestParam) {
+      if (requestParam && requestParam.params) {
         let selectParma = [];
-        if(requestParam.params.arguments && requestParam.params.arguments.length > 0){
+        if (requestParam.params.arguments && requestParam.params.arguments.length > 0) {
           requestParam.params.arguments.forEach(item => {
-            if(item.rangeType && item.value &&item.uuid){
-              let paramObj =  {id:item.uuid,value:item.value,condition:item.rangeType};
+            if (item.rangeType && item.value && item.uuid) {
+              let paramObj = {id: item.uuid, value: item.value, condition: item.rangeType};
               selectParma.push(paramObj);
             }
           });
         }
-        if(requestParam.params.rest && requestParam.params.rest.length > 0){
+        if (requestParam.params.rest && requestParam.params.rest.length > 0) {
           requestParam.params.rest.forEach(item => {
-            if(item.rangeType && item.value &&item.uuid){
-              let paramObj =  {id:item.uuid,value:item.value,condition:item.rangeType};
+            if (item.rangeType && item.value && item.uuid) {
+              let paramObj = {id: item.uuid, value: item.value, condition: item.rangeType};
               selectParma.push(paramObj);
             }
           });
         }
-        if(requestParam.params.body.kvs && requestParam.params.body.kvs.length > 0){
+        if (requestParam.params.body.kvs && requestParam.params.body.kvs.length > 0) {
           requestParam.params.body.kvs.forEach(item => {
-            if(item.rangeType && item.value &&item.uuid){
-              let paramObj =  {id:item.uuid,value:item.value,condition:item.rangeType};
+            if (item.rangeType && item.value && item.uuid) {
+              let paramObj = {id: item.uuid, value: item.value, condition: item.rangeType};
               selectParma.push(paramObj);
             }
           });
@@ -184,25 +207,25 @@ export default {
         //调用后台生成符合mock需求的测试数据
         this.$post("/mockConfig/getMockTestData", selectParma, response => {
           let returnData = response.data;
-          if(returnData && returnData.length > 0){
+          if (returnData && returnData.length > 0) {
             returnData.forEach(data => {
-              if(requestParam.params.arguments && requestParam.params.arguments.length > 0){
-                for(let i = 0; i < requestParam.params.arguments.length; i++){
-                  if(requestParam.params.arguments[i].uuid === data.id){
+              if (requestParam.params.arguments && requestParam.params.arguments.length > 0) {
+                for (let i = 0; i < requestParam.params.arguments.length; i++) {
+                  if (requestParam.params.arguments[i].uuid === data.id) {
                     requestParam.params.arguments[i].value = data.value;
                   }
                 }
               }
-              if(requestParam.params.rest && requestParam.params.rest.length > 0){
-                for(let i = 0; i < requestParam.params.rest.length; i++){
-                  if(requestParam.params.rest[i].uuid === data.id){
+              if (requestParam.params.rest && requestParam.params.rest.length > 0) {
+                for (let i = 0; i < requestParam.params.rest.length; i++) {
+                  if (requestParam.params.rest[i].uuid === data.id) {
                     requestParam.params.rest[i].value = data.value;
                   }
                 }
               }
-              if(requestParam.params.body.kvs && requestParam.params.body.kvs.length > 0){
-                for(let i = 0; i < requestParam.params.body.kvs.length; i++){
-                  if(requestParam.params.body.kvs[i].uuid === data.id){
+              if (requestParam.params.body.kvs && requestParam.params.body.kvs.length > 0) {
+                for (let i = 0; i < requestParam.params.body.kvs.length; i++) {
+                  if (requestParam.params.body.kvs[i].uuid === data.id) {
                     requestParam.params.body.kvs[i].value = data.value;
                   }
                 }

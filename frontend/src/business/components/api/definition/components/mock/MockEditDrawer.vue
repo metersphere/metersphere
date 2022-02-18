@@ -16,7 +16,7 @@
           <div class="base-info">
             <el-row>
               <tcp-params
-                v-if="isTcp"
+                v-if="isTcp" :show-operation-col="true"
                 :request="mockExpectConfig.request" style="margin: 10px 10px;" ref="tcpParam"></tcp-params>
               <mock-request-param
                 v-else
@@ -218,6 +218,9 @@ export default {
       this.showDrawer = false;
     },
     saveMockExpectConfig() {
+      if(this.isTcp && this.$refs.tcpParam){
+        this.$refs.tcpParam.saveData();
+      }
       let mockConfigId = this.mockConfigId;
       this.mockExpectConfig.mockConfigId = mockConfigId;
       let formCheckResult = this.checkMockExpectForm("mockExpectForm", true);

@@ -701,7 +701,7 @@ public class MockApiUtils {
         return false;
     }
 
-    private static boolean isValueMatch(String requestParam, MockConfigRequestParams params) {
+    public static boolean isValueMatch(String requestParam, MockConfigRequestParams params) {
         if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.VALUE_EQUALS.name())) {
             return StringUtils.equals(requestParam, params.getValue());
         } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.VALUE_NOT_EQUALS.name())) {
