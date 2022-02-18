@@ -1870,6 +1870,13 @@ export default {
       after_the_post_script_step: "步骤内后置脚本后",
       before_the_post_script_step: "步骤内后置脚本前",
       global_script_config: "全局脚本配置",
+
+      pre_script_filter_request_type: "前置脚本过滤请求类型",
+      post_script_filter_request_type: "后置脚本过滤请求类型",
+      pre_script_exec_order: "前置脚本执行顺序",
+      post_script_exec_order: "后置脚本执行顺序",
+      pre_link_scenario_result: "前置关联场景结果",
+      post_link_scenario_result: "后置关联场景结果",
     }
   },
   api_report: {

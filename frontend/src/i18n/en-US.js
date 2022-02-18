@@ -1865,6 +1865,13 @@ export default {
       after_the_post_script_step: "After the script is placed in the step",
       before_the_post_script_step: "Post-in-step before script",
       global_script_config: "Global script config",
+
+      pre_script_filter_request_type: "Pre script filter request type",
+      post_script_filter_request_type: "Post script filter request type",
+      pre_script_exec_order: "Pre script exec order",
+      post_script_exec_order: "Post script exec order",
+      pre_link_scenario_result: "Pre link scenario result",
+      post_link_scenario_result: "Post link scenario result",
     }
   },
   api_report: {
