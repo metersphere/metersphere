@@ -15,4 +15,6 @@ ENV AB_OFF=true
 ENV MS_VERSION=${MS_VERSION}
 ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Djava.awt.headless=true"
 
-CMD ["sh", "-c", "mv /opt/lib/ms-jmeter-core*.jar /opt/lib/ms-jmeter-core.jar && /deployments/run-java.sh"]
+RUN mv /opt/lib/ms-jmeter-core*.jar /opt/lib/ms-jmeter-core.jar
+
+CMD ["/deployments/run-java.sh"]
