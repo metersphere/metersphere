@@ -175,7 +175,8 @@
             url = '/api/definition/relevance';
             environmentId = this.$refs.apiList.environmentId;
             selectIds = Array.from(apis).map(row => row.id);
-            this.postRelevance(url, environmentId, selectIds);
+            let protocol = this.$refs.apiList.currentProtocol;
+            this.postRelevance(url, environmentId, selectIds, protocol);
           });
         } else {
           let params = this.$refs.apiCaseList.getConditions();
@@ -184,17 +185,20 @@
             url = '/api/testcase/relevance';
             environmentId = this.$refs.apiCaseList.environmentId;
             selectIds = Array.from(apiCases).map(row => row.id);
-            this.postRelevance(url, environmentId, selectIds);
+            let protocol = this.$refs.apiCaseList.currentProtocol;
+            this.postRelevance(url, environmentId, selectIds, protocol);
           });
         }
 
       },
 
-      postRelevance(url, environmentId, selectIds) {
+      postRelevance(url, environmentId, selectIds, protocol) {
         let param = {};
-        if (!environmentId) {
-          this.$warning(this.$t('api_test.environment.select_environment'));
-          return;
+        if (protocol !== 'DUBBO') {
+          if (!environmentId) {
+            this.$warning(this.$t('api_test.environment.select_environment'));
+            return;
+          }
         }
         param.planId = this.planId;
         param.selectIds = selectIds;
