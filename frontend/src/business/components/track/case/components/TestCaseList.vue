@@ -850,14 +850,6 @@ export default {
     getCase(id) {
       this.$refs.testCasePreview.open();
       this.rowCaseResult.loading = true;
-      if (this.rowCase && this.rowCase.id === id) {
-        this.$refs.testCasePreview.setData(this.rowCase);
-        this.rowCaseResult.loading = false;
-        return;
-      } else {
-        this.rowCase = {};
-        this.$refs.testCasePreview.setData({});
-      }
 
       this.rowCaseResult = this.$get('test/case/get/step/' + id, response => {
         this.rowCase = response.data;
