@@ -63,7 +63,7 @@
       };
       return{
         //persons: getMenus('person'),
-        activeIndex: 'commons.personal_setting',
+        activeIndex: '',
         ruleForm:{},
         hasJira: false,
         hasTapd: false,
@@ -187,8 +187,24 @@
           this.projectList = data.project
         });
       },
+      getActiveIndex(){
+        if(hasPermission('PERSONAL_INFORMATION:READ+EDIT')){
+          this.activeIndex = 'commons.personal_setting';
+          return;
+        }else if(hasPermission('PERSONAL_INFORMATION:READ+API_KEYS')){
+          this.activeIndex = 'commons.api_keys';
+          return;
+        }else if(hasPermission('PERSONAL_INFORMATION:READ+EDIT_PASSWORD')){
+          this.activeIndex = 'change_password';
+          return;
+        }else if(hasPermission('PERSONAL_INFORMATION:READ+THIRD_ACCOUNT')){
+          this.activeIndex = 'third_account';
+          return;
+        }
+      }
     },
     created() {
+      this.getActiveIndex();
       this.initTableData();
     }
 
