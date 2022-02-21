@@ -257,6 +257,11 @@ public class ShareController {
         return performanceReportService.getReportLogResource(reportId);
     }
 
+    @GetMapping("/performance/report/log/download/{reportId}/{resourceId}")
+    public void downloadLog(@PathVariable String reportId, @PathVariable String resourceId, HttpServletResponse response) throws Exception {
+        performanceReportService.downloadLog(response, reportId, resourceId);
+    }
+
     @GetMapping("/performance/report/log/{shareId}/{reportId}/{resourceId}/{goPage}")
     public Pager<List<LoadTestReportLog>> logs(@PathVariable String shareId, @PathVariable String reportId, @PathVariable String resourceId, @PathVariable int goPage) {
         Page<Object> page = PageHelper.startPage(goPage, 1, true);
