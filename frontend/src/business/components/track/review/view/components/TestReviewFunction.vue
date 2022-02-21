@@ -106,6 +106,11 @@ export default {
   activated() {
     this.getNodeTreeByReviewId()
   },
+  watch: {
+    reviewId() {
+      this.getNodeTreeByReviewId();
+    }
+  },
   computed: {
     projectId() {
       return getCurrentProjectID();
