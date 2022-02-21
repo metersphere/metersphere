@@ -134,7 +134,7 @@ public class NoticeService {
     public List<MessageDetail> searchMessageByTypeBySend(String type, String projectId) {
         try {
             String workspaceId = "";
-            if (null == SessionUtils.getUser()) {
+            if (null == SessionUtils.getCurrentWorkspaceId()) {
                 Project project = projectMapper.selectByPrimaryKey(projectId);
                 workspaceId = project.getWorkspaceId();
             } else {
