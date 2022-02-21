@@ -24,10 +24,7 @@ import io.metersphere.service.CustomFieldTemplateService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.track.dto.PlanReportIssueDTO;
-import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
-import io.metersphere.track.dto.TestPlanFunctionResultReportDTO;
-import io.metersphere.track.dto.TestPlanSimpleReportDTO;
+import io.metersphere.track.dto.*;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.jira.JiraIssueType;
@@ -684,5 +681,15 @@ public class IssuesService {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    public List<DemandDTO> getDemandList(String projectId) {
+        Project project = projectService.getProjectById(projectId);
+        String workspaceId = project.getWorkspaceId();
+        IssuesRequest issueRequest = new IssuesRequest();
+        issueRequest.setWorkspaceId(workspaceId);
+        issueRequest.setProjectId(projectId);
+        AbstractIssuePlatform platform = IssueFactory.createPlatform(project.getPlatform(), issueRequest);
+        return platform.getDemandList(projectId);
     }
 }
