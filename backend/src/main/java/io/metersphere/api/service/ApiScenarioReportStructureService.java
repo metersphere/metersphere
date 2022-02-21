@@ -195,6 +195,9 @@ public class ApiScenarioReportStructureService {
             } else if (step.getValue() != null) {
                 if (step.getValue().getStartTime() == 0 || step.getValue().getEndTime() == 0) {
                     totalTime.set(totalTime.longValue() + 0);
+                } else if (step.getValue().getStartTime() > step.getValue().getEndTime() && step.getValue().getResponseResult() != null) {
+                    // 异常时间处理
+                    totalTime.set(totalTime.longValue() + step.getValue().getResponseResult().getResponseTime());
                 } else {
                     totalTime.set((totalTime.longValue() + (step.getValue().getEndTime() - step.getValue().getStartTime())));
                 }
