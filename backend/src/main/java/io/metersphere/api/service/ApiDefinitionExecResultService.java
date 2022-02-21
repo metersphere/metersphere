@@ -61,6 +61,8 @@ public class ApiDefinitionExecResultService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
     public void saveApiResult(List<RequestResult> requestResults, ResultDTO dto) {
         LoggerUtil.info("接收到API/CASE执行结果【 " + requestResults.size() + " 】");
@@ -98,9 +100,14 @@ public class ApiDefinitionExecResultService {
                 event = NoticeConstants.Event.EXECUTE_FAILED;
                 status = "失败";
             }
-            User user = userMapper.selectByPrimaryKey(result.getUserId());
+            User user = null;
+            if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
+                user = SessionUtils.getUser();
+            } else {
+                user = userMapper.selectByPrimaryKey(result.getUserId());
+            }
             Map paramMap = new HashMap<>(beanMap);
-            paramMap.put("operator", user != null ? user.getName() : SessionUtils.getUser().getName());
+            paramMap.put("operator", user != null ? user.getName() : result.getUserId());
             paramMap.put("status", result.getStatus());
             String context = "${operator}执行接口用例" + status + ": ${name}";
             NoticeModel noticeModel = NoticeModel.builder()
@@ -114,13 +121,16 @@ public class ApiDefinitionExecResultService {
                     .build();
 
             String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
-            if (StringUtils.equals(ReportTriggerMode.API.name(), result.getTriggerMode())) {
-                noticeSendService.send(ReportTriggerMode.API.name(), taskType, noticeModel);
-            } else {
+            if (SessionUtils.getUser() != null
+                    && StringUtils.equals(SessionUtils.getCurrentProjectId(), apiTestCaseWithBLOBs.getProjectId())
+                    && StringUtils.isNotEmpty(SessionUtils.getCurrentWorkspaceId())) {
                 noticeSendService.send(taskType, noticeModel);
+            } else {
+                Project project = projectMapper.selectByPrimaryKey(apiTestCaseWithBLOBs.getProjectId());
+                noticeSendService.send(project, taskType, noticeModel);
             }
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error("消息发送失败：" + e.getMessage());
         }
     }
 
