@@ -739,17 +739,23 @@
         from (
                  select tptc.id as s
                  from test_plan_test_case tptc join test_case on tptc.case_id = test_case.id
-                 where tptc.plan_id = #{planId}
+                 where tptc.plan_id = #{planId} and (test_case.status != 'Trash' or test_case.status is null)
+
                  union all
+
                  select tpas.id as s
                  from test_plan_api_scenario tpas join api_scenario on tpas.api_scenario_id = api_scenario.id
-                 where tpas.test_plan_id = #{planId} and api_scenario.status != 'Trash'
+                 where tpas.test_plan_id = #{planId} and (api_scenario.status != 'Trash' or api_scenario.status is null)
+
                  union all
+
                  select tpac.id as s
                  from test_plan_api_case tpac join api_test_case on tpac.api_case_id = api_test_case.id
                                               join api_definition on api_test_case.api_definition_id = api_definition.id
-                 where tpac.test_plan_id = #{planId} and api_definition.status != 'Trash'
+                 where tpac.test_plan_id = #{planId} and (api_definition.status != 'Trash' or api_definition.status is null)
+
                  union all
+
                  select tplc.id as s
                  from test_plan_load_case tplc join load_test on tplc.load_case_id = load_test.id
                  where tplc.test_plan_id = #{planId}
