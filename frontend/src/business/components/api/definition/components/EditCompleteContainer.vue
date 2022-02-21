@@ -81,7 +81,7 @@
     </div>
 
     <div v-if="showMock && (currentProtocol === 'HTTP' || currentProtocol === 'TCP')">
-      <mock-tab :base-mock-config-data="baseMockConfigData" @redirectToTest="redirectToTest"
+      <mock-tab :base-mock-config-data="baseMockConfigData" @redirectToTest="redirectToTest" :version-name="currentApi.versionName"
                 :is-tcp="currentProtocol === 'TCP'"/>
     </div>
     <div v-if="showTestCaseList">

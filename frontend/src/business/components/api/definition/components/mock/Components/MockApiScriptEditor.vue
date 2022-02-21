@@ -179,7 +179,7 @@ export default {
           if (laguanges === "python") {
             returnScript = 'param=vars["body.${param}"]';
           } else {
-            returnScript = 'var param=vars.get(body.${param}")\n' +
+            returnScript = 'var param=vars.get(body.${param}");\n' +
               '//如果对象是多层JSON，需要引入fastjson协助解析:\n' +
               '// 以"{\"name\":\"user\",\"rows\":[{\"type\":1}]}" 为demo,取rows第1个的type数据:\n' +
               'import com.alibaba.fastjson.JSON;\n' +
