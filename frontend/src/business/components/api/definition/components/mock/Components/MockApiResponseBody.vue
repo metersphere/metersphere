@@ -258,7 +258,7 @@ export default {
       this.$get(selectUrl, response => {
         let apiResponse = response.data;
         if (apiResponse && apiResponse.returnMsg) {
-          this.body.apiRspRaw = apiResponse.returnMsg;
+          this.body.apiRspRaw = apiResponse.returnData;
         }
         this.refreshMsCodeEdit();
       });
