@@ -22,7 +22,13 @@
         <el-table-column prop="index" :label="$t('test_track.home.serial_number')"
                          width="60" show-overflow-tooltip/>
         <el-table-column prop="planName" :label="$t('test_track.home.test_plan_name')"
-                         width="130" show-overflow-tooltip/>
+                         width="130" show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <el-link type="info" @click="goPlan(scope.row.planId)">
+              {{ scope.row.planName }}
+            </el-link>
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" :label="$t('commons.create_time')" width="160" show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -77,6 +83,12 @@ export default {
         this.bugTotalSize = data.bugTotalSize;
         this.rage = data.rage;
       })
+    },
+    goPlan(id) {
+      if (!id) {
+        return;
+      }
+      this.$router.push('/track/plan/view/' + id);
     }
   },
   created() {
