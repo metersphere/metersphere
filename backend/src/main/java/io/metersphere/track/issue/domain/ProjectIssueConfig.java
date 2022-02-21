@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProjectIssueConfig {
-    private String jiraIssueType;
-    private String jiraStoryType;
+    private String jiraIssueTypeId;
+    private String jiraStoryTypeId;
     private String projectKey;
 }
