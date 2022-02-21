@@ -9,6 +9,7 @@ import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
+import io.metersphere.api.dto.mock.ApiDefinitionResponseDTO;
 import io.metersphere.api.dto.mock.MockConfigRequestParams;
 import io.metersphere.api.dto.mock.MockParamSuggestions;
 import io.metersphere.api.dto.mock.RequestMockParams;
@@ -726,10 +727,10 @@ public class MockConfigService {
                 if (responseJsonObj.containsKey("body")) {
                     MockApiUtils mockApiUtils = new MockApiUtils();
                     boolean useScript = false;
-                    if(responseJsonObj.containsKey("usePostScript")){
+                    if (responseJsonObj.containsKey("usePostScript")) {
                         useScript = responseJsonObj.getBoolean("usePostScript");
                     }
-                    returnStr = mockApiUtils.getResultByResponseResult(responseJsonObj.getJSONObject("body"), url, headerMap, requestMockParams,useScript);
+                    returnStr = mockApiUtils.getResultByResponseResult(responseJsonObj.getJSONObject("body"), url, headerMap, requestMockParams, useScript);
                 }
                 if (responseJsonObj.containsKey("httpCode")) {
                     int httpCodeNum = 500;
@@ -1131,19 +1132,10 @@ public class MockConfigService {
                     returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
                     break;
                 }
-                if(!isMatch){
-                    Map<String,String> apiResponseMap = MockApiUtils.getApiResponse(api.getResponse());
-                    if(MapUtils.isNotEmpty(apiResponseMap)){
-                        returnStr = apiResponseMap.get("returnMsg");
-                        if(StringUtils.isNotEmpty(returnStr)){
-                            isMatch = true;
-                            int code = 200;
-                            if(apiResponseMap.containsKey("code")){
-                                code = Integer.parseInt(apiResponseMap.get("code"));
-                            }
-                            response.setStatus(code);
-                            break;
-                        }
+                if (!isMatch) {
+                    returnStr = this.getApiDefinitionResponse(api, response);
+                    if (StringUtils.isNotEmpty(returnStr)) {
+                        isMatch = true;
                     }
                 }
             }
@@ -1188,19 +1180,10 @@ public class MockConfigService {
                         break;
                     }
                 }
-                if(!isMatch){
-                    Map<String,String> apiResponseMap = MockApiUtils.getApiResponse(api.getResponse());
-                    if(MapUtils.isNotEmpty(apiResponseMap)){
-                        returnStr = apiResponseMap.get("returnMsg");
-                        if(StringUtils.isNotEmpty(returnStr)){
-                            isMatch = true;
-                            int code = 200;
-                            if(apiResponseMap.containsKey("code")){
-                                code = Integer.parseInt(apiResponseMap.get("code"));
-                            }
-                            response.setStatus(code);
-                            break;
-                        }
+                if (!isMatch) {
+                    returnStr = this.getApiDefinitionResponse(api, response);
+                    if (StringUtils.isNotEmpty(returnStr)) {
+                        isMatch = true;
                     }
                 }
             }
@@ -1212,6 +1195,24 @@ public class MockConfigService {
         }
         return returnStr;
     }
+
+    private String getApiDefinitionResponse(ApiDefinitionWithBLOBs api, HttpServletResponse response) {
+        String returnStr = null;
+        try {
+            ApiDefinitionResponseDTO responseDTO = MockApiUtils.getApiResponse(api.getResponse());
+            returnStr = responseDTO.getReturnData();
+            response.setStatus(responseDTO.getReturnCode());
+            if (MapUtils.isNotEmpty(responseDTO.getHeaders())) {
+                for (Map.Entry<String, String> entry : responseDTO.getHeaders().entrySet()) {
+                    response.setHeader(entry.getKey(), entry.getValue());
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return returnStr;
+    }
+
 
     private List<String> parseByJsonDataStruct(String dataString) {
         List<String> returnList = new ArrayList<>();
@@ -1294,7 +1295,7 @@ public class MockConfigService {
                                 JSONObject sourceObj = XMLUtils.XmlToJson(message);
                                 try {
                                     List<TcpTreeTableDataStruct> tcpDataList = JSONArray.parseArray(requestJson.getString("xmlDataStruct"), TcpTreeTableDataStruct.class);
-                                    isMatch = TcpTreeTableDataParser.isMatchTreeTableData(sourceObj,tcpDataList);
+                                    isMatch = TcpTreeTableDataParser.isMatchTreeTableData(sourceObj, tcpDataList);
                                 } catch (Exception e) {
                                     LogUtil.error(e);
                                 }
@@ -1474,8 +1475,8 @@ public class MockConfigService {
         if (apiDefinitionWithBLOBs == null) {
             return;
         }
-        Map<String, String> returnMap = MockApiUtils.getApiResponse(apiDefinitionWithBLOBs.getResponse());
-        if (MapUtils.isEmpty(returnMap) || !returnMap.containsKey("returnMsg")) {
+        ApiDefinitionResponseDTO responseDTO = MockApiUtils.getApiResponse(apiDefinitionWithBLOBs.getResponse());
+        if (StringUtils.isEmpty(responseDTO.getReturnData())) {
             return;
         }
         List<MockExpectConfigWithBLOBs> updateList = this.selectMockExpectConfigByApiId(apiDefinitionWithBLOBs.getId());
@@ -1487,7 +1488,7 @@ public class MockConfigService {
                         if (responseObj.containsKey("responseResult")) {
                             JSONObject responseResultObject = responseObj.getJSONObject("responseResult");
                             if (responseResultObject.containsKey("body")) {
-                                responseResultObject.getJSONObject("body").put("apiRspRaw", returnMap.get("returnMsg"));
+                                responseResultObject.getJSONObject("body").put("apiRspRaw", responseDTO.getReturnData());
 
                                 model.setResponse(responseObj.toJSONString());
                                 mockExpectConfigMapper.updateByPrimaryKeySelective(model);
