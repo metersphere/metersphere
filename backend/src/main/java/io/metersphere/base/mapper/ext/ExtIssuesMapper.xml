@@ -12,7 +12,7 @@
     </select>
 
     <select id="getIssueForMinder" resultType="io.metersphere.base.domain.IssuesDao">
-        select issues.id, issues.title , issues.num , test_case_issues.resource_id as caseId
+        select issues.id, issues.title , issues.num , test_case_issues.resource_id, test_case_issues.ref_id, test_case_issues.ref_type
         from issues
         inner join test_case_issues
         on test_case_issues.issues_id = issues.id
