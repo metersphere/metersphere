@@ -299,7 +299,7 @@ export default {
             }
             this.option.submitBtn = {show: false};
             this.request.clazzName = plugin.clazzName;
-            if (this.request && this.request.active && this.pluginForm) {
+            if (this.request && this.request.active && this.pluginForm && this.pluginForm.setValue instanceof Function) {
               this.pluginForm.setValue(this.request);
             }
           } else {
