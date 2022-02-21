@@ -16,6 +16,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.i18n.Translator;
 import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
@@ -518,7 +519,7 @@ public class ShareInfoService {
     public void validateExpired(ShareInfo shareInfo) {
         // 有效期根据类型从ProjectApplication中获取
         if(shareInfo == null ){
-            MSException.throwException("连接已失效，请重新获取!");
+            MSException.throwException(Translator.get("connection_expired"));
         }
         String type = "";
         if(shareInfo.getShareType().equals("PERFORMANCE_REPORT")){
@@ -544,7 +545,7 @@ public class ShareInfoService {
     private void millisCheck(long compareMillis, long millis,String shareInfoId) {
         if (compareMillis>millis) {
             shareInfoMapper.deleteByPrimaryKey(shareInfoId);
-            MSException.throwException("连接已失效，请重新获取!");
+            MSException.throwException(Translator.get("connection_expired"));
         }
     }
 
