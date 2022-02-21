@@ -36,7 +36,7 @@
         </el-collapse-transition>
       </el-form>
     </div>
-    <div v-if="response.usePostScript">
+    <div v-show="response.usePostScript">
       <el-row style="margin-top: 10px;">
         <el-col :span="12">
           <p class="tip">{{ $t('api_test.definition.request.post_script') }}</p>

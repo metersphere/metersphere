@@ -2,7 +2,7 @@
   <div>
     <div>
       <div class="ms-opt-btn" v-if="versionEnable">
-        {{ $t('project.version.name') }}: {{ mockConfigData.versionName }}
+        {{ $t('project.version.name') }}: {{ versionName }}
       </div>
       <el-input :placeholder="$t('commons.search_by_name')" class="search-input" size="small"
                 :clearable="true"
@@ -95,6 +95,7 @@ export default {
   },
   props: {
     baseMockConfigData: {},
+    versionName:String,
     isTcp: {
       type: Boolean,
       default: false,

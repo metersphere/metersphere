@@ -61,6 +61,7 @@
           :read-only="isReadOnly"
           :data.sync="body.raw"
           :modes="modes"
+          v-if="loadIsOver"
           height="90%"
           ref="codeEdit"/>
     </div>
@@ -257,7 +258,7 @@ export default {
       let selectUrl = "/mockConfig/getApiResponse/" + this.apiId;
       this.$get(selectUrl, response => {
         let apiResponse = response.data;
-        if (apiResponse && apiResponse.returnMsg) {
+        if (apiResponse && apiResponse.returnData) {
           this.body.apiRspRaw = apiResponse.returnData;
         }
         this.refreshMsCodeEdit();
