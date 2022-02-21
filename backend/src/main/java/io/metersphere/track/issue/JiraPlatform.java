@@ -430,6 +430,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     public IssueTemplateDao getThirdPartTemplate() {
+        setUserConfig();
         Set<String> ignoreSet = new HashSet() {{
             add("timetracking");
             add("attachment");

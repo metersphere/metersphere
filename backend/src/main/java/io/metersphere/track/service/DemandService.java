@@ -3,6 +3,7 @@ package io.metersphere.track.service;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.AbstractIssuePlatform;
 import io.metersphere.track.issue.IssueFactory;
@@ -67,7 +68,12 @@ public class DemandService {
         issueRequest.setProjectId(projectId);
         List<AbstractIssuePlatform> platformList = IssueFactory.createPlatforms(platforms, issueRequest);
         platformList.forEach(platform -> {
-            List<DemandDTO> demand = platform.getDemandList(projectId);
+            List<DemandDTO> demand = new ArrayList<>();
+            try {
+                demand = platform.getDemandList(projectId);
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
             list.addAll(demand);
         });
 
