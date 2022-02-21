@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
+import io.metersphere.api.dto.mock.ApiDefinitionResponseDTO;
 import io.metersphere.api.dto.mock.MockConfigRequestParams;
 import io.metersphere.api.dto.mock.RequestMockParams;
 import io.metersphere.api.dto.mockconfig.response.JsonSchemaReturnObj;
@@ -229,13 +230,13 @@ public class MockApiUtils {
         return requestParamsList;
     }
 
-    public static Map<String, String> getApiResponse(String response) {
-        Map<String, String> returnMap = new HashMap<>();
-        String returnStr = "";
+    public static ApiDefinitionResponseDTO getApiResponse(String response) {
+        ApiDefinitionResponseDTO responseDTO = new ApiDefinitionResponseDTO();
         if (StringUtils.isNotEmpty(response)) {
             try {
                 JSONObject respObj = JSONObject.parseObject(response);
                 if (respObj.containsKey("body")) {
+                    String returnStr = "";
                     JSONObject bodyObj = respObj.getJSONObject("body");
                     if (bodyObj.containsKey("type")) {
                         String type = bodyObj.getString("type");
@@ -289,16 +290,17 @@ public class MockApiUtils {
                             returnStr = JSONObject.toJSONString(paramMap);
                         }
                     }
+                    responseDTO.setReturnData(returnStr);
                 }
                 if (respObj.containsKey("statusCode")) {
                     JSONArray statusCodeArray = respObj.getJSONArray("statusCode");
+                    int code = 200;
                     if (statusCodeArray != null) {
                         for (int i = 0; i < statusCodeArray.size(); i++) {
                             JSONObject object = statusCodeArray.getJSONObject(i);
                             if (object.containsKey("name")) {
                                 try {
-                                    int code = Integer.parseInt(object.getString("name"));
-                                    returnMap.put("code", code + "");
+                                    code = Integer.parseInt(object.getString("name"));
                                     break;
                                 } catch (Exception e) {
                                     LogUtil.error(e);
@@ -306,13 +308,27 @@ public class MockApiUtils {
                             }
                         }
                     }
+                    responseDTO.setReturnCode(code);
+                }
+                if(respObj.containsKey("headers")){
+                    JSONArray jsonArray = respObj.getJSONArray("headers");
+                    Map<String,String> headMap = new HashMap<>();
+                    for(int i = 0; i < jsonArray.size(); i ++){
+                        JSONObject headObj = jsonArray.getJSONObject(i);
+                        if(headObj.containsKey("name") && headObj.containsKey("value") && headObj.containsKey("enable")){
+                            boolean enable = headObj.getBoolean("enable");
+                            if(enable){
+                                headMap.put(headObj.getString("name"),headObj.getString("value"));
+                            }
+                        }
+                    }
+                    responseDTO.setHeaders(headMap);
                 }
             } catch (Exception e) {
                 MSException.throwException(e);
             }
         }
-        returnMap.put("returnMsg", returnStr);
-        return returnMap;
+        return responseDTO;
     }
 
     public String getResultByResponseResult(JSONObject bodyObj, String url, Map<String, String> headerMap, RequestMockParams requestMockParams, boolean useScript) {
