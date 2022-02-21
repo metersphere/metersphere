@@ -9,14 +9,14 @@
       </ms-instructions-icon>
     </el-form-item>
     <el-form-item :label-width="labelWidth" :label="$t('organization.integration.jira_issuetype')" prop="issuetype">
-      <el-select filterable v-model="form.issueConfigObj.jiraIssueType">
-        <el-option v-for="item in issueTypes" :key="item.id" :label="item.name" :value="item.untranslatedName ? item.untranslatedName : item.name">
+      <el-select filterable v-model="form.issueConfigObj.jiraIssueTypeId">
+        <el-option v-for="item in issueTypes" :key="item.id" :label="item.name" :value="item.id">
         </el-option>
       </el-select>
     </el-form-item>
     <el-form-item :label-width="labelWidth" :label="$t('organization.integration.jira_storytype')" prop="storytype">
-      <el-select filterable v-model="form.issueConfigObj.jiraStoryType">
-        <el-option v-for="item in issueTypes" :key="item.id" :label="item.name" :value="item.untranslatedName ? item.untranslatedName : item.name">
+      <el-select filterable v-model="form.issueConfigObj.jiraStoryTypeId">
+        <el-option v-for="item in issueTypes" :key="item.id" :label="item.name" :value="item.id">
         </el-option>
       </el-select>
     </el-form-item>

@@ -249,7 +249,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         project.put("key", jiraKey);
 
         JSONObject issuetype = new JSONObject();
-        issuetype.put("name", issuetypeStr);
+        issuetype.put("id", issuetypeStr);
         fields.put("issuetype", issuetype);
 
         JSONObject addJiraIssueParam = new JSONObject();
@@ -484,7 +484,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     public String getIssueType(String configStr) {
         ProjectIssueConfig projectConfig = super.getProjectConfig(configStr);
-        String jiraIssueType = projectConfig.getJiraIssueType();
+        String jiraIssueType = projectConfig.getJiraIssueTypeId();
         if (StringUtils.isBlank(jiraIssueType)) {
             MSException.throwException("请在项目中配置 Jira 问题类型！");
         }
@@ -493,7 +493,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     public String getStoryType(String configStr) {
         ProjectIssueConfig projectConfig = super.getProjectConfig(configStr);
-        String jiraStoryType = projectConfig.getJiraStoryType();
+        String jiraStoryType = projectConfig.getJiraStoryTypeId();
        if (StringUtils.isBlank(jiraStoryType)) {
             MSException.throwException("请在项目中配置 Jira 需求类型！");
         }
