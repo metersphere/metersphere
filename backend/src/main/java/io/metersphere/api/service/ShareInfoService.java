@@ -5,8 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.share.*;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ShareInfoMapper;
-import io.metersphere.base.mapper.TestPlanReportMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.ShareType;
@@ -20,7 +19,10 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +53,14 @@ public class ShareInfoService {
     TestPlanReportMapper testPlanReportMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private LoadTestReportMapper loadTestReportMapper;
+    @Lazy
+    @Resource
+    TestPlanReportContentMapper testPlanReportContentMapper;
+    @Lazy
+    @Resource
+    TestPlanMapper testPlanMapper;
 
     public List<ApiDocumentInfoDTO> findApiDocumentSimpleInfoByRequest(ApiDocumentRequest request) {
         if (this.isParamLegitimacy(request)) {
@@ -522,17 +532,27 @@ public class ShareInfoService {
             MSException.throwException(Translator.get("connection_expired"));
         }
         String type = "";
+        String projectId="";
         if(shareInfo.getShareType().equals("PERFORMANCE_REPORT")){
             type = ProjectApplicationType.PERFORMANCE_SHARE_REPORT_TIME.toString();
+            LoadTestReportWithBLOBs loadTestReportWithBLOBs = loadTestReportMapper.selectByPrimaryKey(shareInfo.getCustomData());
+            if(loadTestReportWithBLOBs!=null){
+                projectId = loadTestReportWithBLOBs.getProjectId();
+            }
         }
         if(shareInfo.getShareType().equals("PLAN_DB_REPORT")){
             type = ProjectApplicationType.TRACK_SHARE_REPORT_TIME.toString();
+            TestPlanWithBLOBs testPlan = getTestPlan(shareInfo);
+            if (testPlan != null){
+                projectId = testPlan.getProjectId();
+            };
+
         }
-        if(StringUtils.isBlank(type)){
+        if(StringUtils.isBlank(type)|| Strings.isBlank(projectId)){
             millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime() ,1000 * 60 * 60 * 24,shareInfo.getId());
         }else{
-            ProjectApplication projectApplication = projectApplicationService.getProjectApplication(SessionUtils.getCurrentProjectId(),type);
-            if(projectApplication.getProjectId()==null){
+            ProjectApplication projectApplication = projectApplicationService.getProjectApplication(projectId,type);
+            if(projectApplication.getTypeValue()==null){
                 millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime() ,1000 * 60 * 60 * 24,shareInfo.getId());
             }else {
                 String expr= projectApplication.getTypeValue();
@@ -540,6 +560,23 @@ public class ShareInfoService {
                 millisCheck(System.currentTimeMillis(),timeMills,shareInfo.getId());
             }
         }
+    }
+
+    private TestPlanWithBLOBs getTestPlan(ShareInfo shareInfo) {
+        TestPlanReportContentExample example = new TestPlanReportContentExample();
+        example.createCriteria().andTestPlanReportIdEqualTo(shareInfo.getCustomData());
+        List<TestPlanReportContentWithBLOBs> testPlanReportContents = testPlanReportContentMapper.selectByExampleWithBLOBs(example);
+        if (!CollectionUtils.isEmpty(testPlanReportContents)) {
+            TestPlanReportContentWithBLOBs testPlanReportContent = testPlanReportContents.get(0);
+            if (testPlanReportContent != null) {
+                TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
+                if(testPlanReport!=null){
+                    return testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
+                }
+
+            }
+        }
+        return null;
     }
 
     private void millisCheck(long compareMillis, long millis,String shareInfoId) {
