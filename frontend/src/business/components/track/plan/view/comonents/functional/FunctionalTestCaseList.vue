@@ -287,7 +287,6 @@ import MsTableOperatorButton from "../../../../../common/components/MsTableOpera
 import {TEST_PLAN_TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
 import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
   buildBatchParam,
@@ -451,7 +450,7 @@ export default {
   },
   mounted() {
     this.$emit('setCondition', this.condition);
-    hub.$on("openFailureTestCase", row => {
+    this.$EventBus.$on("openFailureTestCase", row => {
       this.isReadOnly = true;
       this.condition.status = 'Failure';
       this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row, this.tableData);
@@ -463,7 +462,7 @@ export default {
     this.getVersionOptions();
   },
   beforeDestroy() {
-    hub.$off("openFailureTestCase");
+    this.$EventBus.$off("openFailureTestCase");
   },
   methods: {
     nextPage() {
