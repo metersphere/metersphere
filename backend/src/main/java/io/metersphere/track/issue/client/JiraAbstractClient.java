@@ -173,6 +173,13 @@ public abstract class JiraAbstractClient extends BaseClient {
     public void auth() {
         try {
             restTemplate.exchange(getBaseUrl() + "/myself", HttpMethod.GET, getAuthHttpEntity(), String.class);
+        } catch (HttpClientErrorException e) {
+            if (e.getRawStatusCode() == 401) {
+                MSException.throwException(Translator.get("jira_auth_error"));
+            } else {
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException(e.getMessage());
+            }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
