@@ -35,7 +35,7 @@ public abstract class JiraAbstractClient extends BaseClient {
     }
 
     public Map<String, JiraCreateMetadataResponse.Field> getCreateMetadata(String projectKey, String issueType) {
-        String url = getBaseUrl() + "/issue/createmeta?projectKeys={1}&issuetypeNames={2}&expand=projects.issuetypes.fields";
+        String url = getBaseUrl() + "/issue/createmeta?projectKeys={1}&issuetypeIds={2}&expand=projects.issuetypes.fields";
         ResponseEntity<String> response = null;
         Map<String, JiraCreateMetadataResponse.Field> fields = null;
         try {

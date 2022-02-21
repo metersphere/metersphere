@@ -394,7 +394,12 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             // 用户选择框
             return accountId;
         } else {
-            return valObj.getString("id");
+            String id = valObj.getString("id");
+            if (StringUtils.isNotBlank(id)) {
+                return valObj.getString("id");
+            } else {
+                return valObj.getString("key");
+            }
         }
     }
 
