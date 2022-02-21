@@ -1,6 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
+import io.metersphere.api.dto.mock.ApiDefinitionResponseDTO;
 import io.metersphere.api.dto.mock.MockParamSuggestions;
 import io.metersphere.api.dto.mock.MockTestDataRequest;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
@@ -71,9 +72,9 @@ public class MockConfigController {
     }
 
     @GetMapping("/getApiResponse/{id}")
-    public Map<String, String> getApiResponse(@PathVariable String id) {
+    public ApiDefinitionResponseDTO getApiResponse(@PathVariable String id) {
         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionService.getBLOBs(id);
-        Map<String, String> returnMap = MockApiUtils.getApiResponse(apiDefinitionWithBLOBs.getResponse());
+        ApiDefinitionResponseDTO returnMap = MockApiUtils.getApiResponse(apiDefinitionWithBLOBs.getResponse());
         return returnMap;
     }
 
