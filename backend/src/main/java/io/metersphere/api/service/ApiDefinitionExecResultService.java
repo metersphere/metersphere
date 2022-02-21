@@ -66,7 +66,6 @@ public class ApiDefinitionExecResultService {
         LoggerUtil.info("接收到API/CASE执行结果【 " + requestResults.size() + " 】");
 
         for (RequestResult item : requestResults) {
-            item.setEndTime(System.currentTimeMillis());
             if (item.getResponseResult() != null && item.getResponseResult().getResponseTime() <= 0) {
                 item.getResponseResult().setResponseTime((item.getEndTime() - item.getStartTime()));
             }
