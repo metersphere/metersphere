@@ -83,7 +83,6 @@ import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {STEP} from "../scenario/Setting";
-import {scenario} from "@/business/components/track/plan/event-bus";
 
 export default {
   name: "SysnApiReportDetail",
@@ -367,7 +366,7 @@ export default {
       if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
         this.getReport();
         this.messageWebSocket.close();
-        scenario.$emit('hide', this.scenarioId);
+        this.$EventBus.$emit('hide', this.scenarioId);
         this.$emit('refresh', this.debugResult);
       }
     },
