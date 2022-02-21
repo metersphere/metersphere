@@ -131,6 +131,7 @@ public class TrackService {
             testPlanBug.setPlanName(plan.getName());
             testPlanBug.setCreateTime(plan.getCreateTime());
             testPlanBug.setStatus(plan.getStatus());
+            testPlanBug.setPlanId(plan.getId());
 
             int planCaseSize = getPlanCaseSize(plan.getId());
             testPlanBug.setCaseSize(planCaseSize);
