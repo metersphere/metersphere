@@ -65,6 +65,8 @@
         },
         mode() {
           this.format();
+        },
+        readOnly(){
         }
       },
       methods: {
