@@ -83,6 +83,7 @@ public class TCPServicer {
                 LogUtil.error(e);
             }
         }
+        LogUtil.info("TCP-Mock start. port: " + this.port + "; Message:" + message + "; response:" + returnMsg);
         return returnMsg;
     }
 

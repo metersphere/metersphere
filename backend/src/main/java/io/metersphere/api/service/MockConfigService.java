@@ -1116,7 +1116,7 @@ public class MockConfigService {
     public String checkReturnWithMockExpectByBodyParam(String method, Map<String, String> requestHeaderMap, Project project, HttpServletRequest
             request, HttpServletResponse response) {
         String returnStr = "";
-        boolean isMatch = false;
+        boolean matchApi = false;
         String url = request.getRequestURL().toString();
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
@@ -1124,24 +1124,23 @@ public class MockConfigService {
             JSON paramJson = MockApiUtils.getPostParamMap(request);
             JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-                RequestMockParams mockParams = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, true);
-                MockConfigResponse mockConfigData = this.findByApiId(api.getId());
-                MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
-                if (finalExpectConfig != null) {
-                    isMatch = true;
-                    returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
-                    break;
-                }
-                if (!isMatch) {
-                    returnStr = this.getApiDefinitionResponse(api, response);
-                    if (StringUtils.isNotEmpty(returnStr)) {
-                        isMatch = true;
+                if(StringUtils.isEmpty(returnStr)){
+                    RequestMockParams mockParams = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, true);
+                    MockConfigResponse mockConfigData = this.findByApiId(api.getId());
+                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
+                    if (finalExpectConfig != null) {
+                        returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
+                    }else {
+                        returnStr = this.getApiDefinitionResponse(api, response);
                     }
                 }
             }
+            if(CollectionUtils.isNotEmpty(aualifiedApiList)){
+                matchApi = true;
+            }
         }
 
-        if (!isMatch) {
+        if (!matchApi) {
             response.setStatus(404);
             returnStr = Translator.get("mock_warning");
         }
@@ -1151,7 +1150,7 @@ public class MockConfigService {
     public String checkReturnWithMockExpectByUrlParam(String method, Map<String, String> requestHeaderMap, Project project, HttpServletRequest
             request, HttpServletResponse response) {
         String returnStr = "";
-        boolean isMatch = false;
+        boolean matchApi = false;
         String url = request.getRequestURL().toString();
         List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
         if (project != null) {
@@ -1169,27 +1168,26 @@ public class MockConfigService {
             JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
 
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-                RequestMockParams paramMap = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, false);
-
-                MockConfigResponse mockConfigData = this.findByApiId(api.getId());
-                if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
-                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), paramMap);
-                    if (finalExpectConfig != null) {
-                        returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, paramMap, response);
-                        isMatch = true;
-                        break;
-                    }
-                }
-                if (!isMatch) {
-                    returnStr = this.getApiDefinitionResponse(api, response);
-                    if (StringUtils.isNotEmpty(returnStr)) {
-                        isMatch = true;
+                if(StringUtils.isEmpty(returnStr)){
+                    RequestMockParams paramMap = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, false);
+                    MockConfigResponse mockConfigData = this.findByApiId(api.getId());
+                    if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
+                        MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), paramMap);
+                        if (finalExpectConfig != null) {
+                            returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, paramMap, response);
+                        }else {
+                            returnStr = this.getApiDefinitionResponse(api, response);
+                        }
                     }
                 }
             }
+
+            if(CollectionUtils.isNotEmpty(aualifiedApiList)){
+                matchApi = true;
+            }
         }
 
-        if (!isMatch) {
+        if (!matchApi) {
             response.setStatus(404);
             returnStr = Translator.get("mock_warning");
         }
