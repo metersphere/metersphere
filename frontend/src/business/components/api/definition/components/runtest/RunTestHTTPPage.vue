@@ -56,6 +56,7 @@
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
         <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers"
+                             v-if="loadRequest"
                              :request="api.request"/>
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
@@ -111,6 +112,7 @@ export default {
       api: {},
       loaded: false,
       loading: false,
+      loadRequest: true,
       createCase: "",
       currentRequest: {},
       refreshSign: "",
@@ -146,13 +148,31 @@ export default {
         if (param.headers) {
           this.api.request.headers = param.headers;
         }
-        if (param.arguments!==null && param.arguments.length > 0) {
+        if (param.arguments !== null && param.arguments.length > 0) {
+          for (let i = 0; i < param.arguments.length; i++) {
+            if (!param.arguments[i].required) {
+              param.arguments[i].required = true;
+            }
+          }
           this.api.request.arguments = param.arguments;
         }
         if (param.body) {
+          if (param.body.kvs) {
+            for (let i = 0; i < param.body.kvs.length; i++) {
+              if (!param.body.kvs[i].required) {
+                param.body.kvs[i].required = true;
+              }
+            }
+          }
+
           this.api.request.body = param.body;
         }
         if (param.rest) {
+          for (let i = 0; i < param.rest.length; i++) {
+            if (!param.rest[i].required) {
+              param.rest[i].required = true;
+            }
+          }
           this.api.request.rest = param.rest;
         }
       }
@@ -167,6 +187,10 @@ export default {
           });
         })
       }
+      this.loadRequest = false;
+      this.$nextTick(() => {
+        this.loadRequest = true;
+      })
     },
     handleCommand(e) {
       switch (e) {
