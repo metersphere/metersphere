@@ -274,7 +274,7 @@ export default {
     getDemandOptions() {
       if (this.demandOptions.length === 0) {
         this.result = {loading: true};
-        this.$get("demand/list/" + this.projectId).then(response => {
+        this.$get("/issues/demand/list/" + this.projectId).then(response => {
           this.demandOptions = [];
           if (response.data.data && response.data.data.length > 0) {
             this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);

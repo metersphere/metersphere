@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
+import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.jira.JiraIssueType;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
@@ -160,5 +161,10 @@ public class IssuesController {
     @PostMapping("/jira/issuetype")
     public List<JiraIssueType> getJiraIssueType(@RequestBody JiraIssueTypeRequest request) {
         return issuesService.getIssueTypes(request);
+    }
+
+    @GetMapping("/demand/list/{projectId}")
+    public List<DemandDTO> getDemandList(@PathVariable String projectId) {
+        return issuesService.getDemandList(projectId);
     }
 }
