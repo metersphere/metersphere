@@ -116,8 +116,12 @@ export default {
       this.load(instance);
     },
     downloadLogFile(resourceId) {
+      let url = '/performance/report/log/download/' + this.id + '/' + resourceId;
+      if (this.isShare) {
+        url = '/share/performance/report/log/download/' + this.id + '/' + resourceId;
+      }
       let config = {
-        url: '/performance/report/log/download/' + this.id + '/' + resourceId,
+        url: url,
         method: 'get',
         responseType: 'blob'
       };
