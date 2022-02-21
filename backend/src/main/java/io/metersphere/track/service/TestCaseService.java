@@ -1925,12 +1925,18 @@ public class TestCaseService {
         if (CollectionUtils.isNotEmpty(caseIds)) {
             List<IssuesDao> issues = extIssuesMapper.getIssueForMinder(caseIds, refType);
             for (IssuesDao item : issues) {
-                List<IssuesDao> list = issueMap.get(item.getCaseId());
+                String key;
+                if (item.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name())) {
+                    key = item.getRefId();
+                } else {
+                    key = item.getResourceId();
+                }
+                List<IssuesDao> list = issueMap.get(key);
                 if (list == null) {
                     list = new ArrayList<>();
                 }
                 list.add(item);
-                issueMap.put(item.getCaseId(), list);
+                issueMap.put(key, list);
             }
         }
         return issueMap;

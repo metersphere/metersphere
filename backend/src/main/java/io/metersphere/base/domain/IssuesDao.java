@@ -19,4 +19,6 @@ public class IssuesDao extends IssuesWithBLOBs {
     private List<String> tapdUsers;
     private List<String>zentaoBuilds;
     private String zentaoAssigned;
+    private String refType;
+    private String refId;
 }
