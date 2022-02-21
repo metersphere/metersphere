@@ -310,7 +310,6 @@ import {
   getLastTableSortField
 } from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
-import {scenario} from "@/business/components/track/plan/event-bus";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -568,7 +567,7 @@ export default {
   },
   created() {
     this.apiscenariofilters = API_SCENARIO_FILTERS();
-    scenario.$on('hide', id => {
+    this.$EventBus.$on('hide', id => {
       this.hideStopBtn(id);
     });
     this.projectId = getCurrentProjectID();
@@ -617,7 +616,7 @@ export default {
     }
   },
   beforeDestroy() {
-    scenario.$off("hide");
+    this.$EventBus.$off("hide");
   },
   watch: {
     selectNodeIds() {
