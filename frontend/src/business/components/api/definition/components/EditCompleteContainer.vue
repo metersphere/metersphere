@@ -273,7 +273,12 @@ export default {
       this.reload();
     },
     changeTab(tabType) {
+      this.beforeChangeTab();
       this.refreshButtonActiveClass(tabType);
+    },
+    beforeChangeTab(){
+      //关闭接口用例弹窗
+      this.$refs.caseList.close();
     },
     redirectToTest(param) {
       this.refreshButtonActiveClass("test");

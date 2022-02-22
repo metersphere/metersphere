@@ -32,7 +32,9 @@
                 <p class="tip">{{ $t('api_test.mock.rsp_param') }}</p>
               </el-col>
               <el-col :span="12">
-                <el-button class="ms-right-buttion" size="small" @click="addPostScript">+{{$t('api_test.definition.request.post_script')}}</el-button>
+                <el-button class="ms-right-buttion" size="small" @click="addPostScript">
+                  +{{ $t('api_test.definition.request.post_script') }}
+                </el-button>
               </el-col>
             </el-row>
             <el-row>
@@ -131,7 +133,7 @@ export default {
   },
   computed: {},
   methods: {
-    addPostScript(){
+    addPostScript() {
       this.$refs.mockResponseParam.setUsePostScript();
     },
     uuid: function () {
@@ -212,13 +214,15 @@ export default {
         }
       }
       this.showDrawer = true;
-      this.$refs.mockDrawer.setfullScreen();
+      this.$nextTick(() => {
+        this.$refs.mockDrawer.setfullScreen();
+      });
     },
     close() {
       this.showDrawer = false;
     },
     saveMockExpectConfig() {
-      if(this.isTcp && this.$refs.tcpParam){
+      if (this.isTcp && this.$refs.tcpParam) {
         this.$refs.tcpParam.saveData();
       }
       let mockConfigId = this.mockConfigId;
