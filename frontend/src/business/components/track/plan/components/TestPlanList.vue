@@ -499,10 +499,12 @@ export default {
       this.cardResult = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
-        this.tableData = data.listObject;
-        this.tableData.forEach(item => {
-          if (item.tags && item.tags.length > 0) {
+        data.listObject.forEach(item => {
+          if (item.tags) {
             item.tags = JSON.parse(item.tags);
+            if(item.tags.length===0){
+              item.tags = null;
+            }
           }
           item.passRate = item.passRate + '%';
           this.$get("/test/plan/principal/" + item.id, res => {
@@ -546,6 +548,7 @@ export default {
             this.$set(item, "showFollow", showFollow);
           })
         });
+        this.tableData =data.listObject;
       });
     },
     copyData(status) {
