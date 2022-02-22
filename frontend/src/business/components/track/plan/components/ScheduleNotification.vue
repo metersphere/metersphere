@@ -153,13 +153,13 @@ export default {
         '<body>\n' +
         '<div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        ${operator}执行接口测试成功: ${name}, 报告: ${reportUrl}' +
+        '        ${operator}执行接口测试成功: ${name}, 报告: ${planShareUrl}' +
         '    </div>\n' +
         '\n' +
         '</div>\n' +
         '</body>\n' +
         '</html>',
-      robotTitle: "${operator}执行接口测试成功: ${name}, 报告: ${reportUrl}",
+      robotTitle: "${operator}执行接口测试成功: ${name}, 报告: ${planShareUrl}",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",
@@ -264,6 +264,10 @@ export default {
         {
           label: this.$t('test_track.pass_rate'),
           value: 'passRate',
+        },
+        {
+          label: this.$t('report.plan_share_url'),
+          value: 'planShareUrl',
         },
       ],
     };
