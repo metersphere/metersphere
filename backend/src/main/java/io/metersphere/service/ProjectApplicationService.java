@@ -50,7 +50,7 @@ public class ProjectApplicationService {
         ProjectApplicationExample projectApplicationExample = new ProjectApplicationExample();
         projectApplicationExample.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(type);
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(projectApplicationExample);
-        if(projectApplications==null||projectApplications.size()==0){
+        if(projectApplications == null || projectApplications.size() == 0){
             return new ProjectApplication();
         }
         return projectApplications.get(0);
