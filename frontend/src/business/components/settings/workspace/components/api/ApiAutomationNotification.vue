@@ -279,7 +279,7 @@ export default {
           value: 'deleteUserId',
         },
         {
-          label: this.$t('test_track.plan.execute_time'),
+          label: this.$t('commons.execution_times'),
           value: 'executeTimes',
         },
         {

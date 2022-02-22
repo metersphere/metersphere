@@ -60,7 +60,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook"  size="mini"
+              <el-input v-model="scope.row.webhook" size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -183,116 +183,116 @@ export default {
       ],
       variables: [
         {
-          label:this.$t('group.operator'),
-          value:'operator',
+          label: this.$t('group.operator'),
+          value: 'operator',
         },
         {
-          label:'id',
-          value:'id',
+          label: 'id',
+          value: 'id',
         },
         {
-          label:this.$t('load_test.report.url'),
-          value:'reportUrl',
+          label: this.$t('load_test.report.url'),
+          value: 'reportUrl',
         },
         {
-          label:this.$t('project.id'),
-          value:'projectId',
+          label: this.$t('project.id'),
+          value: 'projectId',
         },
         {
-          label:this.$t('commons.tag'),
-          value:'tags',
+          label: this.$t('commons.tag'),
+          value: 'tags',
         },
         {
-          label:this.$t('user.id'),
-          value:'userId',
+          label: this.$t('user.id'),
+          value: 'userId',
         },
         {
-          label:this.$t('api_test.scenario.module_id'),
-          value:'apiScenarioModuleId',
+          label: this.$t('api_test.scenario.module_id'),
+          value: 'apiScenarioModuleId',
         },
         {
-          label:this.$t('module.path'),
-          value:'modulePath',
+          label: this.$t('module.path'),
+          value: 'modulePath',
         },
         {
-          label:this.$t('commons.name'),
-          value:'name',
+          label: this.$t('commons.name'),
+          value: 'name',
         },
         {
-          label:this.$t('commons.level'),
-          value:'level',
+          label: this.$t('commons.level'),
+          value: 'level',
         },
         {
-          label:this.$t('commons.status'),
-          value:'status',
+          label: this.$t('commons.status'),
+          value: 'status',
         },
         {
-          label:this.$t('api_test.automation.scenario.principal'),
-          value:'principal',
+          label: this.$t('api_test.automation.scenario.principal'),
+          value: 'principal',
         },
         {
-          label:this.$t('api_test.automation.step_total'),
-          value:'stepTotal',
+          label: this.$t('api_test.automation.step_total'),
+          value: 'stepTotal',
         },
         {
-          label:this.$t('api_test.automation.schedule'),
-          value:'schedule',
+          label: this.$t('api_test.automation.schedule'),
+          value: 'schedule',
         },
         {
-          label:this.$t('commons.create_time'),
-          value:'createTime',
+          label: this.$t('commons.create_time'),
+          value: 'createTime',
         },
         {
-          label:this.$t('commons.update_time'),
-          value:'updateTime',
+          label: this.$t('commons.update_time'),
+          value: 'updateTime',
         },
         {
-          label:this.$t('test_track.pass_rate'),
-          value:'passRate',
+          label: this.$t('test_track.pass_rate'),
+          value: 'passRate',
         },
         {
-          label:this.$t('api_test.automation.last_result'),
-          value:'lastResult',
+          label: this.$t('api_test.automation.last_result'),
+          value: 'lastResult',
         },
         {
-          label:this.$t('report.id'),
-          value:'reportId',
+          label: this.$t('report.id'),
+          value: 'reportId',
         },
         {
-          label:this.$t('test_track.case.number'),
-          value:'num',
+          label: this.$t('test_track.case.number'),
+          value: 'num',
         },
         {
-          label:this.$t('commons.original_state'),
-          value:'originalState',
+          label: this.$t('commons.original_state'),
+          value: 'originalState',
         },
         {
-          label:this.$t('commons.custom_num'),
-          value:'customNum',
+          label: this.$t('commons.custom_num'),
+          value: 'customNum',
         },
         {
-          label:this.$t('commons.create_user'),
-          value:'createUser',
+          label: this.$t('commons.create_user'),
+          value: 'createUser',
         },
         {
-          label:this.$t('commons.version'),
-          value:'version',
+          label: this.$t('commons.version'),
+          value: 'version',
         },
         {
-          label:this.$t('commons.delete_time'),
-          value:'deleteTime',
+          label: this.$t('commons.delete_time'),
+          value: 'deleteTime',
         },
         {
-          label:this.$t('commons.delete_user_id'),
-          value:'deleteUserId',
+          label: this.$t('commons.delete_user_id'),
+          value: 'deleteUserId',
         },
         {
-          label:this.$t('test_track.plan.execute_time'),
-          value:'executeTimes',
+          label: this.$t('commons.execution_times'),
+          value: 'executeTimes',
         },
         {
-          label:this.$t('api_test.definition.document.order'),
-          value:'order',
+          label: this.$t('api_test.definition.document.order'),
+          value: 'order',
         },
         {
           label: this.$t('api_test.environment.environment_type'),
