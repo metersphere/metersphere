@@ -20,7 +20,7 @@
         :screen-height="screenHeight"
         @row-click="clickRow"
         row-key="id"
-        operator-width="120px"
+        operator-width="170px"
         ref="table"
       >
 
