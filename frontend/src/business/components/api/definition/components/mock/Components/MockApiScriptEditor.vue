@@ -34,6 +34,7 @@ import MsDropdown from "@/business/components/common/components/MsDropdown";
 import CustomFunctionRelate from "@/business/components/project/menu/function/CustomFunctionRelate";
 import ApiFuncRelevance from "@/business/components/project/menu/function/ApiFuncRelevance";
 import MockScriptNavMenu from "@/business/components/api/definition/components/mock/Components/MockScriptNavMenu";
+import i18n from "@/i18n/i18n";
 
 export default {
   name: "MockApiScriptEditor",
@@ -110,6 +111,19 @@ export default {
               value: this.getScript("rest"),
             },
 
+          ]
+        },
+        {
+          title: i18n.t('project.code_segment.custom_value'),
+          children: [
+            {
+              title: i18n.t('api_test.request.processor.code_template_get_variable'),
+              value: 'vars.get("variable_name");',
+            },
+            {
+              title: i18n.t('api_test.request.processor.code_template_set_variable'),
+              value: 'vars.put("variable_name", "variable_value");',
+            },
           ]
         },
         {
