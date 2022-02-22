@@ -211,7 +211,8 @@ export default {
     changeDisplay(fileName) {
       if (fileName === 'number of received messages') {
         this.pluginForm.hidden(true, "conditionTime");
-      } else {
+      }
+      if (fileName === 'specified elapsed time (ms)') {
         this.pluginForm.hidden(false, "conditionTime");
       }
     },
@@ -307,8 +308,11 @@ export default {
             }
             this.option.submitBtn = {show: false};
             this.request.clazzName = plugin.clazzName;
-            if (this.request && this.request.active && this.pluginForm && this.pluginForm.setValue instanceof Function) {
+            if (this.request && this.pluginForm && this.pluginForm.setValue instanceof Function) {
               this.pluginForm.setValue(this.request);
+            }
+            if (this.request.condition) {
+              this.changeDisplay(this.request.condition);
             }
           } else {
             this.request.enable = false;
@@ -343,6 +347,9 @@ export default {
       this.request.active = !this.request.active;
       if (this.request && this.request.active && this.pluginForm && this.pluginForm.setValue instanceof Function) {
         this.pluginForm.setValue(this.request);
+      }
+      if (this.request.condition) {
+        this.changeDisplay(this.request.condition);
       }
     },
   }
