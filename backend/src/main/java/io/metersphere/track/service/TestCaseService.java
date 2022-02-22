@@ -866,25 +866,12 @@ public class TestCaseService {
             testCaseNames.add(testCase.getName());
         }
 
-        if (!request.isIgnore()) {
-            QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
-            queryMemberRequest.setProjectId(projectId);
-            userIds = userService.getProjectMemberList(queryMemberRequest)
-                    .stream()
-                    .map(User::getId)
-                    .collect(Collectors.toSet());
-        } else {
-            GroupExample groupExample = new GroupExample();
-            groupExample.createCriteria().andTypeIn(Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
-            List<Group> groups = groupMapper.selectByExample(groupExample);
-            List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
-
-            UserGroupExample userGroupExample = new UserGroupExample();
-            userGroupExample.createCriteria()
-                    .andGroupIdIn(groupIds)
-                    .andSourceIdEqualTo(project.getWorkspaceId());
-            userIds = userGroupMapper.selectByExample(userGroupExample).stream().map(UserGroup::getUserId).collect(Collectors.toSet());
-        }
+        QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
+        queryMemberRequest.setProjectId(projectId);
+        userIds = userService.getProjectMemberList(queryMemberRequest)
+                .stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
 
         try {
             //根据本地语言环境选择用哪种数据对象进行存放读取的数据
@@ -930,7 +917,7 @@ public class TestCaseService {
                 Integer num = importCreateNum.get();
                 Integer beforeInsertId = beforeImportCreateNum.get();
 
-                for (int i = testCases.size() - 1; i > - 1; i--) { // 反向遍历，保持和文件顺序一致
+                for (int i = testCases.size() - 1; i > -1; i--) { // 反向遍历，保持和文件顺序一致
                     TestCaseWithBLOBs testCase = testCases.get(i);
                     testCase.setId(UUID.randomUUID().toString());
                     testCase.setCreateUser(SessionUtils.getUserId());
