@@ -17,7 +17,7 @@
                 <el-row :gutter="20">
                   <el-col :span="18">
                     <el-tooltip effect="dark" placement="bottom"
-                                :content="schedule.enable?$t('commons.close_schedule'):$t('commons.open_schedule')">
+                                :content="schedule.enable ? $t('commons.close_schedule') : $t('commons.open_schedule')">
                       <el-switch v-model="schedule.enable"></el-switch>
                     </el-tooltip>
                   </el-col>
@@ -398,7 +398,7 @@ export default {
       removeGoBackListener(this.close);
     },
     intervalShortValidate() {
-      if (this.getIntervalTime() < 3 * 60 * 1000) {
+      if (this.schedule.enable && this.getIntervalTime() < 3 * 60 * 1000) {
         // return false;
         this.$info(this.$t('schedule.cron_expression_interval_short_error'));
       }
