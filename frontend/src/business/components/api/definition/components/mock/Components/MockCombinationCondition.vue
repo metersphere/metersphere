@@ -38,8 +38,8 @@ export default {
       lineDivMarginTopHeight: 0,
       lineDivBottomHeight: 0,
       filterTypes: [
-        {id: 'And', label: 'And'},
-        {id: 'Or', label: 'Or'},
+        {id: 'And', label: 'AND'},
+        {id: 'Or', label: 'OR'},
       ],
     }
   },
