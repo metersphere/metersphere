@@ -264,7 +264,14 @@ import {
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
-import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId, getUUID, hasLicense} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUserId,
+  getCurrentWorkspaceId,
+  getUUID,
+  hasLicense,
+  parseTag
+} from "@/common/js/utils";
 import {getTestTemplate} from "@/network/custom-field-template";
 import {getProjectMember} from "@/network/user";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -758,46 +765,23 @@ export default {
       if (this.projectId) {
         this.condition.projectId = this.projectId;
         this.$emit('setCondition', this.condition);
+        let url = '/test/case/list';
         if (this.publicEnable) {
+          url = '/test/case/publicList';
           this.condition.casePublic = true;
           this.condition.workspaceId = getCurrentWorkspaceId();
-          this.page.result = this.$post(this.buildPagePath('/test/case/publicList'), this.condition, response => {
-            let data = response.data;
-            this.page.total = data.itemCount;
-            this.page.data = data.listObject;
-            this.page.data.forEach(item => {
-              if (item.customFields) {
-                item.customFields = JSON.parse(item.customFields);
-              }
-            });
-            this.page.data.forEach((item) => {
-              try {
-                item.tags = JSON.parse(item.tags);
-              } catch (e) {
-                item.tags = [];
-              }
-            });
-          })
-        } else {
-          this.page.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
-            let data = response.data;
-            this.page.total = data.itemCount;
-            this.page.data = data.listObject;
-            this.page.data.forEach(item => {
-              if (item.customFields) {
-                item.customFields = JSON.parse(item.customFields);
-              }
-            });
-            this.page.data.forEach((item) => {
-              try {
-                item.tags = JSON.parse(item.tags);
-              } catch (e) {
-                item.tags = [];
-              }
-
-            });
-          });
         }
+        this.page.result = this.$post(this.buildPagePath(url), this.condition, response => {
+          let data = response.data;
+          this.page.total = data.itemCount;
+          this.page.data = data.listObject;
+          this.page.data.forEach(item => {
+            if (item.customFields) {
+              item.customFields = JSON.parse(item.customFields);
+            }
+          });
+          parseTag(this.page.data);
+        });
         this.$emit("getTrashList");
         this.$emit("getPublicList")
       }
