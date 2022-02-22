@@ -564,7 +564,7 @@ export default {
       let tab = this.apiTabs;
       delete tab[0];
       tab.forEach(t => {
-        if (t.api && this.$store.state.apiMap.has(t.api.id) && (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
+        if (t.type === 'ADD' && t.api && this.$store.state.apiMap.has(t.api.id) && (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
           this.$store.state.apiMap.get(t.api.id).get("fromChange") === true)) {
           message += t.api.name + "，";
         }
