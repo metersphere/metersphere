@@ -219,7 +219,7 @@ export default {
           data: {
             text: nodeData.name,
             id: nodeData.id,
-            disable: this.moduleDisable,
+            disable: this.moduleDisable || nodeData.id === 'root',
             tagEnable: this.tagEnable,
             type: 'node',
             level: nodeData.level,
