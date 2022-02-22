@@ -132,6 +132,11 @@ export default {
         this.maintainerOptions = response.data;
       });
     },
+    close(){
+      if(this.$refs.testCaseDrawer){
+        this.$refs.testCaseDrawer.close();
+      }
+    },
     open(api, testCaseId) {
       this.api = api;
       // testCaseId 不为空则为用例编辑页面

@@ -212,7 +212,9 @@ export default {
         }
       }
       this.showDrawer = true;
-      this.$refs.mockDrawer.setfullScreen();
+      this.$nextTick( ()=> {
+        this.$refs.mockDrawer.setfullScreen();
+      });
     },
     close() {
       this.showDrawer = false;
