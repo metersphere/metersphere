@@ -25,6 +25,7 @@
                 :value.sync="data"
                 @prefix-change="change"
                 @prefix-click="change"
+                @display-change="changeDisplay"
                 @prefix-visible-change="visibleChange"
               />
             </div>
@@ -205,7 +206,14 @@ export default {
   methods: {
     blur(d) {
     },
-    change(d) {
+    change(fileName) {
+    },
+    changeDisplay(fileName) {
+      if (fileName === 'number of received messages') {
+        this.pluginForm.hidden(true, "conditionTime");
+      } else {
+        this.pluginForm.hidden(false, "conditionTime");
+      }
     },
     run() {
       if (this.isApiImport || this.request.isRefEnvironment) {
