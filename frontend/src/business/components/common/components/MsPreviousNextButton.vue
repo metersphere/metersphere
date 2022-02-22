@@ -20,7 +20,7 @@
       name: "MsPreviousNextButton",
       data() {
         return {
-
+          countNum: 1
         }
       },
       props: {
@@ -61,9 +61,9 @@
           }
         }
       },
-      computed: {
-        countNum() {
-          return this.pageSize * (this.pageNum - 1) + this.index + 1;
+      watch: {
+        index() {
+          this.countNum = this.pageSize * (this.pageNum - 1) + this.index + 1;
         }
       },
       methods: {
