@@ -140,6 +140,11 @@ export default {
       this.getApiTest(true);
       this.visible = true;
       this.$store.state.currentApiCase = undefined;
+
+      //默认最大化
+      this.$nextTick(() => {
+        this.$refs.testCaseDrawer.setfullScreen();
+      });
     },
     add(api) {
       this.api = api;
@@ -169,6 +174,11 @@ export default {
       this.condition = {components: API_CASE_CONFIGS};
       this.sysAddition(apiCase);
       this.visible = true;
+
+      //默认最大化
+      this.$nextTick(() => {
+        this.$refs.testCaseDrawer.setfullScreen();
+      });
     },
     runTestCase(api, testCaseId) {
       if (api && testCaseId) {
@@ -195,6 +205,11 @@ export default {
       this.api = api;
       this.currentApi = api;
       this.addCase();
+
+      //默认最大化
+      this.$nextTick(() => {
+        this.$refs.testCaseDrawer.setfullScreen();
+      });
     },
     setEnvironment(environment) {
       this.environment = environment;

@@ -235,94 +235,96 @@ public class MockApiUtils {
         if (StringUtils.isNotEmpty(response)) {
             try {
                 JSONObject respObj = JSONObject.parseObject(response);
-                if (respObj.containsKey("body")) {
-                    String returnStr = "";
-                    JSONObject bodyObj = respObj.getJSONObject("body");
-                    if (bodyObj.containsKey("type")) {
-                        String type = bodyObj.getString("type");
-                        if (StringUtils.equals(type, "JSON")) {
-                            //判断是否是JsonSchema
-                            boolean isJsonSchema = false;
-                            if (bodyObj.containsKey("format")) {
-                                String foramtValue = String.valueOf(bodyObj.get("format"));
-                                if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
-                                    isJsonSchema = true;
+                if(respObj != null){
+                    if (respObj.containsKey("body")) {
+                        String returnStr = "";
+                        JSONObject bodyObj = respObj.getJSONObject("body");
+                        if (bodyObj.containsKey("type")) {
+                            String type = bodyObj.getString("type");
+                            if (StringUtils.equals(type, "JSON")) {
+                                //判断是否是JsonSchema
+                                boolean isJsonSchema = false;
+                                if (bodyObj.containsKey("format")) {
+                                    String foramtValue = String.valueOf(bodyObj.get("format"));
+                                    if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
+                                        isJsonSchema = true;
+                                    }
                                 }
-                            }
-                            if (isJsonSchema) {
-                                if (bodyObj.containsKey("jsonSchema") && bodyObj.getJSONObject("jsonSchema").containsKey("properties")) {
-                                    String bodyRetunStr = bodyObj.getJSONObject("jsonSchema").getJSONObject("properties").toJSONString();
-                                    JSONObject bodyReturnObj = JSONObject.parseObject(bodyRetunStr);
-                                    JSONObject returnObj = MockApiUtils.parseJsonSchema(bodyReturnObj);
-                                    returnStr = returnObj.toJSONString();
+                                if (isJsonSchema) {
+                                    if (bodyObj.containsKey("jsonSchema") && bodyObj.getJSONObject("jsonSchema").containsKey("properties")) {
+                                        String bodyRetunStr = bodyObj.getJSONObject("jsonSchema").getJSONObject("properties").toJSONString();
+                                        JSONObject bodyReturnObj = JSONObject.parseObject(bodyRetunStr);
+                                        JSONObject returnObj = MockApiUtils.parseJsonSchema(bodyReturnObj);
+                                        returnStr = returnObj.toJSONString();
+                                    }
+                                } else {
+                                    if (bodyObj.containsKey("raw")) {
+                                        returnStr = bodyObj.getString("raw");
+                                    }
                                 }
-                            } else {
+                            } else if (StringUtils.equalsAny(type, "XML", "Raw")) {
                                 if (bodyObj.containsKey("raw")) {
-                                    returnStr = bodyObj.getString("raw");
+                                    String raw = bodyObj.getString("raw");
+                                    returnStr = raw;
                                 }
-                            }
-                        } else if (StringUtils.equalsAny(type, "XML", "Raw")) {
-                            if (bodyObj.containsKey("raw")) {
-                                String raw = bodyObj.getString("raw");
-                                returnStr = raw;
-                            }
-                        } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
-                            Map<String, String> paramMap = new LinkedHashMap<>();
-                            if (bodyObj.containsKey("kvs")) {
-                                JSONArray bodyParamArr = new JSONArray();
-                                JSONArray kvsArr = bodyObj.getJSONArray("kvs");
-                                for (int i = 0; i < kvsArr.size(); i++) {
-                                    JSONObject kv = kvsArr.getJSONObject(i);
-                                    if (kv.containsKey("name")) {
-                                        String values = kv.getString("value");
-                                        if (StringUtils.isEmpty(values)) {
-                                            values = "";
-                                        } else {
-                                            try {
-                                                values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
-                                            } catch (Exception e) {
+                            } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
+                                Map<String, String> paramMap = new LinkedHashMap<>();
+                                if (bodyObj.containsKey("kvs")) {
+                                    JSONArray bodyParamArr = new JSONArray();
+                                    JSONArray kvsArr = bodyObj.getJSONArray("kvs");
+                                    for (int i = 0; i < kvsArr.size(); i++) {
+                                        JSONObject kv = kvsArr.getJSONObject(i);
+                                        if (kv.containsKey("name")) {
+                                            String values = kv.getString("value");
+                                            if (StringUtils.isEmpty(values)) {
+                                                values = "";
+                                            } else {
+                                                try {
+                                                    values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
+                                                } catch (Exception e) {
+                                                }
                                             }
+                                            paramMap.put(kv.getString("name"), values);
                                         }
-                                        paramMap.put(kv.getString("name"), values);
+                                    }
+                                }
+                                returnStr = JSONObject.toJSONString(paramMap);
+                            }
+                        }
+                        responseDTO.setReturnData(returnStr);
+                    }
+                    if (respObj.containsKey("statusCode")) {
+                        JSONArray statusCodeArray = respObj.getJSONArray("statusCode");
+                        int code = 200;
+                        if (statusCodeArray != null) {
+                            for (int i = 0; i < statusCodeArray.size(); i++) {
+                                JSONObject object = statusCodeArray.getJSONObject(i);
+                                if (object.containsKey("name")) {
+                                    try {
+                                        code = Integer.parseInt(object.getString("name"));
+                                        break;
+                                    } catch (Exception e) {
+                                        LogUtil.error(e);
                                     }
                                 }
                             }
-                            returnStr = JSONObject.toJSONString(paramMap);
                         }
+                        responseDTO.setReturnCode(code);
                     }
-                    responseDTO.setReturnData(returnStr);
-                }
-                if (respObj.containsKey("statusCode")) {
-                    JSONArray statusCodeArray = respObj.getJSONArray("statusCode");
-                    int code = 200;
-                    if (statusCodeArray != null) {
-                        for (int i = 0; i < statusCodeArray.size(); i++) {
-                            JSONObject object = statusCodeArray.getJSONObject(i);
-                            if (object.containsKey("name")) {
-                                try {
-                                    code = Integer.parseInt(object.getString("name"));
-                                    break;
-                                } catch (Exception e) {
-                                    LogUtil.error(e);
+                    if(respObj.containsKey("headers")){
+                        JSONArray jsonArray = respObj.getJSONArray("headers");
+                        Map<String,String> headMap = new HashMap<>();
+                        for(int i = 0; i < jsonArray.size(); i ++){
+                            JSONObject headObj = jsonArray.getJSONObject(i);
+                            if(headObj.containsKey("name") && headObj.containsKey("value") && headObj.containsKey("enable")){
+                                boolean enable = headObj.getBoolean("enable");
+                                if(enable){
+                                    headMap.put(headObj.getString("name"),headObj.getString("value"));
                                 }
                             }
                         }
+                        responseDTO.setHeaders(headMap);
                     }
-                    responseDTO.setReturnCode(code);
-                }
-                if(respObj.containsKey("headers")){
-                    JSONArray jsonArray = respObj.getJSONArray("headers");
-                    Map<String,String> headMap = new HashMap<>();
-                    for(int i = 0; i < jsonArray.size(); i ++){
-                        JSONObject headObj = jsonArray.getJSONObject(i);
-                        if(headObj.containsKey("name") && headObj.containsKey("value") && headObj.containsKey("enable")){
-                            boolean enable = headObj.getBoolean("enable");
-                            if(enable){
-                                headMap.put(headObj.getString("name"),headObj.getString("value"));
-                            }
-                        }
-                    }
-                    responseDTO.setHeaders(headMap);
                 }
             } catch (Exception e) {
                 MSException.throwException(e);

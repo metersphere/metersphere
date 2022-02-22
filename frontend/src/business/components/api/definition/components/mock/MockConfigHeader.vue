@@ -3,6 +3,7 @@
     <el-card>
       <el-row>
         <el-col :span="1">
+          <span style="color: #f56c6c">*</span>
           {{ $t('commons.name') }}
         </el-col>
         <el-col :span="9">
