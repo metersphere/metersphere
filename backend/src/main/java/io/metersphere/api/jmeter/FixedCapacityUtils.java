@@ -45,7 +45,7 @@ public class FixedCapacityUtils {
             Long endTime = System.currentTimeMillis();
             Long finalStartTime = startTime;
             String logMessage = FixedCapacityUtils.fixedCapacityCache.entrySet().stream()
-                    .filter(map -> map.getKey() > finalStartTime && map.getKey() < endTime)
+                    .filter(map -> map.getKey() > finalStartTime && map.getKey() <= endTime)
                     .map(map -> map.getValue()).collect(Collectors.joining());
             return logMessage;
         } catch (Exception e) {
