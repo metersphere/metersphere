@@ -341,9 +341,12 @@ name: "TestCaseMinder",
       let isChange = false;
 
       let nodeId = parent ? (parent.newId ? parent.newId : parent.id) : "";
-      let priorityDefaultValue = (data.priority ? 'P' + data.priority - 1 :
-        (this.testCaseDefaultValue['用例等级'] ? this.testCaseDefaultValue['用例等级'] : 'P' + 0)
-      );
+      let priorityDefaultValue;
+      if (data.priority ) {
+        priorityDefaultValue = 'P' + (data.priority - 1);
+      } else {
+        priorityDefaultValue = this.testCaseDefaultValue['用例等级'] ? this.testCaseDefaultValue['用例等级'] : 'P' + 0;
+      }
 
       let testCase = {
         id: data.id,
