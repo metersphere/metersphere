@@ -993,7 +993,7 @@ export default {
 .ms-opt-btn {
   position: fixed;
   right: 50px;
-  z-index: 1;
+  z-index: 9;
 }
 
 .ms-tree >>> .el-tree-node__expand-icon.expanded {
