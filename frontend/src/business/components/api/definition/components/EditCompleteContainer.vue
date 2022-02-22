@@ -219,7 +219,7 @@ export default {
       if (this.currentApi.request != null && this.currentApi.request != 'null' && this.currentApi.request != undefined) {
         if (Object.prototype.toString.call(this.currentApi.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
           this.currentApi.request = JSON.parse(this.currentApi.request);
-          if (!this.currentApi.request.body.type) {
+          if (this.currentApi.request.body && !this.currentApi.request.body.type) {
             let tempRequest = _.cloneDeep(this.currentApi.request);
             tempRequest.body = {type: null};
             this.currentApi.request = tempRequest;
