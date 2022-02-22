@@ -2,11 +2,18 @@ package io.metersphere.api.mock.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.mock.RequestMockParams;
+import io.metersphere.base.domain.JarConfig;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.service.JarConfigService;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,23 +43,66 @@ public class MockScriptEngineUtils {
         }
     }
 
+    public void loadJar(String jarPath) throws Exception {
+        File jarFile = new File(jarPath);
+        // 从URLClassLoader类中获取类所在文件夹的方法，jar也可以认为是一个文件夹
+        Method method = null;
+        try {
+            method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+        } catch (NoSuchMethodException | SecurityException e1) {
+            e1.printStackTrace();
+        }
+        // 获取方法的访问权限以便写回
+        boolean accessible = method.isAccessible();
+        try {
+            method.setAccessible(true);
+            // 获取系统类加载器
+            URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+            URL url = jarFile.toURI().toURL();
+            method.invoke(classLoader, url);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            method.setAccessible(accessible);
+        }
+    }
+
+    /**
+     * 加载jar包
+     */
+    private void loadJars() {
+        JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
+        if (jarConfigService != null) {
+            List<JarConfig> jars = jarConfigService.list();
+            jars.forEach(jarConfig -> {
+                try {
+                    this.loadJar(jarConfig.getPath());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    LogUtil.error(e.getMessage(), e);
+                }
+            });
+        }
+    }
+
     public ScriptEngine getBaseScriptEngine(String scriptLanguage, String url, Map<String, String> headerMap, RequestMockParams requestMockParams) {
         ScriptEngine engine = null;
         try {
             if (StringUtils.isEmpty(scriptLanguage)) {
                 return null;
             }
+            String preScript = "";
             if (StringUtils.equalsIgnoreCase(scriptLanguage, "beanshell")) {
                 ScriptEngineManager scriptEngineFactory = new ScriptEngineManager();
-                engine = scriptEngineFactory.getEngineByName(scriptLanguage);
-                String preScript = this.genBeanshellPreScript(url, headerMap, requestMockParams);
-                engine.eval(preScript);
+                engine = scriptEngineFactory.getEngineByName("beanshell");
+                preScript = this.genBeanshellPreScript(url, headerMap, requestMockParams);
             } else if (StringUtils.equalsIgnoreCase(scriptLanguage, "python")) {
                 ScriptEngineManager scriptEngineFactory = new ScriptEngineManager();
                 engine = scriptEngineFactory.getEngineByName(scriptLanguage);
-                String preScript = this.genPythonPreScript(url, headerMap, requestMockParams);
-                engine.eval(preScript);
+                preScript = this.genPythonPreScript(url, headerMap, requestMockParams);
             }
+            this.loadJars();
+            engine.eval(preScript);
         } catch (Exception e) {
             LogUtil.error(e);
         }
