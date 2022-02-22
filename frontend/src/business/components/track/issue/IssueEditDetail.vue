@@ -155,7 +155,7 @@ export default {
       rules: {
         title: [
           {required: true, message: this.$t('commons.please_fill_content'), trigger: 'blur'},
-          {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
+          {max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}
         ],
         description: [
           {required: true, message: this.$t('commons.please_fill_content'), trigger: 'blur'},
