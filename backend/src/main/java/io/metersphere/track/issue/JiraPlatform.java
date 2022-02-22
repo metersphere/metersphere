@@ -591,9 +591,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
                     msDefaultValue = defaultList;
                 } else {
                     if (customFieldDao.getType().equals(CustomFieldType.DATE.getValue())) {
-                        msDefaultValue = Instant.ofEpochMilli((Long) defaultValue).atZone(ZoneId.systemDefault()).toLocalDate();
+                        if (defaultValue instanceof String) {
+                            msDefaultValue = defaultValue;
+                        } else {
+                            msDefaultValue = Instant.ofEpochMilli((Long) defaultValue).atZone(ZoneId.systemDefault()).toLocalDate();
+                        }
                     } else if (customFieldDao.getType().equals(CustomFieldType.DATETIME.getValue())) {
-                        msDefaultValue = LocalDateTime.ofInstant(Instant.ofEpochMilli((Long) defaultValue), ZoneId.systemDefault()).toString();
+                        if (defaultValue instanceof String) {
+                            msDefaultValue = defaultValue;
+                        } else {
+                            msDefaultValue = LocalDateTime.ofInstant(Instant.ofEpochMilli((Long) defaultValue), ZoneId.systemDefault()).toString();
+                        }
                     } else {
                         msDefaultValue = defaultValue;
                     }
