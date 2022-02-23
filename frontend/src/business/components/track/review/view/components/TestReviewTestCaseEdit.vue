@@ -289,7 +289,6 @@ export default {
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
       param.status = status;
-      //reviewComment
       if (status === 'UnPass') {
         if ((this.testCase.reviewStatus === 'Pass' || this.testCase.reviewStatus === 'Prepare') && this.$refs.reviewComment.form.description.length < 1) {
           this.oldReviewStatus = this.testCase.reviewStatus;
@@ -306,9 +305,6 @@ export default {
             this.$success(this.$t('commons.save_success'));
             this.updateTestCases(param);
             this.setReviewStatus(this.testCase.reviewId);
-            // // 修改当前用例的评审状态
-            // this.testCase.reviewStatus = status;
-            // 修改当前用例在整个用例列表的状态
             this.testCases[this.index].reviewStatus = status;
             if (this.index < this.testCases.length - 1) {
               this.handleNext();
@@ -323,9 +319,7 @@ export default {
           this.$success(this.$t('commons.save_success'));
           this.updateTestCases(param);
           this.setReviewStatus(this.testCase.reviewId);
-          // 修改当前用例的评审状态
           this.testCase.reviewStatus = status;
-          // 修改当前用例在整个用例列表的状态
           this.testCases[this.index].reviewStatus = status;
           if (this.index < this.testCases.length - 1) {
             this.handleNext();
@@ -343,8 +337,6 @@ export default {
       this.$post('/test/review/case/edit', param, () => {
         this.updateTestCases(param);
         this.setReviewStatus(this.testCase.reviewId);
-        // 修改当前用例在整个用例列表的状态
-        // 修改旧的状态
         this.oldReviewStatus = status;
         this.testCases[this.index].reviewStatus = status;
         if (this.index < this.testCases.length - 1) {
@@ -400,14 +392,10 @@ export default {
         this.isCustomFiledActive = true;
         this.testCase = item;
         if (!this.testCase.actualResult) {
-          // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
         }
-        // this.getRelatedTest();
         this.getComments(item);
         this.$refs.reviewComment.resetInputLight();
-        /*  this.initTest();*/
-        //this.getFileMetaData(data);
       })
 
     },
