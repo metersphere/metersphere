@@ -3,8 +3,10 @@ package io.metersphere.api.service;
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.jmeter.ExecutedHandleSingleton;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.ReportTriggerMode;
@@ -53,6 +55,8 @@ public class TestResultService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
 
     public void saveResults(ResultDTO dto) {
         // 处理环境
@@ -75,6 +79,7 @@ public class TestResultService {
         }
         updateTestCaseStates(requestResults, dto.getRunMode());
     }
+
 
     public void editReportTime(ResultDTO dto) {
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
@@ -120,6 +125,14 @@ public class TestResultService {
                     }
                 }
             }
+        } else if (StringUtils.equals(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+            ApiDefinitionExecResult record = new ApiDefinitionExecResult();
+            record.setId(dto.getReportId());
+            record.setStatus("STOP");
+
+            ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
+            example.createCriteria().andIdEqualTo(dto.getReportId()).andStatusEqualTo(APITestStatus.Running.name());
+            apiDefinitionExecResultMapper.updateByExampleSelective(record, example);
         }
     }
 

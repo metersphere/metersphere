@@ -135,7 +135,7 @@ public class ApiDefinitionService {
         if (StringUtils.isNotBlank(request.getProjectId())) {
             buildProjectInfo(resList, request.getProjectId());
             calculateResult(resList, request.getProjectId());
-        }else{
+        } else {
             buildProjectInfoWidthoutProject(resList);
         }
         return resList;
@@ -1083,6 +1083,7 @@ public class ApiDefinitionService {
             return null;
         }
         APIReportResult reportResult = new APIReportResult();
+        reportResult.setStatus(result.getStatus());
         reportResult.setContent(result.getContent());
         return reportResult;
     }
