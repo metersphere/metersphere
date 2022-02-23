@@ -74,3 +74,11 @@ export function getRelationshipCase(id, relationshipType, callback) {
 export function getRelationshipCountCase(id, callback) {
   return baseGet('/test/case/relationship/case/count/' + id + '/', callback);
 }
+
+export function getTestPlanTestCase(pageNum, pageSize, param, callback) {
+  return basePost('/test/plan/case/list/' + pageNum + '/' + pageSize, param, callback);
+}
+
+export function getTestReviewTestCase(pageNum, pageSize, param, callback) {
+  return basePost('/test/review/case/list/' + pageNum + '/' + pageSize, param, callback);
+}
