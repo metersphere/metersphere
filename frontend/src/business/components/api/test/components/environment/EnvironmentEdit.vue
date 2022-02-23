@@ -1,14 +1,13 @@
 <template>
   <el-main v-loading="result.loading" class="environment-edit" style="margin-left: 0px">
+    <ms-dialog-header class="ms-opt-btn"
+                      :btn-size="'medium'"
+                      @cancel="cancel"
+                      @confirm="save()"/>
     <el-form :model="environment" :rules="rules" ref="environment" label-width="80px">
-
       <el-form-item prop="name" :label="$t('api_test.environment.name')">
         <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')"
                   clearable/>
-        <ms-dialog-header class="ms-opt-btn"
-          :btn-size="'medium'"
-          @cancel="cancel"
-          @confirm="save()"/>
       </el-form-item>
 
 
@@ -77,6 +76,10 @@
         </el-tab-pane>
         <!--        全局断言-->
         <el-tab-pane :label="$t('env_options.all_assertions')" name="assertions">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('env_options.all_assertions')"
+                      placement="top-start" slot="label">
+            <span>{{ $t('env_options.all_assertions') }}</span>
+          </el-tooltip>
           <el-row type="flex" :gutter="20" v-if="hasLicense">
             <el-col :span="12">
               <el-form-item
@@ -391,10 +394,9 @@ export default {
 <style scoped>
 
 .ms-opt-btn {
-  position: fixed;
-  right: 290px;
+  position: absolute;
   z-index: 10;
-  top: 80px;
+  margin-top: 28px;
 }
 
 span {
