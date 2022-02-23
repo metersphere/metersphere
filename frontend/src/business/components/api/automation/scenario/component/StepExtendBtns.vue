@@ -142,6 +142,7 @@ export default {
     },
     saveAsApi() {
       this.currentProtocol = this.data.protocol;
+      this.data.customizeReq = false;
       this.$refs.api.open(this.data);
     }
   }
