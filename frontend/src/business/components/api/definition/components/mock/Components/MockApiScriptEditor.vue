@@ -70,8 +70,10 @@ export default {
     }
   },
   created() {
-    if (!this.jsr223Processor.scriptLanguage) {
-      this.jsr223Processor.scriptLanguage = "beanshell";
+    if(this.jsr223Processor){
+      if (!this.jsr223Processor.scriptLanguage) {
+        this.jsr223Processor.scriptLanguage = "beanshell";
+      }
     }
     if (this.showApi) {
       this.baseCodeTemplates = this.httpCodeTemplates;
