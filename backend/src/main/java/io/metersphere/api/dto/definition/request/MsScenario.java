@@ -145,7 +145,9 @@ public class MsScenario extends MsTestElement {
             Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
             // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
             scenarioTree.add(valueSupposeMock);
-            scenarioTree.add(ElementUtil.argumentsToProcessor(valueSupposeMock));
+            if (this.variableEnable != null && this.variableEnable) {
+                scenarioTree.add(ElementUtil.argumentsToProcessor(valueSupposeMock));
+            }
         }
         if (this.variableEnable == null || this.variableEnable) {
             ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
@@ -245,13 +247,17 @@ public class MsScenario extends MsTestElement {
             ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
             EnvironmentGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(EnvironmentGroupProjectService.class);
             ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(this.getId());
-            String environmentType = scenario.getEnvironmentType();
-            String environmentJson = scenario.getEnvironmentJson();
-            String environmentGroupId = scenario.getEnvironmentGroupId();
-            if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
-                this.environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
-            } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
-                this.environmentMap = JSON.parseObject(environmentJson, Map.class);
+            if (scenario != null) {
+                String environmentType = scenario.getEnvironmentType();
+                String environmentJson = scenario.getEnvironmentJson();
+                String environmentGroupId = scenario.getEnvironmentGroupId();
+                if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+                    this.environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+                } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                    this.environmentMap = JSON.parseObject(environmentJson, Map.class);
+                }
+            } else {
+                this.setEnvironmentEnable(false);
             }
 
             if (this.environmentMap != null && !this.environmentMap.isEmpty()) {
@@ -301,6 +307,15 @@ public class MsScenario extends MsTestElement {
         arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+        // 环境通用变量
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+            // 清空变量，防止重复添加
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
+        }
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
             this.getVariables().stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
@@ -313,15 +328,6 @@ public class MsScenario extends MsTestElement {
                     arguments.addArgument(item.getName() + "_" + (i + 1), arrays[i], "=");
                 }
             });
-        }
-        // 环境通用变量
-        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
-            // 清空变量，防止重复添加
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
         }
         if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
             return arguments;
