@@ -1347,10 +1347,12 @@ public class MockConfigService {
         boolean isXml = false;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            XMLUtils.setExpandEntityReferencesFalse(documentBuilderFactory);
             DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
             builder.parse(new InputSource(new ByteArrayInputStream(message.getBytes("utf-8"))));
             isXml = true;
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return isXml;
     }
