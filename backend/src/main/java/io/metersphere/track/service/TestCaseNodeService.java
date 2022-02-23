@@ -224,6 +224,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             });
             batchUpdateTestCase(testCases);
         }
+        if (StringUtils.isBlank(request.getParentId())) {
+            request.setParentId(null);
+        }
         return testCaseNodeMapper.updateByPrimaryKeySelective(request);
     }
 
