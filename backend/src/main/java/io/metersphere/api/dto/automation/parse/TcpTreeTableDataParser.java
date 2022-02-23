@@ -6,6 +6,7 @@ import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.mock.MockConfigRequestParams;
 import io.metersphere.api.mock.utils.MockApiUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.XMLUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -33,6 +34,7 @@ public class TcpTreeTableDataParser {
             }
             // 创建解析器工厂
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            XMLUtils.setExpandEntityReferencesFalse(factory);
             DocumentBuilder db = factory.newDocumentBuilder();
             Document document = DocumentHelper.createDocument();
 
