@@ -73,9 +73,9 @@
             </el-col>
 
             <el-col :span="8">
-              <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
+              <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tags">
                 <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag"
-                              class="ms-case-input"/>
+                              class="ms-case-input"></ms-input-tag>
               </el-form-item>
             </el-col>
           </el-row>
@@ -611,6 +611,7 @@ export default {
         this.operationType = 'edit';
         //复制
         if (this.type === 'copy') {
+          this.showInputTag = false;
           this.operationType = 'add';
           this.setFormData(testCase);
           this.setTestCaseExtInfo(testCase);
@@ -618,6 +619,9 @@ export default {
           //设置自定义熟悉默认值
           this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules, buildTestCaseOldFields(this.form));
           this.reload();
+          this.$nextTick(() => {
+            this.showInputTag = true;
+          });
         } else {
           this.getTestCase(testCase.id);
         }
@@ -868,7 +872,7 @@ export default {
     resetForm() {
       //防止点击修改后，点击新建触发校验
       if (this.$refs['caseFrom']) {
-        this.$refs['caseFrom'].validate((valid) => {
+        this.$refs['caseFrom'].validate(() => {
           this.$refs['caseFrom'].resetFields();
           this._resetForm();
           return true;
@@ -894,6 +898,7 @@ export default {
         result: ''
       }];
       this.form.customNum = '';
+      this.form.tags = [];
     },
     addListener() {
       document.addEventListener("keydown", this.createCtrlSHandle);
