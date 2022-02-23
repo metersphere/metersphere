@@ -116,16 +116,19 @@ public class ApiCaseExecuteService {
         DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getConfig());
 
         // 开始选择执行模式
-        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-            LoggerUtil.debug("开始串行执行");
-            if (deQueue != null && deQueue.getQueue() != null) {
-                apiScenarioSerialService.serial(deQueue, deQueue.getQueue());
-            }
-        } else {
-            LoggerUtil.debug("开始并发执行");
-            if (deQueue != null && deQueue.getQueue() != null) {
-                apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), deQueue, runMode);
-            }
+        if (deQueue != null && deQueue.getQueue() != null) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Thread.currentThread().setName("PLAN-CASE：" + request.getPlanReportId());
+                    if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+                        apiScenarioSerialService.serial(deQueue, deQueue.getQueue());
+                    } else {
+                        apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), deQueue, runMode);
+                    }
+                }
+            });
+            thread.start();
         }
         return responseDTOS;
     }
@@ -153,8 +156,8 @@ public class ApiCaseExecuteService {
 
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
-        List<ApiTestCaseWithBLOBs> list = apiTestCaseMapper.selectByExampleWithBLOBs(example);
-        LoggerUtil.debug("查询到执行数据：" + list.size());
+        List<ApiTestCaseWithBLOBs> caseList = apiTestCaseMapper.selectByExampleWithBLOBs(example);
+        LoggerUtil.debug("查询到执行数据：" + caseList.size());
 
         // 集合报告设置
         String serialReportId = null;
@@ -164,7 +167,7 @@ public class ApiCaseExecuteService {
             APIScenarioReportResult report = apiScenarioReportService.init(request.getConfig().getReportId(), null, request.getConfig().getReportName(),
                     ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(),
                     null, request.getConfig());
-            report.setVersionId(list.get(0).getVersionId());
+            report.setVersionId(caseList.get(0).getVersionId());
             report.setName(request.getConfig().getReportName());
             report.setTestName(request.getConfig().getReportName());
             report.setId(serialReportId);
@@ -182,7 +185,7 @@ public class ApiCaseExecuteService {
                 FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());
                 fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
                 BeanComparator beanComparator = new BeanComparator("id", fixedOrderComparator);
-                Collections.sort(list, beanComparator);
+                Collections.sort(caseList, beanComparator);
             }
         }
 
@@ -195,7 +198,7 @@ public class ApiCaseExecuteService {
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
 
         String finalSerialReportId = serialReportId;
-        list.forEach(caseWithBLOBs -> {
+        caseList.forEach(caseWithBLOBs -> {
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
             report.setStatus(status);
             report.setName(caseWithBLOBs.getName());
@@ -214,16 +217,19 @@ public class ApiCaseExecuteService {
         String poolId = request.getConfig().getResourcePoolId();
         DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), finalSerialReportId, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
         // 开始选择执行模式
-        if (request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-            LoggerUtil.debug("开始串行执行");
-            if (deQueue != null && deQueue.getQueue() != null) {
-                apiScenarioSerialService.serial(deQueue, deQueue.getQueue());
-            }
-        } else {
-            LoggerUtil.debug("开始并发执行");
-            if (deQueue != null && deQueue.getQueue() != null) {
-                apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), deQueue, ApiRunMode.DEFINITION.name());
-            }
+        if (deQueue != null && deQueue.getQueue() != null) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Thread.currentThread().setName("API-CASE-RUN");
+                    if (request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+                        apiScenarioSerialService.serial(deQueue, deQueue.getQueue());
+                    } else {
+                        apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), deQueue, ApiRunMode.DEFINITION.name());
+                    }
+                }
+            });
+            thread.start();
         }
         return responseDTOS;
     }
