@@ -648,7 +648,7 @@ public class TestPlanReportService {
         String event = NoticeConstants.Event.COMPLETE;
         String successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
         String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
-        String context = "${operator}完成了测试计划: ${name}";
+        String context = "${operator}完成了测试计划: ${name}, 报告: ${planShareUrl}";
         if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.API.name())) {
             subject = Translator.get("task_notification_jenkins");
         } else {
