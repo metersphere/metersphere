@@ -34,6 +34,14 @@ public class EngineSourceParserFactory {
 
     public static Document getDocument(InputStream source) throws DocumentException {
         SAXReader reader = new SAXReader();
+        try {
+            reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        }catch (Exception e){
+            LogUtil.error(e);
+        }
         if (!IS_TRANS) {
             reader.setXMLFilter(EngineSourceParserFactory.getFilter());
         }
