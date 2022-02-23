@@ -1,28 +1,38 @@
 <template>
   <span class="previous-next-button">
-    <span class="head-right-tip" v-if="countNum === total">
-      {{ $t('test_track.plan_view.pre_case') }} : {{list[index - 1] ? list[index - 1].name : ''}}
+    <span v-if="countNum === total"
+          class="head-right-tip">
+      {{ $t('test_track.plan_view.pre_case') }} : {{list[index - 1] ? list[index - 1].name : (prePageData ? prePageData.name : '')}}
     </span>
-    <span class="head-right-tip" v-if="countNum !== total">
-      {{ $t('test_track.plan_view.next_case') }} : {{list[index + 1] ? list[index + 1].name : ''}}
+    <span
+      v-else
+      class="head-right-tip">
+      {{ $t('test_track.plan_view.next_case') }} : {{list[index + 1] ? list[index + 1].name : (nextPageData ? nextPageData.name : '')}}
     </span>
 
-    <el-button plain size="mini" icon="el-icon-arrow-up" :disabled="countNum <= 1" @click="handlePre()"/>
+    <el-button
+      plain
+      size="mini"
+      icon="el-icon-arrow-up"
+      :disabled="countNum <= 1"
+      @click="handlePre()"/>
+
     <span>
       {{ countNum }}/{{ total }}
     </span>
-    <el-button plain size="mini" icon="el-icon-arrow-down" :disabled="countNum >= total" @click="handleNext()"/>
+
+    <el-button
+      plain
+      size="mini"
+      icon="el-icon-arrow-down"
+      :disabled="countNum >= total"
+      @click="handleNext()"/>
   </span>
 </template>
 
 <script>
 export default {
   name: "MsPreviousNextButton",
-  data() {
-    return {
-      countNum: 1
-    }
-  },
   props: {
     list: {
       type: Array,
@@ -59,20 +69,22 @@ export default {
       default() {
         return 0
       }
-    }
+    },
+    nextPageData: Object,
+    prePageData: Object
   },
-  watch: {
-    index() {
-      this.countNum = this.pageSize * (this.pageNum - 1) + this.index + 1;
+  computed: {
+    countNum() {
+      return this.pageSize * (this.pageNum - 1) + this.index + 1;
     }
   },
   methods: {
-    handlePre() {
-      this.$emit('pre');
-    },
-    handleNext() {
-      this.$emit('next');
-    }
+      handlePre() {
+        this.$emit('pre');
+      },
+      handleNext() {
+        this.$emit('next');
+      }
   }
 }
 </script>

@@ -156,12 +156,14 @@
       :search-param="condition"
       :page-num="currentPage"
       :page-size="pageSize"
-      @nextPage="nextPage"
-      @prePage="prePage"
-      @refresh="initTableData"
+      :next-page-data="nextPageData"
+      :pre-page-data="prePageData"
       :test-cases="tableData"
       :is-read-only="isReadOnly"
       :total="total"
+      @nextPage="nextPage"
+      @prePage="prePage"
+      @refresh="initTableData"
       @refreshTable="search"/>
 
 
@@ -203,7 +205,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
-import {editTestReviewTestCaseOrder} from "@/network/testCase";
+import {editTestReviewTestCaseOrder, getTestPlanTestCase, getTestReviewTestCase} from "@/network/testCase";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 
 export default {
@@ -229,6 +231,8 @@ export default {
       result: {},
       condition: {},
       tableData: [],
+      nextPageData: null,
+      prePageData: null,
       currentPage: 1,
       pageSize: 10,
       total: 0,
@@ -379,17 +383,45 @@ export default {
 
       this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
-        this.result = this.$post(this.buildPagePath('/test/review/case/list'), this.condition, response => {
-          let data = response.data;
+        getTestReviewTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
           this.total = data.itemCount;
           this.tableData = data.listObject;
+
+          // 需要判断tableData数据，放回调里面
+          this.getPreData();
+
           this.tableClear();
           if (callback) {
             callback();
           }
         });
+        this.getNexPageData();
       }
-
+    },
+    getNexPageData() {
+      getTestReviewTestCase(this.currentPage * this.pageSize + 1, 1, this.condition, (data) => {
+        if (data.listObject && data.listObject.length > 0) {
+          this.nextPageData = {
+            name: data.listObject[0].name
+          }
+        } else {
+          this.nextPageData = null;
+        }
+      });
+    },
+    getPreData() {
+      // 如果不是第一页并且只有一条数据时，需要调用
+      if (this.currentPage > 1 && this.tableData.length === 1) {
+        getTestReviewTestCase((this.currentPage - 1) * this.pageSize, 1, this.condition, (data) => {
+          if (data.listObject && data.listObject.length > 0) {
+            this.prePageData = {
+              name: data.listObject[0].name
+            }
+          } else {
+            this.prePageData = null;
+          }
+        });
+      }
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;

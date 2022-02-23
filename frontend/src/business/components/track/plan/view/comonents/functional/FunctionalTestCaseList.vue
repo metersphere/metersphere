@@ -250,6 +250,8 @@
       :search-param.sync="condition"
       :page-num="currentPage"
       :page-size="pageSize"
+      :next-page-data="nextPageData"
+      :pre-page-data="prePageData"
       @nextPage="nextPage"
       @prePage="prePage"
       @refresh="initTableData"
@@ -300,6 +302,7 @@ import {getProjectMember} from "@/network/user";
 import {getTestTemplate} from "@/network/custom-field-template";
 import {editTestPlanTestCaseOrder} from "@/network/test-plan";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import {getTestPlanTestCase} from "@/network/testCase";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -329,6 +332,8 @@ export default {
       condition: {
         components: TEST_PLAN_TEST_CASE_CONFIGS
       },
+      nextPageData: null,
+      prePageData: null,
       enableOrderDrag: true,
       showMyTestCase: false,
       tableData: [],
@@ -518,8 +523,7 @@ export default {
       }
       this.condition.projectId = getCurrentProjectID();
       if (this.planId) {
-        this.result = this.$post(this.buildPagePath('/test/plan/case/list'), this.condition, response => {
-          let data = response.data;
+        getTestPlanTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
           this.total = data.itemCount;
           this.tableData = data.listObject;
           for (let i = 0; i < this.tableData.length; i++) {
@@ -532,8 +536,38 @@ export default {
               this.$set(this.tableData[i], "issuesContent", JSON.parse(this.tableData[i].issues));
             }
           }
+
+          // 需要判断tableData数据，放回调里面
+          this.getPreData();
+
           if (callback) {
             callback();
+          }
+        });
+        this.getNexPageData();
+      }
+    },
+    getNexPageData() {
+      getTestPlanTestCase(this.currentPage * this.pageSize + 1, 1, this.condition, (data) => {
+        if (data.listObject && data.listObject.length > 0) {
+          this.nextPageData = {
+            name: data.listObject[0].name
+          }
+        } else {
+          this.nextPageData = null;
+        }
+      });
+    },
+    getPreData() {
+      // 如果不是第一页并且只有一条数据时，需要调用
+      if (this.currentPage > 1 && this.tableData.length === 1) {
+        getTestPlanTestCase((this.currentPage - 1) * this.pageSize, 1, this.condition, (data) => {
+          if (data.listObject && data.listObject.length > 0) {
+            this.prePageData = {
+              name: data.listObject[0].name
+            }
+          } else {
+            this.prePageData = null;
           }
         });
       }
