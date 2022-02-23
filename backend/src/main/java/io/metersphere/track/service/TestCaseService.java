@@ -22,7 +22,6 @@ import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
-import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -123,10 +122,6 @@ public class TestCaseService {
     TestCaseFileMapper testCaseFileMapper;
     @Resource
     TestCaseTestMapper testCaseTestMapper;
-    @Resource
-    private GroupMapper groupMapper;
-    @Resource
-    private UserGroupMapper userGroupMapper;
     @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
@@ -549,9 +544,18 @@ public class TestCaseService {
         buildUserInfo(list);
         if (StringUtils.isNotBlank(request.getProjectId())) {
             buildProjectInfo(request.getProjectId(), list);
+        }else{
+            buildProjectInfoWidthoutProject(list);
         }
         list = this.parseStatus(list);
         return list;
+    }
+
+    private void buildProjectInfoWidthoutProject(List<TestCaseDTO> resList) {
+        resList.forEach(i -> {
+            Project project = projectMapper.selectByPrimaryKey(i.getProjectId());
+            i.setProjectName(project.getName());
+        });
     }
 
     public List<TestCaseDTO> publicListTestCase(QueryTestCaseRequest request) {
