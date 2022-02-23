@@ -22,32 +22,25 @@ public class ApiCaseParallelExecuteService {
     private JMeterService jMeterService;
 
     public void parallel(Map<String, ApiDefinitionExecResult> executeQueue, RunModeConfigDTO config, DBTestQueue executionQueue, String runMode) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName("API-CASE-THREAD");
-                for (String testId : executeQueue.keySet()) {
-                    ApiDefinitionExecResult result = executeQueue.get(testId);
-                    String reportId = result.getId();
-                    HashTree hashTree = null;
-                    JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, hashTree);
-                    runRequest.setPool(GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()));
-                    runRequest.setTestPlanReportId(executionQueue.getReportId());
-                    runRequest.setPoolId(config.getResourcePoolId());
-                    runRequest.setReportType(executionQueue.getReportType());
-                    runRequest.setRunType(RunModeConstants.PARALLEL.toString());
-                    runRequest.setQueueId(executionQueue.getId());
-                    if (executionQueue.getQueue() != null) {
-                        runRequest.setPlatformUrl(executionQueue.getQueue().getId());
-                    }
-                    if (!GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()).isPool()) {
-                        hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
-                        runRequest.setHashTree(hashTree);
-                    }
-                    jMeterService.run(runRequest);
-                }
+        for (String testId : executeQueue.keySet()) {
+            ApiDefinitionExecResult result = executeQueue.get(testId);
+            String reportId = result.getId();
+            HashTree hashTree = null;
+            JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, hashTree);
+            runRequest.setPool(GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()));
+            runRequest.setTestPlanReportId(executionQueue.getReportId());
+            runRequest.setPoolId(config.getResourcePoolId());
+            runRequest.setReportType(executionQueue.getReportType());
+            runRequest.setRunType(RunModeConstants.PARALLEL.toString());
+            runRequest.setQueueId(executionQueue.getId());
+            if (executionQueue.getQueue() != null) {
+                runRequest.setPlatformUrl(executionQueue.getQueue().getId());
             }
-        });
-        thread.start();
+            if (!GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()).isPool()) {
+                hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
+                runRequest.setHashTree(hashTree);
+            }
+            jMeterService.run(runRequest);
+        }
     }
 }
