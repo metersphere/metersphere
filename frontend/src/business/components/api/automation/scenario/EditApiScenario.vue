@@ -362,7 +362,7 @@
         :old-on-sample-error="onSampleError"
         :new-on-sample-error="newOnSampleError"
         :project-list="projectList"
-        :type ="type"
+        :type="type"
       ></scenario-diff>
     </el-dialog>
 
@@ -522,10 +522,10 @@ export default {
       executeType: "",
       versionData: [],
       newData: [],
-      oldData:[],
+      oldData: [],
       dialogVisible: false,
       newScenarioDefinition: [],
-      oldScenarioDefinition:[],
+      oldScenarioDefinition: [],
       currentItem: {},
       pluginDelStep: false
     }
@@ -1109,6 +1109,7 @@ export default {
           }
           this.resetResourceId(item.hashTree);
           item.enable === undefined ? item.enable = true : item.enable;
+          item.variableEnable = item.variableEnable === undefined ? true : item.variableEnable;
           if (this.selectedTreeNode !== undefined) {
             this.selectedTreeNode.hashTree.push(item);
           } else {
@@ -1420,12 +1421,12 @@ export default {
     getApiScenario() {
       this.loading = true;
       this.stepEnable = true;
-      if (this.currentScenario.tags !== undefined && this.currentScenario.tags ) {
-        if(!(this.currentScenario.tags instanceof Array)){
+      if (this.currentScenario.tags !== undefined && this.currentScenario.tags) {
+        if (!(this.currentScenario.tags instanceof Array)) {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
         }
-      }else{
-        this.$set(this.currentScenario,'tags',[])
+      } else {
+        this.$set(this.currentScenario, 'tags', [])
       }
       if (!this.currentScenario.variables) {
         this.currentScenario.variables = [];
@@ -1766,64 +1767,64 @@ export default {
       });
     },
     compare(row) {
-      this.$get('/api/automation/get/' +  row.id+"/"+this.currentScenario.refId, response => {
-          this.$get("/api/automation/getApiScenario/" +  response.data.id, res => {
-            if (res.data) {
-              if(res.data.scenarioDefinition != null){
-                let obj = JSON.parse(res.data.scenarioDefinition);
-                if(obj){
-                  if(obj.hashTree){
-                    for (let i = 0; i < obj.hashTree.length; i++) {
-                      if(!obj.hashTree[i].index){
-                        obj.hashTree[i].index = i+1;
-                      }
-                      obj.hashTree[i].disabled = true;
-                      if (!obj.hashTree[i].requestResult) {
-                        obj.hashTree[i].requestResult = [{responseResult: {}}];
-                      }
+      this.$get('/api/automation/get/' + row.id + "/" + this.currentScenario.refId, response => {
+        this.$get("/api/automation/getApiScenario/" + response.data.id, res => {
+          if (res.data) {
+            if (res.data.scenarioDefinition != null) {
+              let obj = JSON.parse(res.data.scenarioDefinition);
+              if (obj) {
+                if (obj.hashTree) {
+                  for (let i = 0; i < obj.hashTree.length; i++) {
+                    if (!obj.hashTree[i].index) {
+                      obj.hashTree[i].index = i + 1;
                     }
-                    this.newEnableCookieShare = obj.enableCookieShare;
-                    if (obj.onSampleError === undefined) {
-                      this.newOnSampleError = true;
-                    } else {
-                      this.newOnSampleError = obj.onSampleError;
+                    obj.hashTree[i].disabled = true;
+                    if (!obj.hashTree[i].requestResult) {
+                      obj.hashTree[i].requestResult = [{responseResult: {}}];
                     }
                   }
-                  this.dataProcessing(obj.hashTree);
-                  this.newScenarioDefinition = obj.hashTree;
-                  for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
-                    this.oldScenarioDefinition[i].disabled = true;
-                  }
-                  if (response.data.environmentJson) {
-                    this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                  this.newEnableCookieShare = obj.enableCookieShare;
+                  if (obj.onSampleError === undefined) {
+                    this.newOnSampleError = true;
                   } else {
-                    // 兼容历史数据
-                    this.newProjectEnvMap.set(this.projectId, obj.environmentId);
+                    this.newOnSampleError = obj.onSampleError;
                   }
                 }
+                this.dataProcessing(obj.hashTree);
+                this.newScenarioDefinition = obj.hashTree;
+                for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
+                  this.oldScenarioDefinition[i].disabled = true;
+                }
+                if (response.data.environmentJson) {
+                  this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                } else {
+                  // 兼容历史数据
+                  this.newProjectEnvMap.set(this.projectId, obj.environmentId);
+                }
               }
-              res.data.userName = response.data.userName
-              this.dealWithTag(res.data);
-              this.oldData = this.currentScenario;
-              this.newData = res.data;
-              this.closeExpansion()
             }
-            this.sort();
-            this.dialogVisible = true;
-          });
+            res.data.userName = response.data.userName
+            this.dealWithTag(res.data);
+            this.oldData = this.currentScenario;
+            this.newData = res.data;
+            this.closeExpansion()
+          }
+          this.sort();
+          this.dialogVisible = true;
+        });
       })
     },
-    closeDiff(){
+    closeDiff() {
       this.oldScenarioDefinition = []
     },
-    dealWithTag(newScenario){
-      if(newScenario.tags){
-        if(Object.prototype.toString.call(newScenario.tags)==="[object String]"){
+    dealWithTag(newScenario) {
+      if (newScenario.tags) {
+        if (Object.prototype.toString.call(newScenario.tags) === "[object String]") {
           newScenario.tags = JSON.parse(newScenario.tags);
         }
       }
-      if(this.currentScenario.tags){
-        if(Object.prototype.toString.call(this.currentScenario.tags)==="[object String]"){
+      if (this.currentScenario.tags) {
+        if (Object.prototype.toString.call(this.currentScenario.tags) === "[object String]") {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
         }
       }
