@@ -46,6 +46,9 @@
     <select id="getIssues" resultType="io.metersphere.base.domain.IssuesDao">
         select
         <include refid="Issue_List_Column"/>
+        <if test="request.projectId != null||request.workspaceId != null">
+            , project.name as projectName
+        </if>
         from issues
         <if test="request.projectId != null||request.workspaceId != null">
             left join
