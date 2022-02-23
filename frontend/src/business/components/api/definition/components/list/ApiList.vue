@@ -680,7 +680,7 @@ export default {
     handleCopy(row) {
       let obj = JSON.parse(JSON.stringify(row));
       obj.isCopy = true;
-      this.$emit('editApi', obj);
+      this.$emit('copyApi', obj);
     },
     runApi(row) {
       let request = row ? JSON.parse(row.request) : {};
