@@ -33,6 +33,11 @@ public class TestPlanTestCaseController {
         return PageUtils.setPageInfo(page, testPlanTestCaseService.list(request));
     }
 
+    @PostMapping("/nameList")
+    public List<String> getTestPlanCaseNames(@RequestBody QueryTestPlanCaseRequest request) {
+        return testPlanTestCaseService.getTestPlanCaseNames(request);
+    }
+
     /*jenkins测试计划下全部用例*/
     @GetMapping("/list/{planId}")
     public List<TestPlanCaseDTO> getTestPlanCaseByPlanId(@PathVariable String planId) {
