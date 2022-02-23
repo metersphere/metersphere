@@ -32,12 +32,14 @@
                         :page-num="pageNum"
                         :page-size="pageSize"
                         :page-total="pageTotal"
+                        :test-case-name-arr="testCaseNames"
                         :total="total"
                         @pre="handlePre"
                         @next="saveCase(true, true)"
                         :list="testCases"/>
-                      <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly" @click="saveCase(true)">
-                        {{$t('test_track.save')}} & {{$t('test_track.next')}}
+                      <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly"
+                                 @click="saveCase(true)">
+                        {{ $t('test_track.save') }} & {{ $t('test_track.next') }}
                       </el-button>
                     </el-col>
 
@@ -46,7 +48,9 @@
                   <el-row class="head-bar">
                     <el-col>
                       <el-divider content-position="left">
-                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.name }}</el-button>
+                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">
+                          {{ testCase.name }}
+                        </el-button>
                       </el-divider>
                     </el-col>
                   </el-row>
@@ -58,14 +62,16 @@
 
                     <el-row>
                       <el-col :span="7">
-                        <el-form-item :label="$t('test_track.case.module')" prop="nodePath" :label-width="formLabelWidth">
-                          {{testCase.nodePath}}
-                        </el-form-item >
+                        <el-form-item :label="$t('test_track.case.module')" prop="nodePath"
+                                      :label-width="formLabelWidth">
+                          {{ testCase.nodePath }}
+                        </el-form-item>
                       </el-col>
                       <el-col :span="7">
-                        <el-form-item :label="$t('test_track.plan.plan_project')" prop="projectName" :label-width="formLabelWidth">
-                          {{testCase.projectName}}
-                        </el-form-item >
+                        <el-form-item :label="$t('test_track.plan.plan_project')" prop="projectName"
+                                      :label-width="formLabelWidth">
+                          {{ testCase.projectName }}
+                        </el-form-item>
                       </el-col>
                       <el-col :span="10">
                         <test-plan-test-case-status-button class="status-button"
@@ -110,7 +116,7 @@
                       <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
                                                  :read-only="true" :is-test-plan="true" :project-id="testCase.projectId"
                                                  :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
-                    </el-form-item >
+                    </el-form-item>
 
                   </el-form>
                 </div>
@@ -164,7 +170,8 @@ import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
-import TestPlanCaseStepResultsItem from "@/business/components/track/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
+import TestPlanCaseStepResultsItem
+  from "@/business/components/track/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
 
 export default {
   name: "FunctionalTestCaseEdit",
@@ -223,6 +230,9 @@ export default {
     },
     searchParam: {
       type: Object
+    },
+    testCaseNames: {
+      type: Array
     },
     pageNum: Number,
     pageSize: {
@@ -482,7 +492,10 @@ export default {
           break;
         }
         case "testcase": {
-          let caseData = this.$router.resolve({name:'ApiDefinition',params:{redirectID:getUUID(),dataType:"apiTestCase",dataSelectRange:'single:'+id}});
+          let caseData = this.$router.resolve({
+            name: 'ApiDefinition',
+            params: {redirectID: getUUID(), dataType: "apiTestCase", dataSelectRange: 'single:' + id}
+          });
           window.open(caseData.href, '_blank');
           break;
         }
