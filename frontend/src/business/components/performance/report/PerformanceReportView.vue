@@ -330,7 +330,7 @@ export default {
       this.$set(this.report, "refresh", e.data); // 触发刷新
       if (e.data.startsWith('Error')) {
         this.$set(this.report, "status", 'Error');
-        this.$warning(e.data);
+        this.$error(e.data);
         return;
       }
       this.$set(this.report, "status", 'Running');
