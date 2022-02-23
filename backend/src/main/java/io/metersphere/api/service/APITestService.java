@@ -30,6 +30,7 @@ import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
+import io.metersphere.performance.parse.EngineSourceParserFactory;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
@@ -465,7 +466,7 @@ public class APITestService {
         //获取要转化的文件
         List<String> attachmentFilePathList = new ArrayList<>();
         try {
-            Document doc = DocumentHelper.parseText(jmx);// 获取可续保保单列表报文模板
+            Document doc = EngineSourceParserFactory.getDocument(new ByteArrayInputStream(jmx.getBytes("utf-8")));
             Element root = doc.getRootElement();
             Element rootHashTreeElement = root.element("hashTree");
             List<Element> innerHashTreeElementList = rootHashTreeElement.elements("hashTree");
