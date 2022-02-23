@@ -531,19 +531,18 @@ public class TestPlanService {
     }
 
     public void testPlanRelevance(PlanCaseRelevanceRequest request) {
-        Map<String, String> userMap = new HashMap<>();
+        LinkedHashMap<String, String> userMap;
         boolean isSelectAll = request.getRequest() != null && request.getRequest().isSelectAll();
         if (isSelectAll) {
-            Map<String, TestCase> maintainerMap = extTestCaseMapper.getMaintainerMap(request.getRequest());
-            for (String k : maintainerMap.keySet()) {
-                userMap.put(k, maintainerMap.get(k).getMaintainer());
-            }
+            List<TestCase> maintainerMap = extTestCaseMapper.getMaintainerMap(request.getRequest());
+            userMap = maintainerMap.stream()
+                    .collect(LinkedHashMap::new, (m, v) -> m.put(v.getId(), v.getMaintainer()), LinkedHashMap::putAll);
         } else {
             TestCaseExample testCaseExample = new TestCaseExample();
             testCaseExample.createCriteria().andIdIn(request.getIds());
             List<TestCase> testCaseList = testCaseMapper.selectByExample(testCaseExample);
             userMap = testCaseList.stream()
-                    .collect(HashMap::new, (m, v) -> m.put(v.getId(), v.getMaintainer()), HashMap::putAll);
+                    .collect(LinkedHashMap::new, (m, v) -> m.put(v.getId(), v.getMaintainer()), LinkedHashMap::putAll);
         }
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
@@ -553,6 +552,11 @@ public class TestPlanService {
 
         if (testCaseIds.isEmpty()) {
             return;
+        }
+
+        // 保持关联顺序
+        if (!isSelectAll) {
+            testCaseIds = request.getIds();
         }
 
         // 尽量保持与用例顺序一致
