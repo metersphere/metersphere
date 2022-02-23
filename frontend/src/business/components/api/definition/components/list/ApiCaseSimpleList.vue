@@ -4,7 +4,7 @@
       <div class="ms-opt-btn" v-if="apiDefinitionId && versionEnable">
           {{ $t('project.version.name') }}:  {{ apiDefinition.versionName }}
       </div>
-      <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" @keyup.enter.native="search"
+      <el-input :placeholder="$t('commons.search_by_id_name_tag')" @change="search"
                 class="search-input" size="small"
                 v-model="condition.name"/>
       <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small"
