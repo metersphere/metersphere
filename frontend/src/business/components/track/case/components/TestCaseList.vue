@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTableData" class="search-input" size="small"
+    <el-input :placeholder="$t('commons.search_by_name_or_id')"  class="search-input" size="small"
                  @keyup.enter.native="initTableData"
                  v-model="condition.name" ref="inputVal"/>
     <el-link type="primary" @click="open" style="float: right;margin-top: 5px;padding-right: 10px">
