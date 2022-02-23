@@ -45,7 +45,7 @@
     c. SCHEDULE,
     c.description,
     c.tags,
-    t.create_user,
+    c.create_user,
     c.project_id,
     c.num,
     c.custom_num,
