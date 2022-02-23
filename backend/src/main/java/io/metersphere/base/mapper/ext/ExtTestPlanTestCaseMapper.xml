@@ -267,6 +267,34 @@
             </foreach>
         </if>
     </select>
+
+    <select id="nameList" resultType="java.lang.String">
+        select test_case.name
+        from test_plan_test_case
+        inner join test_case on test_plan_test_case.case_id = test_case.id
+        left join test_case_node on test_case_node.id = test_case.node_id
+        inner join project on project.id = test_case.project_id
+        left join project_version on project_version.id = test_case.version_id and project.id =
+        project_version.project_id
+        <include refid="queryWhereCondition"/>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <choose>
+                    <when test="order.name == 'custom_num'">
+                        customNum ${order.type}
+                    </when>
+                    <when test="order.name == 'name'">
+                        test_case.name ${order.type}
+                    </when>
+                    <otherwise>
+                        test_plan_test_case.${order.name} ${order.type}
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+    </select>
+
     <select id="selectIds" resultType="java.lang.String">
         select distinct test_plan_test_case.id as id
         from test_plan_test_case
