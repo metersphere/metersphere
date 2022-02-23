@@ -511,7 +511,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         }
     }
 
-
     public String getSteps(TestCaseExcelData data) {
         JSONArray jsonArray = new JSONArray();
 
@@ -696,7 +695,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             if (StringUtils.isEmpty(value)) {
                 value = "";
             }
-
+            if (field.getType().equalsIgnoreCase("multipleSelect")) {
+                value = modifyMultipleSelectPattern(value);
+            }
             JSONObject statusObj = new JSONObject();
             statusObj.put("id", UUID.randomUUID().toString());
             statusObj.put("name", field.getName());
@@ -706,6 +707,31 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             customArr.add(statusObj);
         }
         return customArr.toJSONString();
+    }
+
+    /**
+     * 调整自定义多选下拉框格式，便于前端进行解析。
+     * 例如对于：下拉值1，下拉值2。将调整为:["下拉值1","下拉值2"]。
+     */
+    public String modifyMultipleSelectPattern(String values) {
+        try {
+            if (StringUtils.isNotBlank(values)) {
+                JSONArray array = JSONArray.parseArray(values);
+                return array.toJSONString();
+            }
+            return "[]";
+        } catch (Exception e) {
+            if (values != null) {
+                Stream<String> stringStream = Arrays.stream(values.split("[,;，；]"));  //当标签值以中英文的逗号和分号分隔时才能正确解析
+                List<String> valueList = stringStream.map(multip -> multip = "\"" + multip + "\"")
+                        .collect(Collectors.toList());
+                String modifiedValues = StringUtils.join(valueList, ",");
+                modifiedValues = "[" + modifiedValues + "]";
+                return modifiedValues;
+            } else {
+                return "[]";
+            }
+        }
     }
 
     /**

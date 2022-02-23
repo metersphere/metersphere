@@ -9,7 +9,7 @@
 
     <ms-table
       v-loading="cardResult.loading"
-      operator-width="170px"
+      operator-width="220px"
       row-key="id"
       :data="tableData"
       :condition="condition"
