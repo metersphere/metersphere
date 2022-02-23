@@ -143,6 +143,9 @@ export default {
         children = [];
       }
       let caseNum = root.data.caseNum;
+      if (root.data.text === '未规划用例' && root.data.level === 1) {
+        root.data.disable = true;
+      }
       if (children.length < 1 && (this.ignoreNum || caseNum && caseNum > 0)) {
         root.children.push({
           data: {
