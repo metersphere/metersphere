@@ -21,26 +21,33 @@ public class ApiScenarioParallelService {
     private JMeterService jMeterService;
 
     public void parallel(Map<String, RunModeDataDTO> executeQueue, RunScenarioRequest request, String serialReportId, DBTestQueue executionQueue) {
-        for (String reportId : executeQueue.keySet()) {
-            RunModeDataDTO dataDTO = executeQueue.get(reportId);
-            JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(dataDTO.getTestId(), StringUtils.isNotEmpty(serialReportId) ? serialReportId : reportId, request.getRunMode(), null);
-            runRequest.setReportType(StringUtils.isNotEmpty(serialReportId) ? RunModeConstants.SET_REPORT.toString() : RunModeConstants.INDEPENDENCE.toString());
-            runRequest.setQueueId(executionQueue.getId());
-            if (request.getConfig() != null) {
-                runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
-                runRequest.setPoolId(request.getConfig().getResourcePoolId());
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Thread.currentThread().setName("SCENARIO-PARALLEL-THREAD");
+                for (String reportId : executeQueue.keySet()) {
+                    RunModeDataDTO dataDTO = executeQueue.get(reportId);
+                    JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(dataDTO.getTestId(), StringUtils.isNotEmpty(serialReportId) ? serialReportId : reportId, request.getRunMode(), null);
+                    runRequest.setReportType(StringUtils.isNotEmpty(serialReportId) ? RunModeConstants.SET_REPORT.toString() : RunModeConstants.INDEPENDENCE.toString());
+                    runRequest.setQueueId(executionQueue.getId());
+                    if (request.getConfig() != null) {
+                        runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
+                        runRequest.setPoolId(request.getConfig().getResourcePoolId());
+                    }
+                    runRequest.setTestPlanReportId(request.getTestPlanReportId());
+                    runRequest.setPlatformUrl(executionQueue.getDetailMap().get(reportId));
+                    runRequest.setRunType(RunModeConstants.PARALLEL.toString());
+                    if (LoggerUtil.getLogger().isDebugEnabled()) {
+                        LoggerUtil.debug("Scenario run-开始并发执行：" + JSON.toJSONString(request));
+                    }
+                    // 本地执行生成hashTree
+                    if (request.getConfig() != null && !runRequest.getPool().isPool()) {
+                        runRequest.setHashTree(GenerateHashTreeUtil.generateHashTree(dataDTO.getScenario(), dataDTO.getPlanEnvMap(), runRequest));
+                    }
+                    jMeterService.run(runRequest);
+                }
             }
-            runRequest.setTestPlanReportId(request.getTestPlanReportId());
-            runRequest.setPlatformUrl(executionQueue.getDetailMap().get(reportId));
-            runRequest.setRunType(RunModeConstants.PARALLEL.toString());
-            if (LoggerUtil.getLogger().isDebugEnabled()) {
-                LoggerUtil.debug("Scenario run-开始并发执行：" + JSON.toJSONString(request));
-            }
-            // 本地执行生成hashTree
-            if (request.getConfig() != null && !runRequest.getPool().isPool()) {
-                runRequest.setHashTree(GenerateHashTreeUtil.generateHashTree(dataDTO.getScenario(), dataDTO.getPlanEnvMap(), runRequest));
-            }
-            jMeterService.run(runRequest);
-        }
+        });
+        thread.start();
     }
 }
