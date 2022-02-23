@@ -199,6 +199,9 @@ export default {
     data: {
       handler: function () {
         Object.assign(this.request, this.data);
+        if (this.request.condition) {
+          this.changeDisplay(this.request.condition);
+        }
       },
       deep: true
     }
@@ -347,9 +350,6 @@ export default {
       this.request.active = !this.request.active;
       if (this.request && this.request.active && this.pluginForm && this.pluginForm.setValue instanceof Function) {
         this.pluginForm.setValue(this.request);
-      }
-      if (this.request.condition) {
-        this.changeDisplay(this.request.condition);
       }
     },
   }
