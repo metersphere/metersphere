@@ -36,7 +36,7 @@
                 placement="bottom"
                 width="300">
                 <p>{{ shareUrl }}</p>
-                <span style="color: red;float: left;margin-left: 10px;">{{
+                <span style="color: red;float: left;margin-left: 10px;" v-if="application.typeValue">{{
                     $t('commons.validity_period')+application.typeValue
                   }}</span>
                 <div style="text-align: right; margin: 0">
@@ -369,6 +369,7 @@ export default {
       });
     },
     handleShare(report) {
+      this.getProjectApplication();
       let pram = {};
       pram.customData = report.id;
       pram.shareType = 'PERFORMANCE_REPORT';
@@ -376,7 +377,6 @@ export default {
         let thisHost = window.location.host;
         this.shareUrl = thisHost + "/sharePerformanceReport" + data.shareUrl;
       });
-      this.getProjectApplication();
     },
     getProjectApplication(){
       this.$get('/project_application/get/' + getCurrentProjectID()+"/PERFORMANCE_SHARE_REPORT_TIME", res => {
