@@ -35,9 +35,11 @@
                         :page-size="pageSize"
                         :page-total="pageTotal"
                         :total="total"
+                        :next-page-data="nextPageData"
+                        :pre-page-data="prePageData"
+                        :list="testCases"
                         @pre="handlePre"
-                        @next="handleNext"
-                        :list="testCases"/>
+                        @next="handleNext"/>
 
                       <el-divider direction="vertical"></el-divider>
 
@@ -232,7 +234,9 @@ export default {
     pageSize: {
       type: Number,
       default: 1
-    }
+    },
+    nextPageData: Object,
+    prePageData: Object
   },
   computed: {
     projectId() {
