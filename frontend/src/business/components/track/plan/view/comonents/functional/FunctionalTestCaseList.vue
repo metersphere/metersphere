@@ -162,7 +162,7 @@
           :fields-width="fieldsWidth"
           :label="$t('test_track.plan_view.executor')">
           <template v-slot:default="scope">
-            {{ scope.row.executorName }}
+            {{scope.row.executorName}}
           </template>
         </ms-table-column>
 
@@ -231,11 +231,10 @@
                          :prop="field.name">
           <template v-slot="scope">
               <span v-if="field.name === '用例等级'">
-                  <priority-table-item
-                    :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
+                  <priority-table-item :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
               </span>
             <span v-else>
-                {{ getCustomFieldValue(scope.row, field) }}
+                {{getCustomFieldValue(scope.row, field)}}
               </span>
           </template>
         </ms-table-column>
@@ -254,7 +253,6 @@
       @nextPage="nextPage"
       @prePage="prePage"
       @refresh="initTableData"
-      :test-case-names="testCaseNameArr"
       :test-cases="tableData"
       :is-read-only="isReadOnly"
       :total="total"
@@ -326,7 +324,6 @@ export default {
       fieldsWidth: getCustomTableWidth('TEST_PLAN_FUNCTION_TEST_CASE'),
       screenHeight: 'calc(100vh - 275px)',
       tableLabel: [],
-      testCaseNameArr: [],
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -539,14 +536,7 @@ export default {
             callback();
           }
         });
-        this.selectTestCaseName(this.condition);
       }
-    },
-    selectTestCaseName(condition){
-      this.result = this.$post("/test/plan/case/nameList", this.condition, response => {
-        let data = response.data;
-        this.testCaseNameArr = data;
-      });
     },
     autoCheckStatus() {
       if (!this.planId) {
@@ -682,7 +672,7 @@ export default {
     getVersionOptions() {
       if (hasLicense()) {
         this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions = response.data;
+          this.versionOptions= response.data;
           this.versionFilters = response.data.map(u => {
             return {text: u.name, value: u.id};
           });
