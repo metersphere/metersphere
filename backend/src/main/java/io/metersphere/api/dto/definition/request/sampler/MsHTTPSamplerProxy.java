@@ -388,7 +388,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     url = this.getUrl();
                 }
                 if (isUrl()) {
-                    if (this.isCustomizeReq()) {
+                    if (this.isCustomizeReq() && StringUtils.isNotEmpty(this.getUrl())) {
                         url = this.getUrl();
                         sampler.setProperty("HTTPSampler.path", url);
                     }
