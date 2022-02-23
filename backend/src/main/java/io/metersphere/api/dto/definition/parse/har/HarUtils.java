@@ -54,13 +54,4 @@ public class HarUtils {
 		Har har = JSONObject.parseObject(harJson, Har.class);
 		return har;
 	}
-
-	public static void main(String[] args) throws UnsupportedEncodingException {
-//		String str = "%E6%B5%8B%AF";
-		String str = "测试";
-		str = URLEncoder.encode(str,"UTF-8");
-		System.out.println(str);
-		str = URLDecoder.decode(str,"UTF-8");
-		System.out.println(str);
-	}
 }
