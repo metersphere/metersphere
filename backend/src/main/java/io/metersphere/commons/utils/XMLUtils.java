@@ -4,11 +4,31 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.*;
 import java.util.regex.*;
 
 public class XMLUtils {
 
+    public static void setExpandEntityReferencesFalse(DocumentBuilderFactory documentBuilderFactory){
+        try {
+            String FEATURE = null;
+            FEATURE = "http://javax.xml.XMLConstants/feature/secure-processing";
+            documentBuilderFactory.setFeature(FEATURE, true);
+            FEATURE = "http://apache.org/xml/features/disallow-doctype-decl";
+            documentBuilderFactory.setFeature(FEATURE, true);
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            documentBuilderFactory.setFeature(FEATURE, false);
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            documentBuilderFactory.setFeature(FEATURE, false);
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            documentBuilderFactory.setFeature(FEATURE, false);
+            documentBuilderFactory.setXIncludeAware(false);
+            documentBuilderFactory.setExpandEntityReferences(false);
+        }catch (Exception e){
+            LogUtil.error(e);
+        }
+    }
     private static void jsonToXmlStr(JSONObject jObj, StringBuffer buffer, StringBuffer tab) {
         Set<Map.Entry<String, Object>> se = jObj.entrySet();
         StringBuffer nowTab = new StringBuffer(tab.toString());
