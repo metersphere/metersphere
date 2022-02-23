@@ -10,6 +10,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ScenarioStatus;
+import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.service.ApiAutomationService;
@@ -549,9 +550,18 @@ public class TestCaseService {
         buildUserInfo(list);
         if (StringUtils.isNotBlank(request.getProjectId())) {
             buildProjectInfo(request.getProjectId(), list);
+        }else{
+            buildProjectInfoWidthoutProject(list);
         }
         list = this.parseStatus(list);
         return list;
+    }
+
+    private void buildProjectInfoWidthoutProject(List<TestCaseDTO> resList) {
+        resList.forEach(i -> {
+            Project project = projectMapper.selectByPrimaryKey(i.getProjectId());
+            i.setProjectName(project.getName());
+        });
     }
 
     public List<TestCaseDTO> publicListTestCase(QueryTestCaseRequest request) {
