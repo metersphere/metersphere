@@ -322,6 +322,7 @@ public class ApiScenarioExecuteService {
             hashTree = request.getTestElement().generateHashTree(config);
             LogUtil.info(request.getTestElement().getJmx(hashTree));
         } catch (Exception e) {
+            LoggerUtil.error(e);
             MSException.throwException(e.getMessage());
         }
         if (request.isSaved()) {

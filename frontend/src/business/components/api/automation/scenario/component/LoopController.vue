@@ -22,7 +22,7 @@
         <el-row>
           <el-col :span="8">
             <span class="ms-span ms-radio">{{ $t('loop.loops') }}</span>
-            <el-input-number size="small" v-model="controller.countController.loops" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+            <el-input-number size="small" v-model="controller.countController.loops" :placeholder="$t('commons.millisecond')" :max="100000000" :min="0"/>
             <span class="ms-span ms-radio">次</span>
           </el-col>
           <el-col :span="8">
