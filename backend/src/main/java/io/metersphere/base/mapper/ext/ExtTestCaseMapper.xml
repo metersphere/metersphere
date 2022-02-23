@@ -1003,6 +1003,7 @@
         left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
         <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
+        order by test_case.`order` desc, test_case.sort desc
     </select>
 
     <update id="addLatestVersion">
