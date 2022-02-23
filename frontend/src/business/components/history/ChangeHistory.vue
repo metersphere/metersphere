@@ -126,6 +126,12 @@ export default {
         this.$refs.environmentHistoryDetail.open(value);
       }
       else {
+        try {
+          value.newValue = JSON.parse(value.newValue);
+          value.originalValue = JSON.parse(value.originalValue);
+        } catch (e) {
+          // console.info(e);
+        }
         this.$refs.historyDetail.open(value);
       }
     },
