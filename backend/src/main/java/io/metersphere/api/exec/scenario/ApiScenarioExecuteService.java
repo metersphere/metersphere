@@ -173,11 +173,20 @@ public class ApiScenarioExecuteService {
         apiScenarioReportService.batchSave(executeQueue, serialReportId, request.getRunMode(), responseDTOS);
 
         // 开始执行
-        if (StringUtils.equals(request.getConfig().getMode(), RunModeConstants.SERIAL.toString())) {
-            serialService.serial(executionQueue, executionQueue.getQueue());
-        } else {
-            parallelService.parallel(executeQueue, request, serialReportId, executionQueue);
-        }
+        String finalSerialReportId = serialReportId;
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Thread.currentThread().setName("SCENARIO-PARALLEL-THREAD");
+                if (StringUtils.equals(request.getConfig().getMode(), RunModeConstants.SERIAL.toString())) {
+                    serialService.serial(executionQueue, executionQueue.getQueue());
+                } else {
+                    parallelService.parallel(executeQueue, request, finalSerialReportId, executionQueue);
+                }
+            }
+        });
+        thread.start();
+
         return responseDTOS;
     }
 
