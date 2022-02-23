@@ -2200,6 +2200,7 @@ export default {
       send_success: "评论成功！",
       cannot_edit: "无法编辑此评论！",
       cannot_delete: "无法删除此评论！",
+      submit_description: "请先提交评论！",
     },
     review_view: {
       review: "评审",
