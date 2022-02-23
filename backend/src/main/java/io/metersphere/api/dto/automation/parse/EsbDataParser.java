@@ -3,6 +3,7 @@ package io.metersphere.api.dto.automation.parse;
 import com.alibaba.fastjson.JSONArray;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.XMLUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -29,6 +30,7 @@ public class EsbDataParser {
             }
             // 创建解析器工厂
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            XMLUtils.setExpandEntityReferencesFalse(factory);
             DocumentBuilder db = factory.newDocumentBuilder();
             Document document = DocumentHelper.createDocument();
             EsbDataStruct dataStruct = selectEsbDataStructByNameStruct(esbDataList, paramArr, 0);
