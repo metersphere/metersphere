@@ -50,7 +50,7 @@
     c.update_user_id,
     c.num,
     c.tags,
-    t.create_user,
+    c.create_user_id as create_user,
     a.module_id,
     a.path,
     a.protocol,
