@@ -435,9 +435,4 @@ public class TestPlanTestCaseService {
                 testPlanTestCaseMapper::updateByPrimaryKeySelective);
     }
 
-    public List<String> getTestPlanCaseNames(QueryTestPlanCaseRequest request) {
-        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        List<String> list = extTestPlanTestCaseMapper.nameList(request);
-        return list;
-    }
 }
