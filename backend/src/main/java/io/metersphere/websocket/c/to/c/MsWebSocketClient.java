@@ -38,18 +38,4 @@ public class MsWebSocketClient extends WebSocketClient{
     public void onError(Exception e) {
         System.out.println("异常"+e);
     }
-    public static void main(String[] args) {
-        try {
-            MsWebSocketClient client = new MsWebSocketClient("ws://127.0.0.1:8081/ws/22222");
-            client.connect();
-            System.out.println("建立websocket连接");
-            MsgDto dto = new MsgDto();
-            dto.setContent("099991023123123");
-            dto.setReportId("123123123");
-            dto.setToReport("3933abd9");
-            client.send(JSON.toJSONString(dto));
-        } catch (URISyntaxException e) {
-            LogUtil.error(e);
-        }
-    }
 }
