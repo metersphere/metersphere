@@ -101,22 +101,4 @@ public class EsbDataParser {
         }
         return returnData;
     }
-
-    public static void main(String[] args) {
-        String str = "[{\"systemName\":\"\",\"children\":[{\"systemName\":\"\",\"children\":[{\"systemName\":\"\",\"children\":[],\"name\":\"CardNo\",\"description\":\"\",\"type\":\"string\",\"contentType\":\"30\",\"uuid\":\"295f4\",\"value\":\"627713288321\",\"required\":true,\"status\":\"\"},{\"name\":\"AccoutNo\",\"systemName\":\"\",\"status\":\"\",\"type\":\"string\",\"contentType\":\"6\",\"required\":false,\"description\":\"\",\"uuid\":\"3e8ef\",\"children\":[],\"value\":\"371421321\"}],\"name\":\"HEAD\",\"description\":\"\",\"type\":\"[object]\",\"contentType\":\"\",\"uuid\":\"55483\",\"required\":false,\"status\":\"\"},{\"name\":\"Body\",\"systemName\":\"\",\"status\":\"\",\"type\":\"[object]\",\"contentType\":\"\",\"required\":false,\"description\":\"\",\"uuid\":\"a088b\",\"children\":[{\"name\":\"returnFlag\",\"systemName\":\"\",\"status\":\"\",\"type\":\"string\",\"contentType\":\"2\",\"required\":false,\"description\":\"\",\"uuid\":\"76d75\",\"children\":[],\"value\":\"1\"}]}],\"name\":\"SERVICE\",\"description\":\"\",\"type\":\"[object]\",\"contentType\":\"\",\"uuid\":\"faf95\",\"required\":false,\"status\":\"\"}]";
-        List<EsbDataStruct> list = JSONArray.parseArray(str, EsbDataStruct.class);
-        String[] paramArr = new String[]{"HEAD"};
-        System.out.println(esbData2XmlByParamStruct(list, paramArr));
-
-        paramArr = new String[]{"SERVICE"};
-        System.out.println(esbData2XmlByParamStruct(list, paramArr));
-
-        paramArr = new String[]{"Body"};
-        System.out.println(esbData2XmlByParamStruct(list, paramArr));
-
-        paramArr = new String[]{"SERVICE","Body"};
-        System.out.println(esbData2XmlByParamStruct(list, paramArr));
-
-    }
-
 }
