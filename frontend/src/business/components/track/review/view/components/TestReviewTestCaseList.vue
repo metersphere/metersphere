@@ -307,6 +307,7 @@ export default {
   },
   watch: {
     reviewId() {
+      this.$store.commit('setTestReviewSelectNodeIds', []);
       this.refreshTableAndReview();
     },
     selectNodeIds() {
