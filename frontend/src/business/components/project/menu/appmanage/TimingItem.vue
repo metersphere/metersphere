@@ -122,10 +122,15 @@ export default {
           this.selfChoose = false;
           return false;
         }
+        if(Number(this.selfQuantity)>parseInt(this.selfQuantity)){
+          this.$warning(this.$t('api_test.request.time')+this.$t('commons.type_of_num'));
+          this.selfChoose = false;
+          return false;
+        }
       }
 
       this.$emit("update:choose", val);
-      this.$emit("update:expr", this.selfQuantity + this.selfUnit);
+      this.$emit("update:expr", parseInt(this.selfQuantity) + this.selfUnit);
       this.$emit("chooseChange");
     },
     parseExpr(expr) {

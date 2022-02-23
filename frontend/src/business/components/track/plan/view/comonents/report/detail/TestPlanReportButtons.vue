@@ -5,7 +5,7 @@
         placement="right"
         width="300">
         <p>{{shareUrl}}</p>
-        <span style="color: red;float: left;margin-left: 10px;">{{ $t('commons.validity_period')+application.typeValue}}</span>
+        <span style="color: red;float: left;margin-left: 10px;" v-if="application.typeValue">{{ $t('commons.validity_period')+application.typeValue}}</span>
         <div style="text-align: right; margin: 0">
           <el-button type="primary" size="mini" :disabled="!shareUrl"
                      v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
