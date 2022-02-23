@@ -2203,6 +2203,7 @@ export default {
       execute_result: "Result",
       cannot_edit: "Cannot edit this comment！",
       cannot_delete: "Cannot delete this comment！",
+      submit_description: "please submit comments first！",
     },
     module: {
       id: 'Module ID',

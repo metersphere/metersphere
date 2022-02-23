@@ -2199,6 +2199,7 @@ export default {
       send_success: "評論成功！",
       cannot_edit: "無法編輯此評論！",
       cannot_delete: "無法刪除此評論！",
+      submit_description: "請先提交評論！",
     },
     review_view: {
       review: "評審",
