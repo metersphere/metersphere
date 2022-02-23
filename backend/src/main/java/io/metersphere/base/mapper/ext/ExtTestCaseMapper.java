@@ -147,6 +147,5 @@ public interface ExtTestCaseMapper {
 
     int addLatestVersion(@Param("refId") String refId);
 
-    @MapKey("id")
-    Map<String, TestCase> getMaintainerMap(@Param("request") QueryTestCaseRequest request);
+    List<TestCase> getMaintainerMap(@Param("request") QueryTestCaseRequest request);
 }
