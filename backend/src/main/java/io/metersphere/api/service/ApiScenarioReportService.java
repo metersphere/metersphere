@@ -798,6 +798,13 @@ public class ApiScenarioReportService {
         example.createCriteria().andCreateTimeLessThan(time).andProjectIdEqualTo(projectId);
         List<ApiScenarioReport> apiScenarioReports = apiScenarioReportMapper.selectByExample(example);
         List<String> ids = apiScenarioReports.stream().map(ApiScenarioReport::getId).collect(Collectors.toList());
+
+        ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
+        definitionExecResultExample.createCriteria().andCreateTimeLessThan(time).andProjectIdEqualTo(projectId);
+        List<ApiDefinitionExecResult> apiDefinitionExecResults = definitionExecResultMapper.selectByExample(definitionExecResultExample);
+        List<String> definitionExecIds = apiDefinitionExecResults.stream().map(ApiDefinitionExecResult::getId).collect(Collectors.toList());
+
+        ids.addAll(definitionExecIds);
         if (CollectionUtils.isNotEmpty(ids)) {
             APIReportBatchRequest request = new APIReportBatchRequest();
             request.setIds(ids);
