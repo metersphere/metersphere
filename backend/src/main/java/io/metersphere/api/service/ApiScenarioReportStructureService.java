@@ -300,9 +300,10 @@ public class ApiScenarioReportStructureService {
                 }
             }
             if (vo.getRequestResult() == null) {
-                RequestResult requestResult = new RequestResult();
-                BeanUtils.copyBean(requestResult, item);
-                vo.setRequestResult(requestResult);
+                RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO();
+                requestResultExpandDTO.setStatus("unexecute");
+                requestResultExpandDTO.setName(item.getName());
+                vo.setRequestResult(requestResultExpandDTO);
             }
             StepTreeDTO treeDTO = new StepTreeDTO(item.getName(), item.getResourceId(), "API", (i + 1));
             treeDTO.setValue(vo.getRequestResult());
@@ -319,7 +320,7 @@ public class ApiScenarioReportStructureService {
         // 组装报告
         if (CollectionUtils.isNotEmpty(reportResults)) {
             reportDTO.setTotal(reportResults.size());
-            reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equalsIgnoreCase(e.getStatus(), "Error")).collect(Collectors.toList()).size());
+            reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "Error", "STOP")).collect(Collectors.toList()).size());
             reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.isNotEmpty(e.getErrorCode())).collect(Collectors.toList()).size());
             reportDTO.setPassAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getPassAssertions).sum());
             reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getTotalAssertions).sum());
