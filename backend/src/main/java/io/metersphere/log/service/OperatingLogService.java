@@ -37,7 +37,6 @@ public class OperatingLogService {
     public void create(OperatingLogWithBLOBs log, String sourceIds) {
         log.setSourceId("");
         operatingLogMapper.insert(log);
-        System.out.println(JSON.toJSONString(log));
         if (StringUtils.isNotEmpty(sourceIds)) {
             List<String> ids = new ArrayList<>();
             if (sourceIds.startsWith("[")) {
