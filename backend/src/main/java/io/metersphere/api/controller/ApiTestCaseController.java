@@ -10,7 +10,6 @@ import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiTestCase;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironment;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
