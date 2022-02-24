@@ -105,7 +105,7 @@ public class MockApiUtils {
             } else if (StringUtils.equalsIgnoreCase(type, "XML")) {
                 if (bodyObj.containsKey("raw")) {
                     String xmlStr = bodyObj.getString("raw");
-                    JSONObject matchObj = XMLUtils.XmlToJson(xmlStr);
+                    JSONObject matchObj = XMLUtils.stringToJSONObject(xmlStr);
                     returnJson = matchObj;
                 }
             } else if (StringUtils.equalsIgnoreCase(type, "Raw")) {
@@ -235,7 +235,7 @@ public class MockApiUtils {
         if (StringUtils.isNotEmpty(response)) {
             try {
                 JSONObject respObj = JSONObject.parseObject(response);
-                if(respObj != null){
+                if (respObj != null) {
                     if (respObj.containsKey("body")) {
                         String returnStr = "";
                         JSONObject bodyObj = respObj.getJSONObject("body");
@@ -311,15 +311,15 @@ public class MockApiUtils {
                         }
                         responseDTO.setReturnCode(code);
                     }
-                    if(respObj.containsKey("headers")){
+                    if (respObj.containsKey("headers")) {
                         JSONArray jsonArray = respObj.getJSONArray("headers");
-                        Map<String,String> headMap = new HashMap<>();
-                        for(int i = 0; i < jsonArray.size(); i ++){
+                        Map<String, String> headMap = new HashMap<>();
+                        for (int i = 0; i < jsonArray.size(); i++) {
                             JSONObject headObj = jsonArray.getJSONObject(i);
-                            if(headObj.containsKey("name") && headObj.containsKey("value") && headObj.containsKey("enable")){
+                            if (headObj.containsKey("name") && headObj.containsKey("value") && headObj.containsKey("enable")) {
                                 boolean enable = headObj.getBoolean("enable");
-                                if(enable){
-                                    headMap.put(headObj.getString("name"),headObj.getString("value"));
+                                if (enable) {
+                                    headMap.put(headObj.getString("name"), headObj.getString("value"));
                                 }
                             }
                         }
@@ -482,7 +482,7 @@ public class MockApiUtils {
             return returnJson;
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "text/xml")) {
             String xmlString = readXml(request);
-            JSONObject object = XMLUtils.XmlToJson(xmlString);
+            JSONObject object = XMLUtils.stringToJSONObject(xmlString);
             return object;
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "application/x-www-form-urlencoded")) {
             JSONObject object = new JSONObject();
