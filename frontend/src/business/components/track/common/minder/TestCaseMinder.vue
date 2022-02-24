@@ -354,7 +354,7 @@ name: "TestCaseMinder",
         nodeId: nodeId,
         nodePath: getNodePath(nodeId, this.moduleOptions),
         type: data.type ? data.type : 'functional',
-        method: data.method ? data.method: 'manual',
+        method: data.method ? data.method : 'manual',
         maintainer: this.testCaseDefaultValue['责任人'] ? this.testCaseDefaultValue['责任人'] : data.maintainer,
         priority: priorityDefaultValue,
         prerequisite: "",
@@ -362,7 +362,13 @@ name: "TestCaseMinder",
         stepDescription: "",
         expectedResult: "",
         status: this.testCaseDefaultValue['用例状态'],
-        steps: "[]"
+        steps: [{
+          num: 1,
+          desc: '',
+          result: ''
+        }],
+        tags: "[]",
+        stepModel: "STEP"
       };
       if (data.changed) isChange = true;
       let steps = [];
