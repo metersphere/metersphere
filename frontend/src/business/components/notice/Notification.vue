@@ -173,7 +173,7 @@ export default {
               message: message,
             });
             // 弹出之后标记成已读
-            this.$get('/notification/read/' + d.id);
+            this.$get('/notification/read/all');
             this.noticeShow = true;
           });
         });
