@@ -15,11 +15,11 @@
             </el-tooltip>
           </el-col>
           <el-col :span="3">
-            <el-tooltip effect="dark" v-if="errorCode" :content="errorCode"
+            <el-tooltip effect="dark" v-if="baseErrorCode && baseErrorCode!==''" :content="baseErrorCode"
                         style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
                         :open-delay="800">
               <div style="color: #F6972A">
-                {{ errorCode }}
+                {{ baseErrorCode }}
               </div>
             </el-tooltip>
           </el-col>
@@ -57,7 +57,7 @@
                   $t('api_test.home_page.detail_card.unexecute')
                 }}
               </el-tag>
-              <el-tag v-else-if="errorCode" class="ms-test-error_code" size="mini">
+              <el-tag v-else-if="baseErrorCode && baseErrorCode!== ''" class="ms-test-error_code" size="mini">
                 {{ $t('error_report_library.option.name') }}
               </el-tag>
               <el-tag size="mini" type="success" v-else-if="request.success"> {{ $t('api_report.success') }}</el-tag>
@@ -102,7 +102,10 @@ export default {
     scenarioName: String,
     indexNumber: Number,
     console: String,
-    errorCode: String,
+    errorCode: {
+      type: String,
+      default: ""
+    },
     isActive: {
       type: Boolean,
       default: false
@@ -110,6 +113,7 @@ export default {
   },
   created() {
     this.showActive = this.isActive;
+    this.baseErrorCode = this.errorCode;
   },
   data() {
     return {
@@ -120,6 +124,7 @@ export default {
           return "#B8741A";
         }
       },
+      baseErrorCode: "",
       backgroundColor: {
         type: String,
         default() {
@@ -133,14 +138,17 @@ export default {
     isActive() {
       this.showActive = this.isActive;
     },
+    errorCode() {
+      this.baseErrorCode = this.errorCode;
+    },
     request: {
       deep: true,
       handler(n) {
         if (this.request.errorCode) {
-          this.errorCode = this.request.errorCode;
+          this.baseErrorCode = this.request.errorCode;
         } else if (this.request.attachInfoMap && this.request.attachInfoMap.errorReportResult) {
           if (this.request.attachInfoMap.errorReportResult !== "") {
-            this.errorCode = this.request.attachInfoMap.errorReportResult;
+            this.baseErrorCode = this.request.attachInfoMap.errorReportResult;
           }
         }
       },
