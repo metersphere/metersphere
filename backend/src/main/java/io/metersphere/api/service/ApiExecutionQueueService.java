@@ -8,15 +8,13 @@ import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.JmeterThreadUtils;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
-import io.metersphere.base.mapper.ApiExecutionQueueMapper;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiExecutionQueueMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -58,6 +56,8 @@ public class ApiExecutionQueueService {
     private JMeterService jMeterService;
     @Resource
     private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
+    @Resource
+    private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
@@ -130,9 +130,16 @@ public class ApiExecutionQueueService {
         if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO.name(),
                 ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
                 ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
-            if (report != null && StringUtils.equalsIgnoreCase(report.getStatus(), "Error")) {
-                isError = true;
+            if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
+                example.createCriteria().andReportIdEqualTo(dto.getReportId()).andStatusEqualTo(ExecuteResult.Error.name());
+                long error = apiScenarioReportResultMapper.countByExample(example);
+                isError = error > 0;
+            } else {
+                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
+                if (report != null && StringUtils.equalsIgnoreCase(report.getStatus(), "Error")) {
+                    isError = true;
+                }
             }
         } else {
             ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
@@ -157,6 +164,14 @@ public class ApiExecutionQueueService {
             // 清除队列
             executionQueueDetailMapper.deleteByExample(example);
             queueMapper.deleteByPrimaryKey(executionQueue.getId());
+
+            if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                String reportId = dto.getReportId();
+                if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                    reportId = dto.getTestPlanReportId();
+                }
+                apiScenarioReportService.margeReport(reportId, dto.getRunMode());
+            }
             return false;
         }
         return true;
