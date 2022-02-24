@@ -120,15 +120,17 @@
         inner join test_case on t.case_id = test_case.id
         left join test_case_node on test_case_node.id = test_case.node_id
         inner join project on project.id = test_case.project_id
-        where test_case.status != 'Trash' and t.plan_id = test_plan.id) as testPlanTestCaseCount,
+        where (test_case.status != 'Trash' or test_case.status is null )
+            and t.plan_id = test_plan.id) as testPlanTestCaseCount,
 
         (select COUNT(*) from test_plan_api_case t
         inner join api_test_case c on t.api_case_id = c.id
         inner join api_definition a on c.api_definition_id = a.id
-        where t.test_plan_id = test_plan.id) as testPlanApiCaseCount,
+        where t.test_plan_id = test_plan.id and (c.status  != 'Trash' or c.status is null)) as testPlanApiCaseCount,
 
         (select COUNT(*) from test_plan_api_scenario t
-        inner join api_scenario c on t.api_scenario_id = c.id and c.status != 'Trash'
+        inner join api_scenario c on t.api_scenario_id = c.id
+              and (c.status != 'Trash' or c.status is null)
         where t.test_plan_id = test_plan.id) as testPlanApiScenarioCount,
 
         (select COUNT(*) from test_plan_load_case t
