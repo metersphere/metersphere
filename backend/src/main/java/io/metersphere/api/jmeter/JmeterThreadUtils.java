@@ -40,10 +40,12 @@ public class JmeterThreadUtils {
         Thread[] lstThreads = new Thread[noThreads];
         currentGroup.enumerate(lstThreads);
         for (int i = 0; i < noThreads; i++) {
-            if (StringUtils.isNotEmpty(reportId) && StringUtils.isNotEmpty(lstThreads[i].getName()) && lstThreads[i].getName().startsWith(reportId)) {
-                return true;
-            } else if (StringUtils.isNotEmpty(testId) && StringUtils.isNotEmpty(lstThreads[i].getName()) && lstThreads[i].getName().startsWith(testId)) {
-                return true;
+            if (lstThreads[i] != null) {
+                if (StringUtils.isNotEmpty(reportId) && StringUtils.isNotEmpty(lstThreads[i].getName()) && lstThreads[i].getName().startsWith(reportId)) {
+                    return true;
+                } else if (StringUtils.isNotEmpty(testId) && StringUtils.isNotEmpty(lstThreads[i].getName()) && lstThreads[i].getName().startsWith(testId)) {
+                    return true;
+                }
             }
         }
         return false;
