@@ -244,7 +244,7 @@ public class HashTreeUtil {
         if (envConfig == null) {
             return;
         }
-        if (envConfig.isUseErrorCode()) {
+        if (!config.isOperating() && envConfig.isUseErrorCode()) {
             List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(projectId);
             for (MsAssertions assertion : errorReportAssertion) {
                 assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
