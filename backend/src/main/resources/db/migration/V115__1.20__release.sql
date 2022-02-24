@@ -1,0 +1,9 @@
+INSERT
+system_parameter
+VALUES
+	(
+		'metersphere.module.ui',
+		'ENABLE',
+		'text',
+		1
+	);
