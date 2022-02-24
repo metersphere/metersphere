@@ -197,25 +197,26 @@ public class ApiCaseExecuteService {
         Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
 
-        String finalSerialReportId = serialReportId;
-        caseList.forEach(caseWithBLOBs -> {
+        for (int i = 0; i < caseList.size(); i++) {
+            ApiTestCaseWithBLOBs caseWithBLOBs = caseList.get(i);
             ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
             report.setStatus(status);
             report.setName(caseWithBLOBs.getName());
             report.setProjectId(caseWithBLOBs.getProjectId());
             report.setVersionId(caseWithBLOBs.getVersionId());
-            if (StringUtils.isNotEmpty(finalSerialReportId)) {
-                report.setIntegratedReportId(finalSerialReportId);
+            report.setCreateTime(System.currentTimeMillis() + i);
+            if (StringUtils.isNotEmpty(serialReportId)) {
+                report.setIntegratedReportId(serialReportId);
             }
             executeQueue.put(caseWithBLOBs.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
-        });
+        }
 
         apiCaseResultService.batchSave(executeQueue);
 
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
-        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), finalSerialReportId, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
+        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), serialReportId, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
         // 开始选择执行模式
         if (deQueue != null && deQueue.getQueue() != null) {
             Thread thread = new Thread(new Runnable() {
