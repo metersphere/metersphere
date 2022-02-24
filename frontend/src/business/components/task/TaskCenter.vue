@@ -314,7 +314,7 @@ export default {
         if (status === "waiting" || status === 'stop') {
           return 0;
         }
-        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error'|| status === 'errorreportresult') {
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'errorreportresult') {
           return 100;
         }
       }
@@ -398,17 +398,6 @@ export default {
     getTaskRunning() {
       this.initWebSocket();
     },
-    calculationRunningTotal() {
-      if (this.taskData) {
-        let total = 0;
-        this.taskData.forEach(item => {
-          if (this.getPercentage(item.executionStatus) !== 100 && this.getPercentage(item.executionStatus) !== 0) {
-            total++;
-          }
-        });
-        this.runningTotal = total;
-      }
-    },
     init() {
       if (this.showType === "CASE" || this.showType === "SCENARIO") {
         return;
@@ -417,7 +406,6 @@ export default {
       this.result = this.$post('/task/center/list/' + this.currentPage + '/' + this.pageSize, this.condition, response => {
         this.total = response.data.itemCount;
         this.taskData = response.data.listObject;
-        this.calculationRunningTotal();
         this.initEnd = true;
         this.loading = false;
       });
