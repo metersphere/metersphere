@@ -563,6 +563,16 @@ export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, m
   });
 }
 
+
+// 多个监听共享变量
+// 否则切换 pageSize 等刷新操作会导致部分行的回调函数中 data 数据不一致
+let shareDragParam = {};
+
+// 清除 shareDragParam ，减少内存占用
+export function clearShareDragParam() {
+  shareDragParam.data = null;
+}
+
 export function handleRowDrop(data, callback) {
   setTimeout(() => {
     const tbody = document.querySelector('.el-table__body-wrapper tbody');
@@ -581,6 +591,8 @@ export function handleRowDrop(data, callback) {
       dropBars[i].classList.add(dropClass);
     }
 
+    shareDragParam.data = data;
+
     Sortable.create(tbody, {
       handle: "." + dropClass,
       animation: 100,
@@ -594,24 +606,24 @@ export function handleRowDrop(data, callback) {
       },
       onEnd({ newIndex, oldIndex}) {
         let param = {};
-        param.moveId = data[oldIndex].id;
+        param.moveId = shareDragParam.data[oldIndex].id;
         if (newIndex === 0) {
           param.moveMode = 'BEFORE';
-          param.targetId = data[0].id;
+          param.targetId = shareDragParam.data[0].id;
         } else {
           // 默认从后面添加
           param.moveMode = 'AFTER';
           if (newIndex < oldIndex) {
             // 如果往前拖拽，则添加到当前下标的前一个元素后面
-            param.targetId = data[newIndex - 1].id;
+            param.targetId = shareDragParam.data[newIndex - 1].id;
           } else {
             // 如果往后拖拽，则添加到当前下标的元素后面
-            param.targetId = data[newIndex].id;
+            param.targetId = shareDragParam.data[newIndex].id;
           }
         }
-        if (data && data.length > 1 && newIndex != oldIndex) {
-          const currRow = data.splice(oldIndex, 1)[0];
-          data.splice(newIndex, 0, currRow);
+        if (shareDragParam.data && shareDragParam.data.length > 1 && newIndex !== oldIndex) {
+          const currRow = shareDragParam.data.splice(oldIndex, 1)[0];
+          shareDragParam.data.splice(newIndex, 0, currRow);
           if (callback) {
             callback(param);
           }
