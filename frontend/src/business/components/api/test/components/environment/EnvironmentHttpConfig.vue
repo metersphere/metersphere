@@ -264,22 +264,46 @@ export default {
         });
       } else {
         this.condition.ids = [];
-        this.condition.details = [];
+        this.$warning(this.$t('api_test.environment.module_warning'));
+        return;
       }
     },
     update() {
       const index = this.httpConfig.conditions.findIndex((d) => d.id === this.condition.id);
       this.validateSocket(this.condition.socket);
       let obj = {
-        id: this.condition.id, type: this.condition.type, domain: this.condition.domain, socket: this.condition.socket, headers: this.condition.headers,
-        protocol: this.condition.protocol, details: this.condition.details, port: this.condition.port, time: this.condition.time
+        id: this.condition.id,
+        type: this.condition.type,
+        domain: this.condition.domain,
+        socket: this.condition.socket,
+        headers: this.condition.headers,
+        protocol: this.condition.protocol,
+        port: this.condition.port,
+        time: this.condition.time
       };
       if (obj.type === "PATH") {
+        if (this.pathDetails.name === '') {
+          this.$warning(this.$t('api_test.environment.path_warning'));
+          return;
+        }
         this.httpConfig.conditions[index].details = [this.pathDetails];
+      } else {
+        if (this.condition.details.length === 0) {
+          this.$warning(this.$t('api_test.environment.module_warning'));
+          return;
+        }
+        obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
       }
       if (index !== -1) {
         Vue.set(this.httpConfig.conditions[index], obj, 1);
-        this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", headers: [new KeyValue()]};
+        this.condition = {
+          type: "NONE",
+          details: [new KeyValue({name: "", value: "contains"})],
+          protocol: "http",
+          socket: "",
+          domain: "",
+          headers: [new KeyValue()]
+        };
         this.reload();
       }
       this.$refs.envTable.setCurrentRow(0);
