@@ -59,7 +59,11 @@ public class EngineSourceParserFactory {
         ) {
             // 删除空白的行
             List<Node> nodes = document.selectNodes("//text()[normalize-space(.)='']");
-            nodes.forEach(node -> node.setText(""));
+            nodes.forEach(node -> {
+                if (node.getText().contains("\n")) {
+                    node.setText("");
+                }
+            });
 
             XMLWriter xw = new XMLWriter(out, format);
             xw.setEscapeText(IS_TRANS);
