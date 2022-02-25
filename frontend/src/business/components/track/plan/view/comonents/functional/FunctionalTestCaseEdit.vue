@@ -216,7 +216,8 @@ export default {
       isCustomFiledActive: false,
       otherInfoActive: true,
       isReadOnly: false,
-      testCases: []
+      testCases: [],
+      originalStatus: ""
     };
   },
   props: {
@@ -271,6 +272,7 @@ export default {
       this.$emit('refreshTable');
     },
     statusChange(status) {
+      this.originalStatus = this.testCase.status;
       this.testCase.status = status;
       this.saveCase(true);
     },
@@ -325,6 +327,11 @@ export default {
         if (result.actualResult && result.actualResult.length > 300) {
           this.$warning(this.$t('test_track.plan_view.actual_result')
             + this.$t('test_track.length_less_than') + '300');
+          return;
+        }
+        if (result.executeResult === 'Failure' && this.testCase.status === 'Pass') {
+          this.$warning(this.$t('test_track.plan_view.execute_tip'));
+          this.testCase.status = this.originalStatus;
           return;
         }
         param.results.push(result);
