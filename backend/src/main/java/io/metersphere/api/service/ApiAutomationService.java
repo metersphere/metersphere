@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.dto.automation.parse.ApiScenarioImportUtil;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
@@ -240,7 +241,14 @@ public class ApiAutomationService {
             request.setCustomNum(String.valueOf(nextNum));
         }
         checkScenarioNum(request);
-        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        ApiDefinitionMapper apiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request,apiTestCaseMapper,apiDefinitionMapper);
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
         scenario.setVersion(0);
 
         scenario.setCreateTime(System.currentTimeMillis());
@@ -346,7 +354,16 @@ public class ApiAutomationService {
         //如果场景有TCP步骤的话，也要做参数计算处理
         tcpApiParamService.checkTestElement(request.getScenarioDefinition());
 
-        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
+        //检查是否要增加引用的步骤的CASE类型的数据
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        ApiDefinitionMapper apiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request,apiTestCaseMapper,apiDefinitionMapper);
+
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
 
         ApiScenarioWithBLOBs beforeScenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
         Integer version = beforeScenario.getVersion();
@@ -387,6 +404,8 @@ public class ApiAutomationService {
         extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
         uploadFiles(request, bodyFiles, scenarioFiles);
 
+
+
         // 存储依赖关系
         ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
         if (relationshipEdgeService != null) {
@@ -394,6 +413,19 @@ public class ApiAutomationService {
         }
         checkAndSetLatestVersion(beforeScenario.getRefId());
         return scenario;
+    }
+
+    private void checkReferenceCase(ApiScenarioWithBLOBs scenario,ApiTestCaseMapper apiTestCaseMapper,ApiDefinitionMapper apiDefinitionMapper) {
+        if (scenario == null || StringUtils.isEmpty(scenario.getScenarioDefinition())) {
+            return;
+        }
+        if (scenario.getScenarioDefinition().contains("\"referenced\":\"REF\"")) {
+            JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+            JSONArray hashTree = element.getJSONArray("hashTree");
+            ApiScenarioImportUtil.formatHashTree(hashTree);
+            setReferenced(hashTree,scenario.getVersionId(),scenario.getProjectId(),apiTestCaseMapper,apiDefinitionMapper);
+            scenario.setScenarioDefinition(JSONObject.toJSONString(element));
+        }
     }
 
     private void checkAndSetLatestVersion(String refId) {
@@ -424,7 +456,7 @@ public class ApiAutomationService {
                 .map(MsHTTPSamplerProxy::getId).collect(Collectors.toSet());
     }
 
-    public ApiScenarioWithBLOBs buildSaveScenario(SaveApiScenarioRequest request) {
+    public ApiScenarioWithBLOBs buildSaveScenario(SaveApiScenarioRequest request,ApiTestCaseMapper apiTestCaseMapper,ApiDefinitionMapper apiDefinitionMapper) {
         ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
         scenario.setId(request.getId());
         scenario.setName(request.getName());
@@ -473,6 +505,7 @@ public class ApiAutomationService {
         } else {
             scenario.setVersionId(request.getVersionId());
         }
+        checkReferenceCase(scenario,apiTestCaseMapper,apiDefinitionMapper);
         return scenario;
     }
 
@@ -1112,7 +1145,7 @@ public class ApiAutomationService {
     }
 
     private void _importCreate(List<ApiScenarioWithBLOBs> sameRequest, ApiScenarioMapper batchMapper, ExtApiScenarioMapper extApiScenarioMapper,
-                               ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest) {
+                               ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest,ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper) {
         if (CollectionUtils.isEmpty(sameRequest)) {
             scenarioWithBLOBs.setId(UUID.randomUUID().toString());
             List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
@@ -1126,6 +1159,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getDefaultVersion());
             }
             scenarioWithBLOBs.setLatest(true);
+            checkReferenceCase(scenarioWithBLOBs,apiTestCaseMapper,apiDefinitionMapper);
             batchMapper.insert(scenarioWithBLOBs);
             apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
         } else {
@@ -1156,6 +1190,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
                 batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
             }
+            checkReferenceCase(scenarioWithBLOBs,apiTestCaseMapper,apiDefinitionMapper);
             apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
             extApiScenarioMapper.clearLatestVersion(scenarioWithBLOBs.getRefId());
             extApiScenarioMapper.addLatestVersion(scenarioWithBLOBs.getRefId());
@@ -1163,7 +1198,7 @@ public class ApiAutomationService {
     }
 
     private ApiScenarioWithBLOBs importCreate(ApiScenarioWithBLOBs request, ApiScenarioMapper batchMapper, ExtApiScenarioMapper extApiScenarioMapper,
-                                              ApiTestImportRequest apiTestImportRequest) {
+                                              ApiTestImportRequest apiTestImportRequest,ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper) {
         final ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
         BeanUtils.copyBean(scenarioWithBLOBs, request);
         scenarioWithBLOBs.setCreateTime(System.currentTimeMillis());
@@ -1212,7 +1247,7 @@ public class ApiAutomationService {
         }
 
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
-            _importCreate(sameRequest, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest);
+            _importCreate(sameRequest, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest,apiTestCaseMapper,apiDefinitionMapper);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
@@ -1226,8 +1261,8 @@ public class ApiAutomationService {
                     scenarioWithBLOBs.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
                 scenarioWithBLOBs.setLatest(true);
+                checkReferenceCase(scenarioWithBLOBs,apiTestCaseMapper,apiDefinitionMapper);
                 batchMapper.insert(scenarioWithBLOBs);
-
                 // 存储依赖关系
                 ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
                 if (relationshipEdgeService != null) {
@@ -1237,7 +1272,7 @@ public class ApiAutomationService {
             }
 
         } else {
-            _importCreate(sameRequest, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest);
+            _importCreate(sameRequest, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest,apiTestCaseMapper,apiDefinitionMapper);
         }
         return scenarioWithBLOBs;
     }
@@ -1246,6 +1281,8 @@ public class ApiAutomationService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioMapper batchMapper = sqlSession.getMapper(ApiScenarioMapper.class);
         ExtApiScenarioMapper extApiScenarioMapper = sqlSession.getMapper(ExtApiScenarioMapper.class);
+        ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        ApiDefinitionMapper apiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         List<ApiScenarioWithBLOBs> data = apiImport.getData();
         currentScenarioOrder.remove();
         int num = 0;
@@ -1283,7 +1320,7 @@ public class ApiAutomationService {
                 item.setId(UUID.randomUUID().toString());
             }
             // 导入之后刷新latest
-            importCreate(item, batchMapper, extApiScenarioMapper, request);
+            importCreate(item, batchMapper, extApiScenarioMapper, request,apiTestCaseMapper,apiDefinitionMapper);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }
@@ -1570,7 +1607,6 @@ public class ApiAutomationService {
         }
         return urlList;
     }
-
 
     public ScenarioEnv getApiScenarioProjectId(String id) {
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
@@ -1953,4 +1989,45 @@ public class ApiAutomationService {
         });
         return strings;
     }
+
+    private void setReferenced(JSONArray hashTree,String versionId,String projectId, ApiTestCaseMapper apiTestCaseMapper,ApiDefinitionMapper apiDefinitionMapper) {
+        // 将引用转成复制
+        if (CollectionUtils.isNotEmpty(hashTree)) {
+            for (int i = 0; i < hashTree.size(); i++) {
+                JSONObject object = (JSONObject) hashTree.get(i);
+                String referenced = object.getString("referenced");
+                if (StringUtils.isNotBlank(referenced) && StringUtils.equals(referenced, "REF")) {
+                    // 检测引用对象是否存在，若果不存在则改成复制对象
+                    String refType = object.getString("refType");
+                    if (StringUtils.isNotEmpty(refType)) {
+                        if (refType.equals("CASE")) {
+                            ApiScenarioImportUtil.checkCase(object,versionId,projectId,apiTestCaseMapper,apiDefinitionMapper);
+                        } else {
+                            checkAutomation(object,projectId);
+                        }
+                    }else{
+                        object.put("referenced", "Copy");
+                    }
+                }
+                JSONObject environmentMap = object.getJSONObject("environmentMap");
+                if (environmentMap != null) {
+                    object.put("environmentMap", new HashMap<>());
+                }
+                if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
+                    setReferenced(object.getJSONArray("hashTree"),versionId,projectId,apiTestCaseMapper,apiDefinitionMapper);
+                }
+            }
+        }
+    }
+
+    public void checkAutomation(JSONObject object, String projectId) {
+        ApiScenarioWithBLOBs bloBs = getDto(object.getString("id"));
+        if (bloBs != null) {
+            boolean isSameWorkSpace = ApiScenarioImportUtil.checkWorkSpace(bloBs.getProjectId(),projectId);
+            if(!isSameWorkSpace){
+                object.put("referenced", "Copy");
+            }
+        }
+    }
+
 }

@@ -261,7 +261,7 @@
                                :scenario-definition="scenarioDefinition"/>
 
       <!--接口列表-->
-      <scenario-api-relevance @save="pushApiOrCase" @close="setHideBtn" ref="scenarioApiRelevance" v-if="type!=='detail'"/>
+      <scenario-api-relevance @save="pushApiOrCase" @close="setHideBtn" ref="scenarioApiRelevance" :is-across-space="true" v-if="type!=='detail'"/>
 
       <!--自定义接口-->
       <el-drawer v-if="type!=='detail'" :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr"
@@ -270,7 +270,7 @@
         <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi"/>
       </el-drawer>
       <!--场景导入 -->
-      <scenario-relevance v-if="type!=='detail'" @save="addScenario" @close="setHideBtn" ref="scenarioRelevance"/>
+      <scenario-relevance v-if="type!=='detail'" @save="addScenario" @close="setHideBtn" :is-across-space="true" ref="scenarioRelevance"/>
 
       <!-- 环境 -->
       <api-environment-config v-if="type!=='detail'" ref="environmentConfig" @close="environmentConfigClose"/>
