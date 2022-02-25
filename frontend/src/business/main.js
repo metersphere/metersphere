@@ -29,7 +29,6 @@ import formCreate from "@form-create/element-ui"
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 import 'element-ui/lib/theme-chalk/display.css';
-import mixin from '../mixin'
 Vue.use(mavonEditor)
 
 Vue.use(vueMinderEditor)
@@ -56,8 +55,6 @@ Vue.use(YanProgress);
 Vue.use(VueFab);
 Vue.use(JSONPathPicker);
 Vue.use(VueClipboard)
-
-Vue.mixin(mixin)
 
 // v-permission
 Vue.directive('permission', permission);
