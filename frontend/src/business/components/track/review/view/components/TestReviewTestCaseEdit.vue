@@ -216,7 +216,7 @@ export default {
       hasZentaoId: false,
       formLabelWidth: '100px',
       isCustomFiledActive: false,
-      oldReviewStatus: 'Pass'
+      oldReviewStatus: 'Prepare'
     };
   },
   props: {
@@ -294,29 +294,34 @@ export default {
       param.reviewId = this.testCase.reviewId;
       param.status = status;
       if (status === 'UnPass') {
-        if ((this.testCase.reviewStatus === 'Pass' || this.testCase.reviewStatus === 'Prepare') && this.$refs.reviewComment.form.description.length < 1) {
-          this.oldReviewStatus = this.testCase.reviewStatus;
-          this.testCase.reviewStatus = status;
+        this.testCase.reviewStatus = 'UnPass';
+        // 第一种情况，第一次评审，用户直接点击未通过，需要提醒未评论
+        if (this.oldReviewStatus === 'Prepare' && this.comments.length < 1) {
           this.$refs.reviewComment.inputLight();
           this.$warning(this.$t('test_track.comment.description_is_null'));
         } else if (this.$refs.reviewComment.form.description.length > 0) {
+          // 第二种情况，当前状态为未通过，但是评论区内还有内容未提交
           this.$refs.reviewComment.inputLight();
           this.$warning(this.$t('test_track.comment.submit_description'));
-        } else if (this.comments.length > 0) {
-          this.oldReviewStatus = this.testCase.reviewStatus;
-          this.testCase.reviewStatus = status;
+        } else if (this.oldReviewStatus === 'Pass') {
+          // 第三种情况，从通过状态切换未通过状态，需要重新提交新的评论，才能切换
+          this.$refs.reviewComment.inputLight();
+          this.$warning(this.$t('test_track.comment.description_is_null'));
+        } else {
+          // 第四种情况，未通过状态直接点击未通过
           this.$post('/test/review/case/edit', param, () => {
             this.$success(this.$t('commons.save_success'));
             this.updateTestCases(param);
             this.setReviewStatus(this.testCase.reviewId);
+            this.testCase.reviewStatus = status;
+            // 修改当前用例在整个用例列表的状态
             this.testCases[this.index].reviewStatus = status;
+            // 修改旧的状态
+            this.oldReviewStatus = status;
             if (this.index < this.testCases.length - 1) {
               this.handleNext();
             }
           });
-        } else {
-          this.$refs.reviewComment.inputLight();
-          this.$warning(this.$t('test_track.comment.description_is_null'));
         }
       } else {
         this.$post('/test/review/case/edit', param, () => {
@@ -324,10 +329,13 @@ export default {
           this.updateTestCases(param);
           this.setReviewStatus(this.testCase.reviewId);
           this.testCase.reviewStatus = status;
+          // 修改当前用例在整个用例列表的状态
           this.testCases[this.index].reviewStatus = status;
           if (this.index < this.testCases.length - 1) {
             this.handleNext();
           }
+          // 切换状态后需要修改旧的状态
+          this.oldReviewStatus = status;
         });
       }
     },
@@ -342,6 +350,7 @@ export default {
         this.updateTestCases(param);
         this.setReviewStatus(this.testCase.reviewId);
         this.oldReviewStatus = status;
+        // 修改当前用例在整个用例列表的状态
         this.testCases[this.index].reviewStatus = status;
         if (this.index < this.testCases.length - 1) {
           this.handleNext();
@@ -395,7 +404,9 @@ export default {
         parseCustomField(item, this.testCaseTemplate, null, buildTestCaseOldFields(item));
         this.isCustomFiledActive = true;
         this.testCase = item;
+        this.oldReviewStatus = this.testCase.reviewStatus;
         if (!this.testCase.actualResult) {
+          // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
         }
         this.getComments(item);
@@ -418,6 +429,8 @@ export default {
     },
     openTestCaseEdit(testCase, tableData) {
       this.showDialog = true;
+      // 一开始加载时候需要保存用例评审旧的状态
+      this.oldReviewStatus = testCase.reviewStatus;
       this.activeTab = 'detail';
       this.getComments(testCase);
       this.hasTapdId = false;
