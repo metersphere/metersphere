@@ -1202,7 +1202,9 @@ public class MockConfigService {
             response.setStatus(responseDTO.getReturnCode());
             if (MapUtils.isNotEmpty(responseDTO.getHeaders())) {
                 for (Map.Entry<String, String> entry : responseDTO.getHeaders().entrySet()) {
-                    response.setHeader(entry.getKey(), entry.getValue());
+                    if(StringUtils.isNotEmpty(entry.getKey())){
+                        response.setHeader(entry.getKey(), entry.getValue());
+                    }
                 }
             }
         } catch (Exception e) {
