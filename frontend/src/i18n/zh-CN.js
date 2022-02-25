@@ -2310,6 +2310,7 @@ export default {
       allow_associated_repetitive_cases_tip: "是否允许同一个测试计划中多次关联相同用例",
       performance_case_count: "性能测试用例数",
       running: "运行中",
+      please_choose_test_case: "请选择测试用例！",
     },
     issue: {
       issue: "缺陷",
