@@ -23,12 +23,23 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
-          <module-trash-button :condition="condition" :total="total" :exe="enableTrash"/>
-        <module-public-button :condition="condition" :public-total="publicTotal" :exe="enablePublic"/>
+          <module-trash-button
+            :condition="condition"
+            :total="total"
+            :exe="enableTrash"/>
+        <module-public-button
+          :condition="condition"
+          :public-total="publicTotal"
+          :exe="enablePublic"/>
       </template>
     </ms-node-tree>
-    <test-case-import @refreshAll="refreshAll" ref="testCaseImport"/>
-    <test-case-export @refreshAll="refreshAll" @exportTestCase="exportTestCase" ref="testCaseExport"/>
+    <test-case-import
+      @refreshAll="refreshAll"
+      ref="testCaseImport"/>
+    <test-case-export
+      @refreshAll="refreshAll"
+      @exportTestCase="exportTestCase"
+      ref="testCaseExport"/>
     <test-case-create
       :tree-nodes="treeNodes"
       @saveAsEdit="saveAsEdit"
