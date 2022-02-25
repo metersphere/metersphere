@@ -211,7 +211,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setUpdateTime(System.currentTimeMillis());
         checkTestCaseNodeExist(request);
         if (!CollectionUtils.isEmpty(request.getNodeIds())) {
-            List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(request.getNodeIds());
+            List<TestCaseDTO> testCases = extTestCaseMapper.getForNodeEdit(request.getNodeIds());
             testCases.forEach(testCase -> {
                 StringBuilder path = new StringBuilder(testCase.getNodePath());
                 List<String> pathLists = Arrays.asList(path.toString().split("/"));
@@ -224,10 +224,21 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             });
             batchUpdateTestCase(testCases);
         }
-        if (StringUtils.isBlank(request.getParentId())) {
-            request.setParentId(null);
-        }
         return testCaseNodeMapper.updateByPrimaryKeySelective(request);
+    }
+
+    /**
+     * 修改用例的 nodePath
+     * @param editNodeIds
+     * @param projectId
+     */
+    public void editCasePathForMinder(List<String> editNodeIds, String projectId) {
+        if (!CollectionUtils.isEmpty(editNodeIds)) {
+            List<TestCaseNodeDTO> nodeTrees = getNodeTrees(extTestCaseNodeMapper.getNodeTreeByProjectId(projectId));
+            List<TestCaseDTO> testCases = extTestCaseMapper.getForNodeEdit(editNodeIds);
+            nodeTrees.forEach(nodeTree -> buildUpdateTestCase(nodeTree, testCases, null, "/", "0", 1));
+            batchUpdateTestCase(testCases);
+        }
     }
 
     public int deleteNode(List<String> nodeIds) {
@@ -520,11 +531,13 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             MSException.throwException(Translator.get("node_deep_limit"));
         }
 
-        TestCaseNode testCaseNode = new TestCaseNode();
-        testCaseNode.setId(rootNode.getId());
-        testCaseNode.setLevel(level);
-        testCaseNode.setParentId(pId);
-        updateNodes.add(testCaseNode);
+        if (updateNodes != null) {
+            TestCaseNode testCaseNode = new TestCaseNode();
+            testCaseNode.setId(rootNode.getId());
+            testCaseNode.setLevel(level);
+            testCaseNode.setParentId(pId);
+            updateNodes.add(testCaseNode);
+        }
 
         for (TestCaseDTO item : testCases) {
             if (StringUtils.equals(item.getNodeId(), rootNode.getId())) {
@@ -697,17 +710,21 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         deleteNode(request.getIds());
 
         List<TestCaseMinderEditRequest.TestCaseNodeMinderEditItem> testCaseNodes = request.getTestCaseNodes();
+        List<String> editNodeIds = new ArrayList<>();
+
         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(testCaseNodes)) {
 
             for (TestCaseMinderEditRequest.TestCaseNodeMinderEditItem item: testCaseNodes) {
                 if (StringUtils.isBlank(item.getParentId()) || item.getParentId().equals("root")) {
-                    item.setParentId("");
+                    item.setParentId(null);
                 }
                 item.setProjectId(request.getProjectId());
                 if (item.getIsEdit()) {
                     DragNodeRequest editNode = new DragNodeRequest();
                     BeanUtils.copyBean(editNode, item);
-                    editNode(editNode);
+                    checkTestCaseNodeExist(editNode);
+                    editNodeIds.add(editNode.getId());
+                    testCaseNodeMapper.updateByPrimaryKeySelective(editNode);
                 } else {
                     TestCaseNode testCaseNode = new TestCaseNode();
                     BeanUtils.copyBean(testCaseNode, item);
@@ -715,6 +732,8 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                     addNode(testCaseNode);
                 }
             }
+
+            editCasePathForMinder(editNodeIds, request.getProjectId());
         }
     }
 

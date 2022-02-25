@@ -991,6 +991,13 @@
         and T2.case_id is null
         order by test_case.`order` desc, test_case.sort desc
     </select>
+    <select id="getForNodeEdit" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select test_case.id, test_case.node_id, test_case.node_path
+        from test_case where node_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <update id="addLatestVersion">
         UPDATE test_case
