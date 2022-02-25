@@ -2306,6 +2306,7 @@ export default {
       performance_case_count: "Performance Case Count",
       running: "Running",
       please_choose_test_case: "please select a test case！",
+      execute_tip: "The step execution result contains a Failed result, and the use case cannot be marked as Passed!"
     },
     issue: {
       issue: "Issue",

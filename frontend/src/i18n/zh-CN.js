@@ -2311,6 +2311,7 @@ export default {
       performance_case_count: "性能测试用例数",
       running: "运行中",
       please_choose_test_case: "请选择测试用例！",
+      execute_tip: "步骤执行结果中含有 失败 结果，无法标记该用例为 通过 状态！"
     },
     issue: {
       issue: "缺陷",
