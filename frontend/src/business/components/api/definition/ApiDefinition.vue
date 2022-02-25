@@ -763,6 +763,9 @@ export default {
       if (this.$refs.trashCaseList) {
         this.$refs.trashCaseList.initTable();
       }
+      if (this.$refs.nodeTree) {
+        this.$refs.nodeTree.list();
+      }
       if (this.$refs.apiDefList && this.$refs.apiDefList[0]) {
         this.$refs.apiDefList[0].initTable();
       }

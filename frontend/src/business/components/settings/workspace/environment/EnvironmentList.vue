@@ -274,10 +274,10 @@ export default {
               value: project.id,
             });
           });
-          this.getEnvironments();
+          this.getEnvironments(this.condition.projectIds);
         });
       } else {
-        this.getEnvironments();
+        this.getEnvironments(this.condition.projectIds);
       }
     },
     getEnvironments(projectIds) {
