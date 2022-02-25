@@ -40,7 +40,7 @@ public class ShiroConfig implements EnvironmentAware {
     private Environment env;
 
     @Bean
-    public ShiroFilterFactoryBean getShiroFilterFactoryBean(DefaultWebSecurityManager sessionManager) {
+    public ShiroFilterFactoryBean shiroFilterFactoryBean(DefaultWebSecurityManager sessionManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setLoginUrl("/login");
         shiroFilterFactoryBean.setSecurityManager(sessionManager);
