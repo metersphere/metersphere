@@ -361,7 +361,10 @@ public class ApiDefinitionExecResultService {
 
             saveResult.setName(item.getName());
             saveResult.setType(type);
-            saveResult.setCreateTime(item.getStartTime());
+
+            if (saveResult.getCreateTime() == null || saveResult.getCreateTime() == 0) {
+                saveResult.setCreateTime(item.getStartTime());
+            }
             editStatus(saveResult, type, status, saveResult.getCreateTime(), saveResult.getId(), testId);
             saveResult.setStatus(status);
             saveResult.setResourceId(item.getName());

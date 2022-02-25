@@ -282,7 +282,7 @@ public class ApiScenarioReportStructureService {
     private List<ApiDefinitionExecResultVo> formatApiReport(String reportId, List<StepTreeDTO> stepList) {
         ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
         example.createCriteria().andIntegratedReportIdEqualTo(reportId);
-        example.setOrderByClause("end_time desc");
+        example.setOrderByClause("create_time asc");
         List<ApiDefinitionExecResult> reportResults = definitionExecResultMapper.selectByExampleWithBLOBs(example);
         List<ApiDefinitionExecResultVo> resultVos = new LinkedList<>();
         for (int i = 0; i < reportResults.size(); i++) {
