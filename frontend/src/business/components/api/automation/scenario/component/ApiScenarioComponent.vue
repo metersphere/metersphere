@@ -20,7 +20,7 @@
     :envMap="envMap"
     :title="$t('commons.scenario')">
 
-    <template v-slot:afterTitle v-if="isSameSpace">
+    <template v-slot:afterTitle >
       <span v-if="isShowNum" @click="clickResource(scenario)">{{ "（ ID: " + scenario.num + "）" }}</span>
       <span v-else>
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
@@ -67,9 +67,8 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, strMapToObj} from "@/common/js/utils";
-import {ELEMENT_TYPE, STEP, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
-import {KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
+import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
+import {STEP} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiScenarioComponent",
@@ -113,14 +112,13 @@ export default {
     },
   },
   created() {
-    if (this.scenario.num) {
-      this.isShowNum = true;
-      this.getWorkspaceId(this.scenario.projectId);
-    } else {
-      this.isShowNum = false;
-    }
     if (!this.scenario.projectId) {
       this.scenario.projectId = getCurrentProjectID();
+    }
+    if (this.scenario.num) {
+      this.isShowNum = true;
+    } else {
+      this.isShowNum = false;
     }
     if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
       this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
@@ -132,16 +130,14 @@ export default {
       loading: false,
       isShowInput: false,
       isShowNum: false,
-      isSameSpace: true,
       stepFilter: new STEP,
+      dataWorkspaceId:'',
     }
   },
   computed: {
     isDeletedOrRef() {
-      if (this.scenario.referenced != undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF') {
-        return true;
-      }
-      return false;
+      return this.scenario.referenced !== undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF';
+
     },
     projectId() {
       return getCurrentProjectID();
@@ -225,7 +221,7 @@ export default {
       for (let i in arr) {
         arr[i].disabled = true;
         arr[i].projectId = this.calcProjectId(arr[i].projectId, id);
-        if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
+        if (arr[i].hashTree !== undefined && arr[i].hashTree.length > 0) {
           this.recursive(arr[i].hashTree, arr[i].projectId);
         }
       }
@@ -234,7 +230,7 @@ export default {
       for (let i in scenarioDefinition) {
         scenarioDefinition[i].disabled = true;
         scenarioDefinition[i].projectId = this.calcProjectId(scenarioDefinition[i].projectId, id);
-        if (scenarioDefinition[i].hashTree != undefined && scenarioDefinition[i].hashTree.length > 0) {
+        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
           this.recursive(scenarioDefinition[i].hashTree, scenarioDefinition[i].projectId);
         }
       }
@@ -263,17 +259,6 @@ export default {
         params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId}
       });
       window.open(automationData.href, '_blank');
-    },
-    getWorkspaceId(projectId) {
-      this.$get("/project/get/" + projectId, response => {
-        if (response.data) {
-          if (response.data.workspaceId === getCurrentWorkspaceId()) {
-            this.isShowNum = true;
-          } else {
-            this.isSameSpace = false;
-          }
-        }
-      });
     }
   }
 }
@@ -294,7 +279,7 @@ export default {
 }
 
 .ms-tag {
-  margin-left: 0px;
+  margin-left: 0;
 }
 
 .ms-req-error {

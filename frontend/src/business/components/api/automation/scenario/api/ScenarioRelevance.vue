@@ -1,5 +1,6 @@
 <template>
   <test-case-relevance-base
+    :is-across-space="isAcrossSpace"
     :dialog-title="$t('api_test.automation.scenario_import')"
     @setProject="setProject"
     ref="baseRelevance">
@@ -56,6 +57,14 @@ const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./v
 
 export default {
   name: "ScenarioRelevance",
+  props:{
+    isAcrossSpace:{
+      type:Boolean,
+      default() {
+        return false;
+      }
+    }
+  },
   components: {
     'VersionSelect': VersionSelect.default,
     TestCaseRelevanceBase,

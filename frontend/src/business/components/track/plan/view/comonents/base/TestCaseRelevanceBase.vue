@@ -18,6 +18,10 @@
     </template>
 
     <template v-slot:aside>
+      <el-select v-if="isAcrossSpace" filterable slot="prepend" v-model="workspaceId" @change="changeWorkspace" style="width: 160px"
+                 size="small">
+        <el-option v-for="(item,index) in workspaceList" :key="index" :label="item.name" :value="item.id"/>
+      </el-select>
       <select-menu
         :data="projects"
         v-if="multipleProject"
@@ -68,7 +72,9 @@ import SelectMenu from "../../../../common/SelectMenu";
         projectId: '',
         projectName: '',
         projects: [],
-
+        workspaceId:'',
+        workspaceList:[],
+        currentWorkSpaceId:''
       };
     },
     props: {
@@ -91,16 +97,18 @@ import SelectMenu from "../../../../common/SelectMenu";
           return false;
         }
       },
+      isAcrossSpace:{
+        type:Boolean,
+        default() {
+          return false;
+        }
+      },
       multipleProject: {
         type: Boolean,
         default: true
       }
     },
-    watch: {
-
-    },
     methods: {
-
       refreshNode() {
         this.$emit('refresh');
       },
@@ -119,7 +127,8 @@ import SelectMenu from "../../../../common/SelectMenu";
       },
 
       getProject() {
-        this.result = this.$post("/project/list/related", {userId: getCurrentUserId(), workspaceId: getCurrentWorkspaceId()}, res => {
+        let realWorkSpaceId = this.isAcrossSpace?this.workspaceId:this.currentWorkSpaceId;
+        this.result = this.$post("/project/list/related", {userId: getCurrentUserId(), workspaceId: realWorkSpaceId}, res => {
           let data = res.data;
           if (data) {
             const index = data.findIndex(d => d.id === getCurrentProjectID());
@@ -142,6 +151,23 @@ import SelectMenu from "../../../../common/SelectMenu";
         this.$emit('setProject', project.id);
         // 获取项目时刷新该项目模块
         this.$emit('refreshNode');
+      },
+
+      getWorkSpaceList(){
+        this.$get("/workspace/list/userworkspace/" + encodeURIComponent(getCurrentUserId()), response => {
+          this.workspaceList = response.data;
+        });
+      },
+
+      changeWorkspace(){
+        this.getProject();
+      }
+    },
+    created() {
+      this.currentWorkSpaceId = getCurrentWorkspaceId();
+      this.workspaceId = this.currentWorkSpaceId;
+      if(this.isAcrossSpace){
+        this.getWorkSpaceList();
       }
     }
   }
