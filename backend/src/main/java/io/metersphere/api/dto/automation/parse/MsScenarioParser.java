@@ -6,19 +6,29 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.EnvironmentType;
+import io.metersphere.api.dto.definition.ApiDefinitionRequest;
+import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
+import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.MsScenario;
+import io.metersphere.api.service.*;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiDefinitionMapper;
+import io.metersphere.base.mapper.ApiTestCaseMapper;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.parse.MsAbstractParser;
-import io.metersphere.api.service.ApiAutomationService;
-import io.metersphere.api.service.ApiTestCaseService;
-import io.metersphere.base.domain.ApiScenarioModule;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.service.ProjectService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 
+import javax.annotation.Resource;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -66,20 +76,6 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
         return scenarioWithBLOBs;
     }
 
-    private void formatHashTree(JSONArray hashTree) {
-        if (CollectionUtils.isNotEmpty(hashTree)) {
-            for (int i = 0; i < hashTree.size(); i++) {
-                JSONObject object = (JSONObject) hashTree.get(i);
-                object.put("index", i + 1);
-                object.put("resourceId", UUID.randomUUID().toString());
-                hashTree.set(i, object);
-                if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
-                    formatHashTree(object.getJSONArray("hashTree"));
-                }
-            }
-        }
-    }
-
     private ScenarioImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
         ScenarioImport scenarioImport = JSON.parseObject(testStr, ScenarioImport.class);
         List<ApiScenarioWithBLOBs> data = scenarioImport.getData();
@@ -102,9 +98,6 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                 if (StringUtils.isNotBlank(scenarioDefinitionStr)) {
                     JSONObject scenarioDefinition = JSONObject.parseObject(scenarioDefinitionStr);
                     if (scenarioDefinition != null) {
-                        JSONArray hashTree = scenarioDefinition.getJSONArray("hashTree");
-                        formatHashTree(hashTree);
-                        setCopy(hashTree);
                         JSONObject environmentMap = scenarioDefinition.getJSONObject("environmentMap");
                         if (environmentMap != null) {
                             scenarioDefinition.put("environmentMap", new HashMap<>());
@@ -127,53 +120,10 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                     // 旧版本未导出模块
                     parseModule(item.getModulePath(), importRequest, item);
                 }
-
-//                item.setId(UUID.randomUUID().toString());
                 item.setProjectId(this.projectId);
             });
         }
         return scenarioImport;
-    }
-
-    private void setCopy(JSONArray hashTree) {
-        // 将引用转成复制
-        if (CollectionUtils.isNotEmpty(hashTree)) {
-            for (int i = 0; i < hashTree.size(); i++) {
-                JSONObject object = (JSONObject) hashTree.get(i);
-                String referenced = object.getString("referenced");
-                if (StringUtils.isNotBlank(referenced) && StringUtils.equals(referenced, "REF")) {
-                    // 检测引用对象是否存在，若果不存在则改成复制对象
-                    String refType = object.getString("refType");
-                    boolean isCopy = true;
-                    if (StringUtils.isNotEmpty(refType)) {
-                        if (refType.equals("CASE")) {
-                            ApiTestCaseService testCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
-                            ApiTestCaseWithBLOBs bloBs = testCaseService.get(object.getString("id"));
-                            if (bloBs != null) {
-                                isCopy = false;
-                            }
-                        } else {
-                            ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
-                            ApiScenarioWithBLOBs bloBs = apiAutomationService.getDto(object.getString("id"));
-                            if (bloBs != null) {
-                                isCopy = false;
-                            }
-                        }
-                    }
-                    if (isCopy) {
-                        object.put("referenced", "Copy");
-                    }
-                }
-                object.put("projectId", "");
-                JSONObject environmentMap = object.getJSONObject("environmentMap");
-                if (environmentMap != null) {
-                    object.put("environmentMap", new HashMap<>());
-                }
-                if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
-                    setCopy(object.getJSONArray("hashTree"));
-                }
-            }
-        }
     }
 
     protected void parseModule(String modulePath, ApiTestImportRequest importRequest, ApiScenarioWithBLOBs apiScenarioWithBLOBs) {
@@ -181,7 +131,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
             return;
         }
         if (modulePath.startsWith("/")) {
-            modulePath = modulePath.substring(1, modulePath.length());
+            modulePath = modulePath.substring(1);
         }
         if (modulePath.endsWith("/")) {
             modulePath = modulePath.substring(0, modulePath.length() - 1);

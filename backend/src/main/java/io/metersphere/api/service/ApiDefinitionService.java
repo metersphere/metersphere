@@ -325,7 +325,7 @@ public class ApiDefinitionService {
         return getBLOBs(returnModel.getId());
     }
 
-    private void checkQuota() {
+    public void checkQuota() {
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         if (quotaService != null) {
             quotaService.checkAPIDefinitionQuota();
@@ -688,13 +688,7 @@ public class ApiDefinitionService {
         test.setVersionId(request.getVersionId());
         test.setLatest(true); // 新建一定是最新的
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
-            ApiModuleExample example = new ApiModuleExample();
-            example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
-            List<ApiModule> modules = apiModuleMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(modules)) {
-                test.setModuleId(modules.get(0).getId());
-                test.setModulePath("/未规划接口");
-            }
+            initModulePathAndId(test.getProjectId(), test);
         }
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
@@ -791,7 +785,7 @@ public class ApiDefinitionService {
         return apiDefinition;
     }
 
-    private Long getImportNextOrder(String projectId) {
+    public Long getImportNextOrder(String projectId) {
         Long order = currentApiOrder.get();
         if (order == null) {
             order = ServiceUtils.getNextOrder(projectId, extApiDefinitionMapper::getLastOrder);
@@ -801,7 +795,7 @@ public class ApiDefinitionService {
         return order;
     }
 
-    private Long getImportNextCaseOrder(String projectId) {
+    public Long getImportNextCaseOrder(String projectId) {
         Long order = currentApiCaseOrder.get();
         if (order == null) {
             order = ServiceUtils.getNextOrder(projectId, extApiTestCaseMapper::getLastOrder);
@@ -2002,4 +1996,23 @@ public class ApiDefinitionService {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
+
+    public ApiDefinitionResult getApiDefinitionResult(ApiDefinitionRequest request) {
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
+        if(resList==null){
+            return null;
+        }
+        return resList.get(0);
+    }
+
+    public void initModulePathAndId(String projectId, ApiDefinitionWithBLOBs test) {
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
+        List<ApiModule> modules = apiModuleMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(modules)) {
+            test.setModuleId(modules.get(0).getId());
+            test.setModulePath("/未规划接口");
+        }
+    }
+
 }

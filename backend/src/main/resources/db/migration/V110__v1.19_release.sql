@@ -39,3 +39,6 @@ DELIMITER ;
 
 CALL project_api_appl();
 DROP PROCEDURE IF EXISTS project_api_appl;
+
+ALTER TABLE `api_definition` ADD INDEX methodIndex ( `method` );
+ALTER TABLE `api_definition` ADD INDEX protocolIndex ( `protocol` );

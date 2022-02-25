@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -129,7 +130,6 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
         request = this.initRequest(request, true, true);
-
         List<ApiTestCaseDTO> apiTestCases = extApiTestCaseMapper.listSimple(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
@@ -1059,4 +1059,22 @@ public class ApiTestCaseService {
         List<ApiTestCaseFollow> follows = apiTestCaseFollowMapper.selectByExample(example);
         return follows.stream().map(ApiTestCaseFollow::getFollowId).distinct().collect(Collectors.toList());
     }
+
+    public ApiTestCaseWithBLOBs getSameCaseWithBLOBs(SaveApiTestCaseRequest request) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        ApiTestCaseExample.Criteria criteria = example.createCriteria();
+        criteria.andStatusNotEqualTo("Trash").andNameEqualTo(request.getName()).andApiDefinitionIdEqualTo(request.getApiDefinitionId());
+        if (StringUtils.isNotBlank(request.getId())) {
+            criteria.andIdNotEqualTo(request.getId());
+        }
+        if (StringUtils.isNotBlank(request.getVersionId())) {
+            criteria.andVersionIdEqualTo(request.getVersionId());
+        }
+        List<ApiTestCaseWithBLOBs> apiTestCaseWithBLOBs = apiTestCaseMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isNotEmpty(apiTestCaseWithBLOBs)) {
+            return apiTestCaseWithBLOBs.get(0);
+        }
+        return null;
+    }
+
 }
