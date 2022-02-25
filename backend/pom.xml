@@ -15,7 +15,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <shiro.version>1.7.1</shiro.version>
+        <shiro.version>1.8.0</shiro.version>
         <java.version>1.8</java.version>
         <flyway.version>7.15.0</flyway.version>
     </properties>
@@ -156,7 +156,13 @@
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>ms-jmeter-core</artifactId>
-            <version>1.0.9</version>
+            <version>1.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>netty</artifactId>
+                    <groupId>io.netty</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--   排除jmeter中的 xstream 解决bug     -->
@@ -172,6 +178,13 @@
             <artifactId>easyexcel</artifactId>
             <version>2.1.7</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.fit2cloud</groupId>
@@ -250,7 +263,7 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-client</artifactId>
-            <version>4.13.0</version>
+            <version>4.13.2</version>
         </dependency>
 
         <dependency>
@@ -263,6 +276,11 @@
             <groupId>com.github.eljah</groupId>
             <artifactId>xmindjbehaveplugin</artifactId>
             <version>0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.0.24</version>
         </dependency>
         <!-- selenium包  -->
         <dependency>
