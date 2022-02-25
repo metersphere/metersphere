@@ -44,8 +44,7 @@
               right-content="CASE"
             >
               <template v-slot:version>
-                <version-select v-xpack :project-id="projectId" :version-id="trashVersion"
-                                @changeVersion="changeVersion"/>
+                <version-select v-xpack :project-id="projectId" :version-id="trashVersion" @changeVersion="changeVersion"/>
               </template>
               <!-- 列表集合 -->
               <ms-api-list
@@ -455,7 +454,7 @@ export default {
       });
     },
     getEnv() {
-      this.$get("/api/definition/env/get/" + getCurrentUserId(), response => {
+      this.$get("/api/definition/env/get/" + getCurrentUserId() + "/" + getCurrentProjectID(), response => {
         let env = response.data;
         if (env) {
           this.$store.state.useEnvironment = env.envId;
