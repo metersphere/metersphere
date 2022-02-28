@@ -1135,14 +1135,14 @@ export default {
         param.ids = [row.id];
         this.$post('/api/automation/checkBeforeDelete/', param, response => {
           let checkResult = response.data;
-          let alertMsg = this.$t('load_test.delete_threadgroup_confirm');
+          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " [" + row.name + "] ?";
           if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
               alertMsg += item;
             });
             if (alertMsg === "") {
-              alertMsg = this.$t('load_test.delete_threadgroup_confirm');
+              alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " [" + row.name + "] ?";
             } else {
               alertMsg += this.$t('api_test.is_continue');
             }
