@@ -413,6 +413,7 @@ export default {
       let bodyFiles = this.getBodyUploadFiles(tmp);
       tmp.projectId = getCurrentProjectID();
       tmp.active = true;
+      tmp.request.useEnvironment = this.environment;
       tmp.apiDefinitionId = tmp.apiDefinitionId || this.api.id;
       let url = "/api/testcase/create";
       if (tmp.id) {
