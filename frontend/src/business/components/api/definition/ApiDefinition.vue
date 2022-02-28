@@ -487,9 +487,9 @@ export default {
     },
     addTab(tab) {
       if (tab.name === 'add') {
-        this.result = this.$get('/project/get/' + this.projectId, res => {
+        this.result = this.$get('/project_application/get/config/' + this.projectId +"/API_QUICK_MENU", res => {
           let projectData = res.data;
-          if (projectData && projectData.apiQuick === 'api') {
+          if (projectData && projectData.apiQuickMenu === 'api') {
             this.handleTabAdd("ADD");
           } else {
             this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");

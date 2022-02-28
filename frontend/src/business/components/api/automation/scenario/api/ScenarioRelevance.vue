@@ -94,7 +94,7 @@ export default {
     projectId(val) {
       this.$refs.nodeTree.list(this.projectId);
       if (val) {
-        this.$get("/project/get/" + val, result => {
+        this.$get('/project_application/get/config/' + val + "/SCENARIO_CUSTOM_NUM", result => {
           let data = result.data;
           if (data) {
             this.customNum = data.scenarioCustomNum;
