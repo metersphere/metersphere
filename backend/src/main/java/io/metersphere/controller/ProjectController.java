@@ -105,7 +105,7 @@ public class ProjectController {
 
     @PostMapping("/update")
     @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#Project.id)", content = "#msClass.getLogDetails(#Project.id)", msClass = ProjectService.class)
-    public void updateProject(@RequestBody Project Project) {
+    public void updateProject(@RequestBody AddProjectRequest Project) {
         projectService.updateProject(Project);
     }
 

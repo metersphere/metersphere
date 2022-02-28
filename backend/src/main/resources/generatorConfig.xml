@@ -71,7 +71,21 @@
         <!--<table tableName="test_plan"/>-->
         <!--<table tableName="api_scenario_report"/>-->
         <!--<table tableName="test_case_review"/>-->
-        <table tableName="project_application"/>
+        <table tableName="project">
+            <ignoreColumn column="custom_num"/>
+            <ignoreColumn column="scenario_custom_num"/>
+            <ignoreColumn column="mock_tcp_port"/>
+            <ignoreColumn column="is_mock_tcp_open"/>
+            <ignoreColumn column="api_quick"/>
+            <ignoreColumn column="case_public"/>
+            <ignoreColumn column="clean_track_report"/>
+            <ignoreColumn column="clean_track_report_expr"/>
+            <ignoreColumn column="clean_api_report"/>
+            <ignoreColumn column="clean_api_report_expr"/>
+            <ignoreColumn column="clean_load_report"/>
+            <ignoreColumn column="clean_load_report_expr"/>
+            <ignoreColumn column="repeatable"/>
+        </table>
         <!--<table tableName="enterprise_test_report_send_record"/>-->
         <!--<table tableName="test_case_review_api_case"/>
         <table tableName="test_case_review_load"/>

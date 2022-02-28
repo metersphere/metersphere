@@ -36,6 +36,7 @@ import io.metersphere.controller.request.RelationshipEdgeRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
@@ -124,6 +125,8 @@ public class ApiDefinitionService {
     private TestPlanService testPlanService;
     @Resource
     private ExtProjectVersionMapper extProjectVersionMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -489,7 +492,9 @@ public class ApiDefinitionService {
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId())
                     .andVersionIdEqualTo(request.getVersionId());
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-            if (project != null && project.getRepeatable() != null && project.getRepeatable()) {
+            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
+            boolean urlRepeat = config.getUrlRepeatable();
+            if (project != null && urlRepeat) {
                 criteria.andNameEqualTo(request.getName());
                 if (apiDefinitionMapper.countByExample(example) > 0) {
                     MSException.throwException(Translator.get("api_definition_name_not_repeating"));
@@ -1184,6 +1189,8 @@ public class ApiDefinitionService {
         ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
 
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
+        boolean urlRepeat = config.getUrlRepeatable();
         int num = 0;
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             num = getNextNum(data.get(0).getProjectId());
@@ -1202,14 +1209,14 @@ public class ApiDefinitionService {
                 String apiId = item.getId();
                 EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
                 request.setModeId("fullCoverage");//标准版ESB数据导入不区分是否覆盖，默认都为覆盖
-                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
+                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), urlRepeat);
                 if (model != null) {
                     apiImport.getEsbApiParamsMap().remove(apiId);
                     model.setResourceId(item.getId());
                     apiImport.getEsbApiParamsMap().put(item.getId(), model);
                 }
             } else {
-                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
+                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), urlRepeat);
             }
             if (i % 300 == 0) {
                 sqlSession.flushStatements();

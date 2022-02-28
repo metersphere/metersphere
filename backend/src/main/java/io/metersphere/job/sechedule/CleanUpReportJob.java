@@ -5,6 +5,8 @@ import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.ProjectConfig;
+import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +22,7 @@ import java.time.ZoneId;
 public class CleanUpReportJob extends MsScheduleJob {
 
     private final ProjectService projectService;
+    private final ProjectApplicationService projectApplicationService;
     private static final String UNIT_DAY = "D";
     private static final String UNIT_MONTH = "M";
     private static final String UNIT_YEAR = "Y";
@@ -27,6 +30,7 @@ public class CleanUpReportJob extends MsScheduleJob {
 
     public CleanUpReportJob() {
         projectService = CommonBeanFactory.getBean(ProjectService.class);
+        projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
         localDate = LocalDate.now();
     }
 
@@ -34,18 +38,20 @@ public class CleanUpReportJob extends MsScheduleJob {
     void businessExecute(JobExecutionContext context) {
         LogUtil.info("clean up report start.");
         Project project = projectService.getProjectById(resourceId);
-        Boolean cleanTrackReport = project.getCleanTrackReport();
-        Boolean cleanApiReport = project.getCleanApiReport();
-        Boolean cleanLoadReport = project.getCleanLoadReport();
+        if (project == null) {
+            return;
+        }
+
+        ProjectConfig config = projectApplicationService.getProjectConfig(project.getId());
         try {
-            if (BooleanUtils.isTrue(cleanTrackReport)) {
-                this.cleanUpTrackReport(project.getCleanTrackReportExpr());
+            if (BooleanUtils.isTrue(config.getCleanTrackReport())) {
+                this.cleanUpTrackReport(config.getCleanTrackReportExpr());
             }
-            if (BooleanUtils.isTrue(cleanApiReport)) {
-                this.cleanUpApiReport(project.getCleanApiReportExpr());
+            if (BooleanUtils.isTrue(config.getCleanApiReport())) {
+                this.cleanUpApiReport(config.getCleanApiReportExpr());
             }
-            if (BooleanUtils.isTrue(cleanLoadReport)) {
-                this.cleanUpLoadReport(project.getCleanLoadReportExpr());
+            if (BooleanUtils.isTrue(config.getCleanLoadReport())) {
+                this.cleanUpLoadReport(config.getCleanLoadReportExpr());
             }
         } catch (Exception e) {
             LogUtil.error("clean up report error.");

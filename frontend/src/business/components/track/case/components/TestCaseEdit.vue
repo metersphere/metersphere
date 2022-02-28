@@ -449,9 +449,9 @@ export default {
         }
       }
     }),
-      this.result = this.$get('/project/get/' + this.projectId, res => {
+      this.result = this.$get('/project_application/get/config/' + this.projectId + "/CASE_PUBLIC", res => {
         let data = res.data;
-        if (data.casePublic) {
+        if (data && data.casePublic) {
           this.isPublic = true;
         }
       })

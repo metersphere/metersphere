@@ -28,8 +28,6 @@ public interface ExtProjectMapper {
     @MapKey("id")
     Map<String, Project> queryNameByIds(@Param("ids") List<String> ids);
 
-    List<Integer> selectTcpPorts();
-
     Project selectProjectByResourceId(@Param("resourceId") String resourceId);
 
     long getProjectMemberSize(@Param("projectId") String projectId);

@@ -16,6 +16,7 @@ import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExecuteResult;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
@@ -24,8 +25,10 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.TestPlanUtils;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
@@ -68,6 +71,8 @@ public class TestPlanScenarioCaseService {
     @Resource
     @Lazy
     private TestPlanService testPlanService;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -92,7 +97,9 @@ public class TestPlanScenarioCaseService {
 
         apiTestCases.forEach(item -> {
             Project project = projectMap.get(item.getProjectId());
-            if (project != null && project.getScenarioCustomNum() != null && project.getScenarioCustomNum()) {
+            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
+            boolean custom = config.getCaseCustomNum();
+            if (project != null && custom) {
                 item.setCustomNum(item.getCustomNum());
             } else {
                 item.setCustomNum(item.getNum().toString());
