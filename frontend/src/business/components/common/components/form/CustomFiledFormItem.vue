@@ -2,8 +2,8 @@
   <div>
     <el-row v-for="(i) in (customFieldRowNums)" :key="i">
     <span class="custom-item" v-for="(item, j) in sortCustomFields" :key="j">
-      <span v-if="j >= (i - 1)*3 && j < (i - 1)*3+3">
-        <el-col :span="8" v-if="item.type !== 'richText'">
+      <span v-if="j >= (i - 1)*colNum && j < (i - 1)*colNum+colNum">
+        <el-col :span=colSpan v-if="item.type !== 'richText'">
           <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
                         :label-width="formLabelWidth">
             <custom-filed-component :data="item" :form="form" prop="defaultValue" :disabled="isPublic"/>
@@ -44,13 +44,25 @@ export default {
       default() {
         return false;
       }
+    },
+    colNum: {
+      type: Number,
+      default() {
+        return 3;
+      }
+    },
+    colSpan: {
+      type: Number,
+      default() {
+        return 8;
+      }
     }
   },
   computed: {
     customFieldRowNums() {
       let size = this.issueTemplate.customFields ? this.issueTemplate.customFields.length : 0
-      let val = parseInt(size / 3);
-      return size % 3 == 0 ? val : (val + 1);
+      let val = parseInt(size / this.colNum);
+      return size % this.colNum == 0 ? val : (val + 1);
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;

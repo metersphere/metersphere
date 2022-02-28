@@ -9,8 +9,9 @@
     <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
     <result column="mode_id" jdbcType="VARCHAR" property="modeId" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.SwaggerUrlProject">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.SwaggerUrlProjectWithBLOBs">
     <result column="config" jdbcType="LONGVARCHAR" property="config" />
+    <result column="custom_fields" jdbcType="LONGVARCHAR" property="customFields" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -74,7 +75,7 @@
     id, project_id, swagger_url, module_id, module_path, mode_id
   </sql>
   <sql id="Blob_Column_List">
-    config
+    config, custom_fields
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.SwaggerUrlProjectExample" resultMap="ResultMapWithBLOBs">
     select
@@ -124,15 +125,15 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.SwaggerUrlProject">
+  <insert id="insert" parameterType="io.metersphere.base.domain.SwaggerUrlProjectWithBLOBs">
     insert into swagger_url_project (id, project_id, swagger_url, 
       module_id, module_path, mode_id, 
-      config)
+      config, custom_fields)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{swaggerUrl,jdbcType=VARCHAR}, 
       #{moduleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{modeId,jdbcType=VARCHAR}, 
-      #{config,jdbcType=LONGVARCHAR})
+      #{config,jdbcType=LONGVARCHAR}, #{customFields,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.SwaggerUrlProject">
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.SwaggerUrlProjectWithBLOBs">
     insert into swagger_url_project
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -156,6 +157,9 @@
       <if test="config != null">
         config,
       </if>
+      <if test="customFields != null">
+        custom_fields,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -178,6 +182,9 @@
       </if>
       <if test="config != null">
         #{config,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="customFields != null">
+        #{customFields,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -211,6 +218,9 @@
       <if test="record.config != null">
         config = #{record.config,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.customFields != null">
+        custom_fields = #{record.customFields,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -224,7 +234,8 @@
       module_id = #{record.moduleId,jdbcType=VARCHAR},
       module_path = #{record.modulePath,jdbcType=VARCHAR},
       mode_id = #{record.modeId,jdbcType=VARCHAR},
-      config = #{record.config,jdbcType=LONGVARCHAR}
+      config = #{record.config,jdbcType=LONGVARCHAR},
+      custom_fields = #{record.customFields,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,7 +252,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.SwaggerUrlProject">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.SwaggerUrlProjectWithBLOBs">
     update swagger_url_project
     <set>
       <if test="projectId != null">
@@ -262,17 +273,21 @@
       <if test="config != null">
         config = #{config,jdbcType=LONGVARCHAR},
       </if>
+      <if test="customFields != null">
+        custom_fields = #{customFields,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.SwaggerUrlProject">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.SwaggerUrlProjectWithBLOBs">
     update swagger_url_project
     set project_id = #{projectId,jdbcType=VARCHAR},
       swagger_url = #{swaggerUrl,jdbcType=VARCHAR},
       module_id = #{moduleId,jdbcType=VARCHAR},
       module_path = #{modulePath,jdbcType=VARCHAR},
       mode_id = #{modeId,jdbcType=VARCHAR},
-      config = #{config,jdbcType=LONGVARCHAR}
+      config = #{config,jdbcType=LONGVARCHAR},
+      custom_fields = #{customFields,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.SwaggerUrlProject">

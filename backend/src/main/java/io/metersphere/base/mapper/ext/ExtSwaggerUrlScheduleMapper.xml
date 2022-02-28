@@ -12,7 +12,8 @@
                sup.config,
                sch.value as rule,
                sch.enable,
-               sch.id as taskId
+               sch.id as taskId,
+               custom_fields
         FROM swagger_url_project sup
                  INNER JOIN schedule sch ON sup.id = sch.resource_id
         WHERE sup.project_id = #{projectId}

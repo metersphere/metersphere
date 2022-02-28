@@ -1,12 +1,13 @@
 package io.metersphere.api.dto.swaggerurl;
 
 import io.metersphere.base.domain.SwaggerUrlProject;
+import io.metersphere.base.domain.SwaggerUrlProjectWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class SwaggerTaskResult extends SwaggerUrlProject {
+public class SwaggerTaskResult extends SwaggerUrlProjectWithBLOBs {
     //序号
     private int index;
     //定时任务号

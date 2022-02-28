@@ -51,6 +51,8 @@ export default {
       let url = 'field/template/case/option/';
       if (this.scene === 'ISSUE') {
         url = 'field/template/issue/option/';
+      }else if (this.scene === 'API'){
+        url = 'field/template/api/option/';
       }
       this.$get(url + getCurrentWorkspaceId(), (response) => {
         this.templateOptions = response.data;

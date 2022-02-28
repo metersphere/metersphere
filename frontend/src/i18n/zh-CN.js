@@ -541,6 +541,7 @@ export default {
     system_template: '系统模板',
     option_check: '请添加选项值',
     option_value_check: '请填写完整选项值',
+    api_template:'API模版'
   },
   workspace: {
     id: '工作空间ID',
@@ -561,6 +562,7 @@ export default {
     template_manage: "模版管理",
     case_template_manage: "用例模版",
     issue_template_manage: "缺陷模版",
+    api_template_manage: "API模版",
     custom_filed: {
       input: '输入框',
       textarea: '文本框',
@@ -2079,6 +2081,7 @@ export default {
         import_tip1: "项目设置中“测试用例自定义ID” 开关开启时ID为必填项",
         import_tip2: "导入更新时ID为必填项",
         import_file_tips: "请先上传文件！",
+        more_fields: "更多字段",
       },
       export: {
         export: "导出用例",
@@ -2680,6 +2683,7 @@ export default {
     workspace_template_settings: "工作空间-模版设置",
     workspace_template_settings_case: "工作空间-模版设置-用例模版",
     workspace_template_settings_issue: "工作空间-模版设置-缺陷模版",
+    workspace_template_settings_api: "工作空间-模版设置-API模版",
     project_project_manager: "项目-项目管理",
     project_project_member: "项目-成员",
     project_project_jar: "項目-JAR包管理",
@@ -2825,7 +2829,8 @@ export default {
       read: "查询",
       case_template: "用例模版",
       issue_template: "缺陷模版",
-      custom: "自定义字段"
+      custom: "自定义字段",
+      api_template:"API模版"
     },
     workspace_project_manager: {
       name: "项目管理",

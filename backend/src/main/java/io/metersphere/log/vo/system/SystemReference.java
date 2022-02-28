@@ -22,6 +22,7 @@ public class SystemReference {
     public static Map<String, String> mailColumns = new LinkedHashMap<>();
     public static Map<String, String> baseColumns = new LinkedHashMap<>();
     public static Map<String, String> groupColumns = new LinkedHashMap<>();
+    public static Map<String, String> apiFieldColumns = new LinkedHashMap<>();
     public static Map<String, String> projectApplicationColumns = new LinkedHashMap<>();
 
     static {
@@ -43,6 +44,7 @@ public class SystemReference {
         ldapColumns.clear();
         mailColumns.clear();
         groupColumns.clear();
+        apiFieldColumns.clear();
         projectApplicationColumns.clear();
 
         userColumns.put("name", "用户名称");
@@ -159,5 +161,12 @@ public class SystemReference {
         groupColumns.put("description", "描述");
         groupColumns.put("type", "所属类型");
         groupColumns.put("scopeId", "全局用户组");
+
+        apiFieldColumns.put("name", "名称");
+        apiFieldColumns.put("type", "协议类型");
+        apiFieldColumns.put("apiName", "Api名称");
+        apiFieldColumns.put("apiPath", "接口路径");
+        apiFieldColumns.put("apiMethod", "请求类型");
+        apiFieldColumns.put("description", "描述");
     }
 }

@@ -68,6 +68,7 @@ export function LOG_MODULE_MAP(_this) {
     ['WORKSPACE_TEMPLATE_SETTINGS_ISSUE', _this.$t('operating_log.workspace_template_settings_issue')],
     ['WORKSPACE_SERVICE_INTEGRATION', _this.$t('operating_log.workspace_service_integration')],
     ['WORKSPACE_TEMPLATE_SETTINGS_CASE', _this.$t('operating_log.workspace_template_settings_case')],
+    ['WORKSPACE_TEMPLATE_SETTINGS_API', _this.$t('operating_log.workspace_template_settings_api')],
     ['WORKSPACE_MEMBER', _this.$t('operating_log.workspace_member')],
     ['API_AUTOMATION', _this.$t('operating_log.api_automation')],
     ['API_AUTOMATION_REPORT', _this.$t('operating_log.api_automation_report')],
@@ -363,6 +364,11 @@ export function getUrl(d, _this) {
     case "工作空間-模版設置-用例模板" :
     case "Workspace template settings case" :
       url += "/setting/workspace/template/case";
+      break;
+    case "工作空间-模版设置-API模版" :
+    case "工作空間-模版設置-API模板" :
+    case "Workspace template settings api" :
+      url += "/setting/workspace/template/api";
       break;
     case "工作空间-模版设置-缺陷模版" :
     case "工作空間-模版設置-缺陷模板" :

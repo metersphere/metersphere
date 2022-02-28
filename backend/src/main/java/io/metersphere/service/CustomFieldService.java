@@ -53,6 +53,10 @@ public class CustomFieldService {
     @Resource
     CustomFieldTemplateService customFieldTemplateService;
 
+    @Lazy
+    @Resource
+    ApiTemplateService apiTemplateService;
+
     public String add(CustomField customField) {
         checkExist(customField);
         customField.setId(UUID.randomUUID().toString());
@@ -97,8 +101,10 @@ public class CustomFieldService {
             add(customField);
             if (StringUtils.equals(customField.getScene(), TemplateConstants.FieldTemplateScene.TEST_CASE.name())) {
                 testCaseTemplateService.handleSystemFieldCreate(customField);
-            } else {
+            } else if (StringUtils.equals(customField.getScene(), TemplateConstants.FieldTemplateScene.ISSUE.name())){
                 issueTemplateService.handleSystemFieldCreate(customField);
+            }else {
+                apiTemplateService.handleSystemFieldCreate(customField);
             }
         } else {
             checkExist(customField);

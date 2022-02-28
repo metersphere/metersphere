@@ -26,4 +26,6 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
 
     // 测试计划是否允许重复
     private boolean repeatCase;
+    //自定义字段
+    private String customFields;
 }

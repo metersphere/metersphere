@@ -17,7 +17,5 @@ public class SwaggerUrlProject implements Serializable {
 
     private String modeId;
 
-    private String config;
-
     private static final long serialVersionUID = 1L;
 }

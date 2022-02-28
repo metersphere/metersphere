@@ -35,5 +35,7 @@ public class ApiTestImportRequest {
     private List<KeyValue> headers;
     private List<KeyValue> arguments;
     private MsAuthManager authManager;
+    //自定义字段
+    private String customFields;
 
 }

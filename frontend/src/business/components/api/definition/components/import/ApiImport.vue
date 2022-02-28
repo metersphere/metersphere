@@ -58,10 +58,19 @@
             </el-link>
           </el-form-item>
           <el-form-item v-if="isSwagger2">
-            <el-switch
-              v-model="swaggerUrlEnable"
-              :active-text="$t('api_test.api_import.swagger_url_import')">
-            </el-switch>
+            <el-row>
+              <el-col :span="6">
+                <a  @click="openCustomFiles" class="custom-files">
+                  <B>{{$t('test_track.case.import.more_fields')}}</B>
+                </a>
+              </el-col>
+              <el-col :span="18">
+                <el-switch
+                  v-model="swaggerUrlEnable"
+                  :active-text="$t('api_test.api_import.swagger_url_import')">
+                </el-switch>
+              </el-col>
+            </el-row>
           </el-form-item>
 
         </el-col>
@@ -132,6 +141,9 @@
         </span>
       </div>
     </div>
+<!--    导入自定义字段-->
+    <import-custom-field-edit :label-width="'80px'" @saveCustomFields="saveCustomFields" ref="importCustomFieldEdit" />
+
   </el-dialog>
 </template>
 
@@ -145,10 +157,15 @@ import MsApiAuthConfig from "../auth/ApiAuthConfig";
 import {REQUEST_HEADERS} from "@/common/js/constants";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import {KeyValue} from "../../model/ApiTestModel";
+import ImportCustomFieldEdit
+  from "@/business/components/api/definition/components/import/ImportCustomFieldEdit";
+import {getApiTemplate} from "@/network/custom-field-template";
+import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
 
 export default {
   name: "ApiImport",
   components: {
+    ImportCustomFieldEdit,
     MsDialogFooter,
     MsSelectTree,
     MsApiKeyValue,
@@ -262,6 +279,9 @@ export default {
         },
         versionOptions: [],
         projectVersionEnable: false,
+        customFields:'',
+        apiTemplate:'',
+        customFieldRequiredEmpty:false
       }
     },
     created() {
@@ -273,6 +293,9 @@ export default {
       //
       this.getVersionOptions();
       this.checkVersionEnable();
+      getApiTemplate().then((template) => {
+        this.apiTemplate = template;
+      });
     },
     watch: {
       moduleOptions() {
@@ -389,7 +412,13 @@ export default {
               url = '/api/automation/import';
             }
             let param = this.buildParam();
-            this.result = this.$fileUpload(url, param.file, null, this.buildParam(), response => {
+           // console.info(param);
+           //  this.$set(param,'customFieldRequiredEmpty',"i");
+           // console.info(param);
+            if (this.customFieldRequiredEmpty){
+              return false;
+            }
+            this.result = this.$fileUpload(url, param.file, null, param, response => {
               let res = response.data;
               this.$success(this.$t('test_track.case.import.success'));
               this.visible = false;
@@ -417,7 +446,7 @@ export default {
           this.clearAuthInfo();
         }
       },
-      buildParam() {
+       buildParam() {
         let param = {};
         Object.assign(param, this.formData);
         param.platform = this.selectedPlatformValue;
@@ -441,8 +470,30 @@ export default {
             this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
             param.authManager = this.authConfig.authManager;
           }
-        }
+        }this.checkCustomFields(param);
         return param;
+      },
+       checkCustomFields(param){
+        param.customFields = this.customFields;
+         //设置自定义熟悉默认值
+         let customFieldRules = {};
+         parseCustomField({customFields: ''}, this.apiTemplate, customFieldRules, null);
+
+         if (!param.customFields) {
+           buildCustomFields({customFields: ''} ,param ,this.apiTemplate);
+         }
+         let customFieldList = JSON.parse(param.customFields);
+
+         for (let i in customFieldRules) {
+           for (let j=0; j<customFieldList.length; j++) {
+             if (i === customFieldList[j].name && !customFieldList[j].value){
+               this.customFieldRequiredEmpty = true;
+               this.$warning("自定义字段[" + i + "]不能为空");
+               break;
+             }
+
+           }
+         }
       },
       close() {
         this.formData = {
@@ -475,6 +526,13 @@ export default {
             this.projectVersionEnable = response.data;
           });
         }
+      },
+      openCustomFiles(){
+        this.$refs.importCustomFieldEdit.open();
+      },
+      saveCustomFields(customFields){
+        this.customFields = customFields;
+        this.customFieldRequiredEmpty = false;
       }
     }
   }
@@ -551,6 +609,13 @@ export default {
 
   .el-divider {
     height: 200px;
+  }
+
+  .custom-files{
+    margin-left: -30px;
+    color: var(--primary_color);
+    text-decoration:  underline;
+    cursor:pointer;
   }
 
 </style>

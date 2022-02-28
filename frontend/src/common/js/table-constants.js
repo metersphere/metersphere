@@ -22,11 +22,18 @@ export const CUSTOM_FIELD_TYPE_OPTION = [
 export const CUSTOM_FIELD_SCENE_OPTION = [
   {value: 'TEST_CASE',text: 'workspace.case_template_manage'},
   {value: 'ISSUE',text: 'workspace.issue_template_manage'},
+  {value: 'API',text: 'workspace.api_template_manage'},
 ];
 
 export function CASE_TYPE_OPTION(){
   return [
     {value: 'functional', text: i18n.t('api_test.home_page.failed_case_list.table_value.case_type.functional')},
+  ];
+}
+
+export function API_TYPE_OPTION(){
+  return [
+    {value: 'HTTP', text: 'HTTP'},
   ];
 }
 
@@ -58,6 +65,7 @@ export const FIELD_TYPE_MAP = {
 export const SCENE_MAP = {
   ISSUE: 'workspace.issue_template_manage',
   TEST_CASE: 'workspace.case_template_manage',
+  API: 'workspace.api_template_manage',
   PLAN: 'workstation.table_name.track_plan'
 };
 

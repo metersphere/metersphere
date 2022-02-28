@@ -26,6 +26,11 @@ export function getTestTemplate() {
   return getTemplate('field/template/case/get/relate/');
 }
 
+
+export function getApiTemplate() {
+  return getTemplate('field/template/api/get/relate/');
+}
+
 export function updateCustomFieldTemplate(request) {
   post('/custom/field/template/update', request);
 }

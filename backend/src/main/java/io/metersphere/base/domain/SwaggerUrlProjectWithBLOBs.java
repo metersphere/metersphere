@@ -8,14 +8,8 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ApiDefinitionWithBLOBs extends ApiDefinition implements Serializable {
-    private String description;
-
-    private String request;
-
-    private String response;
-
-    private String remark;
+public class SwaggerUrlProjectWithBLOBs extends SwaggerUrlProject implements Serializable {
+    private String config;
 
     private String customFields;
 

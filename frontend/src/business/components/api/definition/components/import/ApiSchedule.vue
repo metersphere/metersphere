@@ -30,7 +30,16 @@
               </el-select>
             </el-form-item>
           </el-col>
+        </el-row>
 
+        <el-row>
+          <!-- 自定义字段 -->
+          <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm" class="api-form">
+            <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth" :col-num="2" :col-span="12"
+                                    :issue-template="apiTemplate"/>
+          </el-form>
+        </el-row>
+          <el-row>
           <el-col :span="12" style="margin-left: 50px">
             <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')" @change="changeAuthEnable"></el-switch>
           </el-col>
@@ -129,11 +138,14 @@ import MsApiAuthConfig from "../auth/ApiAuthConfig";
 import {REQUEST_HEADERS} from "@/common/js/constants";
 import {KeyValue} from "../../model/ApiTestModel";
 import {ELEMENT_TYPE, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {getApiTemplate} from "@/network/custom-field-template";
+import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
+import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 
 export default {
   name: "ApiSchedule",
   components: {
-    SwaggerTaskNotification, SelectTree, MsFormDivider, SwaggerTaskList, CrontabResult, Crontab, MsApiKeyValue, MsApiVariable, MsApiAuthConfig
+    SwaggerTaskNotification, SelectTree, MsFormDivider, SwaggerTaskList, CrontabResult, Crontab, MsApiKeyValue, MsApiVariable, MsApiAuthConfig,CustomFiledFormItem
   },
   props: {
     customValidate: {
@@ -192,7 +204,7 @@ export default {
         swaggerUrl: '',
         modeId: this.$t('commons.not_cover'),
         moduleId: '',
-        rule: ''
+        rule: '',
       },
       modeOptions: [
         {
@@ -216,8 +228,17 @@ export default {
       queryArguments: [],
       authConfig: {
         hashTree: []
-      }
+      },
+      isFormAlive: true,
+      customFieldForm: null,
+      customFieldRules: {},
+      formLabelWidth: "150px",
+      apiTemplate: {},
     };
+  },
+
+  created() {
+    this.getApiTemplate();
   },
 
   methods: {
@@ -229,6 +250,20 @@ export default {
         this.$warning("请先选择您要添加通知的定时任务");
       }
 
+    },
+    reloadForm() {
+      this.isFormAlive = false;
+      this.$nextTick(() => (this.isFormAlive = true));
+    },
+
+    getApiTemplate(){
+      getApiTemplate().then((template) => {
+          this.apiTemplate = template;
+          //设置自定义熟悉默认值
+          this.customFieldForm = parseCustomField(this.formData, this.apiTemplate, this.customFieldRules,null);
+          // 重新渲染，显示自定义字段的必填校验
+          this.reloadForm();
+        });
     },
 
     initUserList() {
@@ -247,6 +282,7 @@ export default {
     clear() {
       this.formData.id = null;
       this.formData.moduleId = null;
+      this.formData.customFields = '';
       this.$refs['form'].resetFields();
       if (!this.formData.rule) {
         this.$refs.crontabResult.resultList = [];
@@ -255,6 +291,7 @@ export default {
       this.$nextTick(() => {
         this.$refs.selectTree.init();
       });
+      this.getApiTemplate();
     },
     crontabFill(value, resultList) {
       //确定后回传的值
@@ -281,39 +318,44 @@ export default {
       });
     },
     saveSchedule() {
-      this.formData.projectId = getCurrentProjectID();
-      this.formData.workspaceId = getCurrentWorkspaceId();
-      this.formData.value = this.formData.rule;
-      if(this.authEnable){
-        // 设置请求头或 query 参数
-        this.formData.headers = this.headers;
-        this.formData.arguments = this.queryArguments;
-        // 设置 BaseAuth 参数
-        if(this.authConfig.authManager != undefined){
-          this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
-          this.formData.authManager = this.authConfig.authManager;
+      this.$refs['customFieldForm'].validate((valid) => {
+        if (valid) {
+          this.formData.projectId = getCurrentProjectID();
+          this.formData.workspaceId = getCurrentWorkspaceId();
+          this.formData.value = this.formData.rule;
+          buildCustomFields( {customFields:''},this.formData ,this.apiTemplate);
+          if(this.authEnable){
+            // 设置请求头或 query 参数
+            this.formData.headers = this.headers;
+            this.formData.arguments = this.queryArguments;
+            // 设置 BaseAuth 参数
+            if(this.authConfig.authManager != undefined){
+              this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
+              this.formData.authManager = this.authConfig.authManager;
+            }
+          }else {
+            this.formData.headers = undefined;
+            this.formData.arguments = undefined;
+            this.formData.authManager = undefined;
+          }
+          let url = '';
+          if (this.formData.id) {
+            url = '/api/definition/schedule/update';
+          } else {
+            this.formData.enable = true;
+            url = '/api/definition/schedule/create';
+          }
+          if(!this.formData.moduleId){
+            if( this.$refs.selectTree.returnDataKeys.length>0){
+              this.formData.moduleId = this.$refs.selectTree.returnDataKeys
+            }
+          }
+          this.$post(url, this.formData, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.$refs.taskList.search();
+            this.clear();
+          });
         }
-      }else {
-        this.formData.headers = undefined;
-        this.formData.arguments = undefined;
-        this.formData.authManager = undefined;
-      }
-      let url = '';
-      if (this.formData.id) {
-        url = '/api/definition/schedule/update';
-      } else {
-        this.formData.enable = true;
-        url = '/api/definition/schedule/create';
-      }
-      if(!this.formData.moduleId){
-        if( this.$refs.selectTree.returnDataKeys.length>0){
-          this.formData.moduleId = this.$refs.selectTree.returnDataKeys
-        }
-      }
-      this.$post(url, this.formData, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.$refs.taskList.search();
-        this.clear();
       });
     },
     intervalShortValidate() {
@@ -351,6 +393,7 @@ export default {
         this.clearAuthInfo();
       }
       Object.assign(this.formData, row);
+      this.customFieldForm = parseCustomField(this.formData, this.apiTemplate, this.customFieldRules,null);
       this.$nextTick(() => {
         this.$refs.selectTree.init();
       });
@@ -392,5 +435,9 @@ export default {
 
 .expression-link {
   margin-bottom: 0;
+}
+
+.api-form /deep/.el-input__inner {
+  height: 32px;
 }
 </style>

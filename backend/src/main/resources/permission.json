@@ -271,6 +271,11 @@
       "resourceId": "WORKSPACE_TEMPLATE"
     },
     {
+      "id": "WORKSPACE_TEMPLATE:READ+API_TEMPLATE",
+      "name": "permission.workspace_template.api_template",
+      "resourceId": "WORKSPACE_TEMPLATE"
+    },
+    {
       "id": "WORKSPACE_TEMPLATE:READ+CUSTOM",
       "name": "permission.workspace_template.custom",
       "resourceId": "WORKSPACE_TEMPLATE"

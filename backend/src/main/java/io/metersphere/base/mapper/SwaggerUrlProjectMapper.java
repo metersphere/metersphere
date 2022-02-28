@@ -2,6 +2,7 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.SwaggerUrlProject;
 import io.metersphere.base.domain.SwaggerUrlProjectExample;
+import io.metersphere.base.domain.SwaggerUrlProjectWithBLOBs;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,25 +13,25 @@ public interface SwaggerUrlProjectMapper {
 
     int deleteByPrimaryKey(String id);
 
-    int insert(SwaggerUrlProject record);
+    int insert(SwaggerUrlProjectWithBLOBs record);
 
-    int insertSelective(SwaggerUrlProject record);
+    int insertSelective(SwaggerUrlProjectWithBLOBs record);
 
-    List<SwaggerUrlProject> selectByExampleWithBLOBs(SwaggerUrlProjectExample example);
+    List<SwaggerUrlProjectWithBLOBs> selectByExampleWithBLOBs(SwaggerUrlProjectExample example);
 
     List<SwaggerUrlProject> selectByExample(SwaggerUrlProjectExample example);
 
-    SwaggerUrlProject selectByPrimaryKey(String id);
+    SwaggerUrlProjectWithBLOBs selectByPrimaryKey(String id);
 
-    int updateByExampleSelective(@Param("record") SwaggerUrlProject record, @Param("example") SwaggerUrlProjectExample example);
+    int updateByExampleSelective(@Param("record") SwaggerUrlProjectWithBLOBs record, @Param("example") SwaggerUrlProjectExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") SwaggerUrlProject record, @Param("example") SwaggerUrlProjectExample example);
+    int updateByExampleWithBLOBs(@Param("record") SwaggerUrlProjectWithBLOBs record, @Param("example") SwaggerUrlProjectExample example);
 
     int updateByExample(@Param("record") SwaggerUrlProject record, @Param("example") SwaggerUrlProjectExample example);
 
-    int updateByPrimaryKeySelective(SwaggerUrlProject record);
+    int updateByPrimaryKeySelective(SwaggerUrlProjectWithBLOBs record);
 
-    int updateByPrimaryKeyWithBLOBs(SwaggerUrlProject record);
+    int updateByPrimaryKeyWithBLOBs(SwaggerUrlProjectWithBLOBs record);
 
     int updateByPrimaryKey(SwaggerUrlProject record);
 }

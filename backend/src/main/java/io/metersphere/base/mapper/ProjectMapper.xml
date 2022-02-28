@@ -33,6 +33,7 @@
     <result column="clean_api_report_expr" jdbcType="VARCHAR" property="cleanApiReportExpr" />
     <result column="clean_load_report" jdbcType="BIT" property="cleanLoadReport" />
     <result column="clean_load_report_expr" jdbcType="VARCHAR" property="cleanLoadReportExpr" />
+    <result column="api_template_id" jdbcType="VARCHAR" property="apiTemplateId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.Project">
     <result column="issue_config" jdbcType="LONGVARCHAR" property="issueConfig" />
@@ -101,7 +102,7 @@
     scenario_custom_num, create_user, system_id, mock_tcp_port, is_mock_tcp_open, azure_filter_id, 
     platform, third_part_template, case_public, api_quick, version_enable, clean_track_report, 
     clean_track_report_expr, clean_api_report, clean_api_report_expr, clean_load_report, 
-    clean_load_report_expr
+    clean_load_report_expr, api_template_id
   </sql>
   <sql id="Blob_Column_List">
     issue_config
@@ -165,7 +166,8 @@
       third_part_template, case_public, api_quick, 
       version_enable, clean_track_report, clean_track_report_expr, 
       clean_api_report, clean_api_report_expr, clean_load_report, 
-      clean_load_report_expr, issue_config)
+      clean_load_report_expr, api_template_id, issue_config
+      )
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
@@ -176,7 +178,8 @@
       #{thirdPartTemplate,jdbcType=BIT}, #{casePublic,jdbcType=BIT}, #{apiQuick,jdbcType=VARCHAR}, 
       #{versionEnable,jdbcType=BIT}, #{cleanTrackReport,jdbcType=BIT}, #{cleanTrackReportExpr,jdbcType=VARCHAR}, 
       #{cleanApiReport,jdbcType=BIT}, #{cleanApiReportExpr,jdbcType=VARCHAR}, #{cleanLoadReport,jdbcType=BIT}, 
-      #{cleanLoadReportExpr,jdbcType=VARCHAR}, #{issueConfig,jdbcType=LONGVARCHAR})
+      #{cleanLoadReportExpr,jdbcType=VARCHAR}, #{apiTemplateId,jdbcType=VARCHAR}, #{issueConfig,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -273,6 +276,9 @@
       </if>
       <if test="cleanLoadReportExpr != null">
         clean_load_report_expr,
+      </if>
+      <if test="apiTemplateId != null">
+        api_template_id,
       </if>
       <if test="issueConfig != null">
         issue_config,
@@ -371,6 +377,9 @@
       </if>
       <if test="cleanLoadReportExpr != null">
         #{cleanLoadReportExpr,jdbcType=VARCHAR},
+      </if>
+      <if test="apiTemplateId != null">
+        #{apiTemplateId,jdbcType=VARCHAR},
       </if>
       <if test="issueConfig != null">
         #{issueConfig,jdbcType=LONGVARCHAR},
@@ -479,6 +488,9 @@
       <if test="record.cleanLoadReportExpr != null">
         clean_load_report_expr = #{record.cleanLoadReportExpr,jdbcType=VARCHAR},
       </if>
+      <if test="record.apiTemplateId != null">
+        api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR},
+      </if>
       <if test="record.issueConfig != null">
         issue_config = #{record.issueConfig,jdbcType=LONGVARCHAR},
       </if>
@@ -520,6 +532,7 @@
       clean_api_report_expr = #{record.cleanApiReportExpr,jdbcType=VARCHAR},
       clean_load_report = #{record.cleanLoadReport,jdbcType=BIT},
       clean_load_report_expr = #{record.cleanLoadReportExpr,jdbcType=VARCHAR},
+      api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR},
       issue_config = #{record.issueConfig,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -557,7 +570,8 @@
       clean_api_report = #{record.cleanApiReport,jdbcType=BIT},
       clean_api_report_expr = #{record.cleanApiReportExpr,jdbcType=VARCHAR},
       clean_load_report = #{record.cleanLoadReport,jdbcType=BIT},
-      clean_load_report_expr = #{record.cleanLoadReportExpr,jdbcType=VARCHAR}
+      clean_load_report_expr = #{record.cleanLoadReportExpr,jdbcType=VARCHAR},
+      api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -655,6 +669,9 @@
       <if test="cleanLoadReportExpr != null">
         clean_load_report_expr = #{cleanLoadReportExpr,jdbcType=VARCHAR},
       </if>
+      <if test="apiTemplateId != null">
+        api_template_id = #{apiTemplateId,jdbcType=VARCHAR},
+      </if>
       <if test="issueConfig != null">
         issue_config = #{issueConfig,jdbcType=LONGVARCHAR},
       </if>
@@ -693,6 +710,7 @@
       clean_api_report_expr = #{cleanApiReportExpr,jdbcType=VARCHAR},
       clean_load_report = #{cleanLoadReport,jdbcType=BIT},
       clean_load_report_expr = #{cleanLoadReportExpr,jdbcType=VARCHAR},
+      api_template_id = #{apiTemplateId,jdbcType=VARCHAR},
       issue_config = #{issueConfig,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -727,7 +745,8 @@
       clean_api_report = #{cleanApiReport,jdbcType=BIT},
       clean_api_report_expr = #{cleanApiReportExpr,jdbcType=VARCHAR},
       clean_load_report = #{cleanLoadReport,jdbcType=BIT},
-      clean_load_report_expr = #{cleanLoadReportExpr,jdbcType=VARCHAR}
+      clean_load_report_expr = #{cleanLoadReportExpr,jdbcType=VARCHAR},
+      api_template_id = #{apiTemplateId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

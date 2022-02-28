@@ -100,6 +100,12 @@
           </el-row>
         </div>
 
+        <!-- 自定义字段 -->
+        <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm" class="api-form">
+          <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth"
+                                  :issue-template="apiTemplate" class="api-form"/>
+        </el-form>
+
         <!-- MOCK信息 -->
         <ms-form-divider :title="$t('test_track.plan_view.mock_info')"/>
         <div class="base-info mock-info">
@@ -199,6 +205,9 @@ import HttpApiVersionDiff from "./version/HttpApiVersionDiff";
 import {createComponent} from ".././jmeter/components";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import {getApiTemplate} from "@/network/custom-field-template";
+import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
+import {buildCustomFields, buildTestCaseOldFields, parseCustomField} from "@/common/js/custom_field";
 
 const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
 const Sampler = require("@/business/components/api/definition/components/jmeter/components/sampler/sampler");
@@ -209,6 +218,7 @@ const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./
 export default {
   name: "MsAddCompleteHttpApi",
   components: {
+    CustomFiledFormItem,
     MsDialogFooter,
     'MsVersionHistory': versionHistory.default,
     ApiOtherInfo,
@@ -237,7 +247,7 @@ export default {
         moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
         status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
       },
-      httpForm: {environmentId: "", path: "", tags: []},
+      httpForm: {name: '', environmentId: "", path: "", tags: []},
       newData:{environmentId: "", path: "", tags: []},
       dialogVisible:false,
       isShowEnable: true,
@@ -259,6 +269,12 @@ export default {
       oldRequest:Sampler,
       oldResponse:{},
       createNewVersionVisible: false,
+      isFormAlive: true,
+      customFieldForm: null,
+      customFieldRules: {},
+      formLabelWidth: "80px",
+      apiTemplate: {},
+
     };
   },
   props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
@@ -452,20 +468,26 @@ export default {
       if (this.httpForm.tags instanceof Array) {
         this.httpForm.tags = JSON.stringify(this.httpForm.tags);
       }
+      buildCustomFields( this.request, this.httpForm, this.apiTemplate);
     },
     saveApi() {
       this.$refs['httpForm'].validate((valid) => {
         if (valid) {
-          this.setParameter();
+          this.$refs['customFieldForm'].validate((valid) => {
+            if (valid){
+              this.setParameter();
 
-          if (!this.httpForm.versionId) {
-            if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
-              this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
+              if (!this.httpForm.versionId) {
+                if (this.$refs.versionHistory) {
+                  this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
+                }
+              }
+              this.$emit('saveApi', this.httpForm);
+              this.count = 0;
+              this.$store.state.apiMap.delete(this.httpForm.id);
             }
-          }
-          this.$emit('saveApi', this.httpForm);
-          this.count = 0;
-          this.$store.state.apiMap.delete(this.httpForm.id);
+          });
+
         } else {
           return false;
         }
@@ -690,7 +712,11 @@ export default {
           }
         }
       });
-    }
+    },
+    reloadForm() {
+      this.isFormAlive = false;
+      this.$nextTick(() => (this.isFormAlive = true));
+    },
   },
 
   created() {
@@ -699,6 +725,22 @@ export default {
       this.basisData.environmentId = "";
     }
     this.httpForm = JSON.parse(JSON.stringify(this.basisData));
+
+    getApiTemplate()
+      .then((template) => {
+        this.apiTemplate = template;
+        //设置自定义熟悉默认值
+        this.customFieldForm = parseCustomField(this.httpForm, this.apiTemplate, this.customFieldRules,null);
+        if (!this.httpForm || !this.httpForm.id || this.httpForm.isCopy) {
+          //设置自定义熟悉默认值
+          this.$set(this.httpForm, 'name', this.apiTemplate.apiName);
+          this.$set(this.httpForm, 'method', this.apiTemplate.apiMethod);
+          this.$set(this.httpForm, 'path', this.apiTemplate.apiPath);
+          }
+        // 重新渲染，显示自定义字段的必填校验
+        this.reloadForm();
+      });
+
     this.$get('/api/definition/follow/' + this.basisData.id, response => {
       this.httpForm.follows = response.data;
       for (let i = 0; i < response.data.length; i++) {
@@ -718,6 +760,13 @@ export default {
 </script>
 
 <style scoped>
+
+
+.api-form /deep/.el-input__inner {
+  height: 32px;
+}
+
+
 
 .base-info .el-form-item {
   width: 100%;

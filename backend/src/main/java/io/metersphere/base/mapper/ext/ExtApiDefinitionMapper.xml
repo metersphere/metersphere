@@ -246,7 +246,7 @@
         api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
         api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, api_definition.delete_user_id, api_definition.create_user,api_definition.delete_time, api_definition.remark, api_definition.version_id,
-        project_version.name as version_name, api_definition.ref_id, user.name as user_name
+        project_version.name as version_name, api_definition.ref_id, user.name as user_name,custom_fields
         from api_definition
         left join user on api_definition.user_id = user.id
         LEFT JOIN project_version ON project_version.id = api_definition.version_id
@@ -717,6 +717,9 @@
             <if test="request.apiCaseCoverage == 'coverage' ">
                 and api_definition.id in
                 (SELECT api_definition_id FROM api_test_case)
+            </if>
+            <if test="request.customFields != '' and test=request.customFields != null ">
+                and api_definition.custom_fields like  CONCAT('%', #{request.customFields},'%')
             </if>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="api_definition"/>

@@ -34,6 +34,10 @@
 
         </el-form-item>
 
+        <el-form-item :label-width="labelWidth" :label="$t('workspace.api_template_manage')" prop="apiTemplateId">
+          <template-select :data="form" scene="API" prop="apiTemplateId" ref="apiTemplate"/>
+        </el-form-item>
+
         <el-form-item :label-width="labelWidth" label="TCP Mock Port">
           <el-input-number v-model="form.mockTcpPort" :controls="false"
                            style="width: 37%;margin-right: 30px"></el-input-number>
@@ -209,6 +213,9 @@ export default {
       }
       if (this.$refs.caseTemplate) {
         this.$refs.caseTemplate.getTemplateOptions();
+      }
+      if (this.$refs.apiTemplate) {
+        this.$refs.apiTemplate.getTemplateOptions();
       }
     },
     thirdPartTemplateChange(val) {

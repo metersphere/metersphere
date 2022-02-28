@@ -36,6 +36,7 @@ public class OperLogModule {
     public static final String SYSTEM_QUOTA_MANAGEMENT = "SYSTEM_QUOTA_MANAGEMENT";
     public static final String ENTERPRISE_TEST_REPORT = "ENTERPRISE_TEST_REPORT";
     public static final String SYSTEM_AUTHORIZATION_MANAGEMENT = "SYSTEM_AUTHORIZATION_MANAGEMENT";
+    public static final String WORKSPACE_TEMPLATE_SETTINGS_API = "WORKSPACE_TEMPLATE_SETTINGS_API";
 
 
 
