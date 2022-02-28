@@ -245,9 +245,7 @@ public class ApiScenarioReportStructureService {
             if (StringUtils.isNotEmpty(dto.getType()) && requests.contains(dto.getType()) && dto.getValue() == null) {
                 RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO();
                 requestResultExpandDTO.setStatus("unexecute");
-                if (StringUtils.equalsAnyIgnoreCase(dto.getType(), "AbstractSampler")) {
-                    requestResultExpandDTO.setSuccess(true);
-                }
+
                 requestResultExpandDTO.setName(dto.getLabel());
                 dto.setValue(requestResultExpandDTO);
             }
@@ -270,7 +268,7 @@ public class ApiScenarioReportStructureService {
         }
         // 循环步骤请求从新排序
         if (dtoList.stream().filter(e -> e.getValue() != null).collect(Collectors.toList()).size() == dtoList.size()) {
-            List<StepTreeDTO> list = dtoList.stream().sorted(Comparator.comparing(x -> x.getValue().getStartTime())).collect(Collectors.toList());
+            List<StepTreeDTO> list = dtoList.stream().sorted(Comparator.comparing(x -> x.getAllIndex())).collect(Collectors.toList());
             for (int index = 0; index < list.size(); index++) {
                 list.get(index).setIndex((index + 1));
             }
