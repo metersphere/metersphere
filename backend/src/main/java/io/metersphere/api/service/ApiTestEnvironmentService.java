@@ -10,6 +10,7 @@ import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
@@ -17,12 +18,14 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.ProjectConfig;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.service.EnvironmentGroupProjectService;
+import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,6 +45,8 @@ public class ApiTestEnvironmentService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
@@ -217,11 +222,12 @@ public class ApiTestEnvironmentService {
                         }
                     }
                 }
-
-                if(project.getMockTcpPort() != null && project.getMockTcpPort().intValue() != 0){
+                ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
+                Integer mockPortStr = config.getMockTcpPort();
+                if(mockPortStr != null && mockPortStr != 0){
                     if(configObj.containsKey("tcpConfig")){
                         if(configObj.containsKey("port")){
-                            if(configObj.getInteger("port").intValue() != project.getMockTcpPort().intValue()){
+                            if(configObj.getInteger("port").intValue() != mockPortStr){
                                 needUpdate = true;
                             }
                         }else {
@@ -349,9 +355,11 @@ public class ApiTestEnvironmentService {
         tcpConfigObj.put("nodelay", false);
         tcpConfigObj.put("closeConnection", false);
         if(project != null){
-            if(project.getMockTcpPort() != null && project.getMockTcpPort().intValue() != 0){
+            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
+            Integer mockPort = config.getMockTcpPort();
+            if(mockPort != null && mockPort != 0){
                 tcpConfigObj.put("server", tcpSocket);
-                tcpConfigObj.put("port", project.getMockTcpPort().intValue());
+                tcpConfigObj.put("port", mockPort);
             }
         }
 

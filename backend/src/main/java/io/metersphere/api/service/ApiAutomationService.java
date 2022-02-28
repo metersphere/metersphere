@@ -21,16 +21,14 @@ import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.constants.ScheduleType;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.ProjectConfig;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
@@ -40,10 +38,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.AutomationReference;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.EnvironmentGroupProjectService;
-import io.metersphere.service.QuotaService;
-import io.metersphere.service.RelationshipEdgeService;
-import io.metersphere.service.ScheduleService;
+import io.metersphere.service.*;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
@@ -134,6 +129,8 @@ public class ApiAutomationService {
     private ExtProjectVersionMapper extProjectVersionMapper;
     @Resource
     private MsHashTreeService hashTreeService;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -298,8 +295,9 @@ public class ApiAutomationService {
             MSException.throwException("add scenario fail, project is not find.");
         }
 
-        Boolean openCustomNum = project.getScenarioCustomNum();
-        if (BooleanUtils.isTrue(openCustomNum)) {
+        ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
+
+        if (BooleanUtils.isTrue(config.getScenarioCustomNum())) {
             checkCustomNumExist(request);
         }
     }
@@ -1289,8 +1287,9 @@ public class ApiAutomationService {
         Project project = new Project();
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             project = projectMapper.selectByPrimaryKey(data.get(0).getProjectId());
+            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
             num = getNextNum(data.get(0).getProjectId());
-            request.setOpenCustomNum(project.getScenarioCustomNum());
+            request.setOpenCustomNum(config.getScenarioCustomNum());
         }
         String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
         request.setDefaultVersion(defaultVersion);
@@ -1307,7 +1306,7 @@ public class ApiAutomationService {
                 item.setName(item.getName().substring(0, 255));
             }
             item.setNum(num);
-            if (BooleanUtils.isFalse(project.getScenarioCustomNum())) {
+            if (BooleanUtils.isFalse(request.getOpenCustomNum())) {
                 // 如果未开启，即使有自定值也直接覆盖
                 item.setCustomNum(String.valueOf(num));
             } else {

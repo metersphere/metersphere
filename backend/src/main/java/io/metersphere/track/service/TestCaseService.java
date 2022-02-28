@@ -20,6 +20,7 @@ import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.IssueRefType;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.exception.MSException;
@@ -157,6 +158,9 @@ public class TestCaseService {
     private ExtProjectVersionMapper extProjectVersionMapper;
     @Resource
     private ProjectVersionMapper projectVersionMapper;
+    @Lazy
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
     private ThreadLocal<Integer> beforeImportCreateNum = new ThreadLocal<>();
@@ -234,7 +238,8 @@ public class TestCaseService {
             String projectId = testCase.getProjectId();
             Project project = projectService.getProjectById(projectId);
             if (project != null) {
-                Boolean customNum = project.getCustomNum();
+                ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+                boolean customNum = config.getCaseCustomNum();
                 // 未开启自定义ID
                 if (!customNum) {
                     testCase.setCustomNum(null);
@@ -909,7 +914,8 @@ public class TestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         Project project = projectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
-
+        ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+        boolean customNum = config.getCaseCustomNum();
         try {
             if (!testCases.isEmpty()) {
                 Integer num = importCreateNum.get();
@@ -934,7 +940,7 @@ public class TestCaseService {
                     }
                     testCase.setNodeId(nodePathMap.get(testCase.getNodePath()));
                     testCase.setNum(num);
-                    if (project.getCustomNum() && StringUtils.isBlank(testCase.getCustomNum())) {
+                    if (customNum && StringUtils.isBlank(testCase.getCustomNum())) {
                         testCase.setCustomNum(String.valueOf(num));
                     }
                     num++;

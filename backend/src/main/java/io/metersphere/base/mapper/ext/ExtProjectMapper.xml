@@ -46,14 +46,10 @@
                p.jira_key,
                p.zentao_id,
                p.azure_devops_id,
-               p.repeatable,
-               p.custom_num,
                p.azure_filter_id,
                user.name          AS createUserName,
-               p.mock_tcp_port    AS mockTcpPort,
-               p.is_mock_tcp_open AS isMockTcpOpen,
-               p.scenario_custom_num,
-               p.platform, p.third_part_template,
+               p.platform,
+               p.third_part_template,
                p.issue_config
         FROM project p
                      JOIN workspace w ON p.workspace_id = w.id
@@ -144,7 +140,7 @@
         FROM project
     </select>
     <select id="queryNameByIds" resultType="io.metersphere.base.domain.Project">
-        SELECT id, name, custom_num
+        SELECT id, name
         FROM project
                 WHERE id IN
         <foreach collection="ids" item="id" index="index"
@@ -177,13 +173,6 @@
                 FROM project
                 WHERE workspace_id = #{workspaceId}) AS a)
     </update>
-
-    <select id="selectTcpPorts" resultType="java.lang.Integer">
-        SELECT mock_tcp_port
-        FROM project
-        WHERE mock_tcp_port IS NOT NULL
-          AND mock_tcp_port != 0
-    </select>
 
     <select id="selectProjectByResourceId" resultType="io.metersphere.base.domain.Project">
         SELECT *

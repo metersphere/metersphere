@@ -230,7 +230,7 @@
       },
       getProject(projectId) {
         if (projectId) {
-          this.$get("/project/get/" + projectId, result => {
+          this.$get('/project_application/get/config/' + projectId + "/SCENARIO_CUSTOM_NUM", result => {
             let data = result.data;
             if (data) {
               this.customNum = data.scenarioCustomNum;

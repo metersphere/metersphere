@@ -631,10 +631,10 @@ export default {
       this.condition = data;
     },
     getProject() {
-      this.$get("/project/get/" + this.projectId, result => {
+      this.$get('/project_application/get/config/' + this.projectId + "/CASE_CUSTOM_NUM", result => {
         let data = result.data;
         if (data) {
-          this.$store.commit('setCurrentProjectIsCustomNum', data.customNum);
+          this.$store.commit('setCurrentProjectIsCustomNum', data.caseCustomNum);
         }
       });
     },

@@ -11,7 +11,7 @@
             :label="$t('commons.id')"
             show-overflow-tooltip>
           <template v-slot:default="{row}">
-            {{ row.isCustomNum ? row.customNum : row.num }}
+            {{ isCustomNum ? row.customNum : row.num }}
           </template>
         </el-table-column>
         <el-table-column
@@ -90,6 +90,11 @@ export default {
         this.$emit('setSize', this.loadTestCases.length);
       }
     }
+  },
+  computed: {
+    isCustomNum() {
+      return this.$store.state.currentProjectIsCustomNum;
+    },
   },
   methods: {
     getFailureTestCase() {

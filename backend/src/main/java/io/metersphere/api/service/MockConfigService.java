@@ -24,10 +24,12 @@ import io.metersphere.base.mapper.MockConfigMapper;
 import io.metersphere.base.mapper.MockExpectConfigMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtMockExpectConfigMapper;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.service.ProjectApplicationService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +64,8 @@ public class MockConfigService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     public MockConfigResponse findByApiIdList(List<String> apiIdList) {
         if (apiIdList.isEmpty()) {
@@ -1259,9 +1263,19 @@ public class MockConfigService {
     }
 
     public MockExpectConfigWithBLOBs matchTcpMockExpect(String message, int port) {
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andMockTcpPortEqualTo(port).andIsMockTcpOpenEqualTo(true);
-        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        ProjectApplicationExample pae = new ProjectApplicationExample();
+        pae.createCriteria().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_OPEN.name())
+                .andTypeValueEqualTo(String.valueOf(true));
+        pae.or().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_PORT.name())
+                .andTypeValueEqualTo(String.valueOf(port));
+        List<ProjectApplication> projectApplications = projectApplicationService.selectByExample(pae);
+        List<String> projectIds = projectApplications.stream().map(ProjectApplication::getProjectId).collect(Collectors.toList());
+        List<Project> projectList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            ProjectExample projectExample = new ProjectExample();
+            projectExample.createCriteria().andIdIn(projectIds);
+            projectList = projectMapper.selectByExample(projectExample);
+        }
 
         boolean isJsonMessage = this.checkMessageIsJson(message);
         boolean isXMLMessage = this.checkMessageIsXml(message);

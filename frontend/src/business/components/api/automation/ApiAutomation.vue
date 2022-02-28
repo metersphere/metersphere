@@ -564,7 +564,7 @@ export default {
       });
     },
     getProject() {
-      this.$get("/project/get/" + this.projectId, result => {
+      this.$get('/project_application/get/config/' + this.projectId + "/SCENARIO_CUSTOM_NUM", result => {
         let data = result.data;
         if (data) {
           this.customNum = data.scenarioCustomNum;
