@@ -1,5 +1,5 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
+  <el-card class="table-card" v-loading="result.loading" body-style="padding:16px 5px 16px 16px;" style="height: 350px;margin-top: 5px">
     <div slot="header">
       <span class="title">
         {{ $t('api_test.home_page.api_count_card.title') }}
@@ -11,7 +11,7 @@
       </el-aside>
 
       <el-main style="padding-left: 0px;padding-right: 0px;">
-        <div style="width: 200px;margin:0 auto">
+        <div style="width: 185px; float:right;margin:0 auto">
 
           <el-row align="center" class="hidden-lg-and-down">
             <el-col :span="6"
@@ -30,7 +30,7 @@
               <div class="count-info-div" v-html="apiCountData.sqlCountStr"></div>
             </el-col>
           </el-row>
-          <el-row align="right" style="margin-left: 20px" class="hidden-xl-only">
+          <el-row align="right" class="hidden-xl-only">
             <el-col :span="6"
                     style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="apiCountData.httpCountStr"></div>
@@ -62,58 +62,46 @@
           </el-col>
         </el-row>
       </el-header>
-      <el-main style="padding: 5px 5px 0px 5px;margin-top: 10px">
-<!--        <el-container>-->
-<!--          <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">-->
-<!--            <el-container>
-              <el-aside width="30%">
-                {{ $t('api_test.home_page.detail_card.rate.completion') + ":" }}
+      <el-main style="padding: 5px 5px 0px 0px;margin-top: 10px">
+        <el-container style="height: 96px">
+          <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
+            <el-container style="height: 40px;margin-top: 10px">
+              <el-aside width="80px" style="line-height: 40px;">
+                <span style="float: left">
+                  {{ $t('api_test.home_page.detail_card.rate.completion') + ":" }}
+                </span>
               </el-aside>
-              <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
-                <span class="count-number">
-                  {{ apiCountData.completionRage }}
+              <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
+                <span class="rows-count-number">
+                {{ apiCountData.completionRage }}
                   <el-tooltip placement="top" class="info-tool-tip">
-                    <div slot="content">{{ $t('api_test.home_page.formula.completion')}}</div>
+                    <div slot="content">{{ $t('api_test.home_page.formula.completion') }}</div>
                     <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
                   </el-tooltip>
               </span>
               </el-main>
-            </el-container>-->
-            <el-container>
-              <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
-                <el-container style="height: 50px;margin-top: 10px">
-                  <el-aside width="50%" style="line-height: 40px;">
-                    {{$t('api_test.home_page.detail_card.rate.completion')+":"}}
-                  </el-aside>
-                  <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
-                <span class="rows-count-number">
-                {{ apiCountData.completionRage }}
-                  <el-tooltip placement="top" class="info-tool-tip">
-                    <div slot="content">{{ $t('api_test.home_page.formula.completion')}}</div>
-                    <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
-                  </el-tooltip>
-              </span>
-                  </el-main>
-                </el-container>
-                <el-container style="height: 50px;margin-top: 1px">
-                  <el-aside width="50%" style="line-height: 40px;">
-                    <span>{{$t('api_test.home_page.detail_card.rate.interface_coverage')+":"}}</span>
-                  </el-aside>
-                  <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
+            </el-container>
+            <el-container style="height: 40px;margin-top: 1px">
+              <el-aside width="80px" style="line-height: 40px;">
+                <span style="float: left">
+                    <span>{{ $t('api_test.home_page.detail_card.rate.interface_coverage') + ":" }}</span>
+                </span>
+              </el-aside>
+              <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
                 <span v-if="interfaceCoverage === 'waitting...'">
                   <i class="el-icon-loading lading-icon"></i>
                 </span>
-                    <span v-else class="rows-count-number">
-                  {{interfaceCoverage}}
+                <span v-else class="rows-count-number">
+                  {{ interfaceCoverage }}
                   <el-tooltip placement="top" class="info-tool-tip">
-                    <div slot="content">{{ $t('api_test.home_page.formula.api_coverage')}}</div>
+                    <div slot="content">{{ $t('api_test.home_page.formula.api_coverage') }}</div>
                     <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
                   </el-tooltip>
                 </span>
-                  </el-main>
-                </el-container>
+              </el-main>
+            </el-container>
           </el-aside>
-          <el-main style="padding: 5px">
+          <el-main style="padding: 0px; height: 80px; float:right;">
             <el-card class="no-shadow-card" body-style="padding-left:5px;padding-right:5px">
               <main>
                 <el-row>
@@ -157,6 +145,7 @@
 <script>
 
 import MsCountRingChart from "@/business/components/common/chart/MsCountRingChart";
+
 export default {
   name: "MsApiInfoCard",
 
@@ -170,7 +159,7 @@ export default {
   },
   props: {
     apiCountData: {},
-    interfaceCoverage:String,
+    interfaceCoverage: String,
   },
   methods: {
     redirectPage(clickType) {
@@ -192,12 +181,13 @@ export default {
   position: relative;
 }
 
-.rows-count-number{
-  font-family:'ArialMT', 'Arial', sans-serif;
-  font-size:19px;
+.rows-count-number {
+  font-family: 'ArialMT', 'Arial', sans-serif;
+  font-size: 19px;
   color: var(--count_number);
-  margin:20px auto;
   position: relative;
+  margin-left: 10px;
+  float: left;
 }
 
 .count-number-show {
@@ -209,6 +199,8 @@ export default {
 }
 
 .no-shadow-card {
+  width: 115px;
+  float: right;
   -webkit-box-shadow: 0 0px 0px 0 rgba(0, 0, 0, .1);
   box-shadow: 0 0px 0px 0 rgba(0, 0, 0, .1);
 }
@@ -233,7 +225,8 @@ export default {
 .count-info-div >>> p {
   font-size: 10px;
 }
-.info-tool-tip{
+
+.info-tool-tip {
   position: absolute;
   top: 0;
 }
