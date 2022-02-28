@@ -1,27 +1,25 @@
 <template>
   <ms-container>
     <ms-main-container v-loading="result.loading">
-      <el-row :gutter="10">
-        <el-col :span="6">
+      <el-row :gutter="10" style="margin-bottom: 5px; margin-top: -5px;">
+        <el-col :span="6" style="padding-left: 5px;padding-right: 0px">
           <ms-api-info-card @redirectPage="redirectPage" :api-count-data="apiCountData"
                             :interface-coverage="apiCoverage"/>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="6" style="padding-left: 5px;padding-right: 0px">
           <ms-test-case-info-card @redirectPage="redirectPage" :test-case-count-data="testCaseCountData"/>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="6" style="padding-left: 5px;padding-right: 0px">
           <ms-scene-info-card @redirectPage="redirectPage" :scene-count-data="sceneCountData"
                               :interface-coverage="interfaceCoverage"/>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="6" style="padding-left: 5px;padding-right: 5px">
           <ms-schedule-task-info-card :schedule-task-count-data="scheduleTaskCountData"/>
         </el-col>
       </el-row>
 
-
-
-      <el-row :gutter="10">
-        <el-col :span="12">
+      <el-row :gutter="10" style="margin-top: 0px; margin-bottom: 5px;">
+        <el-col :span="12" style="padding-left: 5px;padding-right: 0px">
           <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
             <template v-slot:header>
               <el-col :span="22">
@@ -66,7 +64,7 @@
           </el-card>
         </el-col>
 
-        <el-col :span="12">
+        <el-col :span="12" style="padding-left: 5px;padding-right: 5px">
           <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
             <div v-if="testTitleSecond === 'caseTitle'">
               <ms-api-failure-test-case-list @redirectPage="redirectPage" />
