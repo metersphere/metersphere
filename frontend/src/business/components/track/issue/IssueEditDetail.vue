@@ -4,13 +4,19 @@
       <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
         <el-form-item v-if="!enableThirdPartTemplate" :label="$t('commons.title')" prop="title">
-          <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
-          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
-            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
-          </el-tooltip>
-          <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow" >
-            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-left: 15px; cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
-          </el-tooltip>
+          <el-row>
+            <el-col  :span="22">
+              <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
+            </el-col>
+            <el-col  :span="2">
+              <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
+                <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+              </el-tooltip>
+              <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow" >
+                <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-left: 15px; cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+              </el-tooltip>
+            </el-col>
+          </el-row>
         </el-form-item>
         <div v-else style="text-align: right; margin-bottom: 5px">
           <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
@@ -461,7 +467,7 @@ export default {
 
 <style scoped>
 .top-input-class{
-  width: 95%;
+  width: 100%;
 }
 
 .filed-list {
