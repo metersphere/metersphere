@@ -286,11 +286,19 @@
     <batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
-    <ms-run-mode @handleRunBatch="handleRunBatch" :request="runRequest" ref="runMode"/>
-    <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
+    <ms-run-mode
+      :request="runRequest"
+      @close="search"
+      @handleRunBatch="handleRunBatch"
+      ref="runMode"/>
+    <ms-run :debug="true" :environment="projectEnvMap"
+            :reportId="reportId"
+            :saved="true"
             :executeType="'Saved'"
             :environment-type="environmentType" :environment-group-id="envGroupId"
-            :run-data="debugData" ref="runTest"/>
+            :run-data="debugData"
+            @runRefresh="runRefresh"
+            ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->

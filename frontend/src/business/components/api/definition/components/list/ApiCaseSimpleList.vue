@@ -227,7 +227,11 @@
 
     <ms-task-center ref="taskCenter" :show-menu="false"/>
 
-    <ms-api-case-run-mode-with-env @handleRunBatch="runBatch" ref="batchRun" :project-id="projectId"/>
+    <ms-api-case-run-mode-with-env
+      :project-id="projectId"
+      @handleRunBatch="runBatch"
+      @close="initTable"
+      ref="batchRun"/>
 
     <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
                :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">

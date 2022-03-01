@@ -3,6 +3,7 @@
     destroy-on-close
     :title="$t('load_test.runtime_config')"
     width="550px"
+    @close="close"
     :visible.sync="runModeVisible"
   >
     <div style="margin-bottom: 10px;">
@@ -133,6 +134,7 @@ export default {
         environmentType: ENV_TYPE.JSON
       };
       this.runModeVisible = false;
+      this.$emit('close');
     },
     handleRunBatch() {
       this.$emit("handleRunBatch", this.runConfig);
