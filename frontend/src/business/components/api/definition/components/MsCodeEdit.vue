@@ -17,7 +17,10 @@
     props: {
       height: [String, Number],
       data: {
-        type: String
+        type: String,
+        default() {
+          return ''
+        }
       },
       theme: {
         type: String,
