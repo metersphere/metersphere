@@ -157,7 +157,7 @@ public class ShareController {
 
     @GetMapping("/api/scenario/report/get/{shareId}/{reportId}")
     public APIScenarioReportResult get(@PathVariable String shareId, @PathVariable String reportId) {
-//        shareInfoService.scenarioReportValidate(shareId, reportId);
+        shareInfoService.validate(shareId, reportId);
         return apiScenarioReportService.get(reportId);
     }
 

@@ -46,7 +46,7 @@
                 </div>
                 <el-button slot="reference" :disabled="isReadOnly" type="danger" plain size="mini"
                            @click="handleShare(report)">
-                  {{ $t('分享报告') }}
+                  {{ $t('test_track.plan_view.share_report') }}
                 </el-button>
               </el-popover>
               <el-button :disabled="report.status !== 'Completed'" type="default" plain

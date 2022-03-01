@@ -2306,6 +2306,7 @@ export default {
       test_detail: "测试详情",
       failure_case: "失败用例",
       export_report: "导出报告",
+      share_report: "分享报告",
       no_case_relevance: "没有关联用例",
       automatically_update_status: "自动更新状态",
       automatically_update_status_tip: "当功能用例关联的接口或性能用例在测试计划执行后，自动更新功能用例的状态",

@@ -2301,6 +2301,7 @@ export default {
       test_detail: "Test detail",
       failure_case: "Failure case",
       export_report: "Export Report",
+      share_report: "Share Report",
       no_case_relevance: "No related use cases",
       automatically_update_status: "Auto update status",
       allow_associated_repetitive_cases: "Repetitive Case",
