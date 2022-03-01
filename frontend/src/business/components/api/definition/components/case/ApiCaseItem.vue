@@ -110,7 +110,7 @@
       <div v-if="apiCase.active||type==='detail'" v-loading="loading">
         <el-divider></el-divider>
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-api-request-form :isShowEnable="true" :showScript="true" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
+        <ms-api-request-form :isShowEnable="true" :showScript="true" :headers="apiCase.request.headers " :response="apiCase.responseData" :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
         <tcp-format-parameters :showScript="true" :request="apiCase.request" v-if="api.method==='TCP' && apiCase.request.esbDataStruct == null"/>
         <esb-definition v-xpack :request="apiCase.request" :showScript="true" v-if="isXpack&&api.method==='ESB'" ref="esbDefinition"/>
         <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
@@ -124,9 +124,6 @@
         <div v-else>
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
         </div>
-
-        <ms-jmx-step v-if="apiCase.request.hashTree && apiCase.request.hashTree.length > 0" :request="apiCase.request" :api-id="api.id" :response="apiCase.responseData"/>
-
       </div>
     </el-collapse-transition>
     <ms-change-history ref="changeHistory"/>
@@ -149,7 +146,6 @@ import MsDubboBasisParameters from "../request/dubbo/BasisParameters";
 import MsApiExtendBtns from "../reference/ApiExtendBtns";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 import MsRequestResultTail from "../response/RequestResultTail";
-import MsJmxStep from "../step/JmxStep";
 import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 
@@ -188,7 +184,6 @@ export default {
     MsDubboBasisParameters,
     MsApiExtendBtns,
     MsRequestResultTail,
-    MsJmxStep,
     ShowMoreBtn,
     MsChangeHistory,
     "esbDefinition": esbDefinition.default,

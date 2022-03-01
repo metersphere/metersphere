@@ -35,9 +35,9 @@
           <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root&&!showVersion" style="width: 30px"/>
         </el-tooltip>
         <slot name="button" v-if="showVersion"></slot>
-        <el-tooltip content="Copy" placement="top" v-if="showVersion">
-          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="data.disabled && !data.root"/>
-        </el-tooltip>
+        <el-button v-if="showVersion" size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="data.disabled && !data.root"/>
+
+        <el-button v-if="showVersion && stepFilter.get('ALlSamplerStep').indexOf(data.type) !==-1" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"/>
         <step-extend-btns style="display: contents"
                           :data="data"
                           :environmentType="environmentType"
@@ -46,7 +46,7 @@
                           @copy="copyRow"
                           @remove="remove"
                           @openScenario="openScenario"
-                          v-if="showBtn && (!data.disabled || data.root) &&showVersion"/>
+                          v-if="showBtn && (!data.disabled || data.root) && showVersion && stepFilter.get('ALlSamplerStep').indexOf(data.type) ===-1"/>
       </div>
 
     </div>

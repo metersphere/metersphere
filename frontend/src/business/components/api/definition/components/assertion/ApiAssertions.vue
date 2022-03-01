@@ -1,18 +1,15 @@
 <template>
-  <api-base-component
-    v-loading="loading"
-    @copy="copyRow"
-    @remove="remove"
-    @active="active"
-    :data="assertions"
-    :draggable="draggable"
-    :is-max="isMax"
-    :show-btn="showBtn"
-    :show-version="showVersion"
-    color="#A30014"
-    background-color="#F7E6E9"
-    :title="$t('api_test.definition.request.assertions_rule')">
-
+  <el-card>
+    <el-row>
+      <span>{{ $t('api_test.request.assertions.description') }}</span>
+      <span style="float: right">
+        <api-json-path-suggest-button
+          :open-tip="$t('api_test.request.assertions.json_path_suggest')"
+          :clear-tip="$t('api_test.request.assertions.json_path_clear')"
+          @open="suggestJsonOpen"
+          @clear="clearJson"/>
+      </span>
+    </el-row>
     <div class="assertion-add" :draggable="draggable">
       <el-row :gutter="10">
         <el-col :span="4">
@@ -37,6 +34,7 @@
             :is-read-only="isReadOnly"
             :list="assertions.regex"
             :callback="after"
+            @callback="after"
             v-if="type === options.REGEX"
           />
           <ms-api-assertion-json-path
@@ -78,11 +76,6 @@
       </el-row>
     </div>
 
-    <api-json-path-suggest-button
-      :open-tip="$t('api_test.request.assertions.json_path_suggest')"
-      :clear-tip="$t('api_test.request.assertions.json_path_clear')"
-      @open="suggestJsonOpen"
-      @clear="clearJson"/>
 
     <ms-api-assertions-edit
       :is-read-only="isReadOnly"
@@ -96,7 +89,7 @@
       @addSuggest="addJsonPathSuggest"
       ref="jsonpathSuggest"/>
 
-  </api-base-component>
+  </el-card>
 </template>
 
 <script>
@@ -171,7 +164,29 @@ export default {
       reloadData: "",
     }
   },
+  watch: {
+    'assertions.jsonPath'() {
+      this.computeStep();
+    },
+    'assertions.regex'() {
+      this.computeStep();
+    },
+    'assertions.jsr223'() {
+      this.computeStep();
+    },
+    'assertions.xpath2'() {
+      this.computeStep();
+    }
+  },
   methods: {
+    computeStep() {
+      let ruleSize = 0;
+      ruleSize = (this.assertions.jsonPath.length + this.assertions.jsr223.length + this.assertions.regex.length + this.assertions.xpath2.length);
+      ruleSize += this.assertions.text ? this.assertions.text.length : 0;
+      this.request.ruleSize = ruleSize;
+      this.$emit('reload');
+    },
+
     after() {
       this.type = "";
       this.reloadData = getUUID().substring(0, 8);
