@@ -123,7 +123,7 @@ export default {
       dialogVisible: false,
       schedule: {
         value: "",
-        enable: true
+        enable: false
       },
       scheduleTaskType: "",
       testId: String,
@@ -227,7 +227,7 @@ export default {
         } else {
           this.schedule = {
             value: '',
-            enable: true
+            enable: false
           };
         }
       });
@@ -235,6 +235,10 @@ export default {
     crontabFill(value, resultList) {
       //确定后回传的值
       this.form.cronValue = value;
+      // 如果是第一次设置定时任务规则，则默认开启定时任务
+      if (!this.schedule.id){
+        this.schedule.enable = true;
+      }
       this.$refs.crontabResult.resultList = resultList;
       this.$refs['from'].validate();
     },
@@ -251,7 +255,6 @@ export default {
         if (valid) {
           this.intervalShortValidate();
           let formCronValue = this.form.cronValue;
-          // this.schedule.enable = true;
           this.schedule.value = formCronValue;
           this.saveSchedule();
           this.dialogVisible = false;
@@ -354,5 +357,7 @@ export default {
 .el-form-item {
   margin-bottom: 10px;
 }
-
+>>> .el-form-item__error {
+  margin-left: 148px;
+}
 </style>

@@ -31,13 +31,8 @@
               </el-form-item>
               <el-form-item :label="$t('commons.schedule_cron_title')"
                             prop="cronValue">
-                <el-row>
-                  <el-col :span="18">
-                    <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
-                              :placeholder="$t('schedule.please_input_cron_expression')"/>
-                  </el-col>
-                </el-row>
-
+                <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
+                          :placeholder="$t('schedule.please_input_cron_expression')"/>
               </el-form-item>
               <el-form-item>
                 <el-link :disabled="isReadOnly" type="primary" @click="showCronDialog">
@@ -189,6 +184,9 @@ export default {
       } else if (!customValidate.pass) {
         callback(new Error(customValidate.info));
       } else {
+        if (!this.schedule.id){
+          this.schedule.enable = true;
+        }
         callback();
       }
     };
@@ -199,7 +197,7 @@ export default {
       dialogVisible: false,
       schedule: {
         value: "",
-        enable: true,
+        enable: false,
       },
       scheduleTaskType: "",
       testId: String,
@@ -309,7 +307,7 @@ export default {
         } else {
           this.schedule = {
             value: '',
-            enable: true
+            enable: false
           };
         }
       });
@@ -317,6 +315,10 @@ export default {
     crontabFill(value, resultList) {
       //确定后回传的值
       this.form.cronValue = value;
+      // 如果是第一次设置定时任务规则，则默认开启定时任务
+      if (!this.schedule.id){
+        this.schedule.enable = true;
+      }
       this.$refs.crontabResult.resultList = resultList;
       this.$refs['from'].validate();
     },
@@ -333,7 +335,6 @@ export default {
         if (valid) {
           this.intervalShortValidate();
           let formCronValue = this.form.cronValue;
-          // this.schedule.enable = true;
           this.schedule.value = formCronValue;
           this.saveSchedule();
           this.dialogVisible = false;
@@ -433,7 +434,7 @@ export default {
 <style scoped>
 
 .inp {
-  width: 50%;
+  width: 40%;
   margin-right: 20px;
 }
 
@@ -448,5 +449,8 @@ export default {
 
 .ms-mode-div {
   margin-top: 10px;
+}
+>>> .el-form-item__error {
+  margin-left: 148px;
 }
 </style>
