@@ -11,12 +11,12 @@ import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.LoadTestReportLog;
-import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.LogDetailDTO;
+import io.metersphere.dto.ReportDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
@@ -162,9 +162,9 @@ public class ShareController {
     }
 
     @GetMapping("/performance/report/{shareId}/{reportId}")
-    public LoadTestReportWithBLOBs getLoadTestReport(@PathVariable String shareId, @PathVariable String reportId) {
+    public ReportDTO getLoadTestReport(@PathVariable String shareId, @PathVariable String reportId) {
         //todo
-        return performanceReportService.getLoadTestReport(reportId);
+        return performanceReportService.getReportTestAndProInfo(reportId);
     }
 
     @GetMapping("/performance/report/content/report_time/{shareId}/{reportId}")
