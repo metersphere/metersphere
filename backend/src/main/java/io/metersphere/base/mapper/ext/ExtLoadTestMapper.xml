@@ -341,4 +341,12 @@
         WHERE version_id = #{versionId} AND project_id = #{projectId}
         ) AND project_id = #{projectId}
     </select>
+
+    <select id="getFileMetadataByIds" resultType="io.metersphere.base.domain.FileMetadata">
+        SELECT file_metadata.*
+        FROM load_test_file
+                     JOIN file_metadata ON file_id = file_metadata.id
+        WHERE test_id = #{testId}
+        ORDER BY sort
+    </select>
 </mapper>
