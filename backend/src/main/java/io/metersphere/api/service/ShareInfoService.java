@@ -3,9 +3,11 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.share.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.ShareType;
@@ -61,6 +63,9 @@ public class ShareInfoService {
     @Lazy
     @Resource
     TestPlanMapper testPlanMapper;
+    @Resource
+    private ExtApiScenarioReportMapper extApiScenarioReportMapper;
+
 
     public List<ApiDocumentInfoDTO> findApiDocumentSimpleInfoByRequest(ApiDocumentRequest request) {
         if (this.isParamLegitimacy(request)) {
@@ -545,6 +550,14 @@ public class ShareInfoService {
             TestPlanWithBLOBs testPlan = getTestPlan(shareInfo);
             if (testPlan != null){
                 projectId = testPlan.getProjectId();
+            };
+
+        }
+        if(shareInfo.getShareType().equals("API_REPORT")){
+            type = ProjectApplicationType.API_SHARE_REPORT_TIME.toString();
+            APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(shareInfo.getCustomData());
+            if (reportResult != null){
+                projectId = reportResult.getProjectId();
             };
 
         }

@@ -156,7 +156,6 @@ export default {
     };
   },
   created() {
-    console.log("看看是不是这页面")
     this.$get('/api/definition/follow/' + this.basisData.id, response => {
       this.basisData.follows = response.data;
       for (let i = 0; i < response.data.length; i++) {
