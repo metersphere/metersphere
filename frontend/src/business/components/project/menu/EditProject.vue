@@ -34,12 +34,6 @@
 
         </el-form-item>
 
-        <el-form-item :label-width="labelWidth" label="TCP Mock Port">
-          <el-input-number v-model="form.mockTcpPort" :controls="false"
-                           style="width: 37%;margin-right: 30px"></el-input-number>
-          <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
-        </el-form-item>
-
         <el-form-item :label-width="labelWidth" :label="$t('commons.description')" prop="description">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
         </el-form-item>
@@ -66,18 +60,6 @@
         <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_filter_id')" v-if="azuredevops">
           <el-input v-model="form.azureFilterId" autocomplete="off"/>
           <ms-instructions-icon content="非必填项，用例关联需求时，可以只筛选出，所填的 workItem 下的选项" effect="light"/>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable"
-                      v-if="this.isShowApp">
-          <el-switch v-model="form.repeatable"></el-switch>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id')" prop="customNum"
-                      v-if="this.isShowApp">
-          <el-switch v-model="form.customNum"></el-switch>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id')" prop="scenarioCustomNum"
-                      v-if="this.isShowApp">
-          <el-switch v-model="form.scenarioCustomNum"></el-switch>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
