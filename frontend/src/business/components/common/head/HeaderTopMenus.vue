@@ -8,10 +8,10 @@
            @select="handleSelect"
            :key="menuKey"
            router>
-    <el-menu-item index="/workstation" v-if="hasLicense()">
+    <el-menu-item index="/workstation" v-if="hasLicense() && check('workstation')">
       {{ $t('commons.my_workstation') }}
     </el-menu-item>
-    <el-menu-item v-else @click="clickPlanMenu">
+    <el-menu-item v-if="!hasLicense()" @click="clickPlanMenu">
       {{ $t('commons.my_workstation') }}
     </el-menu-item>
     <el-menu-item index="/track" v-if="check('testTrack')" onselectstart="return false"
