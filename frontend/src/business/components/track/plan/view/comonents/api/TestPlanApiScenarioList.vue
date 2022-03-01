@@ -184,7 +184,13 @@
     <!-- 批量编辑 -->
     <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                 :select-row="this.$refs.table ? this.$refs.table.selectRows : new Set()" ref="batchEdit" @batchEdit="batchEdit"/>
-    <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="planCaseIds" :type="'apiScenario'"/>
+    <ms-plan-run-mode
+      :type="'apiScenario'"
+      :plan-case-ids="planCaseIds"
+      @close="search"
+      @handleRunBatch="handleRunBatch"
+      ref="runMode"/>
+
     <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
 </template>
