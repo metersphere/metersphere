@@ -48,7 +48,6 @@
           prop="createUser"
           :field="item"
           :fields-width="fieldsWidth"
-          sortable
           :label="$t('commons.create_user')"
           min-width="200px">
         </ms-table-column>
@@ -221,7 +220,6 @@
           prop="passRate"
           :field="item"
           :fields-width="fieldsWidth"
-          sortable
           :label="$t('commons.pass_rate')"
           min-width="120px">
         </ms-table-column>
