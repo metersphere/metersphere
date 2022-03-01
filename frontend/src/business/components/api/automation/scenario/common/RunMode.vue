@@ -3,6 +3,7 @@
     destroy-on-close
     :title="$t('load_test.runtime_config')"
     width="550px"
+    @close="close"
     :visible.sync="runModeVisible"
   >
     <div style="margin-bottom: 10px;">
@@ -145,6 +146,7 @@ export default {
         resourcePoolId: null,
       };
       this.runModeVisible = false;
+      this.$emit('close');
     },
     getWsProjects() {
       this.$get("/project/listAll", res => {
