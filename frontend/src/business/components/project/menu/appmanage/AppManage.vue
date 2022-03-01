@@ -62,6 +62,8 @@
                     </app-manage-item>
                     <timing-item ref="apiTimingItem" :choose.sync="form.cleanApiReport" :expr.sync="form.cleanApiReportExpr"
                                  @chooseChange="chooseChange" :title="$t('project.timing_clean_api_report')"/>
+                    <timing-item ref="trackTimingItem" :choose.sync="application.shareReport" :expr.sync="application.typeValue" :share-link="true" :unit-options="applyUnitOptions"
+                                 @chooseChange="chooseChangeApply" :title="$t('report.report_sharing_link')"/>
                   </el-row>
                 </el-col>
                 <el-col :span="8" :offset="4">

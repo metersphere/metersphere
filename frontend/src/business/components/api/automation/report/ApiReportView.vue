@@ -1,5 +1,5 @@
 <template>
-  <ms-api-report :report-id="reportId"></ms-api-report>
+  <ms-api-report :report-id="reportIdValue" :share-id="shareId" :is-share="isShare" :is-plan="isPlanReport" :is-template="false"></ms-api-report>
 </template>
 
 <script>
@@ -7,13 +7,32 @@ import MsApiReport from "@/business/components/api/automation/report/ApiReportDe
 export default {
   name: "ApiReportView",
   components: {MsApiReport},
-   computed: {
-     reportId:function (){
-       return this.$route.params.reportId
-     }
-   },
+  props: {
+    reportId:String,
+    isShare: Boolean,
+    shareId: String,
+    isPlanReport: Boolean,
+  },
+  computed: {
+    reportIdByPath:function (){
+      if(this.$route){
+        return this.$route.params.reportId
+      }else{
+        return null;
+      }
+    }
+  },
+  data(){
+    return {
+      reportIdValue:'',
+    }
+  },
   created() {
+    console.log("this.reportId")
     console.log(this.reportId)
+    if(!this.reportIdValue){
+      this.reportIdValue = this.reportIdByPath ? this.reportIdByPath:this.reportId;
+    }
   }
 }
 
