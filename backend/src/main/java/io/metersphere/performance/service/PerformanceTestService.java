@@ -323,6 +323,16 @@ public class PerformanceTestService {
         this.importFiles(addFileIds, loadTest.getId(), request.getFileSorts());
         // 处理新上传的文件
         this.saveUploadFiles(files, loadTest, request.getFileSorts());
+        // 保持文件顺序
+        updatedFiles.forEach(f -> {
+            LoadTestFile record = new LoadTestFile();
+            record.setSort(request.getFileSorts().get(f.getName()));
+            LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
+            loadTestFileExample.createCriteria()
+                    .andFileIdEqualTo(f.getId())
+                    .andTestIdEqualTo(testId);
+            loadTestFileMapper.updateByExampleSelective(record, loadTestFileExample);
+        });
 
         loadTest.setName(request.getName());
         loadTest.setProjectId(request.getProjectId());
@@ -736,15 +746,7 @@ public class PerformanceTestService {
     }
 
     public List<FileMetadata> getFileMetadataByTestId(String testId) {
-        LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
-        loadTestFileExample.createCriteria().andTestIdEqualTo(testId);
-        loadTestFileExample.setOrderByClause("sort asc");
-        List<LoadTestFile> loadTestFiles = loadTestFileMapper.selectByExample(loadTestFileExample);
-
-        List<String> fileIds = loadTestFiles.stream().map(LoadTestFile::getFileId).collect(Collectors.toList());
-        FileMetadataExample example = new FileMetadataExample();
-        example.createCriteria().andIdIn(fileIds);
-        return fileService.getFileMetadataByIds(fileIds);
+        return extLoadTestMapper.getFileMetadataByIds(testId);
     }
 
     public Long getReportCountByTestId(String testId) {

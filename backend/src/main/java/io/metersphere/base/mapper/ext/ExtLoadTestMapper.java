@@ -37,4 +37,6 @@ public interface ExtLoadTestMapper {
     void clearLatestVersion(String refId);
 
     List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
+
+    List<FileMetadata> getFileMetadataByIds(@Param("testId") String testId);
 }
