@@ -1,7 +1,7 @@
 export default {
   commons: {
     project_permission: 'Please add the project permission first',
-    no_permission:'No permission yet',
+    no_permission: 'No permission yet',
     failure_continues: "Failure continues",
     full_screen_editing: "Full screen editing",
     trash: "Trash",
@@ -243,8 +243,8 @@ export default {
     cancel_follow_success: "Cancel Follow Success",
     generate_test_data: "Generate test data",
     type: "Type",
-    type_of_num:"Please enter an integer type",
-    validity_period:'Validity Period',
+    type_of_num: "Please enter an integer type",
+    validity_period: 'Validity Period',
     please_select_a_deadline: "Please select a deadline",
     relationship: {
       name: 'Dependencies',
@@ -1152,14 +1152,14 @@ export default {
       rule: {
         input_code: "Please input HTTP Code"
       },
-      range_type:{
+      range_type: {
         value_eq: "value=",
         value_not_eq: "value!=",
-        value_contain:"include=",
+        value_contain: "include=",
         length_eq: "length=",
         length_not_eq: "length!=",
-        length_large_than:"length>",
-        length_shot_than:"length<",
+        length_large_than: "length>",
+        length_shot_than: "length<",
         regular_match: "Regular match",
       }
     },
@@ -1282,6 +1282,8 @@ export default {
         esb_title: "You can use ${name} or ${parent name.child name} to generate xml struct in report template",
       },
       document: {
+        open: "Open",
+        close: "Close",
         order: "Order",
         create_time_sort: "From back to front by create time",
         edit_time_positive_sequence: "From front to back by update time",
@@ -3043,8 +3045,8 @@ export default {
       delete: "DELETE",
       read: "READ",
     },
-    personal_information:{
-      name:'Setting',
+    personal_information: {
+      name: 'Setting',
       personal_setting: 'Personal Setting',
       api_keys: 'API Keys',
       edit_password: "EDIT PASSWORD",
