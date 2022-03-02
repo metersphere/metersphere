@@ -149,6 +149,7 @@
                              :total="page.total"/>
 
         <issue-edit @refresh="getIssues" ref="issueEdit"/>
+        <issue-delete-confirm @delete="_handleDelete" ref="issueDeleteConfirm"/>
 
       </el-card>
     </ms-main-container>
@@ -180,10 +181,12 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getProjectMember} from "@/network/user";
 import {LOCAL} from "@/common/js/constants";
+import IssueDeleteConfirm from "@/business/components/track/issue/IssueDeleteConfirm";
 
 export default {
   name: "IssueList",
   components: {
+    IssueDeleteConfirm,
     MsMainContainer,
     MsContainer,
     IssueEdit,
@@ -312,6 +315,9 @@ export default {
       this.$refs.issueEdit.open(copyData, 'copy');
     },
     handleDelete(data) {
+      this.$refs.issueDeleteConfirm.open(data);
+    },
+    _handleDelete(data) {
       this.page.result = this.$get('issues/delete/' + data.id, () => {
         this.$success(this.$t('commons.delete_success'));
         this.getIssues();
