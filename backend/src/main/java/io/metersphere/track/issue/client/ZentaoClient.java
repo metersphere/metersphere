@@ -142,8 +142,15 @@ public abstract class ZentaoClient extends BaseClient {
         return getCreateMetaData(productID).getCustomFields();
     }
 
-    public Map<String, String> getBuilds(String productID) {
-        return getCreateMetaData(productID).getBuilds();
+    public Map<String, Object> getBuildsByCreateMetaData(String projectId) {
+        return getCreateMetaData(projectId).getBuilds();
+    }
+
+    public Map<String, Object> getBuilds(String projectId) {
+        String sessionId = login();
+        ResponseEntity<String> response = restTemplate.exchange(requestUrl.getBuildsGet(),
+                HttpMethod.GET, null, String.class, projectId, sessionId);
+        return JSONObject.parseObject(response.getBody()).getJSONObject("data").getInnerMap();
     }
 
     public JSONArray getBugsByProjectId(String projectId, int pageNum, int pageSize) {

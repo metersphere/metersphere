@@ -15,7 +15,7 @@ public class ZentaoPathInfoClient extends ZentaoClient {
     private static final String BUG_GET = "/api-getModel-bug-getById-bugID={1}?zentaosid={2}";
     private static final String STORY_GET = "/api-getModel-story-getProductStories-productID={key}?zentaosid=";
     private static final String USER_GET = "/api-getModel-user-getList?zentaosid=";
-    private static final String BUILDS_GET = "/api-getModel-build-getProductBuildPairs-productID={projectId}?zentaosid=";
+    private static final String BUILDS_GET = "/api-getModel-build-getProductBuildPairs-productID={0}?zentaosid={1}";
     private static final String CREATE_META_DATA="/bug-create-{0}.json";
     private static final String FILE_UPLOAD = "/api-getModel-file-saveUpload.json?zentaosid=";
     private static final String REPLACE_IMG_URL = "<img src=\"%s/file-read-$1\"/>";
