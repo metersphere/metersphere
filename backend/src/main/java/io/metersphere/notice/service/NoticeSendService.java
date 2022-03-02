@@ -98,7 +98,7 @@ public class NoticeSendService {
 
             if (StringUtils.equals(triggerMode, NoticeConstants.Mode.API)) {
                 String projectId = (String) noticeModel.getParamMap().get("projectId");
-                messageDetails = noticeService.searchMessageByTypeBySend(NoticeConstants.TaskType.JENKINS_TASK, projectId);
+                messageDetails = noticeService.searchMessageByTypeAndProjectId(NoticeConstants.TaskType.JENKINS_TASK, projectId);
             }
 
             // 异步发送通知
@@ -132,7 +132,7 @@ public class NoticeSendService {
 //                default:
 //                    break;
 //            }
-            messageDetails = noticeService.searchMessageByTypeAndWorkspaceId(taskType, project.getWorkspaceId());
+            messageDetails = noticeService.searchMessageByTypeAndProjectId(taskType, project.getId());
 
             // 异步发送通知
             messageDetails.stream()

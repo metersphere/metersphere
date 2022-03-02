@@ -99,7 +99,7 @@
                 v-show="!scope.row.isSet"
                 :tip="$t('commons.edit')"
                 @click="handleEditTask(scope.$index,scope.row)"
-                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
+                v-permission="['PROJECT_MESSAGE:READ+EDIT']"/>
               <ms-tip-button
                 circle
                 type="danger"
@@ -108,7 +108,7 @@
                 v-show="!scope.row.isSet"
                 @click="deleteRowTask(scope.$index,scope.row)"
                 :tip="$t('commons.delete')"
-                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
+                v-permission="['PROJECT_MESSAGE:READ+EDIT']"/>
             </template>
           </el-table-column>
         </el-table>

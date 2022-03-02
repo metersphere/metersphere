@@ -3,7 +3,6 @@ package io.metersphere.notice.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.MessageTask;
 import io.metersphere.base.domain.MessageTaskExample;
-import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.MessageTaskMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.commons.exception.MSException;
@@ -40,14 +39,14 @@ public class NoticeService {
         if (messageTaskLists.size() > 0) {
             delMessage(messageDetail.getIdentification());
         }
-        String workspaceId = SessionUtils.getCurrentWorkspaceId();
+        String projectId = SessionUtils.getCurrentProjectId();
         long time = System.currentTimeMillis();
         String identification = messageDetail.getIdentification();
         if (StringUtils.isBlank(identification)) {
             identification = UUID.randomUUID().toString();
         }
         for (String userId : messageDetail.getUserIds()) {
-            checkUserIdExist(userId, messageDetail, workspaceId);
+            checkUserIdExist(userId, messageDetail, projectId);
             MessageTask messageTask = new MessageTask();
             messageTask.setId(UUID.randomUUID().toString());
             messageTask.setEvent(messageDetail.getEvent());
@@ -57,7 +56,7 @@ public class NoticeService {
             messageTask.setWebhook(messageDetail.getWebhook());
             messageTask.setIdentification(identification);
             messageTask.setIsSet(false);
-            messageTask.setWorkspaceId(workspaceId);
+            messageTask.setProjectId(projectId);
             messageTask.setTestId(messageDetail.getTestId());
             messageTask.setCreateTime(time);
             setTemplate(messageDetail, messageTask);
@@ -72,7 +71,7 @@ public class NoticeService {
         }
     }
 
-    private void checkUserIdExist(String userId, MessageDetail list, String workspaceId) {
+    private void checkUserIdExist(String userId, MessageDetail list, String projectId) {
         MessageTaskExample example = new MessageTaskExample();
         if (StringUtils.isBlank(list.getTestId())) {
             example.createCriteria()
@@ -81,7 +80,7 @@ public class NoticeService {
                     .andTypeEqualTo(list.getType())
                     .andTaskTypeEqualTo(list.getTaskType())
                     .andWebhookEqualTo(list.getWebhook())
-                    .andWorkspaceIdEqualTo(workspaceId);
+                    .andProjectIdEqualTo(projectId);
         } else {
             example.createCriteria()
                     .andUserIdEqualTo(userId)
@@ -90,7 +89,7 @@ public class NoticeService {
                     .andTaskTypeEqualTo(list.getTaskType())
                     .andWebhookEqualTo(list.getWebhook())
                     .andTestIdEqualTo(list.getTestId())
-                    .andWorkspaceIdEqualTo(workspaceId);
+                    .andProjectIdEqualTo(projectId);
         }
         if (messageTaskMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("message_task_already_exists"));
@@ -113,8 +112,8 @@ public class NoticeService {
 
     public List<MessageDetail> searchMessageByType(String type) {
         try {
-            String workspaceId = SessionUtils.getCurrentWorkspaceId();
-            return getMessageDetails(type, workspaceId);
+            String projectId = SessionUtils.getCurrentProjectId();
+            return getMessageDetails(type, projectId);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             return new ArrayList<>();
@@ -122,38 +121,22 @@ public class NoticeService {
     }
 
 
-    public List<MessageDetail> searchMessageByTypeAndWorkspaceId(String type, String workspaceId) {
+    public List<MessageDetail> searchMessageByTypeAndProjectId(String type, String projectId) {
         try {
-            return getMessageDetails(type, workspaceId);
+            return getMessageDetails(type, projectId);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             return new ArrayList<>();
         }
     }
 
-    public List<MessageDetail> searchMessageByTypeBySend(String type, String projectId) {
-        try {
-            String workspaceId = "";
-            if (null == SessionUtils.getCurrentWorkspaceId()) {
-                Project project = projectMapper.selectByPrimaryKey(projectId);
-                workspaceId = project.getWorkspaceId();
-            } else {
-                workspaceId = SessionUtils.getCurrentWorkspaceId();
-            }
-            return getMessageDetails(type, workspaceId);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            return new ArrayList<>();
-        }
-    }
-
-    private List<MessageDetail> getMessageDetails(String type, String workspaceId) {
+    private List<MessageDetail> getMessageDetails(String type, String projectId) {
         List<MessageDetail> messageDetails = new ArrayList<>();
 
         MessageTaskExample example = new MessageTaskExample();
         example.createCriteria()
                 .andTaskTypeEqualTo(type)
-                .andWorkspaceIdEqualTo(workspaceId);
+                .andProjectIdEqualTo(projectId);
         List<MessageTask> messageTaskLists = messageTaskMapper.selectByExampleWithBLOBs(example);
 
         Map<String, List<MessageTask>> messageTaskMap = messageTaskLists.stream()

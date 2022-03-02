@@ -2823,12 +2823,12 @@ export default {
       read: "READ",
       edit: "EDIT",
     },
-    workspace_message: {
+    project_message: {
       name: "Message",
       read: "READ",
       edit: "EDIT",
     },
-    workspace_template: {
+    project_template: {
       name: "Template",
       read: "READ",
       case_template: "CASE TEMPLATE",

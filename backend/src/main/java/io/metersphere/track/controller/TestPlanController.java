@@ -77,9 +77,9 @@ public class TestPlanController {
         return testPlanService.listTestAllPlan(request);
     }
 
-    @GetMapping("/get/stage/option/{workspaceId}")
-    public JSONArray getStageOption(@PathVariable("workspaceId") String workspaceId) {
-        return testPlanService.getStageOption(workspaceId);
+    @GetMapping("/get/stage/option/{projectId}")
+    public JSONArray getStageOption(@PathVariable("projectId") String projectId) {
+        return testPlanService.getStageOption(projectId);
     }
 
     @GetMapping("recent/{count}/{id}")

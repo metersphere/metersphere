@@ -2825,12 +2825,12 @@ export default {
       read: "查詢",
       edit: "編輯"
     },
-    workspace_message: {
+    project_message: {
       name: "消息設置",
       read: "查詢",
       edit: "編輯"
     },
-    workspace_template: {
+    project_template: {
       name: "模版設置",
       read: "查詢",
       case_template: "用例模版",

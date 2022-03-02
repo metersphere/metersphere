@@ -167,7 +167,7 @@ import {buildTestCaseOldFields, getTemplate, parseCustomField} from "@/common/js
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
-import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
 import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
 import MsPreviousNextButton from "@/business/components/common/components/MsPreviousNextButton";

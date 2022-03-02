@@ -91,7 +91,7 @@ public class IssueTemplateService extends TemplateBaseService {
             String originId = request.getId();
             // 如果是全局字段，则创建对应工作空间字段
             String id = add(request);
-            projectService.updateIssueTemplate(originId, id, request.getWorkspaceId());
+            projectService.updateIssueTemplate(originId, id, request.getProjectId());
         } else {
             checkExist(request);
             customFieldTemplateService.deleteByTemplateId(request.getId());
@@ -108,12 +108,13 @@ public class IssueTemplateService extends TemplateBaseService {
      * 获取该工作空间的系统模板
      * - 如果没有，则创建该工作空间模板，并关联默认的字段
      * - 如果有，则更新原来关联的 fieldId
+     *
      * @param customField
      */
     public void handleSystemFieldCreate(CustomField customField) {
-        IssueTemplate workspaceSystemTemplate = getWorkspaceSystemTemplate(customField.getWorkspaceId());
+        IssueTemplate workspaceSystemTemplate = getWorkspaceSystemTemplate(customField.getProjectId());
         if (workspaceSystemTemplate == null) {
-            createTemplateWithUpdateField(customField.getWorkspaceId(), customField);
+            createTemplateWithUpdateField(customField.getProjectId(), customField);
         } else {
             updateRelateWithUpdateField(workspaceSystemTemplate, customField);
         }
@@ -122,7 +123,7 @@ public class IssueTemplateService extends TemplateBaseService {
     private IssueTemplate getWorkspaceSystemTemplate(String workspaceId) {
         IssueTemplateExample example = new IssueTemplateExample();
         example.createCriteria()
-                .andWorkspaceIdEqualTo(workspaceId)
+                .andProjectIdEqualTo(workspaceId)
                 .andSystemEqualTo(true);
         List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isNotEmpty(issueTemplates)) {
@@ -131,14 +132,14 @@ public class IssueTemplateService extends TemplateBaseService {
         return null;
     }
 
-    private void createTemplateWithUpdateField(String workspaceId, CustomField customField) {
+    private void createTemplateWithUpdateField(String projectId, CustomField customField) {
         UpdateIssueTemplateRequest request = new UpdateIssueTemplateRequest();
         IssueTemplate issueTemplate = new IssueTemplate();
         issueTemplate.setName("default");
         issueTemplate.setPlatform(TemplateConstants.IssueTemplatePlatform.metersphere.name());
         issueTemplate.setGlobal(false);
         issueTemplate.setSystem(true);
-        issueTemplate.setWorkspaceId(workspaceId);
+        issueTemplate.setProjectId(projectId);
         BeanUtils.copyBean(request, issueTemplate);
         List<CustomFieldTemplate> systemFieldCreateTemplate =
                 customFieldTemplateService.getSystemFieldCreateTemplate(customField, TemplateConstants.FieldTemplateScene.ISSUE.name());
@@ -156,7 +157,7 @@ public class IssueTemplateService extends TemplateBaseService {
             IssueTemplateExample example = new IssueTemplateExample();
             IssueTemplateExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(issueTemplate.getName())
-                    .andWorkspaceIdEqualTo(issueTemplate.getWorkspaceId());
+                    .andProjectIdEqualTo(issueTemplate.getProjectId());
             if (StringUtils.isNotBlank(issueTemplate.getId())) {
                 criteria.andIdNotEqualTo(issueTemplate.getId());
             }
@@ -166,16 +167,16 @@ public class IssueTemplateService extends TemplateBaseService {
         }
     }
 
-    public List<IssueTemplate> getSystemTemplates(String workspaceId) {
+    public List<IssueTemplate> getSystemTemplates(String projectId) {
         IssueTemplateExample example = new IssueTemplateExample();
-        example.createCriteria().andWorkspaceIdEqualTo(workspaceId)
+        example.createCriteria().andProjectIdEqualTo(projectId)
                 .andSystemEqualTo(true);
         example.or(example.createCriteria().andGlobalEqualTo(true));
         List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
         Iterator<IssueTemplate> iterator = issueTemplates.iterator();
         while (iterator.hasNext()) {
             IssueTemplate next = iterator.next();
-            for (IssueTemplate item: issueTemplates) {
+            for (IssueTemplate item : issueTemplates) {
                 if (next.getGlobal() && !item.getGlobal() && StringUtils.equals(item.getName(), next.getName())) {
                     // 如果有工作空间的模板则过滤掉全局模板
                     iterator.remove();
@@ -186,10 +187,10 @@ public class IssueTemplateService extends TemplateBaseService {
         return issueTemplates;
     }
 
-    public IssueTemplate getDefaultTemplate(String workspaceId) {
+    public IssueTemplate getDefaultTemplate(String projectId) {
         IssueTemplateExample example = new IssueTemplateExample();
         example.createCriteria()
-                .andWorkspaceIdEqualTo(workspaceId)
+                .andProjectIdEqualTo(projectId)
                 .andSystemEqualTo(true);
         List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(issueTemplates)) {
@@ -202,13 +203,13 @@ public class IssueTemplateService extends TemplateBaseService {
         }
     }
 
-    public List<IssueTemplate> getOption(String workspaceId) {
+    public List<IssueTemplate> getOption(String projectId) {
         IssueTemplateExample example = new IssueTemplateExample();
         example.createCriteria()
-                .andWorkspaceIdEqualTo(workspaceId)
+                .andProjectIdEqualTo(projectId)
                 .andSystemEqualTo(false);
         List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
-        issueTemplates.addAll(getSystemTemplates(workspaceId));
+        issueTemplates.addAll(getSystemTemplates(projectId));
         return issueTemplates;
     }
 
@@ -234,18 +235,18 @@ public class IssueTemplateService extends TemplateBaseService {
         return issueTemplateDao;
     }
 
-    public String getLogDetails(String id, List<CustomFieldTemplate>newCustomFieldTemplates) {
+    public String getLogDetails(String id, List<CustomFieldTemplate> newCustomFieldTemplates) {
         List<DetailColumn> columns = new LinkedList<>();
         IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(id);
-        if(templateWithBLOBs==null){
+        if (templateWithBLOBs == null) {
             return null;
         }
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
         example.createCriteria().andTemplateIdEqualTo(templateWithBLOBs.getId());
         example.createCriteria().andSceneEqualTo("ISSUE");
         List<CustomFieldTemplate> customFieldTemplates = customFieldTemplateMapper.selectByExample(example);
-        if(newCustomFieldTemplates.size()>customFieldTemplates.size()){
-            for (int i = 0; i < newCustomFieldTemplates.size()-customFieldTemplates.size(); i++) {
+        if (newCustomFieldTemplates.size() > customFieldTemplates.size()) {
+            for (int i = 0; i < newCustomFieldTemplates.size() - customFieldTemplates.size(); i++) {
                 CustomFieldTemplate customFieldTemplate = new CustomFieldTemplate();
                 customFieldTemplates.add(customFieldTemplate);
             }
@@ -258,7 +259,7 @@ public class IssueTemplateService extends TemplateBaseService {
     public String getLogDetails(UpdateIssueTemplateRequest request) {
         List<DetailColumn> columns = new LinkedList<>();
         IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(request.getId());
-        if(templateWithBLOBs==null){
+        if (templateWithBLOBs == null) {
             return null;
         }
         List<CustomFieldTemplate> newCustomFieldTemplates = request.getCustomFields();
@@ -266,8 +267,8 @@ public class IssueTemplateService extends TemplateBaseService {
         example.createCriteria().andTemplateIdEqualTo(templateWithBLOBs.getId());
         example.createCriteria().andSceneEqualTo("ISSUE");
         List<CustomFieldTemplate> customFieldTemplates = customFieldTemplateMapper.selectByExample(example);
-        if(newCustomFieldTemplates.size()<customFieldTemplates.size()){
-            for (int i = 0; i < customFieldTemplates.size()-newCustomFieldTemplates.size(); i++) {
+        if (newCustomFieldTemplates.size() < customFieldTemplates.size()) {
+            for (int i = 0; i < customFieldTemplates.size() - newCustomFieldTemplates.size(); i++) {
                 CustomFieldTemplate customFieldTemplate = new CustomFieldTemplate();
                 newCustomFieldTemplates.add(customFieldTemplate);
             }
@@ -278,8 +279,10 @@ public class IssueTemplateService extends TemplateBaseService {
     private String getCustomFieldColums(List<DetailColumn> columns, IssueTemplate templateWithBLOBs, List<CustomFieldTemplate> customFields) {
         for (CustomFieldTemplate customFieldTemplate : customFields) {
             CustomField customField = customFieldMapper.selectByPrimaryKey(customFieldTemplate.getFieldId());
-            customField.setDefaultValue(customFieldTemplate.getDefaultValue());
-            List<DetailColumn> columnsField = ReflexObjectUtil.getColumns(customField, SystemReference.issueFieldColumns);
+            CustomFieldDao customFieldDao = new CustomFieldDao();
+            BeanUtils.copyBean(customFieldDao, customField);
+            customFieldDao.setDefaultValue(customFieldTemplate.getDefaultValue());
+            List<DetailColumn> columnsField = ReflexObjectUtil.getColumns(customFieldDao, SystemReference.issueFieldColumns);
             columns.addAll(columnsField);
         }
         List<DetailColumn> columnIssues = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.issueFieldColumns);

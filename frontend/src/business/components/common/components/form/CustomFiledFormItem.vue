@@ -25,7 +25,7 @@
 
 <script>
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
-import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
 
 export default {
   name: "CustomFiledFormItem",
