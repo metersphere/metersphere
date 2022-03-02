@@ -1986,10 +1986,10 @@ public class TestPlanService {
         return testPlanMapper.selectByPrimaryKey(planId).getRepeatCase();
     }
 
-    public JSONArray getStageOption(String workspaceId) {
+    public JSONArray getStageOption(String projectId) {
         CustomFieldExample example = new CustomFieldExample();
         example.createCriteria()
-                .andWorkspaceIdEqualTo(workspaceId)
+                .andProjectIdEqualTo(projectId)
                 .andSceneEqualTo("PLAN")
                 .andNameEqualTo("测试阶段");
 

@@ -154,6 +154,9 @@ public class ProjectService {
         // 创建新项目检查当前用户 last_project_id
         extUserMapper.updateLastProjectIdIfNull(project.getId(), SessionUtils.getUserId());
 
+        // 设置默认的通知
+        extProjectMapper.setDefaultMessageTask(project.getId());
+
         ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
         if (projectVersionService != null) {
             ProjectVersion projectVersion = new ProjectVersion();

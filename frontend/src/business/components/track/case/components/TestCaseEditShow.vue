@@ -150,12 +150,14 @@
 
 <script>
 import {TokenKey} from '@/common/js/constants';
-import MsDialogFooter from '../../../common/components/MsDialogFooter'
+import MsDialogFooter from '../../../common/components/MsDialogFooter';
 import {
   getCurrentProjectID,
   getCurrentUser,
-  getNodePath, getUUID,
-  handleCtrlSEvent, hasLicense, hasPermission,
+  getNodePath,
+  getUUID,
+  handleCtrlSEvent,
+  hasLicense,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -170,13 +172,8 @@ import {API_STATUS, REVIEW_STATUS} from "@/business/components/api/definition/mo
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsSelectTree from "../../../common/select-tree/SelectTree";
 import MsTestCaseStepRichText from "./MsRichText";
-import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
-import {
-  buildCustomFields,
-  buildTestCaseOldFields,
-  getTemplate,
-  parseCustomField
-} from "@/common/js/custom_field";
+import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
+import {buildCustomFields, buildTestCaseOldFields, getTemplate, parseCustomField} from "@/common/js/custom_field";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";

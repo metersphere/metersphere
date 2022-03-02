@@ -153,7 +153,7 @@ public class CustomFieldService {
         example.createCriteria()
                 .andSystemEqualTo(true)
                 .andSceneEqualTo(request.getScene())
-                .andWorkspaceIdEqualTo(request.getWorkspaceId());
+                .andProjectIdEqualTo(request.getProjectId());
         List<CustomField> workspaceSystemFields = customFieldMapper.selectByExampleWithBLOBs(example);
         Set<String> workspaceSystemFieldNames = workspaceSystemFields.stream()
                 .map(CustomField::getName)
@@ -189,7 +189,7 @@ public class CustomFieldService {
             CustomFieldExample example = new CustomFieldExample();
             CustomFieldExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(customField.getName());
-            criteria.andWorkspaceIdEqualTo(customField.getWorkspaceId());
+            criteria.andProjectIdEqualTo(customField.getProjectId());
             criteria.andSceneEqualTo(customField.getScene());
             if (StringUtils.isNotBlank(customField.getId())) {
                 criteria.andIdNotEqualTo(customField.getId());

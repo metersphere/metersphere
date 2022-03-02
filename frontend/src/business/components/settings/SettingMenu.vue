@@ -19,13 +19,6 @@
                     :index="menu.index" class="setting-item">
         {{ $t(menu.title) }}
       </el-menu-item>
-      <el-submenu index="2-1" v-permission="['WORKSPACE_TEMPLATE:READ']" class="lower_submenu_title">
-        <template slot="title">{{ $t('workspace.template_manage') }}</template>
-        <el-menu-item v-for="menu in workspaceTemplate" v-permission="menu.permissions" :key="menu.index"
-                      :index="menu.index" class="setting-item">
-          {{ $t(menu.title) }}
-        </el-menu-item>
-      </el-submenu>
     </el-submenu>
   </el-menu>
 </template>
@@ -64,9 +57,9 @@ export default {
         'ORGANIZATION_GROUP:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_TEST_POOL:READ',
         'SYSTEM_SETTING:READ', 'SYSTEM_QUOTA:READ', 'SYSTEM_AUTH:READ'
       ],
-      workspacePermission: ['WORKSPACE_USER:READ', 'WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ',
+      workspacePermission: ['WORKSPACE_USER:READ', 'WORKSPACE_SERVICE:READ',
         'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ',
-        'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ']
+        'WORKSPACE_OPERATING_LOG:READ']
     };
   },
   methods: {

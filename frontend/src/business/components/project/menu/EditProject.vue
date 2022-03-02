@@ -79,7 +79,8 @@
 
 import {
   getCurrentProjectID,
-  getCurrentUser, getCurrentUserId,
+  getCurrentUser,
+  getCurrentUserId,
   getCurrentWorkspaceId,
   listenGoBack,
   removeGoBackListener
@@ -88,7 +89,7 @@ import {
 import {AZURE_DEVOPS, JIRA, PROJECT_ID, TAPD, ZEN_TAO} from "@/common/js/constants";
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
-import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
+import TemplateSelect from "@/business/components/project/template/TemplateSelect";
 import MsResourceFiles from "@/business/components/performance/test/components/ResourceFiles";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsJarConfig from "@/business/components/api/test/components/jar/JarConfig";

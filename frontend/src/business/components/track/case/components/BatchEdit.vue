@@ -50,22 +50,23 @@
 </template>
 
 <script>
-  import MsDialogFooter from "../../../common/components/MsDialogFooter";
-  import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
-  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
-  import {ENV_TYPE} from "@/common/js/constants";
-  import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
-  export default {
-    name: "BatchEdit",
-    components: {
-      CustomFiledComponent,
-      EnvPopover,
-      MsDialogFooter
-    },
-    props: {
-      typeArr: Array,
-      valueArr: Object,
-      dialogTitle: {
+import MsDialogFooter from "../../../common/components/MsDialogFooter";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+import {ENV_TYPE} from "@/common/js/constants";
+import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
+
+export default {
+  name: "BatchEdit",
+  components: {
+    CustomFiledComponent,
+    EnvPopover,
+    MsDialogFooter
+  },
+  props: {
+    typeArr: Array,
+    valueArr: Object,
+    dialogTitle: {
         type: String,
         default() {
           return this.$t('test_track.case.batch_operate')

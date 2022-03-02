@@ -2826,12 +2826,12 @@ export default {
       read: "查询",
       edit: "编辑"
     },
-    workspace_message: {
+    project_message: {
       name: "消息设置",
       read: "查询",
       edit: "编辑"
     },
-    workspace_template: {
+    project_template: {
       name: "模版设置",
       read: "查询",
       case_template: "用例模版",
