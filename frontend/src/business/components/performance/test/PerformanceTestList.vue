@@ -158,10 +158,16 @@ export default {
       enableOrderDrag: true,
       operators: [
         {
+          tip: this.$t('commons.run'), icon: "el-icon-video-play",
+          exec: this.handleRun,
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+RUN']
+        },
+        {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
           permissions: ['PROJECT_PERFORMANCE_TEST:READ+EDIT']
-        }, {
+        },
+        {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
           exec: this.handleCopy,
           permissions: ['PROJECT_PERFORMANCE_TEST:READ+COPY']
@@ -253,6 +259,12 @@ export default {
       this.result = this.$post("/performance/copy", {id: test.id}, () => {
         this.$success(this.$t('commons.copy_success'));
         this.search();
+      });
+    },
+    handleRun(test) {
+      this.result = this.$post("/performance/run", {id: test.id, triggerMode: 'MANUAL'}, (response) => {
+        let reportId = response.data;
+        this.$router.push({path: '/performance/report/view/' + reportId});
       });
     },
     handleDelete(test) {

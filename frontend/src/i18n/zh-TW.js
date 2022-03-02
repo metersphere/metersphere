@@ -232,6 +232,7 @@ export default {
     reference_settings: "场景设置",
     enable_scene_info: "啟用場景環境：當前步驟使用場景原始環境配置運行",
     environment: "運行環境",
+    run: "運行",
     run_success: "執行成功",
     run_completed: "執行完成",
     run_warning: "正在運行中，請稍後查看",

@@ -231,6 +231,7 @@ export default {
     enable_scene_info: "Enable scene environment: the current step uses the original environment configuration of the scene to run",
     edit_info: "Edit details",
     environment: "Environment",
+    run: "Run",
     run_success: "Run Success",
     run_completed: "Run Completed",
     run_fail: "Run Fail",
