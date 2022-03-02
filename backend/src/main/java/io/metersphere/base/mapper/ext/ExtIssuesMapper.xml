@@ -112,6 +112,12 @@
             #{value}
         </foreach>
     </select>
+    <select id="getForCompatibleCustomField" resultType="io.metersphere.track.dto.CustomFieldResourceCompatibleDTO">
+        select id, custom_fields
+        from issues
+        where project_id = #{projectId}
+        limit #{offset},#{pageSize}
+    </select>
     <select id="selectByPrimaryKey" parameterType="java.lang.String"  resultType="io.metersphere.base.domain.IssuesDao">
         select
         <include refid="Issue_List_Column" />

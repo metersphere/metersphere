@@ -16,4 +16,7 @@
     <select id="getWorkspaceByUserId" resultType="io.metersphere.base.domain.Workspace">
         SELECT * from workspace where workspace.id in (SELECT user_group.source_id from user_group where user_group.user_id = #{userId})
     </select>
+    <select id="getWorkspaceIds" resultType="java.lang.String">
+        select id from workspace;
+    </select>
 </mapper>

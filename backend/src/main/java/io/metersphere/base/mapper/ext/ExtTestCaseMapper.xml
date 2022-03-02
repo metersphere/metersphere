@@ -196,7 +196,7 @@
             test_case.other_test_name, test_case.review_status, test_case.tags,
             test_case.demand_id, test_case.demand_name, test_case.`status`,
             test_case.custom_num, test_case.step_model, test_case.create_user,
-            test_case.custom_fields, test_case.ref_id
+            test_case.ref_id
         </if>
         from test_case
         left join project_version on project_version.id = test_case.version_id
@@ -969,6 +969,13 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+    </select>
+
+    <select id="getForCompatibleCustomField" resultType="io.metersphere.track.dto.CustomFieldResourceCompatibleDTO">
+        select id, custom_fields
+        from test_case
+        where project_id = #{projectId}
+        limit #{offset},#{pageSize}
     </select>
 
     <update id="addLatestVersion">

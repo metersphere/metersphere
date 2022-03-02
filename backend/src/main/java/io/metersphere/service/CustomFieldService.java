@@ -91,6 +91,10 @@ public class CustomFieldService {
         customFieldTemplateService.deleteByFieldId(id);
     }
 
+    public CustomField get(String id) {
+        return customFieldMapper.selectByPrimaryKey(id);
+    }
+
     public void update(CustomField customField) {
         if (customField.getGlobal() != null && customField.getGlobal()) {
             // 如果是全局字段，则创建对应工作空间字段
@@ -132,6 +136,7 @@ public class CustomFieldService {
                 CustomField customField = fieldMap.get(item.getFieldId());
                 BeanUtils.copyBean(customFieldDao, customField);
                 BeanUtils.copyBean(customFieldDao, item);
+                customFieldDao.setId(item.getFieldId());
                 result.add(customFieldDao);
             });
         }
@@ -217,5 +222,25 @@ public class CustomFieldService {
             }
         }
         return new ArrayList<>();
+    }
+
+    public List<CustomField> getByWorkspaceId(String wsId) {
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria().andWorkspaceIdEqualTo(wsId);
+        return customFieldMapper.selectByExample(example);
+    }
+
+    public Map<String, CustomField> getNameMapByWorkspaceId(String wsId) {
+        return this.getByWorkspaceId(wsId)
+                .stream()
+                .collect(Collectors.toMap(i -> i.getName() + i.getScene(), i -> i));
+    }
+
+    public Map<String, CustomField> getGlobalNameMapByWorkspaceId() {
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria().andGlobalEqualTo(true);
+        return customFieldMapper.selectByExample(example)
+                .stream()
+                .collect(Collectors.toMap(i -> i.getName() + i.getScene(), i -> i));
     }
 }

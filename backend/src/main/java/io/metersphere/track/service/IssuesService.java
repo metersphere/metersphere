@@ -181,12 +181,6 @@ public class IssuesService {
         return issuesWithBLOBs;
     }
 
-    public String getPlatformsByCaseId(String caseId) {
-        TestCaseWithBLOBs testCase = testCaseService.getTestCase(caseId);
-        Project project = projectService.getProjectById(testCase.getProjectId());
-        return getPlatform(project.getId());
-    }
-
     public String getPlatform(String projectId) {
         Project project = projectService.getProjectById(projectId);
         return project.getPlatform();
@@ -224,32 +218,6 @@ public class IssuesService {
         return platforms;
     }
 
-    private Project getProjectByCaseId(String testCaseId) {
-        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-        // testCase 不存在
-        if (testCase == null) {
-            return null;
-        }
-        return projectService.getProjectById(testCase.getProjectId());
-    }
-
-    private String getTapdProjectId(String testCaseId) {
-        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-        Project project = projectService.getProjectById(testCase.getProjectId());
-        return project.getTapdId();
-    }
-
-    private String getJiraProjectKey(String testCaseId) {
-        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-        Project project = projectService.getProjectById(testCase.getProjectId());
-        return project.getJiraKey();
-    }
-
-    private String getZentaoProjectId(String testCaseId) {
-        TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-        Project project = projectService.getProjectById(testCase.getProjectId());
-        return project.getZentaoId();
-    }
 
     /**
      * 是否关联平台

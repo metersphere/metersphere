@@ -833,6 +833,66 @@ public class CustomFieldExample {
             addCriterion("project_id not between", value1, value2, "projectId");
             return (Criteria) this;
         }
+
+        public Criteria andThirdPartIsNull() {
+            addCriterion("third_part is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartIsNotNull() {
+            addCriterion("third_part is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartEqualTo(Boolean value) {
+            addCriterion("third_part =", value, "thirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartNotEqualTo(Boolean value) {
+            addCriterion("third_part <>", value, "thirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartGreaterThan(Boolean value) {
+            addCriterion("third_part >", value, "thirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("third_part >=", value, "thirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartLessThan(Boolean value) {
+            addCriterion("third_part <", value, "thirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartLessThanOrEqualTo(Boolean value) {
+            addCriterion("third_part <=", value, "thirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartIn(List<Boolean> values) {
+            addCriterion("third_part in", values, "thirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartNotIn(List<Boolean> values) {
+            addCriterion("third_part not in", values, "thirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartBetween(Boolean value1, Boolean value2) {
+            addCriterion("third_part between", value1, value2, "thirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andThirdPartNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("third_part not between", value1, value2, "thirdPart");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

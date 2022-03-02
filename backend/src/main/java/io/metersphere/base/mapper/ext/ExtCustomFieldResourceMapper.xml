@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtCustomFieldResourceMapper">
+
+    <insert id="insert">
+        insert into ${tableName} (resource_id, field_id, `value`,
+                                            text_value)
+        values (#{record.resourceId,jdbcType=VARCHAR}, #{record.fieldId,jdbcType=VARCHAR}, #{record.value,jdbcType=VARCHAR},
+                #{record.textValue,jdbcType=LONGVARCHAR})
+    </insert>
+    <update id="updateByPrimaryKeySelective">
+        update ${tableName}
+        <set>
+            <if test="record.value != null">
+                `value` = #{record.value,jdbcType=VARCHAR},
+            </if>
+            <if test="record.textValue != null">
+                text_value = #{record.textValue,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where resource_id = #{record.resourceId,jdbcType=VARCHAR}
+        and field_id = #{record.fieldId,jdbcType=VARCHAR}
+    </update>
+    <delete id="deleteByResourceId">
+        delete from ${tableName}
+        where resource_id = #{resourceId}
+    </delete>
+    <delete id="deleteByResourceIds">
+        delete from ${tableName}
+        where resource_id in
+        <foreach collection="resourceIds" item="resourceId" separator="," open="(" close=")">
+            #{resourceId}
+        </foreach>
+    </delete>
+    <select id="getByResourceId" resultType="io.metersphere.base.domain.ext.CustomFieldResource">
+        select
+        <include refid="io.metersphere.base.mapper.CustomFieldTestCaseMapper.Base_Column_List" />
+        ,
+        <include refid="io.metersphere.base.mapper.CustomFieldTestCaseMapper.Blob_Column_List" />
+        from ${tableName}
+        where resource_id = #{resourceId}
+    </select>
+    <select id="getByResourceIds" resultType="io.metersphere.base.domain.ext.CustomFieldResource">
+        select
+        <include refid="io.metersphere.base.mapper.CustomFieldTestCaseMapper.Base_Column_List" />
+        ,
+        <include refid="io.metersphere.base.mapper.CustomFieldTestCaseMapper.Blob_Column_List" />
+        from ${tableName}
+        where resource_id in
+        <foreach collection="resourceIds" item="resourceId" separator="," open="(" close=")">
+            #{resourceId}
+        </foreach>
+    </select>
+</mapper>
