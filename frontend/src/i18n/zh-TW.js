@@ -1287,6 +1287,8 @@ export default {
         esb_title: "可以在報文模板中使用${參數名} 或 ${父節點參數名.子節點參數名}來生成xml數據結構",
       },
       document: {
+        open: "展開",
+        close: "收起",
         order: "排序方式",
         create_time_sort: "按創建時間從後到前",
         edit_time_positive_sequence: "按更新時間從前到後",

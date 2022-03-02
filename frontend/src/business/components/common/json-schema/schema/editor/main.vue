@@ -9,28 +9,28 @@
         <input class="el-input el-input__inner" style="height: 32px" :disabled="disabled || root" :value="pickKey" @blur="onInputName" size="small"/>
 
         <el-tooltip v-if="root" :content="$t('schema.checked_all')" placement="top">
-          <input type="checkbox" :disabled="!isObject && !isArray" class="ms-col-name-required" @change="onRootCheck"/>
+          <input type="checkbox" :disabled="disabled || (!isObject && !isArray)" class="ms-col-name-required" @change="onRootCheck"/>
         </el-tooltip>
         <el-tooltip v-else :content="$t('schema.required')" placement="top">
-          <input type="checkbox" :disabled="isItem" :checked="checked" class="ms-col-name-required" @change="onCheck"/>
+          <input type="checkbox" :disabled="disabled || isItem" :checked="checked" class="ms-col-name-required" @change="onCheck"/>
         </el-tooltip>
       </el-col>
       <el-col :span="4">
-        <el-select v-model="pickValue.type" :disabled="disabledType" class="ms-col-type" @change="onChangeType" size="small">
+        <el-select v-model="pickValue.type" :disabled="disabled||disabledType" class="ms-col-type" @change="onChangeType" size="small">
           <el-option :key="t" :value="t" :label="t" v-for="t in types"/>
         </el-select>
       </el-col>
       <el-col :span="4">
-        <ms-mock :disabled="pickValue.type==='object' || pickKey ==='root' || pickValue.type==='array' || pickValue.type==='null'"
+        <ms-mock :disabled="disabled || pickValue.type==='object' || pickKey ==='root' || pickValue.type==='array' || pickValue.type==='null'"
                  :schema="pickValue"
                  :scenario-definition="scenarioDefinition"
                  :show-mock-vars="showMockVars"
                  @editScenarioAdvance="editScenarioAdvance"/>
       </el-col>
       <el-col :span="4">
-        <el-input v-model="pickValue.description" class="ms-col-title" :placeholder="$t('schema.description')" size="small"/>
+        <el-input :disabled="disabled" v-model="pickValue.description" class="ms-col-title" :placeholder="$t('schema.description')" size="small"/>
       </el-col>
-      <el-col :span="4" class="col-item-setting">
+      <el-col :span="4" class="col-item-setting" v-if="!disabled">
         <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
           <i class="el-icon-setting" @click="onSetting"/>
         </el-tooltip>
@@ -48,6 +48,7 @@
                           :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children"
                           :scenario-definition="scenarioDefinition"
                           :show-mock-vars="showMockVars"
+                          :disabled="disabled"
                           @editScenarioAdvance="editScenarioAdvance"
                           :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
     </template>
