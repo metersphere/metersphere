@@ -166,6 +166,12 @@ public class PerformanceTestController {
         performanceTestService.delete(request);
     }
 
+    @PostMapping("/delete/batch")
+    @CacheNode
+    public void deleteBatch(@RequestBody DeletePerformanceRequest request) {
+        performanceTestService.deleteBatch(request);
+    }
+
     @PostMapping("/run")
     @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_RUN)
