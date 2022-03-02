@@ -540,7 +540,7 @@ export default {
           // 需要判断tableData数据，放回调里面
           this.getPreData();
 
-          if (callback) {
+          if (typeof callback === "function") {
             callback();
           }
         });

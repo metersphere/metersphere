@@ -114,6 +114,12 @@
                 <property name="object" value="${condition}.tags"/>
             </include>
         </if>
+        <if test='${condition}.planCaseStatus != null'>
+            and test_plan_test_case.status
+            <include refid="condition">
+                <property name="object" value="${condition}.planCaseStatus"/>
+            </include>
+        </if>
 
     </sql>
 
