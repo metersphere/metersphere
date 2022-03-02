@@ -20,7 +20,8 @@ const router = new VueRouter({
         sidebar: RouterSidebar
       }
     },
-    ...requireContext.keys().map(key => requireContext(key).workstation),
+    ...requireContext.keys().map(k => requireContext(k).workstation),
+    ...requireContext.keys().map(k => requireContext(k).ui),
     Setting,
     API,
     Performance,

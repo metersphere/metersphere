@@ -1,4 +1,4 @@
-const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
+const requireContext = require.context('@/business/components/xpack/', false, /router\.js$/);
 
 export default {
   path: "/setting",
