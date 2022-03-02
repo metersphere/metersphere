@@ -1287,6 +1287,8 @@ export default {
         esb_title: "可以在报文模板中使用${参数名} 或 ${父节点参数名.子节点参数名}来生成xml数据结构",
       },
       document: {
+        open: "展开",
+        close: "收起",
         order: "排序方式",
         create_time_sort: "按创建时间从后到前",
         edit_time_positive_sequence: "按更新时间从前到后",

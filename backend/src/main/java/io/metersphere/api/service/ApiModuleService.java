@@ -563,4 +563,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andStatusEqualTo("Trash");
         return extApiDefinitionMapper.countByExample(example);
     }
+
+    public String getModuleNameById(String moduleId) {
+        return extApiModuleMapper.getNameById(moduleId);
+    }
 }

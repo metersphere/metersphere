@@ -3,6 +3,7 @@ package io.metersphere.track.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.esotericsoftware.minlog.Log;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO;
 import io.metersphere.api.service.ShareInfoService;
@@ -53,8 +54,6 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanReportService {
 
-    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
-
     @Resource
     TestPlanReportMapper testPlanReportMapper;
     @Resource
@@ -74,7 +73,6 @@ public class TestPlanReportService {
     @Lazy
     @Resource
     TestPlanService testPlanService;
-    @Lazy
     @Resource
     TestPlanReportContentMapper testPlanReportContentMapper;
     @Resource
@@ -854,6 +852,7 @@ public class TestPlanReportService {
     }
 
     public TestPlanSimpleReportDTO getReport(String reportId) {
+        Log.info("----> SELECT REPORT: "+ reportId);
         TestPlanReportContentExample example = new TestPlanReportContentExample();
         example.createCriteria().andTestPlanReportIdEqualTo(reportId);
         List<TestPlanReportContentWithBLOBs> testPlanReportContents = testPlanReportContentMapper.selectByExampleWithBLOBs(example);
@@ -865,8 +864,11 @@ public class TestPlanReportService {
             return null;
         }
         if (this.isDynamicallyGenerateReports(testPlanReportContent)) {
+            Log.info("----> GenerateReports: "+ JSONObject.toJSONString(testPlanReportContent));
             testPlanReportContent = this.dynamicallyGenerateReports(testPlanReportContent);
+            Log.info("----> GenerateReports OVER: "+ JSONObject.toJSONString(testPlanReportContent));
         }
+        Log.info("----> parse return object: "+ JSONObject.toJSONString(testPlanReportContent));
         TestPlanSimpleReportDTO testPlanReportDTO = new TestPlanSimpleReportDTO();
         BeanUtils.copyBean(testPlanReportDTO, testPlanReportContent);
         if (StringUtils.isNotBlank(testPlanReportContent.getFunctionResult())) {
@@ -914,6 +916,7 @@ public class TestPlanReportService {
         testPlanReportDTO.setId(reportId);
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
         testPlanReportDTO.setName(testPlanReport.getName());
+        Log.info("----> SELECT REPORT OVER ");
         return testPlanReportDTO;
     }
 
