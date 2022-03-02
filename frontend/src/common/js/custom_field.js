@@ -16,13 +16,10 @@ function setDefaultValue(item, value) {
  */
 export function parseCustomField(data, template, rules, oldFields) {
   let hasOldData = false;
-  if (!data.customFields) {
+  if (!data.fields) {
     // 旧数据
     hasOldData = true;
-    data.customFields = {};
-  }
-  if (!(data.customFields instanceof Object) && !(data.customFields instanceof Array)) {
-    data.customFields = JSON.parse(data.customFields);
+    data.fields = [];
   }
 
   let customFieldForm = {};
@@ -56,29 +53,25 @@ export function parseCustomField(data, template, rules, oldFields) {
     }
 
     // 将保存的值赋值给template
-    if (data.customFields instanceof Array) {
-      for (let i = 0; i < data.customFields.length; i++) {
-        let customField = data.customFields[i];
-        if (customField.name === item.name) {
-          if (customField.type === 'multipleSelect') {
-            if (typeof (customField.value) === 'string' || customField.value instanceof String) {
-              try {
-                customField.value = JSON.parse(customField.value);
-              } catch (e) {
-                console.log("JSON parse custom field value error.");
-              }
-            }
+    if (data.fields instanceof Array) {
+      for (let i = 0; i < data.fields.length; i++) {
+        let customField = data.fields[i];
+        if (customField.id === item.id) {
+          try {
+            setDefaultValue(item, JSON.parse(customField.value));
+            item.isEdit = true;
+          } catch (e) {
+            console.log("JSON parse custom field value error.");
           }
-          setDefaultValue(item, customField.value);
           break;
         }
       }
-    } else if (data.customFields instanceof Object) {
+    } else if (data.fields instanceof Object) { // todo
       // 兼容旧的存储方式
-      for (const key in data.customFields) {
+      for (const key in data.fields) {
         if (item.name === key) {
-          if (data.customFields[key]) {
-            setDefaultValue(item, JSON.parse(data.customFields[key]));
+          if (data.fields[key]) {
+            setDefaultValue(item, JSON.parse(data.fields[key]));
           }
         }
       }
@@ -93,46 +86,26 @@ export function parseCustomField(data, template, rules, oldFields) {
 // 将template的属性值设置给customFields
 export function buildCustomFields(data, param, template) {
   if (template.customFields) {
-    if (!(data.customFields instanceof Array)) {
-      data.customFields = [];
+    if (!(data.fields instanceof Array)) {
+      data.fields = [];
     }
-    let customFields = data.customFields;
 
-    // 去重操作
-    if (customFields) {
-      let nameSet = new Set();
-      for(let i = customFields.length - 1; i >= 0; i--){
-        let name = customFields[i].name;
-        if(nameSet.has(name)){
-          customFields.splice(i,1);
-        }
-        nameSet.add(name);
-      }
-    }
+    let addFields = [];
+    let editFields = [];
 
     template.customFields.forEach(item => {
-      let hasField = false;
-      for (const index in customFields) {
-        if (customFields[index].name === item.name) {
-          hasField = true;
-          customFields[index].name = item.name;
-          customFields[index].value = item.defaultValue;
-          customFields[index].type = item.type;
-          break;
-        }
-      }
-      if (!hasField) {
-        let customField = {
-          id: item.id,
-          name: item.name,
-          value: item.defaultValue,
-          type: item.type,
-          customData: item.customData,
-        };
-        customFields.push(customField);
+      let customField = {
+        fieldId: item.id,
+        value: JSON.stringify(item.defaultValue),
+      };
+      if (item.isEdit) {
+        editFields.push(customField);
+      } else {
+        addFields.push(customField);
       }
     });
-    param.customFields = JSON.stringify(customFields);
+    param.addFields = addFields;
+    param.editFields = editFields;
   }
 }
 

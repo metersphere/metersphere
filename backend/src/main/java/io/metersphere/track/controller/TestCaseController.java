@@ -122,7 +122,6 @@ public class TestCaseController {
 
     @PostMapping("/relate/{goPage}/{pageSize}")
     public Pager<List<TestCaseDTO>> getTestCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
-//        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return testCaseService.getTestCaseRelateList(request, goPage, pageSize);
     }
 
@@ -177,7 +176,7 @@ public class TestCaseController {
     }
 
     @GetMapping("/get/{testCaseId}")
-    public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId) {
+    public TestCaseDTO getTestCase(@PathVariable String testCaseId) {
         return testCaseService.getTestCase(testCaseId);
     }
 

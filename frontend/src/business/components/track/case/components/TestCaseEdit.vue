@@ -582,8 +582,6 @@ export default {
           this.setFormData(testCase);
           this.setTestCaseExtInfo(testCase);
           this.getSelectOptions();
-          //设置自定义熟悉默认值
-          this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules, buildTestCaseOldFields(this.form));
           this.reload();
           this.$nextTick(() => {
             this.showInputTag = true;
@@ -592,6 +590,7 @@ export default {
           this.getTestCase(testCase.id);
         }
       } else {
+        // add
         if (this.selectNode.data) {
           this.form.module = this.selectNode.data.id;
         } else {
@@ -666,8 +665,28 @@ export default {
       //设置自定义熟悉默认值
       this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules, testCase ? buildTestCaseOldFields(this.form) : null);
       this.setDefaultValue();
+      this.resetSystemField();
       // 重新渲染，显示自定义字段的必填校验
       this.reloadForm();
+    },
+    resetSystemField() {
+      if (this.operationType === 'add') {
+        return;
+      }
+      // 用例等级等字段以表中对应字段为准，后端复杂操作直接改表中对应字段即可
+      this.from;
+      this.customFieldForm['用例等级'] = this.form.priority;
+      this.customFieldForm['责任人'] = this.form.maintainer;
+      this.customFieldForm['用例状态'] = this.form.status;
+      this.testCaseTemplate.customFields.forEach(field => {
+        if (field.name === '用例等级') {
+          field.defaultValue = this.form.priority;
+        } else if (field.name === '责任人') {
+          field.defaultValue = this.form.maintainer;
+        } else if (field.name === '用例状态') {
+          field.defaultValue = this.form.status;
+        }
+      });
     },
     setTestCaseExtInfo(testCase) {
       this.testCase = {};
@@ -762,21 +781,18 @@ export default {
       return param;
     },
     parseOldFields(param) {
-      let customFieldsStr = param.customFields;
-      if (customFieldsStr) {
-        let customFields = JSON.parse(customFieldsStr);
-        customFields.forEach(item => {
-          if (item.name === '用例等级') {
-            param.priority = item.value;
-          }
-          if (item.name === '责任人') {
-            param.maintainer = item.value;
-          }
-          if (item.name === '用例状态') {
-            param.status = item.value;
-          }
-        });
-      }
+      let customFields = this.testCaseTemplate.customFields;
+      customFields.forEach(item => {
+        if (item.name === '用例等级') {
+          param.priority = item.defaultValue;
+        }
+        if (item.name === '责任人') {
+          param.maintainer = item.defaultValue;
+        }
+        if (item.name === '用例状态') {
+          param.status = item.defaultValue;
+        }
+      });
     },
     getOption(param) {
       let formData = new FormData();

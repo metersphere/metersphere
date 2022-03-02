@@ -438,10 +438,10 @@ export function saveCustomTableWidth(key, fieldKey, colWith) {
  * @returns {VueI18n.TranslateResult|*}
  */
 export function getCustomFieldValue(row, field, members) {
-  if (row.customFields) {
-    for (let i = 0; i < row.customFields.length; i++) {
-      let item = row.customFields[i];
-      if (item.name === field.name) {
+  if (row.fields) {
+    for (let i = 0; i < row.fields.length; i++) {
+      let item = row.fields[i];
+      if (item.id === field.id) {
         if (!item.value) return '';
         if (field.type === 'member') {
           for (let j = 0; j < members.length; j++) {
@@ -517,6 +517,8 @@ export function getCustomFieldValue(row, field, members) {
           return val;
         } else if (field.type === 'datetime') {
           return timestampFormatDate(item.value);
+        } else if (['richText', 'textarea'].indexOf(field.type) > -1) {
+          return item.textValue;
         }
         return item.value;
       }
@@ -536,7 +538,7 @@ export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, m
   customFields.forEach(item => {
     if (item.options) {
       typeArr.push({
-        id: item.name,
+        id: item.id,
         name: item.name,
         uuid: item.id,
         custom: "custom" + item.id
@@ -563,6 +565,24 @@ export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, m
   });
 }
 
+export function parseCustomFilesForList(data) {
+  data.forEach(item => {
+    if (item.fields) {
+      item.fields.forEach(i => {
+        parseCustomFilesForItem(i);
+      });
+    }
+  });
+}
+
+export function parseCustomFilesForItem(data) {
+  if (data.value) {
+    data.value = JSON.parse(data.value);
+  }
+  if (data.textValue) {
+    data.textValue = data.textValue;
+  }
+}
 
 // 多个监听共享变量
 // 否则切换 pageSize 等刷新操作会导致部分行的回调函数中 data 数据不一致
