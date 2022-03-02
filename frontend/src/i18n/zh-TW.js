@@ -233,6 +233,7 @@ export default {
     enable_scene_info: "啟用場景環境：當前步驟使用場景原始環境配置運行",
     environment: "運行環境",
     run: "運行",
+    delete_batch: "批量刪除",
     run_success: "執行成功",
     run_completed: "執行完成",
     run_warning: "正在運行中，請稍後查看",
@@ -1072,6 +1073,7 @@ export default {
     stopthread: '停止線程',
     stoptest: '停止測試',
     stoptestnow: '立即停止測試',
+    batch_delete_confirm: "确认批量删除性能测试",
     report: {
       diff: "對比",
       set_default: '恢復默認',

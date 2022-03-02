@@ -232,6 +232,7 @@ export default {
     edit_info: "Edit details",
     environment: "Environment",
     run: "Run",
+    delete_batch: "Delete Batch",
     run_success: "Run Success",
     run_completed: "Run Completed",
     run_fail: "Run Fail",
@@ -1067,6 +1068,7 @@ export default {
     stopthread: 'Stop thread',
     stoptest: 'Stop test',
     stoptestnow: 'Stop the test immediately',
+    batch_delete_confirm: "Confirm batch delete performance test",
     report: {
       diff: "Compare",
       set_default: 'Set to Default',

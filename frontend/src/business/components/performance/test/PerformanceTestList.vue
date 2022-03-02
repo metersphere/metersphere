@@ -24,9 +24,9 @@
           row-key="id"
           :row-order-group-id="projectId"
           :row-order-func="editLoadTestCaseOrder"
+          :batch-operators="batchButtons"
           operator-width="190px"
           :screen-height="screenHeight"
-          :enable-selection="false"
           @refresh="search"
           :disable-header-config="true"
           ref="table">
@@ -121,7 +121,7 @@ import MsTableOperators from "../../common/components/MsTableOperators";
 import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
-import {getLastTableSortField} from "@/common/js/tableUtils";
+import {buildBatchParam, getLastTableSortField} from "@/common/js/tableUtils";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {editLoadTestCaseOrder} from "@/network/load-test";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
@@ -156,6 +156,13 @@ export default {
       loading: true,
       testId: null,
       enableOrderDrag: true,
+      batchButtons: [
+        {
+          name: this.$t('commons.delete_batch'),
+          handleClick: this.handleBatchDelete,
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+DELETE']
+        }
+      ],
       operators: [
         {
           tip: this.$t('commons.run'), icon: "el-icon-video-play",
@@ -265,6 +272,20 @@ export default {
       this.result = this.$post("/performance/run", {id: test.id, triggerMode: 'MANUAL'}, (response) => {
         let reportId = response.data;
         this.$router.push({path: '/performance/report/view/' + reportId});
+      });
+    },
+    handleBatchDelete() {
+      this.$alert(this.$t('load_test.batch_delete_confirm') + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let param = buildBatchParam(this, this.$refs.table.selectIds);
+            this.result = this.$post("/performance/delete/batch", param, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.initTableData();
+            })
+          }
+        }
       });
     },
     handleDelete(test) {

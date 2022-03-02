@@ -1045,4 +1045,22 @@ public class PerformanceTestService {
         loadTestMapper.deleteByExample(loadTestExample);
         checkAndSetLatestVersion(refId);
     }
+
+    public void deleteBatch(DeletePerformanceRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> getLoadTestIds(request.getProjectId()));
+        List<String> loadTestIds = request.getIds();
+        loadTestIds.forEach(id -> {
+            DeleteTestPlanRequest rq = new DeleteTestPlanRequest();
+            rq.setForceDelete(true);
+            rq.setId(id);
+            this.delete(rq);
+        });
+    }
+
+    private List<String> getLoadTestIds(String projectId) {
+        List<LoadTest> loadTests = this.getLoadTestByProjectId(projectId);
+        return loadTests.stream().map(LoadTest::getId).collect(Collectors.toList());
+    }
+
 }
