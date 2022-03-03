@@ -162,7 +162,7 @@
             </if>
         </if>
         <if test="${condition}.creator != null">
-            and api_definition.create_user
+            and api_definition.user_id
             <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
             </include>
