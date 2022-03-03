@@ -392,10 +392,12 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             String id = uploadFile(mdImage.getBody());
             // todo delete local file
             int index = fileName.lastIndexOf(".");
+            String suffix = "";
             if (index != -1) {
-                // replace id
-                zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(originSubUrl), id);
+                suffix = fileName.substring(index);
             }
+            // replace id
+            zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(originSubUrl), id + suffix);
         }
         // image link
         String netImgRegex = "!\\[(.*?)]\\((http.*?)\\)";
