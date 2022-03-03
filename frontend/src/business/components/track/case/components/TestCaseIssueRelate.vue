@@ -226,11 +226,23 @@ export default {
       }
     },
     deleteIssue(row) {
-      this.page.result = deleteIssueRelate({id: row.id, caseResourceId: this.getCaseResourceId(), isPlanEdit: this.planId ? true : false}, () => {
-        this.getIssues();
-        this.$success(this.$t('commons.delete_success'));
-      });
-    },
+      this.$alert(this.$t('test_track.issue.delete_warning'), '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.page.result = deleteIssueRelate({
+              id: row.id,
+              caseResourceId: this.getCaseResourceId(),
+              isPlanEdit: this.planId ? true : false
+            }, () => {
+              this.getIssues();
+              this.$success(this.$t('commons.delete_success'));
+            });
+          }
+        }
+      })
+    }
   }
 }
 </script>
