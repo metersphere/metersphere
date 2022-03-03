@@ -3068,5 +3068,9 @@ export default {
     match_type: {
       text: "TXT"
     }
+  },
+  ui: {
+    ui_automation: "UI Automation",
+    report: "Test Report",
   }
 };

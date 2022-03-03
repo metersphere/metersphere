@@ -3072,5 +3072,10 @@ export default {
     match_type: {
       text: "文本"
     }
+  },
+  ui: {
+    ui_automation: "UI 自动化",
+    report: "测试报告",
+    scenario_list: "场景列表",
   }
 };

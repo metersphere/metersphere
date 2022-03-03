@@ -3071,5 +3071,9 @@ export default {
     match_type: {
       text: "文本"
     }
+  },
+  ui: {
+    ui_automation: "UI 自動化",
+    report: "測試報告",
   }
 };
