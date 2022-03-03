@@ -364,6 +364,7 @@ export default {
     };
   },
   activated() {
+    this.selectNodeIds = [];
     let dataRange = this.$route.params.dataSelectRange;
     if (dataRange && dataRange.length > 0) {
       this.activeDom = 'middle';
