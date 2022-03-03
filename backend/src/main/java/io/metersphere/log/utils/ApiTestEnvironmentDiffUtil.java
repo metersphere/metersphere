@@ -58,26 +58,26 @@ public class ApiTestEnvironmentDiffUtil {
 
             // 对比全局前置脚本(单个请求)
             if (!StringUtils.equals(bloBsNew.getString("preProcessor"), bloBsOld.getString("preProcessor"))) {
-                diffMap.put("preProcessorRaw1", bloBsNew.getString("preProcessor"));
-                diffMap.put("preProcessorRaw2", bloBsOld.getString("preProcessor"));
+                diffMap.put("preProcessorRaw1", formatting(bloBsNew.getString("preProcessor")));
+                diffMap.put("preProcessorRaw2", formatting(bloBsOld.getString("preProcessor")));
             }
 
             // 对比全局前置脚本(所有请求)
             if (!StringUtils.equals(bloBsNew.getString("preStepProcessor"), bloBsOld.getString("preStepProcessor"))) {
-                diffMap.put("preStepProcessorRaw1", bloBsNew.getString("preStepProcessor"));
-                diffMap.put("preStepProcessorRaw2", bloBsOld.getString("preStepProcessor"));
+                diffMap.put("preStepProcessorRaw1", formatting(bloBsNew.getString("preStepProcessor")));
+                diffMap.put("preStepProcessorRaw2", formatting(bloBsOld.getString("preStepProcessor")));
             }
 
             // 对比全局后置脚本(单个请求)
             if (!StringUtils.equals(bloBsNew.getString("postProcessor"), bloBsOld.getString("postProcessor"))) {
-                diffMap.put("postProcessorRaw1", bloBsNew.getString("postProcessor"));
-                diffMap.put("postProcessorRaw2", bloBsOld.getString("postProcessor"));
+                diffMap.put("postProcessorRaw1", formatting(bloBsNew.getString("postProcessor")));
+                diffMap.put("postProcessorRaw2", formatting(bloBsOld.getString("postProcessor")));
             }
 
             // 对比全局后置脚本(所有请求)
             if (!StringUtils.equals(bloBsNew.getString("postStepProcessor"), bloBsOld.getString("postStepProcessor"))) {
-                diffMap.put("postStepProcessorRaw1", bloBsNew.getString("postStepProcessor"));
-                diffMap.put("postStepProcessorRaw2", bloBsOld.getString("postStepProcessor"));
+                diffMap.put("postStepProcessorRaw1", formatting(bloBsNew.getString("postStepProcessor")));
+                diffMap.put("postStepProcessorRaw2", formatting(bloBsOld.getString("postStepProcessor")));
             }
 
             if (diffMap.size() > 1) {
@@ -87,5 +87,11 @@ public class ApiTestEnvironmentDiffUtil {
             LogUtil.error(e);
         }
         return null;
+    }
+
+    public static String formatting(String target) {
+        JSONObject result = JSONObject.parseObject(target);
+        result.remove("$type");
+        return result.toJSONString();
     }
 }
