@@ -36,6 +36,7 @@ public class APIScenarioReportController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<APIScenarioReportResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPIReportRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setLimit("LIMIT " + (goPage - 1) * pageSize + "," + pageSize * 50);
         return PageUtils.setPageInfo(page, apiReportService.list(request));
     }
 
