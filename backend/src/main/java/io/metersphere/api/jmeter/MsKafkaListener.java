@@ -8,50 +8,95 @@ import io.metersphere.api.service.ApiEnvironmentRunningParamService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.TestResultService;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.KafkaConfig;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
+import org.springframework.kafka.support.Acknowledgment;
 
 import javax.annotation.Resource;
+import java.util.*;
 
-@Service
+@Configuration
 public class MsKafkaListener {
     public static final String CONSUME_ID = "ms-api-exec-consume";
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
 
-    @KafkaListener(id = CONSUME_ID, topics = KafkaConfig.TOPICS, groupId = "${spring.kafka.consumer.group-id}")
-    public void consume(ConsumerRecord<?, String> record) {
-        LoggerUtil.info("接收到执行结果开始存储");
-        ResultDTO testResult = this.formatResult(record.value());
-        if (testResult != null && testResult.getArbitraryData() != null && testResult.getArbitraryData().containsKey("TEST_END") && (Boolean) testResult.getArbitraryData().get("TEST_END")) {
-            LoggerUtil.info("报告 【 " + testResult.getReportId() + " 】资源 " + testResult.getTestId() + " 整体执行完成");
-            testResultService.testEnded(testResult);
+    private static final Map<String, String> RUN_MODE_MAP = new HashMap<String, String>() {{
+        this.put(ApiRunMode.SCHEDULE_API_PLAN.name(), "schedule-task");
+        this.put(ApiRunMode.JENKINS_API_PLAN.name(), "schedule-task");
+        this.put(ApiRunMode.MANUAL_PLAN.name(), "schedule-task");
 
-            LoggerUtil.info("执行队列处理：" + testResult.getQueueId());
-            apiExecutionQueueService.queueNext(testResult);
-            // 全局并发队列
-            PoolExecBlockingQueueUtil.offer(testResult.getReportId());
-            // 更新测试计划报告
-            if (StringUtils.isNotEmpty(testResult.getTestPlanReportId())) {
-                LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId());
-                apiExecutionQueueService.testPlanReportTestEnded(testResult.getTestPlanReportId());
+        this.put(ApiRunMode.DEFINITION.name(), "api-test-case-task");
+        this.put(ApiRunMode.JENKINS.name(), "api-test-case-task");
+        this.put(ApiRunMode.API_PLAN.name(), "api-test-case-task");
+        this.put(ApiRunMode.JENKINS_API_PLAN.name(), "api-test-case-task");
+        this.put(ApiRunMode.MANUAL_PLAN.name(), "api-test-case-task");
+
+
+        this.put(ApiRunMode.SCENARIO.name(), "api-scenario-task");
+        this.put(ApiRunMode.SCENARIO_PLAN.name(), "api-scenario-task");
+        this.put(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), "api-scenario-task");
+        this.put(ApiRunMode.SCHEDULE_SCENARIO.name(), "api-scenario-task");
+        this.put(ApiRunMode.JENKINS_SCENARIO_PLAN.name(), "api-scenario-task");
+
+    }};
+
+    @KafkaListener(id = CONSUME_ID, topics = KafkaConfig.TOPICS, groupId = "${spring.kafka.consumer.group-id}", containerFactory = "batchFactory")
+    public void consume(List<ConsumerRecord<?, String>> records, Acknowledgment ack) {
+        try {
+            LoggerUtil.info("进入KAFKA消费，接收到执行结果开始存储：" + records.size());
+            // 分三类存储
+            Map<String, List<ResultDTO>> assortMap = new LinkedHashMap<>();
+            List<ResultDTO> resultDTOS = new LinkedList<>();
+
+            records.forEach(record -> {
+                ResultDTO testResult = this.formatResult(record.value());
+                if (testResult != null) {
+                    if (testResult.getArbitraryData() != null && testResult.getArbitraryData().containsKey("TEST_END") && (Boolean) testResult.getArbitraryData().get("TEST_END")) {
+                        resultDTOS.add(testResult);
+                    } else {
+                        String key = RUN_MODE_MAP.get(testResult.getRunMode());
+                        if (assortMap.containsKey(key)) {
+                            assortMap.get(key).add(testResult);
+                        } else {
+                            assortMap.put(key, new LinkedList<ResultDTO>() {{
+                                this.add(testResult);
+                            }});
+                        }
+                    }
+                }
+            });
+            if (!assortMap.isEmpty()) {
+                testResultService.batchSaveResults(assortMap);
+                LoggerUtil.info("KAFKA消费执行内容存储结束");
             }
-        } else {
-            // 更新报告最后接收到请求的时间
-            if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCENARIO.name(),
-                    ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
-                    ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                CommonBeanFactory.getBean(TestResultService.class).editReportTime(testResult);
+            // 更新执行结果
+            if (CollectionUtils.isNotEmpty(resultDTOS)) {
+                resultDTOS.forEach(testResult -> {
+                    LoggerUtil.info("报告 【 " + testResult.getReportId() + " 】资源 " + testResult.getTestId() + " 整体执行完成");
+                    testResultService.testEnded(testResult);
+                    LoggerUtil.info("执行队列处理：" + testResult.getQueueId());
+                    apiExecutionQueueService.queueNext(testResult);
+                    // 全局并发队列
+                    PoolExecBlockingQueueUtil.offer(testResult.getReportId());
+                    // 更新测试计划报告
+                    if (StringUtils.isNotEmpty(testResult.getTestPlanReportId())) {
+                        LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId());
+                        apiExecutionQueueService.testPlanReportTestEnded(testResult.getTestPlanReportId());
+                    }
+                });
             }
-            testResultService.saveResults(testResult);
+        } catch (Exception e) {
+            LoggerUtil.error("KAFKA消费失败：" + e.getMessage());
+        } finally {
+            ack.acknowledge();
         }
-        LoggerUtil.info("执行内容存储结束");
     }
 
     @Resource

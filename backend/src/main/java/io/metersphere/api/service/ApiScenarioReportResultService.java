@@ -7,9 +7,14 @@ import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.utils.ErrorReportLibraryUtil;
 import io.metersphere.dto.RequestResult;
+import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +28,8 @@ import java.util.UUID;
 public class ApiScenarioReportResultService {
     @Resource
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     public void save(String reportId, List<RequestResult> queue) {
         if (CollectionUtils.isNotEmpty(queue)) {
@@ -34,6 +41,26 @@ public class ApiScenarioReportResultService {
                     apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
                 }
             });
+        }
+    }
+
+    public void batchSave(List<ResultDTO> dtos) {
+        if (CollectionUtils.isNotEmpty(dtos)) {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiScenarioReportResultMapper batchMapper = sqlSession.getMapper(ApiScenarioReportResultMapper.class);
+            for (ResultDTO dto : dtos) {
+                if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
+                    dto.getRequestResults().forEach(item -> {
+                        if (StringUtils.isEmpty(item.getName()) || !item.getName().startsWith("Transaction=") || !CollectionUtils.isEmpty(item.getSubRequestResults())) {
+                            batchMapper.insert(this.newApiScenarioReportResult(dto.getReportId(), item));
+                        }
+                    });
+                }
+            }
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
     }
 

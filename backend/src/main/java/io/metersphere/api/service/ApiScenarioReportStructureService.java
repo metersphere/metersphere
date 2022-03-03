@@ -267,7 +267,7 @@ public class ApiScenarioReportStructureService {
             }
         }
         // 循环步骤请求从新排序
-        if (dtoList.stream().filter(e -> e.getValue() != null).collect(Collectors.toList()).size() == dtoList.size()) {
+        if (dtoList.stream().filter(e -> e.getValue() != null && e.getAllIndex() != null).collect(Collectors.toList()).size() == dtoList.size()) {
             List<StepTreeDTO> list = dtoList.stream().sorted(Comparator.comparing(x -> x.getAllIndex())).collect(Collectors.toList());
             for (int index = 0; index < list.size(); index++) {
                 list.get(index).setIndex((index + 1));

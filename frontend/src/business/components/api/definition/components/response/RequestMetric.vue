@@ -8,19 +8,19 @@
           :content="responseResult.responseCode"
           placement="top">
 
-          <div v-if="responseData.attachInfoMap && responseData.attachInfoMap.errorReportResult" class="node-title" :class="'ms-req-error-report-result'">
+          <div v-if="response.attachInfoMap && response.attachInfoMap.errorReportResult" class="node-title" :class="'ms-req-error-report-result'">
             {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
           </div>
-          <div v-else class="node-title" :class="responseData && responseData.success ?'ms-req-success':'ms-req-error'">
+          <div v-else class="node-title" :class="response && response.success ?'ms-req-success':'ms-req-error'">
             {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
           </div>
         </el-tooltip>
-        <div v-else class="node-title" :class="responseData && responseData.success ?'ms-req-success':'ms-req-error'">
+        <div v-else class="node-title" :class="response && response.success ?'ms-req-success':'ms-req-error'">
           {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
         </div>
-        <div v-if="responseData.attachInfoMap && responseData.attachInfoMap.errorReportResult">
+        <div v-if="response && response.attachInfoMap && response.attachInfoMap.errorReportResult">
           <div class="ms-req-error-report-result">
-            {{ responseData.attachInfoMap.errorReportResult }}
+            {{ response.attachInfoMap.errorReportResult }}
           </div>
         </div>
       </el-col>
@@ -39,17 +39,13 @@
 <script>
 export default {
   name: "MsRequestMetric",
+
   props: {
     response: {
       type: Object,
       default() {
         return {}
       }
-    }
-  },
-  data() {
-    return {
-      responseData: this.response ? this.response : {}
     }
   },
   computed: {
@@ -59,7 +55,7 @@ export default {
     error() {
       return this.response && this.response.responseCode && this.response.responseCode >= 400;
     }
-  },
+  }
 }
 </script>
 

@@ -84,6 +84,10 @@ public class ApiScenarioReportService {
         apiScenarioReportResultService.save(dto.getReportId(), requestResults);
     }
 
+    public void batchSaveResult(List<ResultDTO> dtos) {
+        apiScenarioReportResultService.batchSave(dtos);
+    }
+
     public ApiScenarioReport testEnded(ResultDTO dto) {
         if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
             // 更新控制台信息
