@@ -32,24 +32,27 @@
           </el-col>
 
           <el-col :span="12" style="margin-left: 50px">
-            <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')" @change="changeAuthEnable"></el-switch>
+            <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')"
+                       @change="changeAuthEnable"></el-switch>
           </el-col>
 
           <el-col :span="19" v-show="authEnable" style="margin-top: 10px; margin-left: 50px" class="request-tabs">
             <!-- 请求头 -->
             <div>
-              <span>{{$t('api_test.request.headers')}}{{$t('api_test.api_import.optional')}}：</span>
+              <span>{{ $t('api_test.request.headers') }}{{ $t('api_test.api_import.optional') }}：</span>
             </div>
             <ms-api-key-value :label="$t('api_test.definition.request.auth_config')"
-                              :show-desc="true" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers"/>
+                              :show-desc="true" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
+                              :items="headers"/>
             <!--query 参数-->
             <div style="margin-top: 10px">
-              <span>{{$t('api_test.definition.request.query_param')}}{{$t('api_test.api_import.optional')}}：</span>
+              <span>{{ $t('api_test.definition.request.query_param') }}{{ $t('api_test.api_import.optional') }}：</span>
             </div>
-            <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="queryArguments"/>
+            <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
+                             :parameters="queryArguments"/>
             <!--认证配置-->
             <div style="margin-top: 10px">
-              <span>{{$t('api_test.definition.request.auth_config')}}{{$t('api_test.api_import.optional')}}：</span>
+              <span>{{ $t('api_test.definition.request.auth_config') }}{{ $t('api_test.api_import.optional') }}：</span>
             </div>
             <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false"/>
           </el-col>
@@ -105,7 +108,7 @@
       width="60%"
     >
       <swagger-task-notification :api-test-id="formData.id" :scheduleReceiverOptions="scheduleReceiverOptions"
-                                 ref="schedule-task-notification">
+                                 ref="scheduleTaskNotification">
 
       </swagger-task-notification>
     </el-dialog>
@@ -133,7 +136,15 @@ import {ELEMENT_TYPE, TYPE_TO_C} from "@/business/components/api/automation/scen
 export default {
   name: "ApiSchedule",
   components: {
-    SwaggerTaskNotification, SelectTree, MsFormDivider, SwaggerTaskList, CrontabResult, Crontab, MsApiKeyValue, MsApiVariable, MsApiAuthConfig
+    SwaggerTaskNotification,
+    SelectTree,
+    MsFormDivider,
+    SwaggerTaskList,
+    CrontabResult,
+    Crontab,
+    MsApiKeyValue,
+    MsApiVariable,
+    MsApiAuthConfig
   },
   props: {
     customValidate: {
@@ -225,6 +236,11 @@ export default {
       if (this.formData.id !== null && this.formData.id !== undefined) {
         this.dialogVisible = true;
         this.initUserList();
+        this.$nextTick(() => {
+          if (this.$refs.scheduleTaskNotification) {
+            this.$refs.scheduleTaskNotification.initForm();
+          }
+        })
       } else {
         this.$warning("请先选择您要添加通知的定时任务");
       }
@@ -240,7 +256,7 @@ export default {
       return getCurrentUser();
     },
     changeAuthEnable() {
-      if(!this.authEnable){
+      if (!this.authEnable) {
         this.clearAuthInfo();
       }
     },
@@ -284,16 +300,16 @@ export default {
       this.formData.projectId = getCurrentProjectID();
       this.formData.workspaceId = getCurrentWorkspaceId();
       this.formData.value = this.formData.rule;
-      if(this.authEnable){
+      if (this.authEnable) {
         // 设置请求头或 query 参数
         this.formData.headers = this.headers;
         this.formData.arguments = this.queryArguments;
         // 设置 BaseAuth 参数
-        if(this.authConfig.authManager != undefined){
+        if (this.authConfig.authManager != undefined) {
           this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
           this.formData.authManager = this.authConfig.authManager;
         }
-      }else {
+      } else {
         this.formData.headers = undefined;
         this.formData.arguments = undefined;
         this.formData.authManager = undefined;
@@ -305,8 +321,8 @@ export default {
         this.formData.enable = true;
         url = '/api/definition/schedule/create';
       }
-      if(!this.formData.moduleId){
-        if( this.$refs.selectTree.returnDataKeys.length>0){
+      if (!this.formData.moduleId) {
+        if (this.$refs.selectTree.returnDataKeys.length > 0) {
           this.formData.moduleId = this.$refs.selectTree.returnDataKeys
         }
       }
@@ -337,17 +353,17 @@ export default {
     },
     handleRowClick(row) {
       // 如果认证信息不为空，进行转化
-      if(row.config != null || row.config != undefined){
+      if (row.config != null || row.config != undefined) {
         this.authEnable = true;
         let config = JSON.parse(row.config);
         this.headers = config.headers;
         this.queryArguments = config.arguments;
-        if(config.authManager != null || config.authManager != undefined){
+        if (config.authManager != null || config.authManager != undefined) {
           this.authConfig = config;
-        }else {
+        } else {
           this.authConfig = {hashTree: [], authManager: {}};
         }
-      }else {
+      } else {
         this.clearAuthInfo();
       }
       Object.assign(this.formData, row);
@@ -355,7 +371,7 @@ export default {
         this.$refs.selectTree.init();
       });
     },
-    clearAuthInfo(){
+    clearAuthInfo() {
       this.headers = [];
       this.queryArguments = [];
       this.headers.push(new KeyValue({enable: true}));
