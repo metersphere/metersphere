@@ -179,7 +179,7 @@ export default {
       this.$refs.customFieldRelateList.open();
     },
     addField() {
-      this.$refs.customFieldEdit.open();
+      this.$refs.customFieldEdit.open(null, this.$t('custom_field.create'));
     },
     getRelateFields() {
       let condition = {};
