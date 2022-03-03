@@ -1,7 +1,7 @@
 <template>
   <span>
     <el-select :disabled="isReadOnly" v-model="environmentId" size="small" class="environment-select"
-               :placeholder="$t('api_test.definition.request.run_env')" clearable>
+               :placeholder="$t('api_test.definition.request.run_env')" clearable @clear="clear">
       <el-option v-for="(environment, key) in environments" :key="key"
                  :label="environment.name"
                  :value="environment.id"/>
@@ -57,6 +57,9 @@
       methods: {
         refreshEnvironment(){
           this.$emit('setEnvironment', this.environment);
+        },
+        clear(){
+          this.$emit('setEnvironment', {});
         },
         getEnvironments() {
           if (this.projectId) {

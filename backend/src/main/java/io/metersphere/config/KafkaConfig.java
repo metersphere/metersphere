@@ -45,11 +45,16 @@ public class KafkaConfig {
         producerProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, kafkaProperties.getMaxRequestSize());
         // 批量一次最大拉取数据量
         producerProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
-        producerProps.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 6000);
-        producerProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);// 手动提交 配置 false
+
+        // 消费者每次去kafka拉取数据最大间隔，服务端会认为消费者已离线。触发reBalance
+        producerProps.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 900000);
+        // 心跳检查
+        producerProps.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 5000);
+        // 手动提交 配置 false
+        producerProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+
         producerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         producerProps.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 20000);
-        producerProps.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 100000);
 
         producerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         producerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -65,7 +70,7 @@ public class KafkaConfig {
         //开启批量监听
         factory.setBatchListener(true);
 
-        factory.getContainerProperties().setPollTimeout(10000);
+        factory.getContainerProperties().setPollTimeout(60000);
 
         //设置提交偏移量的方式，
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
