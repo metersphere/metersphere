@@ -346,7 +346,7 @@ export default {
         }
         obj.details = [JSON.parse(JSON.stringify(this.pathDetails))];
       } else {
-        if (this.condition.details.length === 0) {
+        if (this.condition.type === "MODULE" && this.condition.details.length === 0) {
           this.$warning(this.$t('api_test.environment.module_warning'));
           return;
         }
