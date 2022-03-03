@@ -90,6 +90,19 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!--  后续考虑移到jmeter core -->
+        <dependency>
+            <groupId>kg.apc</groupId>
+            <artifactId>jmeter-plugins-webdriver</artifactId>
+            <version>3.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.jmeter</groupId>
+                    <artifactId>ApacheJMeter_core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- flyway -->
         <dependency>
             <groupId>org.flywaydb</groupId>
