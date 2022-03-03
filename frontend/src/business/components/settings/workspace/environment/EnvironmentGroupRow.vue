@@ -160,6 +160,7 @@ export default {
         if (project) {
           project.disabled = true;
         }
+        this.clearProjectSelect();
         this.$get('/api/environment/list/' + item.projectId, res => {
           this.$set(item, 'environments', res.data);
         });
