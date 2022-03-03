@@ -281,11 +281,13 @@ public class IssuesService {
         String caseResourceId = request.getCaseResourceId();
         String id = request.getId();
         TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria().andResourceIdEqualTo(caseResourceId).andIssuesIdEqualTo(id);
-        testCaseIssuesMapper.deleteByExample(example);
-        if (request.getIsPlanEdit()) {
-            testCaseIssueService.updateIssuesCount(caseResourceId);
+        if (request.getIsPlanEdit() == true) {
+            example.createCriteria().andResourceIdEqualTo(caseResourceId).andIssuesIdEqualTo(id);
+            testCaseIssuesMapper.deleteByExample(example);
+        } else {
+            extIssuesMapper.deleteIssues(id, caseResourceId);
         }
+        testCaseIssueService.updateIssuesCount(caseResourceId);
     }
 
     public void delete(String id) {
