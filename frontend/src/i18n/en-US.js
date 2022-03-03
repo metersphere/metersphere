@@ -2329,6 +2329,7 @@ export default {
       delete: "Delete",
       title_description_required: "Title and description are required",
       close_success: "Closed successfully",
+      delete_warning: "The cancellation will affect the statistics related to the test plan. Confirm whether to confirm or not",
       preview: "Preview",
       status_new: 'new',
       status_resolved: 'resolved',
