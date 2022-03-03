@@ -66,6 +66,8 @@ public class TestPlanTestCaseService {
     private TestCaseCommentService testCaseCommentService;
     @Resource
     private TestCaseService testCaseService;
+    @Resource
+    private TestCaseIssueService testCaseIssueService;
 
     public List<TestPlanTestCaseWithBLOBs> listAll() {
         TestPlanTestCaseExample example = new TestPlanTestCaseExample();
@@ -79,6 +81,10 @@ public class TestPlanTestCaseService {
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
+        List<TestPlanCaseDTO> testPlanCaseDTOList = extTestPlanTestCaseMapper.list(request);
+        testPlanCaseDTOList.forEach(item -> {
+            testCaseIssueService.updateIssuesCount(item.getId());
+        });
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
         queryMemberRequest.setProjectId(request.getProjectId());

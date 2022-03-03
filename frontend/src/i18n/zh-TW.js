@@ -2333,6 +2333,7 @@ export default {
       delete: "刪除缺陷",
       title_description_required: "標題和描述必填",
       close_success: "關閉成功",
+      delete_warning: "解除會影響測試計畫相關統計，是否確認",
       preview: "預覽",
       status_new: '新建',
       status_resolved: '已解決',
