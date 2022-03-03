@@ -2,8 +2,6 @@ package io.metersphere.api.jmeter;
 
 import io.metersphere.api.service.ApiEnvironmentRunningParamService;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,16 +13,11 @@ import java.util.List;
  */
 public class ExecutedHandleSingleton {
     private static volatile ApiEnvironmentRunningParamService apiEnvironmentRunningParamService = CommonBeanFactory.getBean(ApiEnvironmentRunningParamService.class);
-    static  Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
     private ExecutedHandleSingleton() {
     }
 
     public  static void parseEnvironment(List<String> evnStrList) {
         for (String evnStr: evnStrList) {
-            try {
-                Thread.sleep(1000);
-            }catch (Exception e){
-            }
             apiEnvironmentRunningParamService.parseEvn(evnStr);
         }
     }

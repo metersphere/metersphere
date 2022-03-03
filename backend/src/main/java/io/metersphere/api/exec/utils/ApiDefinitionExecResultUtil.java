@@ -49,6 +49,7 @@ public class ApiDefinitionExecResultUtil {
         if (caseWithBLOBs != null) {
             apiResult.setName(caseWithBLOBs.getName());
             apiResult.setProjectId(caseWithBLOBs.getProjectId());
+            apiResult.setVersionId(caseWithBLOBs.getVersionId());
         }
         apiResult.setTriggerMode(request.getTriggerMode());
         apiResult.setActuator("LOCAL");

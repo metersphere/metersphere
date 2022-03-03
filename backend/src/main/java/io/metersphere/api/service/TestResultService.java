@@ -5,7 +5,6 @@ import io.metersphere.api.jmeter.ExecutedHandleSingleton;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -54,8 +53,6 @@ public class TestResultService {
     @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
-    private ApiScenarioReportMapper apiScenarioReportMapper;
-    @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
 
     public void saveResults(ResultDTO dto) {
@@ -80,12 +77,32 @@ public class TestResultService {
         updateTestCaseStates(requestResults, dto.getRunMode());
     }
 
+    public void batchSaveResults(Map<String, List<ResultDTO>> resultDtoMap) {
+        // 处理环境
+        List<String> environmentList = new LinkedList<>();
+        for (String key : resultDtoMap.keySet()) {
+            List<ResultDTO> dtos = resultDtoMap.get(key);
+            for (ResultDTO dto : dtos) {
+                if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("ENV")) {
+                    environmentList = (List<String>) dto.getArbitraryData().get("ENV");
+                }
+                //处理环境参数
+                if (CollectionUtils.isNotEmpty(environmentList)) {
+                    ExecutedHandleSingleton.parseEnvironment(environmentList);
+                }
+                // 处理用例/场景和计划关系
+                updateTestCaseStates(dto.getRequestResults(), dto.getRunMode());
 
-    public void editReportTime(ResultDTO dto) {
-        ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
-        if (report != null) {
-            report.setUpdateTime(System.currentTimeMillis());
-            apiScenarioReportMapper.updateByPrimaryKey(report);
+            }
+            //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
+            if (StringUtils.equals(key, "schedule-task")) {
+                apiDefinitionExecResultService.batchSaveApiResult(dtos, true);
+            } else if (StringUtils.equals(key, "api-test-case-task")) {
+                apiDefinitionExecResultService.batchSaveApiResult(dtos, false);
+            } else if (StringUtils.equalsAny(key, "api-scenario-task")) {
+                apiScenarioReportService.batchSaveResult(dtos);
+            }
+
         }
     }
 
