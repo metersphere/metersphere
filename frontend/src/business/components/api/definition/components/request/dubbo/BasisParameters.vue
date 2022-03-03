@@ -12,8 +12,8 @@
               </el-select>
             </el-form-item>
 
-            <el-tabs v-model="activeName">
-              <el-tab-pane label="Interface" name="interface">
+            <el-tabs v-model="activeName" @tab-click="tabClick">
+              <el-tab-pane label="Interface" name="interface" v-if="isBodyShow">
                 <ms-dubbo-interface :request="request" :is-read-only="isReadOnly"/>
               </el-tab-pane>
               <el-tab-pane label="Config Center" name="config">
@@ -37,39 +37,47 @@
                 <ms-api-key-value :is-read-only="isReadOnly" :items="request.attachmentArgs"/>
               </el-tab-pane>
 
+              <!-- 脚本步骤/断言步骤 -->
+              <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
+          <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+            {{ $t('api_test.definition.request.pre_operation') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
+              <div class="el-step__icon-inner">{{ request.preSize }}</div>
+            </div>
+          </span>
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'pre'"
+                             ref="preStep"/>
+              </el-tab-pane>
+              <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate"
+                           v-if="showScript">
+            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+            {{ $t('api_test.definition.request.post_operation') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
+              <div class="el-step__icon-inner">{{ request.postSize }}</div>
+            </div>
+          </span>
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'post'"
+                             ref="postStep"/>
+              </el-tab-pane>
+              <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule"
+                           v-if="showScript">
+            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+            {{ $t('api_test.definition.request.assertions_rule') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
+              <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
+            </div>
+          </span>
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reloadBody"
+                             :tab-type="'assertionsRule'" ref="assertionsRule"/>
+              </el-tab-pane>
+
             </el-tabs>
 
           </el-form>
         </div>
-        <!--<div v-if="showScript">-->
-          <!--<div v-for="row in request.hashTree" :key="row.id" v-loading="isReloadData" style="margin-left: 20px;width: 100%">-->
-            <!--&lt;!&ndash; 前置脚本 &ndash;&gt;-->
-            <!--<ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.pre_script')" style-type="color: #B8741A;background-color: #F9F1EA"-->
-                                 <!--:jsr223-processor="row"/>-->
-            <!--&lt;!&ndash;后置脚本&ndash;&gt;-->
-            <!--<ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="color: #783887;background-color: #F2ECF3"-->
-                                 <!--:jsr223-processor="row"/>-->
-            <!--&lt;!&ndash;断言规则&ndash;&gt;-->
-            <!--<div style="margin-top: 10px">-->
-              <!--<ms-api-assertions v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>-->
-            <!--</div>-->
-            <!--&lt;!&ndash;提取规则&ndash;&gt;-->
-            <!--<div style="margin-top: 10px">-->
-              <!--<ms-api-extract :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>-->
-            <!--</div>-->
-          <!--</div>-->
-        <!--</div>-->
+
       </el-col>
 
-      <el-col :span="3" class="ms-left-cell" v-if="showScript">
-        <el-button class="ms-left-buttion" size="small" style="color: #B8741A;background-color: #F9F1EA" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
-        <br/>
-        <el-button class="ms-left-buttion" size="small" style="color: #783887;background-color: #F2ECF3" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
-        <br/>
-        <el-button class="ms-left-buttion" size="small" style="color: #A30014;background-color: #F7E6E9" @click="addAssertions">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
-        <br/>
-        <el-button class="ms-left-buttion" size="small" style="color: #015478;background-color: #E6EEF2" @click="addExtract">+{{$t('api_test.definition.request.extract_param')}}</el-button>
-      </el-col>
     </el-row>
 
   </div>
@@ -90,6 +98,8 @@
   import MsDubboConsumerService from "../../request/dubbo/ConsumerAndService";
   import {getUUID} from "@/common/js/utils";
   import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
+  import MsJmxStep from "../../step/JmxStep";
+  import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
 
   export default {
     name: "MsDatabaseConfig",
@@ -101,11 +111,13 @@
       MsDubboConfigCenter,
       MsDubboRegistryCenter,
       MsDubboInterface,
+      MsJmxStep
     },
     props: {
       request: {},
       basisData: {},
       moduleOptions: Array,
+      response: {},
       isReadOnly: {
         type: Boolean,
         default: false
@@ -117,40 +129,53 @@
     },
     data() {
       return {
-        spanNum: 21,
+        spanNum: 24,
         activeName: "interface",
         activeName2: "args",
+        isBodyShow: true,
         protocols: DubboRequest.PROTOCOLS,
         isReloadData: false,
       }
     },
     created() {
-      if(this.showScript){
-        this.spanNum = 21;
-      }else {
-        this.spanNum = 24;
+      if (this.request.hashTree) {
+        this.initStepSize(this.request.hashTree);
+        this.historicalDataProcessing(this.request.hashTree);
+      }
+    },
+    watch: {
+      'request.hashTree': {
+        handler(v) {
+          this.initStepSize(this.request.hashTree);
+        },
+        deep: true
       }
     },
     methods: {
-      addPre() {
-        let jsr223PreProcessor = createComponent("JSR223PreProcessor");
-        this.request.hashTree.push(jsr223PreProcessor);
-        this.reload();
+      tabClick() {
+        if (this.activeName === 'preOperate') {
+          this.$refs.preStep.filter();
+        }
+        if (this.activeName === 'postOperate') {
+          this.$refs.postStep.filter();
+        }
+        if (this.activeName === 'assertionsRule') {
+          this.$refs.assertionsRule.filter();
+        }
       },
-      addPost() {
-        let jsr223PostProcessor = createComponent("JSR223PostProcessor");
-        this.request.hashTree.push(jsr223PostProcessor);
-        this.reload();
+      historicalDataProcessing(array) {
+        hisDataProcessing(array, this.request);
       },
-      addAssertions() {
-        let assertions = new Assertions();
-        this.request.hashTree.push(assertions);
-        this.reload();
+      initStepSize(array) {
+        stepCompute(array, this.request);
+        this.reloadBody();
       },
-      addExtract() {
-        let jsonPostProcessor = new Extract();
-        this.request.hashTree.push(jsonPostProcessor);
-        this.reload();
+      reloadBody() {
+        // 解决修改请求头后 body 显示错位
+        this.isBodyShow = false;
+        this.$nextTick(() => {
+          this.isBodyShow = true;
+        });
       },
       remove(row) {
         let index = this.request.hashTree.indexOf(row);
@@ -202,6 +227,13 @@
 
   /deep/ .el-form-item {
     margin-bottom: 15px;
+  }
+
+  .ms-header {
+    background: #783887;
+    color: white;
+    height: 18px;
+    border-radius: 42%;
   }
 
   .ms-left-cell {

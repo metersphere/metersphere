@@ -5,7 +5,7 @@
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;">
           <el-form class="tcp" :model="request" :rules="rules" ref="request" :disabled="isReadOnly"
                    style="margin: 20px">
-            <el-tabs v-model="activeName" class="request-tabs">
+            <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
               <!--test-->
               <el-tab-pane name="parameters">
                 <template v-slot:label>
@@ -17,7 +17,7 @@
               <!--test-->
 
               <!--query 参数-->
-              <el-tab-pane :label="$t('api_test.definition.document.request_body')" name="request">
+              <el-tab-pane v-if="isBodyShow" :label="$t('api_test.definition.document.request_body')" name="request">
                 <el-radio-group v-model="reportType" size="mini" style="margin: 10px 0px;">
                   <el-radio :disabled="isReadOnly" label="json" @change="changeReportType">
                     json
@@ -49,11 +49,45 @@
                 </div>
               </el-tab-pane>
 
-              <el-tab-pane :label="$t('api_test.definition.request.pre_script')" name="script">
+              <el-tab-pane :label="$t('api_test.definition.request.pre_script')" name="script" v-if="showPreScript">
                 <jsr233-processor-content
                   :jsr223-processor="request.tcpPreProcessor"
                   :is-pre-processor="true"
                   :is-read-only="isReadOnly"/>
+              </el-tab-pane>
+
+              <!-- 脚本步骤/断言步骤 -->
+              <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
+          <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+            {{ $t('api_test.definition.request.pre_operation') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
+              <div class="el-step__icon-inner">{{ request.preSize }}</div>
+            </div>
+          </span>
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'pre'"
+                             ref="preStep"/>
+              </el-tab-pane>
+              <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate"
+                           v-if="showScript">
+            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+            {{ $t('api_test.definition.request.post_operation') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
+              <div class="el-step__icon-inner">{{ request.postSize }}</div>
+            </div>
+          </span>
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'post'"
+                             ref="postStep"/>
+              </el-tab-pane>
+              <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule"
+                           v-if="showScript">
+            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+            {{ $t('api_test.definition.request.assertions_rule') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
+              <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
+            </div>
+          </span>
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reloadBody"
+                             :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </el-tab-pane>
 
               <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="other" class="other-config">
@@ -133,8 +167,6 @@
 
       </el-col>
 
-      <!--操作按钮-->
-      <api-definition-step-button :request="request" v-if="!referenced && showScript"/>
     </el-row>
   </div>
 </template>
@@ -160,6 +192,9 @@ import JSR223PreProcessor from "../../jmeter/components/pre-processors/jsr223-pr
 import ApiDefinitionStepButton from "../components/ApiDefinitionStepButton";
 import TcpXmlTable from "@/business/components/api/definition/components/complete/table/TcpXmlTable";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import MsJmxStep from "../../step/JmxStep";
+import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
+
 
 export default {
   name: "MsTcpFormatParameters",
@@ -171,11 +206,13 @@ export default {
     MsApiVariable,
     MsApiScenarioVariables,
     MsCodeEdit,
-    ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig
+    ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig,
+    MsJmxStep
   },
   props: {
     request: {},
     basisData: {},
+    response: {},
     moduleOptions: Array,
     isReadOnly: {
       type: Boolean,
@@ -185,6 +222,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    showPreScript: {
+      type: Boolean,
+      default: false,
+    },
     referenced: {
       type: Boolean,
       default: false,
@@ -192,12 +233,13 @@ export default {
   },
   data() {
     return {
-      spanNum: 21,
+      spanNum: 24,
       activeName: "request",
       classes: TCPSampler.CLASSES,
       reportType: "xml",
       isReloadData: false,
       refreshedXmlTable: true,
+      isBodyShow: true,
       options: API_STATUS,
       currentProjectId: "",
       connectEncodingArr: [
@@ -220,14 +262,15 @@ export default {
   watch: {
     reportType() {
       this.request.reportType = this.reportType;
+    },
+    'request.hashTree': {
+      handler(v) {
+        this.initStepSize(this.request.hashTree);
+      },
+      deep: true
     }
   },
   created() {
-    if (!this.referenced && this.showScript) {
-      this.spanNum = 21;
-    } else {
-      this.spanNum = 24;
-    }
     this.currentProjectId = getCurrentProjectID();
     if (!this.request.parameters) {
       this.$set(this.request, 'parameters', []);
@@ -263,28 +306,37 @@ export default {
       if (!this.request.xmlDataStruct) {
         this.initXmlTableData();
       }
+      if (this.request.hashTree) {
+        this.initStepSize(this.request.hashTree);
+        this.historicalDataProcessing(this.request.hashTree);
+      }
     }
   },
   methods: {
-    addPre() {
-      let jsr223PreProcessor = createComponent("JSR223PreProcessor");
-      this.request.hashTree.push(jsr223PreProcessor);
-      this.reload();
+    tabClick() {
+      if (this.activeName === 'preOperate') {
+        this.$refs.preStep.filter();
+      }
+      if (this.activeName === 'postOperate') {
+        this.$refs.postStep.filter();
+      }
+      if (this.activeName === 'assertionsRule') {
+        this.$refs.assertionsRule.filter();
+      }
     },
-    addPost() {
-      let jsr223PostProcessor = createComponent("JSR223PostProcessor");
-      this.request.hashTree.push(jsr223PostProcessor);
-      this.reload();
+    historicalDataProcessing(array) {
+      hisDataProcessing(array, this.request);
     },
-    addAssertions() {
-      let assertions = new Assertions();
-      this.request.hashTree.push(assertions);
-      this.reload();
+    initStepSize(array) {
+      stepCompute(array, this.request);
+      this.reloadBody();
     },
-    addExtract() {
-      let jsonPostProcessor = new Extract();
-      this.request.hashTree.push(jsonPostProcessor);
-      this.reload();
+    reloadBody() {
+      // 解决修改请求头后 body 显示错位
+      this.isBodyShow = false;
+      this.$nextTick(() => {
+        this.isBodyShow = true;
+      });
     },
     remove(row) {
       let index = this.request.hashTree.indexOf(row);
@@ -487,9 +539,6 @@ export default {
 </script>
 
 <style scoped>
-.tcp >>> .el-input-number {
-  width: 100%;
-}
 
 .send-request {
   padding: 0px 0;
@@ -501,6 +550,13 @@ export default {
 
 .ms-left-cell {
   margin-top: 40px;
+}
+
+.ms-header {
+  background: #783887;
+  color: white;
+  height: 18px;
+  border-radius: 42%;
 }
 
 .ms-left-buttion {

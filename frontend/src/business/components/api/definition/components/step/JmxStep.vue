@@ -53,7 +53,7 @@
             color="#B8741A"
             background-color="#F9F1EA"/>
 
-           <ms-constant-timer :timer="data" :node="node" v-if="data.type ==='ConstantTimer'"/>
+           <ms-constant-timer :timer="data" :node="node" v-if="data.type ==='ConstantTimer'" @remove="remove"/>
 
          </div>
         <div v-if="tabType ==='post'">

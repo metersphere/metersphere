@@ -165,23 +165,23 @@ export default {
     }
   },
   watch: {
-    'assertions.jsonPath'() {
-      this.computeStep();
+    assertions: {
+      handler(v) {
+        this.computeStep();
+      },
+      deep: true
     },
-    'assertions.regex'() {
-      this.computeStep();
-    },
-    'assertions.jsr223'() {
-      this.computeStep();
-    },
-    'assertions.xpath2'() {
-      this.computeStep();
-    }
   },
   methods: {
     computeStep() {
       let ruleSize = 0;
       ruleSize = (this.assertions.jsonPath.length + this.assertions.jsr223.length + this.assertions.regex.length + this.assertions.xpath2.length);
+      if (this.assertions && this.assertions.document.data && (this.assertions.document.data.json.length > 0 || this.assertions.document.data.xml.length > 0)) {
+        ruleSize++;
+      }
+      if (this.assertions.duration && this.assertions.duration.value > 0) {
+        ruleSize++;
+      }
       ruleSize += this.assertions.text ? this.assertions.text.length : 0;
       this.request.ruleSize = ruleSize;
       this.$emit('reload');
