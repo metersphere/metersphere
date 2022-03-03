@@ -1148,29 +1148,34 @@ public class ApiDefinitionService {
                 noticeSendService.send(NoticeConstants.TaskType.SWAGGER_TASK, noticeModel);
             }
         }
-        importApi(request, apiImport);
-        if (CollectionUtils.isNotEmpty(apiImport.getData())) {
-            List<String> names = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
-            request.setName(String.join(",", names));
-            List<String> ids = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
-            request.setId(JSON.toJSONString(ids));
-        }
-        // 发送通知
-        if (StringUtils.equals(request.getType(), "schedule")) {
-            String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
-            String context = request.getSwaggerUrl() + "导入成功";
-            Map<String, Object> paramMap = new HashMap<>();
-            paramMap.put("url", request.getSwaggerUrl());
-            NoticeModel noticeModel = NoticeModel.builder()
-                    .operator(SessionUtils.getUserId())
-                    .context(context)
-                    .testId(scheduleId)
-                    .subject(Translator.get("swagger_url_scheduled_import_notification"))
-                    .successMailTemplate("SwaggerImport")
-                    .paramMap(paramMap)
-                    .event(NoticeConstants.Event.EXECUTE_SUCCESSFUL)
-                    .build();
-            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
+        try {
+            importApi(request, apiImport);
+            if (CollectionUtils.isNotEmpty(apiImport.getData())) {
+                List<String> names = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
+                request.setName(String.join(",", names));
+                List<String> ids = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+                request.setId(JSON.toJSONString(ids));
+            }
+            // 发送通知
+            if (StringUtils.equals(request.getType(), "schedule")) {
+                String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
+                String context = request.getSwaggerUrl() + "导入成功";
+                Map<String, Object> paramMap = new HashMap<>();
+                paramMap.put("url", request.getSwaggerUrl());
+                NoticeModel noticeModel = NoticeModel.builder()
+                        .operator(SessionUtils.getUserId())
+                        .context(context)
+                        .testId(scheduleId)
+                        .subject(Translator.get("swagger_url_scheduled_import_notification"))
+                        .successMailTemplate("SwaggerImport")
+                        .paramMap(paramMap)
+                        .event(NoticeConstants.Event.EXECUTE_SUCCESSFUL)
+                        .build();
+                noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
+            }
+        }catch (Exception e){
+            LogUtil.error(e);
+            MSException.throwException(Translator.get("user_import_format_wrong"));
         }
         return apiImport;
     }
