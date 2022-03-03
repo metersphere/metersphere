@@ -299,7 +299,7 @@ public class MockApiUtils {
                         if (statusCodeArray != null) {
                             for (int i = 0; i < statusCodeArray.size(); i++) {
                                 JSONObject object = statusCodeArray.getJSONObject(i);
-                                if (object.containsKey("name")) {
+                                if (object.containsKey("name") && StringUtils.isNotEmpty(object.getString("name"))) {
                                     try {
                                         code = Integer.parseInt(object.getString("name"));
                                         break;

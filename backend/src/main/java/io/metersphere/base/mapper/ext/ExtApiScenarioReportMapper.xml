@@ -98,72 +98,95 @@
         </if>
     </sql>
 
+    <sql id="listCombine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and `name`
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.testName != null">
+            and `name`
+            <include refid="condition">
+                <property name="object" value="${condition}.testName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.triggerMode != null">
+            and trigger_mode
+            <include refid="condition">
+                <property name="object" value="${condition}.triggerMode"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
     <select id="list" resultMap="BaseResultMap">
         select * from (
-            SELECT s_r.name AS test_name,
-            s_r.end_time,
-            s_r.user_id,
-            s_r.name,
-            s_r.id,
-            s_r.project_id,
-            s_r.create_time,
-            s_r.update_time,
-            s_r.status,
-            s_r.trigger_mode,
-            s_r.execute_type,
-            s_r.report_type
+        SELECT s_r.name AS test_name,
+        s_r.end_time,
+        s_r.user_id,
+        s_r.name,
+        s_r.id,
+        s_r.project_id,
+        s_r.create_time,
+        s_r.update_time,
+        s_r.status,
+        s_r.trigger_mode,
+        s_r.execute_type,
+        s_r.report_type
         FROM api_scenario_report s_r
-        union
-            select a_r.name as test_name,
-            a_r.end_time,
-            a_r.user_id,
-            a_r.name,
-            a_r.id,
-            a_r.project_id,
-            a_r.create_time,
-            a_r.create_time as update_time,
-            a_r.status,
-            a_r.trigger_mode,
-            'Saved' as execute_type,
-            'API_INDEPENDENT' as report_type
-            from api_definition_exec_result a_r
-            where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
-        ) r
         <where>
             <if test="request.combine != null">
-                <include refid="combine">
+                <include refid="listCombine">
                     <property name="condition" value="request.combine"/>
                     <property name="name" value="request.name"/>
                 </include>
             </if>
 
             <if test="request.name != null">
-                and r.name like CONCAT('%', #{request.name},'%')
+                and s_r.name like CONCAT('%', #{request.name},'%')
             </if>
             <if test="request.userId != null">
-                AND r.user_id = #{request.userId,jdbcType=VARCHAR}
+                AND s_r.user_id = #{request.userId,jdbcType=VARCHAR}
             </if>
             <if test="request.projectId != null">
-                AND r.project_id = #{request.projectId}
+                AND s_r.project_id = #{request.projectId}
             </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
                         <choose>
                             <when test="key=='status'">
-                                and r.status in
+                                and s_r.status in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
                             </when>
                             <when test="key=='report_type'">
-                                and r.report_type in
+                                and s_r.report_type in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
                             </when>
                             <otherwise>
-                                and r.trigger_mode in
+                                and s_r.trigger_mode in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
@@ -172,8 +195,66 @@
                     </if>
                 </foreach>
             </if>
-            AND r.execute_type = 'Saved'
+            AND s_r.execute_type = 'Saved'
         </where>
+        union
+        select a_r.name as test_name,
+        a_r.end_time,
+        a_r.user_id,
+        a_r.name,
+        a_r.id,
+        a_r.project_id,
+        a_r.create_time,
+        a_r.create_time as update_time,
+        a_r.status,
+        a_r.trigger_mode,
+        'Saved' as execute_type,
+        'API_INDEPENDENT' as report_type
+        from api_definition_exec_result a_r
+        where (a_r.integrated_report_id is null or a_r.integrated_report_id = 'null')
+        <if test="request.combine != null">
+            <include refid="listCombine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+            </include>
+        </if>
+
+        <if test="request.name != null">
+            and a_r.name like CONCAT('%', #{request.name},'%')
+        </if>
+        <if test="request.userId != null">
+            AND a_r.user_id = #{request.userId,jdbcType=VARCHAR}
+        </if>
+        <if test="request.projectId != null">
+            AND a_r.project_id = #{request.projectId}
+        </if>
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and a_r.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='report_type'">
+                            and a_r.report_type in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <otherwise>
+                            and a_r.trigger_mode in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+        ) r
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
@@ -184,33 +265,33 @@
 
     <select id="idList" resultType="java.lang.String">
         select r.id from (
-            SELECT s_r.name AS test_name,
-            s_r.end_time,
-            s_r.user_id,
-            s_r.name,
-            s_r.id,
-            s_r.project_id,
-            s_r.create_time,
-            s_r.update_time,
-            s_r.status,
-            s_r.trigger_mode,
-            s_r.execute_type,
-            s_r.report_type
-            FROM api_scenario_report s_r
+        SELECT s_r.name AS test_name,
+        s_r.end_time,
+        s_r.user_id,
+        s_r.name,
+        s_r.id,
+        s_r.project_id,
+        s_r.create_time,
+        s_r.update_time,
+        s_r.status,
+        s_r.trigger_mode,
+        s_r.execute_type,
+        s_r.report_type
+        FROM api_scenario_report s_r
         union
-            select a_r.name as test_name,
-            a_r.end_time,
-            a_r.user_id,
-            a_r.name,
-            a_r.id,
-            a_r.project_id,
-            a_r.create_time,
-            a_r.create_time as update_time,
-            a_r.status,
-            a_r.trigger_mode,
-            'Saved' as execute_type,
-            'API_INDEPENDENT' as report_type
-            from api_definition_exec_result a_r
+        select a_r.name as test_name,
+        a_r.end_time,
+        a_r.user_id,
+        a_r.name,
+        a_r.id,
+        a_r.project_id,
+        a_r.create_time,
+        a_r.create_time as update_time,
+        a_r.status,
+        a_r.trigger_mode,
+        'Saved' as execute_type,
+        'API_INDEPENDENT' as report_type
+        from api_definition_exec_result a_r
         where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
         ) r
         <where>
@@ -278,30 +359,40 @@
     </select>
 
     <select id="countByProjectID" resultType="java.lang.Long">
-        SELECT count(id) AS countNumber FROM api_scenario_report WHERE project_id = #{0}
+        SELECT count(id) AS countNumber
+        FROM api_scenario_report
+        WHERE project_id = #{0}
     </select>
     <select id="countByProjectIdAndCreateInThisWeek" resultType="java.lang.Long">
-        SELECT count(id) AS countNumber FROM api_scenario_report
+        SELECT count(id) AS countNumber
+        FROM api_scenario_report
         WHERE project_id = #{projectId}
-        AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
     <select id="countByProjectIdAndCreateAndByScheduleInThisWeek" resultType="java.lang.Long">
-        SELECT count(ar.id) AS countNumber FROM
-        api_scenario_report ar
-        INNER JOIN (
-            SELECT acitem.`name`,acitem.id FROM api_scenario acitem INNER JOIN `schedule` sc ON acitem.id = sc.resource_id and latest = 1
+        SELECT count(ar.id) AS countNumber
+        FROM api_scenario_report ar
+                 INNER JOIN (
+            SELECT acitem.`name`, acitem.id
+            FROM api_scenario acitem
+                     INNER JOIN `schedule` sc ON acitem.id = sc.resource_id and latest = 1
         ) ac on ar.scenario_id = ac.id
-        WHERE ar.project_id = #{projectId} AND ar.trigger_mode = 'SCHEDULE' AND ar.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+        WHERE ar.project_id = #{projectId}
+          AND ar.trigger_mode = 'SCHEDULE'
+          AND ar.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
     <select id="countByProjectIdGroupByExecuteResult" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
-        SELECT count(ar.id) AS countNumber,ar.status AS groupField FROM
-        api_scenario_report ar
-        INNER JOIN (
-        SELECT acitem.`name`,acitem.id FROM api_scenario acitem INNER JOIN `schedule` sc ON acitem.id = sc.resource_id and latest = 1
+        SELECT count(ar.id) AS countNumber, ar.status AS groupField
+        FROM api_scenario_report ar
+                 INNER JOIN (
+            SELECT acitem.`name`, acitem.id
+            FROM api_scenario acitem
+                     INNER JOIN `schedule` sc ON acitem.id = sc.resource_id and latest = 1
         ) ac on ar.scenario_id = ac.id
-        WHERE ar.project_id = #{projectId} AND ar.trigger_mode = 'SCHEDULE'
+        WHERE ar.project_id = #{projectId}
+          AND ar.trigger_mode = 'SCHEDULE'
         GROUP BY groupField;
     </select>
     <select id="selectLastReportByIds" resultType="io.metersphere.base.domain.ApiScenarioReport">
@@ -333,7 +424,8 @@
         WHERE execute_type in ("Completed", "Debug")
           and scenario_id = #{scenarioId}
           and id != #{nowId}
-        ORDER BY create_time desc LIMIT 5, 1
+        ORDER BY create_time desc
+        LIMIT 5, 1
     </select>
 
     <select id="countByApiScenarioId" resultType="io.metersphere.dto.ApiReportCountDTO">
@@ -349,9 +441,10 @@
                  left join `user` t1 ON t.user_id = t1.id
                  left join test_resource_pool t2 on t.actuator = t2.id
         where to_days(FROM_UNIXTIME(t.create_time / 1000)) = to_days(now())
-          and t.execute_type !='Debug' and t.execute_type !='Marge'  and t.project_id=#{projectId}
-          and t.`STATUS` in ('running'
-            , 'waiting')
+          and t.execute_type != 'Debug'
+          and t.execute_type != 'Marge'
+          and t.project_id = #{projectId}
+          and t.`STATUS` in ('running', 'waiting')
 
     </select>
 
