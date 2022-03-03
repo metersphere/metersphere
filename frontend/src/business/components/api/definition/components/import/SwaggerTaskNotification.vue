@@ -60,7 +60,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook"  size="mini"
+              <el-input v-model="scope.row.webhook" size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -185,7 +185,8 @@ export default {
     };
   },
   mounted() {
-    this.initForm();
+  },
+  created() {
   },
   methods: {
     initForm() {
