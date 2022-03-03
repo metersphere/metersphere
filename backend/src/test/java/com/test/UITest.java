@@ -28,8 +28,11 @@ public class UITest {
      */
     @Test
     public void testWebdriverScript() {
+        // 获取由 SELENIUM IDE 导出的 json 文件地址
         String sidePath = this.getClass().getClassLoader().getResource("selenium-example/baidu.side").getPath();
+        // 读取文件内容
         String sideDefinition = TemplateUtils.readContent(sidePath);
+        // 将 json 字符串转化成 SideDTO 对象，再调用 getFullWebDriverScript 方法翻译成最终的 webdriver 脚本
         System.out.println(WebDriverSamplerHelper.getFullWebDriverScript(new Gson().fromJson(sideDefinition, SideDTO.class)));
     }
 
