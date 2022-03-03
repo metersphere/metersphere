@@ -16,6 +16,6 @@ public class GetCreateMetaDataResponse extends ZentaoResponse {
         private String title;
         private JSONObject users;
         private JSONObject customFields;
-        private Map<String, String> builds;
+        private Map<String, Object> builds;
     }
 }
