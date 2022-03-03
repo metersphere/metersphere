@@ -1184,7 +1184,7 @@ export default {
       api_path: "路徑",
       api_definition_path: "API路徑",
       api_case_path: "用例路徑",
-      api_principal: "負責人",
+      api_principal: "責任人",
       api_last_time: "最後更新時間",
       api_case_number: "用例數",
       api_case_status: "用例狀態",
