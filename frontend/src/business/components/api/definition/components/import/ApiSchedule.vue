@@ -105,7 +105,7 @@
       width="60%"
     >
       <swagger-task-notification :api-test-id="formData.id" :scheduleReceiverOptions="scheduleReceiverOptions"
-                                 ref="schedule-task-notification">
+                                 ref="scheduleTaskNotification">
 
       </swagger-task-notification>
     </el-dialog>
@@ -225,6 +225,11 @@ export default {
       if (this.formData.id !== null && this.formData.id !== undefined) {
         this.dialogVisible = true;
         this.initUserList();
+        this.$nextTick( ()=>{
+          if(this.$refs.scheduleTaskNotification){
+            this.$refs.scheduleTaskNotification.initForm();
+          }
+        })
       } else {
         this.$warning("请先选择您要添加通知的定时任务");
       }

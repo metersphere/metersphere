@@ -185,7 +185,8 @@ export default {
     };
   },
   mounted() {
-    this.initForm();
+  },
+  created() {
   },
   methods: {
     initForm() {
