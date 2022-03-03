@@ -86,16 +86,23 @@ export function stepCompute(array, request) {
   let postSize = 0;
   let ruleSize = 0;
   array.forEach(item => {
-    if (["JSR223PreProcessor", "JDBCPreProcessor"].indexOf(item.type) !== -1) {
+    if (["JSR223PreProcessor", "JDBCPreProcessor", "ConstantTimer"].indexOf(item.type) !== -1) {
       preSize++;
     } else if (["JSR223PostProcessor", "JDBCPostProcessor", "Extract"].indexOf(item.type) !== -1) {
       postSize++;
     } else if (item.type === "Assertions") {
       ruleSize = (item.jsonPath.length + item.jsr223.length + item.regex.length + item.xpath2.length);
+      if (item.document && item.document.data && (item.document.data.json.length > 0 || item.document.data.xml.length > 0)) {
+        ruleSize++;
+      }
+      if (item.duration && item.duration.value > 0) {
+        ruleSize++;
+      }
       ruleSize += item.text ? item.text.length : 0;
     }
   })
   request.preSize = preSize;
   request.postSize = postSize;
   request.ruleSize = ruleSize;
+
 }

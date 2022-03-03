@@ -36,7 +36,8 @@
         <!-- TCP 请求参数 -->
         <div v-if="api.method=='TCP'" v-loading="loading">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-tcp-format-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
+          <ms-tcp-format-parameters :request="api.request" @callback="runTest" :response="responseData"
+                                    ref="requestForm"/>
           <!--返回结果-->
           <!-- HTTP 请求返回数据 -->
           <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>

@@ -22,7 +22,7 @@
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <div v-loading="loading">
         <!-- TCP 请求参数 -->
-        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
+        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm" :response="responseData"/>
 
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->

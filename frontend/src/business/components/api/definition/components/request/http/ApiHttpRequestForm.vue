@@ -229,9 +229,12 @@ export default {
       }
       this.reload();
     },
-    'request.hashTree'() {
-      this.initStepSize(this.request.hashTree);
-    },
+    'request.hashTree': {
+      handler(v) {
+        this.initStepSize(this.request.hashTree);
+      },
+      deep: true
+    }
   },
   methods: {
     hasPermission,
