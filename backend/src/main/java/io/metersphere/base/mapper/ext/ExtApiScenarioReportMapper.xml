@@ -139,6 +139,7 @@
 
     <select id="list" resultMap="BaseResultMap">
         select * from (
+        select * from (
         SELECT s_r.name AS test_name,
         s_r.end_time,
         s_r.user_id,
@@ -196,8 +197,19 @@
                 </foreach>
             </if>
             AND s_r.execute_type = 'Saved'
+            <if test="request.orders != null and request.orders.size() > 0">
+                order by
+                <foreach collection="request.orders" separator="," item="order">
+                    ${order.name} ${order.type}
+                </foreach>
+            </if>
+            <if test="request.limit != null">
+                ${request.limit}
+            </if>
         </where>
+        ) apiScenarioReport
         union
+        select * from (
         select a_r.name as test_name,
         a_r.end_time,
         a_r.user_id,
@@ -254,6 +266,16 @@
                 </if>
             </foreach>
         </if>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                ${order.name} ${order.type}
+            </foreach>
+        </if>
+        <if test="request.limit != null">
+            ${request.limit}
+        </if>
+        ) apiDefinitionReport
         ) r
         <if test="request.orders != null and request.orders.size() > 0">
             order by
