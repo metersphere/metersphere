@@ -459,6 +459,9 @@ export default {
         if (env) {
           this.$store.state.useEnvironment = env.envId;
           this.useEnvironment = env.envId;
+        } else {
+          this.$store.state.useEnvironment = "";
+          this.useEnvironment = "";
         }
       });
     },
