@@ -125,6 +125,10 @@ public class ProjectService {
             this.checkMockTcpPort(project.getMockTcpPort().intValue());
         }
 
+        if (project.getIsMockTcpOpen() == null) {
+            project.setIsMockTcpOpen(false);
+        }
+
         if (StringUtils.isBlank(project.getPlatform())) {
             project.setPlatform(IssuesManagePlatform.Local.name());
         }
@@ -355,7 +359,7 @@ public class ProjectService {
             lastTcpNum = oldData.getMockTcpPort().intValue();
         }
 
-        if (project.getMockTcpPort().intValue() > 0) {
+        if (project.getMockTcpPort() != null && project.getMockTcpPort().intValue() > 0) {
             this.checkMockTcpPort(project.getMockTcpPort().intValue());
         }
 
@@ -376,7 +380,9 @@ public class ProjectService {
         apiTestEnvironmentService.getMockEnvironmentByProjectId(project.getId());
         //开启tcp mock
         if (project.getIsMockTcpOpen()) {
-            this.reloadMockTcp(project, lastTcpNum);
+            if (project.getMockTcpPort() != null) {
+                this.reloadMockTcp(project, lastTcpNum);
+            }
         } else {
             this.closeMockTcp(project);
         }
