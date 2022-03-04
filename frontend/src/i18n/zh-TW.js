@@ -1321,8 +1321,10 @@ export default {
       case_reduction_error_text: "請先恢復"
     },
     automation: {
-      open_expansion: "一鍵展開",
-      close_expansion: "一鍵收起",
+      open_expansion: "批量展開步驟",
+      close_expansion: "批量折疊步驟",
+      bulk_activation_steps: "批量啟用步驟",
+      batch_disable_steps: "批量禁用步驟",
       all: "全部",
       constant: "常量",
       counter: "計數器",
@@ -1467,6 +1469,7 @@ export default {
       scenario_error: "不能引用或復製自身！",
       integrated: "集合",
       independent: "獨立",
+      step_info: "在右側添加場景步驟",
     },
     request: {
       debug: "調試",

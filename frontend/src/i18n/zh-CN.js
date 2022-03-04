@@ -1321,8 +1321,10 @@ export default {
       case_reduction_error_text: "请先恢复"
     },
     automation: {
-      open_expansion: "一键展开",
-      close_expansion: "一键收起",
+      open_expansion: "批量展开步骤",
+      close_expansion: "批量折叠步骤",
+      bulk_activation_steps: "批量启用步骤",
+      batch_disable_steps: "批量禁用步骤",
       all: "全部",
       constant: "常量",
       counter: "计数器",
@@ -1467,6 +1469,7 @@ export default {
       scenario_error: "不能引用或复制自身！",
       integrated: "集合",
       independent: "独立",
+      step_info: "在右侧添加场景步骤",
     },
     request: {
       debug: "调试",
