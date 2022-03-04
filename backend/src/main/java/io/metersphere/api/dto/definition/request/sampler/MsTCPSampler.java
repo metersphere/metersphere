@@ -227,7 +227,7 @@ public class MsTCPSampler extends MsTestElement {
     }
 
     private void parseEnvironment(EnvironmentConfig config) {
-        if (!isCustomizeReq() && config != null) {
+        if (!isCustomizeReq() && config != null && config.getTcpConfig() != null) {
             if (!isCustomizeReq() && config != null) {
                 this.server = config.getTcpConfig().getServer();
                 this.port = config.getTcpConfig().getPort();
@@ -237,6 +237,14 @@ public class MsTCPSampler extends MsTestElement {
                     if (StringUtils.isEmpty(this.eolByte)) {
                         this.eolByte = config.getTcpConfig().getEolByte();
                     }
+                }
+
+                if ((StringUtils.isEmpty(this.timeout) || StringUtils.equals(this.timeout, "0")) && StringUtils.isNotEmpty(config.getTcpConfig().getTimeout())) {
+                    this.timeout = config.getTcpConfig().getTimeout();
+                }
+
+                if (StringUtils.isEmpty(this.ctimeout) || StringUtils.equals(this.ctimeout, "0") && StringUtils.isNotEmpty(config.getTcpConfig().getCtimeout())) {
+                    this.ctimeout = config.getTcpConfig().getCtimeout();
                 }
             }
         }
@@ -265,6 +273,12 @@ public class MsTCPSampler extends MsTestElement {
         tcpSampler.setCloseConnection(String.valueOf(this.isCloseConnection()));
         tcpSampler.setSoLinger(this.getSoLinger());
         tcpSampler.setEolByte(this.getEolByte());
+        if (StringUtils.isNotEmpty(this.timeout)) {
+            tcpSampler.setTimeout(this.timeout);
+        }
+        if (StringUtils.isNotEmpty(this.ctimeout)) {
+            tcpSampler.setConnectTimeout(this.ctimeout);
+        }
 
         String value = this.getRequest();
         if (StringUtils.isNotEmpty(this.getConnectEncoding())) {
