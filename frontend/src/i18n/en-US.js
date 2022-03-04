@@ -1316,8 +1316,10 @@ export default {
       case_reduction_error_text: "Please restore first"
     },
     automation: {
-      open_expansion: "One-click expansion",
-      close_expansion: "One-click storage",
+      open_expansion: "Batch Folding Steps",
+      close_expansion: "Bulk Expand Steps",
+      bulk_activation_steps: "Bulk activation steps",
+      batch_disable_steps: "Batch disable steps",
       all: "all",
       constant: "constant",
       counter: "counter",
@@ -1463,6 +1465,7 @@ export default {
       scenario_error: "Cannot reference or copy itself！",
       integrated: "Integrated",
       independent: "Independent",
+      step_info: "Add a scene step on the right",
     },
     request: {
       debug: "Debug",

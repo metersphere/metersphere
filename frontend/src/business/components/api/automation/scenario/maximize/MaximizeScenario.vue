@@ -123,7 +123,7 @@
                 :draggable="false"
                 @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
                 @refReload="refReload" @openScenario="openScenario"
-                v-if="selectedTreeNode && selectedNode && stepFilter.get('ALlSamplerStep').indexOf(item.type) ===-1"/>
+                v-show="selectedTreeNode && selectedNode && stepFilter.get('ALlSamplerStep').indexOf(item.type) ===-1"/>
             </div>
           </div>
         </div>

@@ -53,7 +53,7 @@
             color="#B8741A"
             background-color="#F9F1EA"/>
 
-           <ms-constant-timer :timer="data" :node="node" v-if="data.type ==='ConstantTimer'" @remove="remove"/>
+           <ms-constant-timer :inner-step="true" :timer="data" :node="node" v-if="data.type ==='ConstantTimer'" @remove="remove"/>
 
          </div>
         <div v-if="tabType ==='post'">
@@ -225,7 +225,7 @@ export default {
       this.$emit('reload');
     },
     add() {
-      this.request.active = false;
+      this.request.active = true;
       if (this.tabType === 'pre') {
         if (this.preOperate === 'script') {
           this.addPre();
@@ -340,6 +340,7 @@ export default {
       this.request.hashTree.splice(index, 1);
       this.sort();
       this.reload();
+      this.forceRerender();
     },
     copyRow(row) {
       let obj = JSON.parse(JSON.stringify(row));
@@ -352,6 +353,7 @@ export default {
       }
       this.sort();
       this.reload();
+      this.forceRerender();
     },
     allowDrop(draggingNode, dropNode, dropType) {
       // 增加插件权限控制
@@ -364,7 +366,13 @@ export default {
       if (dropNode && draggingNode && dropType) {
         this.reload();
         this.filter();
+        this.forceRerender();
       }
+    },
+    forceRerender() {
+      this.$nextTick(() => {
+        this.$store.state.forceRerenderIndex = getUUID();
+      });
     },
     reload() {
       this.isReloadData = true

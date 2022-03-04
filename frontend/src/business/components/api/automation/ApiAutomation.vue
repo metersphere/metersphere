@@ -1,6 +1,6 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
-    <ms-aside-container>
+    <ms-aside-container v-show="isAsideHidden">
       <ms-api-scenario-module
         :show-operator="true"
         @nodeSelectEvent="nodeChange"
@@ -162,7 +162,8 @@ export default {
       //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
       initApiTableOpretion: 'init',
       isLeave: false,
-      isSave: false
+      isSave: false,
+      isAsideHidden: true,
     };
   },
   created() {
@@ -201,6 +202,7 @@ export default {
       this.activeName = "default";
     },
     activeName() {
+      this.isAsideHidden = this.activeName === 'default';
     }
   },
   methods: {
@@ -502,7 +504,9 @@ export default {
       this.$refs.nodeTree.list();
     },
     refreshTree() {
-      this.$refs.nodeTree.list();
+      if (this.$refs.nodeTree) {
+        this.$refs.nodeTree.list();
+      }
     },
     refreshAll() {
       this.$refs.nodeTree.list();

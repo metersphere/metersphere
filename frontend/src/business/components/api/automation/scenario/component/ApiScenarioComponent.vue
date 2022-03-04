@@ -20,7 +20,7 @@
     :envMap="envMap"
     :title="$t('commons.scenario')">
 
-    <template v-slot:afterTitle >
+    <template v-slot:afterTitle>
       <span v-if="isShowNum" @click="clickResource(scenario)">{{ "（ ID: " + scenario.num + "）" }}</span>
       <span v-else>
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
@@ -110,11 +110,13 @@ export default {
       }
       this.reload();
     },
+    'node.data.isBatchProcess'() {
+      if (this.node.data && this.node.data.isBatchProcess && this.node.data.referenced === 'REF') {
+        this.node.expanded = false;
+      }
+    }
   },
   created() {
-    /*if (!this.scenario.projectId) {
-      this.scenario.projectId = getCurrentProjectID();
-    }*/
     if (this.scenario.num) {
       this.isShowNum = true;
       this.getWorkspaceId(this.scenario.projectId);
@@ -132,7 +134,7 @@ export default {
       isShowInput: false,
       isShowNum: false,
       stepFilter: new STEP,
-      dataWorkspaceId:'',
+      dataWorkspaceId: '',
     }
   },
   computed: {
@@ -146,7 +148,7 @@ export default {
   },
   methods: {
     run() {
-      if(!this.scenario.enable){
+      if (!this.scenario.enable) {
         this.$warning(this.$t('api_test.automation.debug_message'));
         return;
       }
@@ -202,7 +204,11 @@ export default {
     },
     active() {
       if (this.node) {
-        this.node.expanded = !this.node.expanded;
+        if (this.node.data && this.node.data.isBatchProcess && this.node.data.referenced === 'REF') {
+          this.node.expanded = false;
+        } else {
+          this.node.expanded = !this.node.expanded;
+        }
       }
       this.reload();
     },
@@ -257,7 +263,7 @@ export default {
     clickResource(resource) {
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId,workspaceId:this.dataWorkspaceId }
+        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: this.dataWorkspaceId}
       });
       window.open(automationData.href, '_blank');
     },

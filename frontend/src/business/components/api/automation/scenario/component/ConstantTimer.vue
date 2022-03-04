@@ -6,6 +6,7 @@
     :draggable="draggable"
     :show-collapse="false"
     :is-max="isMax"
+    :inner-step="innerStep"
     color="#67C23A"
     background-color="#F2F9EE"
     :title="$t('api_test.automation.wait_controller')">
@@ -26,6 +27,10 @@ export default {
   components: {ApiBaseComponent},
   props: {
     timer: {},
+    innerStep: {
+      type: Boolean,
+      default: false,
+    },
     node: {},
     isMax: {
       type: Boolean,

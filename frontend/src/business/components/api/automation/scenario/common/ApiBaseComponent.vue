@@ -3,7 +3,7 @@
     <div class="header" @click="active(data)">
       <slot name="beforeHeaderLeft">
         <div v-if="data.index" class="el-step__icon is-text enable-switch" :style="{'color': color, 'background-color': backgroundColor}">
-          <div class="el-step__icon-inner">{{ data.index }}</div>
+          <div class="el-step__icon-inner" :key="$store.state.forceRerenderIndex">{{ data.index }}</div>
         </div>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
         <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
@@ -18,10 +18,8 @@
 
           <span :class="showVersion?'scenario-unscroll':'scenario-version'" id="moveout" @mouseenter="enter($event)" @mouseleave="leave($event)" v-else>
             <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
-               v-if="data.referenced!='REF' && !data.disabled"/>
-            <el-tooltip placement="top" :content="data.name">
+               v-show="data.referenced!='REF' && !data.disabled"/>
               <span>{{ data.name }}</span>
-            </el-tooltip>
             <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{ getMethod() }}</el-tag>
             <slot name="afterTitle"/>
           </span>
@@ -38,7 +36,7 @@
         <el-button v-if="showVersion" size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px"
                    :disabled="(data.disabled && !data.root) || !showVersion "/>
 
-        <el-button v-if="showVersion && stepFilter.get('ALlSamplerStep').indexOf(data.type) !==-1" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"/>
+        <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"/>
         <step-extend-btns style="display: contents"
                           :data="data"
                           :environmentType="environmentType"
@@ -47,7 +45,7 @@
                           @copy="copyRow"
                           @remove="remove"
                           @openScenario="openScenario"
-                          v-if="showBtn && (!data.disabled || data.root) && showVersion && stepFilter.get('ALlSamplerStep').indexOf(data.type) ===-1"/>
+                          v-show="isMoreButton"/>
       </div>
 
     </div>
@@ -87,6 +85,10 @@ export default {
   },
   props: {
     draggable: Boolean,
+    innerStep: {
+      type: Boolean,
+      default: false,
+    },
     isMax: {
       type: Boolean,
       default: false,
@@ -145,7 +147,7 @@ export default {
       } else {
         this.colorStyle = "";
       }
-    }
+    },
   },
   created() {
     if (!this.data.name) {
@@ -161,6 +163,20 @@ export default {
         this.data.method = this.data.protocol;
       }
     }
+  },
+  computed: {
+    isSingleButton() {
+      if (this.data.type === 'ConstantTimer') {
+        return (this.innerStep && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1)
+      }
+      return (this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1);
+    },
+    isMoreButton() {
+      if (this.data.type === 'ConstantTimer') {
+        return (!this.innerStep || this.showBtn && (!this.data.disabled || this.data.root) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
+      }
+      return (this.showBtn && (!this.data.disabled || this.data.root) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
+    },
   },
   methods: {
     active() {
@@ -204,8 +220,6 @@ export default {
         $event.currentTarget.className = "scenario-version"
       }
     }
-
-
   }
 }
 
